@@ -359,7 +359,7 @@ define(function (require) {
 
         //Loading spinner initialization
         GEPPETTO.on('show_spinner', function (label) {
-            GEPPETTO.ComponentFactory.addComponent('LOADINGSPINNER', {
+            GEPPETTO.ComponentFactory.addSpinner({
                 show: true,
                 keyboard: false,
                 text: label,
