@@ -358,14 +358,7 @@ define(function (require) {
         });
 
         //Loading spinner initialization
-        GEPPETTO.on('show_spinner', function (label) {
-            GEPPETTO.ComponentFactory.addSpinner({
-                show: true,
-                keyboard: false,
-                text: label,
-                logo: "gpt-fly"
-            }, document.getElementById("modal-region"));
-        });
+		GEPPETTO.Spinner.setLogo("gpt-fly");
 
 
         
