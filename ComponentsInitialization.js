@@ -360,76 +360,74 @@ define(function (require) {
 
         //Camera controls initialization
         GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
-
-
-        // QUERY configuration
-        var queryResultsColMeta = [
-            {
-                "columnName": "id",
-                "order": 1,
-                "locked": false,
-                "visible": true,
-                "displayName": "ID",
-            },
-            {
-                "columnName": "name",
-                "order": 2,
-                "locked": false,
-                "visible": true,
-                "displayName": "Name",
-                "cssClassName": "query-results-name-column",
-            },
-            {
-                "columnName": "description",
-                "order": 3,
-                "locked": false,
-                "visible": true,
-                "displayName": "Definition"
-            },
-            {
-                "columnName": "controls",
-                "order": 4,
-                "locked": false,
-                "visible": true,
-                "customComponent": GEPPETTO.QueryResultsControlsComponent,
-                "displayName": "Controls",
-                "action": "",
-                "cssClassName": "query-results-controls-column"
-            },
-            {
-                "columnName": "images",
-                "order": 5,
-                "locked": false,
-                "visible": true,
-                "customComponent": GEPPETTO.SlideshowImageComponent,
-                "displayName": "Images",
-                "action": "",
-                "cssClassName": "query-results-images-column"
-            }
-        ];
-        var queryResultsControlConfig = {
-            "Common": {
-                "info": {
-                    "id": "info",
-                    "actions": [
-                        "Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"
-                    ],
-                    "icon": "fa-info-circle",
-                    "label": "Info",
-                    "tooltip": "Info"
-                }
-            }
-        };
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {
-            resultsColumns: ['name', 'description', 'controls', 'images'],
-            resultsColumnMeta: queryResultsColMeta,
-            resultsControlsConfig: queryResultsControlConfig
-        }, document.getElementById("querybuilder"), function () {
-        	
-        	
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
+            var queryResultsColMeta = [
+                {
+                    "columnName": "id",
+                    "order": 1,
+                    "locked": false,
+                    "visible": true,
+                    "displayName": "ID",
+                },
+                {
+                    "columnName": "name",
+                    "order": 2,
+                    "locked": false,
+                    "visible": true,
+                    "displayName": "Name",
+                    "cssClassName": "query-results-name-column",
+                },
+                {
+                    "columnName": "description",
+                    "order": 3,
+                    "locked": false,
+                    "visible": true,
+                    "displayName": "Definition"
+                },
+                {
+                    "columnName": "controls",
+                    "order": 4,
+                    "locked": false,
+                    "visible": true,
+                    "customComponent": GEPPETTO.QueryResultsControlsComponent,
+                    "displayName": "Controls",
+                    "action": "",
+                    "cssClassName": "query-results-controls-column"
+                },
+                {
+                    "columnName": "images",
+                    "order": 5,
+                    "locked": false,
+                    "visible": true,
+                    "customComponent": GEPPETTO.SlideshowImageComponent,
+                    "displayName": "Images",
+                    "action": "",
+                    "cssClassName": "query-results-images-column"
+                }
+            ];
+            GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
+
+            // which columns to display in the results
+            GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'controls', 'images']);
+
+            var queryResultsControlConfig = {
+                "Common": {
+                    "info": {
+                        "id": "info",
+                        "actions": [
+                            "Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"
+                        ],
+                        "icon": "fa-info-circle",
+                        "label": "Info",
+                        "tooltip": "Info"
+                    }
+                }
+            };
+            GEPPETTO.QueryBuilder.setResultsControlsConfig(queryResultsControlConfig);
+
             // add datasource config to query control
             var queryBuilderDatasourceConfig = {
                 VFB: {
@@ -483,8 +481,6 @@ define(function (require) {
                 }
             };
             GEPPETTO.QueryBuilder.addDataSource(queryBuilderDatasourceConfig);
-            
-            
         });
         
         //Loading spinner initialization
