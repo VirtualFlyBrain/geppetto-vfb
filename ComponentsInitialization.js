@@ -232,7 +232,7 @@ define(function (require) {
                             "actions": [
                                 "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');",
                             ],
-                            "icon": "fa-puzzle-piece",
+                            "icon": "fa-book",
                             "label": "Show info",
                             "tooltip": "Show info"
                         }
@@ -320,7 +320,7 @@ define(function (require) {
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"],
-                                    icon: "fa-puzzle-piece",
+                                    icon: "fa-book",
                                     label: "Show info",
                                     tooltip: "Show info"
                                 },
@@ -337,7 +337,7 @@ define(function (require) {
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$'); var meta = Instances.getInstance('$ID$.$ID$_meta'); resolve3D('$ID$', function(){instance.select(); GEPPETTO.Spotlight.openToInstance(instance); setTermInfo(meta, meta.getParent().getId());}); }); "],
-                                    icon: "fa-puzzle-piece",
+                                    icon: "fa-book",
                                     label: "Add to scene",
                                     tooltip: "Add to scene"
                                 },
