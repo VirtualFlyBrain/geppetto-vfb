@@ -497,15 +497,14 @@ define(function (require) {
         
         //Loading spinner initialization
         GEPPETTO.Spinner.setLogo("gpt-fly");
-        
-        
+
         window.setupVFBCamera = function(){
         	if(GEPPETTO.Init.initialised){
         		GEPPETTO.Init.flipCameraY();
                 GEPPETTO.Init.flipCameraZ();
                 GEPPETTO.SceneController.setWireframe(true);
         	}
-        }
+        };
 
         // VFB initialization routines
         window.initVFB = function () {
@@ -695,11 +694,8 @@ define(function (require) {
         });
         
         //In case the experiment was loaded before this extension was loaded
-        if(window.Project.getActiveExperiment()!=null){
+        if(window.Project!= undefined && window.Project.getActiveExperiment()!=null){
         	window.initVFB();	
         }
-        	
-        
-
     };
 });
