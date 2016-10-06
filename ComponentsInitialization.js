@@ -323,6 +323,12 @@ define(function (require) {
                                     icon: "fa-puzzle-piece",
                                     "label": "Show info",
                                     tooltip: "Show info"
+                                },
+                                buttonTwo: {
+                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
+                                    icon: "fa-cog",
+                                    "label": "Add to query",
+                                    tooltip: "Add to query"
                                 }
                             }
                         },
@@ -334,6 +340,12 @@ define(function (require) {
                                     icon: "fa-puzzle-piece",
                                     "label": "Add to scene",
                                     tooltip: "Add to scene"
+                                },
+                                buttonTwo: {
+                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
+                                    icon: "fa-cog",
+                                    "label": "Add to query",
+                                    tooltip: "Add to query"
                                 }
                             }
                         }
@@ -575,6 +587,7 @@ define(function (require) {
 
             // init empty term info area
             window.termInfoPopup = G.addWidget(1).setPosition((window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)), 10).setSize((window.innerHeight - 20), Math.ceil(window.innerWidth / 4)).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
+            window.termInfoPopup.showHistoryNavigationBar(true);
 
             // show term info on selection
             window.oldSelection = "";
