@@ -116,13 +116,13 @@ define(function (require) {
                     "select": {
                         "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
                         "false": {
-                            "actions": ["GEPPETTO.SceneController.select($instances$)"],
+                            "actions": ["$instance$.select()"],
                             "icon": "fa-hand-stop-o",
                             "label": "Unselected",
                             "tooltip": "Select"
                         },
                         "true": {
-                            "actions": ["GEPPETTO.SceneController.deselect($instances$)"],
+                            "actions": ["$instance$.deselect()"],
                             "icon": "fa-hand-rock-o",
                             "label": "Selected",
                             "tooltip": "Deselect"
@@ -588,16 +588,22 @@ define(function (require) {
             window.termInfoPopup = G.addWidget(1).setPosition((window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)), 10).setSize((window.innerHeight - 20), Math.ceil(window.innerWidth / 4)).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
             window.termInfoPopup.showHistoryNavigationBar(true);
 
-            // show term info on selection
-            window.oldSelection = "";
-            GEPPETTO.on(Events.Select, function () {
+            // set term info on selection
+            GEPPETTO.on(Events.Select, function (instance) {
                 var selection = G.getSelection();
-                if (selection.length > 0) {
-                    if (selection[0].getParent() != oldSelection) {
-                        oldSelection = selection[0].getParent();
-                        try {
-                            setTermInfo(selection[0].getParent()[selection[0].getParent().getId() + "_meta"], selection[0].getParent()[selection[0].getParent().getId() + "_meta"].getName());
-                        } catch (ignore) {
+                if (selection.length > 0 && instance.isSelected()) {
+                    var latestSelection = instance;
+                    var currentSelectionName = getTermInfoWidget().name;
+                    if(latestSelection.getChildren().length > 0){
+                        // it's a wrapper object - if name is different from current selection set term info
+                        if(currentSelectionName != latestSelection.getName()) {
+                            setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                        }
+                    } else {
+                        // it's a leaf (no children) / grab parent if name is different from current selection set term info
+                        var parent = latestSelection.getParent();
+                        if(currentSelectionName != parent.getName()){
+                            setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                         }
                     }
                 }
