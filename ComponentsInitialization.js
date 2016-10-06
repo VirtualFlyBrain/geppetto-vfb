@@ -315,19 +315,19 @@ define(function (require) {
                     explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
                     explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)[$ID$]"}],
                     type: {
-                        "class": {
+                        class: {
                             icon: "fa-dot-circle-o",
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"],
                                     icon: "fa-puzzle-piece",
-                                    "label": "Show info",
+                                    label: "Show info",
                                     tooltip: "Show info"
                                 },
                                 buttonTwo: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
                                     icon: "fa-cog",
-                                    "label": "Add to query",
+                                    label: "Add to query",
                                     tooltip: "Add to query"
                                 }
                             }
@@ -338,13 +338,13 @@ define(function (require) {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$'); var meta = Instances.getInstance('$ID$.$ID$_meta'); resolve3D('$ID$', function(){instance.select(); GEPPETTO.Spotlight.openToInstance(instance); setTermInfo(meta, meta.getParent().getId());}); }); "],
                                     icon: "fa-puzzle-piece",
-                                    "label": "Add to scene",
+                                    label: "Add to scene",
                                     tooltip: "Add to scene"
                                 },
                                 buttonTwo: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
                                     icon: "fa-cog",
-                                    "label": "Add to query",
+                                    label: "Add to query",
                                     tooltip: "Add to query"
                                 }
                             }
