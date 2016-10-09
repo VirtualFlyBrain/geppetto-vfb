@@ -502,7 +502,7 @@ define(function (require) {
         	if(GEPPETTO.Init.initialised){
         		GEPPETTO.Init.flipCameraY();
                 GEPPETTO.Init.flipCameraZ();
-                GEPPETTO.SceneController.setWireframe(true);
+                GEPPETTO.SceneController.setWireframe(false);
         	}
         };
 
@@ -609,6 +609,19 @@ define(function (require) {
                 }
             });
 
+            window.addStackWidget = function(){
+                var potentialInstances = GEPPETTO.ModelFactory.getAllPotentialInstancesEndingWith('_slices');
+                var sliceInstances = [];
+                for(var i=0; i<potentialInstances.length; i++){
+                    sliceInstances.push(Instances.getInstance(potentialInstances[i]));
+                }
+
+                G.addWidget(8).setData({
+                    instances: sliceInstances
+                });
+            };
+
+            // custom sorter for bloodhound
             window.customSorter = function (a, b, InputString) {
                 //move exact matches to top
                 if (InputString == a.label) {
