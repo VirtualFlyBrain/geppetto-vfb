@@ -232,7 +232,7 @@ define(function (require) {
                             "actions": [
                                 "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');",
                             ],
-                            "icon": "fa-book",
+                            "icon": "fa-info-circle",
                             "label": "Show info",
                             "tooltip": "Show info"
                         }
@@ -320,7 +320,7 @@ define(function (require) {
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"],
-                                    icon: "fa-book",
+                                    icon: "fa-info-circle",
                                     label: "Show info",
                                     tooltip: "Show info"
                                 },
