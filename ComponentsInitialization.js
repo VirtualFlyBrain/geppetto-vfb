@@ -337,7 +337,7 @@ define(function (require) {
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$'); var meta = Instances.getInstance('$ID$.$ID$_meta'); resolve3D('$ID$', function(){instance.select(); GEPPETTO.Spotlight.openToInstance(instance); setTermInfo(meta, meta.getParent().getId());}); }); "],
-                                    icon: "fa-book",
+                                    icon: "fa-file-image-o",
                                     label: "Add to scene",
                                     tooltip: "Add to scene"
                                 },
@@ -460,6 +460,7 @@ define(function (require) {
                             icon: "fa-square-o"
                         }
                     },
+                    queryNameToken: '$NAME',
                     resultsFilters: {
                         getId: function (record) {
                             return record[0]
