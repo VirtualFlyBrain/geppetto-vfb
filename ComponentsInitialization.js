@@ -397,7 +397,8 @@ define(function (require) {
                     "order": 3,
                     "locked": false,
                     "visible": true,
-                    "displayName": "Definition"
+                    "displayName": "Definition",
+                    "cssClassName": "query-results-description-column"
                 },
                 {
                     "columnName": "controls",
