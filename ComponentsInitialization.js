@@ -38,6 +38,9 @@ define(function (require) {
         link.href = "geppetto/extensions/geppetto-vfb/css/VFB.css";
         document.getElementsByTagName("head")[0].appendChild(link);
 
+        // any required stuff
+        var Query = require('model/Query');
+
         /*ADD COMPONENTS*/
         
         //Logo initialization
@@ -577,11 +580,35 @@ define(function (require) {
                     var metanode = Instances.getInstance(meta);
                     target.setData(metanode).setName(n.getName());
                 } else {
-                    Model.getDatasources()[0].fetchVariable(path, function () {
-                        Instances.getInstance(meta);
-                        target.setData(eval(meta)).setName(eval(path).getName());
-                        resolve3D(path);
-                    });
+                    // try to evaluate as path in Model
+                    var entity = Model[path];
+                    if(entity instanceof Query){
+                        GEPPETTO.trigger('spin_logo');
+
+                        // clear query builder
+                        GEPPETTO.QueryBuilder.clearAllQueryItems();
+
+                        var callback = function(){
+                            // check if any results with count flag
+                            if(GEPPETTO.QueryBuilder.props.model.count > 0){
+                                // runQuery if any results
+                                GEPPETTO.QueryBuilder.runQuery();
+                            }
+                            // show query component
+                            GEPPETTO.QueryBuilder.open();
+
+                            GEPPETTO.trigger('stop_spin_logo');
+                        };
+
+                        // add query item + selection
+                        GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                    } else {
+                        Model.getDatasources()[0].fetchVariable(path, function () {
+                            Instances.getInstance(meta);
+                            target.setData(eval(meta)).setName(eval(path).getName());
+                            resolve3D(path);
+                        });
+                    }
                 }
           
             };
