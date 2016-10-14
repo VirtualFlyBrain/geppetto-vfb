@@ -394,6 +394,8 @@ define(function (require) {
                     "order": 2,
                     "locked": false,
                     "visible": true,
+                    "customComponent": GEPPETTO.QueryLinkComponent,
+                    "actions": "Model.getDatasources()[0].fetchVariable('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getName());});",
                     "displayName": "Name",
                     "cssClassName": "query-results-name-column",
                 },
@@ -412,7 +414,7 @@ define(function (require) {
                     "visible": true,
                     "customComponent": GEPPETTO.QueryResultsControlsComponent,
                     "displayName": "Controls",
-                    "action": "",
+                    "actions": "",
                     "cssClassName": "query-results-controls-column"
                 },
                 {
@@ -422,7 +424,7 @@ define(function (require) {
                     "visible": true,
                     "customComponent": GEPPETTO.SlideshowImageComponent,
                     "displayName": "Images",
-                    "action": "",
+                    "actions": "",
                     "cssClassName": "query-results-images-column"
                 }
             ];
