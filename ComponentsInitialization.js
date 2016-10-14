@@ -62,8 +62,10 @@ define(function (require) {
                     "columnName": "name",
                     "order": 2,
                     "locked": false,
+                    "customComponent": GEPPETTO.LinkComponent,
                     "displayName": "Name",
-                    "source": "$entity$.getName()"
+                    "source": "$entity$.getName()",
+                    "actions": "setTermInfo($entity$['$entity$' + '_meta'], $entity$.getName());"
                 },
                 {
                     "columnName": "type",
@@ -202,7 +204,7 @@ define(function (require) {
                 "Common": {
                     "info": {
                         "id": "info",
-                        "actions": ["var displayTexxxt = '$instance$'.split('.')['$instance$'.split('.').length - 1]; setTermInfo($instance$[displayTexxxt + '_meta'],displayTexxxt);"],
+                        "actions": ["var displayTxt = '$instance$'.split('.')['$instance$'.split('.').length - 1]; setTermInfo($instance$[displayTxt + '_meta'], displayTxt);"],
                         "icon": "fa-info-circle",
                         "label": "Info",
                         "tooltip": "Info"
