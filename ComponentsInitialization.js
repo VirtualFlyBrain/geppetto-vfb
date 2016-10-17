@@ -443,6 +443,16 @@ define(function (require) {
                         "icon": "fa-info-circle",
                         "label": "Info",
                         "tooltip": "Info"
+                    },
+                    "flybase": {
+                        "showCondition": "'$ID$'.startsWith('FBbt')",
+                        "id": "flybase",
+                        "actions": [
+                            "window.open('http://flybase.org/cgi-bin/cvreport.html?rel=is_a&id=' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
+                        ],
+                        "icon": "gpt-fly",
+                        "label": "FlyBase",
+                        "tooltip": "FlyBase"
                     }
                 }
             };
