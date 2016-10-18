@@ -226,8 +226,7 @@ define(function (require) {
         });
 
         //Spotlight initialization
-        GEPPETTO.ComponentFactory.addComponent('SPOTLIGHT', {}, document.getElementById("spotlight"), function () {
-        	
+        GEPPETTO.ComponentFactory.addComponent('SPOTLIGHT', {indexInstances: false}, document.getElementById("spotlight"), function () {
             // SPOTLIGHT configuration
             var spotlightConfig = {
                 "SpotlightBar": {
