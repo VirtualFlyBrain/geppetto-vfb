@@ -240,27 +240,15 @@ define(function (require) {
                             "icon": "fa-info-circle",
                             "label": "Show info",
                             "tooltip": "Show info"
-                        }
-                    },
-                    "TextType": {
-                        "type": {
-                            "actions": [
-                                "getTermInfoWidget().setText($instance0$).setName('$variableid$')",
+                        },
+                        "query": {
+                            actions: [
+                                "Model.getDatasources()[0].fetchVariable('$variableid$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: $variableid$.getName(), id: '$variableid$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"
                             ],
-                            "icon": "fa-eye",
-                            "label": "View text",
-                            "tooltip": "View text"
-                        }
-                    },
-                    "HTMLType": {
-                        "type": {
-                            "actions": [
-                                "getTermInfoWidget().setHTML($instance0$).setName('$variableid$');",
-                            ],
-                            "icon": "fa-eye",
-                            "label": "View HTML",
-                            "tooltip": "View HTML"
-                        }
+                            icon: "fa-cog",
+                            label: "Add to query",
+                            tooltip: "Add to query"
+                        },
                     },
                     "VisualCapability": {
                         "buttonOne": {
