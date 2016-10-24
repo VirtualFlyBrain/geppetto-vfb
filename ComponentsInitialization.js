@@ -619,9 +619,6 @@ define(function (require) {
             window.termInfoPopup.showHistoryNavigationBar(true);
             window.termInfoPopup.setTrasparentBackground(true);
             
-            // init stack viewer
-            window.addStackWidget();
-
             // set term info on selection
             GEPPETTO.on(Events.Select, function (instance) {
                 var selection = G.getSelection();
@@ -763,11 +760,17 @@ define(function (require) {
         GEPPETTO.on(Events.Experiment_loaded, function(){
         	//Until the experiment is loaded we can't load any widgets (which the init function does)
         	window.initVFB();	
+            // init stack viewer
+            window.addStackWidget();
+
         });
         
         //In case the experiment was loaded before this extension was loaded
         if(window.Project!= undefined && window.Project.getActiveExperiment()!=null){
         	window.initVFB();	
+            // init stack viewer
+            window.addStackWidget();
+
         }
     };
 });
