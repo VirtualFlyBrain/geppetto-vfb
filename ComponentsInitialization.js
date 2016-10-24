@@ -638,7 +638,7 @@ define(function (require) {
                         }
                     }
                 }
-                if (StackViewer1 && StackViewer1 != undefined){
+                if (typeof StackViewer1 != 'undefined'){
                     window.addStackWidget();
                 }
             });
@@ -650,7 +650,7 @@ define(function (require) {
                     sliceInstances.push(Instances.getInstance(potentialInstances[i]));
                 }
 
-                if (!StackViewer1 || StackViewer1 == undefined){
+                if (typeof StackViewer1 == 'undefined'){
                     G.addWidget(8).setData({
                         instances: sliceInstances
                     });   
