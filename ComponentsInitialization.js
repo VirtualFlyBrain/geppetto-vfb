@@ -661,6 +661,10 @@ define(function (require) {
                     GEPPETTO.on(Events.Instances_created, function(){
                         window.addStackWidget();	
                     });
+                    // on colour change update:
+                    GEPPETTO.on(Events.Color_set, function(){
+                        window.addStackWidget();	
+                    });
                     // set initial position:
                     StackViewer1.setPosition(93,0);
                 }else{
