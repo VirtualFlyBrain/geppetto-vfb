@@ -638,6 +638,9 @@ define(function (require) {
                         }
                     }
                 }
+                if (StackViewer1 != undefined){
+                    window.addStackWidget();
+                }
             });
 
             window.addStackWidget = function(){
@@ -647,9 +650,16 @@ define(function (require) {
                     sliceInstances.push(Instances.getInstance(potentialInstances[i]));
                 }
 
-                G.addWidget(8).setData({
-                    instances: sliceInstances
-                });
+                if (StackViewer1 == undefined){
+                    G.addWidget(8).setData({
+                        instances: sliceInstances
+                    });   
+                }else{
+                    StackViewer1.setData({
+                        instances: sliceInstances
+                    });  
+                }
+                StackViewer1.setName('Slice Viewer');
             };
 
             // custom sorter for bloodhound
