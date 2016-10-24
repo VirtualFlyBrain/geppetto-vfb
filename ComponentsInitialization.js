@@ -661,6 +661,8 @@ define(function (require) {
                     GEPPETTO.on(Events.Instances_created, function(){
                         window.addStackWidget();	
                     });
+                    // set initial position:
+                    StackViewer1.setPosition(93,0);
                 }else{
                     StackViewer1.setData({
                         instances: sliceInstances
