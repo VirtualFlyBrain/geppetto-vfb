@@ -653,7 +653,14 @@ define(function (require) {
                 if (typeof StackViewer1 == 'undefined'){
                     G.addWidget(8).setData({
                         instances: sliceInstances
-                    });   
+                    }); 
+                    // on change to instances reload stack:
+                    GEPPETTO.on(Events.Instance_deleted, function(){
+                        window.addStackWidget();	
+                    });
+                    GEPPETTO.on(Events.Instances_created, function(){
+                        window.addStackWidget();	
+                    });
                 }else{
                     StackViewer1.setData({
                         instances: sliceInstances
