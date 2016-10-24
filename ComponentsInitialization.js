@@ -508,7 +508,7 @@ define(function (require) {
         	if(GEPPETTO.Init.initialised){
         		GEPPETTO.Init.flipCameraY();
                 GEPPETTO.Init.flipCameraZ();
-                GEPPETTO.SceneController.setWireframe(false);
+                GEPPETTO.SceneController.setWireframe(true);
         	}
         };
 
