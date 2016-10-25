@@ -656,19 +656,23 @@ define(function (require) {
                     }); 
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(){
+                        console.log('Instance deleted...');
                         window.addStackWidget();	
                     });
                     GEPPETTO.on(Events.Instances_created, function(){
+                        console.log('Instance created...');
                         window.addStackWidget();	
                     });
                     // on colour change update:
                     GEPPETTO.on(Events.Color_set, function(){
+                        console.log('Colour change...');
                         window.addStackWidget();	
                     });
                     // set initial position:
                     StackViewer1.setPosition(93,0);
                 }else{
                     StackViewer1.setData({
+                        console.log('Updating stack...');
                         instances: sliceInstances
                     });  
                 }
