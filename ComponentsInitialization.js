@@ -671,8 +671,8 @@ define(function (require) {
                     // set initial position:
                     StackViewer1.setPosition(93,0);
                 }else{
+                	console.log('Updating stack...');
                     StackViewer1.setData({
-                        console.log('Updating stack...');
                         instances: sliceInstances
                     });  
                 }
