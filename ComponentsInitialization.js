@@ -646,8 +646,12 @@ define(function (require) {
             window.addStackWidget = function(){
                 var potentialInstances = GEPPETTO.ModelFactory.getAllPotentialInstancesEndingWith('_slices');
                 var sliceInstances = [];
+                var instance;
                 for(var i=0; i<potentialInstances.length; i++){
-                    sliceInstances.push(Instances.getInstance(potentialInstances[i]));
+                    instance = Instances.getInstance(potentialInstances[i],false);
+                    if (instance){
+                        sliceInstances.push(instance);
+                    }
                 }
 
                 if (typeof StackViewer1 == 'undefined'){
