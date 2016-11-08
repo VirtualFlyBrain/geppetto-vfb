@@ -661,16 +661,74 @@ define(function (require) {
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(){
                         console.log('Instance deleted...');
-                        window.addStackWidget();	
+                        if (typeof StackViewer1 == 'undefined'){
+                            window.addStackWidget();
+                        }else{
+                            if(instances!=undefined){
+                                if (instances.length == undefined){
+                                    if (instances.getType().getMetaType() == 'CompositeType'){
+                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}});
+                                    }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
+                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}});          
+                                    }else{
+                                        console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
+                                    }
+                                }else{
+                                    if (instances[0].getType().getMetaType() == 'CompositeType'){
+                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});
+                                    }else if (instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
+                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});          
+                                    }else{
+                                        console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
+                                    } 
+                                }
+                                StackViewer1.addSlice(instances);
+                            }else{
+                                console.log('Removing instance issue!');
+                            }
+                        }		
                     });
-                    GEPPETTO.on(Events.Instances_created, function(){
+                    GEPPETTO.on(Events.Instances_created, function(instances){
                         console.log('Instance created...');
-                        window.addStackWidget();	
+                        if (typeof StackViewer1 == 'undefined'){
+                            window.addStackWidget();
+                        }else{
+                            if(instances!=undefined){
+                                if (instances.length == undefined){
+                                    if (instances.getType().getMetaType() == 'CompositeType'){
+                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}});
+                                    }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
+                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}});          
+                                    }else{
+                                        console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
+                                    }
+                                }else{
+                                    if (instances[0].getType().getMetaType() == 'CompositeType'){
+                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}})});
+                                    }else if (instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
+                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}})});          
+                                    }else{
+                                        console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
+                                    } 
+                                }
+                                StackViewer1.addSlice(instances);
+                            }else{
+                                console.log('Adding instance issue!');
+                            }
+                        }	
                     });
                     // on colour change update:
-                    GEPPETTO.on(Events.Color_set, function(){
+                    GEPPETTO.on(Events.Color_set, function(instances){
                         console.log('Colour change...');
-                        window.addStackWidget();	
+                        if (typeof StackViewer1 == 'undefined'){
+                            window.addStackWidget();
+                        }else{
+                            if(instances!=undefined){
+                                StackViewer1.addSlice(instances);
+                            }else{
+                                console.log('Colour setting issue!');
+                            }
+                        }
                     });
                     // set initial position:
                     StackViewer1.setPosition(93,0);
