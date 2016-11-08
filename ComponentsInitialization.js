@@ -680,7 +680,7 @@ define(function (require) {
                                         instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});          
                                     }else{
                                         console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
-                                    } 
+                                    }
                                 }
                                 StackViewer1.addSlice(instances);
                             }else{
@@ -708,7 +708,11 @@ define(function (require) {
                                     }else if (instances[0] && instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
                                         instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}})});          
                                     }else{
-                                        console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
+                                        if (instances[0]){
+                                            console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
+                                        }else{
+                                            console.log('No instances passed');    
+                                        }
                                     } 
                                 }
                                 StackViewer1.addSlice(instances);
