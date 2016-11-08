@@ -674,7 +674,7 @@ define(function (require) {
                                         console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
                                     }
                                 }else{
-                                    if (instances[0].getType().getMetaType() == 'CompositeType'){
+                                    if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
                                         instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});
                                     }else if (instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
                                         instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});          
