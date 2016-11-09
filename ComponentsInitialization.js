@@ -702,7 +702,6 @@ define(function (require) {
                             window.addStackWidget();
                         }else{
                             if(instances!=undefined && instances.length > 0){
-                                instances = instances.instance; // get instances from passed element
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
                                         instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
