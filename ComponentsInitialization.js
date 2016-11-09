@@ -736,11 +736,16 @@ define(function (require) {
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
-                            if(instances!=undefined && instances.length > 0){
-                                instances = instances.instance; // get instances from passed element
-                                StackViewer1.addSlices(instances);
+                            if(instances!=undefined && instances.instance){
+                                if (instances.instance.getType().getMetaType() == 'CompositeType'){
+                                    instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
+                                }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
+                                    instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});          
+                                }else{
+                                    console.log('Colour setting issue: ' + instances);
+                                }
                             }else{
-                                console.log('Colour setting issue!');
+                                console.log('Colour setting issue! ' + instances);
                             }
                         }
                     });
