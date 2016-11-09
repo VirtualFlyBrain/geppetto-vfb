@@ -670,7 +670,7 @@ define(function (require) {
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
-                            if(instances!=undefined){
+                            if(instances!=undefined && instances.length > 0){
                                 instances = instances.instance; // get instances from passed element
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
@@ -701,7 +701,7 @@ define(function (require) {
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
-                            if(instances!=undefined){
+                            if(instances!=undefined && instances.length > 0){
                                 instances = instances.instance; // get instances from passed element
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
@@ -737,7 +737,7 @@ define(function (require) {
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
-                            if(instances!=undefined){
+                            if(instances!=undefined && instances.length > 0){
                                 instances = instances.instance; // get instances from passed element
                                 StackViewer1.addSlices(instances);
                             }else{
