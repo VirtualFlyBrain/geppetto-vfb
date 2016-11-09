@@ -682,7 +682,7 @@ define(function (require) {
                                         console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
                                     }
                                 }
-                                StackViewer1.addSlice(instances);
+                                StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Removing instance issue!');
                             }
@@ -696,17 +696,17 @@ define(function (require) {
                             if(instances!=undefined){
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
-                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}});
+                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
                                     }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}});          
+                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});          
                                     }else{
                                         console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
                                     }
                                 }else{
                                     if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}})});
+                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});
                                     }else if (instances[0] && instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlice(instance)}})});          
+                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});          
                                     }else{
                                         if (instances[0]){
                                             console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
@@ -715,7 +715,7 @@ define(function (require) {
                                         }
                                     } 
                                 }
-                                StackViewer1.addSlice(instances);
+                                StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Adding instance issue!');
                             }
@@ -728,7 +728,7 @@ define(function (require) {
                             window.addStackWidget();
                         }else{
                             if(instances!=undefined){
-                                StackViewer1.addSlice(instances);
+                                StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Colour setting issue!');
                             }
