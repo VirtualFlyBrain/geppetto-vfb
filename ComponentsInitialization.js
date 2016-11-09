@@ -738,9 +738,9 @@ define(function (require) {
                         }else{
                             if(instances!=undefined && instances.instance){
                                 if (instances.instance.getType().getMetaType() == 'CompositeType'){
-                                    instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
-                                }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
-                                    instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});          
+                                    instances.instance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
+                                }else if (instances.instance.parent && instances.instance.parent.getType().getMetaType() == 'CompositeType'){
+                                    instances.instance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});          
                                 }else{
                                     console.log('Colour setting issue: ' + instances);
                                 }
