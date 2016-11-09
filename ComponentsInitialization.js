@@ -562,6 +562,11 @@ define(function (require) {
                         }
                     });
                 }
+                try{
+                    instance = Instances.getInstance(path + "." + path + "_slices");
+                    instance.getType().resolve();
+                } catch (ignore) {
+                }
             };
 
             // custom handler for term info clicks
