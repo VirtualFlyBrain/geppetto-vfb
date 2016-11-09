@@ -659,12 +659,13 @@ define(function (require) {
                         instances: sliceInstances
                     }); 
                     // on change to instances reload stack:
-                    GEPPETTO.on(Events.Instance_deleted, function(){
+                    GEPPETTO.on(Events.Instance_deleted, function(instances){
                         console.log('Instance deleted...');
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
                             if(instances!=undefined){
+                                instances = instances.instance; // get instances from passed element
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
                                         instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}});
@@ -694,6 +695,7 @@ define(function (require) {
                             window.addStackWidget();
                         }else{
                             if(instances!=undefined){
+                                instances = instances.instance; // get instances from passed element
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
                                         instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
@@ -728,6 +730,7 @@ define(function (require) {
                             window.addStackWidget();
                         }else{
                             if(instances!=undefined){
+                                instances = instances.instance; // get instances from passed element
                                 StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Colour setting issue!');
