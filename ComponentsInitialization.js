@@ -704,9 +704,9 @@ define(function (require) {
                                     }
                                 }else{
                                     if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});
+                                        instances.forEach(function (parentInstance){parentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});
                                     }else if (instances[0] && instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});          
+                                        instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});          
                                     }else{
                                         if (instances[0]){
                                             console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
