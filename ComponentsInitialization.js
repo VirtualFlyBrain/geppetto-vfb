@@ -666,6 +666,7 @@ define(function (require) {
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(instances){
                         console.log('Instance deleted...');
+                        window.test = instances;
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
@@ -696,6 +697,7 @@ define(function (require) {
                     });
                     GEPPETTO.on(Events.Instances_created, function(instances){
                         console.log('Instance created...');
+                        window.test = instances;
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
@@ -731,6 +733,7 @@ define(function (require) {
                     // on colour change update:
                     GEPPETTO.on(Events.Color_set, function(instances){
                         console.log('Colour change...');
+                        window.test = instances;
                         if (typeof StackViewer1 == 'undefined'){
                             window.addStackWidget();
                         }else{
