@@ -643,12 +643,12 @@ define(function (require) {
                         }
                     }
                 }
-                if (typeof StackViewer1 != 'undefined'){
-                    window.addStackWidget();
+                if (window.StackViewer1 != undefined){
+                    updateStackWidget();
                 }
             });
 
-            window.addStackWidget = function(){
+            var getSliceInstances = function(){
                 var potentialInstances = GEPPETTO.ModelFactory.getAllPotentialInstancesEndingWith('_slices');
                 var sliceInstances = [];
                 var instance;
@@ -659,37 +659,51 @@ define(function (require) {
                     }
                 }
 
-                if (typeof StackViewer1 == 'undefined'){
+                return sliceInstances;
+            };
+
+            var updateStackWidget = function(){
+                console.log('Updating stack...');
+                window.StackViewer1.setData({
+                    instances: getSliceInstances()
+                });
+            };
+
+            window.addStackWidget = function(){
+                var sliceInstances = getSliceInstances();
+
+                if (window.StackViewer1 == undefined){
                     G.addWidget(8).setData({
                         instances: sliceInstances
-                    }); 
+                    });
+
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(instances){
                         console.log('Instance deleted...');
-                        window.test = instances;
-                        if (typeof StackViewer1 == 'undefined'){
-                            window.addStackWidget();
-                        }else{
+
+                        if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
                                 instances = instances.instance; // get instances from passed element
+
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
-                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}});
+                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}});
                                     }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}});          
+                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}});
                                     }else{
                                         console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
                                     }
                                 }else{
                                     if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});
+                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}})});
                                     }else if (instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.removeSlice(instance)}})});          
+                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}})});
                                     }else{
                                         console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
                                     }
                                 }
-                                StackViewer1.addSlices(instances);
+
+                                window.StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Removing instance issue!');
                             }
@@ -697,24 +711,22 @@ define(function (require) {
                     });
                     GEPPETTO.on(Events.Instances_created, function(instances){
                         console.log('Instance created...');
-                        window.test = instances;
-                        if (typeof StackViewer1 == 'undefined'){
-                            window.addStackWidget();
-                        }else{
+
+                        if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
-                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
+                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
                                     }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});          
+                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
                                     }else{
                                         console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
                                     }
                                 }else{
                                     if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){parentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});
+                                        instances.forEach(function (parentInstance){parentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
                                     }else if (instances[0] && instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}})});          
+                                        instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
                                     }else{
                                         if (instances[0]){
                                             console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
@@ -723,24 +735,23 @@ define(function (require) {
                                         }
                                     } 
                                 }
-                                StackViewer1.addSlices(instances);
+                                window.StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Adding instance issue!');
                             }
                         }	
                     });
+
                     // on colour change update:
                     GEPPETTO.on(Events.Color_set, function(instances){
                         console.log('Colour change...');
-                        window.test = instances;
-                        if (typeof StackViewer1 == 'undefined'){
-                            window.addStackWidget();
-                        }else{
+
+                        if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.instance){
                                 if (instances.instance.getType().getMetaType() == 'CompositeType'){
-                                    instances.instance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});
+                                    instances.instance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
                                 }else if (instances.instance.parent && instances.instance.parent.getType().getMetaType() == 'CompositeType'){
-                                    instances.instance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){StackViewer1.addSlices(instance)}});          
+                                    instances.instance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
                                 }else{
                                     console.log('Colour setting issue: ' + instances);
                                 }
@@ -749,15 +760,11 @@ define(function (require) {
                             }
                         }
                     });
+
                     // set initial position:
-                    StackViewer1.setPosition(93,0);
-                }else{
-                	console.log('Updating stack...');
-                    StackViewer1.setData({
-                        instances: sliceInstances
-                    });  
+                    window.StackViewer1.setPosition(93,0);
+                    window.StackViewer1.setName('Slice Viewer');
                 }
-                StackViewer1.setName('Slice Viewer');
             };
 
             // custom sorter for bloodhound
@@ -859,7 +866,6 @@ define(function (require) {
         	window.initVFB();	
             // init stack viewer
             window.addStackWidget();
-
         }
     };
 });
