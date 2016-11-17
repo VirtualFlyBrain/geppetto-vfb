@@ -880,23 +880,23 @@ define(function (require) {
                                 "actions": [
                                     "window.addTermInfo();"
                                 ],
-                                "icon": "",
-                                "label": "Show Info",
+                                "icon": "fa fa-info",
+                                "label": "",
                                 "tooltip": "Show term info"
                             },
                             "stackBtn": {
                                 "actions": [
                                     "window.addStackWidget();"
                                 ],
-                                "icon": "",
-                                "label": "Show Slices",
+                                "icon": "fa fa-bars",
+                                "label": "",
                                 "tooltip": "Show stack viewer"
                             }
                         }
                     }
                 };
                 G.addWidget(Widgets.BUTTONBAR).fromJSONObj(buttonBarConfig);
-                ButtonBar1.setPosition(Math.ceil(window.innerWidth / 2) - 150, 10);
+                ButtonBar1.setPosition(Math.ceil(window.innerWidth / 2) - 45, 10);
                 ButtonBar1.showCloseButton(false);
                 ButtonBar1.showTitleBar(false);
                 ButtonBar1.setClass('transparent');
