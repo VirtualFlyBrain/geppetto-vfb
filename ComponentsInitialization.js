@@ -691,7 +691,7 @@ define(function (require) {
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(instances){
                         console.log('Instance deleted...');
-
+                        window.test = instances;
                         if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
                                 instances = instances.instance; // get instances from passed element
