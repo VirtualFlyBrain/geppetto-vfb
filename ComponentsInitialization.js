@@ -411,7 +411,7 @@ define(function (require) {
                     "visible": true,
                     "customComponent": GEPPETTO.SlideshowImageComponent,
                     "displayName": "Images",
-                    "actions": "",
+                    "actions": "Model.getDatasources()[0].fetchVariable('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
                     "cssClassName": "query-results-images-column"
                 }
             ];
