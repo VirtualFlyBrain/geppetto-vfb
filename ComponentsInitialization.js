@@ -689,34 +689,13 @@ define(function (require) {
                     window.StackViewer1.setTrasparentBackground(true);
 
                     // on change to instances reload stack:
-                    GEPPETTO.on(Events.Instance_deleted, function(instances){
-                        console.log('Instance deleted...');
-                        window.test = instances;
+                    GEPPETTO.on(Events.Instance_deleted, function(path){
+                        console.log(path.split('.')[0] + ' deleted...');
                         if (window.StackViewer1 != undefined){
-                            if(instances!=undefined && instances.length > 0){
-                                instances = instances.instance; // get instances from passed element
-
-                                if (instances.length == undefined){
-                                    if (instances.getType().getMetaType() == 'CompositeType'){
-                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}});
-                                    }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}});
-                                    }else{
-                                        console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
-                                    }
-                                }else{
-                                    if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}})});
-                                    }else if (instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){ParentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.removeSlice(instance)}})});
-                                    }else{
-                                        console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
-                                    }
-                                }
-
-                                window.StackViewer1.addSlices(instances);
+                            if(path!=undefined && path.length > 0){
+                                    window.StackViewer1.removeSlice(path);
                             }else{
-                                console.log('Removing instance issue!');
+                                console.log('Removing instance issue: ' + path);
                             }
                         }		
                     });
