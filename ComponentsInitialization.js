@@ -696,7 +696,7 @@ define(function (require) {
                         };
                     }else{
                         config = {
-                            serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi'
+                            serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
                             templateId: 'NOTSET',
                             templateDomainIds: domainId,
                             templateDomainNames: domainName
