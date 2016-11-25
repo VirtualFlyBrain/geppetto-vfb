@@ -872,7 +872,7 @@ define(function (require) {
                                 "actions": [
                                     "window.addStackWidget();"
                                 ],
-                                "icon": "fa fa-bars",
+                                "icon": "gpt-stack",
                                 "label": "",
                                 "tooltip": "Show stack viewer"
                             }
