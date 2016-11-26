@@ -672,30 +672,8 @@ define(function (require) {
 
             var updateStackWidget = function(){
                 console.log('Updating stack...');
-                var sliceInstances = getSliceInstances();
-                var config;
-                var domainId = [];
-                var domainName = [];
-                if (typeof sliceInstances[0] !== "undefined" && sliceInstances[0].getId() == 'VFB_00017894_slices'){
-                    // TODO: load domain info with template meta
-                    domainId[000]='VFB_00017894'; domainId[002]='VFB_00030621'	; domainId[003]='VFB_00030622'	; domainId[004]='VFB_00030609'	; domainId[005]='VFB_00030625'	; domainId[006]='VFB_00030619'	; domainId[007]='VFB_00030900'	; domainId[008]='VFB_00030605'	; domainId[009]='VFB_00030600'	; domainId[010]='VFB_00030602'	; domainId[011]='VFB_00030613'	; domainId[012]='VFB_00030617'	; domainId[013]='VFB_00030616'	; domainId[014]='VFB_00030631'	; domainId[015]='VFB_00030615'	; domainId[016]='VFB_00030606'	; domainId[017]='VFB_00030901'	; domainId[018]='VFB_00030902'	; domainId[019]='VFB_00030903'	; domainId[020]='VFB_00030620'	; domainId[022]='VFB_00030612'	; domainId[023]='VFB_00030611'	; domainId[024]='VFB_00030629'	; domainId[025]='VFB_00030624'	; domainId[026]='VFB_00030633'	; domainId[027]='VFB_00030623'	; domainId[028]='VFB_00030628'	; domainId[029]='VFB_00030614'	; domainId[030]='VFB_00030608'	; domainId[031]='VFB_00030632'	; domainId[032]='VFB_00030626'	; domainId[033]='VFB_00030630'	; domainId[034]='VFB_00030627'	; domainId[035]='VFB_00030610'	; domainId[036]='VFB_00030838'	; domainId[037]='VFB_00030601'	; domainId[038]='VFB_00030603'	; domainId[039]='VFB_00030618'	; domainId[040]='VFB_00030599'	; domainId[049]='VFB_00030840'	; domainId[050]='VFB_00030604'	; domainId[051]='VFB_00030607'	; domainId[101]='VFB_00030849'	; domainId[102]='VFB_00030856'	; domainId[103]='VFB_00030866'	; domainId[104]='VFB_00030867'	; domainId[105]='VFB_00030868'	; domainId[106]='VFB_00030869'	; domainId[107]='VFB_00030870'	; domainId[108]='VFB_00030871'	; domainId[109]='VFB_00030872'	; domainId[110]='VFB_00030873'	; domainId[111]='VFB_00030874'	; domainId[112]='VFB_00030875'	; domainId[113]='VFB_00030876'	; domainId[114]='VFB_00030877'	; domainId[115]='VFB_00030878'	; domainId[116]='VFB_00030879'	; domainId[117]='VFB_00030880';
-                    domainName[0]='adult brain'; domainName[2]='accessory medulla'; domainName[3]='lobula'; domainName[4]='nodulus'; domainName[5]='bulb'; domainName[6]='protocerebral bridge'; domainName[7]='lateral horn'; domainName[8]='cantle'; domainName[9]='antennal mechanosensory and motor center'; domainName[10]='inferior clamp'; domainName[11]='vest'; domainName[12]='inferior bridge'; domainName[13]='antler'; domainName[14]='crepine'; domainName[15]='pedunculus of adult mushroom body'; domainName[16]='flange'; domainName[18]='lobula plate'; domainName[19]='ellipsoid body'; domainName[20]='adult antennal lobe'; domainName[21]='medulla'; domainName[22]='fan-shaped body'; domainName[23]='superior lateral protocerebrum'; domainName[24]='anterior ventrolateral protocerebrum'; domainName[25]='posterior ventrolateral protocerebrum'; domainName[26]='wedge'; domainName[27]='posterior lateral protocerebrum'; domainName[28]='anterior optic tubercle'; domainName[29]='gorget'; domainName[30]='calyx of adult mushroom body'; domainName[31]='superior posterior slope'; domainName[32]='epaulette'; domainName[38]='inferior posterior slope'; domainName[39]='superior clamp'; domainName[40]='prow'; domainName[41]='gall'; domainName[49]='adult gnathal ganglion'; domainName[101]='adult cerebral ganglion'; domainName[102]='adult subesophageal zone'; domainName[103]='adult central complex'; domainName[104]='adult mushroom body'; domainName[105]='inferior neuropils'; domainName[106]='lateral complex'; domainName[107]='optic lobe'; domainName[108]='superior neuropils'; domainName[109]='ventrolateral neuropils'; domainName[110]='ventromedial neuropils'; domainName[111]='central body'; domainName[112]='lobe system of adult mushroom body'; domainName[113]='clamp'; domainName[114]='lobula complex'; domainName[115]='ventrolateral protocerebrum'; domainName[116]='posterior slope'; domainName[117]='ventral complex';
-                    config = {
-                        serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
-                        templateId: 'VFB_00017894',
-                        templateDomainIds: domainId,
-                        templateDomainNames: domainName
-                    };
-                }else{
-                    config = {
-                        serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
-                        templateId: 'NOTSET',
-                        templateDomainIds: domainId,
-                        templateDomainNames: domainName
-                    };
-                }
-                window.StackViewer1.setConfig(config).setData({
-                    instances: sliceInstances
+                window.StackViewer1.setData({
+                    instances: getSliceInstances()
                 });
             };
 
@@ -751,32 +729,23 @@ define(function (require) {
                         if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
                                 if (instances.length == undefined){
-                                    if (instances.getType().getMetaType() == 'CompositeType'){
-                                        instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
-                                        console.log('1');
-                                    }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
-                                        console.log('2');
-                                    }else{
-                                        console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
+                                    instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
+                                    if (instances[0].parent.getId() == 'VFB_00017894'){
+                                        var config;
+                                        var domainId = [];
+                                        var domainName = [];
+                                        // TODO: load domain info with template meta
+                                        domainId[000]='VFB_00017894'; domainId[002]='VFB_00030621'	; domainId[003]='VFB_00030622'	; domainId[004]='VFB_00030609'	; domainId[005]='VFB_00030625'	; domainId[006]='VFB_00030619'	; domainId[007]='VFB_00030900'	; domainId[008]='VFB_00030605'	; domainId[009]='VFB_00030600'	; domainId[010]='VFB_00030602'	; domainId[011]='VFB_00030613'	; domainId[012]='VFB_00030617'	; domainId[013]='VFB_00030616'	; domainId[014]='VFB_00030631'	; domainId[015]='VFB_00030615'	; domainId[016]='VFB_00030606'	; domainId[017]='VFB_00030901'	; domainId[018]='VFB_00030902'	; domainId[019]='VFB_00030903'	; domainId[020]='VFB_00030620'	; domainId[022]='VFB_00030612'	; domainId[023]='VFB_00030611'	; domainId[024]='VFB_00030629'	; domainId[025]='VFB_00030624'	; domainId[026]='VFB_00030633'	; domainId[027]='VFB_00030623'	; domainId[028]='VFB_00030628'	; domainId[029]='VFB_00030614'	; domainId[030]='VFB_00030608'	; domainId[031]='VFB_00030632'	; domainId[032]='VFB_00030626'	; domainId[033]='VFB_00030630'	; domainId[034]='VFB_00030627'	; domainId[035]='VFB_00030610'	; domainId[036]='VFB_00030838'	; domainId[037]='VFB_00030601'	; domainId[038]='VFB_00030603'	; domainId[039]='VFB_00030618'	; domainId[040]='VFB_00030599'	; domainId[049]='VFB_00030840'	; domainId[050]='VFB_00030604'	; domainId[051]='VFB_00030607'	; domainId[101]='VFB_00030849'	; domainId[102]='VFB_00030856'	; domainId[103]='VFB_00030866'	; domainId[104]='VFB_00030867'	; domainId[105]='VFB_00030868'	; domainId[106]='VFB_00030869'	; domainId[107]='VFB_00030870'	; domainId[108]='VFB_00030871'	; domainId[109]='VFB_00030872'	; domainId[110]='VFB_00030873'	; domainId[111]='VFB_00030874'	; domainId[112]='VFB_00030875'	; domainId[113]='VFB_00030876'	; domainId[114]='VFB_00030877'	; domainId[115]='VFB_00030878'	; domainId[116]='VFB_00030879'	; domainId[117]='VFB_00030880';
+                                        domainName[0]='adult brain'; domainName[2]='accessory medulla'; domainName[3]='lobula'; domainName[4]='nodulus'; domainName[5]='bulb'; domainName[6]='protocerebral bridge'; domainName[7]='lateral horn'; domainName[8]='cantle'; domainName[9]='antennal mechanosensory and motor center'; domainName[10]='inferior clamp'; domainName[11]='vest'; domainName[12]='inferior bridge'; domainName[13]='antler'; domainName[14]='crepine'; domainName[15]='pedunculus of adult mushroom body'; domainName[16]='flange'; domainName[18]='lobula plate'; domainName[19]='ellipsoid body'; domainName[20]='adult antennal lobe'; domainName[21]='medulla'; domainName[22]='fan-shaped body'; domainName[23]='superior lateral protocerebrum'; domainName[24]='anterior ventrolateral protocerebrum'; domainName[25]='posterior ventrolateral protocerebrum'; domainName[26]='wedge'; domainName[27]='posterior lateral protocerebrum'; domainName[28]='anterior optic tubercle'; domainName[29]='gorget'; domainName[30]='calyx of adult mushroom body'; domainName[31]='superior posterior slope'; domainName[32]='epaulette'; domainName[38]='inferior posterior slope'; domainName[39]='superior clamp'; domainName[40]='prow'; domainName[41]='gall'; domainName[49]='adult gnathal ganglion'; domainName[101]='adult cerebral ganglion'; domainName[102]='adult subesophageal zone'; domainName[103]='adult central complex'; domainName[104]='adult mushroom body'; domainName[105]='inferior neuropils'; domainName[106]='lateral complex'; domainName[107]='optic lobe'; domainName[108]='superior neuropils'; domainName[109]='ventrolateral neuropils'; domainName[110]='ventromedial neuropils'; domainName[111]='central body'; domainName[112]='lobe system of adult mushroom body'; domainName[113]='clamp'; domainName[114]='lobula complex'; domainName[115]='ventrolateral protocerebrum'; domainName[116]='posterior slope'; domainName[117]='ventral complex';
+                                        config = {
+                                            serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
+                                            templateId: 'VFB_00017894',
+                                            templateDomainIds: domainId,
+                                            templateDomainNames: domainName
+                                        };
+                                        window.StackViewer1.setConfig(config);
                                     }
-                                }else{
-                                    if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){parentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
-                                        console.log('3');
-                                    }else if (instances[0] && instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
-                                        instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
-                                        console.log('4');
-                                    }else{
-                                        if (instances[0]){
-                                            console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
-                                        }else{
-                                            console.log('No instances passed');    
-                                        }
-                                    } 
                                 }
-                            }else{
-                                console.log('Adding instance issue!');
                             }
                         }	
                     });
