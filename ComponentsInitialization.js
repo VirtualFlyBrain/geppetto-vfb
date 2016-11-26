@@ -771,7 +771,6 @@ define(function (require) {
                                         }
                                     } 
                                 }
-                                window.StackViewer1.addSlices(instances);
                             }else{
                                 console.log('Adding instance issue!');
                             }
