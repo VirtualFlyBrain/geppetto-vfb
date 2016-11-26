@@ -753,16 +753,20 @@ define(function (require) {
                                 if (instances.length == undefined){
                                     if (instances.getType().getMetaType() == 'CompositeType'){
                                         instances.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
+                                        console.log('1');
                                     }else if (instances.parent && instances.parent.getType().getMetaType() == 'CompositeType'){
                                         instances.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
+                                        console.log('2');
                                     }else{
                                         console.log('Issue handling: ' + instances.getName() + ' - ' + instances.getId());
                                     }
                                 }else{
                                     if (instances[0] && instances[0].getType().getMetaType() == 'CompositeType'){
                                         instances.forEach(function (parentInstance){parentInstance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
+                                        console.log('3');
                                     }else if (instances[0] && instances[0].parent && instances[0].parent.getType().getMetaType() == 'CompositeType'){
                                         instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
+                                        console.log('4');
                                     }else{
                                         if (instances[0]){
                                             console.log('Issue handling: ' + instances[0].getName() + ' - ' + instances[0].getId());
