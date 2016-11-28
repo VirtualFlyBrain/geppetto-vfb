@@ -730,6 +730,7 @@ define(function (require) {
                             if(instances!=undefined && instances.length > 0){
                                 if (instances.length == undefined){
                                     instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
+                                    console.log('Passing instance: ' + instances[0].parent.getId());
                                     if (instances[0].parent.getId() == 'VFB_00017894'){
                                         var config;
                                         var domainId = [];
