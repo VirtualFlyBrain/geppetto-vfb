@@ -768,6 +768,8 @@ define(function (require) {
                             }
                         }
                     });
+                } else {
+                    $('#' + window.StackViewer1.getId()).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
 
@@ -865,6 +867,8 @@ define(function (require) {
                     window.termInfoPopupId = window.termInfoPopup.getId();
                     window.termInfoPopup.showHistoryNavigationBar(true);
                     window.termInfoPopup.setTrasparentBackground(true);
+                } else {
+                    $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
 
