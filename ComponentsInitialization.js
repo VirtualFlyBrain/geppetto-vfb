@@ -711,6 +711,7 @@ define(function (require) {
                     window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
                     window.StackViewer1.setName('Slice Viewer');
                     window.StackViewer1.setTrasparentBackground(true);
+                    window.StackViewer1.showHistoryIcon(false)
 
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(path){
