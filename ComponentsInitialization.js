@@ -912,13 +912,13 @@ define(function (require) {
 
             window.addEventListener('resize', function(event){
                 // reset size and position of term info widget, if any
-                if(window[window.termInfoPopupId] != undefined) {
+                if(window[window.termInfoPopupId] != undefined && !window[window.termInfoPopupId].maximize) {
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                 }
 
                 // reset size and position of stack widget, if any
-                if(window.StackViewer1 != undefined){
+                if(window.StackViewer1 != undefined && !window.StackViewer1.maximize){
                     window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
                     window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
                 }
