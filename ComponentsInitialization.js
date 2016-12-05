@@ -605,14 +605,16 @@ define(function (require) {
 
                         // clear query builder
                         GEPPETTO.QueryBuilder.clearAllQueryItems();
-                        GEPPETTO.QueryBuilder.switchView(false);
 
                         var callback = function(){
                             // check if any results with count flag
                             if(GEPPETTO.QueryBuilder.props.model.count > 0){
                                 // runQuery if any results
                                 GEPPETTO.QueryBuilder.runQuery();
+                            } else {
+                                GEPPETTO.QueryBuilder.switchView(false);
                             }
+
                             // show query component
                             GEPPETTO.QueryBuilder.open();
 
