@@ -242,7 +242,7 @@ define(function (require) {
                         },
                         "query": {
                             actions: [
-                                "Model.getDatasources()[0].fetchVariable('$variableid$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: $variableid$.getName(), id: '$variableid$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"
+                                "Model.getDatasources()[0].fetchVariable('$variableid$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.switchView(false); GEPPETTO.QueryBuilder.addQueryItem({ term: $variableid$.getName(), id: '$variableid$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"
                             ],
                             icon: "fa-cog",
                             label: "Add to query",
@@ -317,7 +317,7 @@ define(function (require) {
                                     tooltip: "Show info"
                                 },
                                 buttonTwo: {
-                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
+                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.switchView(false); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
                                     icon: "fa-cog",
                                     label: "Add to query",
                                     tooltip: "Add to query"
@@ -334,7 +334,7 @@ define(function (require) {
                                     tooltip: "Add to scene"
                                 },
                                 buttonTwo: {
-                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
+                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.switchView(false); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
                                     icon: "fa-cog",
                                     label: "Add to query",
                                     tooltip: "Add to query"
@@ -605,6 +605,7 @@ define(function (require) {
 
                         // clear query builder
                         GEPPETTO.QueryBuilder.clearAllQueryItems();
+                        GEPPETTO.QueryBuilder.switchView(false);
 
                         var callback = function(){
                             // check if any results with count flag
