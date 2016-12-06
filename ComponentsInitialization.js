@@ -515,6 +515,9 @@ define(function (require) {
         // VFB initialization routines
         window.initVFB = function () {
 
+            window.templateID = undefined;
+            window.redirectURL = '/geppetto?load_project_from_url=http://vfbsandbox.inf.ed.ac.uk/do/geppettoJson.json?i=$VFB_ID$%26t=$TEMPLATE$%26d';
+
         	// camera setup
         	GEPPETTO.on(Events.Canvas_initialised,function(){
         		window.setupVFBCamera();
@@ -555,17 +558,61 @@ define(function (require) {
 
             // custom handler for resolving 3d geometries
             window.resolve3D = function (path, callback) {
+                var rootInstance = Instances.getInstance(path);
+
+                // check if we can set templateID (first template loaded will be kept as templateID)
+                if(window.window.templateID == undefined){
+                    var superTypes = rootInstance.getType().getSuperType();
+                    for(var i=0; i<superTypes.length; i++){
+                        if(superTypes[i].getId() == 'Template'){
+                            window.templateID = rootInstance.getId();
+                        }
+                    }
+                } else {
+                    // check if the user is adding to the scene something belonging to another template
+                    var meta = rootInstance[rootInstance.getId() + '_meta'];
+                    if(meta != undefined){
+                        // cover your eyes here
+                        var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+                        var domObj = $(templateMarkup);
+                        var anchorElement = domObj.filter('a');
+                        // extract ID
+                        var templateID = anchorElement.attr('instancepath');
+
+                        if(templateID != window.templateID){
+                            // BOOM - open new window with the new template and the instance ID
+                            var baseUrl = window.location.href;
+                            if (baseUrl.indexOf('/geppetto') > 0) {
+                                baseUrl = baseUrl.substring(0, baseUrl.indexOf('/geppetto'));
+                            }
+
+                            var targetWindow = '_blank';
+                            if(window.EMBEDDED) {
+                                targetWindow = '_self';
+                            }
+                            var suffixUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID);
+                            window.open(baseUrl + suffixUrl, targetWindow);
+
+                            // stop flow here, we don't want to add to scene something with a different template
+                            return;
+                        }
+                    }
+                }
+
                 var instance = undefined;
+                // check if we have swc
                 try {
                     instance = Instances.getInstance(path + "." + path + "_swc");
                 } catch (ignore) {
                 }
+                // if no swc check if we have obj
                 if (instance == undefined) {
                     try {
                         instance = Instances.getInstance(path + "." + path + "_obj");
                     } catch (ignore) {
                     }
                 }
+                // if anything was found resolve type (will add to scene)
                 if (instance != undefined) {
                     instance.getType().resolve(function () {
                         setSepCol(path);
@@ -574,7 +621,9 @@ define(function (require) {
                         }
                     });
                 }
-                try{
+
+                // independently from the above, check if we have slices for the instance
+                try {
                     instance = Instances.getInstance(path + "." + path + "_slices");
                     instance.getType().resolve();
                 } catch (ignore) {
