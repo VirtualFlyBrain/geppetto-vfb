@@ -172,14 +172,14 @@ define(function (require) {
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { instance.getType().resolve(function() { GEPPETTO.ControlPanel.refresh() }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
                             "icon": "fa-eye-slash",
                             "label": "Hidden",
-                            "tooltip": "Show obj"
+                            "tooltip": "Show 3D Volume"
                         },
                         "true": {
                             "id": "visibility_obj",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
                             "icon": "fa-eye",
                             "label": "Visible",
-                            "tooltip": "Hide obj"
+                            "tooltip": "Hide 3D Volume"
                         }
                     },
                     "visibility_swc": {
@@ -190,14 +190,14 @@ define(function (require) {
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { instance.getType().resolve(function() { GEPPETTO.ControlPanel.refresh() }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
                             "icon": "fa-eye-slash",
                             "label": "Hidden",
-                            "tooltip": "Show swc"
+                            "tooltip": "Show 3D Skeleton"
                         },
                         "true": {
                             "id": "visibility_swc",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
                             "icon": "fa-eye",
                             "label": "Visible",
-                            "tooltip": "Hide swc"
+                            "tooltip": "Hide 3D Skeleton"
                         }
                     },
                 },
@@ -714,7 +714,7 @@ define(function (require) {
                     window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
                     window.StackViewer1.setName('Slice Viewer');
                     window.StackViewer1.setTrasparentBackground(true);
-                    window.StackViewer1.showHistoryIcon(false)
+                    window.StackViewer1.showHistoryIcon(false);
 
                     // on change to instances reload stack:
                     GEPPETTO.on(Events.Instance_deleted, function(path){
