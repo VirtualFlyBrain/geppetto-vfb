@@ -119,18 +119,21 @@ define(function (require) {
             GEPPETTO.ControlPanel.setControlsConfig({
                 "VisualCapability": {
                     "select": {
+                        "id": "select",
                         "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
                         "false": {
                             "actions": ["$instance$.select()"],
                             "icon": "fa-hand-stop-o",
                             "label": "Unselected",
-                            "tooltip": "Select"
+                            "tooltip": "Select",
+                            "id": "select",
                         },
                         "true": {
                             "actions": ["$instance$.deselect()"],
                             "icon": "fa-hand-rock-o",
                             "label": "Selected",
-                            "tooltip": "Deselect"
+                            "tooltip": "Deselect",
+                            "id": "deselect",
                         },
                         "visibility": {
                             "condition": "GEPPETTO.SceneController.isVisible($instances$)",
