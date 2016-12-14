@@ -134,23 +134,6 @@ define(function (require) {
                             "label": "Selected",
                             "tooltip": "Deselect",
                             "id": "deselect",
-                        },
-                        "visibility": {
-                            "condition": "GEPPETTO.SceneController.isVisible($instances$)",
-                            "false": {
-                                "id": "visibility",
-                                "actions": ["GEPPETTO.SceneController.show($instances$);"],
-                                "icon": "fa-eye-slash",
-                                "label": "Hidden",
-                                "tooltip": "Show"
-                            },
-                            "true": {
-                                "id": "visibility",
-                                "actions": ["GEPPETTO.SceneController.hide($instances$);"],
-                                "icon": "fa-eye",
-                                "label": "Visible",
-                                "tooltip": "Hide"
-                            }
                         }
                     },
                     "color": {
