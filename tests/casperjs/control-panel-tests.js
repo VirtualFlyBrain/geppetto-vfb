@@ -53,7 +53,7 @@ casper.test.begin('Geppetto control panel tests', 5, function suite(test) {
         // check that control panel is invisible
         test.assertNotVisible('#controlpanel', "Control panel is invisible");
 
-        this.echo("Clicking on control panel button toopen query builder");
+        this.echo("Clicking on control panel button to open query builder");
         this.mouseEvent('click', 'button[id=controlPanelBtn]', 'Opening control panel');
 
         test.assertVisible('#controlpanel', "Control panel is visible");

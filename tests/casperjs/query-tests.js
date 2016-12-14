@@ -64,11 +64,11 @@ casper.test.begin('Geppetto control panel tests', 6, function suite(test) {
 
         // click on selection control, check term info is populated
         casper.then(function () {
-            this.echo("Typing in the query builder search bar");
+            this.echo("Typing 'medu' in the query builder search bar");
             this.sendKeys('#query-typeahead', 'medu');
 
             this.waitForSelector('div.tt-suggestion', function () {
-                this.echo("Selecting first option");
+                this.echo("Selecting medulla, first suggestion from suggestion box");
                 this.evaluate(function() {
                     $('div.tt-suggestion').first().click();
                 });
@@ -84,6 +84,7 @@ casper.test.begin('Geppetto control panel tests', 6, function suite(test) {
 
                     // not ideal - react injects strange markup in strings
                     this.waitForText('<div id="query-results-label"><!-- react-text: 9 -->84<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text --></div>', function () {
+                        this.echo("Verified we have 84 results");
                         runQueryTests();
                     }, null, 10000);
                 }, null, 5000);
@@ -92,16 +93,16 @@ casper.test.begin('Geppetto control panel tests', 6, function suite(test) {
     };
 
     var runQueryTests = function () {
-        casper.echo("Running query");
+        casper.echo("Clicking on run query button");
         casper.mouseEvent('click', 'button[id=run-query-btn]', 'Running query');
 
         casper.waitForText('accessory medulla', function () {
-            this.echo("Results rows appeared");
+            this.echo("Results rows appeared - click on results info for accessory medulla");
             this.mouseEvent('click', 'button[id=FBbt_00045003_info_queryResults_btn]', 'Click on results info for accessory medulla');
 
             // wait for text to appear in the term info widget
             this.waitForSelector('div[id=Popup1_FBbt_00045003_metadata_el_0]', function () {
-                test.assertExists('div[id=Popup1_FBbt_00045003_metadata_el_0]', 'Term info correctly populated for FBbt_00045003 after query results info button click');
+                test.assertExists('div[id=Popup1_FBbt_00045003_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
             }, null, 5000);
 
         }, null, 5000);
