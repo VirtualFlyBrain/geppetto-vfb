@@ -294,7 +294,7 @@ define(function (require) {
                     explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)[$ID$]"}],
                     type: {
                         class: {
-                            icon: "fa-dot-circle-o",
+                            icon: "fa-file-text-o",
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"],
@@ -311,7 +311,7 @@ define(function (require) {
                             }
                         },
                         individual: {
-                            icon: "fa-square-o",
+                            icon: "fa-file-image-o",
                             buttons: {
                                 buttonOne: {
                                     actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$'); var meta = Instances.getInstance('$ID$.$ID$_meta'); resolve3D('$ID$', function(){instance.select(); GEPPETTO.Spotlight.openToInstance(instance); setTermInfo(meta, meta.getParent().getId());}); }); "],
