@@ -1,7 +1,7 @@
 ##Run with
 
-`casperjs test control-panel-tests.js --engine=slimerjs`
-`casperjs test query-tests.js --engine=slimerjs`
+* `casperjs test control-panel-tests.js --engine=slimerjs`
+* `casperjs test query-tests.js --engine=slimerjs`
 
 ##Prereqs
 
