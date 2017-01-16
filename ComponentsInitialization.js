@@ -426,7 +426,7 @@ define(function (require) {
                         "icon": "gpt-fly",
                         "label": "FlyBase",
                         "tooltip": "FlyBase Term"
-                    }
+                    },
                     "flybase": {
                         "showCondition": "('$ID$'.startsWith('FB') && !'$ID$'.startsWith('FBbt'))",
                         "id": "flybase",
