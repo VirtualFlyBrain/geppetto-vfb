@@ -1121,7 +1121,6 @@ define(function (require) {
             });
         };
 
-
         GEPPETTO.on(Events.Experiment_loaded, function(){
         	//Until the experiment is loaded we can't load any widgets (which the init function does)
         	window.initVFB();	
