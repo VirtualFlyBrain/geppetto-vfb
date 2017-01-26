@@ -40,6 +40,7 @@ define(function (require) {
 
         // any required stuff
         var Query = require('model/Query');
+        var ImportType = require('model/ImportType');
 
         /*ADD COMPONENTS*/
         
@@ -74,7 +75,7 @@ define(function (require) {
                     "customComponent": GEPPETTO.LinkArrayComponent,
                     "displayName": "Type(s)",
                     "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
-                    "actions": "Model.getDatasources()[0].fetchVariable('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getId());});"
+                    "actions": "window.fetchVariableThenRun('$entity$', window.setTermInfoCallback);",
                 },
                 {
                     "columnName": "controls",
@@ -228,7 +229,7 @@ define(function (require) {
                         },
                         "query": {
                             actions: [
-                                "Model.getDatasources()[0].fetchVariable('$variableid$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.switchView(false); GEPPETTO.QueryBuilder.addQueryItem({ term: $variableid$.getName(), id: '$variableid$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"
+                                "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                             ],
                             icon: "fa-cog",
                             label: "Add to query",
@@ -297,13 +298,13 @@ define(function (require) {
                             icon: "fa-file-text-o",
                             buttons: {
                                 buttonOne: {
-                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"],
+                                    actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
                                     icon: "fa-info-circle",
                                     label: "Show info",
                                     tooltip: "Show info"
                                 },
                                 buttonTwo: {
-                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.switchView(false); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
+                                    actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
                                     icon: "fa-cog",
                                     label: "Add to query",
                                     tooltip: "Add to query"
@@ -314,13 +315,13 @@ define(function (require) {
                             icon: "fa-file-image-o",
                             buttons: {
                                 buttonOne: {
-                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$'); var meta = Instances.getInstance('$ID$.$ID$_meta'); resolve3D('$ID$', function(){instance.select(); GEPPETTO.Spotlight.openToInstance(instance); setTermInfo(meta, meta.getParent().getId());}); }); "],
+                                    actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
                                     icon: "fa-file-image-o",
                                     label: "Add to scene",
                                     tooltip: "Add to scene"
                                 },
                                 buttonTwo: {
-                                    actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.clearAllQueryItems(); GEPPETTO.QueryBuilder.switchView(false); GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); GEPPETTO.Spotlight.close(); GEPPETTO.QueryBuilder.open(); } );"],
+                                    actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
                                     icon: "fa-cog",
                                     label: "Add to query",
                                     tooltip: "Add to query"
@@ -352,7 +353,7 @@ define(function (require) {
         GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage: 3}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
@@ -368,7 +369,7 @@ define(function (require) {
                     "locked": false,
                     "visible": true,
                     "customComponent": GEPPETTO.QueryLinkComponent,
-                    "actions": "Model.getDatasources()[0].fetchVariable('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getName());});",
+                    "actions": "window.fetchVariableThenRun('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getName());});",
                     "displayName": "Name",
                     "cssClassName": "query-results-name-column",
                 },
@@ -397,7 +398,7 @@ define(function (require) {
                     "visible": true,
                     "customComponent": GEPPETTO.SlideshowImageComponent,
                     "displayName": "Images",
-                    "actions": "Model.getDatasources()[0].fetchVariable('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
+                    "actions": "window.fetchVariableThenRun('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
                     "cssClassName": "query-results-images-column"
                 }
             ];
@@ -411,7 +412,7 @@ define(function (require) {
                     "info": {
                         "id": "info",
                         "actions": [
-                            "Model.getDatasources()[0].fetchVariable('$ID$', function(){ var instance = Instances.getInstance('$ID$.$ID$_meta'); setTermInfo(instance, instance.getParent().getId());});"
+                            "window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"
                         ],
                         "icon": "fa-info-circle",
                         "label": "Info",
@@ -451,12 +452,12 @@ define(function (require) {
                     explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
                     explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
                     type: {
-                        "class": {
-                            actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); } ); "],
+                        class: {
+                            actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
                             icon: "fa-dot-circle-o"
                         },
                         individual: {
-                            actions: ["Model.getDatasources()[0].fetchVariable('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); } ); "],
+                            actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
                             icon: "fa-square-o"
                         }
                     },
@@ -610,20 +611,70 @@ define(function (require) {
                 }
                 // if anything was found resolve type (will add to scene)
                 if (instance != undefined) {
-                    instance.getType().resolve(function () {
+                    var postResolve = function () {
                         setSepCol(path);
                         if (callback != undefined) {
                             callback();
                         }
-                    });
+                    };
+
+                    if(instance.getType() instanceof ImportType) {
+                        instance.getType().resolve(postResolve);
+                    } else {
+                        // add instance to scene
+                        GEPPETTO.SceneController.updateSceneWithNewInstances([instance]);
+                        // trigger update for components that are listening
+                        GEPPETTO.trigger(Events.Instances_created, [instance]);
+                        postResolve();
+                    }
                 }
 
                 // independently from the above, check if we have slices for the instance
                 try {
                     instance = Instances.getInstance(path + "." + path + "_slices");
-                    instance.getType().resolve();
+                    if(instance.getType() instanceof ImportType){
+                        instance.getType().resolve();
+                    }
                 } catch (ignore) {
+                    // any alternative handling goes here
                 }
+            };
+
+            window.fetchVariableThenRun = function(variableId, callback, label){
+                var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
+                if (!variables.length>0) {
+                    Model.getDatasources()[0].fetchVariable(variableId, function() {
+                        callback(variableId, label);
+                    });
+                } else {
+                    callback(variableId, label);
+                }
+            };
+
+            window.addToSceneCallback = function(variableId){
+                var instance = Instances.getInstance(variableId);
+                var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                resolve3D(variableId, function() {
+                    instance.select();
+                    GEPPETTO.Spotlight.openToInstance(instance);
+                    setTermInfo(meta, meta.getParent().getId());
+                });
+            };
+
+            window.addToQueryCallback = function(variableId, label) {
+                GEPPETTO.QueryBuilder.clearAllQueryItems();
+                GEPPETTO.QueryBuilder.switchView(false);
+                GEPPETTO.QueryBuilder.addQueryItem({
+                    term: (label != undefined) ? label :  eval(variableId).getName(),
+                    id: variableId
+                });
+                GEPPETTO.Spotlight.close();
+                GEPPETTO.QueryBuilder.open();
+            };
+
+            window.setTermInfoCallback = function(variableId){
+                var instance = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                setTermInfo(instance, instance.getParent().getId());
             };
 
             // custom handler for term info clicks
