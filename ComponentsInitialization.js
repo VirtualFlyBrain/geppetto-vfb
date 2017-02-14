@@ -573,6 +573,10 @@ define(function (require) {
                         if(superTypes[i].getId() == window.templateID){
                             templateID = superTypes[i].getId()
                         }
+                        if(superTypes[i].getId() == 'Class'){ 
+                            templateID = window.templateID
+                            return // Exit if Class - Class doesn't have image types.
+                        }
                     }
                     
                     var meta = rootInstance[rootInstance.getId() + '_meta'];
