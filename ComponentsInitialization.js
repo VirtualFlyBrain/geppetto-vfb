@@ -558,7 +558,7 @@ define(function (require) {
                 var rootInstance = Instances.getInstance(path);
 
                 // check if we can set templateID (first template loaded will be kept as templateID)
-                if(window.window.templateID == undefined){
+                if(window.templateID == undefined){
                     var superTypes = rootInstance.getType().getSuperType();
                     for(var i=0; i<superTypes.length; i++){
                         if(superTypes[i].getId() == 'Template'){
@@ -567,31 +567,38 @@ define(function (require) {
                     }
                 } else {
                     // check if the user is adding to the scene something belonging to another template
+                    var superTypes = rootInstance.getType().getSuperType();
+                    var templateID = "unknown";
+                    for(var i=0; i<superTypes.length; i++){
+                        if(superTypes[i].getId() == window.templateID){
+                            templateID = superTypes[i].getId()
+                        }
+                    }
+                    
                     var meta = rootInstance[rootInstance.getId() + '_meta'];
                     if(meta != undefined){
-                        // cover your eyes here
-                        var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-                        var domObj = $(templateMarkup);
-                        var anchorElement = domObj.filter('a');
-                        // extract ID
-                        var templateID = anchorElement.attr('instancepath');
-
-                        if(templateID != window.templateID){
-                            // BOOM - open new window with the new template and the instance ID
-                            var baseUrl = window.location.href;
-                            if (baseUrl.indexOf('/geppetto') > 0) {
-                                baseUrl = baseUrl.substring(0, baseUrl.indexOf('/geppetto'));
+                        if (typeof meta.getType().template != "undefined"){
+                            var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+                            var domObj = $(templateMarkup);
+                            var anchorElement = domObj.filter('a');
+                            // extract ID
+                            var templateID = anchorElement.attr('instancepath');
+                            if(templateID != window.templateID){
+                                // open new window with the new template and the instance ID
+                                var baseUrl = window.location.href;
+                                if (baseUrl.indexOf('/geppetto') > 0) {
+                                    baseUrl = baseUrl.substring(0, baseUrl.indexOf('/geppetto'));
+                                }
+                                
+                                var targetWindow = '_blank';
+                                if(window.EMBEDDED) {
+                                    targetWindow = '_self';
+                                }
+                                var suffixUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID);
+                                window.open(baseUrl + suffixUrl, targetWindow);
+                                // stop flow here, we don't want to add to scene something with a different template
+                                return;
                             }
-
-                            var targetWindow = '_blank';
-                            if(window.EMBEDDED) {
-                                targetWindow = '_self';
-                            }
-                            var suffixUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID);
-                            window.open(baseUrl + suffixUrl, targetWindow);
-
-                            // stop flow here, we don't want to add to scene something with a different template
-                            return;
                         }
                     }
                 }
