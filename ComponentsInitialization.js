@@ -41,6 +41,7 @@ define(function (require) {
         // any required stuff
         var Query = require('./../../js/model/Query');
         var ImportType = require('./../../js/model/ImportType');
+        var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
         /*ADD COMPONENTS*/
         
