@@ -83,12 +83,12 @@ casper.test.begin('VFB query component tests', 6, function suite(test) {
                     });
 
                     // not ideal - react injects strange markup in strings
-                    this.waitForText('<div id="query-results-label"><!-- react-text: 9 -->84<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text --></div>', function () {
+                    this.waitForText('<div id="query-results-label"><!-- react-text: 9 -->65<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text --></div>', function () {
                         this.echo("Verified we have 84 results");
                         runQueryTests();
                     }, null, 10000);
-                }, null, 5000);
-            }, null, 5000);
+                }, null, 10000);
+            }, null, 10000);
         });
     };
 
