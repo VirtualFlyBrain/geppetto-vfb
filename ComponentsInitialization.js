@@ -39,8 +39,8 @@ define(function (require) {
         document.getElementsByTagName("head")[0].appendChild(link);
 
         // any required stuff
-        var Query = require('./../../js/model/Query');
-        var ImportType = require('./../../js/model/ImportType');
+        var Query = require('./../../js/geppettoModel/model/Query');
+        var ImportType = require('./../../js/geppettoModel/model/ImportType');
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
         /*ADD COMPONENTS*/
