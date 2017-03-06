@@ -39,8 +39,9 @@ define(function (require) {
         document.getElementsByTagName("head")[0].appendChild(link);
 
         // any required stuff
-        var Query = require('model/Query');
-        var ImportType = require('model/ImportType');
+        var Query = require('./../../js/geppettoModel/model/Query');
+        var ImportType = require('./../../js/geppettoModel/model/ImportType');
+        var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
         /*ADD COMPONENTS*/
         
@@ -516,7 +517,7 @@ define(function (require) {
             window.redirectURL = '/geppetto?load_project_from_url=http://vfbsandbox.inf.ed.ac.uk/do/geppettoJson.json?i=$VFB_ID$%26t=$TEMPLATE$%26d';
 
         	// camera setup
-        	GEPPETTO.on(Events.Canvas_initialised,function(){
+        	GEPPETTO.on(GEPPETTO.Events.Canvas_initialised,function(){
         		window.setupVFBCamera();
         	});
         	
@@ -635,7 +636,7 @@ define(function (require) {
                         // add instance to scene
                         GEPPETTO.SceneController.updateSceneWithNewInstances([instance]);
                         // trigger update for components that are listening
-                        GEPPETTO.trigger(Events.Instances_created, [instance]);
+                        GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
                         postResolve();
                     }
                 }
@@ -742,7 +743,7 @@ define(function (require) {
             };
             
             // set term info on selection
-            GEPPETTO.on(Events.Select, function (instance) {
+            GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
                 var selection = G.getSelection();
                 if (selection.length > 0 && instance.isSelected()) {
                     var latestSelection = instance;
@@ -833,7 +834,7 @@ define(function (require) {
                     });
 
                     // on change to instances reload stack:
-                    GEPPETTO.on(Events.Instance_deleted, function(path){
+                    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function(path){
                         console.log(path.split('.')[0] + ' deleted...');
                         if (window.StackViewer1 != undefined){
                             if(path!=undefined && path.length > 0){
@@ -843,7 +844,7 @@ define(function (require) {
                             }
                         }		
                     });
-                    GEPPETTO.on(Events.Instances_created, function(instances){
+                    GEPPETTO.on(GEPPETTO.Events.Instances_created, function(instances){
                         console.log('Instance created...');
 
                         if (window.StackViewer1 != undefined){
@@ -870,7 +871,7 @@ define(function (require) {
                     });
 
                     // on colour change update:
-                    GEPPETTO.on(Events.Color_set, function(instances){
+                    GEPPETTO.on(GEPPETTO.Events.Color_set, function(instances){
                         console.log('Colour change...');
 
                         if (window.StackViewer1 != undefined){
@@ -1132,7 +1133,7 @@ define(function (require) {
             });
         };
 
-        GEPPETTO.on(Events.Experiment_loaded, function(){
+        GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
         	//Until the experiment is loaded we can't load any widgets (which the init function does)
         	window.initVFB();	
             // init stack viewer
