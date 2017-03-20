@@ -2,6 +2,7 @@ services:
   - docker
   
 script:
+  - if [ $TRAVIS_BRANCH != 'master' ]; then sed -i "s|rcourt/docker-vfb-geppetto|rcourt/docker-vfb-geppetto:$TRAVIS_BRANCH" Dockerfile
   - docker build -t test-image:test .
   - docker run -d --name test test-image:test
   - docker logs test
