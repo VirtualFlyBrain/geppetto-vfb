@@ -3,6 +3,8 @@ FROM rcourt/docker-vfb-geppetto
 USER virgo
 
 RUN cd /opt/geppetto/org.geppetto.frontend/src/main/webapp/extensions/geppetto-vfb && \
+git config user.name travis && \
+git config user.email travis@server.com && \
 git stash && \
 git pull 
 
