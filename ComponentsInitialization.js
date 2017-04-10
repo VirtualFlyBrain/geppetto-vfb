@@ -1131,6 +1131,19 @@ define(function (require) {
                 // reset position of button bar widget (always there)
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
             });
+            
+            window.updateHistory = function() 
+            {
+                // Update the parent windows history with current instances (i=) and popup selection (id=)
+                var items='';
+                Instances.forEach(function(instanace){items = items + ',' + instanace.id}); 
+                items = items.replace(',time,','i=');
+                if (window.getTermInfoWidget().data != null)
+                {
+                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
+                }
+                parent.history.pushState({}, '', parent.location.pathname + "?" + items);
+            }
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
