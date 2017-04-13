@@ -653,6 +653,7 @@ define(function (require) {
             };
 
             window.fetchVariableThenRun = function(variableId, callback, label){
+                G.unSelectAll(); // signal something is happening!
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
                 if (!variables.length>0) {
                     Model.getDatasources()[0].fetchVariable(variableId, function() {
@@ -667,6 +668,7 @@ define(function (require) {
                 var instance = Instances.getInstance(variableId);
                 var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 resolve3D(variableId, function() {
+                    G.unSelectAll();
                     instance.select();
                     GEPPETTO.Spotlight.openToInstance(instance);
                     setTermInfo(meta, meta.getParent().getId());
@@ -1149,6 +1151,7 @@ define(function (require) {
                 var instance = Instances.getInstance(variableId);
                 var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 resolve3D(variableId, function() {
+                    G.unSelectAll();
                     instance.select();
                     setTermInfo(meta, meta.getParent().getId());
                 });
