@@ -1156,6 +1156,7 @@ define(function (require) {
             
             window.addVfbInd = function(variableId) 
             {
+                G.unSelectAll();
                 window.fetchVariableThenRun(variableId, window.addIndCallback);    
             };
             
