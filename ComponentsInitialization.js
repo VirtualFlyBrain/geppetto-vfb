@@ -1143,7 +1143,22 @@ define(function (require) {
                     items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
                 }
                 parent.history.pushState({}, '', parent.location.pathname + "?" + items);
-            }
+            };
+            
+            window.addIndCallback = function(variableId){
+                var instance = Instances.getInstance(variableId);
+                var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                resolve3D(variableId, function() {
+                    instance.select();
+                    setTermInfo(meta, meta.getParent().getId());
+                });
+            };
+            
+            window.addVfbInd = function(variableId) 
+            {
+                window.fetchVariableThenRun(variableId, window.addIndCallback);    
+            };
+            
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
