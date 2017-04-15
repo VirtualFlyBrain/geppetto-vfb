@@ -557,6 +557,8 @@ define(function (require) {
             // custom handler for resolving 3d geometries
             window.resolve3D = function (path, callback) {
                 var rootInstance = Instances.getInstance(path);
+                window.updateHistory(rootInstance.getName());
+                G.unSelectAll();
 
                 // check if we can set templateID (first template loaded will be kept as templateID)
                 if(window.templateID == undefined){
