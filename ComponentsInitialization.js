@@ -1140,7 +1140,7 @@ define(function (require) {
                 // Update the parent windows history with current instances (i=) and popup selection (id=)
                 var items='';
                 Instances.forEach(function(instanace){items = items + ',' + instanace.id}); 
-                items = items.replace(',time,','i=');
+                items = items.replace(',,',',').replace(',time,','i=');
                 if (window.getTermInfoWidget().data != null)
                 {
                     items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
