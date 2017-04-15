@@ -978,6 +978,7 @@ define(function (require) {
 
             window.setTermInfo = function (data, name) {
                 getTermInfoWidget().setData(data).setName(name);
+                window.updateHistory(name);
             };
 
             window.addTermInfo = function(){
@@ -1134,7 +1135,7 @@ define(function (require) {
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
             });
             
-            window.updateHistory = function() 
+            window.updateHistory = function(title) 
             {
                 // Update the parent windows history with current instances (i=) and popup selection (id=)
                 var items='';
@@ -1144,7 +1145,7 @@ define(function (require) {
                 {
                     items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
                 }
-                parent.history.pushState({}, '', parent.location.pathname + "?" + items);
+                parent.history.pushState({}, title, parent.location.pathname + "?" + items);
             };
             
             window.addIndCallback = function(variableId){
