@@ -527,7 +527,7 @@ define(function (require) {
             var getStackViewerDefaultWidth = function() { return Math.ceil(window.innerWidth / 4); };
             var getStackViewerDefaultHeight = function() { return Math.ceil(window.innerHeight/4) - 10; };
             var getTermInfoDefaultWidth = function() { return Math.ceil(window.innerWidth / 4); };
-            var getTermInfoDefaultHeight = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4) - 20); };
+            var getTermInfoDefaultHeight = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4)); };
             var getTermInfoDefaultX = function() { return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); };
             var getStackViewerDefaultX = function() { return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); };
             var getStackViewerDefaultY = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4)); };
