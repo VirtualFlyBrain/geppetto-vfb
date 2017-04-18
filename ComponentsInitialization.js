@@ -703,9 +703,9 @@ define(function (require) {
                 }
                 var meta = path + "." + path + "_meta";
                 var target = widget;
-                if (GEPPETTO.isKeyPressed("ctrl")) {
-                    target = G.addWidget(1).addCustomNodeHandler(customHandler, 'click');
-                }
+//                 if (GEPPETTO.isKeyPressed("meta")) {
+//                     target = G.addWidget(1).addCustomNodeHandler(customHandler, 'click');
+//                 }
                 if (n != undefined) {
                     var metanode = Instances.getInstance(meta);
                     target.setData(metanode).setName(n.getName());
