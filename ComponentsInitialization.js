@@ -703,7 +703,7 @@ define(function (require) {
                 }
                 var meta = path + "." + path + "_meta";
                 var target = widget;
-                if (GEPPETTO.isKeyPressed("meta")) {
+                if (GEPPETTO.isKeyPressed("ctrl")) {
                     target = G.addWidget(1).addCustomNodeHandler(customHandler, 'click');
                 }
                 if (n != undefined) {
