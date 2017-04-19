@@ -1178,7 +1178,7 @@ define(function (require) {
             };
             
             $('#queryBuilderBtn')[0].title="Query Builder";
-            $('#controlPanelBtn')[0].title="Controlo Panel";
+            $('#controlPanelBtn')[0].title="Control Panel";
             $('#spotlightBtn')[0].title="Search";
             $('#panLeftBtn')[0].title="Pan Left";
             $('#panUpBtn')[0].title="Pan Up";
