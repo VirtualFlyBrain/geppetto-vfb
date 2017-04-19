@@ -1177,6 +1177,22 @@ define(function (require) {
                 window.fetchVariableThenRun(variableId, window.addIndCallback);    
             };
             
+            $('#queryBuilderBtn')[0].title="Query Builder";
+            $('#controlPanelBtn')[0].title="Controlo Panel";
+            $('#spotlightBtn')[0].title="Search";
+            $('#panLeftBtn')[0].title="Pan Left";
+            $('#panUpBtn')[0].title="Pan Up";
+            $('#panRightBtn')[0].title="Pan Right";
+            $('#panDownBtn')[0].title="Pan Down";
+            $('#panHomeBtn')[0].title="Reset to Home Position";
+            $('#rotateLeftBtn')[0].title="Rotate Left";
+            $('#rotateUpBtn')[0].title="Rotate Up";
+            $('#rotateRightBtn')[0].title="Rotate Right";
+            $('#rotateDownBtn')[0].title="Rotate Down";
+            $('#rotateBtn')[0].title="Rotate the scene";
+            $('#zoomInBtn')[0].title="Zoom In";
+            $('#zoomOutBtn')[0].title="Zoom Out";
+            
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
