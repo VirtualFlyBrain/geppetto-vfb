@@ -1076,13 +1076,15 @@ define(function (require) {
                                     "tooltip": "Hide 3D Skeleton"
                                 }
                             },
+                        },
+                        "Common": {
                             "delete": {
                                 "id": "delete",
                                 "actions": ["$instance$.delete();"],
                                 "icon": "fa-trash-o",
                                 "label": "Delete",
                                 "tooltip": "Delete"
-                            },
+                            }
                         }
                     };
                     window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom']});
