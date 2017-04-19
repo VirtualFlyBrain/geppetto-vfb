@@ -892,6 +892,7 @@ define(function (require) {
                             }
                         }
                     });
+                    $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
                 } else {
                     $('#' + window.StackViewer1.getId()).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
@@ -992,6 +993,7 @@ define(function (require) {
                     window.termInfoPopupId = window.termInfoPopup.getId();
                     window.termInfoPopup.showHistoryNavigationBar(true);
                     window.termInfoPopup.setTrasparentBackground(true);
+                    $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
                     window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
                         if(id == window.termInfoPopupId){
