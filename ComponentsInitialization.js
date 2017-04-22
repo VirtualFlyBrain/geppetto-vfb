@@ -655,6 +655,7 @@ define(function (require) {
             };
 
             window.fetchVariableThenRun = function(variableId, callback, label){
+                window.clearQS();
                 G.unSelectAll(); // signal something is happening!
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
                 if (!variables.length>0) {
@@ -982,6 +983,8 @@ define(function (require) {
             window.setTermInfo = function (data, name) {
                 getTermInfoWidget().setData(data).setName(name);
                 window.updateHistory(name);
+                G.unSelectAll();
+                data.getParent().select();
             };
 
             window.addTermInfo = function(){
@@ -1173,7 +1176,6 @@ define(function (require) {
             
             window.addVfbInd = function(variableId) 
             {
-                G.unSelectAll();
                 window.fetchVariableThenRun(variableId, window.addIndCallback);    
             };
             
@@ -1195,6 +1197,12 @@ define(function (require) {
             $('#zoomInBtn').first().title="Zoom In";
             $('#zoomOutBtn').first().title="Zoom Out";
             };
+            
+            window.clearQS = function()
+            {
+                GEPPETTO.QueryBuilder.close();
+                GEPPETTO.Spotlight.close();
+            }
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
