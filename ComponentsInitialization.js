@@ -984,7 +984,10 @@ define(function (require) {
                 getTermInfoWidget().setData(data).setName(name);
                 window.updateHistory(name);
                 G.unSelectAll();
-                data.getParent().select();
+                if (typeof data.getParent().select === "function") 
+                {
+                    data.getParent().select(); // Select if visual type loaded.
+                }
             };
 
             window.addTermInfo = function(){
