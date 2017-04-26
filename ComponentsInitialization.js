@@ -1208,7 +1208,7 @@ define(function (require) {
                 }
                 if (GEPPETTO.QueryBuilder)
                 {
-                	GEPPETTO.QueryBuilder.open();
+                	GEPPETTO.QueryBuilder.close();
                 }
             }
         };
