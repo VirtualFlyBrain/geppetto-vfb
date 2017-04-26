@@ -685,8 +685,7 @@ define(function (require) {
                     term: (label != undefined) ? label :  eval(variableId).getName(),
                     id: variableId
                 });
-                GEPPETTO.Spotlight.close();
-                GEPPETTO.QueryBuilder.open();
+                window.clearQS();
             };
 
             window.setTermInfoCallback = function(variableId){
@@ -1203,8 +1202,14 @@ define(function (require) {
             
             window.clearQS = function()
             {
-                GEPPETTO.QueryBuilder.close();
-                GEPPETTO.Spotlight.close();
+            	if (GEPPETTO.Spotlight)
+                {
+                	GEPPETTO.Spotlight.close();
+                }
+                if (GEPPETTO.QueryBuilder)
+                {
+                	GEPPETTO.QueryBuilder.open();
+                }
             }
         };
 
