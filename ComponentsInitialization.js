@@ -786,7 +786,8 @@ define(function (require) {
             };
 
             var updateStackWidget = function(){
-                console.log('Updating stack...');
+            	window.checkConnection();
+            	console.log('Updating stack...');
                 window.StackViewer1.setData({
                     instances: getSliceInstances()
                 });
@@ -1167,6 +1168,7 @@ define(function (require) {
             };
             
             window.addIndCallback = function(variableId){
+            	window.checkConnection();
                 var instance = Instances.getInstance(variableId);
                 var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 resolve3D(variableId, function() {
@@ -1202,6 +1204,7 @@ define(function (require) {
             
             window.clearQS = function()
             {
+            	window.checkConnection();
             	if (GEPPETTO.Spotlight)
                 {
                 	GEPPETTO.Spotlight.close();
@@ -1210,6 +1213,17 @@ define(function (require) {
                 {
                 	GEPPETTO.QueryBuilder.close();
                 }
+            }
+            
+            window.checkConnection = function()
+            {
+            	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED)
+            	{
+            		if (confirm("Your connection to the VFB servers has timed out. \nClick OK to reconnect and reload your current displayed items\nor click Cancel to do nothing."))
+            		{
+            			location.reload();
+            		}
+            	}
             }
         };
 
