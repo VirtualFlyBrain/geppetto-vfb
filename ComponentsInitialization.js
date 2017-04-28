@@ -981,6 +981,7 @@ define(function (require) {
             };
 
             window.setTermInfo = function (data, name) {
+            	window.checkConnection();
                 getTermInfoWidget().setData(data).setName(name);
                 window.updateHistory(name);
                 G.unSelectAll();
@@ -1219,7 +1220,7 @@ define(function (require) {
             {
             	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED)
             	{
-            		if (confirm("Your connection to the VFB servers has timed out. \nClick OK to reconnect and reload your current displayed items\nor click Cancel to do nothing."))
+            		if (confirm("Sorry but your connection to our servers has timed out. \nClick OK to reconnect and reload your current items or click Cancel to do nothing."))
             		{
             			location.reload();
             		}
