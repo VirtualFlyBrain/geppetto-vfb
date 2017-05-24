@@ -1183,6 +1183,11 @@ define(function (require) {
             {
                 window.fetchVariableThenRun(variableId, window.addIndCallback);    
             };
+		
+	    window.stackViewerRequest = function(variableId) 
+            {
+                window.addVfbInd(variableId);    
+            };
             
             window.setToolTips = function()
             {
