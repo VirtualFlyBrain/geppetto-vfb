@@ -1158,9 +1158,22 @@ define(function (require) {
             window.updateHistory = function(title) 
             {
                 // Update the parent windows history with current instances (i=) and popup selection (id=)
-                var items='';
-                Instances.forEach(function(instanace){items = items + ',' + instanace.id}); 
-                items = items.replace(',,',',').replace(',time,','i=');
+            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
+                var visualParents = [];
+                for (var i = 0; i < visualInstances.length; i++) {
+                    visualParents.push(visualInstances[i].getParent());
+                }
+                visualInstances = visualInstances.concat(visualParents);
+                var compositeInstances = [];
+                for (var i = 0; i < visualInstances.length; i++) {
+                    if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+                        compositeInstances.push(visualInstances[i]);
+                    }
+                }
+                
+            	var items='i=';
+            	compositeInstances.forEach(function(compositeInstances){items = items + ',' + compositeInstances.getId()}); 
+                items = items.replace(',,',',').replace('i=,','i=');
                 if (window.getTermInfoWidget().data != null)
                 {
                     items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
