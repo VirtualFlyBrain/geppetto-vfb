@@ -1158,7 +1158,7 @@ define(function (require) {
             window.updateHistory = function(title) 
             {
                 // Update the parent windows history with current instances (i=) and popup selection (id=)
-            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
+            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
                 var visualParents = [];
                 for (var i = 0; i < visualInstances.length; i++) {
                     visualParents.push(visualInstances[i].getParent());
