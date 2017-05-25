@@ -1166,13 +1166,13 @@ define(function (require) {
                 visualInstances = visualInstances.concat(visualParents);
                 var compositeInstances = [];
                 for (var i = 0; i < visualInstances.length; i++) {
-                    if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+                    if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
                         compositeInstances.push(visualInstances[i]);
                     }
                 }
                 
             	var items='i=';
-            	compositeInstances.forEach(function(compositeInstances){items = items + ',' + compositeInstances.getId()}); 
+            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
                 items = items.replace(',,',',').replace('i=,','i=');
                 if (window.getTermInfoWidget().data != null)
                 {
