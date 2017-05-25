@@ -106,7 +106,9 @@ define(function (require) {
                 var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
                 var visualParents = [];
                 for (var i = 0; i < visualInstances.length; i++) {
-                    visualParents.push(visualInstances[i].getParent());
+                	if (visualInstances[i].getParent() != null){
+                		visualParents.push(visualInstances[i].getParent());
+                	}
                 }
                 visualInstances = visualInstances.concat(visualParents);
                 var compositeInstances = [];
@@ -760,7 +762,7 @@ define(function (require) {
                     } else {
                         // it's a leaf (no children) / grab parent if name is different from current selection set term info
                         var parent = latestSelection.getParent();
-                        if(currentSelectionName != parent.getName()){
+                        if(parent != null && currentSelectionName != parent.getName()){
                             setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                         }
                     }
@@ -1161,7 +1163,9 @@ define(function (require) {
             	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
                 var visualParents = [];
                 for (var i = 0; i < visualInstances.length; i++) {
-                    visualParents.push(visualInstances[i].getParent());
+                	if (visualInstances[i].getParent() != null){
+                		visualParents.push(visualInstances[i].getParent());
+                	}
                 }
                 visualInstances = visualInstances.concat(visualParents);
                 var compositeInstances = [];
