@@ -234,7 +234,7 @@ define(function (require) {
                             actions: [
                                 "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                             ],
-                            icon: "fa-cog",
+                            icon: "fa-quora",
                             label: "Add to query",
                             tooltip: "Add to query"
                         },
@@ -308,7 +308,7 @@ define(function (require) {
                                 },
                                 buttonTwo: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                    icon: "fa-cog",
+                                    icon: "fa-quora",
                                     label: "Add to query",
                                     tooltip: "Add to query"
                                 }
@@ -325,7 +325,7 @@ define(function (require) {
                                 },
                                 buttonTwo: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                    icon: "fa-cog",
+                                    icon: "fa-quora",
                                     label: "Add to query",
                                     tooltip: "Add to query"
                                 }
@@ -1176,6 +1176,10 @@ define(function (require) {
                 }
                 
             	var items='i=';
+            	if (window.templateID)
+            	{
+            		items = items + ',' + window.templateID;
+            	}
             	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
                 items = items.replace(',,',',').replace('i=,','i=');
                 if (window.getTermInfoWidget().data != null)
