@@ -224,7 +224,7 @@ define(function (require) {
                     "CompositeType": {
                         "type": {
                             "actions": [
-                                "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');",
+                                "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
                             ],
                             "icon": "fa-info-circle",
                             "label": "Show info",
@@ -277,7 +277,7 @@ define(function (require) {
                         },
                         "buttonThree": {
                             "actions": [
-                                "GEPPETTO.SceneController.zoomTo($instances$)"
+                                "GEPPETTO.SceneController.zoomTo($instances$);GEPPETTO.Spotlight.close();"
                             ],
                             "icon": "fa-search-plus",
                             "label": "Zoom",
