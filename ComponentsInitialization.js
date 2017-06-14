@@ -1214,7 +1214,13 @@ define(function (require) {
             
             window.addVfbInd = function(variableId) 
             {
-                window.fetchVariableThenRun(variableId, window.addIndCallback);    
+                if (window[variableId] == undefined){
+                	window.fetchVariableThenRun(variableId, window.addIndCallback);  
+                }else{
+                	var instance = Instances.getInstance(variableId);
+                    var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                	setTermInfo(meta, meta.getParent().getId());
+                }
             };
 		
 	    window.stackViewerRequest = function(variableId) 
