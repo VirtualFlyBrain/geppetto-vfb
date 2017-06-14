@@ -699,6 +699,7 @@ define(function (require) {
             window.customHandler = function (node, path, widget) {
                 var n;
                 var otherId;
+                var otherName;
                 try {
                     n = eval(path);
                 } catch (ex) {
@@ -716,6 +717,7 @@ define(function (require) {
                 	// check for passed ID:
                 	if (path.indexOf(',')>-1){
                 		otherId = path.split(',')[1];
+                		otherName = path.split(',')[2];
                 		path = path.split(',')[0];
                 	}
                     // try to evaluate as path in Model
@@ -745,9 +747,7 @@ define(function (require) {
                         if (otherId == undefined) {
                         	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
                         }else{
-                        	meta = otherId + "." + otherId + "_meta";
-                        	var metanode = Instances.getInstance(meta);
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: metanode.getName(), id: metanode.getId(), queryObj: entity}, callback);
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
                         }
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
