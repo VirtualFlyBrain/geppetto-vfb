@@ -698,6 +698,7 @@ define(function (require) {
             // custom handler for term info clicks
             window.customHandler = function (node, path, widget) {
                 var n;
+                var otherId;
                 try {
                     n = eval(path);
                 } catch (ex) {
@@ -712,6 +713,11 @@ define(function (require) {
                     var metanode = Instances.getInstance(meta);
                     target.setData(metanode).setName(n.getName());
                 } else {
+                	// check for passed ID:
+                	if (path.indexOf(',')>-1){
+                		otherId = path.split(',')[1];
+                		path = path.split(',')[0];
+                	}
                     // try to evaluate as path in Model
                     var entity = Model[path];
                     if(entity instanceof Query){
@@ -736,7 +742,13 @@ define(function (require) {
                         };
 
                         // add query item + selection
-                        GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                        if (otherId = undefined) {
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                        }else{
+                        	meta = otherId + "." + otherId + "_meta";
+                        	var metanode = Instances.getInstance(meta);
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: metanode.getName(), id: metanode.getId(), queryObj: entity}, callback);
+                        }
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
                             Instances.getInstance(meta);
