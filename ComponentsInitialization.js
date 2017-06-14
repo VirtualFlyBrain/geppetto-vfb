@@ -742,7 +742,7 @@ define(function (require) {
                         };
 
                         // add query item + selection
-                        if (otherId = undefined) {
+                        if (otherId == undefined) {
                         	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
                         }else{
                         	meta = otherId + "." + otherId + "_meta";
