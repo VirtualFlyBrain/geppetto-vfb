@@ -817,6 +817,12 @@ define(function (require) {
                     if (typeof sliceInstances[0] !== "undefined"){
                         config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
                     }
+                    if (config == undefined || typeof config !== "undefined"){
+                    	config = {
+                                serverUrl: '/fcgi/wlziipsrv.fcgi',
+                                templateId: 'NOTSET'
+                            };
+                    }
                     G.addWidget(8).setConfig(config).setData({
                         instances: sliceInstances
                     });
