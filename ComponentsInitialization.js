@@ -1199,9 +1199,13 @@ define(function (require) {
                 }
             };
 		
-	    window.stackViewerRequest = function(variableId) 
+            window.stackViewerRequest = function(variableId) 
             {
-                window.addVfbInd(variableId);    
+	    		if (variableId.indexOf('VFB') > -1){
+	    			window.addVfbInd(variableId);   
+	    		}else{
+	    			window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+	    		}
             };
             
             window.setToolTips = function()
