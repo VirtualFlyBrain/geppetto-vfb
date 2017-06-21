@@ -859,23 +859,8 @@ define(function (require) {
 
                         if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
-                                instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
-                                console.log('Passing instance: ' + instances[0].parent.getId());
-                                if (instances[0].parent.getId() == 'VFB_00017894'){
-                                    var config;
-                                    var domainId = [];
-                                    var domainName = [];
-                                    if (typeof sliceInstances[0] !== "undefined"){
-                                        config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
-                                    }
-                                    if (config == undefined || typeof config !== "undefined"){
-                                    	config = {
-                                                serverUrl: '/fcgi/wlziipsrv.fcgi',
-                                                templateId: 'VFB_00017894'
-                                            };
-                                    }
-                                    window.StackViewer1.setConfig(config);
-                                }
+                            	var config = {serverUrl: '/fcgi/wlziipsrv.fcgi',templateId: window.templateID};
+                                instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance);if (instance.parent.getId() == window.templateID){try{config=JSON.parse(instance.getValue().wrappedObj.value.data);window.StackViewer1.setConfig(config);}catch (err){console.log(err.message);window.StackViewer1.setConfig(config);}}console.log('Passing instance: ' + instance.getId());}})});
                             }
                         }	
                     });
