@@ -516,7 +516,7 @@ define(function (require) {
         window.initVFB = function () {
 
             window.templateID = undefined;
-            window.redirectURL = '$PROTOCOL//$HOST/?i=$TEMPLATE,$VFB_ID$%26id=$VFB_ID';
+            window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
 
         	// camera setup
         	GEPPETTO.on(GEPPETTO.Events.Canvas_initialised,function(){
@@ -592,10 +592,17 @@ define(function (require) {
                             var anchorElement = domObj.filter('a');
                             // extract ID
                             var templateID = anchorElement.attr('instancepath');
+                            if (window.EMBEDDED){
+                            	var curHost = parent.document.location.host;
+                            	var curProto = parent.document.location.protocol;
+                            }else{
+                            	var curHost = document.location.host;
+                            	var curProto = document.location.protocol;
+                            }
                             if(templateID != window.templateID){
                                 // open new window with the new template and the instance ID
                                 var targetWindow = '_blank';
-                                var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$HOST\$/gi, window.location.host).replace(/\$PROTOCOL\$/gi, window.location.protocol);
+                                var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
                                 window.open(newUrl, targetWindow);
                                 // stop flow here, we don't want to add to scene something with a different template
                                 return;
