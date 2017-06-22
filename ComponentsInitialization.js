@@ -516,7 +516,7 @@ define(function (require) {
         window.initVFB = function () {
 
             window.templateID = undefined;
-            window.redirectURL = '/geppetto?load_project_from_url=http://vfbsandbox.inf.ed.ac.uk/do/geppettoJson.json?i=$VFB_ID$%26t=$TEMPLATE$%26d';
+            window.redirectURL = 'https://v2a.virtualflybrain.org/?i=$TEMPLATE,$VFB_ID$%26id=$VFB_ID';
 
         	// camera setup
         	GEPPETTO.on(GEPPETTO.Events.Canvas_initialised,function(){
@@ -594,17 +594,9 @@ define(function (require) {
                             var templateID = anchorElement.attr('instancepath');
                             if(templateID != window.templateID){
                                 // open new window with the new template and the instance ID
-                                var baseUrl = window.location.href;
-                                if (baseUrl.indexOf('/geppetto') > 0) {
-                                    baseUrl = baseUrl.substring(0, baseUrl.indexOf('/geppetto'));
-                                }
-                                
                                 var targetWindow = '_blank';
-                                if(window.EMBEDDED) {
-                                    targetWindow = '_self';
-                                }
-                                var suffixUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID);
-                                window.open(baseUrl + suffixUrl, targetWindow);
+                                var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$VFB_ID\$/gi, rootInstance.getId());
+                                window.open(newUrl, targetWindow);
                                 // stop flow here, we don't want to add to scene something with a different template
                                 return;
                             }
