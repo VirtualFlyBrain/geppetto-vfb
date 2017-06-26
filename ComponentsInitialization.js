@@ -356,7 +356,7 @@ define(function (require) {
         GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage: Math.ceil(window.innerHeight / 285)}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage: Math.ceil(window.innerHeight / 300)}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
