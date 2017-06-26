@@ -723,6 +723,7 @@ define(function (require) {
                     var entity = Model[path];
                     if(entity instanceof Query){
                         GEPPETTO.trigger('spin_logo');
+                        $("body").css("cursor", "progress");
 
                         // clear query builder
                         GEPPETTO.QueryBuilder.clearAllQueryItems();
@@ -739,6 +740,7 @@ define(function (require) {
                             // show query component
                             GEPPETTO.QueryBuilder.open();
 
+                            $("body").css("cursor", "default");
                             GEPPETTO.trigger('stop_spin_logo');
                         };
 
