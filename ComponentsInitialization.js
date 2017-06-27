@@ -317,13 +317,19 @@ define(function (require) {
                         individual: {
                             icon: "fa-file-image-o",
                             buttons: {
-                                buttonOne: {
+                            	buttonOne: {
+                                    actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                    icon: "fa-info-circle",
+                                    label: "Show info",
+                                    tooltip: "Show info"
+                                },
+                                buttonTwo: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
                                     icon: "fa-file-image-o",
                                     label: "Add to scene",
                                     tooltip: "Add to scene"
                                 },
-                                buttonTwo: {
+                                buttonThree: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
                                     icon: "fa-quora",
                                     label: "Add to query",
@@ -1189,24 +1195,44 @@ define(function (require) {
                 });
             };
             
-            window.addVfbInd = function(variableId) 
+            window.addVfbId = function(variableId) 
             {
                 if (window[variableId] == undefined){
-                	window.fetchVariableThenRun(variableId, window.addIndCallback);  
+                	if (variableId.indexOf('VFB_') > -1){
+                		window.fetchVariableThenRun(variableId, window.addToSceneCallback);  
+                	}else{
+                		window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+                	}
                 }else{
-                	var instance = Instances.getInstance(variableId);
-                    var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                	setTermInfo(meta, meta.getParent().getId());
+                	if (variableId.indexOf('VFB_') > -1){
+                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){
+                			if (window[variableId][variableId+'_swc'] != undefined){
+                				if (!window[variableId][variableId+'_swc'].visible){
+                					window[variableId][variableId+'_swc'].show();
+                				}
+                			}else{
+                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible){
+                					window[variableId][variableId+'_swc'].show();
+                				}
+                			}
+                			if (window[variableId][variableId+'_meta'] != undefined){
+                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                    			setTermInfo(meta, variableId);
+                			}else{
+                				window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+                			}
+                		}
+                	}else{
+                		var instance = Instances.getInstance(variableId);
+                		var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                		setTermInfo(meta, meta.getParent().getId());
+                	}
                 }
             };
 		
             window.stackViewerRequest = function(variableId) 
             {
-	    		if (variableId.indexOf('VFB') > -1){
-	    			window.addVfbInd(variableId);   
-	    		}else{
-	    			window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
-	    		}
+	    		window.addVfbId(variableId);   
             };
             
             window.setToolTips = function()
