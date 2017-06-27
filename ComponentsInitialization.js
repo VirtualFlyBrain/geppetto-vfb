@@ -692,7 +692,6 @@ define(function (require) {
                     term: (label != undefined) ? label :  eval(variableId).getName(),
                     id: variableId
                 });
-                window.clearQS();
             };
 
             window.setTermInfoCallback = function(variableId){
