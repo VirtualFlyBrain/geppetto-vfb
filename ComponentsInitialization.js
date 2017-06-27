@@ -201,7 +201,7 @@ define(function (require) {
                     },
                     "delete": {
                         "id": "delete",
-                        "actions": ["$instance$.delete();"],
+                        "actions": ["$instance$.deselect(); $instance$.delete();"],
                         "icon": "fa-trash-o",
                         "label": "Delete",
                         "tooltip": "Delete"
@@ -1086,14 +1086,14 @@ define(function (require) {
                         "Common": {
                             "delete": {
                                 "id": "delete",
-                                "actions": ["$instance$.delete();"],
+                                "actions": ["$instance$.deselect();$instance$.delete();window.getTermInfoWidget().setData(window[window.templateID][window.templateID+'_meta'])"],
                                 "icon": "fa-trash-o",
                                 "label": "Delete",
                                 "tooltip": "Delete"
                             }
                         }
                     };
-                    window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom']});
+                    window.termInfoPopup.setButtonBarControls({"Common": ['delete'],"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom']});
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                 } else {
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
