@@ -680,7 +680,7 @@ define(function (require) {
                 resolve3D(variableId, function() {
                     G.unSelectAll();
                     instance.select();
-                    GEPPETTO.Spotlight.openToInstance(instance);
+//                    GEPPETTO.Spotlight.openToInstance(instance);
                     setTermInfo(meta, meta.getParent().getId());
                 });
             };
