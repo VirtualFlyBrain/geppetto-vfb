@@ -752,7 +752,11 @@ define(function (require) {
                         if (otherId == undefined) {
                         	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
                         }else{
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
+                        	if (window[otherId] == undefined){
+                        		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
+                        	}else{
+                        		GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
+                        	}
                         }
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
