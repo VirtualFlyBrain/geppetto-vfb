@@ -551,13 +551,17 @@ define(function (require) {
                 if (coli > 199) {
                     coli = 0;
                 }
-                Instances.getInstance(entityPath).setColor(colours[c], true).setOpacity(0.3, true);
-                try {
-                    Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
-                } catch (ignore) {
-                }
-                if (c = 0) {
-                    Instances.getInstance(entityPath).setOpacity(0.2, true);
+                if (Instances.getInstance(entityPath).setColor != undefined){
+                	Instances.getInstance(entityPath).setColor(colours[c], true).setOpacity(0.3, true);
+                	try {
+                        Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
+                    } catch (ignore) {
+                    }
+                    if (c = 0) {
+                        Instances.getInstance(entityPath).setOpacity(0.2, true);
+                    }
+                }else{
+                	console.log('Issue setting colour for ' + entityPath);
                 }
             };
 
@@ -683,7 +687,7 @@ define(function (require) {
                     setTermInfo(meta, meta.getParent().getId());
                 });
             };
-
+            
             window.addToQueryCallback = function(variableId, label) {
                 GEPPETTO.QueryBuilder.clearAllQueryItems();
                 GEPPETTO.QueryBuilder.switchView(false);
