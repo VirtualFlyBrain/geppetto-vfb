@@ -412,7 +412,6 @@ define(function (require) {
                 }
             ];
             GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
-
             // which columns to display in the results
             GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'controls', 'images']);
 
@@ -1081,8 +1080,6 @@ define(function (require) {
                                     "tooltip": "Hide 3D Skeleton"
                                 }
                             },
-                        },
-                        "Common": {
                             "delete": {
                                 "id": "delete",
                                 "actions": ["$instance$.deselect();$instance$.delete();window.getTermInfoWidget().setData(window[window.templateID][window.templateID+'_meta'])"],
@@ -1092,7 +1089,7 @@ define(function (require) {
                             }
                         }
                     };
-                    window.termInfoPopup.setButtonBarControls({"Common": ['delete'],"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom']});
+                    window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                 } else {
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
