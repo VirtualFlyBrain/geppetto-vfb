@@ -1216,10 +1216,11 @@ define(function (require) {
                 				}
                 			}else{
                 				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible){
-                					window[variableId][variableId+'_swc'].show();
+                					window[variableId][variableId+'_obj'].show();
                 				}
                 			}
                 			if (window[variableId][variableId+'_meta'] != undefined){
+                				window[variableId].select()
                 				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                     			setTermInfo(meta, variableId);
                 			}else{
