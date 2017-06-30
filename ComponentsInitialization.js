@@ -1158,34 +1158,36 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                // Update the parent windows history with current instances (i=) and popup selection (id=)
-            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
-                var visualParents = [];
-                for (var i = 0; i < visualInstances.length; i++) {
-                	if (visualInstances[i].getParent() != null){
-                		visualParents.push(visualInstances[i].getParent());
-                	}
+                if (parent.window.location.href.indexOf('org.geppetto.frontend')<0){
+	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
+	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+	                var visualParents = [];
+	                for (var i = 0; i < visualInstances.length; i++) {
+	                	if (visualInstances[i].getParent() != null){
+	                		visualParents.push(visualInstances[i].getParent());
+	                	}
+	                }
+	                visualInstances = visualInstances.concat(visualParents);
+	                var compositeInstances = [];
+	                for (var i = 0; i < visualInstances.length; i++) {
+	                    if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+	                        compositeInstances.push(visualInstances[i]);
+	                    }
+	                }
+	                
+	            	var items='i=';
+	            	if (window.templateID)
+	            	{
+	            		items = items + ',' + window.templateID;
+	            	}
+	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
+	                items = items.replace(',,',',').replace('i=,','i=');
+	                if (window.getTermInfoWidget().data != null)
+	                {
+	                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
+	                }
+	                parent.history.pushState({}, title, parent.location.pathname + "?" + items);
                 }
-                visualInstances = visualInstances.concat(visualParents);
-                var compositeInstances = [];
-                for (var i = 0; i < visualInstances.length; i++) {
-                    if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-                        compositeInstances.push(visualInstances[i]);
-                    }
-                }
-                
-            	var items='i=';
-            	if (window.templateID)
-            	{
-            		items = items + ',' + window.templateID;
-            	}
-            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
-                items = items.replace(',,',',').replace('i=,','i=');
-                if (window.getTermInfoWidget().data != null)
-                {
-                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
-                }
-                parent.history.pushState({}, title, parent.location.pathname + "?" + items);
             };
             
             window.addIndCallback = function(variableId){
