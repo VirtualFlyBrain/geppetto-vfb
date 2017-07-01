@@ -1315,8 +1315,9 @@ define(function (require) {
 	            		}else{
 	            			window.addVfbId(window.vfbLoadBuffer[i]);
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
+	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
 	            			window.vfbLoadingTimeout = 10;
-	            			setTimeout(window.addVfbIds(), 20000);
+	            			setTimeout(window.addVfbIds(), 60000);
 	            			break;
 	            		}
 	            	}
@@ -1333,10 +1334,6 @@ define(function (require) {
             			window.vfbLoadingTimeout--
             			if (window.vfbLoadingTimeout < 1){
             				console.log("Failed to load " + window.vfbLoading + " in time");
-            				if (window.vfbLoadBuffer.length > 1){
-            					window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-            					window.vfbLoadBuffer.push(window.vfbLoading);
-            				}
             				window.vfbLoading = "";
             				
             			}else{
