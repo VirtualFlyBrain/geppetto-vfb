@@ -1333,8 +1333,10 @@ define(function (require) {
             			window.vfbLoadingTimeout--
             			if (window.vfbLoadingTimeout < 1){
             				console.log("Failed to load " + window.vfbLoading + " in time");
-            				window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-            				window.vfbLoadBuffer.push(window.vfbLoading);
+            				if (window.vfbLoadBuffer.length > 1){
+            					window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
+            					window.vfbLoadBuffer.push(window.vfbLoading);
+            				}
             				window.vfbLoading = "";
             				
             			}else{
