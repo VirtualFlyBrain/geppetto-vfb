@@ -1293,6 +1293,52 @@ define(function (require) {
             }
             
             window.vfbRelaodMessage = true;
+            
+            if (window.vfbLoadBuffer == undefined){
+            	window.vfbLoadBuffer = [];
+            	window.vfbLoading = "";
+            }
+            
+            window.addVfbIds = function(variableIds)
+            {
+            	for (i in variableIds){
+            		if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0){
+            			window.vfbLoadBuffer.push(variableIds[i]);
+            		}
+            	}
+            	if (window.vfbLoading == ""){
+	            	for (i in window.vfbLoadBuffer){
+	            		if (window[window.vfbLoadBuffer[i]] != undefined){
+	            			window.vfbLoadBuffer.splice(i,1);
+	            			window.addVfbIds();
+	            			break;
+	            		}else{
+	            			window.addVfbId(window.vfbLoadBuffer[i]);
+	            			window.vfbLoading = window.vfbLoadBuffer[i];
+	            			window.vfbLoadingTimeout = 10;
+	            			setTimeout(window.addVfbIds(), 10000);
+	            			break;
+	            		}
+	            	}
+            	}else{
+            		if (window[window.vfbLoading] != undefined){
+            			if ($.inArray(window.vfbLoading, window.vfbLoadBuffer) < 0){
+            				window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
+            				window.vfbLoading = "";
+            			}else{
+            				window.vfbLoading = "";
+            			}
+            		}else{
+            			window.vfbLoadingTimeout--
+            			if (window.vfbLoadingTimeout < 1){
+            				console.log("Failed to load " + window.vfbLoading + " in time");
+            				window.vfbLoading = "";
+            			}
+            		}
+            		setTimeout(window.addVfbIds(), 10000);
+            	}
+            }
+            
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
