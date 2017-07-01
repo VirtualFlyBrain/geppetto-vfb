@@ -1338,7 +1338,7 @@ define(function (require) {
             				window.vfbLoading = "";
             				
             			}else{
-            				setTimeout(window.addVfbIds(), 20000);
+            				setTimeout(window.addVfbIds(), 30000);
             			}
             		}            		
             	}
