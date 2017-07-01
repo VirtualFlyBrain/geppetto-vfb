@@ -665,7 +665,6 @@ define(function (require) {
             };
 
             window.fetchVariableThenRun = function(variableId, callback, label){
-                window.clearQS();
                 G.unSelectAll(); // signal something is happening!
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
                 if (!variables.length>0) {
