@@ -1328,17 +1328,20 @@ define(function (require) {
             			}else{
             				window.vfbLoading = "";
             			}
+            			setTimeout(window.addVfbIds(), 10000);
             		}else{
             			window.vfbLoadingTimeout--
             			if (window.vfbLoadingTimeout < 1){
             				console.log("Failed to load " + window.vfbLoading + " in time");
             				window.vfbLoading = "";
+            			}else{
+            				setTimeout(window.addVfbIds(), 10000);
             			}
-            		}
-            		setTimeout(window.addVfbIds(), 10000);
+            		}            		
             	}
+            	window.updateHistory("Loading...");
             }
-            
+ 
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
