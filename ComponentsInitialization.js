@@ -1098,6 +1098,7 @@ define(function (require) {
                     };
                     window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
+                    window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                 } else {
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
