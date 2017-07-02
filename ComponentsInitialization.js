@@ -1335,7 +1335,9 @@ define(function (require) {
             			if (window.vfbLoadingTimeout < 1){
             				console.log("Failed to load " + window.vfbLoading + " in time");
             				window.vfbLoading = "";
-            				
+            				if (window.vfbLoadBuffer.length > 0){
+            					setTimeout(window.addVfbIds(), 10000);
+            				}
             			}else{
             				setTimeout(window.addVfbIds(), 30000);
             			}
