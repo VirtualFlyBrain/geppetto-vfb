@@ -1316,7 +1316,7 @@ define(function (require) {
 	            			window.addVfbId(window.vfbLoadBuffer[i]);
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
 	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-	            			window.vfbLoadingTimeout = 10;
+	            			window.vfbLoadingTimeout = 100;
 	            			setTimeout(window.addVfbIds(), 60000);
 	            			break;
 	            		}
