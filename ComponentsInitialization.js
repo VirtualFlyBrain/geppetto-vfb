@@ -983,7 +983,15 @@ define(function (require) {
             };
 
             window.setTermInfo = function (data, name) {
+            	window.clearQS();
             	window.checkConnection();
+            	//check if to level has been passed:
+            	if (data.parent == null){
+            		if (data[data.getId()+'_meta'] != undefined){
+            			data = data[data.getId()+'_meta'];
+            			console.log('meta passed to term info for ' + data.parent.getName());
+            		}
+            	}
                 getTermInfoWidget().setData(data).setName(name);
                 window.updateHistory(name);
                 G.unSelectAll();
