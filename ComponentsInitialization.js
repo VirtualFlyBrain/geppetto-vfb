@@ -1310,6 +1310,7 @@ define(function (require) {
 	            	for (i in window.vfbLoadBuffer){
 	            		if (window[window.vfbLoadBuffer[i]] != undefined){
 	            			window.vfbLoadBuffer.splice(i,1);
+	            			window.addVfbId(window.vfbLoadBuffer[i]);
 	            			window.addVfbIds();
 	            			break;
 	            		}else{
