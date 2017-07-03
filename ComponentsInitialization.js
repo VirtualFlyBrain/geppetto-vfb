@@ -1211,37 +1211,39 @@ define(function (require) {
             
             window.addVfbId = function(variableId) 
             {
-                if (window[variableId] == undefined){
-                	if (variableId.indexOf('VFB_') > -1){
-                		window.fetchVariableThenRun(variableId, window.addToSceneCallback);  
-                	}else{
-                		window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
-                	}
-                }else{
-                	if (variableId.indexOf('VFB_') > -1){
-                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){
-                			if (window[variableId][variableId+'_swc'] != undefined){
-                				if (!window[variableId][variableId+'_swc'].visible){
-                					window[variableId][variableId+'_swc'].show();
-                				}
-                			}else{
-                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible){
-                					window[variableId][variableId+'_obj'].show();
-                				}
-                			}
-                			if (window[variableId][variableId+'_meta'] != undefined){
-                				window[variableId].select()
-                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                    			setTermInfo(meta, variableId);
-                			}else{
-                				window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
-                			}
-                		}
-                	}else{
-                		var instance = Instances.getInstance(variableId);
-                		var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                		setTermInfo(meta, meta.getParent().getId());
-                	}
+                if (variableId != null){
+	            	if (window[variableId] == undefined){
+	                	if (variableId.indexOf('VFB_') > -1){
+	                		window.fetchVariableThenRun(variableId, window.addToSceneCallback);  
+	                	}else{
+	                		window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+	                	}
+	                }else{
+	                	if (variableId.indexOf('VFB_') > -1){
+	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){
+	                			if (window[variableId][variableId+'_swc'] != undefined){
+	                				if (!window[variableId][variableId+'_swc'].visible){
+	                					window[variableId][variableId+'_swc'].show();
+	                				}
+	                			}else{
+	                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible){
+	                					window[variableId][variableId+'_obj'].show();
+	                				}
+	                			}
+	                			if (window[variableId][variableId+'_meta'] != undefined){
+	                				window[variableId].select()
+	                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+	                    			setTermInfo(meta, variableId);
+	                			}else{
+	                				window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+	                			}
+	                		}
+	                	}else{
+	                		var instance = Instances.getInstance(variableId);
+	                		var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+	                		setTermInfo(meta, meta.getParent().getId());
+	                	}
+	                }
                 }
             };
 		
