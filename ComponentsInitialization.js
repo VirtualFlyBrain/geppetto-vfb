@@ -718,7 +718,11 @@ define(function (require) {
 //                 }
                 if (n != undefined) {
                     var metanode = Instances.getInstance(meta);
-                    target.setData(metanode).setName(n.getName());
+                    if (target.data == metanode){
+                    	resolve3D(path);
+                    }else{
+                    	target.setData(metanode).setName(n.getName());
+                    }
                 } else {
                 	// check for passed ID:
                 	if (path.indexOf(',')>-1){
