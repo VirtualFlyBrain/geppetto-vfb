@@ -1224,7 +1224,13 @@ define(function (require) {
 	                	}
 	                }else{
 	                	if (variableId.indexOf('VFB_') > -1){
-	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){
+	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){ 
+	                			if (window[variableId][variableId+'_swc'] != undefined){
+	                				try{Instances.getInstance(variableId + '.' + variableId + '_swc');}catch (ignore){}
+	                			}
+	                			if (window[variableId][variableId+'_obj'] != undefined){
+	                				try{Instances.getInstance(variableId + '.' + variableId + '_obj');}catch (ignore){}
+	                			}
 	                			if (window[variableId][variableId+'_swc'] != undefined){
 	                				if (!window[variableId][variableId+'_swc'].visible){
 	                					window[variableId][variableId+'_swc'].show();
@@ -1235,7 +1241,7 @@ define(function (require) {
 	                				}
 	                			}
 	                			if (window[variableId][variableId+'_meta'] != undefined){
-	                				window[variableId].select()
+	                				window[variableId].select();
 	                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
 	                    			setTermInfo(meta, variableId);
 	                			}else{
