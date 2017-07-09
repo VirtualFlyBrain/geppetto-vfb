@@ -1357,7 +1357,7 @@ define(function (require) {
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
 	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
 	            			window.vfbLoadingTimeout = 60;
-	            			setTimeout(window.addVfbIds, 10000);
+	            			setTimeout(window.addVfbIds, 5000);
 	            			break;
 	            		}
 	            	}
@@ -1369,17 +1369,17 @@ define(function (require) {
             			}else{
             				window.vfbLoading = "";
             			}
-            			setTimeout(window.addVfbIds, 10000);
+            			setTimeout(window.addVfbIds, 1000);
             		}else{
             			window.vfbLoadingTimeout--
             			if (window.vfbLoadingTimeout < 1){
             				console.log("Failed to load " + window.vfbLoading + " in time");
             				window.vfbLoading = "";
             				if (window.vfbLoadBuffer.length > 0){
-            					setTimeout(window.addVfbIds, 1000);
+            					setTimeout(window.addVfbIds, 500);
             				}
             			}else{
-            				setTimeout(window.addVfbIds, 10000);
+            				setTimeout(window.addVfbIds, 1000);
             			}
             		}            		
             	}
