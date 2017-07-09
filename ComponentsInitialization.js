@@ -1138,21 +1138,12 @@ define(function (require) {
                                 "tooltip": "Show stack viewer"
                             },
                             "meshBtn": {
-                            	"condition": "GEPPETTO.SceneController.wireframe",
-                                "false": {
-                                    "id": "wireframe_obj",
-                                    "actions": ["GEPPETTO.SceneController.setWireframe(true)"],
-                                    "icon": "fa fa-square",
-                                    "label": "solid",
-                                    "tooltip": "Switch to wireframe"
-                                },
-                                "true": {
-                                    "id": "wireframe_obj",
-                                    "actions": ["GEPPETTO.SceneController.setWireframe(false)"],
-                                    "icon": "fa fa-square-o",
-                                    "label": "wireframe",
-                                    "tooltip": "Switch to solid"
-                                }
+                            	"actions": [
+                            		"GEPPETTO.SceneController.setWireframe(!GEPPETTO.SceneController.wireframe);"
+                            	],
+                                "icon": "fa fa-object-ungroup",
+                                "label": "wireframe",
+                                "tooltip": "Toggle wireframe"
                             }
                         }
                     }
