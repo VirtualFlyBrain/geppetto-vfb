@@ -1344,23 +1344,18 @@ define(function (require) {
 	            			window.addVfbIds();
 	            			break;
 	            		}else{
-	            			window.addVfbId(window.vfbLoadBuffer[i]);
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
 	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
 	            			window.vfbLoadingTimeout = 60;
-	            			setTimeout(window.addVfbIds, 5000);
+	            			window.addVfbId(window.vfbLoadBuffer[i]);
+	            			setTimeout(window.addVfbIds, 2000);
 	            			break;
 	            		}
 	            	}
             	}else{
             		if (window[window.vfbLoading] != undefined){
-            			if ($.inArray(window.vfbLoading, window.vfbLoadBuffer) < 0){
-            				window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-            				window.vfbLoading = "";
-            			}else{
-            				window.vfbLoading = "";
-            			}
-            			setTimeout(window.addVfbIds, 1000);
+            			window.vfbLoading = "";
+            			setTimeout(window.addVfbIds, 100);
             		}else{
             			window.vfbLoadingTimeout--
             			if (window.vfbLoadingTimeout < 1){
