@@ -1356,8 +1356,8 @@ define(function (require) {
 	            			window.addVfbId(window.vfbLoadBuffer[i]);
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
 	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-	            			window.vfbLoadingTimeout = 100;
-	            			setTimeout(window.addVfbIds, 60000);
+	            			window.vfbLoadingTimeout = 60;
+	            			setTimeout(window.addVfbIds, 10000);
 	            			break;
 	            		}
 	            	}
@@ -1376,16 +1376,15 @@ define(function (require) {
             				console.log("Failed to load " + window.vfbLoading + " in time");
             				window.vfbLoading = "";
             				if (window.vfbLoadBuffer.length > 0){
-            					setTimeout(window.addVfbIds, 10000);
+            					setTimeout(window.addVfbIds, 1000);
             				}
             			}else{
-            				setTimeout(window.addVfbIds, 30000);
+            				setTimeout(window.addVfbIds, 10000);
             			}
             		}            		
             	}
             	window.updateHistory("Loading...");
             }
- 
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
