@@ -1198,7 +1198,9 @@ define(function (require) {
 	                {
 	                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
 	                }
-	                parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+	                if (items != "i="){
+	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+	                }
                 }
             };
             
@@ -1226,12 +1228,6 @@ define(function (require) {
 	                	if (variableId.indexOf('VFB_') > -1){
 	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){ 
 	                			if (window[variableId][variableId+'_swc'] != undefined){
-	                				try{Instances.getInstance(variableId + '.' + variableId + '_swc');}catch (ignore){}
-	                			}
-	                			if (window[variableId][variableId+'_obj'] != undefined){
-	                				try{Instances.getInstance(variableId + '.' + variableId + '_obj');}catch (ignore){}
-	                			}
-	                			if (window[variableId][variableId+'_swc'] != undefined){
 	                				if (!window[variableId][variableId+'_swc'].visible){
 	                					window[variableId][variableId+'_swc'].show();
 	                				}
@@ -1252,6 +1248,7 @@ define(function (require) {
 	                		var instance = Instances.getInstance(variableId);
 	                		var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
 	                		setTermInfo(meta, meta.getParent().getId());
+	                		window.resolve3D(variableId);
 	                	}
 	                }
                 }
@@ -1259,7 +1256,7 @@ define(function (require) {
 		
             window.stackViewerRequest = function(variableId) 
             {
-	    		window.addVfbId(variableId);   
+	    		window.addVfbIds([variableId]);   
             };
             
             window.setToolTips = function()
