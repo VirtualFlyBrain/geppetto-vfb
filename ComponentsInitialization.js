@@ -1136,6 +1136,23 @@ define(function (require) {
                                 "icon": "gpt-stack",
                                 "label": "",
                                 "tooltip": "Show stack viewer"
+                            },
+                            "meshBtn": {
+                            	"condition": "GEPPETTO.SceneController.wireframe",
+                                "false": {
+                                    "id": "wireframe_obj",
+                                    "actions": ["GEPPETTO.SceneController.setWireframe(true)"],
+                                    "icon": "fa fa-square",
+                                    "label": "solid",
+                                    "tooltip": "Switch to wireframe"
+                                },
+                                "true": {
+                                    "id": "wireframe_obj",
+                                    "actions": ["GEPPETTO.SceneController.setWireframe(false)"],
+                                    "icon": "fa fa-square-o",
+                                    "label": "wireframe",
+                                    "tooltip": "Switch to solid"
+                                }
                             }
                         }
                     }
