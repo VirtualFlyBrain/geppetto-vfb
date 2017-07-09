@@ -1152,7 +1152,12 @@ define(function (require) {
             window.addButtonBar();
 
             window.addEventListener('resize', function(event){
-                // reset size and position of term info widget, if any
+            	window.vfbWindowResize();
+            });
+
+            window.vfbWindowResize = function() 
+            {
+            	// reset size and position of term info widget, if any
                 if(window[window.termInfoPopupId] != undefined && !window[window.termInfoPopupId].maximize) {
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
@@ -1166,7 +1171,7 @@ define(function (require) {
 
                 // reset position of button bar widget (always there)
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
-            });
+            }
             
             window.updateHistory = function(title) 
             {
