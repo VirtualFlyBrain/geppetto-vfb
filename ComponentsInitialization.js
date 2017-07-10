@@ -200,6 +200,7 @@ define(function (require) {
                         "tooltip": "Info"
                     },
                     "delete": {
+                    	"showCondition": "$instance$.getId()!=window.templateId",
                         "id": "delete",
                         "actions": ["$instance$.deselect(); $instance$.delete();"],
                         "icon": "fa-trash-o",
@@ -1100,6 +1101,7 @@ define(function (require) {
                                 }
                             },
                             "delete": {
+                            	"showCondition": "$instance$.getId()!=window.templateId",
                                 "id": "delete",
                                 "actions": ["$instance$.deselect();$instance$.delete();window.getTermInfoWidget().setData(window[window.templateID][window.templateID+'_meta'])"],
                                 "icon": "fa-trash-o",
