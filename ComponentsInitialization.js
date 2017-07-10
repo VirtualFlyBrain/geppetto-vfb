@@ -1142,7 +1142,7 @@ define(function (require) {
                             		"GEPPETTO.SceneController.setWireframe(!GEPPETTO.SceneController.wireframe);"
                             	],
                                 "icon": "fa fa-object-ungroup",
-                                "label": "wireframe",
+                                "label": "",
                                 "tooltip": "Toggle wireframe"
                             }
                         }
