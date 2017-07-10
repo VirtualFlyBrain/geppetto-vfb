@@ -902,6 +902,7 @@ define(function (require) {
                     });
                     $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
                 } else {
+                	window.vfbWindowResize();
                     $('#' + window.StackViewer1.getId()).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
@@ -1114,6 +1115,7 @@ define(function (require) {
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                 } else {
+                	window.vfbWindowResize();
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
