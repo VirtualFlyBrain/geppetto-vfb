@@ -1336,6 +1336,11 @@ define(function (require) {
             			window.vfbLoadBuffer.push(variableIds[i]);
             		}
             	}
+            	if (window.vfbLoadBuffer.length > 0){
+            		GEPPETTO.trigger('spin_logo');
+            	}else{
+            		GEPPETTO.trigger('stop_spin_logo');
+            	}
             	if (window.vfbLoading == ""){
 	            	for (i in window.vfbLoadBuffer){
 	            		if (window[window.vfbLoadBuffer[0]] != undefined){
