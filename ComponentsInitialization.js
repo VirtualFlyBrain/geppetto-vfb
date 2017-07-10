@@ -363,7 +363,7 @@ define(function (require) {
         GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/200)}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/210)}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
@@ -1359,6 +1359,7 @@ define(function (require) {
 	            			break;
 	            		}
 	            	}
+	            	window.updateHistory("Loading...");
             	}else{
             		if (window[window.vfbLoading] != undefined){
             			window.vfbLoading = "";
@@ -1376,7 +1377,6 @@ define(function (require) {
             			}
             		}            		
             	}
-            	window.updateHistory("Loading...");
             }
         };
 
