@@ -1332,22 +1332,22 @@ define(function (require) {
             window.addVfbIds = function(variableIds)
             {
             	for (i in variableIds){
-            		if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0){
+            		if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
             			window.vfbLoadBuffer.push(variableIds[i]);
             		}
             	}
             	if (window.vfbLoading == ""){
 	            	for (i in window.vfbLoadBuffer){
-	            		if (window[window.vfbLoadBuffer[i]] != undefined){
-	            			window.vfbLoadBuffer.splice(i,1);
-	            			window.addVfbId(window.vfbLoadBuffer[i]);
-	            			window.addVfbIds();
+	            		if (window[window.vfbLoadBuffer[0]] != undefined){
+	            			window.vfbLoading=window.vfbLoadBuffer.splice(0,1)[0];
+	            			window.addVfbId(window.vfbLoading);
+	            			setTimeout(window.addVfbIds, 500);
 	            			break;
 	            		}else{
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
 	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
 	            			window.vfbLoadingTimeout = 60;
-	            			window.addVfbId(window.vfbLoadBuffer[i]);
+	            			window.addVfbId(window.vfbLoading);
 	            			setTimeout(window.addVfbIds, 2000);
 	            			break;
 	            		}
