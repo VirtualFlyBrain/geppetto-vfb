@@ -1348,14 +1348,14 @@ define(function (require) {
 	            		if (window[window.vfbLoadBuffer[0]] != undefined){
 	            			window.vfbLoading=window.vfbLoadBuffer.splice(0,1)[0];
 	            			window.addVfbId(window.vfbLoading);
-	            			setTimeout(window.addVfbIds, 500);
+	            			setTimeout(window.addVfbIds, 100);
 	            			break;
 	            		}else{
 	            			window.vfbLoading = window.vfbLoadBuffer[i];
 	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
 	            			window.vfbLoadingTimeout = 60;
 	            			window.addVfbId(window.vfbLoading);
-	            			setTimeout(window.addVfbIds, 2000);
+	            			setTimeout(window.addVfbIds, 500);
 	            			break;
 	            		}
 	            	}
@@ -1369,10 +1369,10 @@ define(function (require) {
             				console.log("Failed to load " + window.vfbLoading + " in time");
             				window.vfbLoading = "";
             				if (window.vfbLoadBuffer.length > 0){
-            					setTimeout(window.addVfbIds, 500);
+            					setTimeout(window.addVfbIds, 250);
             				}
             			}else{
-            				setTimeout(window.addVfbIds, 1000);
+            				setTimeout(window.addVfbIds, 500);
             			}
             		}            		
             	}
