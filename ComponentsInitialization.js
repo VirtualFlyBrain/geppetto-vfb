@@ -689,12 +689,14 @@ define(function (require) {
             };
             
             window.addToQueryCallback = function(variableId, label) {
-                GEPPETTO.QueryBuilder.clearAllQueryItems();
+            	window.clearQS();
+            	GEPPETTO.QueryBuilder.clearAllQueryItems();
                 GEPPETTO.QueryBuilder.switchView(false);
                 GEPPETTO.QueryBuilder.addQueryItem({
                     term: (label != undefined) ? label :  eval(variableId).getName(),
                     id: variableId
                 });
+                GEPPETTO.QueryBuilder.open();
             };
 
             window.setTermInfoCallback = function(variableId){
