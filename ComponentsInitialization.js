@@ -422,7 +422,7 @@ define(function (require) {
             ];
             GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
             // which columns to display in the results
-            GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'controls', 'images']);
+            GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'type', 'images']);
 
             var queryResultsControlConfig = {
                 "Common": {
