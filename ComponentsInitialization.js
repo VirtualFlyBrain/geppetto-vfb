@@ -363,7 +363,7 @@ define(function (require) {
         GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/230)}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/220)}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
@@ -392,10 +392,18 @@ define(function (require) {
                     "cssClassName": "query-results-description-column"
                 },
                 {
-                    "columnName": "controls",
+                    "columnName": "type",
                     "order": 4,
                     "locked": false,
                     "visible": true,
+                    "displayName": "Type",
+                    "cssClassName": "query-results-type-column"
+                },
+                {
+                    "columnName": "controls",
+                    "order": 5,
+                    "locked": false,
+                    "visible": false,
                     "customComponent": GEPPETTO.QueryResultsControlsComponent,
                     "displayName": "Controls",
                     "actions": "",
@@ -403,7 +411,7 @@ define(function (require) {
                 },
                 {
                     "columnName": "images",
-                    "order": 5,
+                    "order": 6,
                     "locked": false,
                     "visible": true,
                     "customComponent": GEPPETTO.SlideshowImageComponent,
@@ -1016,7 +1024,7 @@ define(function (require) {
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                     window.termInfoPopupId = window.termInfoPopup.getId();
-                    window.termInfoPopup.showHistoryNavigationBar(true);
+                    window.termInfoPopup.showHistoryNavigationBar(false);
                     window.termInfoPopup.setTrasparentBackground(true);
                     $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
