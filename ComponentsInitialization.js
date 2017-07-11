@@ -363,7 +363,7 @@ define(function (require) {
         GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/210)}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/230)}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
