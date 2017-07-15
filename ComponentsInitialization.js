@@ -492,6 +492,9 @@ define(function (require) {
                         getImageData: function (record) {
                             return record[3]
                         },
+                        getImageData: function (record) {
+                            return record[4]
+                        },
                         getRecords: function (payload) {
                             return payload.results.map(function (item) {
                                 return item.values
