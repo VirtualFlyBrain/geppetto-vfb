@@ -489,7 +489,7 @@ define(function (require) {
                         getDescription: function (record) {
                             return record[2]
                         },
-                        getImageData: function (record) {
+                        getType: function (record) {
                             return record[3]
                         },
                         getImageData: function (record) {
