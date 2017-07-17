@@ -396,7 +396,7 @@ define(function (require) {
                     "order": 4,
                     "locked": false,
                     "visible": true,
-                    "displayName": "Type",
+                    "displayName": "Gross Type",
                     "cssClassName": "query-results-type-column"
                 },
                 {
