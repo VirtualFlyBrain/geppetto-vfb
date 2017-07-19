@@ -1274,11 +1274,11 @@ define(function (require) {
 	                	if (variableId.indexOf('VFB_') > -1){
 	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){ 
 	                			if (window[variableId][variableId+'_swc'] != undefined){
-	                				if (!window[variableId][variableId+'_swc'].visible){
+	                				if (!window[variableId][variableId+'_swc'].visible && typeof(window[variableId][variableId+'_swc'].show) == "function"){
 	                					window[variableId][variableId+'_swc'].show();
 	                				}
 	                			}else{
-	                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible){
+	                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible && typeof(window[variableId][variableId+'_obj'].show) == "function"){
 	                					window[variableId][variableId+'_obj'].show();
 	                				}
 	                			}
