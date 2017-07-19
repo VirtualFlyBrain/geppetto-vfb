@@ -1138,6 +1138,22 @@ define(function (require) {
                 var buttonBarConfig = {
                     "": {
                         "": {
+                        	"searchBtn": {
+                                "actions": [
+                                    "window.clearQS(); GEPPETTO.Spotlight.open();"
+                                ],
+                                "icon": "fa fa-search",
+                                "label": "",
+                                "tooltip": "Search"
+                            },
+                            "queryBtn": {
+                                "actions": [
+                                    "window.clearQS(); GEPPETTO.QueryBuilder.open();"
+                                ],
+                                "icon": "fa fa-quora",
+                                "label": "",
+                                "tooltip": "Query"
+                            },
                             "infoBtn": {
                                 "actions": [
                                     "window.addTermInfo();"
