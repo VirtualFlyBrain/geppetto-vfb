@@ -1330,6 +1330,7 @@ define(function (require) {
             	if (GEPPETTO.Spotlight)
                 {
                 	GEPPETTO.Spotlight.close();
+                	$('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
                 }
                 if (GEPPETTO.QueryBuilder)
                 {
