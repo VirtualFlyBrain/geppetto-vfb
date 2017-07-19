@@ -74,7 +74,7 @@ define(function (require) {
                     "order": 3,
                     "locked": false,
                     "customComponent": GEPPETTO.LinkArrayComponent,
-                    "displayName": "Gross Type",
+                    "displayName": "Type",
                     "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
                     "actions": "window.fetchVariableThenRun('$entity$', window.setTermInfoCallback);",
                 },
