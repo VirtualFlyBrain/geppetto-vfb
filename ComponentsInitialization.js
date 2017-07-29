@@ -521,6 +521,7 @@ define(function (require) {
             this.flipCameraY();
             this.flipCameraZ();
             this.setWireframe(true);
+            this.displayAllInstances();
             vfbCanvas = this;
         });
 
