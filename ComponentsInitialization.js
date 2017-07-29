@@ -358,9 +358,6 @@ define(function (require) {
 
         //Foreground initialization
         GEPPETTO.ComponentFactory.addComponent('FOREGROUND', {}, document.getElementById("foreground-toolbar"));
-
-        //Camera controls initialization
-        GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
         GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/250)}, document.getElementById("querybuilder"), function () {
@@ -517,30 +514,24 @@ define(function (require) {
             };
             GEPPETTO.QueryBuilder.addDataSource(queryBuilderDatasourceConfig);
         });
-        
+
+        //Canvas initialisation
+        var vfbCanvas = undefined;
+        GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
+            this.flipCameraY();
+            this.flipCameraZ();
+            this.setWireframe(true);
+            vfbCanvas = this;
+        });
+
         //Loading spinner initialization
         GEPPETTO.Spinner.setLogo("gpt-fly");
-
-        window.setupVFBCamera = function(){
-        	if(GEPPETTO.Init.initialised){
-        		GEPPETTO.Init.flipCameraY();
-                GEPPETTO.Init.flipCameraZ();
-                GEPPETTO.SceneController.setWireframe(true);
-        	}
-        };
 
         // VFB initialization routines
         window.initVFB = function () {
 
             window.templateID = undefined;
             window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
-
-        	// camera setup
-        	GEPPETTO.on(GEPPETTO.Events.Canvas_initialised,function(){
-        		window.setupVFBCamera();
-        	});
-        	
-        	window.setupVFBCamera();
 
             // widgets default dimensions and positions
             var getStackViewerDefaultWidth = function() { return Math.ceil(window.innerWidth / 4); };
@@ -581,7 +572,7 @@ define(function (require) {
             window.resolve3D = function (path, callback) {
                 var rootInstance = Instances.getInstance(path);
                 window.updateHistory(rootInstance.getName());
-                G.unSelectAll();
+                GEPPETTO.SceneController.deselectAll();
 
                 // check if we can set templateID (first template loaded will be kept as templateID)
                 if(window.templateID == undefined){
@@ -600,8 +591,8 @@ define(function (require) {
                             templateID = superTypes[i].getId()
                         }
                         if(superTypes[i].getId() == 'Class'){ 
-                            templateID = window.templateID
-                            return // Exit if Class - Class doesn't have image types.
+                            templateID = window.templateID;
+                            return; // Exit if Class - Class doesn't have image types.
                         }
                     }
                     
@@ -658,7 +649,7 @@ define(function (require) {
                         instance.getType().resolve(postResolve);
                     } else {
                         // add instance to scene
-                        GEPPETTO.SceneController.updateSceneWithNewInstances([instance]);
+                        vfbCanvas.display([instance]);
                         // trigger update for components that are listening
                         GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
                         postResolve();
@@ -677,7 +668,7 @@ define(function (require) {
             };
 
             window.fetchVariableThenRun = function(variableId, callback, label){
-                G.unSelectAll(); // signal something is happening!
+                GEPPETTO.SceneController.deselectAll(); // signal something is happening!
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
                 if (!variables.length>0) {
                     Model.getDatasources()[0].fetchVariable(variableId, function() {
@@ -692,9 +683,9 @@ define(function (require) {
                 var instance = Instances.getInstance(variableId);
                 var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 resolve3D(variableId, function() {
-                    G.unSelectAll();
+                    GEPPETTO.SceneController.deselectAll();
                     instance.select();
-//                    GEPPETTO.Spotlight.openToInstance(instance);
+                    //GEPPETTO.Spotlight.openToInstance(instance);
                     setTermInfo(meta, meta.getParent().getId());
                 });
             };
@@ -727,9 +718,9 @@ define(function (require) {
                 }
                 var meta = path + "." + path + "_meta";
                 var target = widget;
-//                 if (GEPPETTO.isKeyPressed("meta")) {
-//                     target = G.addWidget(1).addCustomNodeHandler(customHandler, 'click');
-//                 }
+                // if (GEPPETTO.isKeyPressed("meta")) {
+                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
+                //}
                 if (n != undefined) {
                     var metanode = Instances.getInstance(meta);
                     if (target.data == metanode){
@@ -792,7 +783,7 @@ define(function (require) {
             
             // set term info on selection
             GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-                var selection = G.getSelection();
+                var selection = GEPPETTO.SceneController.getSelection();
                 if (selection.length > 0 && instance.isSelected()) {
                     var latestSelection = instance;
                     var currentSelectionName = getTermInfoWidget().name;
@@ -850,10 +841,11 @@ define(function (require) {
                     if (config == undefined || typeof config !== "undefined"){
                     	config = {
                                 serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-                                templateId: 'NOTSET'
+                                templateId: 'NOTSET',
+                                canvasRef: vfbCanvas
                             };
                     }
-                    G.addWidget(8).setConfig(config).setData({
+                    G.addWidget(8, {isStateless: true}).setConfig(config).setData({
                         instances: sliceInstances
                     });
 
@@ -889,8 +881,28 @@ define(function (require) {
 
                         if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
-                            	var config = {serverUrl: 'http://virtualflybrain.org/fcgi/wlziipsrv.fcgi',templateId: window.templateID};
-                                instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance);if (instance.parent.getId() == window.templateID){try{config=JSON.parse(instance.getValue().wrappedObj.value.data);window.StackViewer1.setConfig(config);}catch (err){console.log(err.message);window.StackViewer1.setConfig(config);}}console.log('Passing instance: ' + instance.getId());}})});
+                            	var config = {
+                                    serverUrl: 'http://virtualflybrain.org/fcgi/wlziipsrv.fcgi',
+                                    templateId: window.templateID,
+                                    canvasRef: vfbCanvas
+                            	};
+                                instances.forEach(function (parentInstance){
+                                    parentInstance.parent.getChildren().forEach(function (instance){
+                                        if (instance.getName() == 'Stack Viewer Slices'){
+                                            window.StackViewer1.addSlices(instance);
+                                            if (instance.parent.getId() == window.templateID){
+                                                try{
+                                                    config=JSON.parse(instance.getValue().wrappedObj.value.data);
+                                                    window.StackViewer1.setConfig(config);
+                                                }catch (err){
+                                                    console.log(err.message);
+                                                    window.StackViewer1.setConfig(config);
+                                                }
+                                            }
+                                            console.log('Passing instance: ' + instance.getId());
+                                        }
+                                    })
+                                });
                             }
                         }	
                     });
@@ -1013,7 +1025,7 @@ define(function (require) {
             	}
                 getTermInfoWidget().setData(data).setName(name);
                 window.updateHistory(name);
-                G.unSelectAll();
+                GEPPETTO.SceneController.deselectAll();
                 if (typeof data.getParent().select === "function") 
                 {
                     data.getParent().select(); // Select if visual type loaded.
@@ -1023,7 +1035,7 @@ define(function (require) {
             window.addTermInfo = function(){
                 if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
                     // init empty term info area
-                    window.termInfoPopup = G.addWidget(1).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
+                    window.termInfoPopup = G.addWidget(1, {isStateless: true}).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                     window.termInfoPopupId = window.termInfoPopup.getId();
@@ -1042,8 +1054,8 @@ define(function (require) {
 
                     var buttonBarConfiguration={
                         "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
-                        "filter" : function(instance){
-                            return instance.getParent()
+                        "filter" : function(instancePath){
+                            return Instances.getInstance(instancePath).getParent()
                         },
                         "VisualCapability": {
                             "select": {
@@ -1181,7 +1193,7 @@ define(function (require) {
                         }
                     }
                 };
-                G.addWidget(Widgets.BUTTONBAR).fromJSONObj(buttonBarConfig);
+                G.addWidget(Widgets.BUTTONBAR, {isStateless: true}).fromJSONObj(buttonBarConfig);
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
                 ButtonBar1.showCloseButton(false);
                 ButtonBar1.showTitleBar(false);
@@ -1255,7 +1267,7 @@ define(function (require) {
                 var instance = Instances.getInstance(variableId);
                 var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 resolve3D(variableId, function() {
-                    G.unSelectAll();
+                    GEPPETTO.SceneController.deselectAll();
                     instance.select();
                     setTermInfo(meta, meta.getParent().getId());
                 });
