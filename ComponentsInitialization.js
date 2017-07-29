@@ -840,7 +840,7 @@ define(function (require) {
                     }
                     if (config == undefined || typeof config !== "undefined"){
                     	config = {
-                                serverUrl: '/fcgi/wlziipsrv.fcgi',
+                                serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
                                 templateId: 'NOTSET',
                                 canvasRef: vfbCanvas
                             };
@@ -882,7 +882,7 @@ define(function (require) {
                         if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
                             	var config = {
-                                    serverUrl: '/fcgi/wlziipsrv.fcgi',
+                                    serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
                                     templateId: window.templateID,
                                     canvasRef: vfbCanvas
                             	};
