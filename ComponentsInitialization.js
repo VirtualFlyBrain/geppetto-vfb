@@ -46,7 +46,13 @@ define(function (require) {
         /*ADD COMPONENTS*/
 
         //Canvas initialisation
-        GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {});
+        var vfbCanvas = undefined;
+        GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
+            this.flipCameraY();
+            this.flipCameraZ();
+            this.setWireframe(true);
+            vfbCanvas = this;
+        });
         
         //Logo initialization
         GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
@@ -524,26 +530,11 @@ define(function (require) {
         //Loading spinner initialization
         GEPPETTO.Spinner.setLogo("gpt-fly");
 
-        window.setupVFBCamera = function(){
-        	if(GEPPETTO.Init.initialised){
-        		GEPPETTO.Init.flipCameraY();
-                GEPPETTO.Init.flipCameraZ();
-                GEPPETTO.SceneController.setWireframe(true);
-        	}
-        };
-
         // VFB initialization routines
         window.initVFB = function () {
 
             window.templateID = undefined;
             window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
-
-        	// camera setup
-        	GEPPETTO.on(GEPPETTO.Events.Canvas_initialised,function(){
-        		window.setupVFBCamera();
-        	});
-        	
-        	window.setupVFBCamera();
 
             // widgets default dimensions and positions
             var getStackViewerDefaultWidth = function() { return Math.ceil(window.innerWidth / 4); };
@@ -603,8 +594,8 @@ define(function (require) {
                             templateID = superTypes[i].getId()
                         }
                         if(superTypes[i].getId() == 'Class'){ 
-                            templateID = window.templateID
-                            return // Exit if Class - Class doesn't have image types.
+                            templateID = window.templateID;
+                            return; // Exit if Class - Class doesn't have image types.
                         }
                     }
                     
@@ -661,7 +652,7 @@ define(function (require) {
                         instance.getType().resolve(postResolve);
                     } else {
                         // add instance to scene
-                        GEPPETTO.SceneController.updateSceneWithNewInstances([instance]);
+                        vfbCanvas.display([instance]);
                         // trigger update for components that are listening
                         GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
                         postResolve();
