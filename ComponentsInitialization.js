@@ -727,9 +727,9 @@ define(function (require) {
                 }
                 var meta = path + "." + path + "_meta";
                 var target = widget;
-//                 if (GEPPETTO.isKeyPressed("meta")) {
-//                     target = G.addWidget(1).addCustomNodeHandler(customHandler, 'click');
-//                 }
+                // if (GEPPETTO.isKeyPressed("meta")) {
+                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
+                //}
                 if (n != undefined) {
                     var metanode = Instances.getInstance(meta);
                     if (target.data == metanode){
@@ -853,7 +853,7 @@ define(function (require) {
                                 templateId: 'NOTSET'
                             };
                     }
-                    G.addWidget(8).setConfig(config).setData({
+                    G.addWidget(8, {isStateless: true}).setConfig(config).setData({
                         instances: sliceInstances
                     });
 
@@ -1023,7 +1023,7 @@ define(function (require) {
             window.addTermInfo = function(){
                 if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
                     // init empty term info area
-                    window.termInfoPopup = G.addWidget(1).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
+                    window.termInfoPopup = G.addWidget(1, {isStateless: true}).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                     window.termInfoPopupId = window.termInfoPopup.getId();
@@ -1181,7 +1181,7 @@ define(function (require) {
                         }
                     }
                 };
-                G.addWidget(Widgets.BUTTONBAR).fromJSONObj(buttonBarConfig);
+                G.addWidget(Widgets.BUTTONBAR, {isStateless: true}).fromJSONObj(buttonBarConfig);
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
                 ButtonBar1.showCloseButton(false);
                 ButtonBar1.showTitleBar(false);
