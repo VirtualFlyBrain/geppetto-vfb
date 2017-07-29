@@ -1306,8 +1306,7 @@ define(function (require) {
             $('#zoomOutBtn').first().title="Zoom Out";
             };
             
-            window.clearQS = function()
-            {
+            window.clearQS = function() {
             	window.checkConnection();
             	if (GEPPETTO.Spotlight)
                 {
@@ -1318,10 +1317,9 @@ define(function (require) {
                 {
                 	GEPPETTO.QueryBuilder.close();
                 }
-            }
+            };
             
-            window.checkConnection = function()
-            {
+            window.checkConnection = function() {
             	try{
 	            	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage)
 	            	{
@@ -1336,7 +1334,7 @@ define(function (require) {
             	{
             		console.log(err.message);
             	}
-            }
+            };
             
             window.vfbRelaodMessage = true;
             
