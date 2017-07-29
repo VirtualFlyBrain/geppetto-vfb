@@ -44,6 +44,9 @@ define(function (require) {
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
         /*ADD COMPONENTS*/
+
+        //Canvas initialisation
+        GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {});
         
         //Logo initialization
         GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
