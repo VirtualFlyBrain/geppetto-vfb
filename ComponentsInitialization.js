@@ -171,7 +171,7 @@ define(function (require) {
                     "delete": {
                     	"showCondition": "$instance$.getId()!=window.templateID",
                         "id": "delete",
-                        "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { window.getTermInfoWidget().setData(window[window.templateID][window.templateID+'_meta']);} $instance$.deselect(); $instance$.delete();"],
+                        "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());} $instance$.deselect(); $instance$.delete();"],
                         "icon": "fa-trash-o",
                         "label": "Delete",
                         "tooltip": "Delete"
@@ -1099,7 +1099,7 @@ define(function (require) {
                             "delete": {
                             	"showCondition": "$instance$.getId()!=window.templateID",
                                 "id": "delete",
-                                "actions": ["$instance$.deselect();$instance$.delete();window.getTermInfoWidget().setData(window[window.templateID][window.templateID+'_meta']);"],
+                                "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
                                 "icon": "fa-trash-o",
                                 "label": "Delete",
                                 "tooltip": "Delete"
