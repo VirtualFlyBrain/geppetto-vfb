@@ -485,13 +485,17 @@ define(function (require) {
         });
 
         //Canvas initialisation
-        var vfbCanvas = undefined;
+        window.vfbCanvas = undefined;
         GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
             this.flipCameraY();
             this.flipCameraZ();
             this.setWireframe(true);
             this.displayAllInstances();
-            vfbCanvas = this;
+            window.vfbCanvas = this;
+
+            if(window.StackViewer1 != undefined){
+                window.StackViewer1.setCanvasRef(this);
+            }
         });
 
         //Loading spinner initialization
@@ -811,8 +815,7 @@ define(function (require) {
                     if (config == undefined || typeof config !== "undefined"){
                     	config = {
                                 serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-                                templateId: 'NOTSET',
-                                canvasRef: vfbCanvas
+                                templateId: 'NOTSET'
                             };
                     }
                     G.addWidget(8, {isStateless: true}).setConfig(config).setData({
@@ -853,8 +856,7 @@ define(function (require) {
                             if(instances!=undefined && instances.length > 0){
                             	var config = {
                                     serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-                                    templateId: window.templateID,
-                                    canvasRef: vfbCanvas
+                                    templateId: window.templateID
                             	};
                                 instances.forEach(function (parentInstance){
                                     parentInstance.parent.getChildren().forEach(function (instance){
