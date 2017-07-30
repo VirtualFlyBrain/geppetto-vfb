@@ -1154,7 +1154,7 @@ define(function (require) {
                             },
                             "meshBtn": {
                             	"actions": [
-                            		"GEPPETTO.SceneController.setWireframe(!GEPPETTO.SceneController.wireframe);"
+                            		"Canvas1.setWireframe(!Canvas1.getWireframe());"
                             	],
                                 "icon": "fa fa-object-ungroup",
                                 "label": "",
