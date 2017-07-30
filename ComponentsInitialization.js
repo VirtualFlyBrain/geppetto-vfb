@@ -822,6 +822,11 @@ define(function (require) {
                         instances: sliceInstances
                     });
 
+                    // set canvas if it's already there
+                    if(window.vfbCanvas != undefined){
+                        window.StackViewer1.setCanvasRef(window.vfbCanvas);
+                    }
+
                     // set initial position:
                     window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
                     window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
