@@ -1,34 +1,3 @@
-/*******************************************************************************
- *
- * Copyright (c) 2011, 2016 OpenWorm.
- * http://openworm.org
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
- *
- * Contributors:
- *      OpenWorm - http://openworm.org/people.html
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
- * USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
 define(function (require) {
     return function (GEPPETTO) {
 
@@ -74,7 +43,7 @@ define(function (require) {
                     "order": 3,
                     "locked": false,
                     "customComponent": GEPPETTO.LinkArrayComponent,
-                    "displayName": "Type(s)",
+                    "displayName": "Type",
                     "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
                     "actions": "window.fetchVariableThenRun('$entity$', window.setTermInfoCallback);",
                 },
@@ -106,7 +75,9 @@ define(function (require) {
                 var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
                 var visualParents = [];
                 for (var i = 0; i < visualInstances.length; i++) {
-                    visualParents.push(visualInstances[i].getParent());
+                	if (visualInstances[i].getParent() != null){
+                		visualParents.push(visualInstances[i].getParent());
+                	}
                 }
                 visualInstances = visualInstances.concat(visualParents);
                 var compositeInstances = [];
@@ -198,8 +169,9 @@ define(function (require) {
                         "tooltip": "Info"
                     },
                     "delete": {
+                    	"showCondition": "$instance$.getId()!=window.templateID",
                         "id": "delete",
-                        "actions": ["$instance$.delete();"],
+                        "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());} $instance$.deselect(); $instance$.delete();"],
                         "icon": "fa-trash-o",
                         "label": "Delete",
                         "tooltip": "Delete"
@@ -222,7 +194,7 @@ define(function (require) {
                     "CompositeType": {
                         "type": {
                             "actions": [
-                                "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');",
+                                "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
                             ],
                             "icon": "fa-info-circle",
                             "label": "Show info",
@@ -232,7 +204,7 @@ define(function (require) {
                             actions: [
                                 "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                             ],
-                            icon: "fa-cog",
+                            icon: "fa-quora",
                             label: "Add to query",
                             tooltip: "Add to query"
                         },
@@ -275,7 +247,7 @@ define(function (require) {
                         },
                         "buttonThree": {
                             "actions": [
-                                "GEPPETTO.SceneController.zoomTo($instances$)"
+                                "GEPPETTO.SceneController.zoomTo($instances$);GEPPETTO.Spotlight.close();"
                             ],
                             "icon": "fa-search-plus",
                             "label": "Zoom",
@@ -288,7 +260,7 @@ define(function (require) {
             // external datasource configuration
             var spotlightDataSourceConfig = {
                 VFB: {
-                    url: "http://vfbdev.inf.ed.ac.uk/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FB*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+                    url: "https://www.virtualflybrain.org/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FB*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
                     crossDomain: true,
                     id: "short_form",
                     label: {field: "label", formatting: "$VALUE$"},
@@ -306,7 +278,7 @@ define(function (require) {
                                 },
                                 buttonTwo: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                    icon: "fa-cog",
+                                    icon: "fa-quora",
                                     label: "Add to query",
                                     tooltip: "Add to query"
                                 }
@@ -315,15 +287,21 @@ define(function (require) {
                         individual: {
                             icon: "fa-file-image-o",
                             buttons: {
-                                buttonOne: {
+                            	buttonOne: {
+                                    actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                    icon: "fa-info-circle",
+                                    label: "Show info",
+                                    tooltip: "Show info"
+                                },
+                                buttonTwo: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
                                     icon: "fa-file-image-o",
                                     label: "Add to scene",
                                     tooltip: "Add to scene"
                                 },
-                                buttonTwo: {
+                                buttonThree: {
                                     actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                    icon: "fa-cog",
+                                    icon: "fa-quora",
                                     label: "Add to query",
                                     tooltip: "Add to query"
                                 }
@@ -349,12 +327,9 @@ define(function (require) {
 
         //Foreground initialization
         GEPPETTO.ComponentFactory.addComponent('FOREGROUND', {}, document.getElementById("foreground-toolbar"));
-
-        //Camera controls initialization
-        GEPPETTO.ComponentFactory.addComponent('CAMERACONTROLS', {}, document.getElementById("camera-controls"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage: 3}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/250)}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
@@ -383,10 +358,18 @@ define(function (require) {
                     "cssClassName": "query-results-description-column"
                 },
                 {
-                    "columnName": "controls",
+                    "columnName": "type",
                     "order": 4,
                     "locked": false,
                     "visible": true,
+                    "displayName": "Type",
+                    "cssClassName": "query-results-type-column"
+                },
+                {
+                    "columnName": "controls",
+                    "order": 5,
+                    "locked": false,
+                    "visible": false,
                     "customComponent": GEPPETTO.QueryResultsControlsComponent,
                     "displayName": "Controls",
                     "actions": "",
@@ -394,7 +377,7 @@ define(function (require) {
                 },
                 {
                     "columnName": "images",
-                    "order": 5,
+                    "order": 6,
                     "locked": false,
                     "visible": true,
                     "customComponent": GEPPETTO.SlideshowImageComponent,
@@ -404,9 +387,8 @@ define(function (require) {
                 }
             ];
             GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
-
             // which columns to display in the results
-            GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'controls', 'images']);
+            GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'type', 'images']);
 
             var queryResultsControlConfig = {
                 "Common": {
@@ -446,7 +428,7 @@ define(function (require) {
             // add datasource config to query control
             var queryBuilderDatasourceConfig = {
                 VFB: {
-                    url: "http://vfbdev.inf.ed.ac.uk/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FBbt_*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+                    url: "https://www.virtualflybrain.org/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FBbt_*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
                     crossDomain: true,
                     id: "short_form",
                     label: {field: "label", formatting: "$VALUE$"},
@@ -473,8 +455,11 @@ define(function (require) {
                         getDescription: function (record) {
                             return record[2]
                         },
-                        getImageData: function (record) {
+                        getType: function (record) {
                             return record[3]
+                        },
+                        getImageData: function (record) {
+                            return record[4]
                         },
                         getRecords: function (payload) {
                             return payload.results.map(function (item) {
@@ -498,41 +483,40 @@ define(function (require) {
             };
             GEPPETTO.QueryBuilder.addDataSource(queryBuilderDatasourceConfig);
         });
-        
+
+        //Canvas initialisation
+        window.vfbCanvas = undefined;
+        GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
+            this.flipCameraY();
+            this.flipCameraZ();
+            this.setWireframe(true);
+            this.displayAllInstances();
+            window.vfbCanvas = this;
+
+            if(window.StackViewer1 != undefined){
+                window.StackViewer1.setCanvasRef(this);
+            }
+        });
+
         //Loading spinner initialization
         GEPPETTO.Spinner.setLogo("gpt-fly");
-
-        window.setupVFBCamera = function(){
-        	if(GEPPETTO.Init.initialised){
-        		GEPPETTO.Init.flipCameraY();
-                GEPPETTO.Init.flipCameraZ();
-                GEPPETTO.SceneController.setWireframe(true);
-        	}
-        };
 
         // VFB initialization routines
         window.initVFB = function () {
 
             window.templateID = undefined;
-            window.redirectURL = '/geppetto?load_project_from_url=http://vfbsandbox.inf.ed.ac.uk/do/geppettoJson.json?i=$VFB_ID$%26t=$TEMPLATE$%26d';
-
-        	// camera setup
-        	GEPPETTO.on(GEPPETTO.Events.Canvas_initialised,function(){
-        		window.setupVFBCamera();
-        	});
-        	
-        	window.setupVFBCamera();
+            window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
 
             // widgets default dimensions and positions
             var getStackViewerDefaultWidth = function() { return Math.ceil(window.innerWidth / 4); };
             var getStackViewerDefaultHeight = function() { return Math.ceil(window.innerHeight/4) - 10; };
             var getTermInfoDefaultWidth = function() { return Math.ceil(window.innerWidth / 4); };
-            var getTermInfoDefaultHeight = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4) - 20); };
+            var getTermInfoDefaultHeight = function() { return ((window.innerHeight - Math.ceil(window.innerHeight/4))-20); };
             var getTermInfoDefaultX = function() { return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); };
             var getStackViewerDefaultX = function() { return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); };
             var getStackViewerDefaultY = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4)); };
             var getTermInfoDefaultY = function() {return 10;};
-            var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 45); };
+            var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 125); };
             var getButtonBarDefaultY = function() { return 10; };
 
             // logic to assign colours to elements in the scene
@@ -544,19 +528,25 @@ define(function (require) {
                 if (coli > 199) {
                     coli = 0;
                 }
-                Instances.getInstance(entityPath).setColor(colours[c], true).setOpacity(0.3, true);
-                try {
-                    Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
-                } catch (ignore) {
-                }
-                if (c = 0) {
-                    Instances.getInstance(entityPath).setOpacity(0.2, true);
+                if (Instances.getInstance(entityPath).setColor != undefined){
+                	Instances.getInstance(entityPath).setColor(colours[c], true).setOpacity(0.3, true);
+                	try {
+                        Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
+                    } catch (ignore) {
+                    }
+                    if (c = 0) {
+                        Instances.getInstance(entityPath).setOpacity(0.2, true);
+                    }
+                }else{
+                	console.log('Issue setting colour for ' + entityPath);
                 }
             };
 
             // custom handler for resolving 3d geometries
             window.resolve3D = function (path, callback) {
                 var rootInstance = Instances.getInstance(path);
+                window.updateHistory(rootInstance.getName());
+                GEPPETTO.SceneController.deselectAll();
 
                 // check if we can set templateID (first template loaded will be kept as templateID)
                 if(window.templateID == undefined){
@@ -575,8 +565,8 @@ define(function (require) {
                             templateID = superTypes[i].getId()
                         }
                         if(superTypes[i].getId() == 'Class'){ 
-                            templateID = window.templateID
-                            return // Exit if Class - Class doesn't have image types.
+                            templateID = window.templateID;
+                            return; // Exit if Class - Class doesn't have image types.
                         }
                     }
                     
@@ -588,19 +578,18 @@ define(function (require) {
                             var anchorElement = domObj.filter('a');
                             // extract ID
                             var templateID = anchorElement.attr('instancepath');
+                            if (window.EMBEDDED){
+                            	var curHost = parent.document.location.host;
+                            	var curProto = parent.document.location.protocol;
+                            }else{
+                            	var curHost = document.location.host;
+                            	var curProto = document.location.protocol;
+                            }
                             if(templateID != window.templateID){
                                 // open new window with the new template and the instance ID
-                                var baseUrl = window.location.href;
-                                if (baseUrl.indexOf('/geppetto') > 0) {
-                                    baseUrl = baseUrl.substring(0, baseUrl.indexOf('/geppetto'));
-                                }
-                                
                                 var targetWindow = '_blank';
-                                if(window.EMBEDDED) {
-                                    targetWindow = '_self';
-                                }
-                                var suffixUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID);
-                                window.open(baseUrl + suffixUrl, targetWindow);
+                                var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
+                                window.open(newUrl, targetWindow);
                                 // stop flow here, we don't want to add to scene something with a different template
                                 return;
                             }
@@ -634,7 +623,7 @@ define(function (require) {
                         instance.getType().resolve(postResolve);
                     } else {
                         // add instance to scene
-                        GEPPETTO.SceneController.updateSceneWithNewInstances([instance]);
+                        vfbCanvas.display([instance]);
                         // trigger update for components that are listening
                         GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
                         postResolve();
@@ -653,6 +642,7 @@ define(function (require) {
             };
 
             window.fetchVariableThenRun = function(variableId, callback, label){
+                GEPPETTO.SceneController.deselectAll(); // signal something is happening!
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
                 if (!variables.length>0) {
                     Model.getDatasources()[0].fetchVariable(variableId, function() {
@@ -667,20 +657,21 @@ define(function (require) {
                 var instance = Instances.getInstance(variableId);
                 var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 resolve3D(variableId, function() {
+                    GEPPETTO.SceneController.deselectAll();
                     instance.select();
-                    GEPPETTO.Spotlight.openToInstance(instance);
+                    //GEPPETTO.Spotlight.openToInstance(instance);
                     setTermInfo(meta, meta.getParent().getId());
                 });
             };
-
+            
             window.addToQueryCallback = function(variableId, label) {
-                GEPPETTO.QueryBuilder.clearAllQueryItems();
+            	window.clearQS();
+            	GEPPETTO.QueryBuilder.clearAllQueryItems();
                 GEPPETTO.QueryBuilder.switchView(false);
                 GEPPETTO.QueryBuilder.addQueryItem({
                     term: (label != undefined) ? label :  eval(variableId).getName(),
                     id: variableId
                 });
-                GEPPETTO.Spotlight.close();
                 GEPPETTO.QueryBuilder.open();
             };
 
@@ -692,6 +683,8 @@ define(function (require) {
             // custom handler for term info clicks
             window.customHandler = function (node, path, widget) {
                 var n;
+                var otherId;
+                var otherName;
                 try {
                     n = eval(path);
                 } catch (ex) {
@@ -699,17 +692,28 @@ define(function (require) {
                 }
                 var meta = path + "." + path + "_meta";
                 var target = widget;
-                if (GEPPETTO.isKeyPressed("meta")) {
-                    target = G.addWidget(1).addCustomNodeHandler(customHandler, 'click');
-                }
+                // if (GEPPETTO.isKeyPressed("meta")) {
+                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
+                //}
                 if (n != undefined) {
                     var metanode = Instances.getInstance(meta);
-                    target.setData(metanode).setName(n.getName());
+                    if (target.data == metanode){
+                    	window.resolve3D(path);
+                    }else{
+                    	target.setData(metanode).setName(n.getName());
+                    }
                 } else {
+                	// check for passed ID:
+                	if (path.indexOf(',')>-1){
+                		otherId = path.split(',')[1];
+                		otherName = path.split(',')[2];
+                		path = path.split(',')[0];
+                	}
                     // try to evaluate as path in Model
                     var entity = Model[path];
                     if(entity instanceof Query){
                         GEPPETTO.trigger('spin_logo');
+                        $("body").css("cursor", "progress");
 
                         // clear query builder
                         GEPPETTO.QueryBuilder.clearAllQueryItems();
@@ -726,11 +730,20 @@ define(function (require) {
                             // show query component
                             GEPPETTO.QueryBuilder.open();
 
+                            $("body").css("cursor", "default");
                             GEPPETTO.trigger('stop_spin_logo');
                         };
 
                         // add query item + selection
-                        GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                        if (otherId == undefined) {
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                        }else{
+                        	if (window[otherId] == undefined){
+                        		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
+                        	}else{
+                        		GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
+                        	}
+                        }
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
                             Instances.getInstance(meta);
@@ -744,7 +757,7 @@ define(function (require) {
             
             // set term info on selection
             GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-                var selection = G.getSelection();
+                var selection = GEPPETTO.SceneController.getSelection();
                 if (selection.length > 0 && instance.isSelected()) {
                     var latestSelection = instance;
                     var currentSelectionName = getTermInfoWidget().name;
@@ -756,7 +769,7 @@ define(function (require) {
                     } else {
                         // it's a leaf (no children) / grab parent if name is different from current selection set term info
                         var parent = latestSelection.getParent();
-                        if(currentSelectionName != parent.getName()){
+                        if(parent != null && currentSelectionName != parent.getName()){
                             setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                         }
                     }
@@ -782,7 +795,8 @@ define(function (require) {
             };
 
             var updateStackWidget = function(){
-                console.log('Updating stack...');
+            	window.checkConnection();
+            	console.log('Updating stack...');
                 window.StackViewer1.setData({
                     instances: getSliceInstances()
                 });
@@ -795,27 +809,23 @@ define(function (require) {
                     var config;
                     var domainId = [];
                     var domainName = [];
-                    if (typeof sliceInstances[0] !== "undefined" && sliceInstances[0].getId() == 'VFB_00017894_slices'){
-                        // TODO: load domain info with template meta
-                        domainId[0]='VFB_00017894'; domainId[2]='VFB_00030621'; domainId[3]='VFB_00030622'; domainId[4]='VFB_00030609'; domainId[5]='VFB_00030625'; domainId[6]='VFB_00030619'; domainId[7]='VFB_00030900'; domainId[8]='VFB_00030605'; domainId[9]='VFB_00030600'; domainId[10]='VFB_00030602'; domainId[11]='VFB_00030613'; domainId[12]='VFB_00030617'; domainId[13]='VFB_00030616'; domainId[14]='VFB_00030631'; domainId[15]='VFB_00030615'; domainId[16]='VFB_00030606'; domainId[17]='VFB_00030901'; domainId[18]='VFB_00030902'; domainId[19]='VFB_00030903'; domainId[20]='VFB_00030620'; domainId[22]='VFB_00030612'; domainId[23]='VFB_00030611'; domainId[24]='VFB_00030629'; domainId[25]='VFB_00030624'; domainId[26]='VFB_00030633'; domainId[27]='VFB_00030623'; domainId[28]='VFB_00030628'; domainId[29]='VFB_00030614'; domainId[30]='VFB_00030608'; domainId[31]='VFB_00030632'; domainId[32]='VFB_00030626'; domainId[33]='VFB_00030630'; domainId[34]='VFB_00030627'; domainId[35]='VFB_00030610'; domainId[36]='VFB_00030838'; domainId[37]='VFB_00030601'; domainId[38]='VFB_00030603'; domainId[39]='VFB_00030618'; domainId[40]='VFB_00030599'; domainId[49]='VFB_00030840'; domainId[50]='VFB_00030604'; domainId[51]='VFB_00030607'; domainId[101]='VFB_00030849'; domainId[102]='VFB_00030856'; domainId[103]='VFB_00030866'; domainId[104]='VFB_00030867'; domainId[105]='VFB_00030868'; domainId[106]='VFB_00030869'; domainId[107]='VFB_00030870'; domainId[108]='VFB_00030871'; domainId[109]='VFB_00030872'; domainId[110]='VFB_00030873'; domainId[111]='VFB_00030874'; domainId[112]='VFB_00030875'; domainId[113]='VFB_00030876'; domainId[114]='VFB_00030877'; domainId[115]='VFB_00030878'; domainId[116]='VFB_00030879'; domainId[117]='VFB_00030880';
-                        domainName[0]='adult brain'; domainName[2]='accessory medulla'; domainName[3]='lobula'; domainName[4]='nodulus'; domainName[5]='bulb'; domainName[6]='protocerebral bridge'; domainName[7]='lateral horn'; domainName[8]='lateral accessory lobe'; domainName[9]='saddle'; domainName[10]='cantle'; domainName[11]='antennal mechanosensory and motor center'; domainName[12]='inferior clamp'; domainName[13]='vest'; domainName[14]='inferior bridge'; domainName[15]='antler'; domainName[16]='crepine'; domainName[17]='pedunculus of adult mushroom body'; domainName[18]='vertical lobe of adult mushroom body'; domainName[19]='medial lobe of adult mushroom body'; domainName[20]='flange'; domainName[22]='lobula plate'; domainName[23]='ellipsoid body'; domainName[24]='adult antennal lobe'; domainName[25]='medulla'; domainName[26]='fan-shaped body'; domainName[27]='superior lateral protocerebrum'; domainName[28]='superior intermediate protocerebrum'; domainName[29]='superior medial protocerebrum'; domainName[30]='anterior ventrolateral protocerebrum'; domainName[31]='posterior ventrolateral protocerebrum'; domainName[32]='wedge'; domainName[33]='posterior lateral protocerebrum'; domainName[34]='anterior optic tubercle'; domainName[35]='gorget'; domainName[36]='calyx of adult mushroom body'; domainName[37]='superior posterior slope'; domainName[38]='inferior posterior slope'; domainName[39]='superior clamp'; domainName[40]='epaulette'; domainName[49]='adult gnathal ganglion'; domainName[50]='prow'; domainName[51]='gall'; domainName[101]='adult cerebral ganglion'; domainName[102]='adult subesophageal zone'; domainName[103]='adult central complex'; domainName[104]='adult mushroom body'; domainName[105]='inferior neuropils'; domainName[106]='lateral complex'; domainName[107]='optic lobe'; domainName[108]='superior neuropils'; domainName[109]='ventrolateral neuropils'; domainName[110]='ventromedial neuropils'; domainName[111]='central body'; domainName[112]='lobe system of adult mushroom body'; domainName[113]='clamp'; domainName[114]='lobula complex'; domainName[115]='ventrolateral protocerebrum'; domainName[116]='posterior slope'; domainName[117]='ventral complex';
-                        config = {
-                            serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
-                            templateId: 'VFB_00017894',
-                            templateDomainIds: domainId,
-                            templateDomainNames: domainName
-                        };
-                    }else{
-                        config = {
-                            serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
-                            templateId: 'NOTSET',
-                            templateDomainIds: domainId,
-                            templateDomainNames: domainName
-                        };
+                    if (typeof sliceInstances[0] !== "undefined"){
+                        config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
                     }
-                    G.addWidget(8).setConfig(config).setData({
+                    if (config == undefined || typeof config !== "undefined"){
+                    	config = {
+                                serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
+                                templateId: 'NOTSET'
+                            };
+                    }
+                    G.addWidget(8, {isStateless: true}).setConfig(config).setData({
                         instances: sliceInstances
                     });
+
+                    // set canvas if it's already there
+                    if(window.vfbCanvas != undefined){
+                        window.StackViewer1.setCanvasRef(window.vfbCanvas);
+                    }
 
                     // set initial position:
                     window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
@@ -849,23 +859,27 @@ define(function (require) {
 
                         if (window.StackViewer1 != undefined){
                             if(instances!=undefined && instances.length > 0){
-                                instances.forEach(function (parentInstance){parentInstance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}})});
-                                console.log('Passing instance: ' + instances[0].parent.getId());
-                                if (instances[0].parent.getId() == 'VFB_00017894'){
-                                    var config;
-                                    var domainId = [];
-                                    var domainName = [];
-                                    // TODO: load domain info with template meta
-                                    domainId[0]='VFB_00017894'; domainId[2]='VFB_00030621'; domainId[3]='VFB_00030622'; domainId[4]='VFB_00030609'; domainId[5]='VFB_00030625'; domainId[6]='VFB_00030619'; domainId[7]='VFB_00030900'; domainId[8]='VFB_00030605'; domainId[9]='VFB_00030600'; domainId[10]='VFB_00030602'; domainId[11]='VFB_00030613'; domainId[12]='VFB_00030617'; domainId[13]='VFB_00030616'; domainId[14]='VFB_00030631'; domainId[15]='VFB_00030615'; domainId[16]='VFB_00030606'; domainId[17]='VFB_00030901'; domainId[18]='VFB_00030902'; domainId[19]='VFB_00030903'; domainId[20]='VFB_00030620'; domainId[22]='VFB_00030612'; domainId[23]='VFB_00030611'; domainId[24]='VFB_00030629'; domainId[25]='VFB_00030624'; domainId[26]='VFB_00030633'; domainId[27]='VFB_00030623'; domainId[28]='VFB_00030628'; domainId[29]='VFB_00030614'; domainId[30]='VFB_00030608'; domainId[31]='VFB_00030632'; domainId[32]='VFB_00030626'; domainId[33]='VFB_00030630'; domainId[34]='VFB_00030627'; domainId[35]='VFB_00030610'; domainId[36]='VFB_00030838'; domainId[37]='VFB_00030601'; domainId[38]='VFB_00030603'; domainId[39]='VFB_00030618'; domainId[40]='VFB_00030599'; domainId[49]='VFB_00030840'; domainId[50]='VFB_00030604'; domainId[51]='VFB_00030607'; domainId[101]='VFB_00030849'; domainId[102]='VFB_00030856'; domainId[103]='VFB_00030866'; domainId[104]='VFB_00030867'; domainId[105]='VFB_00030868'; domainId[106]='VFB_00030869'; domainId[107]='VFB_00030870'; domainId[108]='VFB_00030871'; domainId[109]='VFB_00030872'; domainId[110]='VFB_00030873'; domainId[111]='VFB_00030874'; domainId[112]='VFB_00030875'; domainId[113]='VFB_00030876'; domainId[114]='VFB_00030877'; domainId[115]='VFB_00030878'; domainId[116]='VFB_00030879'; domainId[117]='VFB_00030880';
-                                    domainName[0]='adult brain'; domainName[2]='accessory medulla'; domainName[3]='lobula'; domainName[4]='nodulus'; domainName[5]='bulb'; domainName[6]='protocerebral bridge'; domainName[7]='lateral horn'; domainName[8]='lateral accessory lobe'; domainName[9]='saddle'; domainName[10]='cantle'; domainName[11]='antennal mechanosensory and motor center'; domainName[12]='inferior clamp'; domainName[13]='vest'; domainName[14]='inferior bridge'; domainName[15]='antler'; domainName[16]='crepine'; domainName[17]='pedunculus of adult mushroom body'; domainName[18]='vertical lobe of adult mushroom body'; domainName[19]='medial lobe of adult mushroom body'; domainName[20]='flange'; domainName[22]='lobula plate'; domainName[23]='ellipsoid body'; domainName[24]='adult antennal lobe'; domainName[25]='medulla'; domainName[26]='fan-shaped body'; domainName[27]='superior lateral protocerebrum'; domainName[28]='superior intermediate protocerebrum'; domainName[29]='superior medial protocerebrum'; domainName[30]='anterior ventrolateral protocerebrum'; domainName[31]='posterior ventrolateral protocerebrum'; domainName[32]='wedge'; domainName[33]='posterior lateral protocerebrum'; domainName[34]='anterior optic tubercle'; domainName[35]='gorget'; domainName[36]='calyx of adult mushroom body'; domainName[37]='superior posterior slope'; domainName[38]='inferior posterior slope'; domainName[39]='superior clamp'; domainName[40]='epaulette'; domainName[49]='adult gnathal ganglion'; domainName[50]='prow'; domainName[51]='gall'; domainName[101]='adult cerebral ganglion'; domainName[102]='adult subesophageal zone'; domainName[103]='adult central complex'; domainName[104]='adult mushroom body'; domainName[105]='inferior neuropils'; domainName[106]='lateral complex'; domainName[107]='optic lobe'; domainName[108]='superior neuropils'; domainName[109]='ventrolateral neuropils'; domainName[110]='ventromedial neuropils'; domainName[111]='central body'; domainName[112]='lobe system of adult mushroom body'; domainName[113]='clamp'; domainName[114]='lobula complex'; domainName[115]='ventrolateral protocerebrum'; domainName[116]='posterior slope'; domainName[117]='ventral complex';
-                                    config = {
-                                        serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
-                                        templateId: 'VFB_00017894',
-                                        templateDomainIds: domainId,
-                                        templateDomainNames: domainName
-                                    };
-                                    window.StackViewer1.setConfig(config);
-                                }
+                            	var config = {
+                                    serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
+                                    templateId: window.templateID
+                            	};
+                                instances.forEach(function (parentInstance){
+                                    parentInstance.parent.getChildren().forEach(function (instance){
+                                        if (instance.getName() == 'Stack Viewer Slices'){
+                                            window.StackViewer1.addSlices(instance);
+                                            if (instance.parent.getId() == window.templateID){
+                                                try{
+                                                    config=JSON.parse(instance.getValue().wrappedObj.value.data);
+                                                    window.StackViewer1.setConfig(config);
+                                                }catch (err){
+                                                    console.log(err.message);
+                                                    window.StackViewer1.setConfig(config);
+                                                }
+                                            }
+                                            console.log('Passing instance: ' + instance.getId());
+                                        }
+                                    })
+                                });
                             }
                         }	
                     });
@@ -888,7 +902,9 @@ define(function (require) {
                             }
                         }
                     });
+                    $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
                 } else {
+                	window.vfbWindowResize();
                     $('#' + window.StackViewer1.getId()).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
@@ -975,18 +991,34 @@ define(function (require) {
             };
 
             window.setTermInfo = function (data, name) {
+            	window.clearQS();
+            	window.checkConnection();
+            	//check if to level has been passed:
+            	if (data.parent == null){
+            		if (data[data.getId()+'_meta'] != undefined){
+            			data = data[data.getId()+'_meta'];
+            			console.log('meta passed to term info for ' + data.parent.getName());
+            		}
+            	}
                 getTermInfoWidget().setData(data).setName(name);
+                window.updateHistory(name);
+                GEPPETTO.SceneController.deselectAll();
+                if (typeof data.getParent().select === "function") 
+                {
+                    data.getParent().select(); // Select if visual type loaded.
+                }
             };
 
             window.addTermInfo = function(){
                 if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
                     // init empty term info area
-                    window.termInfoPopup = G.addWidget(1).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
+                    window.termInfoPopup = G.addWidget(1, {isStateless: true}).setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                     window.termInfoPopupId = window.termInfoPopup.getId();
-                    window.termInfoPopup.showHistoryNavigationBar(true);
+                    window.termInfoPopup.showHistoryNavigationBar(false);
                     window.termInfoPopup.setTrasparentBackground(true);
+                    $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
                     window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
                         if(id == window.termInfoPopupId){
@@ -999,8 +1031,8 @@ define(function (require) {
 
                     var buttonBarConfiguration={
                         "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
-                        "filter" : function(instance){
-                            return instance.getParent()
+                        "filter" : function(instancePath){
+                            return Instances.getInstance(instancePath).getParent()
                         },
                         "VisualCapability": {
                             "select": {
@@ -1071,11 +1103,21 @@ define(function (require) {
                                     "tooltip": "Hide 3D Skeleton"
                                 }
                             },
+                            "delete": {
+                            	"showCondition": "$instance$.getId()!=window.templateID",
+                                "id": "delete",
+                                "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+                                "icon": "fa-trash-o",
+                                "label": "Delete",
+                                "tooltip": "Delete"
+                            }
                         }
                     };
-                    window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom']});
+                    window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
+                    window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                 } else {
+                	window.vfbWindowResize();
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
@@ -1085,6 +1127,22 @@ define(function (require) {
                 var buttonBarConfig = {
                     "": {
                         "": {
+                        	"searchBtn": {
+                                "actions": [
+                                    "window.clearQS(); GEPPETTO.Spotlight.open();"
+                                ],
+                                "icon": "fa fa-search",
+                                "label": "",
+                                "tooltip": "Search"
+                            },
+                            "queryBtn": {
+                                "actions": [
+                                    "window.clearQS(); GEPPETTO.QueryBuilder.open();"
+                                ],
+                                "icon": "fa fa-quora",
+                                "label": "",
+                                "tooltip": "Query"
+                            },
                             "infoBtn": {
                                 "actions": [
                                     "window.addTermInfo();"
@@ -1100,11 +1158,19 @@ define(function (require) {
                                 "icon": "gpt-stack",
                                 "label": "",
                                 "tooltip": "Show stack viewer"
+                            },
+                            "meshBtn": {
+                            	"actions": [
+                            		"Canvas1.setWireframe(!Canvas1.getWireframe());"
+                            	],
+                                "icon": "fa fa-object-ungroup",
+                                "label": "",
+                                "tooltip": "Toggle wireframe"
                             }
                         }
                     }
                 };
-                G.addWidget(Widgets.BUTTONBAR).fromJSONObj(buttonBarConfig);
+                G.addWidget(Widgets.BUTTONBAR, {isStateless: true}).fromJSONObj(buttonBarConfig);
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
                 ButtonBar1.showCloseButton(false);
                 ButtonBar1.showTitleBar(false);
@@ -1116,7 +1182,12 @@ define(function (require) {
             window.addButtonBar();
 
             window.addEventListener('resize', function(event){
-                // reset size and position of term info widget, if any
+            	window.vfbWindowResize();
+            });
+
+            window.vfbWindowResize = function() 
+            {
+            	// reset size and position of term info widget, if any
                 if(window[window.termInfoPopupId] != undefined && !window[window.termInfoPopupId].maximize) {
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
@@ -1130,7 +1201,203 @@ define(function (require) {
 
                 // reset position of button bar widget (always there)
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
-            });
+            }
+            
+            window.updateHistory = function(title) 
+            {
+                if (parent.window.location.href.indexOf('org.geppetto.frontend')<0){
+	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
+	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+	                var visualParents = [];
+	                for (var i = 0; i < visualInstances.length; i++) {
+	                	if (visualInstances[i].getParent() != null){
+	                		visualParents.push(visualInstances[i].getParent());
+	                	}
+	                }
+	                visualInstances = visualInstances.concat(visualParents);
+	                var compositeInstances = [];
+	                for (var i = 0; i < visualInstances.length; i++) {
+	                    if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+	                        compositeInstances.push(visualInstances[i]);
+	                    }
+	                }
+	                
+	            	var items='i=';
+	            	if (window.templateID)
+	            	{
+	            		items = items + ',' + window.templateID;
+	            	}
+	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
+	                items = items.replace(',,',',').replace('i=,','i=');
+	                if (window.getTermInfoWidget().data != null)
+	                {
+	                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
+	                }
+	                if (items != "i="){
+	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+	                }
+                }
+            };
+            
+            window.addIndCallback = function(variableId){
+            	window.checkConnection();
+                var instance = Instances.getInstance(variableId);
+                var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                resolve3D(variableId, function() {
+                    GEPPETTO.SceneController.deselectAll();
+                    instance.select();
+                    setTermInfo(meta, meta.getParent().getId());
+                });
+            };
+            
+            window.addVfbId = function(variableId) 
+            {
+                if (variableId != null){
+	            	if (window[variableId] == undefined){
+	                	if (variableId.indexOf('VFB_') > -1){
+	                		window.fetchVariableThenRun(variableId, window.addToSceneCallback);  
+	                	}else{
+	                		window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+	                	}
+	                }else{
+	                	if (variableId.indexOf('VFB_') > -1){
+	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){ 
+	                			if (window[variableId][variableId+'_swc'] != undefined){
+	                				if (!window[variableId][variableId+'_swc'].visible && typeof(window[variableId][variableId+'_swc'].show) == "function"){
+	                					window[variableId][variableId+'_swc'].show();
+	                				}
+	                			}else{
+	                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible && typeof(window[variableId][variableId+'_obj'].show) == "function"){
+	                					window[variableId][variableId+'_obj'].show();
+	                				}
+	                			}
+	                			if (window[variableId][variableId+'_meta'] != undefined){
+	                				window[variableId].select();
+	                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+	                    			setTermInfo(meta, variableId);
+	                			}else{
+	                				window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
+	                			}
+	                		}
+	                	}else{
+	                		var instance = Instances.getInstance(variableId);
+	                		var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+	                		setTermInfo(meta, meta.getParent().getId());
+	                		window.resolve3D(variableId);
+	                	}
+	                }
+                }
+            };
+		
+            window.stackViewerRequest = function(variableId) 
+            {
+	    		window.addVfbIds([variableId]);   
+            };
+            
+            window.setToolTips = function()
+            {
+            $('#queryBuilderBtn').first().title="Query Builder";
+            $('#controlPanelBtn').first().title="Control Panel";
+            $('#spotlightBtn').first().title="Search";
+            $('#panLeftBtn').first().title="Pan Left";
+            $('#panUpBtn').first().title="Pan Up";
+            $('#panRightBtn').first().title="Pan Right";
+            $('#panDownBtn').first().title="Pan Down";
+            $('#panHomeBtn').first().title="Reset to Home Position";
+            $('#rotateLeftBtn').first().title="Rotate Left";
+            $('#rotateUpBtn').first().title="Rotate Up";
+            $('#rotateRightBtn').first().title="Rotate Right";
+            $('#rotateDownBtn').first().title="Rotate Down";
+            $('#rotateBtn').first().title="Rotate the scene";
+            $('#zoomInBtn').first().title="Zoom In";
+            $('#zoomOutBtn').first().title="Zoom Out";
+            };
+            
+            window.clearQS = function() {
+            	window.checkConnection();
+            	if (GEPPETTO.Spotlight)
+                {
+                	GEPPETTO.Spotlight.close();
+                	$('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
+                }
+                if (GEPPETTO.QueryBuilder)
+                {
+                	GEPPETTO.QueryBuilder.close();
+                }
+            };
+            
+            window.checkConnection = function() {
+            	try{
+	            	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage)
+	            	{
+	            		window.vfbRelaodMessage = false;
+	            		if (confirm("Sorry but your connection to our servers has timed out. \nClick OK to reconnect and reload your current items or click Cancel to do nothing."))
+	            		{
+	            			location.reload();
+	            		}
+	            	}
+            	}
+            	catch(err)
+            	{
+            		console.log(err.message);
+            	}
+            };
+            
+            window.vfbRelaodMessage = true;
+            
+            if (window.vfbLoadBuffer == undefined){
+            	window.vfbLoadBuffer = [];
+            	window.vfbLoading = "";
+            }
+            
+            window.addVfbIds = function(variableIds)
+            {
+            	for (i in variableIds){
+            		if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
+            			window.vfbLoadBuffer.push(variableIds[i]);
+            		}
+            	}
+            	if (window.vfbLoadBuffer.length > 0){
+            		GEPPETTO.trigger('spin_logo');
+            	}else{
+            		GEPPETTO.trigger('stop_spin_logo');
+            	}
+            	if (window.vfbLoading == ""){
+	            	for (i in window.vfbLoadBuffer){
+	            		if (window[window.vfbLoadBuffer[0]] != undefined){
+	            			window.vfbLoading=window.vfbLoadBuffer.splice(0,1)[0];
+	            			window.addVfbId(window.vfbLoading);
+	            			setTimeout(window.addVfbIds, 100);
+	            			break;
+	            		}else{
+	            			window.vfbLoading = window.vfbLoadBuffer[i];
+	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
+	            			window.vfbLoadingTimeout = 60;
+	            			window.addVfbId(window.vfbLoading);
+	            			setTimeout(window.addVfbIds, 500);
+	            			break;
+	            		}
+	            	}
+	            	window.updateHistory("Loading...");
+            	}else{
+            		if (window[window.vfbLoading] != undefined){
+            			window.vfbLoading = "";
+            			setTimeout(window.addVfbIds, 100);
+            		}else{
+            			window.vfbLoadingTimeout--
+            			if (window.vfbLoadingTimeout < 1){
+            				console.log("Failed to load " + window.vfbLoading + " in time");
+            				window.vfbLoading = "";
+            				window.checkConnection();
+            				if (window.vfbLoadBuffer.length > 0){
+            					setTimeout(window.addVfbIds, 250);
+            				}
+            			}else{
+            				setTimeout(window.addVfbIds, 500);
+            			}
+            		}            		
+            	}
+            }
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
