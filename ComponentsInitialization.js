@@ -1229,7 +1229,7 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                if (parent.window.location.href.indexOf('org.geppetto.frontend')<0){
+                if (document.referrer.indexOf('org.geppetto.frontend')<0){
 	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
 	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
