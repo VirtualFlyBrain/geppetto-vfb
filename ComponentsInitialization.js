@@ -1,34 +1,3 @@
-/*******************************************************************************
- *
- * Copyright (c) 2011, 2016 OpenWorm.
- * http://openworm.org
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
- *
- * Contributors:
- *      OpenWorm - http://openworm.org/people.html
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
- * USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
 define(function (require) {
     return function (GEPPETTO) {
 
@@ -202,7 +171,7 @@ define(function (require) {
                     "delete": {
                     	"showCondition": "$instance$.getId()!=window.templateID",
                         "id": "delete",
-                        "actions": ["$instance$.deselect(); $instance$.delete();"],
+                        "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());} $instance$.deselect(); $instance$.delete();"],
                         "icon": "fa-trash-o",
                         "label": "Delete",
                         "tooltip": "Delete"
@@ -516,13 +485,17 @@ define(function (require) {
         });
 
         //Canvas initialisation
-        var vfbCanvas = undefined;
+        window.vfbCanvas = undefined;
         GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
             this.flipCameraY();
             this.flipCameraZ();
             this.setWireframe(true);
             this.displayAllInstances();
-            vfbCanvas = this;
+            window.vfbCanvas = this;
+
+            if(window.StackViewer1 != undefined){
+                window.StackViewer1.setCanvasRef(this);
+            }
         });
 
         //Loading spinner initialization
@@ -842,13 +815,17 @@ define(function (require) {
                     if (config == undefined || typeof config !== "undefined"){
                     	config = {
                                 serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-                                templateId: 'NOTSET',
-                                canvasRef: vfbCanvas
+                                templateId: 'NOTSET'
                             };
                     }
                     G.addWidget(8, {isStateless: true}).setConfig(config).setData({
                         instances: sliceInstances
                     });
+
+                    // set canvas if it's already there
+                    if(window.vfbCanvas != undefined){
+                        window.StackViewer1.setCanvasRef(window.vfbCanvas);
+                    }
 
                     // set initial position:
                     window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
@@ -884,8 +861,7 @@ define(function (require) {
                             if(instances!=undefined && instances.length > 0){
                             	var config = {
                                     serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-                                    templateId: window.templateID,
-                                    canvasRef: vfbCanvas
+                                    templateId: window.templateID
                             	};
                                 instances.forEach(function (parentInstance){
                                     parentInstance.parent.getChildren().forEach(function (instance){
@@ -1130,7 +1106,7 @@ define(function (require) {
                             "delete": {
                             	"showCondition": "$instance$.getId()!=window.templateID",
                                 "id": "delete",
-                                "actions": ["$instance$.deselect();$instance$.delete();window.getTermInfoWidget().setData(window[window.templateID][window.templateID+'_meta'])"],
+                                "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
                                 "icon": "fa-trash-o",
                                 "label": "Delete",
                                 "tooltip": "Delete"
@@ -1185,7 +1161,7 @@ define(function (require) {
                             },
                             "meshBtn": {
                             	"actions": [
-                            		"GEPPETTO.SceneController.setWireframe(!GEPPETTO.SceneController.wireframe);"
+                            		"Canvas1.setWireframe(!Canvas1.getWireframe());"
                             	],
                                 "icon": "fa fa-object-ungroup",
                                 "label": "",
@@ -1337,8 +1313,7 @@ define(function (require) {
             $('#zoomOutBtn').first().title="Zoom Out";
             };
             
-            window.clearQS = function()
-            {
+            window.clearQS = function() {
             	window.checkConnection();
             	if (GEPPETTO.Spotlight)
                 {
@@ -1349,10 +1324,9 @@ define(function (require) {
                 {
                 	GEPPETTO.QueryBuilder.close();
                 }
-            }
+            };
             
-            window.checkConnection = function()
-            {
+            window.checkConnection = function() {
             	try{
 	            	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage)
 	            	{
@@ -1367,7 +1341,7 @@ define(function (require) {
             	{
             		console.log(err.message);
             	}
-            }
+            };
             
             window.vfbRelaodMessage = true;
             
