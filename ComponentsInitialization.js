@@ -1201,7 +1201,7 @@ define(function (require) {
 
                 // reset position of button bar widget (always there)
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
-            }
+            };
             
             window.updateHistory = function(title) 
             {
@@ -1229,9 +1229,9 @@ define(function (require) {
 	            	}
 	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget().data != null)
+	                if (window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
 	                {
-	                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
+	                    items = 'id=' + Instances.getInstance(window.getTermInfoWidget().data).parent.id + '&' + items;
 	                }
 	                if (items != "i="){
 	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
