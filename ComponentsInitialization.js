@@ -1272,7 +1272,7 @@ define(function (require) {
 	                				}
 	                			}
 	                			if (window[variableId][variableId+'_meta'] != undefined){
-	                				window[variableId].select();
+	                				try{window[variableId].select();}catch (ignore){};
 	                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
 	                    			setTermInfo(meta, variableId);
 	                			}else{
