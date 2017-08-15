@@ -736,7 +736,7 @@ define(function (require) {
 
                         // add query item + selection
                         if (otherId == undefined) {
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
                         }else{
                         	if (window[otherId] == undefined){
                         		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
