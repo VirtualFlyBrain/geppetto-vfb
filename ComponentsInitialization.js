@@ -1231,7 +1231,7 @@ define(function (require) {
 	                items = items.replace(',,',',').replace('i=,','i=');
 	                if (window.getTermInfoWidget().data != null)
 	                {
-	                    items = 'id=' + window.getTermInfoWidget().data.parent.id + '&' + items;
+	                    items = 'id=' + window.getTermInfoWidget().data.getInstance().parent.id + '&' + items;
 	                }
 	                if (items != "i="){
 	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
