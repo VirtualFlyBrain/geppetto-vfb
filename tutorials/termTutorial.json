@@ -4,6 +4,6 @@
     "width": "500",
 	"steps": [{
 		"title": "Term Widget",
-		 "content_url": "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/term-info.html"
+		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/term-info.html"
 	}]
 }

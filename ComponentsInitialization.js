@@ -48,10 +48,10 @@ define(function (require) {
             closeByDefault : true
         }, function() {
             //temporary until sessions allow to customise the tutorial component
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/queryTutorial.json");
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/spotlightTutorial.json");
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/termTutorial.json");
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/stackTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/queryTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/spotlightTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/termTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/stackTutorial.json");
         });
         
         //Control panel initialization

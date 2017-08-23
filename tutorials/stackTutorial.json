@@ -4,6 +4,6 @@
     "width": "500",
 	"steps": [{
 		"title": "Stack Widget",
-		 "content_url": "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/stack-viewer.html"
+		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/stack-viewer.html"
 	}]
 }
