@@ -11,14 +11,51 @@ define(function (require) {
         var Query = require('./../../js/geppettoModel/model/Query');
         var ImportType = require('./../../js/geppettoModel/model/ImportType');
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
+        var vfbTutorial = require('./tutorials/controlPanelTutorial.json');
+        
+        var markdown = require( "markdown" ).markdown;
 
+        var stackMD = "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/mdHelpFiles/stack.md";
+        var termMD = "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/mdHelpFiles/term.md";
+        
+        //Retrieve 
+        function getMDText(urlLocation){
+            var result = null;
+            $.ajax( { url: urlLocation, 
+                      type: 'get', 
+                      dataType: 'html',
+                      async: false,
+                      success: function(data) { result = data; } 
+                    }
+            );
+            return result;
+        }
+        
+        //retrieve MD files text output and stores it into local variables
+        var termHelpInfo = getMDText(termMD);
+        var stackHelpInfo = getMDText(stackMD);
+        
         /*ADD COMPONENTS*/
         
         //Logo initialization
         GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
 
+        //Tutorial component initialization
+        GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
+            name: 'VFB Tutorial',
+            tutorialData: vfbTutorial,
+            isStateless: true,
+            closeByDefault : true
+        }, function() {
+            //temporary until sessions allow to customise the tutorial component
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/queryTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/spotlightTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/termTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/stackTutorial.json");
+        });
+        
         //Control panel initialization
-        GEPPETTO.ComponentFactory.addComponent('CONTROLPANEL', {}, document.getElementById("controlpanel"), function () {
+        GEPPETTO.ComponentFactory.addComponent('CONTROLPANEL', {enableInfiniteScroll: true}, document.getElementById("controlpanel"), function () {
             // CONTROLPANEL configuration
             // set column meta - which custom controls to use, source configuration for data, custom actions
             var controlPanelColMeta = [
@@ -326,10 +363,10 @@ define(function (require) {
         });
 
         //Foreground initialization
-        GEPPETTO.ComponentFactory.addComponent('FOREGROUND', {}, document.getElementById("foreground-toolbar"));
+        GEPPETTO.ComponentFactory.addComponent('FOREGROUND', {addToForegroundControls : false}, document.getElementById("foreground-toolbar"));
         
         //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enablePagination:true, resultsPerPage:Math.ceil((window.innerHeight * 0.7)/250)}, document.getElementById("querybuilder"), function () {
+        GEPPETTO.ComponentFactory.addComponent('QUERY', {enableInfiniteScroll: true}, document.getElementById("querybuilder"), function () {
             // QUERY configuration
             var queryResultsColMeta = [
                 {
@@ -833,6 +870,7 @@ define(function (require) {
                     window.StackViewer1.setName('Slice Viewer');
                     window.StackViewer1.setTrasparentBackground(true);
                     window.StackViewer1.showHistoryIcon(false);
+                    window.StackViewer1.setHelpInfo(stackHelpInfo);
 
                    window.StackViewer1.$el.bind('restored', function(event,id) {
                         if(id == window.StackViewer1.getId()){
@@ -1116,6 +1154,7 @@ define(function (require) {
                     window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                    window.termInfoPopup.setHelpInfo(termHelpInfo);
                 } else {
                 	window.vfbWindowResize();
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
@@ -1166,6 +1205,14 @@ define(function (require) {
                                 "icon": "fa fa-object-ungroup",
                                 "label": "",
                                 "tooltip": "Toggle wireframe"
+                            },
+                            "tutorialBtn": {
+                            	"actions": [
+                            		'GEPPETTO.Console.executeImplicitCommand("G.toggleTutorial()");'
+                            	],
+                                "icon": "fa fa-leanpub",
+                                "label": "",
+                                "tooltip": "Toggle tutorial"
                             }
                         }
                     }

@@ -1,0 +1,9 @@
+{
+	"name": "Term Widget",
+	"height": "300",
+    "width": "400",
+	"steps": [{
+		"title": "Term Widget",
+		 "content_url": "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/term-info.html"
+	}]
+}

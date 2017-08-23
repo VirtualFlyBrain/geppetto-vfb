@@ -1,0 +1,9 @@
+{
+	"name": "Control Panel Component",
+	"height": "300",
+    "width": "400",
+	"steps": [{
+		"title": " Control Panel Component",
+		 "content_url": "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/control-panel.html"
+	}]
+}
