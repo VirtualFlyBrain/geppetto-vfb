@@ -1,9 +1,9 @@
 {
-	"name": "Query Component",
+	"name": "Query Tutorial",
 	"height": "400",
-    "width": "500",
+	"width": "500",
 	"steps": [{
 		"title": "Query",
-		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/query.html"
+		"content_url": "https://dl.dropboxusercontent.com/s/ug2kfp9ta6vpisw/query.html?dl=1"
 	}]
 }

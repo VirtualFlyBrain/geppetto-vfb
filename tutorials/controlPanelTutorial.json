@@ -1,9 +1,9 @@
 {
-	"name": "Control Panel Component",
+	"name": "Control Panel Tutorial",
 	"height": "400",
     "width": "500",
 	"steps": [{
 		"title": " Control Panel Component",
-		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/control-panel.html"
+		 "content_url": "https://dl.dropboxusercontent.com/s/uu48ehqxmik1j2i/control-panel.html?dl=1"
 	}]
 }

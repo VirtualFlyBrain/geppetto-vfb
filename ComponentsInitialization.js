@@ -11,12 +11,12 @@ define(function (require) {
         var Query = require('./../../js/geppettoModel/model/Query');
         var ImportType = require('./../../js/geppettoModel/model/ImportType');
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-        var vfbTutorial = require('./tutorials/controlPanelTutorial.json');
+        var vfbDefaultTutorial = require('./tutorials/controlPanelTutorial.json');
         
         var markdown = require( "markdown" ).markdown;
 
-        var stackMD = "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/mdHelpFiles/stack.md";
-        var termMD = "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/mdHelpFiles/term.md";
+        var stackMD = "https://dl.dropboxusercontent.com/s/bw3yzguu7hkckqb/stack.md?dl=0";
+        var termMD = "https://dl.dropboxusercontent.com/s/5e8yhyidzib8nmk/term.md?dl=1";
         
         //Retrieve 
         function getMDText(urlLocation){
@@ -43,15 +43,15 @@ define(function (require) {
         //Tutorial component initialization
         GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
             name: 'VFB Tutorial',
-            tutorialData: vfbTutorial,
+            tutorialData: vfbDefaultTutorial,
             isStateless: true,
             closeByDefault : true
         }, function() {
-            //temporary until sessions allow to customise the tutorial component
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/queryTutorial.json");
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/spotlightTutorial.json");
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/termTutorial.json");
-            GEPPETTO.Tutorial.addTutorial("https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/stackTutorial.json");
+            // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
+            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/m0malsjo22wev93/queryTutorial.json?dl=1");
+            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/iahe037rzyf95s9/spotlightTutorial.json?dl=1");
+            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/9wedxda1d7yd4v8/termTutorial.json?dl=1");
+            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/n6nrq4gh7kgk4bi/stackTutorial.json?dl=0");
         });
         
         //Control panel initialization

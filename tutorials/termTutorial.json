@@ -1,9 +1,9 @@
 {
-	"name": "Term Widget",
+	"name": "Term Info Tutorial",
 	"height": "400",
     "width": "500",
 	"steps": [{
 		"title": "Term Widget",
-		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/term-info.html"
+		 "content_url": "https://dl.dropboxusercontent.com/s/75b6uwt2dj84xf5/term-info.html?dl=1"
 	}]
 }

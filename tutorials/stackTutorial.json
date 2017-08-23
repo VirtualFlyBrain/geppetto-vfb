@@ -1,9 +1,9 @@
 {
-	"name": "StackViewer Widget",
+	"name": "Stack Viewer Tutorial",
 	"height": "400",
     "width": "500",
 	"steps": [{
 		"title": "Stack Widget",
-		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/stack-viewer.html"
+		 "content_url": "https://dl.dropboxusercontent.com/s/2yrk47xjegnclap/stack-viewer.html?dl=1"
 	}]
 }

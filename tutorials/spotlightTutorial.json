@@ -1,9 +1,9 @@
 {
-	"name": "Spotlight Component",
+	"name": "Search Tutorial",
 	"height": "400",
     "width": "500",
 	"steps": [{
 		"title": "Spotlight",
-		 "content_url": "https://raw.githubusercontent.com/VirtualFlyBrain/geppetto-vfb/styling/tutorials/spotlight.html"
+		 "content_url": "https://dl.dropboxusercontent.com/s/al846e4znjls4xx/spotlight.html?dl=1"
 	}]
 }
