@@ -45,7 +45,8 @@ define(function (require) {
             name: 'VFB Tutorial',
             tutorialData: vfbDefaultTutorial,
             isStateless: true,
-            closeByDefault : true
+            closeByDefault : true,
+            showMemoryCheckbox: false
         }, function() {
             // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
             GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/m0malsjo22wev93/queryTutorial.json?dl=1");
