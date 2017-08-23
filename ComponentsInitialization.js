@@ -361,9 +361,6 @@ define(function (require) {
             };
             GEPPETTO.Spotlight.addDataSource(spotlightDataSourceConfig);
         });
-
-        //Foreground initialization
-        GEPPETTO.ComponentFactory.addComponent('FOREGROUND', {addToForegroundControls : false}, document.getElementById("foreground-toolbar"));
         
         //Query control initialization
         GEPPETTO.ComponentFactory.addComponent('QUERY', {enableInfiniteScroll: true}, document.getElementById("querybuilder"), function () {
@@ -553,7 +550,7 @@ define(function (require) {
             var getStackViewerDefaultX = function() { return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); };
             var getStackViewerDefaultY = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4)); };
             var getTermInfoDefaultY = function() {return 10;};
-            var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 125); };
+            var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 175); };
             var getButtonBarDefaultY = function() { return 10; };
 
             // logic to assign colours to elements in the scene
@@ -1171,6 +1168,14 @@ define(function (require) {
                                     "window.clearQS(); GEPPETTO.Spotlight.open();"
                                 ],
                                 "icon": "fa fa-search",
+                                "label": "",
+                                "tooltip": "Search"
+                            },
+                            "controlPanelBtn": {
+                                "actions": [
+                                    "window.clearQS(); GEPPETTO.ControlPanel.open();"
+                                ],
+                                "icon": "fa fa-list",
                                 "label": "",
                                 "tooltip": "Search"
                             },

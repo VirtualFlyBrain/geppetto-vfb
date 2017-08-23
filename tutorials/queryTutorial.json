@@ -1,7 +1,7 @@
 {
 	"name": "Query Component",
-	"height": "300",
-    "width": "400",
+	"height": "400",
+    "width": "500",
 	"steps": [{
 		"title": "Query",
 		 "content_url": "https://raw.githubusercontent.com/jrmartin/vfb-extension/vfb-8/17/tutorials/query.html"
