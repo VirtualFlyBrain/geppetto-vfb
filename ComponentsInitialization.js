@@ -49,10 +49,10 @@ define(function (require) {
             showMemoryCheckbox: false
         }, function() {
             // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
-            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/m0malsjo22wev93/queryTutorial.json?dl=1");
-            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/iahe037rzyf95s9/spotlightTutorial.json?dl=1");
-            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/9wedxda1d7yd4v8/termTutorial.json?dl=1");
-            GEPPETTO.Tutorial.addTutorial("https://dl.dropboxusercontent.com/s/n6nrq4gh7kgk4bi/stackTutorial.json?dl=0");
+            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/queryTutorial.json");
+            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
+            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/stackTutorial.json");
+            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/termTutorial.json");
         });
         
         //Control panel initialization
