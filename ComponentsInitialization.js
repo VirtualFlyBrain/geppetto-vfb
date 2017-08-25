@@ -15,8 +15,8 @@ define(function (require) {
         
         var markdown = require( "markdown" ).markdown;
 
-        var stackMD = window.origin+"/extensions/geppetto-vfb/mdHelpFiles/stack.md";
-        var termMD = window.origin+"/extensions/geppetto-vfb/mdHelpFiles/term.md";
+        var stackMD = "/extensions/geppetto-vfb/mdHelpFiles/stack.md";
+        var termMD = "/extensions/geppetto-vfb/mdHelpFiles/term.md";
         
         //Retrieve 
         function getMDText(urlLocation){
@@ -49,10 +49,10 @@ define(function (require) {
             showMemoryCheckbox: false
         }, function() {
             // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
-            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/queryTutorial.json");
-            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
-            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/stackTutorial.json");
-            GEPPETTO.Tutorial.addTutorial(window.origin+"/extensions/geppetto-vfb/tutorials/termTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/queryTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/stackTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/termTutorial.json");
         });
         
         //Control panel initialization
