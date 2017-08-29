@@ -167,14 +167,14 @@ define(function (require) {
                         "false": {
                             "id": "visibility_obj",
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "fa-eye-slash",
+                            "icon": "gpt-shapeshow",
                             "label": "Hidden",
                             "tooltip": "Show 3D Volume"
                         },
                         "true": {
                             "id": "visibility_obj",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                            "icon": "fa-eye",
+                            "icon": "gpt-shapehide",
                             "label": "Visible",
                             "tooltip": "Hide 3D Volume"
                         }
@@ -185,14 +185,14 @@ define(function (require) {
                         "false": {
                             "id": "visibility_swc",
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "fa-eye-slash",
+                            "icon": "gpt-3dshow",
                             "label": "Hidden",
                             "tooltip": "Show 3D Skeleton"
                         },
                         "true": {
                             "id": "visibility_swc",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                            "icon": "fa-eye",
+                            "icon": "gpt-3dhide",
                             "label": "Visible",
                             "tooltip": "Hide 3D Skeleton"
                         }
@@ -1109,14 +1109,14 @@ define(function (require) {
                                 "false": {
                                     "id": "visibility_obj",
                                     "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                    "icon": "fa-eye-slash",
+                                    "icon": "gpt-shapeshow",
                                     "label": "Hidden",
                                     "tooltip": "Show 3D Volume"
                                 },
                                 "true": {
                                     "id": "visibility_obj",
                                     "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                    "icon": "fa-eye",
+                                    "icon": "gpt-shapehide",
                                     "label": "Visible",
                                     "tooltip": "Hide 3D Volume"
                                 }
@@ -1127,14 +1127,14 @@ define(function (require) {
                                 "false": {
                                     "id": "visibility_swc",
                                     "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                    "icon": "fa-eye-slash",
+                                    "icon": "gpt-3dshow",
                                     "label": "Hidden",
                                     "tooltip": "Show 3D Skeleton"
                                 },
                                 "true": {
                                     "id": "visibility_swc",
                                     "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                    "icon": "fa-eye",
+                                    "icon": "gpt-3dhide",
                                     "label": "Visible",
                                     "tooltip": "Hide 3D Skeleton"
                                 }
@@ -1184,7 +1184,7 @@ define(function (require) {
                                 "actions": [
                                     "window.clearQS(); GEPPETTO.QueryBuilder.open();"
                                 ],
-                                "icon": "fa fa-quora",
+                                "icon": "gpt-query",
                                 "label": "",
                                 "tooltip": "Query"
                             },
@@ -1200,7 +1200,7 @@ define(function (require) {
                                 "actions": [
                                     "window.addStackWidget();"
                                 ],
-                                "icon": "gpt-stack",
+                                "icon": "gpt-showplane",
                                 "label": "",
                                 "tooltip": "Show stack viewer"
                             },
@@ -1208,7 +1208,7 @@ define(function (require) {
                             	"actions": [
                             		"Canvas1.setWireframe(!Canvas1.getWireframe());"
                             	],
-                                "icon": "fa fa-object-ungroup",
+                                "icon": "gpt-sphere_wireframe-jpg",
                                 "label": "",
                                 "tooltip": "Toggle wireframe"
                             },
