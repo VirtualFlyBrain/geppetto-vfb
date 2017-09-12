@@ -771,7 +771,7 @@ define(function (require) {
 
                         // add query item + selection
                         if (otherId == undefined) {
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.getParent().getId(), queryObj: entity}, callback);
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
                         }else{
                         	if (window[otherId] == undefined){
                         		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
@@ -1284,7 +1284,7 @@ define(function (require) {
 	                items = items.replace(',,',',').replace('i=,','i=');
 	                if (window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
 	                {
-	                    items = 'id=' + Instances.getInstance(window.getTermInfoWidget().data).parent.id + '&' + items;
+	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
 	                }
 	                if (items != "i="){
 	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
@@ -1325,7 +1325,7 @@ define(function (require) {
 	                				}
 	                			}
 	                			if (window[variableId][variableId+'_meta'] != undefined){
-	                				window[variableId].select();
+	                				try{window[variableId].select();}catch (ignore){};
 	                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
 	                    			setTermInfo(meta, variableId);
 	                			}else{
