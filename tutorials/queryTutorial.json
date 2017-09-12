@@ -1,0 +1,9 @@
+{
+	"name": "Query Tutorial",
+	"height": "400",
+	"width": "500",
+	"steps": [{
+		"title": "Query Tutorial",
+		"content_url": "/extensions/geppetto-vfb/tutorials/query.html"
+	}]
+}

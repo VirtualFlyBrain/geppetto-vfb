@@ -1,0 +1,9 @@
+{
+	"name": "Stack Viewer Tutorial",
+	"height": "400",
+    "width": "500",
+	"steps": [{
+		"title": "Stack Viewer Tutorial",
+		 "content_url": "/extensions/geppetto-vfb/tutorials/stack-viewer.html"
+	}]
+}

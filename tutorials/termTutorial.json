@@ -1,0 +1,9 @@
+{
+	"name": "Term Info Tutorial",
+	"height": "400",
+    "width": "500",
+	"steps": [{
+		"title": "Term Info Tutorial",
+		 "content_url": "/extensions/geppetto-vfb/tutorials/term-info.html"
+	}]
+}

@@ -1,0 +1,9 @@
+{
+	"name": "Search Tutorial",
+	"height": "400",
+    "width": "500",
+	"steps": [{
+		"title": "Search Tutorial",
+		 "content_url": "/extensions/geppetto-vfb/tutorials/spotlight.html"
+	}]
+}

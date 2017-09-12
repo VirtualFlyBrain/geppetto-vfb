@@ -11,14 +11,52 @@ define(function (require) {
         var Query = require('./../../js/geppettoModel/model/Query');
         var ImportType = require('./../../js/geppettoModel/model/ImportType');
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
+        var vfbDefaultTutorial = require('./tutorials/controlPanelTutorial.json');
+        
+        var markdown = require( "markdown" ).markdown;
 
+        var stackMD = "/extensions/geppetto-vfb/mdHelpFiles/stack.md";
+        var termMD = "/extensions/geppetto-vfb/mdHelpFiles/term.md";
+        
+        //Retrieve 
+        function getMDText(urlLocation){
+            var result = null;
+            $.ajax( { url: urlLocation, 
+                      type: 'get', 
+                      dataType: 'html',
+                      async: false,
+                      success: function(data) { result = data; } 
+                    }
+            );
+            return result;
+        }
+        
+        //retrieve MD files text output and stores it into local variables
+        var termHelpInfo = getMDText(termMD);
+        var stackHelpInfo = getMDText(stackMD);
+        
         /*ADD COMPONENTS*/
         
         //Logo initialization
         GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
 
+        //Tutorial component initialization
+        GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
+            name: 'VFB Tutorial',
+            tutorialData: vfbDefaultTutorial,
+            isStateless: true,
+            closeByDefault : true,
+            showMemoryCheckbox: false
+        }, function() {
+            // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/queryTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/stackTutorial.json");
+            GEPPETTO.Tutorial.addTutorial("/extensions/geppetto-vfb/tutorials/termTutorial.json");
+        });
+        
         //Control panel initialization
-        GEPPETTO.ComponentFactory.addComponent('CONTROLPANEL', {}, document.getElementById("controlpanel"), function () {
+        GEPPETTO.ComponentFactory.addComponent('CONTROLPANEL', {enableInfiniteScroll: true}, document.getElementById("controlpanel"), function () {
             // CONTROLPANEL configuration
             // set column meta - which custom controls to use, source configuration for data, custom actions
             var controlPanelColMeta = [
@@ -129,14 +167,14 @@ define(function (require) {
                         "false": {
                             "id": "visibility_obj",
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "fa-eye-slash",
+                            "icon": "gpt-shapeshow",
                             "label": "Hidden",
                             "tooltip": "Show 3D Volume"
                         },
                         "true": {
                             "id": "visibility_obj",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                            "icon": "fa-eye",
+                            "icon": "gpt-shapehide",
                             "label": "Visible",
                             "tooltip": "Hide 3D Volume"
                         }
@@ -147,14 +185,14 @@ define(function (require) {
                         "false": {
                             "id": "visibility_swc",
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "fa-eye-slash",
+                            "icon": "gpt-3dshow",
                             "label": "Hidden",
                             "tooltip": "Show 3D Skeleton"
                         },
                         "true": {
                             "id": "visibility_swc",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                            "icon": "fa-eye",
+                            "icon": "gpt-3dhide",
                             "label": "Visible",
                             "tooltip": "Hide 3D Skeleton"
                         }
@@ -324,9 +362,6 @@ define(function (require) {
             };
             GEPPETTO.Spotlight.addDataSource(spotlightDataSourceConfig);
         });
-
-        //Foreground initialization
-        GEPPETTO.ComponentFactory.addComponent('FOREGROUND', {}, document.getElementById("foreground-toolbar"));
         
         //Query control initialization
         GEPPETTO.ComponentFactory.addComponent('QUERY', {enableInfiniteScroll: true}, document.getElementById("querybuilder"), function () {
@@ -516,7 +551,7 @@ define(function (require) {
             var getStackViewerDefaultX = function() { return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); };
             var getStackViewerDefaultY = function() { return (window.innerHeight - Math.ceil(window.innerHeight/4)); };
             var getTermInfoDefaultY = function() {return 10;};
-            var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 125); };
+            var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 175); };
             var getButtonBarDefaultY = function() { return 10; };
 
             // logic to assign colours to elements in the scene
@@ -833,6 +868,7 @@ define(function (require) {
                     window.StackViewer1.setName('Slice Viewer');
                     window.StackViewer1.setTrasparentBackground(true);
                     window.StackViewer1.showHistoryIcon(false);
+                    window.StackViewer1.setHelpInfo(stackHelpInfo);
 
                    window.StackViewer1.$el.bind('restored', function(event,id) {
                         if(id == window.StackViewer1.getId()){
@@ -1073,14 +1109,14 @@ define(function (require) {
                                 "false": {
                                     "id": "visibility_obj",
                                     "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                    "icon": "fa-eye-slash",
+                                    "icon": "gpt-shapeshow",
                                     "label": "Hidden",
                                     "tooltip": "Show 3D Volume"
                                 },
                                 "true": {
                                     "id": "visibility_obj",
                                     "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                    "icon": "fa-eye",
+                                    "icon": "gpt-shapehide",
                                     "label": "Visible",
                                     "tooltip": "Hide 3D Volume"
                                 }
@@ -1091,14 +1127,14 @@ define(function (require) {
                                 "false": {
                                     "id": "visibility_swc",
                                     "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                    "icon": "fa-eye-slash",
+                                    "icon": "gpt-3dshow",
                                     "label": "Hidden",
                                     "tooltip": "Show 3D Skeleton"
                                 },
                                 "true": {
                                     "id": "visibility_swc",
                                     "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                    "icon": "fa-eye",
+                                    "icon": "gpt-3dhide",
                                     "label": "Visible",
                                     "tooltip": "Hide 3D Skeleton"
                                 }
@@ -1116,6 +1152,7 @@ define(function (require) {
                     window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
                     window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                    window.termInfoPopup.setHelpInfo(termHelpInfo);
                 } else {
                 	window.vfbWindowResize();
                     $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
@@ -1135,11 +1172,19 @@ define(function (require) {
                                 "label": "",
                                 "tooltip": "Search"
                             },
+                            "controlPanelBtn": {
+                                "actions": [
+                                    "window.clearQS(); GEPPETTO.ControlPanel.open();"
+                                ],
+                                "icon": "fa fa-list",
+                                "label": "",
+                                "tooltip": "Search"
+                            },
                             "queryBtn": {
                                 "actions": [
                                     "window.clearQS(); GEPPETTO.QueryBuilder.open();"
                                 ],
-                                "icon": "fa fa-quora",
+                                "icon": "gpt-query",
                                 "label": "",
                                 "tooltip": "Query"
                             },
@@ -1155,7 +1200,7 @@ define(function (require) {
                                 "actions": [
                                     "window.addStackWidget();"
                                 ],
-                                "icon": "gpt-stack",
+                                "icon": "gpt-showplane",
                                 "label": "",
                                 "tooltip": "Show stack viewer"
                             },
@@ -1163,9 +1208,17 @@ define(function (require) {
                             	"actions": [
                             		"Canvas1.setWireframe(!Canvas1.getWireframe());"
                             	],
-                                "icon": "fa fa-object-ungroup",
+                                "icon": "gpt-sphere_wireframe-jpg",
                                 "label": "",
                                 "tooltip": "Toggle wireframe"
+                            },
+                            "tutorialBtn": {
+                            	"actions": [
+                            		'GEPPETTO.Console.executeImplicitCommand("G.toggleTutorial()");'
+                            	],
+                                "icon": "fa fa-leanpub",
+                                "label": "",
+                                "tooltip": "Toggle tutorial"
                             }
                         }
                     }
@@ -1201,11 +1254,11 @@ define(function (require) {
 
                 // reset position of button bar widget (always there)
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
-            }
+            };
             
             window.updateHistory = function(title) 
             {
-                if (parent.window.location.href.indexOf('org.geppetto.frontend')<0){
+                if (document.referrer.indexOf('org.geppetto.frontend')<0){
 	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
 	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
@@ -1229,7 +1282,7 @@ define(function (require) {
 	            	}
 	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget().data != null)
+	                if (window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
 	                {
 	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
 	                }

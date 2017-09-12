@@ -1,0 +1,9 @@
+{
+	"name": "Control Panel Tutorial",
+	"height": "400",
+    "width": "500",
+	"steps": [{
+		"title": " Control Panel Tutorial",
+		 "content_url": "/extensions/geppetto-vfb/tutorials/control-panel.html"
+	}]
+}
