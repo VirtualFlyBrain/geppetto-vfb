@@ -1178,7 +1178,7 @@ define(function (require) {
                                 ],
                                 "icon": "fa fa-list",
                                 "label": "",
-                                "tooltip": "Search"
+                                "tooltip": "Control Panel"
                             },
                             "queryBtn": {
                                 "actions": [
@@ -1186,7 +1186,7 @@ define(function (require) {
                                 ],
                                 "icon": "gpt-query",
                                 "label": "",
-                                "tooltip": "Query"
+                                "tooltip": "Open Query"
                             },
                             "infoBtn": {
                                 "actions": [
@@ -1218,7 +1218,7 @@ define(function (require) {
                             	],
                                 "icon": "fa fa-leanpub",
                                 "label": "",
-                                "tooltip": "Toggle tutorial"
+                                "tooltip": "Open tutorial"
                             }
                         }
                     }
