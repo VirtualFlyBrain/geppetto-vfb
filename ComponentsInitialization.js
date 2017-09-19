@@ -866,7 +866,7 @@ define(function (require) {
                     window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
                     window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
                     window.StackViewer1.setName('Slice Viewer');
-                    window.StackViewer1.setTrasparentBackground(true);
+                    window.StackViewer1.setTrasparentBackground(false);
                     window.StackViewer1.showHistoryIcon(false);
                     window.StackViewer1.setHelpInfo(stackHelpInfo);
 
@@ -1053,7 +1053,7 @@ define(function (require) {
                     window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                     window.termInfoPopupId = window.termInfoPopup.getId();
                     window.termInfoPopup.showHistoryNavigationBar(false);
-                    window.termInfoPopup.setTrasparentBackground(true);
+                    window.termInfoPopup.setTrasparentBackground(false);
                     $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
                     window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
