@@ -4,6 +4,6 @@
     "width": "500",
 	"steps": [{
 		"title": " Control Panel Tutorial",
-		 "content_url": "/extensions/geppetto-vfb/tutorials/control-panel.html"
+		 "content_url": "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/control-panel.html"
 	}]
 }

@@ -4,6 +4,6 @@
     "width": "500",
 	"steps": [{
 		"title": "Term Info Tutorial",
-		 "content_url": "/extensions/geppetto-vfb/tutorials/term-info.html"
+		 "content_url": "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/term-info.html"
 	}]
 }
