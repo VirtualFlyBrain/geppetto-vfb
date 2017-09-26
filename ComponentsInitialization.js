@@ -1259,7 +1259,7 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                if (document.referrer != ""){
+                if (parent.location.toString().indexOf('virtualflybrain.org') > 0){
 	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
 	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
