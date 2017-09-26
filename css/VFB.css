@@ -16,3 +16,7 @@
 #querybuilder .query-results-images-column img:hover{
 	max-height: 300px;
 }
+
+.tutorialMessage{
+    height : 100% !important;
+}
