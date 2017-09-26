@@ -46,6 +46,7 @@ define(function (require) {
             tutorialData: vfbDefaultTutorial,
             isStateless: true,
             closeByDefault : true,
+            tutorialMessageClass : "tutorialMessage",
             showMemoryCheckbox: false
         }, function() {
             // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
