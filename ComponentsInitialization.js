@@ -1243,8 +1243,10 @@ define(function (require) {
                                 "tooltip": "Open tutorial"
                             }
                 };
-                GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig},function(){
-                	this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
+
+                GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig}, function () {
+                    ButtonBar1 = this;
+                    this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
                     this.showCloseButton(false);
                     this.showTitleBar(false);
                     this.setClass('transparent');
