@@ -1164,8 +1164,6 @@ define(function (require) {
             // button bar helper method
             window.addButtonBar = function() {
                 var buttonBarConfig = {
-                    "": {
-                        "": {
                         	"searchBtn": {
                                 "actions": [
                                     "window.clearQS(); GEPPETTO.Spotlight.open();"
@@ -1199,20 +1197,42 @@ define(function (require) {
                                 "tooltip": "Show term info"
                             },
                             "stackBtn": {
-                                "actions": [
-                                    "window.addStackWidget();"
-                                ],
-                                "icon": "gpt-showplane",
-                                "label": "",
-                                "tooltip": "Show stack viewer"
+                            	"condition": "window.StackViewer1!=undefined;",
+                                "false": {
+                                	"actions": [
+                                        "window.addStackWidget();"
+                                    ],
+                                    "icon": "gpt-showplane",
+                                    "label": "",
+                                    "tooltip": "Show stack viewer"
+                                },
+                                "true": {
+                                	"actions": [
+                                        "StackViewer1.destroy();"
+                                    ],
+                                    "icon": "gpt-hideplane",
+                                    "label": "",
+                                    "tooltip": "Hide stack viewer"
+                                }
                             },
                             "meshBtn": {
-                            	"actions": [
-                            		"Canvas1.setWireframe(!Canvas1.getWireframe());"
-                            	],
-                                "icon": "gpt-sphere_wireframe-jpg",
-                                "label": "",
-                                "tooltip": "Toggle wireframe"
+                            	"condition": "Canvas1.getWireframe();",
+                                "false": {
+                                	"actions": [
+                                		"Canvas1.setWireframe(!Canvas1.getWireframe());"
+                                	],
+                                    "icon": "gpt-sphere_solid",
+                                    "label": "",
+                                    "tooltip": "Show wireframe"
+                                },
+                                "true": {
+                                	"actions": [
+                                		"Canvas1.setWireframe(!Canvas1.getWireframe());"
+                                	],
+                                    "icon": "gpt-sphere_wireframe-jpg",
+                                    "label": "",
+                                    "tooltip": "Hide wireframe"
+                                }
                             },
                             "tutorialBtn": {
                             	"actions": [
@@ -1222,14 +1242,17 @@ define(function (require) {
                                 "label": "",
                                 "tooltip": "Open tutorial"
                             }
-                        }
-                    }
                 };
-                G.addWidget(Widgets.BUTTONBAR, {isStateless: true}).fromJSONObj(buttonBarConfig);
-                ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
-                ButtonBar1.showCloseButton(false);
-                ButtonBar1.showTitleBar(false);
-                ButtonBar1.setClass('transparent');
+                GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig},function(){
+                	this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
+                    this.showCloseButton(false);
+                    this.showTitleBar(false);
+                    this.setClass('transparent');
+                    this.setResizable(false);
+                    this.setMinSize(0, 0);
+                    this.setAutoWidth();
+                    this.setAutoHeight();
+                });
             };
 
             // add term info
