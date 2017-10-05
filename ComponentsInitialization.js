@@ -1197,23 +1197,12 @@ define(function (require) {
                                 "tooltip": "Show term info"
                             },
                             "stackBtn": {
-                            	"condition": "window.StackViewer1!=undefined;",
-                                "false": {
-                                	"actions": [
-                                        "window.addStackWidget();"
-                                    ],
-                                    "icon": "gpt-showplane",
-                                    "label": "",
-                                    "tooltip": "Show stack viewer"
-                                },
-                                "true": {
-                                	"actions": [
-                                        "StackViewer1.destroy();"
-                                    ],
-                                    "icon": "gpt-hideplane",
-                                    "label": "",
-                                    "tooltip": "Hide stack viewer"
-                                }
+                                "actions": [
+                                    "window.addStackWidget();"
+                                ],
+                                "icon": "gpt-stack",
+                                "label": "",
+                                "tooltip": "Show stack viewer"
                             },
                             "meshBtn": {
                             	"condition": "Canvas1.getWireframe();",
@@ -1243,8 +1232,10 @@ define(function (require) {
                                 "tooltip": "Open tutorial"
                             }
                 };
-                GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig},function(){
-                	this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
+
+                GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig}, function () {
+                    ButtonBar1 = this;
+                    this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
                     this.showCloseButton(false);
                     this.showTitleBar(false);
                     this.setClass('transparent');
