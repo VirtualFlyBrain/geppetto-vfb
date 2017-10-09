@@ -618,6 +618,126 @@ define(function (require) {
             });
         };
 
+        // term info helper method
+        window.addTermInfo = function(){
+            if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
+                // init empty term info area
+                G.addWidget(1, {isStateless: true}).then(
+                    w => {
+                        window.termInfoPopup = w;
+                        window.termInfoPopup.setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
+                        window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
+                        window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                        window.termInfoPopupId = window.termInfoPopup.getId();
+                        window.termInfoPopup.setTrasparentBackground(false);
+                        window.termInfoPopup.showHistoryNavigationBar(true);
+                        $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
+
+                        window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
+                            if(id == window.termInfoPopupId){
+                                if(window[window.termInfoPopupId] != undefined) {
+                                    window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                                    window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
+                                }
+                            }
+                        });
+
+                        var buttonBarConfiguration={
+                            "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
+                            "filter" : function(instancePath){
+                                return Instances.getInstance(instancePath).getParent()
+                            },
+                            "VisualCapability": {
+                                "select": {
+                                    "id": "select",
+                                    "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
+                                    "false": {
+                                        "actions": ["$instance$.select()"],
+                                        "icon": "fa-hand-stop-o",
+                                        "label": "Unselected",
+                                        "tooltip": "Select",
+                                        "id": "select",
+                                    },
+                                    "true": {
+                                        "actions": ["$instance$.deselect()"],
+                                        "icon": "fa-hand-rock-o",
+                                        "label": "Selected",
+                                        "tooltip": "Deselect",
+                                        "id": "deselect",
+                                    }
+                                },
+                                "color": {
+                                    "id": "color",
+                                    "actions": ["$instance$.setColor('$param$');"],
+                                    "icon": "fa-tint",
+                                    "label": "Color",
+                                    "tooltip": "Color"
+                                },
+                                "zoom": {
+                                    "id": "zoom",
+                                    "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
+                                    "icon": "fa-search-plus",
+                                    "label": "Zoom",
+                                    "tooltip": "Zoom"
+                                },
+                                "visibility_obj": {
+                                    "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
+                                    "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
+                                    "false": {
+                                        "id": "visibility_obj",
+                                        "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                                        "icon": "gpt-shapeshow",
+                                        "label": "Hidden",
+                                        "tooltip": "Show 3D Volume"
+                                    },
+                                    "true": {
+                                        "id": "visibility_obj",
+                                        "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
+                                        "icon": "gpt-shapehide",
+                                        "label": "Visible",
+                                        "tooltip": "Hide 3D Volume"
+                                    }
+                                },
+                                "visibility_swc": {
+                                    "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
+                                    "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
+                                    "false": {
+                                        "id": "visibility_swc",
+                                        "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                                        "icon": "gpt-3dshow",
+                                        "label": "Hidden",
+                                        "tooltip": "Show 3D Skeleton"
+                                    },
+                                    "true": {
+                                        "id": "visibility_swc",
+                                        "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
+                                        "icon": "gpt-3dhide",
+                                        "label": "Visible",
+                                        "tooltip": "Hide 3D Skeleton"
+                                    }
+                                },
+                                "delete": {
+                                    "showCondition": "$instance$.getId()!=window.templateID",
+                                    "id": "delete",
+                                    "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+                                    "icon": "fa-trash-o",
+                                    "label": "Delete",
+                                    "tooltip": "Delete"
+                                }
+                            }
+                        };
+                        window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
+                        window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
+                        window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                        window.termInfoPopup.setHelpInfo(termHelpInfo);
+                    }
+                );
+            } else {
+                window.vfbWindowResize();
+                $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
+            }
+        };
+
         //Canvas initialisation
         window.vfbCanvas = undefined;
         GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
@@ -633,6 +753,9 @@ define(function (require) {
 
             // button bar needs the canvas to setup the wireframe button
             window.addButtonBar();
+
+            // add term info
+            window.addTermInfo();
         });
 
         //Loading spinner initialization
@@ -1140,128 +1263,6 @@ define(function (require) {
                     data.getParent().select(); // Select if visual type loaded.
                 }
             };
-
-            window.addTermInfo = function(){
-                if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
-                    // init empty term info area
-                    G.addWidget(1, {isStateless: true}).then(
-                        w => {
-                            window.termInfoPopup = w;
-                            window.termInfoPopup.setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
-                            window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
-                            window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
-                            window.termInfoPopupId = window.termInfoPopup.getId();
-                            window.termInfoPopup.setTrasparentBackground(false);
-                            window.termInfoPopup.showHistoryNavigationBar(true);
-                            $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
-
-                            window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
-                                if(id == window.termInfoPopupId){
-                                    if(window[window.termInfoPopupId] != undefined) {
-                                        window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
-                                        window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
-                                    }
-                                }
-                            });
-
-                            var buttonBarConfiguration={
-                                "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
-                                "filter" : function(instancePath){
-                                    return Instances.getInstance(instancePath).getParent()
-                                },
-                                "VisualCapability": {
-                                    "select": {
-                                        "id": "select",
-                                        "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
-                                        "false": {
-                                            "actions": ["$instance$.select()"],
-                                            "icon": "fa-hand-stop-o",
-                                            "label": "Unselected",
-                                            "tooltip": "Select",
-                                            "id": "select",
-                                        },
-                                        "true": {
-                                            "actions": ["$instance$.deselect()"],
-                                            "icon": "fa-hand-rock-o",
-                                            "label": "Selected",
-                                            "tooltip": "Deselect",
-                                            "id": "deselect",
-                                        }
-                                    },
-                                    "color": {
-                                        "id": "color",
-                                        "actions": ["$instance$.setColor('$param$');"],
-                                        "icon": "fa-tint",
-                                        "label": "Color",
-                                        "tooltip": "Color"
-                                    },
-                                    "zoom": {
-                                        "id": "zoom",
-                                        "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
-                                        "icon": "fa-search-plus",
-                                        "label": "Zoom",
-                                        "tooltip": "Zoom"
-                                    },
-                                    "visibility_obj": {
-                                        "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
-                                        "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
-                                        "false": {
-                                            "id": "visibility_obj",
-                                            "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                            "icon": "gpt-shapeshow",
-                                            "label": "Hidden",
-                                            "tooltip": "Show 3D Volume"
-                                        },
-                                        "true": {
-                                            "id": "visibility_obj",
-                                            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                            "icon": "gpt-shapehide",
-                                            "label": "Visible",
-                                            "tooltip": "Hide 3D Volume"
-                                        }
-                                    },
-                                    "visibility_swc": {
-                                        "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
-                                        "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
-                                        "false": {
-                                            "id": "visibility_swc",
-                                            "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                            "icon": "gpt-3dshow",
-                                            "label": "Hidden",
-                                            "tooltip": "Show 3D Skeleton"
-                                        },
-                                        "true": {
-                                            "id": "visibility_swc",
-                                            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                            "icon": "gpt-3dhide",
-                                            "label": "Visible",
-                                            "tooltip": "Hide 3D Skeleton"
-                                        }
-                                    },
-                                    "delete": {
-                                        "showCondition": "$instance$.getId()!=window.templateID",
-                                        "id": "delete",
-                                        "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
-                                        "icon": "fa-trash-o",
-                                        "label": "Delete",
-                                        "tooltip": "Delete"
-                                    }
-                                }
-                            };
-                            window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
-                            window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
-                            window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
-                            window.termInfoPopup.setHelpInfo(termHelpInfo);
-                        }
-                    );
-                } else {
-                	window.vfbWindowResize();
-                    $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
-                }
-            };
-
-            // add term info
-            window.addTermInfo();
 
             window.addEventListener('resize', function(event){
             	window.vfbWindowResize();
