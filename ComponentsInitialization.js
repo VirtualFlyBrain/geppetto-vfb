@@ -1311,7 +1311,7 @@ define(function (require) {
 	            	}
 	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
+	                if (window.getTermInfoWidget != undefined && window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
 	                {
 	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
 	                }
