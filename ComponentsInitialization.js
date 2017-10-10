@@ -1287,7 +1287,7 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                if (parent.location.toString().indexOf('virtualflybrain.org') > 0){
+                if (parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
 	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
 	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
@@ -1311,7 +1311,7 @@ define(function (require) {
 	            	}
 	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget != undefined && window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
+	                if (typeof(window.getTermInfoWidget) == "function" && window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
 	                {
 	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
 	                }
