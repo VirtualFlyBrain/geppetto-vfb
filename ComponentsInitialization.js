@@ -629,7 +629,7 @@ define(function (require) {
                         window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                         window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                         window.termInfoPopupId = window.termInfoPopup.getId();
-                        window.termInfoPopup.setTrasparentBackground(false);
+                        window.termInfoPopup.setTransparentBackground(false);
                         window.termInfoPopup.showHistoryNavigationBar(true);
                         $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
@@ -1083,7 +1083,7 @@ define(function (require) {
                             window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
                             window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
                             window.StackViewer1.setName('Slice Viewer');
-                            window.StackViewer1.setTrasparentBackground(false);
+                            window.StackViewer1.setTransparentBackground(false);
                             window.StackViewer1.showHistoryIcon(false);
                             window.StackViewer1.setHelpInfo(stackHelpInfo);
 
