@@ -1245,7 +1245,7 @@ define(function (require) {
 
             // term info widget helper methods
             window.getTermInfoWidget = function () {
-                return window[window.termInfoPopupId];
+            	return window[window.termInfoPopupId];
             };
 
             window.setTermInfo = function (data, name) {
@@ -1258,7 +1258,9 @@ define(function (require) {
             			console.log('meta passed to term info for ' + data.parent.getName());
             		}
             	}
-                getTermInfoWidget().setData(data).setName(name);
+            	if (window.getTermInfoWidget() != undefined){
+            		window.getTermInfoWidget().setData(data).setName(name);
+            	}
                 window.updateHistory(name);
                 GEPPETTO.SceneController.deselectAll();
                 if (typeof data.getParent().select === "function") 
