@@ -1008,7 +1008,10 @@ define(function (require) {
                 var selection = GEPPETTO.SceneController.getSelection();
                 if (selection.length > 0 && instance.isSelected()) {
                     var latestSelection = instance;
-                    var currentSelectionName = getTermInfoWidget().name;
+                    var currentSelectionName = "";
+                    if (window.getTermInfoWidget() != undefined) {
+                    	currentSelectionName = window.getTermInfoWidget().name;
+                    }
                     if(latestSelection.getChildren().length > 0){
                         // it's a wrapper object - if name is different from current selection set term info
                         if(currentSelectionName != latestSelection.getName()) {
