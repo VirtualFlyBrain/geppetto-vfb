@@ -181,14 +181,14 @@ define(function (require) {
                         "false": {
                             "id": "visibility_obj",
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "gpt-shapeshow",
+                            "icon": "gpt-shapehide",
                             "label": "Hidden",
                             "tooltip": "Show 3D Volume"
                         },
                         "true": {
                             "id": "visibility_obj",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                            "icon": "gpt-shapehide",
+                            "icon": "gpt-shapeshow",
                             "label": "Visible",
                             "tooltip": "Hide 3D Volume"
                         }
@@ -199,14 +199,14 @@ define(function (require) {
                         "false": {
                             "id": "visibility_swc",
                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "gpt-3dshow",
+                            "icon": "gpt-3dhide",
                             "label": "Hidden",
                             "tooltip": "Show 3D Skeleton"
                         },
                         "true": {
                             "id": "visibility_swc",
                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                            "icon": "gpt-3dhide",
+                            "icon": "gpt-3dshow",
                             "label": "Visible",
                             "tooltip": "Hide 3D Skeleton"
                         }
@@ -686,14 +686,14 @@ define(function (require) {
                                     "false": {
                                         "id": "visibility_obj",
                                         "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                        "icon": "gpt-shapeshow",
+                                        "icon": "gpt-shapehide",
                                         "label": "Hidden",
                                         "tooltip": "Show 3D Volume"
                                     },
                                     "true": {
                                         "id": "visibility_obj",
                                         "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                        "icon": "gpt-shapehide",
+                                        "icon": "gpt-shapeshow",
                                         "label": "Visible",
                                         "tooltip": "Hide 3D Volume"
                                     }
@@ -704,14 +704,14 @@ define(function (require) {
                                     "false": {
                                         "id": "visibility_swc",
                                         "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                        "icon": "gpt-3dshow",
+                                        "icon": "gpt-3dhide",
                                         "label": "Hidden",
                                         "tooltip": "Show 3D Skeleton"
                                     },
                                     "true": {
                                         "id": "visibility_swc",
                                         "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                        "icon": "gpt-3dhide",
+                                        "icon": "gpt-3dshow",
                                         "label": "Visible",
                                         "tooltip": "Hide 3D Skeleton"
                                     }
@@ -736,6 +736,81 @@ define(function (require) {
                 window.vfbWindowResize();
                 $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
             }
+        };
+
+        // custom handler for term info clicks
+        window.customHandler = function (node, path, widget) {
+            var n;
+            var otherId;
+            var otherName;
+            try {
+                n = eval(path);
+            } catch (ex) {
+                node = undefined;
+            }
+            var meta = path + "." + path + "_meta";
+            var target = widget;
+            // if (GEPPETTO.isKeyPressed("meta")) {
+            //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
+            //}
+            if (n != undefined) {
+                var metanode = Instances.getInstance(meta);
+                if (target.data == metanode){
+                    window.resolve3D(path);
+                }else{
+                    target.setData(metanode).setName(n.getName());
+                }
+            } else {
+                // check for passed ID:
+                if (path.indexOf(',')>-1){
+                    otherId = path.split(',')[1];
+                    otherName = path.split(',')[2];
+                    path = path.split(',')[0];
+                }
+                // try to evaluate as path in Model
+                var entity = Model[path];
+                if(entity instanceof Query){
+                    GEPPETTO.trigger('spin_logo');
+                    $("body").css("cursor", "progress");
+
+                    // clear query builder
+                    GEPPETTO.QueryBuilder.clearAllQueryItems();
+
+                    var callback = function(){
+                        // check if any results with count flag
+                        if(GEPPETTO.QueryBuilder.props.model.count > 0){
+                            // runQuery if any results
+                            GEPPETTO.QueryBuilder.runQuery();
+                        } else {
+                            GEPPETTO.QueryBuilder.switchView(false);
+                        }
+
+                        // show query component
+                        GEPPETTO.QueryBuilder.open();
+
+                        $("body").css("cursor", "default");
+                        GEPPETTO.trigger('stop_spin_logo');
+                    };
+
+                    // add query item + selection
+                    if (otherId == undefined) {
+                        GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+                    }else{
+                        if (window[otherId] == undefined){
+                            window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
+                        }else{
+                            GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
+                        }
+                    }
+                } else {
+                    Model.getDatasources()[0].fetchVariable(path, function () {
+                        Instances.getInstance(meta);
+                        target.setData(eval(meta)).setName(eval(path).getName());
+                        resolve3D(path);
+                    });
+                }
+            }
+
         };
 
         //Canvas initialisation
@@ -926,81 +1001,6 @@ define(function (require) {
             window.setTermInfoCallback = function(variableId){
                 var instance = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 setTermInfo(instance, instance.getParent().getId());
-            };
-
-            // custom handler for term info clicks
-            window.customHandler = function (node, path, widget) {
-                var n;
-                var otherId;
-                var otherName;
-                try {
-                    n = eval(path);
-                } catch (ex) {
-                    node = undefined;
-                }
-                var meta = path + "." + path + "_meta";
-                var target = widget;
-                // if (GEPPETTO.isKeyPressed("meta")) {
-                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
-                //}
-                if (n != undefined) {
-                    var metanode = Instances.getInstance(meta);
-                    if (target.data == metanode){
-                    	window.resolve3D(path);
-                    }else{
-                    	target.setData(metanode).setName(n.getName());
-                    }
-                } else {
-                	// check for passed ID:
-                	if (path.indexOf(',')>-1){
-                		otherId = path.split(',')[1];
-                		otherName = path.split(',')[2];
-                		path = path.split(',')[0];
-                	}
-                    // try to evaluate as path in Model
-                    var entity = Model[path];
-                    if(entity instanceof Query){
-                        GEPPETTO.trigger('spin_logo');
-                        $("body").css("cursor", "progress");
-
-                        // clear query builder
-                        GEPPETTO.QueryBuilder.clearAllQueryItems();
-
-                        var callback = function(){
-                            // check if any results with count flag
-                            if(GEPPETTO.QueryBuilder.props.model.count > 0){
-                                // runQuery if any results
-                                GEPPETTO.QueryBuilder.runQuery();
-                            } else {
-                                GEPPETTO.QueryBuilder.switchView(false);
-                            }
-
-                            // show query component
-                            GEPPETTO.QueryBuilder.open();
-
-                            $("body").css("cursor", "default");
-                            GEPPETTO.trigger('stop_spin_logo');
-                        };
-
-                        // add query item + selection
-                        if (otherId == undefined) {
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
-                        }else{
-                        	if (window[otherId] == undefined){
-                        		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
-                        	}else{
-                        		GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
-                        	}
-                        }
-                    } else {
-                        Model.getDatasources()[0].fetchVariable(path, function () {
-                            Instances.getInstance(meta);
-                            target.setData(eval(meta)).setName(eval(path).getName());
-                            resolve3D(path);
-                        });
-                    }
-                }
-          
             };
             
             // set term info on selection

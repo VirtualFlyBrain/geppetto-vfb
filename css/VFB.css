@@ -24,3 +24,11 @@
 .gpt-query:before {
     margin-top: 3px;
 }
+
+.gpt-shapehide:before {
+    margin-top: 3px;
+}
+
+.gpt-shapeshow:before {
+    margin-top: 5px;
+}
