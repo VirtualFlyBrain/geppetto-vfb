@@ -773,6 +773,8 @@ define(function (require) {
                     GEPPETTO.trigger('spin_logo');
                     $("body").css("cursor", "progress");
 
+                    // TODO: check if we already have results for this query and if so simply switch to query results
+
                     // clear query builder
                     GEPPETTO.QueryBuilder.clearAllQueryItems();
 

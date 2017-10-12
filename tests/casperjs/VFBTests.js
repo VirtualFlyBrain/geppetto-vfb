@@ -84,7 +84,7 @@ function spotlightTest(test, searchQuery, buttonClick, termInfoData){
 					test.assertVisible(buttonClick, "Show Info correctly visible");
 					this.echo("Show Info button became visible correctly");
 					buttonClick(buttonClick);
-					this.waitUntilVisible(termInfoData+"0" function () {
+					this.waitUntilVisible(termInfoData+"0", function () {
 						this.echo("Added to scene correctly");
 						test.assertVisible(termInfoData+"1", "Term info property correctly visible");
 						test.assertVisible(termInfoData+"2", "Term info property correctly visible");
@@ -106,9 +106,9 @@ function testTermInfoWidget(test){
 	});
 	
 	casper.then(function(){
-		casper.evaluate(function("#Popup1_VFB_00017894_metadata_el_1") {
+		/*casper.evaluate(function("#Popup1_VFB_00017894_metadata_el_1") {
 			$(variableName).find("a").click();
-		},variableName);
+		},variableName);*/
 	});
 	
 	casper.then(function(){
@@ -126,9 +126,9 @@ function testTermInfoWidget(test){
 	});
 	
 	casper.then(function(){
-		casper.evaluate(function("#Popup1_FBbt_00003624_metadata_el_4") {
+		/*casper.evaluate(function("#Popup1_FBbt_00003624_metadata_el_4") {
 			$(variableName).find("a")[0].click()
-		},variableName);
+		},variableName);*/
 	});
 	
 	casper.then(function(){
