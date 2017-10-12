@@ -1008,7 +1008,10 @@ define(function (require) {
                 var selection = GEPPETTO.SceneController.getSelection();
                 if (selection.length > 0 && instance.isSelected()) {
                     var latestSelection = instance;
-                    var currentSelectionName = getTermInfoWidget().name;
+                    var currentSelectionName = "";
+                    if (window.getTermInfoWidget() != undefined) {
+                    	currentSelectionName = window.getTermInfoWidget().name;
+                    }
                     if(latestSelection.getChildren().length > 0){
                         // it's a wrapper object - if name is different from current selection set term info
                         if(currentSelectionName != latestSelection.getName()) {
@@ -1242,7 +1245,7 @@ define(function (require) {
 
             // term info widget helper methods
             window.getTermInfoWidget = function () {
-                return window.termInfoPopup;
+            	return window[window.termInfoPopupId];
             };
 
             window.setTermInfo = function (data, name) {
@@ -1255,7 +1258,9 @@ define(function (require) {
             			console.log('meta passed to term info for ' + data.parent.getName());
             		}
             	}
-                getTermInfoWidget().setData(data).setName(name);
+            	if (window.getTermInfoWidget() != undefined){
+            		window.getTermInfoWidget().setData(data).setName(name);
+            	}
                 window.updateHistory(name);
                 GEPPETTO.SceneController.deselectAll();
                 if (typeof data.getParent().select === "function") 
@@ -1288,7 +1293,7 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                if (document.referrer != ""){
+                if (parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
 	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
 	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
@@ -1312,7 +1317,7 @@ define(function (require) {
 	            	}
 	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
+	                if (window.getTermInfoWidget() != undefined && window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
 	                {
 	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
 	                }
