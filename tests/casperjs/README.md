@@ -2,6 +2,7 @@
 
 * `casperjs test control-panel-tests.js --engine=slimerjs`
 * `casperjs test query-tests.js --engine=slimerjs`
+* `casperjs test VFBTests.js --engine=slimerjs` 
 
 ##Prereqs
 
