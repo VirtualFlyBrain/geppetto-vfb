@@ -1293,9 +1293,10 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                if (parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
-	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
-	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+                if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
+                	window.vfbUpdatingHistory = true;
+                	// Update the parent windows history with current instances (i=) and popup selection (id=)
+                	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
 	                for (var i = 0; i < visualInstances.length; i++) {
 	                	if (visualInstances[i].getParent() != null){
@@ -1315,15 +1316,15 @@ define(function (require) {
 	            	{
 	            		items = items + ',' + window.templateID;
 	            	}
-	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
+	            	compositeInstances.forEach(function(compositeInstance){ if (!items.includes(compositeInstance.getId())){items = items + ',' + compositeInstance.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget() != undefined && window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
-	                {
-	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
-	                }
+	                try{
+	                	items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
+	                }catch (ignore){};
 	                if (items != "i="){
 	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
 	                }
+	                window.vfbUpdatingHistory = false;
                 }
             };
             
@@ -1405,7 +1406,7 @@ define(function (require) {
             	window.checkConnection();
             	if (GEPPETTO.Spotlight)
                 {
-                	GEPPETTO.Spotlight.close();
+            		$("#spotlight").hide();
                 	$('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
                 }
                 if (GEPPETTO.QueryBuilder)
