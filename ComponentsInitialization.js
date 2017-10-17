@@ -1067,7 +1067,7 @@ define(function (require) {
                     }
                     if (config == undefined || typeof config !== "undefined"){
                     	config = {
-                                serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
+                                serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
                                 templateId: 'NOTSET'
                             };
                     }
@@ -1417,7 +1417,7 @@ define(function (require) {
             };
             
             window.checkConnection = function() {
-            	try{
+                try{
 	            	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage)
 	            	{
 	            		window.vfbRelaodMessage = false;
