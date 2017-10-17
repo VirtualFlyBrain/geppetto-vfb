@@ -62,6 +62,7 @@ define(function (require) {
             tutorialMessageClass : "tutorialMessage",
             showMemoryCheckbox: false
         }, function() {
+            GEPPETTO.Tutorial.setPosition(100, 70);
             // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
             GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json");
             GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
