@@ -173,11 +173,7 @@ define(function (require) {
                             window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
                             window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                             window.termInfoPopupId = window.termInfoPopup.getId();
-                            if (typeof(window.termInfoPopup.setTrasparentBackground) == "function") {
-                                window.termInfoPopup.setTrasparentBackground(false);
-                            }else{
-                                console.log('Error setting term info transparency!');
-                            }
+                            window.termInfoPopup.setTransparentBackground(false);
                             window.termInfoPopup.showHistoryNavigationBar(true);
                             $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
@@ -585,11 +581,7 @@ define(function (require) {
                             window.StackViewer1.setName('Slice Viewer');
                             window.StackViewer1.showHistoryIcon(false);
                             window.StackViewer1.setHelpInfo(stackHelpInfo);
-                            if (typeof(window.StackViewer1.setTrasparentBackground) == "function") {
-                                window.StackViewer1.setTrasparentBackground(false);
-                            }else{
-                                console.log('Error setting stack viewer transparency!');
-                            }
+                            window.StackViewer1.setTransparentBackground(false);
                             window.StackViewer1.$el.bind('restored', function(event,id) {
                                 if(id == window.StackViewer1.getId()){
                                     if(window.StackViewer1 != undefined) {
@@ -971,7 +963,7 @@ define(function (require) {
                     }
 
                 }else{
-                    setTimeout(function(){window.addVfbIds(variableIds);}, 5000);
+                    setTimeout(function(){window.addVfbIds(variableIds);}, 1000);
                 }
             }
 
