@@ -975,7 +975,7 @@ define(function (require) {
             //Logo initialization
             GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
 
-            //Tutorial component initialization
+          //Tutorial component initialization
             GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
                 name: 'VFB Tutorial',
                 tutorialData: vfbDefaultTutorial,
@@ -984,13 +984,14 @@ define(function (require) {
                 tutorialMessageClass : "tutorialMessage",
                 showMemoryCheckbox: false
             }, function() {
+                GEPPETTO.Tutorial.setPosition(100, 70);
                 // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
                 GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json");
                 GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
                 GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json");
                 GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json");
             });
-
+            
             //Control panel initialization
             GEPPETTO.ComponentFactory.addComponent('CONTROLPANEL', {enableInfiniteScroll: true}, document.getElementById("controlpanel"), function () {
                 // CONTROLPANEL configuration
