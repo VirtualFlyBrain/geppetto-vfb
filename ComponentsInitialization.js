@@ -1,6 +1,9 @@
 define(function (require) {
     return function (GEPPETTO) {
 
+        // block loading
+        window.canvasAvilable = false;
+
         var link = document.createElement("link");
         link.type = "text/css";
         link.rel = "stylesheet";
@@ -44,14 +47,9 @@ define(function (require) {
         var getTermInfoDefaultY = function() {return 10;};
         var getButtonBarDefaultX = function() { return (Math.ceil(window.innerWidth / 2) - 175); };
         var getButtonBarDefaultY = function() { return 10; };
-        
-        /*ADD COMPONENTS*/
 
-        // github logo
-        GEPPETTO.ComponentFactory.addComponent('LINKBUTTON', { left: 41, top: 320, icon: 'fa-github', url: 'https://github.com/VirtualFlyBrain/VFB2'}, document.getElementById("github-logo"));
-        
-        //Logo initialization
-        GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
+        // VFB initialization routines
+        window.initVFB = function () {
 
         //Tutorial component initialization
         GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
@@ -119,741 +117,6 @@ define(function (require) {
                     "cssClassName": "img-column",
                     "source": "GEPPETTO.ModelFactory.getAllVariablesOfMetaType($entity$.$entity$_meta.getType(), 'ImageType')[0].getInitialValues()[0].value.data"
                 }
-            ];
-            GEPPETTO.ControlPanel.setColumnMeta(controlPanelColMeta);
-            // which columns to display
-            GEPPETTO.ControlPanel.setColumns(['name', 'type', 'controls', 'image']);
-            // which instances to display in the control panel
-            GEPPETTO.ControlPanel.setDataFilter(function (entities) {
-                var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
-                var visualParents = [];
-                for (var i = 0; i < visualInstances.length; i++) {
-                	if (visualInstances[i].getParent() != null){
-                		visualParents.push(visualInstances[i].getParent());
-                	}
-                }
-                visualInstances = visualInstances.concat(visualParents);
-                var compositeInstances = [];
-                for (var i = 0; i < visualInstances.length; i++) {
-                    if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-                        compositeInstances.push(visualInstances[i]);
-                    }
-                }
-                return compositeInstances;
-            });
-            // custom controls configuration in the controls column
-            GEPPETTO.ControlPanel.setControlsConfig({
-                "VisualCapability": {
-                    "select": {
-                        "id": "select",
-                        "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
-                        "false": {
-                            "actions": ["$instance$.select()"],
-                            "icon": "fa-hand-stop-o",
-                            "label": "Unselected",
-                            "tooltip": "Select",
-                            "id": "select",
-                        },
-                        "true": {
-                            "actions": ["$instance$.deselect()"],
-                            "icon": "fa-hand-rock-o",
-                            "label": "Selected",
-                            "tooltip": "Deselect",
-                            "id": "deselect",
-                        }
-                    },
-                    "color": {
-                        "id": "color",
-                        "actions": ["$instance$.setColor('$param$');"],
-                        "icon": "fa-tint",
-                        "label": "Color",
-                        "tooltip": "Color"
-                    },
-                    "zoom": {
-                        "id": "zoom",
-                        "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
-                        "icon": "fa-search-plus",
-                        "label": "Zoom",
-                        "tooltip": "Zoom"
-                    },
-                    "visibility_obj": {
-                        "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
-                        "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
-                        "false": {
-                            "id": "visibility_obj",
-                            "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "gpt-shapehide",
-                            "label": "Hidden",
-                            "tooltip": "Show 3D Volume"
-                        },
-                        "true": {
-                            "id": "visibility_obj",
-                            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                            "icon": "gpt-shapeshow",
-                            "label": "Visible",
-                            "tooltip": "Hide 3D Volume"
-                        }
-                    },
-                    "visibility_swc": {
-                        "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
-                        "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
-                        "false": {
-                            "id": "visibility_swc",
-                            "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                            "icon": "gpt-3dhide",
-                            "label": "Hidden",
-                            "tooltip": "Show 3D Skeleton"
-                        },
-                        "true": {
-                            "id": "visibility_swc",
-                            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                            "icon": "gpt-3dshow",
-                            "label": "Visible",
-                            "tooltip": "Hide 3D Skeleton"
-                        }
-                    },
-                },
-                "Common": {
-                    "info": {
-                        "id": "info",
-                        "actions": ["var displayTxt = '$instance$'.split('.')['$instance$'.split('.').length - 1]; setTermInfo($instance$[displayTxt + '_meta'], displayTxt);"],
-                        "icon": "fa-info-circle",
-                        "label": "Info",
-                        "tooltip": "Info"
-                    },
-                    "delete": {
-                    	"showCondition": "$instance$.getId()!=window.templateID",
-                        "id": "delete",
-                        "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());} $instance$.deselect(); $instance$.delete();"],
-                        "icon": "fa-trash-o",
-                        "label": "Delete",
-                        "tooltip": "Delete"
-                    }
-                }
-            });
-            // which controls will be rendered, strings need to match ids in the controls configuration
-            GEPPETTO.ControlPanel.setControls({
-                "Common": ['info', 'delete'],
-                "VisualCapability": ['select', 'color', 'visibility', 'zoom', 'visibility_obj', 'visibility_swc']
-            });
-        });
-
-        //Spotlight initialization
-        GEPPETTO.ComponentFactory.addComponent('SPOTLIGHT', {indexInstances: false}, document.getElementById("spotlight"), function () {
-            // SPOTLIGHT configuration
-            var spotlightConfig = {
-                "SpotlightBar": {
-                    "DataSources": {},
-                    "CompositeType": {
-                        "type": {
-                            "actions": [
-                                "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
-                            ],
-                            "icon": "fa-info-circle",
-                            "label": "Show info",
-                            "tooltip": "Show info"
-                        },
-                        "query": {
-                            actions: [
-                                "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
-                            ],
-                            icon: "fa-quora",
-                            label: "Add to query",
-                            tooltip: "Add to query"
-                        },
-                    },
-                    "VisualCapability": {
-                        "buttonOne": {
-                            "condition": "GEPPETTO.SceneController.isSelected($instances$)",
-                            "false": {
-                                "actions": ["GEPPETTO.SceneController.select($instances$)"],
-                                "icon": "fa-hand-stop-o",
-                                "label": "Unselected",
-                                "tooltip": "Select"
-                            },
-                            "true": {
-                                "actions": ["GEPPETTO.SceneController.deselect($instances$)"],
-                                "icon": "fa-hand-rock-o",
-                                "label": "Selected",
-                                "tooltip": "Deselect"
-                            },
-                        },
-                        "buttonTwo": {
-                            "condition": "GEPPETTO.SceneController.isVisible($instances$)",
-                            "false": {
-                                "actions": [
-                                    "GEPPETTO.SceneController.show($instances$)"
-                                ],
-                                "icon": "fa-eye-slash",
-                                "label": "Hidden",
-                                "tooltip": "Show"
-                            },
-                            "true": {
-                                "actions": [
-                                    "GEPPETTO.SceneController.hide($instances$)"
-                                ],
-                                "icon": "fa-eye",
-                                "label": "Visible",
-                                "tooltip": "Hide"
-                            }
-
-                        },
-                        "buttonThree": {
-                            "actions": [
-                                "GEPPETTO.SceneController.zoomTo($instances$);GEPPETTO.Spotlight.close();"
-                            ],
-                            "icon": "fa-search-plus",
-                            "label": "Zoom",
-                            "tooltip": "Zoom"
-                        },
-                    }
-                }
-            };
-            GEPPETTO.Spotlight.setButtonBarConfiguration(spotlightConfig);
-            // external datasource configuration
-            var spotlightDataSourceConfig = {
-                VFB: {
-                    url: "https://www.virtualflybrain.org/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FB*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
-                    crossDomain: true,
-                    id: "short_form",
-                    label: {field: "label", formatting: "$VALUE$"},
-                    explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
-                    explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
-                    type: {
-                        class: {
-                            icon: "fa-file-text-o",
-                            buttons: {
-                                buttonOne: {
-                                    actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
-                                    icon: "fa-info-circle",
-                                    label: "Show info",
-                                    tooltip: "Show info"
-                                },
-                                buttonTwo: {
-                                    actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                    icon: "fa-quora",
-                                    label: "Add to query",
-                                    tooltip: "Add to query"
-                                }
-                            }
-                        },
-                        individual: {
-                            icon: "fa-file-image-o",
-                            buttons: {
-                            	buttonOne: {
-                                    actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
-                                    icon: "fa-info-circle",
-                                    label: "Show info",
-                                    tooltip: "Show info"
-                                },
-                                buttonTwo: {
-                                    actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
-                                    icon: "fa-file-image-o",
-                                    label: "Add to scene",
-                                    tooltip: "Add to scene"
-                                },
-                                buttonThree: {
-                                    actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                    icon: "fa-quora",
-                                    label: "Add to query",
-                                    tooltip: "Add to query"
-                                }
-                            }
-                        }
-                    },
-                    bloodhoundConfig: {
-                        datumTokenizer: function (d) {
-                            return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                        },
-                        queryTokenizer: function (q) {
-                            return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                        },
-                        sorter: function (a, b) {
-                            var term = $('#typeahead').val();
-                            return customSorter(a, b, term);
-                        }
-                    }
-                }
-            };
-            GEPPETTO.Spotlight.addDataSource(spotlightDataSourceConfig);
-        });
-        
-        //Query control initialization
-        GEPPETTO.ComponentFactory.addComponent('QUERY', {enableInfiniteScroll: true}, document.getElementById("querybuilder"), function () {
-            // QUERY configuration
-            var queryResultsColMeta = [
-                {
-                    "columnName": "id",
-                    "order": 1,
-                    "locked": false,
-                    "visible": true,
-                    "displayName": "ID",
-                },
-                {
-                    "columnName": "name",
-                    "order": 2,
-                    "locked": false,
-                    "visible": true,
-                    "customComponent": GEPPETTO.QueryLinkComponent,
-                    "actions": "window.fetchVariableThenRun('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getName());});",
-                    "displayName": "Name",
-                    "cssClassName": "query-results-name-column",
-                },
-                {
-                    "columnName": "description",
-                    "order": 3,
-                    "locked": false,
-                    "visible": true,
-                    "displayName": "Definition",
-                    "cssClassName": "query-results-description-column"
-                },
-                {
-                    "columnName": "type",
-                    "order": 4,
-                    "locked": false,
-                    "visible": true,
-                    "displayName": "Type",
-                    "cssClassName": "query-results-type-column"
-                },
-                {
-                    "columnName": "controls",
-                    "order": 5,
-                    "locked": false,
-                    "visible": false,
-                    "customComponent": GEPPETTO.QueryResultsControlsComponent,
-                    "displayName": "Controls",
-                    "actions": "",
-                    "cssClassName": "query-results-controls-column"
-                },
-                {
-                    "columnName": "images",
-                    "order": 6,
-                    "locked": false,
-                    "visible": true,
-                    "customComponent": GEPPETTO.SlideshowImageComponent,
-                    "displayName": "Images",
-                    "actions": "window.fetchVariableThenRun('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
-                    "cssClassName": "query-results-images-column"
-                }
-            ];
-            GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
-            // which columns to display in the results
-            GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'type', 'images']);
-
-            var queryResultsControlConfig = {
-                "Common": {
-                    "info": {
-                        "id": "info",
-                        "actions": [
-                            "window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"
-                        ],
-                        "icon": "fa-info-circle",
-                        "label": "Info",
-                        "tooltip": "Info"
-                    },
-                    "flybase": {
-                        "showCondition": "'$ID$'.startsWith('FBbt')",
-                        "id": "flybase",
-                        "actions": [
-                            "window.open('http://flybase.org/cgi-bin/cvreport.html?rel=is_a&id=' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
-                        ],
-                        "icon": "gpt-fly",
-                        "label": "FlyBase",
-                        "tooltip": "FlyBase Term"
-                    },
-                    "flybase": {
-                        "showCondition": "('$ID$'.startsWith('FB') && !'$ID$'.startsWith('FBbt'))",
-                        "id": "flybase",
-                        "actions": [
-                            "window.open('http://flybase.org/reports/' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
-                        ],
-                        "icon": "gpt-fly",
-                        "label": "FlyBase",
-                        "tooltip": "FlyBase Report"
-                    }
-                }
-            };
-            GEPPETTO.QueryBuilder.setResultsControlsConfig(queryResultsControlConfig);
-
-            // add datasource config to query control
-            var queryBuilderDatasourceConfig = {
-                VFB: {
-                    url: "https://www.virtualflybrain.org/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FBbt_*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
-                    crossDomain: true,
-                    id: "short_form",
-                    label: {field: "label", formatting: "$VALUE$"},
-                    explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
-                    explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
-                    type: {
-                        class: {
-                            actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                            icon: "fa-dot-circle-o"
-                        },
-                        individual: {
-                            actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                            icon: "fa-square-o"
-                        }
-                    },
-                    queryNameToken: '$NAME',
-                    resultsFilters: {
-                        getId: function (record) {
-                            return record[0]
-                        },
-                        getName: function (record) {
-                            return record[1]
-                        },
-                        getDescription: function (record) {
-                            return record[2]
-                        },
-                        getType: function (record) {
-                            return record[3]
-                        },
-                        getImageData: function (record) {
-                            return record[4]
-                        },
-                        getRecords: function (payload) {
-                            return payload.results.map(function (item) {
-                                return item.values
-                            })
-                        }
-                    },
-                    bloodhoundConfig: {
-                        datumTokenizer: function (d) {
-                            return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                        },
-                        queryTokenizer: function (q) {
-                            return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                        },
-                        sorter: function (a, b) {
-                            var term = $("#query-typeahead").val();
-                            return customSorter(a, b, term);
-                        }
-                    }
-                }
-            };
-            GEPPETTO.QueryBuilder.addDataSource(queryBuilderDatasourceConfig);
-        });
-
-        // button bar helper method
-        window.addButtonBar = function() {
-            var buttonBarConfig = {
-                "searchBtn": {
-                    "actions": [
-                        "window.clearQS(); GEPPETTO.Spotlight.open();"
-                    ],
-                    "icon": "fa fa-search",
-                    "label": "",
-                    "tooltip": "Search"
-                },
-                "controlPanelBtn": {
-                    "actions": [
-                        "window.clearQS(); GEPPETTO.ControlPanel.open();"
-                    ],
-                    "icon": "fa fa-list",
-                    "label": "",
-                    "tooltip": "Control Panel"
-                },
-                "queryBtn": {
-                    "actions": [
-                        "window.clearQS(); GEPPETTO.QueryBuilder.open();"
-                    ],
-                    "icon": "gpt-query",
-                    "label": "",
-                    "tooltip": "Open Query"
-                },
-                "infoBtn": {
-                    "actions": [
-                        "window.addTermInfo();"
-                    ],
-                    "icon": "fa fa-info",
-                    "label": "",
-                    "tooltip": "Show term info"
-                },
-                "stackBtn": {
-                    "actions": [
-                        "window.addStackWidget();"
-                    ],
-                    "icon": "gpt-stack",
-                    "label": "",
-                    "tooltip": "Show stack viewer"
-                },
-                "meshBtn": {
-                    "condition": "Canvas1.getWireframe();",
-                    "false": {
-                        "actions": [
-                            "Canvas1.setWireframe(!Canvas1.getWireframe());"
-                        ],
-                        "icon": "gpt-sphere_solid",
-                        "label": "",
-                        "tooltip": "Show wireframe"
-                    },
-                    "true": {
-                        "actions": [
-                            "Canvas1.setWireframe(!Canvas1.getWireframe());"
-                        ],
-                        "icon": "gpt-sphere_wireframe-jpg",
-                        "label": "",
-                        "tooltip": "Hide wireframe"
-                    }
-                },
-                "tutorialBtn": {
-                    "actions": [
-                        "G.toggleTutorial();"
-                    ],
-                    "icon": "fa fa-leanpub",
-                    "label": "",
-                    "tooltip": "Open tutorial"
-                }
-            };
-
-            GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig}, function () {
-                ButtonBar1 = this;
-                this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
-                this.showCloseButton(false);
-                this.showTitleBar(false);
-                this.setClass('transparent');
-                this.setResizable(false);
-                this.setMinSize(0, 0);
-                this.setAutoWidth();
-                this.setAutoHeight();
-            });
-        };
-
-        // term info helper method
-        window.addTermInfo = function(){
-            if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
-                // init empty term info area
-                G.addWidget(1, {isStateless: true}).then(
-                    w => {
-                        window.termInfoPopup = w;
-                        window.termInfoPopup.setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
-                        window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
-                        window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
-                        window.termInfoPopupId = window.termInfoPopup.getId();
-                        window.termInfoPopup.setTransparentBackground(false);
-                        window.termInfoPopup.showHistoryNavigationBar(true);
-                        $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
-
-                        window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
-                            if(id == window.termInfoPopupId){
-                                if(window[window.termInfoPopupId] != undefined) {
-                                    window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
-                                    window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
-                                }
-                            }
-                        });
-
-                        var buttonBarConfiguration={
-                            "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
-                            "filter" : function(instancePath){
-                                return Instances.getInstance(instancePath).getParent()
-                            },
-                            "VisualCapability": {
-                                "select": {
-                                    "id": "select",
-                                    "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
-                                    "false": {
-                                        "actions": ["$instance$.select()"],
-                                        "icon": "fa-hand-stop-o",
-                                        "label": "Unselected",
-                                        "tooltip": "Select",
-                                        "id": "select",
-                                    },
-                                    "true": {
-                                        "actions": ["$instance$.deselect()"],
-                                        "icon": "fa-hand-rock-o",
-                                        "label": "Selected",
-                                        "tooltip": "Deselect",
-                                        "id": "deselect",
-                                    }
-                                },
-                                "color": {
-                                    "id": "color",
-                                    "actions": ["$instance$.setColor('$param$');"],
-                                    "icon": "fa-tint",
-                                    "label": "Color",
-                                    "tooltip": "Color"
-                                },
-                                "zoom": {
-                                    "id": "zoom",
-                                    "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
-                                    "icon": "fa-search-plus",
-                                    "label": "Zoom",
-                                    "tooltip": "Zoom"
-                                },
-                                "visibility_obj": {
-                                    "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
-                                    "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
-                                    "false": {
-                                        "id": "visibility_obj",
-                                        "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                        "icon": "gpt-shapehide",
-                                        "label": "Hidden",
-                                        "tooltip": "Show 3D Volume"
-                                    },
-                                    "true": {
-                                        "id": "visibility_obj",
-                                        "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                        "icon": "gpt-shapeshow",
-                                        "label": "Visible",
-                                        "tooltip": "Hide 3D Volume"
-                                    }
-                                },
-                                "visibility_swc": {
-                                    "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
-                                    "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
-                                    "false": {
-                                        "id": "visibility_swc",
-                                        "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                        "icon": "gpt-3dhide",
-                                        "label": "Hidden",
-                                        "tooltip": "Show 3D Skeleton"
-                                    },
-                                    "true": {
-                                        "id": "visibility_swc",
-                                        "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                        "icon": "gpt-3dshow",
-                                        "label": "Visible",
-                                        "tooltip": "Hide 3D Skeleton"
-                                    }
-                                },
-                                "delete": {
-                                    "showCondition": "$instance$.getId()!=window.templateID",
-                                    "id": "delete",
-                                    "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
-                                    "icon": "fa-trash-o",
-                                    "label": "Delete",
-                                    "tooltip": "Delete"
-                                }
-                            }
-                        };
-                        window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
-                        window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
-                        window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
-                        window.termInfoPopup.setHelpInfo(termHelpInfo);
-                    }
-                );
-            } else {
-                window.vfbWindowResize();
-                $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
-            }
-        };
-
-        // custom handler for term info clicks
-        window.customHandler = function (node, path, widget) {
-            var n;
-            var otherId;
-            var otherName;
-            try {
-                n = eval(path);
-            } catch (ex) {
-                node = undefined;
-            }
-            var meta = path + "." + path + "_meta";
-            var target = widget;
-            // if (GEPPETTO.isKeyPressed("meta")) {
-            //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
-            //}
-            if (n != undefined) {
-                var metanode = Instances.getInstance(meta);
-                if (target.data == metanode){
-                    window.resolve3D(path);
-                }else{
-                    target.setData(metanode).setName(n.getName());
-                }
-            } else {
-                // check for passed ID:
-                if (path.indexOf(',')>-1){
-                    otherId = path.split(',')[1];
-                    otherName = path.split(',')[2];
-                    path = path.split(',')[0];
-                }
-                // try to evaluate as path in Model
-                var entity = Model[path];
-                if(entity instanceof Query){
-                    GEPPETTO.trigger('spin_logo');
-                    $("body").css("cursor", "progress");
-
-                    // TODO: check if we already have results for this query and if so simply switch to query results
-
-                    // clear query builder
-                    GEPPETTO.QueryBuilder.clearAllQueryItems();
-
-                    var callback = function(){
-                        // check if any results with count flag
-                        if(GEPPETTO.QueryBuilder.props.model.count > 0){
-                            // runQuery if any results
-                            GEPPETTO.QueryBuilder.runQuery();
-                        } else {
-                            GEPPETTO.QueryBuilder.switchView(false);
-                        }
-
-                        // show query component
-                        GEPPETTO.QueryBuilder.open();
-
-                        $("body").css("cursor", "default");
-                        GEPPETTO.trigger('stop_spin_logo');
-                    };
-
-                    // add query item + selection
-                    if (otherId == undefined) {
-                        GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
-                    }else{
-                        if (window[otherId] == undefined){
-                            window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
-                        }else{
-                            GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
-                        }
-                    }
-                } else {
-                    Model.getDatasources()[0].fetchVariable(path, function () {
-                        Instances.getInstance(meta);
-                        target.setData(eval(meta)).setName(eval(path).getName());
-                        resolve3D(path);
-                    });
-                }
-            }
-
-        };
-
-        //Canvas initialisation
-        window.vfbCanvas = undefined;
-        GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
-            this.flipCameraY();
-            this.flipCameraZ();
-            this.setWireframe(true);
-            this.displayAllInstances();
-            window.vfbCanvas = this;
-
-            if(window.StackViewer1 != undefined){
-                window.StackViewer1.setCanvasRef(this);
-            }
-
-            // button bar needs the canvas to setup the wireframe button
-            window.addButtonBar();
-
-            // add term info
-            window.addTermInfo();
-        });
-
-        //Loading spinner initialization
-        GEPPETTO.Spinner.setLogo("gpt-fly");
-
-        // VFB initialization routines
-        window.initVFB = function () {
-
-            window.templateID = undefined;
-            window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
-
-            // logic to assign colours to elements in the scene
-            window.colours = ["0x5b5b5b", "0x00ff00", "0xff0000", "0x0000ff", "0x0084f6", "0x008d46", "0xa7613e", "0x4f006a", "0x00fff6", "0x3e7b8d", "0xeda7ff", "0xd3ff95", "0xb94fff", "0xe51a58", "0x848400", "0x00ff95", "0x61002c", "0xf68412", "0xcaff00", "0x2c3e00", "0x0035c1", "0xffca84", "0x002c61", "0x9e728d", "0x4fb912", "0x9ec1ff", "0x959e7b", "0xff7bb0", "0x9e0900", "0xffb9b9", "0x8461ca", "0x9e0072", "0x84dca7", "0xff00f6", "0x00d3ff", "0xff7258", "0x583e35", "0x003e35", "0xdc61dc", "0x6172b0", "0xb9ca2c", "0x12b0a7", "0x611200", "0x2c002c", "0x5800ca", "0x95c1ca", "0xd39e23", "0x84b058", "0xe5edb9", "0xf6d3ff", "0xb94f61", "0x8d09a7", "0x6a4f00", "0x003e9e", "0x7b3e7b", "0x3e7b61", "0xa7ff61", "0x0095d3", "0x3e7200", "0xb05800", "0xdc007b", "0x9e9eff", "0x4f4661", "0xa7fff6", "0xe5002c", "0x72dc72", "0xffed7b", "0xb08d46", "0x6172ff", "0xdc4600", "0x000072", "0x090046", "0x35ed4f", "0x2c0000", "0xa700ff", "0x00f6c1", "0x9e002c", "0x003eff", "0xf69e7b", "0x6a7235", "0xffff46", "0xc1b0b0", "0x727272", "0xc16aa7", "0x005823", "0xff848d", "0xb08472", "0x004661", "0x8dff12", "0xb08dca", "0x724ff6", "0x729e00", "0xd309c1", "0x9e004f", "0xc17bff", "0x8d95b9", "0xf6a7d3", "0x232309", "0xff6aca", "0x008d12", "0xffa758", "0xe5c19e", "0x00122c", "0xc1b958", "0x00c17b", "0x462c00", "0x7b3e58", "0x9e46a7", "0x4f583e", "0x6a35b9", "0x72b095", "0xffb000", "0x4f3584", "0xb94635", "0x61a7ff", "0xd38495", "0x7b613e", "0x6a004f", "0xed58ff", "0x95d300", "0x35a7c1", "0x00009e", "0x7b3535", "0xdcff6a", "0x95d34f", "0x84ffb0", "0x843500", "0x4fdce5", "0x462335", "0x002c09", "0xb9dcc1", "0x588d4f", "0x9e7200", "0xca4684", "0x00c146", "0xca09ed", "0xcadcff", "0x0058a7", "0x2ca77b", "0x8ddcff", "0x232c35", "0xc1ffb9", "0x006a9e", "0x0058ff", "0xf65884", "0xdc7b46", "0xca35a7", "0xa7ca8d", "0x4fdcc1", "0x6172d3", "0x6a23ff", "0x8d09ca", "0xdcc12c", "0xc1b97b", "0x3e2358", "0x7b6195", "0xb97bdc", "0xffdcd3", "0xed5861", "0xcab9ff", "0x3e5858", "0x729595", "0x7bff7b", "0x95356a", "0xca9eb9", "0x723e1a", "0x95098d", "0xf68ddc", "0x61b03e", "0xffca61", "0xd37b72", "0xffed9e", "0xcaf6ff", "0x58c1ff", "0x8d61ed", "0x61b972", "0x8d6161", "0x46467b", "0x0058d3", "0x58dc09", "0x001a72", "0xd33e2c", "0x959546", "0xca7b00", "0x4f6a8d", "0x9584ff", "0x46238d", "0x008484", "0xf67235", "0x9edc84", "0xcadc6a", "0xb04fdc", "0x4f0912", "0xff1a7b", "0x7bb0d3", "0x1a001a", "0x8d35f6", "0x5800a7", "0xed8dff", "0x969696", "0xffd300"];
-            window.coli = 0;
-            window.setSepCol = function (entityPath) {
-                var c = coli;
-                coli++;
-                if (coli > 199) {
-                    coli = 0;
-                }
                 if (Instances.getInstance(entityPath).setColor != undefined){
                 	Instances.getInstance(entityPath).setColor(colours[c], true).setOpacity(0.3, true);
                 	try {
@@ -865,6 +128,212 @@ define(function (require) {
                     }
                 }else{
                 	console.log('Issue setting colour for ' + entityPath);
+                }
+            };
+
+            // button bar helper method
+            window.addButtonBar = function() {
+                var buttonBarConfig = {
+                    "searchBtn": {
+                        "actions": [
+                            "GEPPETTO.Spotlight.open();"
+                        ],
+                        "icon": "fa fa-search",
+                        "label": "",
+                        "tooltip": "Search"
+                    },
+                    "controlPanelBtn": {
+                        "actions": [
+                            "GEPPETTO.ControlPanel.open();"
+                        ],
+                        "icon": "fa fa-list",
+                        "label": "",
+                        "tooltip": "Control Panel"
+                    },
+                    "queryBtn": {
+                        "actions": [
+                            "GEPPETTO.QueryBuilder.open();"
+                        ],
+                        "icon": "gpt-query",
+                        "label": "",
+                        "tooltip": "Open Query"
+                    },
+                    "infoBtn": {
+                        "actions": [
+                            "window.addTermInfo();"
+                        ],
+                        "icon": "fa fa-info",
+                        "label": "",
+                        "tooltip": "Show term info"
+                    },
+                    "stackBtn": {
+                        "actions": [
+                            "window.addStackWidget();"
+                        ],
+                        "icon": "gpt-stack",
+                        "label": "",
+                        "tooltip": "Show stack viewer"
+                    },
+                    "meshBtn": {
+                        "condition": "Canvas1.getWireframe();",
+                        "false": {
+                            "actions": [
+                                "Canvas1.setWireframe(!Canvas1.getWireframe());"
+                            ],
+                            "icon": "gpt-sphere_solid",
+                            "label": "",
+                            "tooltip": "Show wireframe"
+                        },
+                        "true": {
+                            "actions": [
+                                "Canvas1.setWireframe(!Canvas1.getWireframe());"
+                            ],
+                            "icon": "gpt-sphere_wireframe-jpg",
+                            "label": "",
+                            "tooltip": "Hide wireframe"
+                        }
+                    },
+                    "tutorialBtn": {
+                        "actions": [
+                            "G.toggleTutorial();"
+                        ],
+                        "icon": "fa fa-leanpub",
+                        "label": "",
+                        "tooltip": "Open tutorial"
+                    }
+                };
+
+                GEPPETTO.ComponentFactory.addWidget('BUTTONBAR', {configuration: buttonBarConfig}, function () {
+                    ButtonBar1 = this;
+                    this.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
+                    this.showCloseButton(false);
+                    this.showTitleBar(false);
+                    this.setClass('transparent');
+                    this.setResizable(false);
+                    this.setMinSize(0, 0);
+                    this.setAutoWidth();
+                    this.setAutoHeight();
+                });
+            };
+
+            // term info helper method
+            window.addTermInfo = function(){
+                if(window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
+                    // init empty term info area
+                    G.addWidget(1, {isStateless: true}).then(
+                        w => {
+                            window.termInfoPopup = w;
+                            window.termInfoPopup.setName('Click on image to show info').addCustomNodeHandler(customHandler, 'click');
+                            window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
+                            window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                            window.termInfoPopupId = window.termInfoPopup.getId();
+                            window.termInfoPopup.setTransparentBackground(false);
+                            window.termInfoPopup.showHistoryNavigationBar(true);
+                            $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
+
+                            window[window.termInfoPopupId].$el.bind('restored', function(event,id) {
+                                if(id == window.termInfoPopupId){
+                                    if(window[window.termInfoPopupId] != undefined) {
+                                        window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                                        window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
+                                    }
+                                }
+                            });
+
+                            var buttonBarConfiguration={
+                                "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
+                                "filter" : function(instancePath){
+                                    return Instances.getInstance(instancePath).getParent()
+                                },
+                                "VisualCapability": {
+                                    "select": {
+                                        "id": "select",
+                                        "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
+                                        "false": {
+                                            "actions": ["$instance$.select()"],
+                                            "icon": "fa-hand-stop-o",
+                                            "label": "Unselected",
+                                            "tooltip": "Select",
+                                            "id": "select",
+                                        },
+                                        "true": {
+                                            "actions": ["$instance$.deselect()"],
+                                            "icon": "fa-hand-rock-o",
+                                            "label": "Selected",
+                                            "tooltip": "Deselect",
+                                            "id": "deselect",
+                                        }
+                                    },
+                                    "color": {
+                                        "id": "color",
+                                        "actions": ["$instance$.setColor('$param$');"],
+                                        "icon": "fa-tint",
+                                        "label": "Color",
+                                        "tooltip": "Color"
+                                    },
+                                    "zoom": {
+                                        "id": "zoom",
+                                        "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
+                                        "icon": "fa-search-plus",
+                                        "label": "Zoom",
+                                        "tooltip": "Zoom"
+                                    },
+                                    "visibility_obj": {
+                                        "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
+                                        "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
+                                        "false": {
+                                            "id": "visibility_obj",
+                                            "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                                            "icon": "gpt-shapeshow",
+                                            "label": "Hidden",
+                                            "tooltip": "Show 3D Volume"
+                                        },
+                                        "true": {
+                                            "id": "visibility_obj",
+                                            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
+                                            "icon": "gpt-shapehide",
+                                            "label": "Visible",
+                                            "tooltip": "Hide 3D Volume"
+                                        }
+                                    },
+                                    "visibility_swc": {
+                                        "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
+                                        "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
+                                        "false": {
+                                            "id": "visibility_swc",
+                                            "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                                            "icon": "gpt-3dshow",
+                                            "label": "Hidden",
+                                            "tooltip": "Show 3D Skeleton"
+                                        },
+                                        "true": {
+                                            "id": "visibility_swc",
+                                            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
+                                            "icon": "gpt-3dhide",
+                                            "label": "Visible",
+                                            "tooltip": "Hide 3D Skeleton"
+                                        }
+                                    },
+                                    "delete": {
+                                        "showCondition": "$instance$.getId()!=window.templateID",
+                                        "id": "delete",
+                                        "actions": ["$instance$.deselect();$instance$.delete();setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+                                        "icon": "fa-trash-o",
+                                        "label": "Delete",
+                                        "tooltip": "Delete"
+                                    }
+                                }
+                            };
+                            window.termInfoPopup.setButtonBarControls({"VisualCapability": ['select', 'color', 'visibility_obj', 'visibility_swc', 'zoom', 'delete']});
+                            window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
+                            window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
+                            window.termInfoPopup.setHelpInfo(termHelpInfo);
+
+                        }
+                    );
+                } else {
+                    window.vfbWindowResize();
+                    $('#' + window.termInfoPopupId).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
 
@@ -1005,6 +474,81 @@ define(function (require) {
                 var instance = Instances.getInstance(variableId + '.' + variableId + '_meta');
                 setTermInfo(instance, instance.getParent().getId());
             };
+
+            // custom handler for term info clicks
+            window.customHandler = function (node, path, widget) {
+                var n;
+                var otherId;
+                var otherName;
+                try {
+                    n = eval(path);
+                } catch (ex) {
+                    node = undefined;
+                }
+                var meta = path + "." + path + "_meta";
+                var target = widget;
+                // if (GEPPETTO.isKeyPressed("meta")) {
+                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
+                //}
+                if (n != undefined) {
+                    var metanode = Instances.getInstance(meta);
+                    if (target.data == metanode){
+                    	window.resolve3D(path);
+                    }else{
+                    	target.setData(metanode).setName(n.getName());
+                    }
+                } else {
+                	// check for passed ID:
+                	if (path.indexOf(',')>-1){
+                		otherId = path.split(',')[1];
+                		otherName = path.split(',')[2];
+                		path = path.split(',')[0];
+                	}
+                    // try to evaluate as path in Model
+                    var entity = Model[path];
+                    if(entity instanceof Query){
+                        GEPPETTO.trigger('spin_logo');
+                        $("body").css("cursor", "progress");
+
+                        // clear query builder
+                        GEPPETTO.QueryBuilder.clearAllQueryItems();
+
+                        var callback = function(){
+                            // check if any results with count flag
+                            if(GEPPETTO.QueryBuilder.props.model.count > 0){
+                                // runQuery if any results
+                                GEPPETTO.QueryBuilder.runQuery();
+                            } else {
+                                GEPPETTO.QueryBuilder.switchView(false);
+                            }
+
+                            // show query component
+                            GEPPETTO.QueryBuilder.open();
+
+                            $("body").css("cursor", "default");
+                            GEPPETTO.trigger('stop_spin_logo');
+                        };
+
+                        // add query item + selection
+                        if (otherId == undefined) {
+                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+                        }else{
+                        	if (window[otherId] == undefined){
+                        		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
+                        	}else{
+                        		GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
+                        	}
+                        }
+                    } else {
+                        Model.getDatasources()[0].fetchVariable(path, function () {
+                            Instances.getInstance(meta);
+                            target.setData(eval(meta)).setName(eval(path).getName());
+                            resolve3D(path);
+                        });
+                    }
+                }
+          
+            };
             
             // set term info on selection
             GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
@@ -1068,7 +612,7 @@ define(function (require) {
                     }
                     if (config == undefined || typeof config !== "undefined"){
                     	config = {
-                                serverUrl: 'http://vfbdev.inf.ed.ac.uk/fcgi/wlziipsrv.fcgi',
+                                serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
                                 templateId: 'NOTSET'
                             };
                     }
@@ -1089,10 +633,9 @@ define(function (require) {
                             window.StackViewer1.setPosition(getStackViewerDefaultX(), getStackViewerDefaultY());
                             window.StackViewer1.setSize(getStackViewerDefaultHeight(), getStackViewerDefaultWidth());
                             window.StackViewer1.setName('Slice Viewer');
-                            window.StackViewer1.setTransparentBackground(false);
                             window.StackViewer1.showHistoryIcon(false);
                             window.StackViewer1.setHelpInfo(stackHelpInfo);
-
+                            window.StackViewer1.setTransparentBackground(false);
                             window.StackViewer1.$el.bind('restored', function(event,id) {
                                 if(id == window.StackViewer1.getId()){
                                     if(window.StackViewer1 != undefined) {
@@ -1165,7 +708,7 @@ define(function (require) {
                         }
                     );
                 } else {
-                	window.vfbWindowResize();
+                    window.vfbWindowResize();
                     $('#' + window.StackViewer1.getId()).parent().effect('shake', {distance:5, times: 3}, 500);
                 }
             };
@@ -1296,9 +839,10 @@ define(function (require) {
             
             window.updateHistory = function(title) 
             {
-                if (parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
-	            	// Update the parent windows history with current instances (i=) and popup selection (id=)
-	            	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+                if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
+                	window.vfbUpdatingHistory = true;
+                	// Update the parent windows history with current instances (i=) and popup selection (id=)
+                	var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
 	                var visualParents = [];
 	                for (var i = 0; i < visualInstances.length; i++) {
 	                	if (visualInstances[i].getParent() != null){
@@ -1318,15 +862,15 @@ define(function (require) {
 	            	{
 	            		items = items + ',' + window.templateID;
 	            	}
-	            	compositeInstances.forEach(function(compositeInstances){ if (!items.includes(compositeInstances.getId())){items = items + ',' + compositeInstances.getId()}}); 
+	            	compositeInstances.forEach(function(compositeInstance){ if (!items.includes(compositeInstance.getId())){items = items + ',' + compositeInstance.getId()}}); 
 	                items = items.replace(',,',',').replace('i=,','i=');
-	                if (window.getTermInfoWidget() != undefined && window.getTermInfoWidget().data != null && window.getTermInfoWidget().data != '')
-	                {
-	                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
-	                }
+	                try{
+	                	items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
+	                }catch (ignore){};
 	                if (items != "i="){
 	                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
 	                }
+	                window.vfbUpdatingHistory = false;
                 }
             };
             
@@ -1384,31 +928,12 @@ define(function (require) {
             {
 	    		window.addVfbIds([variableId]);   
             };
-            
-            window.setToolTips = function()
-            {
-            $('#queryBuilderBtn').first().title="Query Builder";
-            $('#controlPanelBtn').first().title="Control Panel";
-            $('#spotlightBtn').first().title="Search";
-            $('#panLeftBtn').first().title="Pan Left";
-            $('#panUpBtn').first().title="Pan Up";
-            $('#panRightBtn').first().title="Pan Right";
-            $('#panDownBtn').first().title="Pan Down";
-            $('#panHomeBtn').first().title="Reset to Home Position";
-            $('#rotateLeftBtn').first().title="Rotate Left";
-            $('#rotateUpBtn').first().title="Rotate Up";
-            $('#rotateRightBtn').first().title="Rotate Right";
-            $('#rotateDownBtn').first().title="Rotate Down";
-            $('#rotateBtn').first().title="Rotate the scene";
-            $('#zoomInBtn').first().title="Zoom In";
-            $('#zoomOutBtn').first().title="Zoom Out";
-            };
-            
+
             window.clearQS = function() {
             	window.checkConnection();
             	if (GEPPETTO.Spotlight)
                 {
-                	GEPPETTO.Spotlight.close();
+            		$("#spotlight").hide();
                 	$('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
                 }
                 if (GEPPETTO.QueryBuilder)
@@ -1418,7 +943,7 @@ define(function (require) {
             };
             
             window.checkConnection = function() {
-                try{
+            	try{
 	            	if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage)
 	            	{
 	            		window.vfbRelaodMessage = false;
@@ -1443,52 +968,569 @@ define(function (require) {
             
             window.addVfbIds = function(variableIds)
             {
-            	for (i in variableIds){
-            		if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
-            			window.vfbLoadBuffer.push(variableIds[i]);
-            		}
-            	}
-            	if (window.vfbLoadBuffer.length > 0){
-            		GEPPETTO.trigger('spin_logo');
-            	}else{
-            		GEPPETTO.trigger('stop_spin_logo');
-            	}
-            	if (window.vfbLoading == ""){
-	            	for (i in window.vfbLoadBuffer){
-	            		if (window[window.vfbLoadBuffer[0]] != undefined){
-	            			window.vfbLoading=window.vfbLoadBuffer.splice(0,1)[0];
-	            			window.addVfbId(window.vfbLoading);
-	            			setTimeout(window.addVfbIds, 100);
-	            			break;
-	            		}else{
-	            			window.vfbLoading = window.vfbLoadBuffer[i];
-	            			window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-	            			window.vfbLoadingTimeout = 60;
-	            			window.addVfbId(window.vfbLoading);
-	            			setTimeout(window.addVfbIds, 500);
-	            			break;
-	            		}
-	            	}
-	            	window.updateHistory("Loading...");
-            	}else{
-            		if (window[window.vfbLoading] != undefined){
-            			window.vfbLoading = "";
-            			setTimeout(window.addVfbIds, 100);
-            		}else{
-            			window.vfbLoadingTimeout--
-            			if (window.vfbLoadingTimeout < 1){
-            				console.log("Failed to load " + window.vfbLoading + " in time");
-            				window.vfbLoading = "";
-            				window.checkConnection();
-            				if (window.vfbLoadBuffer.length > 0){
-            					setTimeout(window.addVfbIds, 250);
-            				}
-            			}else{
-            				setTimeout(window.addVfbIds, 500);
-            			}
-            		}            		
-            	}
+                if (window.canvasAvilable){
+
+                    for (i in variableIds){
+                        if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
+                            window.vfbLoadBuffer.push(variableIds[i]);
+                        }
+                    }
+                    if (window.vfbLoadBuffer.length > 0){
+                        GEPPETTO.trigger('spin_logo');
+                    }else{
+                        GEPPETTO.trigger('stop_spin_logo');
+                    }
+                    if (window.vfbLoading == ""){
+                        for (i in window.vfbLoadBuffer){
+                            if (window[window.vfbLoadBuffer[0]] != undefined){
+                                window.vfbLoading=window.vfbLoadBuffer.splice(0,1)[0];
+                                window.addVfbId(window.vfbLoading);
+                                setTimeout(window.addVfbIds, 100);
+                                break;
+                            }else{
+                                window.vfbLoading = window.vfbLoadBuffer[i];
+                                window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
+                                window.vfbLoadingTimeout = 60;
+                                window.addVfbId(window.vfbLoading);
+                                setTimeout(window.addVfbIds, 500);
+                                break;
+                            }
+                        }
+                        window.updateHistory("Loading...");
+                    }else{
+                        if (window[window.vfbLoading] != undefined){
+                            window.vfbLoading = "";
+                            setTimeout(window.addVfbIds, 100);
+                        }else{
+                            window.vfbLoadingTimeout--
+                            if (window.vfbLoadingTimeout < 1){
+                                console.log("Failed to load " + window.vfbLoading + " in time");
+                                window.vfbLoading = "";
+                                window.checkConnection();
+                                if (window.vfbLoadBuffer.length > 0){
+                                    setTimeout(window.addVfbIds, 250);
+                                }
+                            }else{
+                                setTimeout(window.addVfbIds, 500);
+                            }
+                        }
+                    }
+
+                }else{
+                    setTimeout(function(){window.addVfbIds(variableIds);}, 1000);
+                }
             }
+
+            /*ADD COMPONENTS*/
+
+            // github logo
+            GEPPETTO.ComponentFactory.addComponent('LINKBUTTON', { left: 41, top: 320, icon: 'fa-github', url: 'https://github.com/VirtualFlyBrain/VFB2'}, document.getElementById("github-logo"));
+
+            //Logo initialization
+            GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
+
+            //Tutorial component initialization
+            GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
+                name: 'VFB Tutorial',
+                tutorialData: vfbDefaultTutorial,
+                isStateless: true,
+                closeByDefault : true,
+                tutorialMessageClass : "tutorialMessage",
+                showMemoryCheckbox: false
+            }, function() {
+                // temporary load from dropbox as it's reliable (raw github is not) till we add ability to load local files for tutorial
+                GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json");
+                GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json");
+                GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json");
+                GEPPETTO.Tutorial.addTutorial("/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json");
+            });
+
+            //Control panel initialization
+            GEPPETTO.ComponentFactory.addComponent('CONTROLPANEL', {enableInfiniteScroll: true}, document.getElementById("controlpanel"), function () {
+                // CONTROLPANEL configuration
+                // set column meta - which custom controls to use, source configuration for data, custom actions
+                var controlPanelColMeta = [
+                    {
+                        "columnName": "path",
+                        "order": 1,
+                        "locked": false,
+                        "displayName": "Path",
+                        "source": "$entity$.getPath()"
+                    },
+                    {
+                        "columnName": "name",
+                        "order": 2,
+                        "locked": false,
+                        "customComponent": GEPPETTO.LinkComponent,
+                        "displayName": "Name",
+                        "source": "$entity$.getName()",
+                        "actions": "setTermInfo($entity$['$entity$' + '_meta'], $entity$.getName());"
+                    },
+                    {
+                        "columnName": "type",
+                        "order": 3,
+                        "locked": false,
+                        "customComponent": GEPPETTO.LinkArrayComponent,
+                        "displayName": "Type",
+                        "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
+                        "actions": "window.fetchVariableThenRun('$entity$', window.setTermInfoCallback);",
+                    },
+                    {
+                        "columnName": "controls",
+                        "order": 4,
+                        "locked": false,
+                        "customComponent": GEPPETTO.ControlsComponent,
+                        "displayName": "Controls",
+                        "cssClassName": "controlpanel-controls-column",
+                        "source": "",
+                        "actions": "GEPPETTO.ControlPanel.refresh();"
+                    },
+                    {
+                        "columnName": "image",
+                        "order": 5,
+                        "locked": false,
+                        "customComponent": GEPPETTO.ImageComponent,
+                        "displayName": "Image",
+                        "cssClassName": "img-column",
+                        "source": "GEPPETTO.ModelFactory.getAllVariablesOfMetaType($entity$.$entity$_meta.getType(), 'ImageType')[0].getInitialValues()[0].value.data"
+                    }
+                ];
+                GEPPETTO.ControlPanel.setColumnMeta(controlPanelColMeta);
+                // which columns to display
+                GEPPETTO.ControlPanel.setColumns(['name', 'type', 'controls', 'image']);
+                // which instances to display in the control panel
+                GEPPETTO.ControlPanel.setDataFilter(function (entities) {
+                    var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
+                    var visualParents = [];
+                    for (var i = 0; i < visualInstances.length; i++) {
+                        if (visualInstances[i].getParent() != null){
+                            visualParents.push(visualInstances[i].getParent());
+                        }
+                    }
+                    visualInstances = visualInstances.concat(visualParents);
+                    var compositeInstances = [];
+                    for (var i = 0; i < visualInstances.length; i++) {
+                        if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+                            compositeInstances.push(visualInstances[i]);
+                        }
+                    }
+                    return compositeInstances;
+                });
+                // custom controls configuration in the controls column
+                GEPPETTO.ControlPanel.setControlsConfig({
+                    "VisualCapability": {
+                        "select": {
+                            "id": "select",
+                            "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
+                            "false": {
+                                "actions": ["$instance$.select()"],
+                                "icon": "fa-hand-stop-o",
+                                "label": "Unselected",
+                                "tooltip": "Select",
+                                "id": "select",
+                            },
+                            "true": {
+                                "actions": ["$instance$.deselect()"],
+                                "icon": "fa-hand-rock-o",
+                                "label": "Selected",
+                                "tooltip": "Deselect",
+                                "id": "deselect",
+                            }
+                        },
+                        "color": {
+                            "id": "color",
+                            "actions": ["$instance$.setColor('$param$');"],
+                            "icon": "fa-tint",
+                            "label": "Color",
+                            "tooltip": "Color"
+                        },
+                        "zoom": {
+                            "id": "zoom",
+                            "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
+                            "icon": "fa-search-plus",
+                            "label": "Zoom",
+                            "tooltip": "Zoom"
+                        },
+                        "visibility_obj": {
+                            "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
+                            "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
+                            "false": {
+                                "id": "visibility_obj",
+                                "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                                "icon": "gpt-shapeshow",
+                                "label": "Hidden",
+                                "tooltip": "Show 3D Volume"
+                            },
+                            "true": {
+                                "id": "visibility_obj",
+                                "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
+                                "icon": "gpt-shapehide",
+                                "label": "Visible",
+                                "tooltip": "Hide 3D Volume"
+                            }
+                        },
+                        "visibility_swc": {
+                            "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
+                            "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
+                            "false": {
+                                "id": "visibility_swc",
+                                "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                                "icon": "gpt-3dshow",
+                                "label": "Hidden",
+                                "tooltip": "Show 3D Skeleton"
+                            },
+                            "true": {
+                                "id": "visibility_swc",
+                                "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
+                                "icon": "gpt-3dhide",
+                                "label": "Visible",
+                                "tooltip": "Hide 3D Skeleton"
+                            }
+                        },
+                    },
+                    "Common": {
+                        "info": {
+                            "id": "info",
+                            "actions": ["var displayTxt = '$instance$'.split('.')['$instance$'.split('.').length - 1]; setTermInfo($instance$[displayTxt + '_meta'], displayTxt);"],
+                            "icon": "fa-info-circle",
+                            "label": "Info",
+                            "tooltip": "Info"
+                        },
+                        "delete": {
+                            "showCondition": "$instance$.getId()!=window.templateID",
+                            "id": "delete",
+                            "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());} $instance$.deselect(); $instance$.delete();"],
+                            "icon": "fa-trash-o",
+                            "label": "Delete",
+                            "tooltip": "Delete"
+                        }
+                    }
+                });
+                // which controls will be rendered, strings need to match ids in the controls configuration
+                GEPPETTO.ControlPanel.setControls({
+                    "Common": ['info', 'delete'],
+                    "VisualCapability": ['select', 'color', 'visibility', 'zoom', 'visibility_obj', 'visibility_swc']
+                });
+            });
+
+            //Spotlight initialization
+            GEPPETTO.ComponentFactory.addComponent('SPOTLIGHT', {indexInstances: false}, document.getElementById("spotlight"), function () {
+                // SPOTLIGHT configuration
+                var spotlightConfig = {
+                    "SpotlightBar": {
+                        "DataSources": {},
+                        "CompositeType": {
+                            "type": {
+                                "actions": [
+                                    "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
+                                ],
+                                "icon": "fa-info-circle",
+                                "label": "Show info",
+                                "tooltip": "Show info"
+                            },
+                            "query": {
+                                actions: [
+                                    "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
+                                ],
+                                icon: "fa-quora",
+                                label: "Add to query",
+                                tooltip: "Add to query"
+                            },
+                        },
+                        "VisualCapability": {
+                            "buttonOne": {
+                                "condition": "GEPPETTO.SceneController.isSelected($instances$)",
+                                "false": {
+                                    "actions": ["GEPPETTO.SceneController.select($instances$)"],
+                                    "icon": "fa-hand-stop-o",
+                                    "label": "Unselected",
+                                    "tooltip": "Select"
+                                },
+                                "true": {
+                                    "actions": ["GEPPETTO.SceneController.deselect($instances$)"],
+                                    "icon": "fa-hand-rock-o",
+                                    "label": "Selected",
+                                    "tooltip": "Deselect"
+                                },
+                            },
+                            "buttonTwo": {
+                                "condition": "GEPPETTO.SceneController.isVisible($instances$)",
+                                "false": {
+                                    "actions": [
+                                        "GEPPETTO.SceneController.show($instances$)"
+                                    ],
+                                    "icon": "fa-eye-slash",
+                                    "label": "Hidden",
+                                    "tooltip": "Show"
+                                },
+                                "true": {
+                                    "actions": [
+                                        "GEPPETTO.SceneController.hide($instances$)"
+                                    ],
+                                    "icon": "fa-eye",
+                                    "label": "Visible",
+                                    "tooltip": "Hide"
+                                }
+
+                            },
+                            "buttonThree": {
+                                "actions": [
+                                    "GEPPETTO.SceneController.zoomTo($instances$);GEPPETTO.Spotlight.close();"
+                                ],
+                                "icon": "fa-search-plus",
+                                "label": "Zoom",
+                                "tooltip": "Zoom"
+                            },
+                        }
+                    }
+                };
+                GEPPETTO.Spotlight.setButtonBarConfiguration(spotlightConfig);
+                // external datasource configuration
+                var spotlightDataSourceConfig = {
+                    VFB: {
+                        url: "https://www.virtualflybrain.org/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FB*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+                        crossDomain: true,
+                        id: "short_form",
+                        label: {field: "label", formatting: "$VALUE$"},
+                        explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
+                        explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
+                        type: {
+                            class: {
+                                icon: "fa-file-text-o",
+                                buttons: {
+                                    buttonOne: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                        icon: "fa-info-circle",
+                                        label: "Show info",
+                                        tooltip: "Show info"
+                                    },
+                                    buttonTwo: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
+                                        icon: "fa-quora",
+                                        label: "Add to query",
+                                        tooltip: "Add to query"
+                                    }
+                                }
+                            },
+                            individual: {
+                                icon: "fa-file-image-o",
+                                buttons: {
+                                    buttonOne: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                        icon: "fa-info-circle",
+                                        label: "Show info",
+                                        tooltip: "Show info"
+                                    },
+                                    buttonTwo: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
+                                        icon: "fa-file-image-o",
+                                        label: "Add to scene",
+                                        tooltip: "Add to scene"
+                                    },
+                                    buttonThree: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
+                                        icon: "fa-quora",
+                                        label: "Add to query",
+                                        tooltip: "Add to query"
+                                    }
+                                }
+                            }
+                        },
+                        bloodhoundConfig: {
+                            datumTokenizer: function (d) {
+                                return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                            },
+                            queryTokenizer: function (q) {
+                                return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                            },
+                            sorter: function (a, b) {
+                                var term = $('#typeahead').val();
+                                return customSorter(a, b, term);
+                            }
+                        }
+                    }
+                };
+                GEPPETTO.Spotlight.addDataSource(spotlightDataSourceConfig);
+            });
+
+            //Query control initialization
+            GEPPETTO.ComponentFactory.addComponent('QUERY', {enableInfiniteScroll: true}, document.getElementById("querybuilder"), function () {
+                // QUERY configuration
+                var queryResultsColMeta = [
+                    {
+                        "columnName": "id",
+                        "order": 1,
+                        "locked": false,
+                        "visible": true,
+                        "displayName": "ID",
+                    },
+                    {
+                        "columnName": "name",
+                        "order": 2,
+                        "locked": false,
+                        "visible": true,
+                        "customComponent": GEPPETTO.QueryLinkComponent,
+                        "actions": "window.fetchVariableThenRun('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getName());});",
+                        "displayName": "Name",
+                        "cssClassName": "query-results-name-column",
+                    },
+                    {
+                        "columnName": "description",
+                        "order": 3,
+                        "locked": false,
+                        "visible": true,
+                        "displayName": "Definition",
+                        "cssClassName": "query-results-description-column"
+                    },
+                    {
+                        "columnName": "type",
+                        "order": 4,
+                        "locked": false,
+                        "visible": true,
+                        "displayName": "Type",
+                        "cssClassName": "query-results-type-column"
+                    },
+                    {
+                        "columnName": "controls",
+                        "order": 5,
+                        "locked": false,
+                        "visible": false,
+                        "customComponent": GEPPETTO.QueryResultsControlsComponent,
+                        "displayName": "Controls",
+                        "actions": "",
+                        "cssClassName": "query-results-controls-column"
+                    },
+                    {
+                        "columnName": "images",
+                        "order": 6,
+                        "locked": false,
+                        "visible": true,
+                        "customComponent": GEPPETTO.SlideshowImageComponent,
+                        "displayName": "Images",
+                        "actions": "window.fetchVariableThenRun('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
+                        "cssClassName": "query-results-images-column"
+                    }
+                ];
+                GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
+                // which columns to display in the results
+                GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'type', 'images']);
+
+                var queryResultsControlConfig = {
+                    "Common": {
+                        "info": {
+                            "id": "info",
+                            "actions": [
+                                "window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"
+                            ],
+                            "icon": "fa-info-circle",
+                            "label": "Info",
+                            "tooltip": "Info"
+                        },
+                        "flybase": {
+                            "showCondition": "'$ID$'.startsWith('FBbt')",
+                            "id": "flybase",
+                            "actions": [
+                                "window.open('http://flybase.org/cgi-bin/cvreport.html?rel=is_a&id=' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
+                            ],
+                            "icon": "gpt-fly",
+                            "label": "FlyBase",
+                            "tooltip": "FlyBase Term"
+                        },
+                        "flybase": {
+                            "showCondition": "('$ID$'.startsWith('FB') && !'$ID$'.startsWith('FBbt'))",
+                            "id": "flybase",
+                            "actions": [
+                                "window.open('http://flybase.org/reports/' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
+                            ],
+                            "icon": "gpt-fly",
+                            "label": "FlyBase",
+                            "tooltip": "FlyBase Report"
+                        }
+                    }
+                };
+                GEPPETTO.QueryBuilder.setResultsControlsConfig(queryResultsControlConfig);
+
+                // add datasource config to query control
+                var queryBuilderDatasourceConfig = {
+                    VFB: {
+                        url: "https://www.virtualflybrain.org/search/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(fbbt)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FBbt_*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+                        crossDomain: true,
+                        id: "short_form",
+                        label: {field: "label", formatting: "$VALUE$"},
+                        explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
+                        explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
+                        type: {
+                            class: {
+                                actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                                icon: "fa-dot-circle-o"
+                            },
+                            individual: {
+                                actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                                icon: "fa-square-o"
+                            }
+                        },
+                        queryNameToken: '$NAME',
+                        resultsFilters: {
+                            getId: function (record) {
+                                return record[0]
+                            },
+                            getName: function (record) {
+                                return record[1]
+                            },
+                            getDescription: function (record) {
+                                return record[2]
+                            },
+                            getType: function (record) {
+                                return record[3]
+                            },
+                            getImageData: function (record) {
+                                return record[4]
+                            },
+                            getRecords: function (payload) {
+                                return payload.results.map(function (item) {
+                                    return item.values
+                                })
+                            }
+                        },
+                        bloodhoundConfig: {
+                            datumTokenizer: function (d) {
+                                return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                            },
+                            queryTokenizer: function (q) {
+                                return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                            },
+                            sorter: function (a, b) {
+                                var term = $("#query-typeahead").val();
+                                return customSorter(a, b, term);
+                            }
+                        }
+                    }
+                };
+                GEPPETTO.QueryBuilder.addDataSource(queryBuilderDatasourceConfig);
+            });
+
+            //Canvas initialisation
+            window.vfbCanvas = undefined;
+            GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
+                this.flipCameraY();
+                this.flipCameraZ();
+                this.setWireframe(true);
+                this.displayAllInstances();
+                window.vfbCanvas = this;
+
+                if(window.StackViewer1 != undefined){
+                    window.StackViewer1.setCanvasRef(this);
+                }
+
+                // button bar needs the canvas to setup the wireframe button
+                window.addButtonBar();
+                // add term info
+                window.addTermInfo();
+                // unlock loading
+                window.canvasAvilable = true;
+
+            });
+
         };
 
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function(){
