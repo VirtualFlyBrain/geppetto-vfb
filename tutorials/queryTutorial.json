@@ -1,7 +1,7 @@
 {
 	"name": "Query Tutorial",
 	"height": "400",
-	"width": "700",
+	"width": "500",
 	"steps": [{
 		"title": "Query Tutorial",
 		"content_url": "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/query.html"
