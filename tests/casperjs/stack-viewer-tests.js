@@ -1,7 +1,7 @@
 var DASHBOARD_URL = "http://127.0.0.1:8081/org.geppetto.frontend/";
 var PROJECT_URL = "http://127.0.0.1:8081/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
-casper.test.begin('VFB control panel tests', 7, function suite(test) {
+casper.test.begin('VFB StackViewer tests', 5, function suite(test) {
     casper.options.viewportSize = {
         width: 1340,
         height: 768
@@ -53,44 +53,42 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
             this.waitForSelector('button[id=VFB_00017894_zoom_buttonBar_btn]', function () {
                 test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
             }, null, 30000);
-            
-            
+
         });
-    });
-
-    // open control panel, check it's visible
-    casper.then(function () {
-    	casper.evaluate(function(){
-    		Popup1.destroy();
+        
+        casper.then(function(){
+    		stackViewerTests();
     	});
-    	
-    	this.mouseEvent('click', 'button[id=infoBtn]', 'Opening term info popup');
-    	
-        // check that control panel is invisible
-        test.assertNotVisible('#controlpanel', "Control panel is invisible");
-
-        this.echo("Clicking on control panel button to open query builder");
-        this.mouseEvent('click', 'button[id=controlPanelBtn]', 'Opening control panel');
-
-        test.assertVisible('#controlpanel', "Control panel is visible");
     });
+    
+    function stackViewerTests(){
+    	//wait few seconds for stack viewer to finish loading
+    	casper.wait(5000, function () {
+    		casper.then(function(){
+    			//test amount of control buttons in the stack viewer
+        		var buttons = this.evaluate(function() {
+        			var stackViewerButtons = $("#StackViewer1").find("button");
+        		});
+        	});
 
-    // click on selection control, check term info is populated
-    casper.then(function () {
-        // click on select control
-        this.echo("Clicking on selection control button for JFRC2_template");
-        this.mouseEvent('click', 'button[id=VFB_00017894_deselect_ctrlPanel_btn]', 'Clicking de-selection button on JFRC2_template');
-
-		casper.wait(2000, function(){
-	        casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
-
-	        // wait for text to appear in the term info widget
-	        casper.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_0]', function () {
-	            test.assertExists('div[id=Popup1_VFB_00017894_metadata_el_0]', 'Term info correctly populated  for JFRC2_template after control panel selection click');
-	        }, null, 10000);
-		});
-
-    });
+    		//test that VFB obj exists inside the Stack Viewer
+        	casper.then(function(){
+        		var visibility = casper.evaluate(function() {
+        			var visibility = StackViewer1.canvasRef.engine.meshes["VFB_00017894.VFB_00017894_obj"].visible;
+        			return visibility;
+        		});
+        		
+        		test.assertEquals(visibility,true, "VFB_00017894 visibility correct");
+        	});
+        	
+        	//
+        	casper.then(function(){
+        		var buttons = this.evaluate(function() {
+        			var stackViewerButtons = $("#StackViewer1").find("button");
+        		});
+        	});
+    	});
+    }
 
     casper.run(function () {
         test.done();

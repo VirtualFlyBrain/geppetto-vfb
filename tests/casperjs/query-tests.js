@@ -1,5 +1,5 @@
-var DASHBOARD_URL = "http://127.0.0.1:8080/org.geppetto.frontend/";
-var PROJECT_URL = "http://127.0.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://vfbsandbox.inf.ed.ac.uk/do/geppettoJson.json?i=VFBd_00100009%26t=VFBt_001%26d6d";
+var DASHBOARD_URL = "http://127.0.0.1:8081/org.geppetto.frontend/";
+var PROJECT_URL = "http://127.0.0.1:8081/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
 casper.test.begin('VFB query component tests', 6, function suite(test) {
     casper.options.viewportSize = {
@@ -37,17 +37,17 @@ casper.test.begin('VFB query component tests', 6, function suite(test) {
     casper.thenOpen(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
 
-        this.waitForSelector('button[id=queryBuilderBtn]', function () {
-            test.assertExists('button[id=queryBuilderBtn]', "Query builder button appeared");
-        }, null, 10000);
+        this.waitForSelector('button[id=queryBtn]', function () {
+            test.assertExists('button[id=queryBtn]', "Query builder button appeared");
+        }, null, 20000);
 
         // wait for control panel items to be populated - this will ensure scene has loaded
-        this.waitForText('<a href="#">JFRC2_template</a>', function () {
+        this.waitForText('JFRC2_template', function () {
             this.echo("Scene has loaded");
 
             // run query tests now that the scene has loaded
             queryTests();
-        }, null, 10000);
+        }, null, 20000);
     });
 
     var queryTests = function() {
@@ -57,7 +57,7 @@ casper.test.begin('VFB query component tests', 6, function suite(test) {
             test.assertNotVisible('#querybuilder', "Query builder is invisible");
 
             this.echo("Clicking on query builder button to open query builder");
-            this.mouseEvent('click', 'button[id=queryBuilderBtn]', 'Opening query builder');
+            this.mouseEvent('click', 'button[id=queryBtn]', 'Opening query builder');
 
             test.assertVisible('#querybuilder', "Query builder is visible");
         });
@@ -83,8 +83,8 @@ casper.test.begin('VFB query component tests', 6, function suite(test) {
                     });
 
                     // not ideal - react injects strange markup in strings
-                    this.waitForText('<div id="query-results-label"><!-- react-text: 9 -->65<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text --></div>', function () {
-                        this.echo("Verified we have 84 results");
+                    this.waitForText('<!-- react-text: 9 -->2<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text -->', function () {
+                        this.echo("Verified we have 2 results");
                         runQueryTests();
                     }, null, 10000);
                 }, null, 10000);
@@ -96,16 +96,19 @@ casper.test.begin('VFB query component tests', 6, function suite(test) {
         casper.echo("Clicking on run query button");
         casper.mouseEvent('click', 'button[id=run-query-btn]', 'Running query');
 
-        casper.waitForText('accessory medulla', function () {
+        casper.waitForSelector('div[id=VFB_00030810-image-container]', function () {
             this.echo("Results rows appeared - click on results info for accessory medulla");
-            this.mouseEvent('click', 'button[id=FBbt_00045003_info_queryResults_btn]', 'Click on results info for accessory medulla');
 
+            casper.evaluate(function() {
+            	$("#VFB_00030810-image-container").find("img").click();
+            });
+            
             // wait for text to appear in the term info widget
-            this.waitForSelector('div[id=Popup1_FBbt_00045003_metadata_el_0]', function () {
-                test.assertExists('div[id=Popup1_FBbt_00045003_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
-            }, null, 5000);
+            this.waitForSelector('div[id=Popup1_VFB_00030810_metadata_el_0]', function () {
+                test.assertExists('div[id=Popup1_VFB_00030810_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
+            }, null, 20000);
 
-        }, null, 5000);
+        }, null, 20000);
     };
 
     casper.run(function () {
