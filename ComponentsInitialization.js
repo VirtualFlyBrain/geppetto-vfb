@@ -230,14 +230,14 @@ define(function (require) {
                                         "false": {
                                             "id": "visibility_obj",
                                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                            "icon": "gpt-shapeshow",
+                                            "icon": "gpt-shapehide",
                                             "label": "Hidden",
                                             "tooltip": "Show 3D Volume"
                                         },
                                         "true": {
                                             "id": "visibility_obj",
                                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                            "icon": "gpt-shapehide",
+                                            "icon": "gpt-shapeshow",
                                             "label": "Visible",
                                             "tooltip": "Hide 3D Volume"
                                         }
@@ -248,14 +248,14 @@ define(function (require) {
                                         "false": {
                                             "id": "visibility_swc",
                                             "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                            "icon": "gpt-3dshow",
+                                            "icon": "gpt-3dhide",
                                             "label": "Hidden",
                                             "tooltip": "Show 3D Skeleton"
                                         },
                                         "true": {
                                             "id": "visibility_swc",
                                             "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                            "icon": "gpt-3dhide",
+                                            "icon": "gpt-3dshow",
                                             "label": "Visible",
                                             "tooltip": "Hide 3D Skeleton"
                                         }
@@ -1104,14 +1104,14 @@ define(function (require) {
                             "false": {
                                 "id": "visibility_obj",
                                 "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                "icon": "gpt-shapeshow",
+                                "icon": "gpt-shapehide",
                                 "label": "Hidden",
                                 "tooltip": "Show 3D Volume"
                             },
                             "true": {
                                 "id": "visibility_obj",
                                 "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-                                "icon": "gpt-shapehide",
+                                "icon": "gpt-shapeshow",
                                 "label": "Visible",
                                 "tooltip": "Hide 3D Volume"
                             }
@@ -1122,14 +1122,14 @@ define(function (require) {
                             "false": {
                                 "id": "visibility_swc",
                                 "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
-                                "icon": "gpt-3dshow",
+                                "icon": "gpt-3dhide",
                                 "label": "Hidden",
                                 "tooltip": "Show 3D Skeleton"
                             },
                             "true": {
                                 "id": "visibility_swc",
                                 "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-                                "icon": "gpt-3dhide",
+                                "icon": "gpt-3dshow",
                                 "label": "Visible",
                                 "tooltip": "Hide 3D Skeleton"
                             }
