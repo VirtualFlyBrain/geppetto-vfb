@@ -1,5 +1,5 @@
-var DASHBOARD_URL = "http://127.0.0.1:8081/org.geppetto.frontend/";
-var PROJECT_URL = "http://127.0.0.1:8081/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
+var DASHBOARD_URL = "http://127.0.0.1:8080/org.geppetto.frontend/";
+var PROJECT_URL = "http://127.0.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
 casper.test.begin('VFB control panel tests', 7, function suite(test) {
     casper.options.viewportSize = {

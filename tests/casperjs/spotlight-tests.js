@@ -1,7 +1,7 @@
-var DASHBOARD_URL = "http://127.0.0.1:8081/org.geppetto.frontend/";
-var PROJECT_URL = "http://127.0.0.1:8081/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
+var DASHBOARD_URL = "http://127.0.0.1:8080/org.geppetto.frontend/";
+var PROJECT_URL = "http://127.0.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
-casper.test.begin('VFB Spotlight tests', 16, function suite(test) {
+casper.test.begin('VFB Spotlight tests', function suite(test) {
     casper.options.viewportSize = {
         width: 1340,
         height: 768
@@ -87,10 +87,6 @@ casper.test.begin('VFB Spotlight tests', 16, function suite(test) {
     	
     	test.assertEquals(visibility,visible, variableName +" visibility correct");
     }
-
-    casper.run(function () {
-        test.done();
-    });
     
     function spotlightTest(test, searchQuery, buttonClick, termInfoData){
     	casper.mouseEvent('click', 'button[id=searchBtn]', "attempting to open spotlight");
@@ -129,4 +125,8 @@ casper.test.begin('VFB Spotlight tests', 16, function suite(test) {
     		}, 25000);
     	}, 25000);
     }
+
+    casper.run(function () {
+        test.done();
+    });
 });

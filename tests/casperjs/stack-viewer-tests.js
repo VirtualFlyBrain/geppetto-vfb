@@ -1,7 +1,7 @@
 var DASHBOARD_URL = "http://127.0.0.1:8081/org.geppetto.frontend/";
 var PROJECT_URL = "http://127.0.0.1:8081/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
-casper.test.begin('VFB StackViewer tests', 5, function suite(test) {
+casper.test.begin('VFB StackViewer tests', function suite(test) {
     casper.options.viewportSize = {
         width: 1340,
         height: 768
@@ -57,6 +57,24 @@ casper.test.begin('VFB StackViewer tests', 5, function suite(test) {
         });
         
         casper.then(function(){
+        	var canvasMeshes = this.evaluate(function() {
+    			return Object.keys(Canvas1.engine.meshes).length;
+    		});
+    		
+    		test.assertEquals(canvasMeshes,1, "Canvas1 has 1 mesh");
+    		
+    		var stackViewerMeshes = this.evaluate(function() {
+    			return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
+    		});
+    		
+    		test.assertEquals(stackViewerMeshes,1, "StackViewer has 1 mesh");
+    	});
+        
+        casper.then(function(){
+        	queryTests(test,"#VFB_00030810-image-container","Popup1_VFB_00030810_metadata_el_0");
+    	});
+        
+        casper.then(function(){
     		stackViewerTests();
     	});
     });
@@ -81,14 +99,122 @@ casper.test.begin('VFB StackViewer tests', 5, function suite(test) {
         		test.assertEquals(visibility,true, "VFB_00017894 visibility correct");
         	});
         	
-        	//
         	casper.then(function(){
-        		var buttons = this.evaluate(function() {
-        			var stackViewerButtons = $("#StackViewer1").find("button");
+        		var meshVisible = this.evaluate(function() {
+        			return Canvas1.engine.scene.children[2].visible;
+        		});
+        		
+        		test.assertEquals(meshVisible,false, "3D Plane not visible");
+        	});
+        	
+        	casper.then(function(){
+        		casper.wait(2000, function(){
+        			var buttons = this.evaluate(function() {
+            			var stackViewerButtons = $("#StackViewer1").find("button");
+            			stackViewerButtons[stackViewerButtons.length-1].click();
+            		});
+        		});
+        	});
+        	
+        	casper.then(function(){
+        		casper.wait(2000, function(){
+        			var meshVisible = this.evaluate(function() {
+            			return Canvas1.engine.scene.children[2].visible;
+            		});
+            		
+            		test.assertEquals(meshVisible,true, "3D Plane visible");
+        		});
+        	});
+        	
+        	casper.then(function(){
+        		casper.wait(2000, function(){
+        			var meshVisible = this.evaluate(function() {
+            			return Canvas1.engine.scene.children[2].visible;
+            		});
+            		
+            		test.assertEquals(meshVisible,true, "3D Plane visible");
+        		});
+        	});
+        	
+        	casper.then(function(){
+        		casper.wait(10000, function(){
+        			var canvasMeshes = this.evaluate(function() {
+            			return Object.keys(Canvas1.engine.meshes).length;
+            		});
+            		
+            		test.assertEquals(canvasMeshes,2, "Canvas1 has 2 meshes");
+            		
+            		var stackViewerMeshes = this.evaluate(function() {
+            			return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
+            		});
+            		
+            		test.assertEquals(stackViewerMeshes,2, "StackViewer has 2 meshes");
         		});
         	});
     	});
     }
+    
+    var queryTests = function() {
+        // open query builder, check it's visible
+        casper.then(function () {
+            // check if query builder is invisible
+            test.assertNotVisible('#querybuilder', "Query builder is invisible");
+
+            this.echo("Clicking on query builder button to open query builder");
+            this.mouseEvent('click', 'button[id=queryBtn]', 'Opening query builder');
+
+            test.assertVisible('#querybuilder', "Query builder is visible");
+        });
+
+        // click on selection control, check term info is populated
+        casper.then(function () {
+            this.echo("Typing 'medu' in the query builder search bar");
+            this.sendKeys('#query-typeahead', 'medu');
+
+            this.waitForSelector('div.tt-suggestion', function () {
+                this.echo("Selecting medulla, first suggestion from suggestion box");
+                this.evaluate(function() {
+                    $('div.tt-suggestion').first().click();
+                });
+                //this.mouseEvent('click', 'button[id=queryBuilderBtn]', 'Opening query builder again');
+                this.waitForSelector('select.query-item-option', function () {
+                    this.echo("Selecting first query for medulla");
+                    this.evaluate(function() {
+                        var selectElement = $('select.query-item-option');
+                        selectElement.val('0').change();
+                        var event = new Event('change', { bubbles: true });
+                        selectElement[0].dispatchEvent(event);
+                    });
+
+                    // not ideal - react injects strange markup in strings
+                    this.waitForText('<!-- react-text: 9 -->2<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text -->', function () {
+                        this.echo("Verified we have 2 results");
+                        runQueryTests();
+                    }, null, 10000);
+                }, null, 10000);
+            }, null, 10000);
+        });
+    };
+
+    var runQueryTests = function () {
+        casper.echo("Clicking on run query button");
+        casper.mouseEvent('click', 'button[id=run-query-btn]', 'Running query');
+
+        casper.waitForSelector('div[id=VFB_00030624-image-container]', function () {
+            this.echo("Results rows appeared - click on results info for accessory medulla");
+
+            casper.evaluate(function() {
+            	$("#VFB_00030624-image-container").find("img").click();
+            });
+            
+            // wait for text to appear in the term info widget
+            this.waitForSelector('div[id=Popup1_VFB_00030624_metadata_el_0]', function () {
+                test.assertExists('div[id=Popup1_VFB_00030624_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
+            }, null, 20000);
+
+        }, null, 20000);
+    };
+    
 
     casper.run(function () {
         test.done();
