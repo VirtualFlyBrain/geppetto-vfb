@@ -765,8 +765,7 @@ define(function (require) {
             	window.vfbWindowResize();
             });
 
-            window.vfbWindowResize = function() 
-            {
+            window.vfbWindowResize = function() {
             	// reset size and position of term info widget, if any
                 if(window[window.termInfoPopupId] != undefined && !window[window.termInfoPopupId].maximize) {
                     window.termInfoPopup.setPosition(getTermInfoDefaultX(), getTermInfoDefaultY());
@@ -783,8 +782,7 @@ define(function (require) {
                 ButtonBar1.setPosition(getButtonBarDefaultX(), getButtonBarDefaultY());
             };
             
-            window.updateHistory = function(title) 
-            {
+            window.updateHistory = function(title) {
                 if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
                 	window.vfbUpdatingHistory = true;
                 	// Update the parent windows history with current instances (i=) and popup selection (id=)
@@ -831,8 +829,7 @@ define(function (require) {
                 });
             };
             
-            window.addVfbId = function(variableId) 
-            {
+            window.addVfbId = function(variableId) {
                 if (variableId != null){
 	            	if (window[variableId] == undefined){
 	                	if (variableId.indexOf('VFB_') > -1){
@@ -870,8 +867,7 @@ define(function (require) {
                 }
             };
 		
-            window.stackViewerRequest = function(variableId) 
-            {
+            window.stackViewerRequest = function(variableId) {
 	    		window.addVfbIds([variableId]);   
             };
 
@@ -912,8 +908,7 @@ define(function (require) {
             	window.vfbLoading = "";
             }
             
-            window.addVfbIds = function(variableIds)
-            {
+            window.addVfbIds = function(variableIds) {
                 if (window.canvasAvilable){
 
                     for (i in variableIds){

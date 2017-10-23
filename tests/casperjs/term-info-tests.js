@@ -1,7 +1,7 @@
 var DASHBOARD_URL = "http://127.0.0.1:8080/org.geppetto.frontend/";
 var PROJECT_URL = "http://127.0.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
-casper.test.begin('VFB control panel tests', 7, function suite(test) {
+casper.test.begin('VFB Term Info tests', 5, function suite(test) {
     casper.options.viewportSize = {
         width: 1340,
         height: 768
@@ -33,7 +33,7 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         }, null, 10000);
     });
 
-    // open project, check for items in control panel + instances
+    // open project, check for items in Term Info Popup
     casper.thenOpen(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
 
@@ -58,39 +58,35 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         });
     });
 
-    // open control panel, check it's visible
-    casper.then(function () {
-    	casper.evaluate(function(){
-    		Popup1.destroy();
+    // check items in term info popup
+    casper.then(function(){
+		testTermInfoWidget(test, "medulla", "#type","#Popup1_FBbt_00003748_metadata_el_");
+	});
+    
+    function testTermInfoWidget(test){
+    	casper.then(function(){
+    		//check that term info is populated
+    		casper.waitUntilVisible('div#Popup1_VFB_00017894_metadata_el_1', function () {
+    			casper.then(function () {
+    				test.assertVisible("div#Popup1_VFB_00017894_metadata_el_1", "Term info property correctly visible");
+    			});
+    		});
     	});
     	
-    	this.mouseEvent('click', 'button[id=infoBtn]', 'Opening term info popup');
+    	//click on Term Info popup item
+    	casper.then(function(){
+    		casper.evaluate(function(variableName) {
+    			$(variableName).find("a").click()
+    		},"#Popup1_VFB_00017894_metadata_el_1");
+    	});
     	
-        // check that control panel is invisible
-        test.assertNotVisible('#controlpanel', "Control panel is invisible");
-
-        this.echo("Clicking on control panel button to open query builder");
-        this.mouseEvent('click', 'button[id=controlPanelBtn]', 'Opening control panel');
-
-        test.assertVisible('#controlpanel', "Control panel is visible");
-    });
-
-    // click on selection control, check term info is populated
-    casper.then(function () {
-        // click on select control
-        this.echo("Clicking on selection control button for JFRC2_template");
-        this.mouseEvent('click', 'button[id=VFB_00017894_deselect_ctrlPanel_btn]', 'Clicking de-selection button on JFRC2_template');
-
-		casper.wait(2000, function(){
-	        casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
-
-	        // wait for text to appear in the term info widget
-	        casper.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_0]', function () {
-	            test.assertExists('div[id=Popup1_VFB_00017894_metadata_el_0]', 'Term info correctly populated  for JFRC2_template after control panel selection click');
-	        }, null, 10000);
-		});
-
-    });
+    	//wait for term info to reload with new info
+    	casper.then(function(){
+    		this.waitForText('GMR_33C10_AE_01_06-fA01b', function () {
+                this.echo("Element GMR_33C10_AE_01_06-fA01b appeared in appeared in popup");
+            }, null, 295000);
+    	});
+    }
 
     casper.run(function () {
         test.done();
