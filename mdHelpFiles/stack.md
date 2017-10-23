@@ -16,4 +16,4 @@ Stack position is controlled via 2 finger scroll, mouse wheel or the <i class="f
 
 The orthogonal orientation of the slice is toggled by the <i class="fa fa-refresh" aria-hidden="true"></i> icon. 
 
-The botton toggle switch controlls the display of the current slice within the 3D window giving your current selection context within the volume';
+The <i class="fa gpt-showplane" aria-hidden="true"></i> toggles the display of the current slice within the 3D window giving your current selection context within the volume.
