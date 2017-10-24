@@ -783,6 +783,9 @@ define(function (require) {
             };
             
             window.updateHistory = function(title) {
+            	if (window.vfbUpdatingHistory==undefined){
+            		window.vfbUpdatingHistory = false;
+            	}
                 if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25){
                 	window.vfbUpdatingHistory = true;
                 	// Update the parent windows history with current instances (i=) and popup selection (id=)
