@@ -569,6 +569,14 @@ define(function (require) {
                             window.StackViewer1.setConfig(config).setData({
                                 instances: sliceInstances
                             });
+                            
+                            // set config from template metadata
+                            if (window.templateID != undefined){
+                            	try{
+                            		window.StackViewer1.setConfig(JSON.parse(window[window.templateID][window.templateID+"_slices"].getValue().wrappedObj.value.data));
+                            	}catch (ignore){}
+                            }
+                            	
 
                             // set canvas if it's already there
                             if(window.vfbCanvas != undefined){
