@@ -32,3 +32,8 @@
 .gpt-shapeshow:before {
     margin-top: 5px;
 }
+
+.ui-widget {
+    font-family: arial, sans-serif; 
+    font-size:13px; 
+}
