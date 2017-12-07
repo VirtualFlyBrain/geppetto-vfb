@@ -94,7 +94,7 @@ define(function (require) {
                         ],
                         "icon": "fa fa-list",
                         "label": "",
-                        "tooltip": "Control Panel"
+                        "tooltip": "Layers"
                     },
                     "queryBtn": {
                         "actions": [
@@ -118,7 +118,7 @@ define(function (require) {
                         ],
                         "icon": "gpt-stack",
                         "label": "",
-                        "tooltip": "Show stack viewer"
+                        "tooltip": "Show slice viewer"
                     },
                     "meshBtn": {
                         "condition": "Canvas1.getWireframe();",
