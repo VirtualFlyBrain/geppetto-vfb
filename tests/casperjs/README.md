@@ -2,6 +2,9 @@
 
 * `casperjs test control-panel-tests.js --engine=slimerjs`
 * `casperjs test query-tests.js --engine=slimerjs`
+* `casperjs test term-info-tests.js --engine=slimerjs` 
+* `casperjs test spotlight-tests.js --engine=slimerjs` 
+* `casperjs test stack-viewer-tests.js --engine=slimerjs` 
 
 ##Prereqs
 
@@ -11,6 +14,28 @@
 ##Install with:
 
 `npm install -g phantomjs npm install -g casperjs npm install -g slimerjs`
+
+## Run with (in this folder):
+
+To run the Control Panel Casper Tests:
+
+`casperjs test control-panel-tests.js --engine=slimerjs` 
+
+To run the Query Casper Tests:
+
+`casperjs test query-tests.js --engine=slimerjs` 
+
+To run the Term Info Casper Tests:
+
+`casperjs test term-info-tests.js --engine=slimerjs` 
+
+To run the Spotlight Casper Tests:
+
+`casperjs test spotlight-tests.js --engine=slimerjs` 
+
+To run the Stack Viewer Casper Tests:
+
+`casperjs test stack-viewer-tests.js --engine=slimerjs` 
 
 ##documentation
 

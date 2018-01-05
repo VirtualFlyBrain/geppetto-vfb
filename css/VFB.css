@@ -8,3 +8,32 @@
 .transparent {
     background: transparent !important;
 }
+
+#querybuilder .query-results-images-column img{
+	max-height: 110px;
+}
+
+#querybuilder .query-results-images-column img:hover{
+	max-height: 300px;
+}
+
+.tutorialMessage{
+    height : 100% !important;
+}
+
+.gpt-query:before {
+    margin-top: 3px;
+}
+
+.gpt-shapehide:before {
+    margin-top: 3px;
+}
+
+.gpt-shapeshow:before {
+    margin-top: 5px;
+}
+
+.ui-widget {
+    font-family: arial, sans-serif; 
+    font-size:13px; 
+}
