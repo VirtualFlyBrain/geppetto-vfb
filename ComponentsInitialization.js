@@ -541,9 +541,7 @@ define(function (require) {
             var updateStackWidget = function(){
             	window.checkConnection();
             	console.log('Updating stack...');
-                window.StackViewer1.setData({
-                    instances: getSliceInstances()
-                });
+                window.StackViewer1.addSlices(getSliceInstances());
             };
 
             window.addStackWidget = function(){
@@ -642,23 +640,9 @@ define(function (require) {
 
                             // on colour change update:
                             GEPPETTO.on(GEPPETTO.Events.Color_set, function(instances){
-                                if (window.changingColor == undefined || window.changingColor != true){
-					console.log('Colour change...');
-					window.changingColor = true;
-					if (window.StackViewer1 != undefined){
-					    if(instances!=undefined && instances.instance){
-						if (instances.instance.getType().getMetaType() == 'CompositeType'){
-						    instances.instance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
-						}else if (instances.instance.parent && instances.instance.parent.getType().getMetaType() == 'CompositeType'){
-						    instances.instance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
-						}else{
-						    console.log('Colour setting issue: ' + instances);
-						}
-					    }else{
-						console.log('Colour setting issue! ' + instances);
-					    }
-					}
-					window.changingColor = false;
+                                console.log('Colour change...');
+				if (window.StackViewer1 != undefined) {
+					updateStackWidget();
 				}
                             });
                             $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
