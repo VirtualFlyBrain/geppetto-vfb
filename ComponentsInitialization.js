@@ -538,11 +538,29 @@ define(function (require) {
                 return sliceInstances;
             };
 
+	    	var changedStacks = function(){
+        		if (window.StackViewer1 != undefined && window.StackViewer1.data != undefined && window.StackViewer1.data.instances != undefined){
+		    		var a = getSliceInstances();
+					var b = window.StackViewer1.data.instances;
+					if (a.length == b.length){
+						for (var i = 0; i < a.length; i++){
+							if (a[i].parent.getColor() != b[i].parent.getColor()){
+								return true;
+							}
+						}
+						return false;
+					}
+				}
+				return true;
+        	};
+		
             var updateStackWidget = function(){
             	window.checkConnection();
             	console.log('Updating stack...');
-                window.StackViewer1.addSlices(getSliceInstances());
-            };
+				if (changedStacks){
+                	window.StackViewer1.addSlices(getSliceInstances());
+				}
+			};
 
             window.addStackWidget = function(){
                 var sliceInstances = getSliceInstances();
