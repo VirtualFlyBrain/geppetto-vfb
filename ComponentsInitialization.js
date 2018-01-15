@@ -544,9 +544,11 @@ define(function (require) {
 					var b = window.StackViewer1.data.instances;
 					if (a.length == b.length){
 						for (var i = 0; i < a.length; i++){
-							if (a[i].parent.getColor() != b[i].parent.getColor()){
-								return true;
-							}
+							try{
+								if (a[i].parent.getColor() != b[i].parent.getColor()){
+									return true;
+								}
+							}catch (ignore){}
 						}
 						return false;
 					}
