@@ -564,6 +564,8 @@ define(function (require) {
             	console.log('Updating stack...');
 				if (changedStacks()){
                 	window.StackViewer1.addSlices(getSliceInstances());
+				}else{
+					window.StackViewer1.updateScene();
 				}
 			};
 
