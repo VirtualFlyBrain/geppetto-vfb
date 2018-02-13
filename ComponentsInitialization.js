@@ -192,7 +192,7 @@ define(function (require) {
                                     if (typeof(instancePath) == "string"){
                                             return Instances.getInstance(instancePath).getParent();
                                     }
-                                    return Instances.getInstance(instancePath[0].getInstancePath()).getParent(); 
+                                    return instancePath[0].getParent(); 
                                 },
                                 "VisualCapability": {
                                     "select": {
