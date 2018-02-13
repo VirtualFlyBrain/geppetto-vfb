@@ -188,8 +188,11 @@ define(function (require) {
 
                             var buttonBarConfiguration={
                                 "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
-                                "filter" : function(instancePath){
-                                    return Instances.getInstance(instancePath).getParent()
+                                "filter": function filter(instancePath) {
+                                    if (typeof(instancePath) == "string"){
+                                            return Instances.getInstance(instancePath).getParent();
+                                    }
+                                    return Instances.getInstance(instancePath[0].id).getParent(); 
                                 },
                                 "VisualCapability": {
                                     "select": {
