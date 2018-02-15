@@ -88,6 +88,14 @@ define(function (require) {
                         "label": "",
                         "tooltip": "Search"
                     },
+		            "queryBtn": {
+                        "actions": [
+                            "GEPPETTO.QueryBuilder.open();"
+                        ],
+                        "icon": "gpt-query",
+                        "label": "",
+                        "tooltip": "Open Query"
+                    },
                     "controlPanelBtn": {
                         "actions": [
                             "GEPPETTO.ControlPanel.open();"
@@ -95,14 +103,6 @@ define(function (require) {
                         "icon": "fa fa-list",
                         "label": "",
                         "tooltip": "Layers"
-                    },
-                    "queryBtn": {
-                        "actions": [
-                            "GEPPETTO.QueryBuilder.open();"
-                        ],
-                        "icon": "gpt-query",
-                        "label": "",
-                        "tooltip": "Open Query"
                     },
                     "infoBtn": {
                         "actions": [
@@ -143,7 +143,7 @@ define(function (require) {
                         "actions": [
                             "G.toggleTutorial();"
                         ],
-                        "icon": "fa fa-leanpub",
+                        "icon": "fa fa-question",
                         "label": "",
                         "tooltip": "Open tutorial"
                     }
@@ -1197,7 +1197,7 @@ define(function (require) {
                                 actions: [
                                     "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                                 ],
-                                icon: "fa-quora",
+                                icon: "gpt-query",
                                 label: "Add to query",
                                 tooltip: "Add to query"
                             },
