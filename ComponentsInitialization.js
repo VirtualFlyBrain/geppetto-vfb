@@ -562,12 +562,12 @@ define(function (require) {
             var updateStackWidget = function(){
             	window.checkConnection();
             	console.log('Updating stack...');
-				if (changedStacks()){
+		if (changedStacks()){
                 	window.StackViewer1.addSlices(getSliceInstances());
-				}else{
-					window.StackViewer1.updateScene();
-				}
-			};
+		}
+		window.StackViewer1.updateScene();
+		
+	    };
 
             window.addStackWidget = function(){
                 var sliceInstances = getSliceInstances();
