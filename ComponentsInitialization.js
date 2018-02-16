@@ -480,7 +480,11 @@ define(function (require) {
 
                         // add query item + selection
                         if (otherId == undefined) {
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+				if (widget.data.length){
+					GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data[0].getParent().id, queryObj: entity}, callback);
+				}else{
+                        		GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+				}
                         }else{
                         	if (window[otherId] == undefined){
                         		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
