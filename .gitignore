@@ -6,3 +6,5 @@
 *.container
 
 *.name
+
+.DS_Store
