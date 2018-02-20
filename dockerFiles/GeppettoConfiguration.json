@@ -22,8 +22,8 @@
         "geppetto-netpyne/css/colors": false
     },
     "properties": {
-	    	"title" : "geppetto",
-	    	"description": "Geppetto is an open-source platform to build web-based tools to visualize and simulate neuroscience data and models. This is a live deployment to showcase its functionalities.",
+	    	"title" : "VirtualFlyBrain",
+	    	"description": "A hub for Drosophila melanogaster neuroscience research",
 	    	"type": "website",
 	    	"url": "http://virtualflybrain.org",
 	    	"icon" :"geppetto/style/favicon.png",
