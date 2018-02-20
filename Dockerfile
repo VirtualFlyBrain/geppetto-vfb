@@ -79,7 +79,7 @@ RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
 RUN sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
 
 #Start a logfile
-mkdir -p ~/serviceability/logs
+RUN mkdir -p ~/serviceability/logs && \
 echo 'Start of log...' > ~/serviceability/logs/log.log
 
 ENTRYPOINT ["/opt/VFB/startup.sh"]
