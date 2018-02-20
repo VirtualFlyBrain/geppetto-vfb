@@ -88,6 +88,14 @@ define(function (require) {
                         "label": "",
                         "tooltip": "Search"
                     },
+		            "queryBtn": {
+                        "actions": [
+                            "GEPPETTO.QueryBuilder.open();"
+                        ],
+                        "icon": "gpt-query",
+                        "label": "",
+                        "tooltip": "Open Query"
+                    },
                     "controlPanelBtn": {
                         "actions": [
                             "GEPPETTO.ControlPanel.open();"
@@ -95,14 +103,6 @@ define(function (require) {
                         "icon": "fa fa-list",
                         "label": "",
                         "tooltip": "Layers"
-                    },
-                    "queryBtn": {
-                        "actions": [
-                            "GEPPETTO.QueryBuilder.open();"
-                        ],
-                        "icon": "gpt-query",
-                        "label": "",
-                        "tooltip": "Open Query"
                     },
                     "infoBtn": {
                         "actions": [
@@ -143,7 +143,7 @@ define(function (require) {
                         "actions": [
                             "G.toggleTutorial();"
                         ],
-                        "icon": "fa fa-leanpub",
+                        "icon": "fa fa-question",
                         "label": "",
                         "tooltip": "Open tutorial"
                     }
@@ -480,7 +480,11 @@ define(function (require) {
 
                         // add query item + selection
                         if (otherId == undefined) {
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+				if (widget.data.length){
+					GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data[0].getParent().id, queryObj: entity}, callback);
+				}else{
+                        		GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+				}
                         }else{
                         	if (window[otherId] == undefined){
                         		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
@@ -562,10 +566,12 @@ define(function (require) {
             var updateStackWidget = function(){
             	window.checkConnection();
             	console.log('Updating stack...');
-				if (changedStacks()){
+		if (changedStacks()){
                 	window.StackViewer1.addSlices(getSliceInstances());
-				}
-			};
+		}
+		window.StackViewer1.updateScene();
+		
+	    };
 
             window.addStackWidget = function(){
                 var sliceInstances = getSliceInstances();
@@ -931,7 +937,9 @@ define(function (require) {
             
             window.addVfbIds = function(variableIds) {
                 if (window.canvasAvilable){
-
+					if (typeof(variableIds) == "string"){
+                         variableIds = [variableIds];   
+                    }
                     for (i in variableIds){
                         if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
                             window.vfbLoadBuffer.push(variableIds[i]);
@@ -1195,7 +1203,7 @@ define(function (require) {
                                 actions: [
                                     "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                                 ],
-                                icon: "fa-quora",
+                                icon: "gpt-query",
                                 label: "Add to query",
                                 tooltip: "Add to query"
                             },
