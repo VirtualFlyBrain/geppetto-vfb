@@ -56,6 +56,7 @@ COPY dockerFiles/geppetto.plan /opt/geppetto/org.geppetto/geppetto.plan
 COPY dockerFiles/GeppettoConfiguration.json /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json
 RUN mkdir -p /opt/VFB
 COPY dockerFiles/startup.sh /opt/VFB/startup.sh
+RUN chmod -R 777 /opt/geppetto | true
 
 RUN echo Updating Modules... && \
 cd /opt/geppetto/org.geppetto && \
