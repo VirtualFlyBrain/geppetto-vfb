@@ -35,7 +35,7 @@ script:
 - sed -i "s|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=.*|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=$TRAVIS_BRANCH|g" Dockerfile
 - sed -i "s|\"useSsl\":.*,|\"useSsl\": false,|g" dockerFiles/GeppettoConfiguration.json
 - sed -i "s|\"embedded\":.*,|\"embedded\": false,|g" dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedderURL\":.*,|\"embedderURL\":"VFB_EMBEDDER_URL",|g" dockerFiles/GeppettoConfiguration.json 
+- sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"VFB_EMBEDDER_URL\",|g" dockerFiles/GeppettoConfiguration.json 
 - echo -e "travis_fold:end:Geppetto-Config"
 - echo -e "travis_fold:start:Docker-Build"
 - docker build -t test-image:test .
