@@ -32,15 +32,15 @@ before_script:
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
-- sed -i "s|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=.*|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=$TRAVIS_BRANCH|g" Dockerfile
-- sed -i "s|\"useSsl\":.*,|\"useSsl\": false,|g" dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedded\":.*,|\"embedded\": false,|g" dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"VFB_EMBEDDER_URL\",|g" dockerFiles/GeppettoConfiguration.json 
+- sed -i "s|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=.*|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
+- sed -i "s|\"useSsl\":.*,|\"useSsl\": false,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i "s|\"embedded\":.*,|\"embedded\": false,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"VFB_EMBEDDER_URL\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json 
 - echo -e "travis_fold:end:Geppetto-Config"
 - echo -e "travis_fold:start:Docker-Build"
 - docker build -t test-image:test .
-- sed -i "s|\"useSsl\":.*,|\"useSsl\": true,|g" dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedded\":.*,|\"embedded\": true,|g" dockerFiles/GeppettoConfiguration.json
+- sed -i "s|\"useSsl\":.*,|\"useSsl\": true,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i "s|\"embedded\":.*,|\"embedded\": true,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - echo -e "travis_fold:end:Docker-Build"
 - docker run -d --name test -p 8080:8080 test-image:test
 - sleep 2m
@@ -48,13 +48,13 @@ script:
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
 - npm config set registry http://registry.npmjs.org/
 - echo "Current time :$(date +"%T")"
-- cd tests/casperjs/
+- cd $TRAVIS_BUILD_DIR/tests/casperjs/
 - echo "$TRAVIS_BRANCH"
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs  
 - sudo docker cp geppetto_container:/home/developer/virgo/serviceability/logs/log.log /etc
 - tail /etc/log.log -n 200
 - echo "Current time :$(date +"%T")"
