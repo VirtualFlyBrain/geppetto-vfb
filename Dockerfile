@@ -72,6 +72,15 @@ for folder in * ; do if [ "$folder" != "org.geppetto" ]; then REPO=${REPO}'{"nam
 REPO=${REPO/,]/]} && \
 echo $REPO > org.geppetto/utilities/source_setup/config.json
 
+# Output amended config files
+RUN echo "\n\n\n\n/opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json" && \
+cat /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json && \ 
+echo "\n\n\n\n/opt/geppetto/org.geppetto/geppetto.plan" && \
+cat /opt/geppetto/org.geppetto/geppetto.plan && \
+echo "\n\n\n\n/opt/geppetto/org.geppetto/pom.xml" && \
+cat /opt/geppetto/org.geppetto/pom.xml && \
+echo "\n\n\n"
+
 # Build Geppetto:
 RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
 
