@@ -42,9 +42,9 @@ script:
 - sed -i "s|\"useSsl\":.*,|\"useSsl\": true,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i "s|\"embedded\":.*,|\"embedded\": true,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - echo -e "travis_fold:end:Docker-Build"
-- docker run -d --name test -p 8080:8080 test-image:test
+- docker run -d --name geppetto_container -p 8080:8080 test-image:test
 - sleep 2m
-- docker logs test
+- docker logs geppetto_container
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
 - npm config set registry http://registry.npmjs.org/
 - echo "Current time :$(date +"%T")"
