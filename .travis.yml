@@ -46,11 +46,13 @@ script:
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
 - npm config set registry http://registry.npmjs.org/
 - echo "Current time :$(date +"%T")"
-- cd $TRAVIS_BUILD_DIR/src/main/webapp/js/pages/tests/casperjs
+- cd tests/casperjs/
 - echo "$TRAVIS_BRANCH"
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://localhost:8080/ --engine=slimerjs  
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js GeppettoModelTests.js --host=http://localhost:8080/ --engine=slimerjs 
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js,NeuronalTestsLogic.js DefaultProjectsTests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs  
 - sudo docker cp geppetto_container:/home/developer/virgo/serviceability/logs/log.log /etc
 - tail /etc/log.log -n 200
 - echo "Current time :$(date +"%T")"
