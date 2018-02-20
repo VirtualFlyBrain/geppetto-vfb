@@ -937,7 +937,9 @@ define(function (require) {
             
             window.addVfbIds = function(variableIds) {
                 if (window.canvasAvilable){
-
+					if (typeof(variableIds) == "string"){
+                         variableIds = [variableIds];   
+                    }
                     for (i in variableIds){
                         if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
                             window.vfbLoadBuffer.push(variableIds[i]);
