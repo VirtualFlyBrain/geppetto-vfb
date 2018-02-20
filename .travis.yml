@@ -34,14 +34,14 @@ script:
 - echo -e "travis_fold:start:Geppetto-Config"
 - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
 - sed -i "s|ENV BRANCH_${VFB_REPO}=.*|ENV BRANCH_${VFB_REPO}=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
-- sed -i "s|\"useSsl\":.*,|\"useSsl\": false,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedded\":.*,|\"embedded\": false,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"VFB_EMBEDDER_URL\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json 
+- sed -i 's|"useSsl":.*,|"useSsl": false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i 's|"embedded":.*,|"embedded": false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i 's|"embedderURL":.*,|"embedderURL":"VFB_EMBEDDER_URL",|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json 
 - echo -e "travis_fold:end:Geppetto-Config"
 - echo -e "travis_fold:start:Docker-Build"
 - docker build -t test-image:test .
-- sed -i "s|\"useSsl\":.*,|\"useSsl\": true,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-- sed -i "s|\"embedded\":.*,|\"embedded\": true,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i 's|"useSsl":.*,|"useSsl": true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+- sed -i 's|"embedded":.*,|"embedded": true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - echo -e "travis_fold:end:Docker-Build"
 - docker run -d --name geppetto_container -p 8080:8080 test-image:test
 - sleep 2m
