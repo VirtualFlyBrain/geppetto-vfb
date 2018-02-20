@@ -32,7 +32,7 @@ before_script:
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
-- sed -i "s|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=.*|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
+- sed -i "s|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,\"_\",$0);gsub(/\./,\"_\",$0);print toupper($0)}')=.*|ENV BRANCH_$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,\"_\",$0);gsub(/\./,\"_\",$0);print toupper($0)}')=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
 - sed -i "s|\"useSsl\":.*,|\"useSsl\": false,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i "s|\"embedded\":.*,|\"embedded\": false,|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"VFB_EMBEDDER_URL\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json 
