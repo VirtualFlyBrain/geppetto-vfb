@@ -76,7 +76,7 @@ echo $REPO > org.geppetto/utilities/source_setup/config.json
 RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
 
 #Remove redirect in tomcat config
-sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
+RUN sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
 
 #Start a logfile
 mkdir -p ~/serviceability/logs
