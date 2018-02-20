@@ -38,12 +38,12 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
         this.echo("Loading project at URL: " + PROJECT_URL);
 
         casper.then(function(){
-            this.waitForText('JFRC2_template', function () {
+            this.waitForText('VFB_00017894', function () {
                 this.echo("Element JFRC2_template appeared in popup");
             }, null, 30000);
 
-            this.waitForText('VFB_00017894.nrrd', function () {
-                this.echo("Element SAD appeared in appeared in popup");
+            this.waitForText('adult brain', function () {
+                this.echo("Element Depicts appeared in appeared in popup");
             }, null, 30000);
             
             this.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_1]', function () {
