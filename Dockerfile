@@ -28,7 +28,7 @@ ENV BRANCH_ORG_GEPPETTO_MODEL=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_MODEL_SWC=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_DATASOURCES=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_SIMULATION=$BRANCH_DEFAULT
-ENV BRANCH_GEPPETTO-VFB=$BRANCH_DEFAULT
+ENV BRANCH_GEPPETTO_VFB=$BRANCH_DEFAULT
 ENV BRANCH_UK_AC_VFB_GEPPETTO=$BRANCH_DEFAULT
 
 RUN mkdir -p /opt/geppetto
@@ -38,7 +38,7 @@ RUN cd /opt/geppetto && \
 echo cloning required modules: && \
 git clone https://github.com/openworm/org.geppetto.git -b $BRANCH_ORG_GEPPETTO && \
 git clone https://github.com/openworm/org.geppetto.frontend.git -b $BRANCH_ORG_GEPPETTO_FRONTEND && \
-git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b $BRANCH_GEPPETTO-VFB && \
+git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b $BRANCH_GEPPETTO_VFB && \
 git clone https://github.com/openworm/org.geppetto.core.git -b $BRANCH_ORG_GEPPETTO_CORE && \
 git clone https://github.com/openworm/org.geppetto.model.git -b $BRANCH_ORG_GEPPETTO_MODEL && \
 git clone https://github.com/openworm/org.geppetto.datasources.git -b $BRANCH_ORG_GEPPETTO_DATASOURCES && \
