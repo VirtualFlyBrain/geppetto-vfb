@@ -46,7 +46,6 @@ script:
 - echo -e "travis_fold:start:Docker-Run"
 - docker run -d --name geppetto_container -p 8080:8080 test-image:test
 - sleep 2m
-- docker logs geppetto_container
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
 - npm config set registry http://registry.npmjs.org/
 - echo -e "travis_fold:end:Docker-Run"
