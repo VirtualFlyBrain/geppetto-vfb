@@ -86,7 +86,4 @@ echo -e "\n\n\n"
 # Build Geppetto:
 RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
 
-#Remove redirect in tomcat config
-RUN sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
-
 ENTRYPOINT ["/opt/VFB/startup.sh"]
