@@ -53,11 +53,11 @@ script:
 - echo "Current time :$(date +"%T")"
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
 - echo "$TRAVIS_BRANCH"
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
 - xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs  
 - echo -e "travis_fold:start:Virgo-Log"
 - sudo docker cp geppetto_container:/home/virgo/serviceability/logs/log.log ./
 - tail ./log.log -n 200
