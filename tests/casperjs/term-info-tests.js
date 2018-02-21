@@ -40,17 +40,10 @@ casper.test.begin('VFB Term Info tests', 5, function suite(test) {
         casper.then(function(){
             this.waitForText('VFB_00017894', function () {
                 this.echo("Element JFRC2_template appeared in popup");
-            }, null, 30000);
-            
-            this.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_1]', function () {
-                test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
-            }, null, 30000);
-            
-            this.waitForSelector('button[id=VFB_00017894_zoom_buttonBar_btn]', function () {
-                test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
-            }, null, 30000);
-            
-            
+            	test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+		  		test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
+	    	}, null, 30000);
+
         });
     });
 
