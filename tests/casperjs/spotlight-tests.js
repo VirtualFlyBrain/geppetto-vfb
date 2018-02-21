@@ -41,10 +41,6 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
             this.waitForText('VFB_00017894', function () {
                 this.echo("Element JFRC2_template appeared in popup");
             }, null, 30000);
-
-            this.waitForText('adult brain', function () {
-                this.echo("Element Depicts appeared in appeared in popup");
-            }, null, 30000);
             
             this.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_1]', function () {
                 test.assertExists('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
