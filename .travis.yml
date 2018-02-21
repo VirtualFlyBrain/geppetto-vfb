@@ -61,6 +61,10 @@ script:
 - tail ./log.log -n 200
 - echo -e "travis_fold:end:Virgo-Log"
 - echo "Current time :$(date +"%T")"
+- echo -e "travis_fold:start:Docker-Clean"
+- docker stop $(docker ps -a -q)
+- docker rm $(docker ps -a -q)
+- echo -e "travis_fold:end:Docker-Clean"
 env:
   global:
   - secure: TbIQjzYF5p2LBoGMACsvA7BP59FiRAGeP9cp+3s0y4sVlXMlFU8RlI0sMYBUYADDxbk1epQn5RW/+Comsjl1mJHWkc0Ndnro/E/TmONQVKFjpmzoRf8nLLlGyGtO4lqucl11KSwMYwc0f2MMC5ZSxRO/Ob15HG/Dz0PcH1Jq1xL66FF+NIj2u7UVHkqhzcNssezJUCmP2+otzsB/CCaouZ4GOtMlVwtO0lCQ8+rP1j2f4+wyWHRnvBSicgrWhdc+RDwHzutatl7aV2Js+y0EKwkZII1QEHanpmdHxGOQnljcCCQgOzy72tnwns10uum9ZBNRQJ3hHuBdiTUAlHDZaLkQcPxmg79Xc/8xiHgihTEpL2zbBwr5LQJfhag1D27ITCyWtadBtgeRsC5d1+wk72zAZ0mk/0Dilf9UWIIcKJngA8KoZRScY4y562Mh/TPjLxru1nK2nhitgiaMO5bCRZ+2nUzoydKWDwup8ruqfZ4zwgDTSQV5YjUW9im4gEyzziNGaF3kQBibbExBgGWA6kdtnd60SRJxXHwU356of9ewxXlWB8OWRLjs4S+2IqpyjceA19IOE+tRomBb5WioVmr9+OdYdC9/HG3h2uQa6MhwjTgprzZPvnMUXxda9nG89bShhL3LiNnMiumTbLs0oRpqIxXniJ9liHvD1ERp1iY=
