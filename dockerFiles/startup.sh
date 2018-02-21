@@ -1,6 +1,9 @@
 #!/bin/bash
 # Set url to run Geppetto under
 grep -rnwl '/opt/geppetto/' -e "VFB_EMBEDDER_URL" | xargs sed -i "s|VFB_EMBEDDER_URL|$VFB_EMBEDDER_URL|g" 
+#Start a logfile
+mkdir -p ~/serviceability/logs
+echo 'Start of log...' > ~/serviceability/logs/log.log
 # deploy Geppetto
 cd /opt/geppetto/org.geppetto/utilities/source_setup 
 python update_server.py
