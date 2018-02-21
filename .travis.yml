@@ -72,6 +72,7 @@ script:
 - docker stop $(docker ps -a -q)
 - docker rm $(docker ps -a -q)
 - echo -e "travis_fold:end:Docker-Clean"
+after_success:
 - cd $TRAVIS_BUILD_DIR
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
 - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
