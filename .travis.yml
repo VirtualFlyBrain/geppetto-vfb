@@ -47,6 +47,7 @@ script:
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 test-image:test
 - sleep 2m
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
+- npm config -q set registry http://registry.npmjs.org/
 - echo -e "travis_fold:end:Docker-Run"
 - echo "Current time :$(date +"%T")"
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
