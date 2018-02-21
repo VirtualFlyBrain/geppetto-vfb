@@ -89,8 +89,4 @@ RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
 #Remove redirect in tomcat config
 RUN sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
 
-#Start a logfile
-RUN mkdir -p ~/serviceability/logs && \
-echo 'Start of log...' > ~/serviceability/logs/log.log
-
 ENTRYPOINT ["/opt/VFB/startup.sh"]
