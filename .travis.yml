@@ -68,6 +68,7 @@ after_script:
 - echo -e "travis_fold:start:Docker-Clean"
 - docker stop $(docker ps -a -q)
 - docker rm $(docker ps -a -q)
+- docker rmi $(docker images -q)
 - echo -e "travis_fold:end:Docker-Clean"
 after_success:
 - cd $TRAVIS_BUILD_DIR
