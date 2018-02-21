@@ -43,7 +43,7 @@ casper.test.begin('VFB Term Info tests', 5, function suite(test) {
             }, null, 30000);
             
             this.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_1]', function () {
-                test.assertExists('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+                test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
             }, null, 30000);
             
             this.waitForSelector('button[id=VFB_00017894_zoom_buttonBar_btn]', function () {
@@ -78,8 +78,8 @@ casper.test.begin('VFB Term Info tests', 5, function suite(test) {
     	
     	//wait for term info to reload with new info
     	casper.then(function(){
-    		this.waitForText('GMR_33C10_AE_01_06-fA01b', function () {
-                this.echo("Element GMR_33C10_AE_01_06-fA01b appeared in appeared in popup");
+    		this.waitForText('adult head', function () {
+                this.echo("Element adult head appeared in appeared in popup");
             }, null, 295000);
     	});
     }
