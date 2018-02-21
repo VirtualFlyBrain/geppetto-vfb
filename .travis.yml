@@ -44,7 +44,7 @@ script:
 - sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - echo -e "travis_fold:end:Docker-Build"
 - echo -e "travis_fold:start:Docker-Run"
-- docker run -d --name geppetto_container -p 8080:8080 test-image:test
+- travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 test-image:test
 - sleep 2m
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
 - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
