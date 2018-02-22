@@ -90,7 +90,6 @@ script:
     docker build -f Dockerfile -t $REPO:$VFBSUB . 
     docker tag $REPO:$VFBSUB $REPO:$VFBSUB
   else
-    docker build -f Dockerfile -t $REPO:$COMMIT .
     docker tag $REPO:$COMMIT $REPO:$TAG
   fi
 - echo -e "travis_fold:end:Docker-Deploy"
