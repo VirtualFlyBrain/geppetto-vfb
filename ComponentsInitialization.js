@@ -88,6 +88,14 @@ define(function (require) {
                         "label": "",
                         "tooltip": "Search"
                     },
+		            "queryBtn": {
+                        "actions": [
+                            "GEPPETTO.QueryBuilder.open();"
+                        ],
+                        "icon": "gpt-query",
+                        "label": "",
+                        "tooltip": "Open Query"
+                    },
                     "controlPanelBtn": {
                         "actions": [
                             "GEPPETTO.ControlPanel.open();"
@@ -95,14 +103,6 @@ define(function (require) {
                         "icon": "fa fa-list",
                         "label": "",
                         "tooltip": "Layers"
-                    },
-                    "queryBtn": {
-                        "actions": [
-                            "GEPPETTO.QueryBuilder.open();"
-                        ],
-                        "icon": "gpt-query",
-                        "label": "",
-                        "tooltip": "Open Query"
                     },
                     "infoBtn": {
                         "actions": [
@@ -143,7 +143,7 @@ define(function (require) {
                         "actions": [
                             "G.toggleTutorial();"
                         ],
-                        "icon": "fa fa-leanpub",
+                        "icon": "fa fa-question",
                         "label": "",
                         "tooltip": "Open tutorial"
                     }
@@ -188,8 +188,11 @@ define(function (require) {
 
                             var buttonBarConfiguration={
                                 "Events" : ["color:set","experiment:selection_changed","experiment:visibility_changed"],
-                                "filter" : function(instancePath){
-                                    return Instances.getInstance(instancePath).getParent()
+                                "filter": function filter(instancePath) {
+                                    if (typeof(instancePath) == "string"){
+                                            return Instances.getInstance(instancePath).getParent();
+                                    }
+                                    return instancePath[0].getParent(); 
                                 },
                                 "VisualCapability": {
                                     "select": {
@@ -477,7 +480,11 @@ define(function (require) {
 
                         // add query item + selection
                         if (otherId == undefined) {
-                        	GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+				if (widget.data.length){
+					GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data[0].getParent().id, queryObj: entity}, callback);
+				}else{
+                        		GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
+				}
                         }else{
                         	if (window[otherId] == undefined){
                         		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
@@ -538,13 +545,33 @@ define(function (require) {
                 return sliceInstances;
             };
 
+	    	var changedStacks = function(){
+        		if (window.StackViewer1 != undefined && window.StackViewer1.data != undefined && window.StackViewer1.data.instances != undefined){
+		    		var a = getSliceInstances();
+					var b = window.StackViewer1.data.instances;
+					if (a.length == b.length){
+						for (var i = 0; i < a.length; i++){
+							try{
+								if (a[i].parent.getColor() != b[i].parent.getColor()){
+									return true;
+								}
+							}catch (ignore){}
+						}
+						return false;
+					}
+				}
+				return true;
+        	};
+		
             var updateStackWidget = function(){
             	window.checkConnection();
             	console.log('Updating stack...');
-                window.StackViewer1.setData({
-                    instances: getSliceInstances()
-                });
-            };
+		if (changedStacks()){
+                	window.StackViewer1.addSlices(getSliceInstances());
+		}
+		window.StackViewer1.updateScene();
+		
+	    };
 
             window.addStackWidget = function(){
                 var sliceInstances = getSliceInstances();
@@ -643,20 +670,9 @@ define(function (require) {
                             // on colour change update:
                             GEPPETTO.on(GEPPETTO.Events.Color_set, function(instances){
                                 console.log('Colour change...');
-
-                                if (window.StackViewer1 != undefined){
-                                    if(instances!=undefined && instances.instance){
-                                        if (instances.instance.getType().getMetaType() == 'CompositeType'){
-                                            instances.instance.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
-                                        }else if (instances.instance.parent && instances.instance.parent.getType().getMetaType() == 'CompositeType'){
-                                            instances.instance.parent.getChildren().forEach(function (instance){if (instance.getName() == 'Stack Viewer Slices'){window.StackViewer1.addSlices(instance)}});
-                                        }else{
-                                            console.log('Colour setting issue: ' + instances);
-                                        }
-                                    }else{
-                                        console.log('Colour setting issue! ' + instances);
-                                    }
-                                }
+				if (window.StackViewer1 != undefined) {
+					updateStackWidget();
+				}
                             });
                             $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
                         }
@@ -921,7 +937,9 @@ define(function (require) {
             
             window.addVfbIds = function(variableIds) {
                 if (window.canvasAvilable){
-
+					if (typeof(variableIds) == "string"){
+                         variableIds = [variableIds];   
+                    }
                     for (i in variableIds){
                         if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
                             window.vfbLoadBuffer.push(variableIds[i]);
@@ -1185,7 +1203,7 @@ define(function (require) {
                                 actions: [
                                     "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                                 ],
-                                icon: "fa-quora",
+                                icon: "gpt-query",
                                 label: "Add to query",
                                 tooltip: "Add to query"
                             },

@@ -42,7 +42,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
         }, null, 20000);
 
         // wait for control panel items to be populated - this will ensure scene has loaded
-        this.waitForText('JFRC2_template', function () {
+        this.waitForText('VFB_00017894', function () {
             this.echo("Scene has loaded");
 
             // run query tests now that the scene has loaded
