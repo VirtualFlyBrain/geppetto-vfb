@@ -13,7 +13,9 @@ tail --sleep-interval=5 -F ~/serviceability/logs/log.log &
 # set java memory maximum 
 sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i /home/virgo/bin/dmk.sh
 sed 's/Xmx512m/Xmx$MAXSIZE/' -i /home/virgo/bin/dmk.sh
-#Remove redirect in tomcat config
+# Remove redirect in tomcat config
 sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
+# Force URL after unpacking
+/opt/VFB/seturl.sh & 
 # start virgo server
 /home/virgo/bin/startup.sh 
