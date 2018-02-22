@@ -90,6 +90,7 @@ RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
 RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
 python update_server.py 
 
-
+# setart virgo server to unpack
+RUN /home/virgo/bin/startup.sh 
 
 ENTRYPOINT ["/opt/VFB/startup.sh"]
