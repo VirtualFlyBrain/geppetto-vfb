@@ -72,7 +72,7 @@ script:
 - echo -e "travis_fold:start:Virgo-Log"
 - cd $TRAVIS_BUILD_DIR
 - sudo docker cp geppetto_container:/home/virgo/serviceability/logs/log.log $TRAVIS_BUILD_DIR/
-- tail $TRAVIS_BUILD_DIR/log.log -n 200
+- tail $TRAVIS_BUILD_DIR/log.log -n 200 || true
 - echo -e "travis_fold:end:Virgo-Log"
 - echo "Current time :$(date +"%T")"
 - echo -e "travis_fold:start:Docker-Deploy"
