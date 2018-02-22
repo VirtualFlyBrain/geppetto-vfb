@@ -82,8 +82,8 @@ script:
 - echo -e "travis_fold:end:Docker-Clean"
 - echo -e "travis_fold:start:Docker-Deploy"
 - cd $TRAVIS_BUILD_DIR
-- if [ "$VFBSUB" != "local" ] 
-  then 
+- |
+  if [ "$VFBSUB" != "local" ]; then 
     sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
@@ -97,8 +97,8 @@ script:
 after_success:
 - cd $TRAVIS_BUILD_DIR
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
-- if [ "$VFBSUB" != "local" ] 
-  then
+- |
+  if [ "$VFBSUB" != "local" ]; then
     docker push $REPO:$VFBSUB
   else
     docker push $REPO:$TAG
