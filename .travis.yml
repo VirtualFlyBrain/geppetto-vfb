@@ -83,7 +83,7 @@ script:
     sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     docker build -f Dockerfile -t $REPO:$VFBSUB . 
-    docker tag $REPO:$VFBSUB $REPO:$VFBSUB
+    docker tag $REPO:$VFBSUB $REPO:$TAG-$VFBSUB
   else
     docker tag $REPO:$COMMIT $REPO:$TAG
   fi
@@ -93,7 +93,7 @@ after_success:
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
 - |
   if [ "$VFBSUB" != "local" ]; then
-    docker push $REPO:$VFBSUB
+    docker push $REPO:$TAG-$VFBSUB
   else
     docker push $REPO:$TAG
   fi
