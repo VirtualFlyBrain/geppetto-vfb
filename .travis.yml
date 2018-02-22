@@ -67,7 +67,6 @@ script:
 - tail ./log.log -n 200
 - echo -e "travis_fold:end:Virgo-Log"
 - echo "Current time :$(date +"%T")"
-after_script:
 - echo -e "travis_fold:start:Docker-Clean"
 - docker stop $(docker ps -a -q)
 - docker rm $(docker ps -a -q)
