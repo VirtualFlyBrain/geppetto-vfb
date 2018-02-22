@@ -69,8 +69,10 @@ script:
 - #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
 - #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
 - #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs - echo -e "travis_fold:start:Virgo-Log"
-- sudo docker cp geppetto_container:/home/virgo/serviceability/logs/log.log ./
-- tail ./log.log -n 200
+- echo -e "travis_fold:start:Virgo-Log"
+- cd $TRAVIS_BUILD_DIR
+- sudo docker cp geppetto_container:/home/virgo/serviceability/logs/log.log $TRAVIS_BUILD_DIR/
+- tail $TRAVIS_BUILD_DIR/log.log -n 200
 - echo -e "travis_fold:end:Virgo-Log"
 - echo "Current time :$(date +"%T")"
 - echo -e "travis_fold:start:Docker-Clean"
