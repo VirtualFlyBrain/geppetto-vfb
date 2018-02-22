@@ -71,9 +71,8 @@ script:
 - docker rm $(docker ps -a -q) | true
 - docker rmi $(docker images -q) | true
 - echo -e "travis_fold:end:Docker-Clean"
-after_success:
+- echo -e "travis_fold:start:Docker-Deploy"
 - cd $TRAVIS_BUILD_DIR
-- docker login -u $DOCKER_USER -p $DOCKER_PASS
 - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
 - docker build -f Dockerfile -t $REPO:$COMMIT .
@@ -82,4 +81,9 @@ after_success:
 - for VFBSUB in $VFBSITES; do sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json && docker build -f Dockerfile -t $REPO:$VFBSUB . && docker tag $REPO:$VFBSUB $REPO:$VFBSUB ; done
 - docker tag $REPO:$COMMIT $REPO:$TAG
 - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+- echo -e "travis_fold:end:Docker-Deploy"
+after_success:
+- cd $TRAVIS_BUILD_DIR
+- docker login -u $DOCKER_USER -p $DOCKER_PASS
+- export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
 - docker push $REPO
