@@ -68,9 +68,9 @@ script:
 - echo -e "travis_fold:end:Virgo-Log"
 - echo "Current time :$(date +"%T")"
 - echo -e "travis_fold:start:Docker-Clean"
-- docker stop $(docker ps -a -q)
-- docker rm $(docker ps -a -q)
-- docker rmi $(docker images -q)
+- docker stop $(docker ps -a -q) | true
+- docker rm $(docker ps -a -q) | true
+- docker rmi $(docker images -q) | true
 - echo -e "travis_fold:end:Docker-Clean"
 after_success:
 - cd $TRAVIS_BUILD_DIR
