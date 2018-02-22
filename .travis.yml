@@ -79,7 +79,7 @@ after_success:
 - docker build -f Dockerfile -t $REPO:$COMMIT .
 - sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-- for VFBSUB in $VFBSITES; do sed -i 's|"embedderURL":.*,|"embedderURL":"https://${VFBSUB}.virtualflybrain.org",|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json && docker build -f Dockerfile -t $REPO:$VFBSUB . && docker tag $REPO:$VFBSUB $REPO:$VFBSUB ; done
+- for VFBSUB in $VFBSITES; do sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json && docker build -f Dockerfile -t $REPO:$VFBSUB . && docker tag $REPO:$VFBSUB $REPO:$VFBSUB ; done
 - docker tag $REPO:$COMMIT $REPO:$TAG
 - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
 - docker push $REPO
