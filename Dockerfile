@@ -20,7 +20,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh && rm /bin/sh.distrib && ln -s /bin/ba
 
 USER virgo
 # Geppetto:
-ENV BRANCH_DEFAULT=development
+ENV BRANCH_DEFAULT=master
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_FRONTEND=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_CORE=$BRANCH_DEFAULT
