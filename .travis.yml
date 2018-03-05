@@ -58,7 +58,7 @@ script:
 - echo -e "travis_fold:end:Docker-Build"
 - echo -e "travis_fold:start:Docker-Run"
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 $REPO:$COMMIT
-- sleep 2m
+- sleep 3m
 - curl -sSf http://localhost:8080/org.geppetto.frontend/
 - echo -e "travis_fold:end:Docker-Run"
 - echo "Current time :$(date +"%T")"
