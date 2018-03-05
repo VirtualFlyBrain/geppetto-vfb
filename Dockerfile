@@ -50,6 +50,9 @@ mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 #Set GA keys TBD:Check if still needed
 RUN grep -rnwl '/opt/geppetto/' -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|UA-18509775-2|g" 
 
+#Remove automatic capitalisation:
+RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i "s|text-transform: capitalize;|text-transform: none;|g" 
+
 #Setup config:
 COPY dockerFiles/pom.xml /opt/geppetto/org.geppetto/pom.xml.temp
 COPY dockerFiles/geppetto.plan /opt/geppetto/org.geppetto/geppetto.plan
