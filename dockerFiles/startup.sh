@@ -15,7 +15,7 @@ sed 's/Xmx512m/Xmx$MAXSIZE/' -i /home/virgo/bin/dmk.sh
 sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
 
 # output log
-tail --sleep-interval=5 -F ~/serviceability/logs/log.log & 
+tail --sleep-interval=5 -F --retry ~/serviceability/logs/log.log & 
 
 # start virgo server
 /home/virgo/bin/startup.sh 
