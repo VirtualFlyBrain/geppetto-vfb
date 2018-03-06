@@ -2,3 +2,5 @@
 
 # geppetto-vfb
 Virtual Fly Brain project running on Geppetto
+
+Main docker build with customisation code.
