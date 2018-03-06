@@ -92,7 +92,7 @@ define(function (require) {
                         "actions": [
                             "GEPPETTO.QueryBuilder.open();"
                         ],
-                        "icon": "gpt-query",
+                        "icon": "fa fa-quora",
                         "label": "",
                         "tooltip": "Open Query"
                     },
@@ -1203,7 +1203,7 @@ define(function (require) {
                                 actions: [
                                     "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                                 ],
-                                icon: "gpt-query",
+                                icon: "fa-quora",
                                 label: "Add to query",
                                 tooltip: "Add to query"
                             },
