@@ -277,7 +277,7 @@ define(function (require) {
                             window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                             window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                             window.termInfoPopup.setHelpInfo(termHelpInfo);
-
+							window.termInfoPopup.showHelpIcon(true);
                         }
                     );
                 } else {
