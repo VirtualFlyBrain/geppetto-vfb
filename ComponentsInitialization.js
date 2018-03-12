@@ -474,7 +474,7 @@ define(function (require) {
                         $("body").css("cursor", "progress");
 
                         // clear query builder
-                        //GEPPETTO.QueryBuilder.clearAllQueryItems();
+                        GEPPETTO.QueryBuilder.clearAllQueryItems();
 
                         var callback = function(){
                             // check if any results with count flag
