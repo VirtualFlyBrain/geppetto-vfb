@@ -430,9 +430,8 @@ define(function (require) {
                 var otherId;
                 var otherName;
                 var target = widget;
-                
+                var meta = path + "." + path + "_meta";
                 if (n != undefined) {
-					var meta = path + "." + path + "_meta";
                     var metanode = Instances.getInstance(meta);
                     if (target.data == metanode){
                     	window.resolve3D(path);
