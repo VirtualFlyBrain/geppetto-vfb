@@ -426,20 +426,13 @@ define(function (require) {
 
             // custom handler for term info clicks
             window.customHandler = function (node, path, widget) {
-                var n;
+                var n = window[path];
                 var otherId;
                 var otherName;
-                try {
-                    n = eval(path);
-                } catch (ex) {
-                    node = undefined;
-                }
-                var meta = path + "." + path + "_meta";
                 var target = widget;
-                // if (GEPPETTO.isKeyPressed("meta")) {
-                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
-                //}
+                
                 if (n != undefined) {
+					var meta = path + "." + path + "_meta";
                     var metanode = Instances.getInstance(meta);
                     if (target.data == metanode){
                     	window.resolve3D(path);
