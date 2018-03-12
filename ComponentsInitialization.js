@@ -377,7 +377,7 @@ define(function (require) {
                         }
                     };
 
-                    if(instance.getType() instanceof ImportType) {
+                    if(typeof(instance) != 'undefined' && instance.getType() instanceof ImportType) {
                         instance.getType().resolve(postResolve);
                     } else {
                         // add instance to scene
@@ -391,7 +391,7 @@ define(function (require) {
                 // independently from the above, check if we have slices for the instance
                 try {
                     instance = Instances.getInstance(path + "." + path + "_slices");
-                    if(instance.getType() instanceof ImportType){
+                    if(typeof(instance) != 'undefined' && instance.getType() instanceof ImportType){
                         instance.getType().resolve();
                     }
                 } catch (ignore) {
@@ -469,7 +469,7 @@ define(function (require) {
 					}
                     // try to evaluate as path in Model
                     var entity = Model[path];
-                    if(entity instanceof Query){
+                    if(typeof(entity) != 'undefined' && entity instanceof Query){
                         GEPPETTO.trigger('spin_logo');
                         $("body").css("cursor", "progress");
 
