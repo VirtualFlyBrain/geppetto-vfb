@@ -14,7 +14,7 @@ define(function (require) {
         var Query = require('./../../js/geppettoModel/model/Query');
         var ImportType = require('./../../js/geppettoModel/model/ImportType');
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-        var vfbDefaultTutorial = require('./tutorials/controlPanelTutorial.json');
+        var vfbDefaultTutorial = require('./tutorials/stackTutorial.json');
 
         var stackMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/stack.md";
         var termMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/term.md";
