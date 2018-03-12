@@ -445,7 +445,15 @@ define(function (require) {
                 		otherId = path.split(',')[1];
                 		otherName = path.split(',')[2];
                 		path = path.split(',')[0];
-                	}
+                	}else{
+						if (widget.data.length){
+							otherId	= target.data[0].getParent();
+						}else{
+							otherId	= target.data.getParent();
+						}
+						otherName = otherId.name;
+						otherId = otherId.id;
+					}
                     // try to evaluate as path in Model
                     var entity = Model[path];
                     if(entity instanceof Query){
@@ -453,7 +461,7 @@ define(function (require) {
                         $("body").css("cursor", "progress");
 
                         // clear query builder
-                        GEPPETTO.QueryBuilder.clearAllQueryItems();
+                        //GEPPETTO.QueryBuilder.clearAllQueryItems();
 
                         var callback = function(){
                             // check if any results with count flag
@@ -463,28 +471,17 @@ define(function (require) {
                             } else {
                                 GEPPETTO.QueryBuilder.switchView(false);
                             }
-
                             // show query component
                             GEPPETTO.QueryBuilder.open();
-
                             $("body").css("cursor", "default");
                             GEPPETTO.trigger('stop_spin_logo');
                         };
-
                         // add query item + selection
-                        if (otherId == undefined) {
-				if (widget.data.length){
-					GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data[0].getParent().id, queryObj: entity}, callback);
-				}else{
-                        		GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
-				}
-                        }else{
-                        	if (window[otherId] == undefined){
-                        		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
-                        	}else{
-                        		GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
-                        	}
-                        }
+						if (window[otherId] == undefined){
+							window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
+						}else{
+							GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
+						}
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
                             var m=Instances.getInstance(meta);
