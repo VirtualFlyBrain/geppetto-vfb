@@ -1490,6 +1490,7 @@ define(function (require) {
                 this.flipCameraZ();
                 this.setWireframe(true);
                 this.displayAllInstances();
+		        this.engine.controls.rotateSpeed = 3;
                 window.vfbCanvas = this;
 
                 if(window.StackViewer1 != undefined){
