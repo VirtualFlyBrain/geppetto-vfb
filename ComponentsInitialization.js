@@ -300,6 +300,20 @@ define(function (require) {
                             window.templateID = rootInstance.getId();
                         }
                     }
+                    // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
+		            if(window.templateID == undefined){
+                        var meta = rootInstance[rootInstance.getId() + '_meta'];
+                        if(meta != undefined){
+                            if (typeof meta.getType().template != "undefined"){
+                                var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+                                var domObj = $(templateMarkup);
+                                var anchorElement = domObj.filter('a');
+                                // extract ID
+                                var templateID = anchorElement.attr('instancepath');
+                                window.addVfbIds(templateID);  
+                            }
+                        }
+                    }
                 } else {
                     // check if the user is adding to the scene something belonging to another template
                     var superTypes = rootInstance.getType().getSuperType();
