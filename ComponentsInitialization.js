@@ -473,9 +473,11 @@ define(function (require) {
                         GEPPETTO.trigger('spin_logo');
                         $("body").css("cursor", "progress");
 
-                        // clear query builder
-                        GEPPETTO.QueryBuilder.clearAllQueryItems();
-
+                        // clear query builder unless ctrl pressed them add to compound.
+                        if (!GEPPETTO.isKeyPressed("meta")) {
+			    GEPPETTO.QueryBuilder.clearAllQueryItems();
+			}
+			    
                         var callback = function(){
                             // check if any results with count flag
                             if(GEPPETTO.QueryBuilder.props.model.count > 0){
