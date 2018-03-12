@@ -413,7 +413,7 @@ define(function (require) {
             	GEPPETTO.QueryBuilder.clearAllQueryItems();
                 GEPPETTO.QueryBuilder.switchView(false);
                 GEPPETTO.QueryBuilder.addQueryItem({
-                    term: (label != undefined) ? label :  eval(variableId).getName(),
+                    term: (label != undefined) ? label :  window[variableId].getName(),
                     id: variableId
                 });
                 GEPPETTO.QueryBuilder.open();
@@ -487,8 +487,8 @@ define(function (require) {
                         }
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
-                            Instances.getInstance(meta);
-                            target.setData(eval(meta)).setName(eval(path).getName());
+                            var m=Instances.getInstance(meta);
+                            target.setData(m).setName(window[path].getName());
                             resolve3D(path);
                         });
                     }
