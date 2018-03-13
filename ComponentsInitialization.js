@@ -428,8 +428,7 @@ define(function (require) {
             
             window.addToQueryCallback = function(variableId, label) {
             	window.clearQS();
-            	GEPPETTO.QueryBuilder.clearAllQueryItems();
-                GEPPETTO.QueryBuilder.switchView(false);
+                GEPPETTO.QueryBuilder.switchView(false, true);
                 GEPPETTO.QueryBuilder.addQueryItem({
                     term: (label != undefined) ? label :  window[variableId].getName(),
                     id: variableId
@@ -479,8 +478,10 @@ define(function (require) {
 
                         // clear query builder unless ctrl pressed them add to compound.
                         if (!GEPPETTO.isKeyPressed("shift")) {
-			    GEPPETTO.QueryBuilder.clearAllQueryItems();
-			}
+			                GEPPETTO.QueryBuilder.switchView(false, true);
+			            }else{
+			                GEPPETTO.QueryBuilder.switchView(false, false);
+			            }
 			    
                         var callback = function(){
                             // check if any results with count flag
