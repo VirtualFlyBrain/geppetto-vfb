@@ -474,12 +474,14 @@ define(function (require) {
                     var entity = Model[path];
                     if(typeof(entity) != 'undefined' && entity instanceof Query){
                         // clear query builder unless ctrl pressed them add to compound.
+			    GEPPETTO.QueryBuilder.open();
                         if (!GEPPETTO.isKeyPressed("shift")) {
-			                GEPPETTO.QueryBuilder.switchView(false, true);
+			                GEPPETTO.QueryBuilder.switchView(false, false);
+					GEPPETTO.QueryBuilder.clearAllQueryItems();
 			            }else{
 			                GEPPETTO.QueryBuilder.switchView(false, false);
 			            }
-					GEPPETTO.QueryBuilder.open();	
+						
 						GEPPETTO.trigger('spin_logo');
                         $("body").css("cursor", "progress");
                         		    
