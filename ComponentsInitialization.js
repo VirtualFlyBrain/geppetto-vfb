@@ -474,7 +474,7 @@ define(function (require) {
                         $("body").css("cursor", "progress");
 
                         // clear query builder unless ctrl pressed them add to compound.
-                        if (!GEPPETTO.isKeyPressed("meta")) {
+                        if (!GEPPETTO.isKeyPressed("shift")) {
 			    GEPPETTO.QueryBuilder.clearAllQueryItems();
 			}
 			    
