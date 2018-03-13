@@ -479,7 +479,7 @@ define(function (require) {
 			            }else{
 			                GEPPETTO.QueryBuilder.switchView(false, false);
 			            }
-						
+					GEPPETTO.QueryBuilder.open();	
 						GEPPETTO.trigger('spin_logo');
                         $("body").css("cursor", "progress");
                         		    
