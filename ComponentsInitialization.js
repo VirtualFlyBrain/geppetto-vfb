@@ -1299,18 +1299,12 @@ define(function (require) {
                                 icon: "fa-file-image-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
-                                        icon: "fa-info-circle",
-                                        label: "Show info",
-                                        tooltip: "Show info"
-                                    },
-                                    buttonTwo: {
                                         actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
                                         icon: "fa-file-image-o",
                                         label: "Add to scene",
                                         tooltip: "Add to scene"
                                     },
-                                    buttonThree: {
+                                    buttonTwo: {
                                         actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
                                         icon: "fa-quora",
                                         label: "Add to query",
