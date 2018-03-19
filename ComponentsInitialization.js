@@ -1491,9 +1491,9 @@ define(function (require) {
             GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
                 this.flipCameraY();
                 this.flipCameraZ();
-                this.setWireframe(true);
+                this.setWireframe(false);
                 this.displayAllInstances();
-		        this.engine.controls.rotateSpeed = 3;
+                this.engine.controls.rotateSpeed = 3;
                 window.vfbCanvas = this;
 
                 if(window.StackViewer1 != undefined){
