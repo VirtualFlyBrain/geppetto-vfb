@@ -1278,7 +1278,18 @@ define(function (require) {
                         explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
                         explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
                         type: {
-                            class: {
+                            property: {
+                                icon: "fa-file-text-o",
+                                buttons: {
+                                    buttonOne: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                        icon: "fa-info-circle",
+                                        label: "Show info",
+                                        tooltip: "Show info"
+                                    }
+                                }
+                            },
+			    class: {
                                 icon: "fa-file-text-o",
                                 buttons: {
                                     buttonOne: {
