@@ -63,7 +63,7 @@ script:
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
 - echo "$TRAVIS_BRANCH"
 - | 
-  if [ "$VFBSUB" != "local" ]; then
+  if [ "$VFBSUB" = "local" ]; then
     curl -s -I $1 http://localhost:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://localhost:8080/ --engine=slimerjs 
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
