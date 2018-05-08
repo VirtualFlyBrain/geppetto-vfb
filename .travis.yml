@@ -13,7 +13,7 @@ install:
 - npm config set registry http://registry.npmjs.org/
 
 addons:
-  firefox: "56.0"
+  firefox: "51.0"
   apt:
     packages:
     - mesa-utils
