@@ -12,8 +12,6 @@ install:
 - npm install --silent -g gl
 - npm config set registry http://registry.npmjs.org/
 
-services:
-- docker
 addons:
   firefox: "51.0"
   apt:
@@ -23,6 +21,11 @@ addons:
     - libgl1-mesa-dri
     - libglapi-mesa
     - libosmesa6
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - export SLIMERJSLAUNCHER=/home/travis/firefox-51.0/firefox/firefox
+  - export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 
 env:
   global:
@@ -37,11 +40,6 @@ env:
   - VFBSUB=v2a
   - VFBSUB=v2-dev
   - VFBSUB=larval
-before_script:
-- "export DISPLAY=:99.0"
-- "sh -e /etc/init.d/xvfb start"
-- export SLIMERJSLAUNCHER=/home/travis/firefox-51.0/firefox/firefox
-- export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
@@ -64,11 +62,16 @@ script:
 - echo "Current time :$(date +"%T")"
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
 - echo "$TRAVIS_BRANCH"
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs - echo -e "travis_fold:start:Virgo-Log"
+- | 
+  if [ "$VFBSUB" != "local" ]; then
+    curl -s -I $1 http://localhost:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://localhost:8080/ --engine=slimerjs 
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs - echo -e "travis_fold:start:Virgo-Log"
+  fi
 - echo -e "travis_fold:start:Virgo-Log"
 - cd $TRAVIS_BUILD_DIR
 - sudo docker cp geppetto_container:/home/virgo/serviceability/logs/log.log $TRAVIS_BUILD_DIR/
