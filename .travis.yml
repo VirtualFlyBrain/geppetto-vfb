@@ -13,9 +13,9 @@ install:
 - npm config set registry http://registry.npmjs.org/
 
 services:
-- docker
+  - docker
 addons:
-  firefox: "51.0"
+  firefox: "58.0"
   apt:
     packages:
     - mesa-utils
@@ -23,6 +23,11 @@ addons:
     - libgl1-mesa-dri
     - libglapi-mesa
     - libosmesa6
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - export SLIMERJSLAUNCHER=/home/travis/firefox-58.0/firefox/firefox
+  - export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 
 env:
   global:
@@ -41,7 +46,7 @@ env:
 before_script:
 - "export DISPLAY=:99.0"
 - "sh -e /etc/init.d/xvfb start"
-- export SLIMERJSLAUNCHER=/home/travis/firefox-51.0/firefox/firefox
+- export SLIMERJSLAUNCHER=/home/travis/firefox-58.0/firefox/firefox
 - export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 
 script:
@@ -58,18 +63,24 @@ script:
 - docker build -t $REPO:$COMMIT .
 - echo -e "travis_fold:end:Docker-Build"
 - echo -e "travis_fold:start:Docker-Run"
-- travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 $REPO:$COMMIT
+- travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
+- travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
 - sleep 3m
-- curl -sSf http://localhost:8080/org.geppetto.frontend/
+- curl -sSf http://192.168.0.2:8080/org.geppetto.frontend/
 - echo -e "travis_fold:end:Docker-Run"
 - echo "Current time :$(date +"%T")"
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
 - echo "$TRAVIS_BRANCH"
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
-- #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs - echo -e "travis_fold:start:Virgo-Log"
+- | 
+  if [ "$VFBSUB" = "local" ]; then
+    curl -s -I $1 http://192.168.0.2:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://192.168.0.2:8080/ --engine=slimerjs 
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.2:8080/ --engine=slimerjs  
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
+    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://localhost:8080/ --engine=slimerjs - echo -e "travis_fold:start:Virgo-Log"
+  fi
 - echo -e "travis_fold:start:Virgo-Log"
 - cd $TRAVIS_BUILD_DIR
 - sudo docker cp geppetto_container:/home/virgo/serviceability/logs/log.log $TRAVIS_BUILD_DIR/
