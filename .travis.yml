@@ -69,9 +69,9 @@ script:
 - | 
   if [ "$VFBSUB" = "local" ]; then
     docker network inspect dockernet
-    curl -s -I $1 http://192.168.0.2:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
-    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://192.168.0.2:8080/ --engine=slimerjs 
-    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.2:8080/ --engine=slimerjs  
+    curl -s -I $1 http://192.168.0.1:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://192.168.0.1:8080/ --engine=slimerjs 
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://localhost:8080/ --engine=slimerjs 
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://localhost:8080/ --engine=slimerjs  
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://localhost:8080/ --engine=slimerjs  
