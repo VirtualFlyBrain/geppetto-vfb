@@ -61,13 +61,14 @@ script:
 - travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
 - sleep 3m
-- curl -sSf http://192.168.0.2:8080/org.geppetto.frontend/
+- curl -sSf http://192.168.0.1:8080/org.geppetto.frontend/
 - echo -e "travis_fold:end:Docker-Run"
 - echo "Current time :$(date +"%T")"
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
 - echo "$TRAVIS_BRANCH"
 - | 
   if [ "$VFBSUB" = "local" ]; then
+    docker network inspect dockernet
     curl -s -I $1 http://192.168.0.2:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test --includes=utilities/TestsUtility.js UIComponentsTests.js --host=http://192.168.0.2:8080/ --engine=slimerjs 
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.2:8080/ --engine=slimerjs  
