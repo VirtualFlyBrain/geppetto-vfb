@@ -20,7 +20,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh && rm /bin/sh.distrib && ln -s /bin/ba
 
 USER virgo
 # Geppetto:
-ENV BRANCH_DEFAULT=development
+ENV BRANCH_DEFAULT=master
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_FRONTEND=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_CORE=$BRANCH_DEFAULT
@@ -49,6 +49,9 @@ mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 
 #Set GA keys TBD:Check if still needed
 RUN grep -rnwl '/opt/geppetto/' -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|UA-18509775-2|g" 
+
+#Remove automatic capitalisation:
+RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i "s|text-transform: capitalize;|text-transform: none;|g" 
 
 #Setup config:
 COPY dockerFiles/pom.xml /opt/geppetto/org.geppetto/pom.xml.temp

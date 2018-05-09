@@ -42,6 +42,12 @@ env:
   - VFBSUB=v2a
   - VFBSUB=v2-dev
   - VFBSUB=larval
+  - VFBSUB=larva
+before_script:
+- "export DISPLAY=:99.0"
+- "sh -e /etc/init.d/xvfb start"
+- export SLIMERJSLAUNCHER=/home/travis/firefox-58.0/firefox/firefox
+- export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
@@ -88,6 +94,7 @@ script:
     sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+    sed -i "s|http://www.virtualflybrain.com/solr/|/solr/|g" $TRAVIS_BUILD_DIR/ComponentsInitialization.js
     docker build -f Dockerfile -t $REPO:$VFBSUB . 
     docker tag $REPO:$VFBSUB $REPO:$TAG-$VFBSUB
   else

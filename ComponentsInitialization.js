@@ -14,7 +14,7 @@ define(function (require) {
         var Query = require('./../../js/geppettoModel/model/Query');
         var ImportType = require('./../../js/geppettoModel/model/ImportType');
         var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-        var vfbDefaultTutorial = require('./tutorials/controlPanelTutorial.json');
+        var vfbDefaultTutorial = require('./tutorials/stackTutorial.json');
 
         var stackMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/stack.md";
         var termMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/term.md";
@@ -56,12 +56,16 @@ define(function (require) {
 
             // logic to assign colours to elements in the scene
             window.colours = ["0x5b5b5b", "0x00ff00", "0xff0000", "0x0000ff", "0x0084f6", "0x008d46", "0xa7613e", "0x4f006a", "0x00fff6", "0x3e7b8d", "0xeda7ff", "0xd3ff95", "0xb94fff", "0xe51a58", "0x848400", "0x00ff95", "0x61002c", "0xf68412", "0xcaff00", "0x2c3e00", "0x0035c1", "0xffca84", "0x002c61", "0x9e728d", "0x4fb912", "0x9ec1ff", "0x959e7b", "0xff7bb0", "0x9e0900", "0xffb9b9", "0x8461ca", "0x9e0072", "0x84dca7", "0xff00f6", "0x00d3ff", "0xff7258", "0x583e35", "0x003e35", "0xdc61dc", "0x6172b0", "0xb9ca2c", "0x12b0a7", "0x611200", "0x2c002c", "0x5800ca", "0x95c1ca", "0xd39e23", "0x84b058", "0xe5edb9", "0xf6d3ff", "0xb94f61", "0x8d09a7", "0x6a4f00", "0x003e9e", "0x7b3e7b", "0x3e7b61", "0xa7ff61", "0x0095d3", "0x3e7200", "0xb05800", "0xdc007b", "0x9e9eff", "0x4f4661", "0xa7fff6", "0xe5002c", "0x72dc72", "0xffed7b", "0xb08d46", "0x6172ff", "0xdc4600", "0x000072", "0x090046", "0x35ed4f", "0x2c0000", "0xa700ff", "0x00f6c1", "0x9e002c", "0x003eff", "0xf69e7b", "0x6a7235", "0xffff46", "0xc1b0b0", "0x727272", "0xc16aa7", "0x005823", "0xff848d", "0xb08472", "0x004661", "0x8dff12", "0xb08dca", "0x724ff6", "0x729e00", "0xd309c1", "0x9e004f", "0xc17bff", "0x8d95b9", "0xf6a7d3", "0x232309", "0xff6aca", "0x008d12", "0xffa758", "0xe5c19e", "0x00122c", "0xc1b958", "0x00c17b", "0x462c00", "0x7b3e58", "0x9e46a7", "0x4f583e", "0x6a35b9", "0x72b095", "0xffb000", "0x4f3584", "0xb94635", "0x61a7ff", "0xd38495", "0x7b613e", "0x6a004f", "0xed58ff", "0x95d300", "0x35a7c1", "0x00009e", "0x7b3535", "0xdcff6a", "0x95d34f", "0x84ffb0", "0x843500", "0x4fdce5", "0x462335", "0x002c09", "0xb9dcc1", "0x588d4f", "0x9e7200", "0xca4684", "0x00c146", "0xca09ed", "0xcadcff", "0x0058a7", "0x2ca77b", "0x8ddcff", "0x232c35", "0xc1ffb9", "0x006a9e", "0x0058ff", "0xf65884", "0xdc7b46", "0xca35a7", "0xa7ca8d", "0x4fdcc1", "0x6172d3", "0x6a23ff", "0x8d09ca", "0xdcc12c", "0xc1b97b", "0x3e2358", "0x7b6195", "0xb97bdc", "0xffdcd3", "0xed5861", "0xcab9ff", "0x3e5858", "0x729595", "0x7bff7b", "0x95356a", "0xca9eb9", "0x723e1a", "0x95098d", "0xf68ddc", "0x61b03e", "0xffca61", "0xd37b72", "0xffed9e", "0xcaf6ff", "0x58c1ff", "0x8d61ed", "0x61b972", "0x8d6161", "0x46467b", "0x0058d3", "0x58dc09", "0x001a72", "0xd33e2c", "0x959546", "0xca7b00", "0x4f6a8d", "0x9584ff", "0x46238d", "0x008484", "0xf67235", "0x9edc84", "0xcadc6a", "0xb04fdc", "0x4f0912", "0xff1a7b", "0x7bb0d3", "0x1a001a", "0x8d35f6", "0x5800a7", "0xed8dff", "0x969696", "0xffd300"];
-            window.coli = 0;
+            window.coli = 1;
             window.setSepCol = function (entityPath) {
-                var c = coli;
-                coli++;
-                if (coli > 199) {
-                    coli = 0;
+                if (entityPath.indexOf(window.templateID)<0){
+		            var c = coli;
+                    coli++;
+                    if (coli > 199) {
+                        coli = 1;
+                    }
+                }else{
+                    c = 0;    
                 }
                 if (Instances.getInstance(entityPath).setColor != undefined){
                 	Instances.getInstance(entityPath).setColor(colours[c], true).setOpacity(0.3, true);
@@ -92,7 +96,7 @@ define(function (require) {
                         "actions": [
                             "GEPPETTO.QueryBuilder.open();"
                         ],
-                        "icon": "gpt-query",
+                        "icon": "fa fa-quora",
                         "label": "",
                         "tooltip": "Open Query"
                     },
@@ -277,7 +281,7 @@ define(function (require) {
                             window.termInfoPopup.setButtonBarConfiguration(buttonBarConfiguration);
                             window.termInfoPopup.setSize(getTermInfoDefaultHeight(), getTermInfoDefaultWidth());
                             window.termInfoPopup.setHelpInfo(termHelpInfo);
-
+							window.termInfoPopup.showHelpIcon(true);
                         }
                     );
                 } else {
@@ -298,6 +302,20 @@ define(function (require) {
                     for(var i=0; i<superTypes.length; i++){
                         if(superTypes[i].getId() == 'Template'){
                             window.templateID = rootInstance.getId();
+                        }
+                    }
+                    // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
+		            if(window.templateID == undefined){
+                        var meta = rootInstance[rootInstance.getId() + '_meta'];
+                        if(meta != undefined){
+                            if (typeof meta.getType().template != "undefined"){
+                                var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+                                var domObj = $(templateMarkup);
+                                var anchorElement = domObj.filter('a');
+                                // extract ID
+                                var templateID = anchorElement.attr('instancepath');
+                                window.addVfbIds(templateID);  
+                            }
                         }
                     }
                 } else {
@@ -363,7 +381,7 @@ define(function (require) {
                         }
                     };
 
-                    if(instance.getType() instanceof ImportType) {
+                    if(typeof(instance) != 'undefined' && instance.getType() instanceof ImportType) {
                         instance.getType().resolve(postResolve);
                     } else {
                         // add instance to scene
@@ -377,7 +395,7 @@ define(function (require) {
                 // independently from the above, check if we have slices for the instance
                 try {
                     instance = Instances.getInstance(path + "." + path + "_slices");
-                    if(instance.getType() instanceof ImportType){
+                    if(typeof(instance) != 'undefined' && instance.getType() instanceof ImportType){
                         instance.getType().resolve();
                     }
                 } catch (ignore) {
@@ -410,10 +428,9 @@ define(function (require) {
             
             window.addToQueryCallback = function(variableId, label) {
             	window.clearQS();
-            	GEPPETTO.QueryBuilder.clearAllQueryItems();
-                GEPPETTO.QueryBuilder.switchView(false);
+                GEPPETTO.QueryBuilder.switchView(false, true);
                 GEPPETTO.QueryBuilder.addQueryItem({
-                    term: (label != undefined) ? label :  eval(variableId).getName(),
+                    term: (label != undefined) ? label :  window[variableId].getName(),
                     id: variableId
                 });
                 GEPPETTO.QueryBuilder.open();
@@ -426,19 +443,11 @@ define(function (require) {
 
             // custom handler for term info clicks
             window.customHandler = function (node, path, widget) {
-                var n;
+                var n = window[path];
                 var otherId;
                 var otherName;
-                try {
-                    n = eval(path);
-                } catch (ex) {
-                    node = undefined;
-                }
-                var meta = path + "." + path + "_meta";
                 var target = widget;
-                // if (GEPPETTO.isKeyPressed("meta")) {
-                //  target = G.addWidget(1, {isStateless: true}).addCustomNodeHandler(customHandler, 'click');
-                //}
+                var meta = path + "." + path + "_meta";
                 if (n != undefined) {
                     var metanode = Instances.getInstance(meta);
                     if (target.data == metanode){
@@ -452,16 +461,30 @@ define(function (require) {
                 		otherId = path.split(',')[1];
                 		otherName = path.split(',')[2];
                 		path = path.split(',')[0];
-                	}
+                	}else{
+						if (widget.data.length){
+							otherId	= target.data[0].getParent();
+						}else{
+							otherId	= target.data.getParent();
+						}
+						otherName = otherId.name;
+						otherId = otherId.id;
+					}
                     // try to evaluate as path in Model
                     var entity = Model[path];
-                    if(entity instanceof Query){
-                        GEPPETTO.trigger('spin_logo');
+                    if(typeof(entity) != 'undefined' && entity instanceof Query){
+                        // clear query builder unless ctrl pressed them add to compound.
+			    GEPPETTO.QueryBuilder.open();
+                        if (!GEPPETTO.isKeyPressed("shift")) {
+			                GEPPETTO.QueryBuilder.switchView(false, false);
+					GEPPETTO.QueryBuilder.clearAllQueryItems();
+			            }else{
+			                GEPPETTO.QueryBuilder.switchView(false, false);
+			            }
+						
+						GEPPETTO.trigger('spin_logo');
                         $("body").css("cursor", "progress");
-
-                        // clear query builder
-                        GEPPETTO.QueryBuilder.clearAllQueryItems();
-
+                        		    
                         var callback = function(){
                             // check if any results with count flag
                             if(GEPPETTO.QueryBuilder.props.model.count > 0){
@@ -470,32 +493,21 @@ define(function (require) {
                             } else {
                                 GEPPETTO.QueryBuilder.switchView(false);
                             }
-
                             // show query component
                             GEPPETTO.QueryBuilder.open();
-
                             $("body").css("cursor", "default");
                             GEPPETTO.trigger('stop_spin_logo');
                         };
-
                         // add query item + selection
-                        if (otherId == undefined) {
-				if (widget.data.length){
-					GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data[0].getParent().id, queryObj: entity}, callback);
-				}else{
-                        		GEPPETTO.QueryBuilder.addQueryItem({ term: widget.name, id: widget.data.split('.')[0], queryObj: entity}, callback);
-				}
-                        }else{
-                        	if (window[otherId] == undefined){
-                        		window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
-                        	}else{
-                        		GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);
-                        	}
-                        }
+						if (window[otherId] == undefined){
+							window.fetchVariableThenRun(otherId, function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback)});
+						}else{
+							setTimeout(function(){GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity}, callback);}, 100);
+						}
                     } else {
                         Model.getDatasources()[0].fetchVariable(path, function () {
-                            Instances.getInstance(meta);
-                            target.setData(eval(meta)).setName(eval(path).getName());
+                            var m=Instances.getInstance(meta);
+                            target.setData(m).setName(window[path].getName());
                             resolve3D(path);
                         });
                     }
@@ -1170,7 +1182,7 @@ define(function (require) {
                         "delete": {
                             "showCondition": "$instance$.getId()!=window.templateID",
                             "id": "delete",
-                            "actions": ["if($instance$.getPath() == ((window.termInfoPopup.data != undefined) ? eval(window.termInfoPopup.data).getParent().getPath() : undefined)) { setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());} if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};"],
+                            "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
                             "icon": "fa-trash-o",
                             "label": "Delete",
                             "tooltip": "Delete"
@@ -1203,7 +1215,7 @@ define(function (require) {
                                 actions: [
                                     "window.fetchVariableThenRun('$variableid$', window.addToQueryCallback);"
                                 ],
-                                icon: "gpt-query",
+                                icon: "fa-quora",
                                 label: "Add to query",
                                 tooltip: "Add to query"
                             },
@@ -1259,14 +1271,25 @@ define(function (require) {
                 // external datasource configuration
                 var spotlightDataSourceConfig = {
                     VFB: {
-                        url: "https://www.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FB*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+                        url: "/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FB*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",crossDomain: true,
                         crossDomain: true,
                         id: "short_form",
                         label: {field: "label", formatting: "$VALUE$"},
                         explode_fields: [{field: "short_form", formatting: "$VALUE$ ($LABEL$)"}],
                         explode_arrays: [{field: "synonym", formatting: "$VALUE$ ($LABEL$)"}],
                         type: {
-                            class: {
+                            property: {
+                                icon: "fa-file-text-o",
+                                buttons: {
+                                    buttonOne: {
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                        icon: "fa-info-circle",
+                                        label: "Show info",
+                                        tooltip: "Show info"
+                                    }
+                                }
+                            },
+			    class: {
                                 icon: "fa-file-text-o",
                                 buttons: {
                                     buttonOne: {
@@ -1287,18 +1310,12 @@ define(function (require) {
                                 icon: "fa-file-image-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
-                                        icon: "fa-info-circle",
-                                        label: "Show info",
-                                        tooltip: "Show info"
-                                    },
-                                    buttonTwo: {
                                         actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
                                         icon: "fa-file-image-o",
                                         label: "Add to scene",
                                         tooltip: "Add to scene"
                                     },
-                                    buttonThree: {
+                                    buttonTwo: {
                                         actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
                                         icon: "fa-quora",
                                         label: "Add to query",
@@ -1424,7 +1441,7 @@ define(function (require) {
                 // add datasource config to query control
                 var queryBuilderDatasourceConfig = {
                     VFB: {
-                        url: "https://www.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&fq=is_obsolete:false&fq=shortform_autosuggest:VFB_*%20OR%20shortform_autosuggest:FBbt_*&rows=250&bq=is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+                        url: "/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FB*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",crossDomain: true,
                         crossDomain: true,
                         id: "short_form",
                         label: {field: "label", formatting: "$VALUE$"},
@@ -1485,8 +1502,9 @@ define(function (require) {
             GEPPETTO.ComponentFactory.addComponent('CANVAS', {}, document.getElementById("sim"), function () {
                 this.flipCameraY();
                 this.flipCameraZ();
-                this.setWireframe(true);
+                this.setWireframe(false);
                 this.displayAllInstances();
+                this.engine.controls.rotateSpeed = 3;
                 window.vfbCanvas = this;
 
                 if(window.StackViewer1 != undefined){
