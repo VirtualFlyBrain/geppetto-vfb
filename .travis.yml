@@ -60,7 +60,7 @@ script:
 - travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
 - sleep 3m
-- curl -sSf http://localhost:8080/org.geppetto.frontend/
+- curl -sSf http://192.168.0.2:8080/org.geppetto.frontend/
 - echo -e "travis_fold:end:Docker-Run"
 - echo "Current time :$(date +"%T")"
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
