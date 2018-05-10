@@ -31,6 +31,7 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 
     // open dashboard
     casper.start(PROJECT_URL, function () {
+	this.echo("Loading project at URL: " + PROJECT_URL);
         this.waitForSelector('div#geppettologo', function () {
             this.echo("I waited for the logo to load.");
             test.assertTitle("VirtualFlyBrain", "geppetto's homepage title is the one expected");
@@ -38,19 +39,10 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         }, null, 10000);
     });
 
-    // open project, check for items in control panel + instances
-    casper.thenOpen(PROJECT_URL, function () {
-        this.echo("Loading project at URL: " + PROJECT_URL);
-
-        casper.then(function(){
-            this.waitForText('VFB_00017894', function () {
-                this.echo("Element JFRC2_template appeared in popup");
-            	test.assertExists('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for JFRC2_template after load');
-		test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
-	    }, null, 30000);
-            
-            
-        });
+    // check for items in control panel + instances
+    casper.then(function () {
+	test.assertExists('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for JFRC2_template after load');
+	test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
     });
 
     // open control panel, check it's visible
