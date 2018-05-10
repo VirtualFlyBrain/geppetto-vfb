@@ -1,5 +1,5 @@
-var DASHBOARD_URL = "http://127.0.0.1:8080/org.geppetto.frontend/";
-var PROJECT_URL = "http://127.0.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
+var DASHBOARD_URL = "http://192.168.0.1:8080/org.geppetto.frontend/";
+var PROJECT_URL = "http://192.168.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
 casper.test.begin('VFB control panel tests', 7, function suite(test) {
     casper.options.viewportSize = {
@@ -25,11 +25,11 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
     });
 
     // open dashboard
-    casper.start(DASHBOARD_URL, function () {
-        this.waitForSelector('div#logo', function () {
+    casper.start(PROJECT_URL, function () {
+        this.waitForSelector('div#geppettologo', function () {
             this.echo("I waited for the logo to load.");
-            test.assertTitle("geppetto's home", "geppetto's homepage title is the one expected");
-            test.assertExists('div#logo', "logo is found");
+            test.assertTitle("VirtualFlyBrain", "geppetto's homepage title is the one expected");
+            test.assertExists('div#geppettologo', "logo is found");
         }, null, 10000);
     });
 
@@ -40,7 +40,7 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         casper.then(function(){
             this.waitForText('VFB_00017894', function () {
                 this.echo("Element JFRC2_template appeared in popup");
-            	test.assertExists('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+            	test.assertVisible('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for JFRC2_template after load');
 		test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
 	    }, null, 30000);
             
@@ -75,8 +75,8 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 	        casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
 
 	        // wait for text to appear in the term info widget
-	        casper.waitForSelector('div[id=Popup1_VFB_00017894_metadata_el_0]', function () {
-	            test.assertExists('div[id=Popup1_VFB_00017894_metadata_el_0]', 'Term info correctly populated  for JFRC2_template after control panel selection click');
+	        casper.waitForSelector('div#Popup1_VFB_00017894_metadata_el_0', function () {
+	            test.assertExists('div#Popup1_VFB_00017894_metadata_el_0', 'Term info correctly populated  for JFRC2_template after control panel selection click');
 	        }, null, 10000);
 		});
 
