@@ -17,6 +17,8 @@ ENV PATH=/opt/apache-maven-3.3.9/bin/:$PATH
 # Forcing bash:
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh && rm /bin/sh.distrib && ln -s /bin/bash /bin/sh.distrib
 
+#SOLR server:
+ENV SOLR_SERVER=/solr/ontology/select
 
 USER virgo
 # Geppetto:
@@ -45,6 +47,7 @@ git clone https://github.com/openworm/org.geppetto.datasources.git -b $BRANCH_OR
 git clone https://github.com/openworm/org.geppetto.model.swc.git -b $BRANCH_ORG_GEPPETTO_MODEL_SWC && \
 git clone https://github.com/openworm/org.geppetto.simulation.git -b $BRANCH_ORG_GEPPETTO_SIMULATION && \
 git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b $BRANCH_UK_AC_VFB_GEPPETTO && \
+sed -i "s|\"/solr/ontology/select|\"${SOLR_SERVER}|g" geppetto-vfb/ComponentsInitialization.js
 mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 
 #Set GA keys TBD:Check if still needed
