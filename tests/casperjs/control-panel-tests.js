@@ -30,7 +30,7 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
             this.echo("I waited for the logo to load.");
             test.assertTitle("geppetto's home", "geppetto's homepage title is the one expected");
             test.assertExists('div#logo', "logo is found");
-        }, null, 10000);
+        }, null, 120000);
     });
 
     // open project, check for items in control panel + instances
