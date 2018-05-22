@@ -53,6 +53,10 @@ script:
 - sed -i 's|"useSsl":.*,|"useSsl":false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i 's|"embedded":.*,|"embedded":false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i 's|"embedderURL":.*,|"embedderURL":"/",|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json 
+- |
+  if [ "$VFBSUB" = "local" ]; then
+    sed -i 's|/solr/ontology/select|http://solr.virtualflybrain.org/solr/ontology/select|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json   
+  fi
 - echo -e "travis_fold:end:Geppetto-Config"
 - echo -e "travis_fold:start:Docker-Build"
 - docker build -t $REPO:$COMMIT .
