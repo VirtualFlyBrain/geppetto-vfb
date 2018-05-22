@@ -47,7 +47,7 @@ git clone https://github.com/openworm/org.geppetto.datasources.git -b $BRANCH_OR
 git clone https://github.com/openworm/org.geppetto.model.swc.git -b $BRANCH_ORG_GEPPETTO_MODEL_SWC && \
 git clone https://github.com/openworm/org.geppetto.simulation.git -b $BRANCH_ORG_GEPPETTO_SIMULATION && \
 git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b $BRANCH_UK_AC_VFB_GEPPETTO && \
-sed -i "s|\"/solr/ontology/select|\"${SOLR_SERVER}|g" geppetto-vfb/ComponentsInitialization.js
+sed -i "s|\"/solr/ontology/select|\"${SOLR_SERVER}|g" geppetto-vfb/ComponentsInitialization.js && \
 mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 
 #Set GA keys TBD:Check if still needed
