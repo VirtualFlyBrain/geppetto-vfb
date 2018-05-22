@@ -1,5 +1,10 @@
-var DASHBOARD_URL = "http://127.0.0.1:8080/org.geppetto.frontend/";
-var PROJECT_URL = "http://127.0.0.1:8080/org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
+var urlBase = casper.cli.get('host');
+if(urlBase==null || urlBase==undefined){
+    urlBase = "http://127.0.0.1:8080/";
+}
+
+var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
 
 casper.test.begin('VFB Spotlight tests', function suite(test) {
     casper.options.viewportSize = {
