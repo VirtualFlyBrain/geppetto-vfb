@@ -93,7 +93,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
                         runQueryTests();
                     }, null, 10000);
                 }, null, 10000);
-            }, null, 10000);
+            }, null, 120000);
         });
     };
 

@@ -34,9 +34,9 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 	this.echo("Loading project at URL: " + PROJECT_URL);
         this.waitForSelector('div#geppettologo', function () {
             this.echo("I waited for the logo to load.");
-            test.assertTitle("VirtualFlyBrain", "geppetto's homepage title is the one expected");
-            test.assertExists('div#geppettologo', "logo is found");
-        }, null, 10000);
+            test.assertTitle("geppetto's home", "geppetto's homepage title is the one expected");
+            test.assertExists('div#logo', "logo is found");
+        }, null, 120000);
     });
 
     // check for items in control panel + instances
