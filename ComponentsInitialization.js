@@ -1397,11 +1397,19 @@ define(function (require) {
                         "displayName": "Images",
                         "actions": "window.fetchVariableThenRun('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
                         "cssClassName": "query-results-images-column"
+                    },
+                    {
+                        "columnName": "score",
+                        "order": 7,
+                        "locked": false,
+                        "visible": true,
+                        "displayName": "Score",
+                        "cssClassName": "query-results-score-column"
                     }
                 ];
                 GEPPETTO.QueryBuilder.setResultsColumnMeta(queryResultsColMeta);
                 // which columns to display in the results
-                GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'type', 'images']);
+                GEPPETTO.QueryBuilder.setResultsColumns(['name', 'description', 'type', 'images', 'score']);
 
                 var queryResultsControlConfig = {
                     "Common": {
@@ -1459,6 +1467,10 @@ define(function (require) {
                         },
                         queryNameToken: '$NAME',
                         resultsFilters: {
+                            getItem: function(record, header, field) {
+                                var recordIndex = header.indexOf(field);
+                                return record[recordIndex]
+                            },
                             getId: function (record) {
                                 return record[0]
                             },
@@ -1474,10 +1486,16 @@ define(function (require) {
                             getImageData: function (record) {
                                 return record[4]
                             },
+                            getScore: function (record) {
+                                return record[5]
+                            },
                             getRecords: function (payload) {
                                 return payload.results.map(function (item) {
                                     return item.values
                                 })
+                            },
+                            getHeaders: function (payload) {
+                                return payload.header;
                             }
                         },
                         bloodhoundConfig: {
