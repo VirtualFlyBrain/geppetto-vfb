@@ -39,23 +39,32 @@ ENV SERVER_HOME=/home/virgo/
 RUN cd /opt/geppetto && \
 echo cloning required modules: && \
 git clone https://github.com/openworm/org.geppetto.git && \
-git checkout $BRANCH_ORG_GEPPETTO || true && \
+cd org.geppetto && git checkout $BRANCH_ORG_GEPPETTO || true
+RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.frontend.git && \
-git checkout $BRANCH_ORG_GEPPETTO_FRONTEND || true && \
+cd org.geppetto.frontend && git checkout $BRANCH_ORG_GEPPETTO_FRONTEND || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git && \
-git checkout $BRANCH_GEPPETTO_VFB || true && \
+cd geppetto-vfb && git checkout $BRANCH_GEPPETTO_VFB || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.core.git && \
-git checkout $BRANCH_ORG_GEPPETTO_CORE || true && \
+cd org.geppetto.core && git checkout $BRANCH_ORG_GEPPETTO_CORE || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.model.git && \
-git checkout $BRANCH_ORG_GEPPETTO_MODEL || true && \
+cd org.geppetto.model && git checkout $BRANCH_ORG_GEPPETTO_MODEL || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.datasources.git && \
-git checkout $BRANCH_ORG_GEPPETTO_DATASOURCES || true && \
+cd org.geppetto.datasources && git checkout $BRANCH_ORG_GEPPETTO_DATASOURCES || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.model.swc.git && \
-git checkout $BRANCH_ORG_GEPPETTO_MODEL_SWC || true && \
+cd org.geppetto.model.swc && git checkout $BRANCH_ORG_GEPPETTO_MODEL_SWC || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.simulation.git && \
-git checkout $BRANCH_ORG_GEPPETTO_SIMULATION || true && \
+cd org.geppetto.simulation && git checkout $BRANCH_ORG_GEPPETTO_SIMULATION || true 
+RUN cd /opt/geppetto && \
 git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git && \
-git checkout $BRANCH_UK_AC_VFB_GEPPETTO || true && \
+cd uk.ac.vfb.geppetto && git checkout $BRANCH_UK_AC_VFB_GEPPETTO || true 
+RUN cd /opt/geppetto && \
 sed -i "s|\"/solr/ontology/select|\"${SOLR_SERVER}|g" geppetto-vfb/ComponentsInitialization.js && \
 mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 
