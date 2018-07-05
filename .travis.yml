@@ -73,6 +73,9 @@ script:
 - echo "$TRAVIS_BRANCH"
 - | 
   if [ "$VFBSUB" = "local" ]; then
+    for testfile in ./*.js; do
+      sed -i "s|v2.virtualflybrain.org|${VFBSUB}.virtualflybrain.org|g" $testfile
+    done
     docker network inspect dockernet
     curl -s -I $1 http://192.168.0.1:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
