@@ -74,7 +74,9 @@ script:
 - | 
   if [ "$VFBSUB" = "local" ]; then
     for testfile in ./*.js; do
-      sed -i "s|v2.virtualflybrain.org|${VFBSUB}.virtualflybrain.org|g" $testfile
+      if [ "$TRAVIS_BRANCH" == "development" ]; then
+        sed -i "s|v2.virtualflybrain.org|v2-dev.virtualflybrain.org|g" $testfile
+      fi
     done
     docker network inspect dockernet
     curl -s -I $1 http://192.168.0.1:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
