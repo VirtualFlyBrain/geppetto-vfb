@@ -374,9 +374,12 @@ define(function (require) {
                 }
                 // if anything was found resolve type (will add to scene)
                 if (instance != undefined) {
+                    console.log("Instance is not null");
                     var postResolve = function () {
                         setSepCol(path);
+                        console.log("Post resolve, pre check callback different than undefined");
                         if (callback != undefined) {
+                            console.log("Callback is different than undefined, CONFIRMED");
                             callback();
                         }
                     };
@@ -408,37 +411,98 @@ define(function (require) {
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
                 if (!variables.length>0) {
                     Model.getDatasources()[0].fetchVariable(variableId, function() {
-                        callback(variableId, label);
+                        if(callback != undefined)
+                            callback(variableId, label);
                     });
                 } else {
-                    callback(variableId, label);
+                    if(callback != undefined)
+                        callback(variableId, label);
                 }
             };
 
             window.addToSceneCallback = function(variableId){
-                var instance = Instances.getInstance(variableId);
-                var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                resolve3D(variableId, function() {
-                    GEPPETTO.SceneController.deselectAll();
-                    instance.select();
-                    //GEPPETTO.Spotlight.openToInstance(instance);
-                    setTermInfo(meta, meta.getParent().getId());
-                });
-            };
-            
-            window.addToQueryCallback = function(variableId, label) {
-            	window.clearQS();
-                GEPPETTO.QueryBuilder.switchView(false, true);
-                GEPPETTO.QueryBuilder.addQueryItem({
-                    term: (label != undefined) ? label :  window[variableId].getName(),
-                    id: variableId
-                });
-                GEPPETTO.QueryBuilder.open();
+                if (typeof(variableId) == "string") {
+                    var instance = Instances.getInstance(variableId);
+                    var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                    resolve3D(variableId, function() {
+                        GEPPETTO.SceneController.deselectAll();
+                        instance.select();
+                        //GEPPETTO.Spotlight.openToInstance(instance);
+                        setTermInfo(meta, meta.getParent().getId());
+                    });
+                } else {
+                    var singleId = 0;
+                    for(; variableId.length > singleId; singleId++) {
+                        var instance = Instances.getInstance(variableId[singleId]);
+                        var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
+                        resolve3D(variableId[singleId], function() {
+                            GEPPETTO.SceneController.deselectAll();
+                            instance.select();
+                            //GEPPETTO.Spotlight.openToInstance(instance);
+                            setTermInfo(meta, meta.getParent().getId());
+                        });
+                    }
+                }
             };
 
             window.setTermInfoCallback = function(variableId){
-                var instance = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                setTermInfo(instance, instance.getParent().getId());
+                // Failsafe check with old and new logic - to be refactored when finished
+                if (typeof(variableId) == "string") {
+                    var instance = Instances.getInstance(variableId + '.' + variableId + '_meta');
+                    setTermInfo(instance, instance.getParent().getId());
+                } else {
+                    var singleId = 0;
+                    for(; variableId.length > singleId; singleId++) {
+                        var instance = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
+                        setTermInfo(instance, instance.getParent().getId());
+                    }
+                }
+            };
+
+            window.handleSceneAndTermInfoCallback = function(variableIds){
+                var singleId = 0;
+                for(; variableIds.length > singleId; singleId++) {
+                    if (variableIds[singleId].indexOf('VFB_') > -1){
+                        var instance = Instances.getInstance(variableIds[singleId]);
+                        var meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
+                        console.log("INSTANCE IS "+instance);
+                        console.log("Parent IS "+instance.parent);
+                        console.log("variableID "+variableIds[singleId]);
+                        resolve3D(variableIds[singleId], function() {
+                            GEPPETTO.SceneController.deselectAll();
+                            if(typeof instance.select === "function")
+                                instance.select();
+                            //GEPPETTO.Spotlight.openToInstance(instance);
+                            setTermInfo(meta, meta.getParent().getId());
+                        });
+                    } else {
+                        var instance = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
+                        setTermInfo(instance, instance.getParent().getId());
+                    }
+                }
+            };
+            
+            window.addToQueryCallback = function(variableId, label) {
+                // Failsafe check with old and new logic - to be refactored when finished
+                if (typeof(variableId) == "string") {
+                    window.clearQS();
+                    GEPPETTO.QueryBuilder.switchView(false, true);
+                    GEPPETTO.QueryBuilder.addQueryItem({
+                        term: (label != undefined) ? label :  window[variableId].getName(),
+                        id: variableId
+                    });
+                } else {
+                    var singleId = 0;
+                    for(; variableId.length > singleId; singleId++) {
+                        window.clearQS();
+                        GEPPETTO.QueryBuilder.switchView(false, true);
+                        GEPPETTO.QueryBuilder.addQueryItem({
+                            term: (label != undefined) ? label :  window[variableId[singleId]].getName(),
+                            id: variableId[singleId]
+                        });
+                    }
+                }
+                GEPPETTO.QueryBuilder.open();
             };
 
             // custom handler for term info clicks
@@ -512,7 +576,6 @@ define(function (require) {
                         });
                     }
                 }
-          
             };
             
             // set term info on selection
@@ -869,40 +932,42 @@ define(function (require) {
             };
             
             window.addVfbId = function(variableId) {
-                if (variableId != null){
-	            	if (window[variableId] == undefined){
-	                	if (variableId.indexOf('VFB_') > -1){
-	                		window.fetchVariableThenRun(variableId, window.addToSceneCallback);  
-	                	}else{
-	                		window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
-	                	}
-	                }else{
-	                	if (variableId.indexOf('VFB_') > -1){
-	                		if (window[variableId][variableId+'_obj'] != undefined || window[variableId][variableId+'_swc'] != undefined){ 
-	                			if (window[variableId][variableId+'_swc'] != undefined){
-	                				if (!window[variableId][variableId+'_swc'].visible && typeof(window[variableId][variableId+'_swc'].show) == "function"){
-	                					window[variableId][variableId+'_swc'].show();
-	                				}
-	                			}else{
-	                				if (window[variableId][variableId+'_obj'] != undefined && !window[variableId][variableId+'_obj'].visible && typeof(window[variableId][variableId+'_obj'].show) == "function"){
-	                					window[variableId][variableId+'_obj'].show();
-	                				}
-	                			}
-	                			if (window[variableId][variableId+'_meta'] != undefined){
-	                				try{window[variableId].select();}catch (ignore){};
-	                				var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-	                    			setTermInfo(meta, variableId);
-	                			}else{
-	                				window.fetchVariableThenRun(variableId, window.setTermInfoCallback);
-	                			}
-	                		}
-	                	}else{
-	                		var instance = Instances.getInstance(variableId);
-	                		var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-	                		setTermInfo(meta, meta.getParent().getId());
-	                		window.resolve3D(variableId);
-	                	}
-	                }
+                if (typeof(variableId) == "string"){
+                    variableId = [variableId];   
+                }
+                if (variableId != null && variableId.length > 0){
+                    var singleId = 0;
+                    for(; variableId.length > singleId; singleId++) {
+                        if (window[variableId[singleId]] != undefined) {
+                            if (variableId[singleId].indexOf('VFB_') > -1){
+                                if (window[variableId[singleId]][variableId[singleId]+'_obj'] != undefined || window[variableId[singleId]][variableId[singleId]+'_swc'] != undefined){ 
+                                    if (window[variableId[singleId]][variableId[singleId]+'_swc'] != undefined){
+                                        if (!window[variableId[singleId]][variableId[singleId]+'_swc'].visible && typeof(window[variableId[singleId]][variableId[singleId]+'_swc'].show) == "function"){
+                                            window[variableId[singleId]][variableId[singleId]+'_swc'].show();
+                                        }
+                                    }else{
+                                        if (window[variableId[singleId]][variableId[singleId]+'_obj'] != undefined && !window[variableId[singleId]][variableId[singleId]+'_obj'].visible && typeof(window[variableId[singleId]][variableId[singleId]+'_obj'].show) == "function"){
+                                            window[variableId[singleId]][variableId[singleId]+'_obj'].show();
+                                        }
+                                    }
+                                    if (window[variableId[singleId]][variableId[singleId]+'_meta'] != undefined){
+                                        try{window[variableId[singleId]].select();}catch (ignore){};
+                                        var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
+                                        setTermInfo(meta, variableId[singleId]);
+                                    }else{
+                                        continue;
+                                    }
+                                }
+                            }else{
+                                var instance = Instances.getInstance(variableId[singleId]);
+                                var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
+                                setTermInfo(meta, meta.getParent().getId());
+                                window.resolve3D(variableId[singleId]);
+                            }
+                            variableId.splice($.inArray(variableId[singleId], variableId), 1);
+                        }
+                    }
+                    window.fetchVariableThenRun(variableId, window.handleSceneAndTermInfoCallback);
                 }
             };
 		
@@ -950,7 +1015,7 @@ define(function (require) {
             window.addVfbIds = function(variableIds) {
                 if (window.canvasAvilable){
 					if (typeof(variableIds) == "string"){
-                         variableIds = [variableIds];   
+                        variableIds = [variableIds];   
                     }
                     for (i in variableIds){
                         if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
@@ -963,21 +1028,11 @@ define(function (require) {
                         GEPPETTO.trigger('stop_spin_logo');
                     }
                     if (window.vfbLoading == ""){
-                        for (i in window.vfbLoadBuffer){
-                            if (window[window.vfbLoadBuffer[0]] != undefined){
-                                window.vfbLoading=window.vfbLoadBuffer.splice(0,1)[0];
-                                window.addVfbId(window.vfbLoading);
-                                setTimeout(window.addVfbIds, 100);
-                                break;
-                            }else{
-                                window.vfbLoading = window.vfbLoadBuffer[i];
-                                window.vfbLoadBuffer.splice($.inArray(window.vfbLoading, window.vfbLoadBuffer),1);
-                                window.vfbLoadingTimeout = 60;
-                                window.addVfbId(window.vfbLoading);
-                                setTimeout(window.addVfbIds, 500);
-                                break;
-                            }
-                        }
+                        window.vfbLoading = variableIds;
+                        window.vfbLoadingTimeout = 60;
+                        window.addVfbId(window.vfbLoading);
+                        setTimeout(window.addVfbIds, 500);
+
                         window.updateHistory("Loading...");
                     }else{
                         if (window[window.vfbLoading] != undefined){
@@ -989,9 +1044,6 @@ define(function (require) {
                                 console.log("Failed to load " + window.vfbLoading + " in time");
                                 window.vfbLoading = "";
                                 window.checkConnection();
-                                if (window.vfbLoadBuffer.length > 0){
-                                    setTimeout(window.addVfbIds, 250);
-                                }
                             }else{
                                 setTimeout(window.addVfbIds, 500);
                             }
