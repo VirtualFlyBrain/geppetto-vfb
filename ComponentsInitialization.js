@@ -31,6 +31,11 @@ define(function (require) {
             );
             return result;
         }
+
+        function sleep(seconds) {
+          var e = new Date().getTime() + (seconds * 1000);
+          while (new Date().getTime() <= e) {}
+        }
         
         //retrieve MD files text output and stores it into local variables
         var termHelpInfo = getMDText(termMD);
@@ -374,12 +379,9 @@ define(function (require) {
                 }
                 // if anything was found resolve type (will add to scene)
                 if (instance != undefined) {
-                    console.log("Instance is not null");
                     var postResolve = function () {
                         setSepCol(path);
-                        console.log("Post resolve, pre check callback different than undefined");
                         if (callback != undefined) {
-                            console.log("Callback is different than undefined, CONFIRMED");
                             callback();
                         }
                     };
@@ -431,8 +433,7 @@ define(function (require) {
                         setTermInfo(meta, meta.getParent().getId());
                     });
                 } else {
-                    var singleId = 0;
-                    for(; variableId.length > singleId; singleId++) {
+                    for(var singleId = 0; variableId.length > singleId; singleId++) {
                         var instance = Instances.getInstance(variableId[singleId]);
                         var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
                         resolve3D(variableId[singleId], function() {
@@ -460,8 +461,7 @@ define(function (require) {
             };
 
             window.handleSceneAndTermInfoCallback = function(variableIds){
-                var singleId = 0;
-                for(; variableIds.length > singleId; singleId++) {
+                for(var singleId = 0; variableIds.length > singleId; singleId++) {
                     if (variableIds[singleId].indexOf('VFB_') > -1){
                         var instance = Instances.getInstance(variableIds[singleId]);
                         var meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
@@ -492,8 +492,7 @@ define(function (require) {
                         id: variableId
                     });
                 } else {
-                    var singleId = 0;
-                    for(; variableId.length > singleId; singleId++) {
+                    for(var singleId = 0; variableId.length > singleId; singleId++) {
                         window.clearQS();
                         GEPPETTO.QueryBuilder.switchView(false, true);
                         GEPPETTO.QueryBuilder.addQueryItem({
@@ -1009,16 +1008,23 @@ define(function (require) {
             
             if (window.vfbLoadBuffer == undefined){
             	window.vfbLoadBuffer = [];
-            	window.vfbLoading = "";
+            	window.vfbLoading = [];
             }
             
+            window.cleanBufferArray = function(arrayToRemove) {
+                for(i in arrayToRemove) {
+                    window.vfbLoadBuffer.splice($.inArray(arrayToRemove[i], window.vfbLoadBuffer), 1);
+                }
+            }
+
             window.addVfbIds = function(variableIds) {
+                var idCounter = 0;
                 if (window.canvasAvilable){
 					if (typeof(variableIds) == "string"){
                         variableIds = [variableIds];   
                     }
                     for (i in variableIds){
-                        if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0 || i == 0){
+                        if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0){
                             window.vfbLoadBuffer.push(variableIds[i]);
                         }
                     }
@@ -1027,29 +1033,37 @@ define(function (require) {
                     }else{
                         GEPPETTO.trigger('stop_spin_logo');
                     }
-                    if (window.vfbLoading == ""){
+                    if ((window.vfbLoading.length == 0) && (variableIds != undefined)){
                         window.vfbLoading = variableIds;
                         window.vfbLoadingTimeout = 60;
                         window.addVfbId(window.vfbLoading);
                         setTimeout(window.addVfbIds, 500);
-
                         window.updateHistory("Loading...");
                     }else{
-                        if (window[window.vfbLoading] != undefined){
-                            window.vfbLoading = "";
-                            setTimeout(window.addVfbIds, 100);
+                        for(i in window.vfbLoading) {
+                            if(window[window.vfbLoading[i]] != undefined) {
+                                idCounter++;
+                                window.vfbLoadBuffer.splice($.inArray(window.vfbLoading[i], window.vfbLoadBuffer), 1);
+                            }
+                        }
+                        if ((window.vfbLoading.length == idCounter) && (window.vfbLoading.length != 0)){
+                            console.log("Batch loaded");
+                            for(i in window.vfbLoading) {
+                                console.log("ID "+window.vfbLoading[i]+" loaded.")
+                            }
+                            window.vfbLoading = [];
+                            GEPPETTO.trigger('stop_spin_logo');
                         }else{
                             window.vfbLoadingTimeout--
                             if (window.vfbLoadingTimeout < 1){
                                 console.log("Failed to load " + window.vfbLoading + " in time");
-                                window.vfbLoading = "";
+                                window.vfbLoading = [];
                                 window.checkConnection();
                             }else{
                                 setTimeout(window.addVfbIds, 500);
                             }
                         }
                     }
-
                 }else{
                     setTimeout(function(){window.addVfbIds(variableIds);}, 1000);
                 }
@@ -1063,7 +1077,7 @@ define(function (require) {
             //Logo initialization
             GEPPETTO.ComponentFactory.addComponent('LOGO', {logo: 'gpt-fly'}, document.getElementById("geppettologo"));
 
-          //Tutorial component initialization
+            //Tutorial component initialization
             GEPPETTO.ComponentFactory.addWidget('TUTORIAL', {
                 name: 'VFB Tutorial',
                 tutorialData: vfbDefaultTutorial,
