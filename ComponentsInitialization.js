@@ -319,7 +319,7 @@ define(function (require) {
                                 var anchorElement = domObj.filter('a');
                                 // extract ID
                                 var templateID = anchorElement.attr('instancepath');
-                                window.addVfbIds(templateID);  
+                                window.addVfbId(templateID);  
                             }
                         }
                     }
@@ -465,12 +465,9 @@ define(function (require) {
                     if (variableIds[singleId].indexOf('VFB_') > -1){
                         var instance = Instances.getInstance(variableIds[singleId]);
                         var meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
-                        console.log("INSTANCE IS "+instance);
-                        console.log("Parent IS "+instance.parent);
-                        console.log("variableID "+variableIds[singleId]);
                         resolve3D(variableIds[singleId], function() {
                             GEPPETTO.SceneController.deselectAll();
-                            if(typeof instance.select === "function")
+                            if((instance != undefined) && (typeof instance.select === "function"))
                                 instance.select();
                             //GEPPETTO.Spotlight.openToInstance(instance);
                             setTermInfo(meta, meta.getParent().getId());
@@ -479,6 +476,14 @@ define(function (require) {
                         var instance = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
                         setTermInfo(instance, instance.getParent().getId());
                     }
+                    if(window[variableIds[singleId]] != undefined) {
+                        window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+                    }
+                }
+                if (window.vfbLoadBuffer.length > 0){
+                    GEPPETTO.trigger('spin_logo');
+                }else{
+                    GEPPETTO.trigger('stop_spin_logo');
                 }
             };
             
@@ -640,12 +645,11 @@ define(function (require) {
             var updateStackWidget = function(){
             	window.checkConnection();
             	console.log('Updating stack...');
-		if (changedStacks()){
+		        if (changedStacks()){
                 	window.StackViewer1.addSlices(getSliceInstances());
-		}
-		window.StackViewer1.updateScene();
-		
-	    };
+		        }
+		        window.StackViewer1.updateScene();
+		    };
 
             window.addStackWidget = function(){
                 var sliceInstances = getSliceInstances();
@@ -930,13 +934,24 @@ define(function (require) {
                 });
             };
             
+            window.vfbRelaodMessage = true;
+
+            if (window.vfbLoadBuffer == undefined){
+            	window.vfbLoadBuffer = [];
+            	window.vfbLoading = [];
+            }
+
             window.addVfbId = function(variableId) {
                 if (typeof(variableId) == "string"){
                     variableId = [variableId];   
                 }
+                variableId = Array.from(new Set(variableId));
                 if (variableId != null && variableId.length > 0){
-                    var singleId = 0;
-                    for(; variableId.length > singleId; singleId++) {
+                    for(var singleId = 0; variableId.length > singleId; singleId++) {
+                        if($.inArray(variableId[singleId], window.vfbLoadBuffer) == -1) {
+                            window.vfbLoadBuffer.push(variableId[singleId]);
+                        }
+                        
                         if (window[variableId[singleId]] != undefined) {
                             if (variableId[singleId].indexOf('VFB_') > -1){
                                 if (window[variableId[singleId]][variableId[singleId]+'_obj'] != undefined || window[variableId[singleId]][variableId[singleId]+'_swc'] != undefined){ 
@@ -964,14 +979,17 @@ define(function (require) {
                                 window.resolve3D(variableId[singleId]);
                             }
                             variableId.splice($.inArray(variableId[singleId], variableId), 1);
+                            window.vfbLoadBuffer.splice($.inArray(variableId[singleId], window.vfbLoadBuffer), 1);
                         }
                     }
-                    window.fetchVariableThenRun(variableId, window.handleSceneAndTermInfoCallback);
+                    if(variableId.length > 0) {
+                        window.fetchVariableThenRun(variableId, window.handleSceneAndTermInfoCallback);
+                    }
                 }
             };
 		
             window.stackViewerRequest = function(variableId) {
-	    		window.addVfbIds([variableId]);   
+	    		window.addVfbId([variableId]);
             };
 
             window.clearQS = function() {
@@ -1004,18 +1022,11 @@ define(function (require) {
             	}
             };
             
-            window.vfbRelaodMessage = true;
-            
-            if (window.vfbLoadBuffer == undefined){
-            	window.vfbLoadBuffer = [];
-            	window.vfbLoading = [];
-            }
-            
             window.cleanBufferArray = function(arrayToRemove) {
                 for(i in arrayToRemove) {
                     window.vfbLoadBuffer.splice($.inArray(arrayToRemove[i], window.vfbLoadBuffer), 1);
                 }
-            }
+            };
 
             window.addVfbIds = function(variableIds) {
                 var idCounter = 0;
@@ -1023,6 +1034,7 @@ define(function (require) {
 					if (typeof(variableIds) == "string"){
                         variableIds = [variableIds];   
                     }
+                    variableIds = Array.from(new Set(variableIds));
                     for (i in variableIds){
                         if ($.inArray(variableIds[i], window.vfbLoadBuffer) < 0){
                             window.vfbLoadBuffer.push(variableIds[i]);
