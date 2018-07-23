@@ -44,12 +44,14 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
 
         casper.then(function(){
             casper.then(function(){
-            this.waitForText('VFB_00030880', function () {
-                this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
-            	test.assertVisible('div[id=Popup1_VFB_00030880_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00030880 as last in the list');
-		test.assertExists('button[id=VFB_00030880_zoom_buttonBar_btn]', 'Term info button bar button created');
-	    }, null, 30000);
-
+                this.wait(25000);
+                this.waitForText('VFB_00030880', function () {
+                    this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
+            	    test.assertVisible('div[id=Popup1_VFB_00030880_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00030880 as last in the list');
+                    test.assertExists('button[id=VFB_00030880_zoom_buttonBar_btn]', 'Term info button bar button created 1');
+	                }, null, 30000);
+                });
+            });
         });
         
         casper.then(function(){
@@ -78,7 +80,6 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
         casper.then(function(){
     		testControlPanel();
         });
-    });
     
     function stackViewerTests(){
     	//wait few seconds for stack viewer to finish loading
@@ -137,7 +138,7 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
                 var rows = $(".standard-row").length;
                 return rows;
             });
-            test.assertEquals(rows, values, "The control panel opened with right amount of rows");
+            test.assertEquals(rows, 5, "The control panel opened with right amount of rows");
         });
 
         casper.then(function(){
@@ -158,8 +159,13 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
 	        }, null, 30000);
         }
 
+        function buttonClick(buttonName){
+            casper.evaluate(function(buttonName) {
+                $(buttonName).click();
+            },buttonName);
+        }
+
     casper.run(function () {
         test.done();
     });
-});
 });
