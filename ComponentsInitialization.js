@@ -409,6 +409,27 @@ define(function (require) {
                 }
             };
 
+            window.hasVisualType = function (variableId) {
+                var counter = 0;
+                var instance = undefined;
+                var extEnum = {
+                    0 : {extension: "_swc"},
+                    1 : {extension: "_obj"},
+                    2 : {extension: "_slice"}
+                };
+                while ((instance == undefined) && (counter < 3)) {
+                    try {
+                        instance = Instances.getInstance(variableId + "." + variableId + extEnum[counter].extension);
+                    } catch (ignore) { }
+                    counter++;
+                }
+                if(instance != undefined) {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+
             window.fetchVariableThenRun = function (variableId, callback, label) {
                 GEPPETTO.SceneController.deselectAll(); // signal something is happening!
                 var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]);
@@ -463,7 +484,7 @@ define(function (require) {
 
             window.handleSceneAndTermInfoCallback = function (variableIds) {
                 for (var singleId = 0; variableIds.length > singleId; singleId++) {
-                    if (variableIds[singleId].indexOf('VFB_') > -1) {
+                    if (hasVisualType(variableIds[singleId])) {
                         var instance = Instances.getInstance(variableIds[singleId]);
                         var meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
                         resolve3D(variableIds[singleId], function () {
@@ -952,7 +973,7 @@ define(function (require) {
                         }
 
                         if (window[variableId[singleId]] != undefined) {
-                            if (variableId[singleId].indexOf('VFB_') > -1) {
+                            if (hasVisualType(variableId[singleId])) {
                                 if (window[variableId[singleId]][variableId[singleId] + '_obj'] != undefined || window[variableId[singleId]][variableId[singleId] + '_swc'] != undefined) {
                                     if (window[variableId[singleId]][variableId[singleId] + '_swc'] != undefined) {
                                         if (!window[variableId[singleId]][variableId[singleId] + '_swc'].visible && typeof (window[variableId[singleId]][variableId[singleId] + '_swc'].show) == "function") {
