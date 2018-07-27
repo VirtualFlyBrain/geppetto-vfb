@@ -83,6 +83,7 @@ script:
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test batch_request.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
     #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
   fi
