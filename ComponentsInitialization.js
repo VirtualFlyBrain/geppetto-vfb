@@ -1018,8 +1018,9 @@ define(function (require) {
                     $("#spotlight").hide();
                     $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
                 }
-                if (GEPPETTO.QueryBuilder) {
-                    GEPPETTO.QueryBuilder.close();
+                if (GEPPETTO.QueryBuilder && (!GEPPETTO.isKeyPressed("shift")))
+                {
+                	GEPPETTO.QueryBuilder.close();
                 }
             };
 
