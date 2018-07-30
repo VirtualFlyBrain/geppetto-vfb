@@ -1,5 +1,5 @@
 var urlBase = casper.cli.get('host');
-if(urlBase==null || urlBase==undefined){
+if (urlBase == null || urlBase == undefined) {
     urlBase = "http://127.0.0.1:8080/";
 }
 
@@ -17,7 +17,7 @@ casper.test.begin('VFB Term Info tests', 5, function suite(test) {
     // casper.options.logLevel = "debug";
 
     // show unhandled js errors
-    casper.on("page.error", function(msg, trace) {
+    casper.on("page.error", function (msg, trace) {
         this.echo("Error: " + msg, "ERROR");
     });
 
@@ -42,44 +42,44 @@ casper.test.begin('VFB Term Info tests', 5, function suite(test) {
     casper.thenOpen(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
 
-        casper.then(function(){
+        casper.then(function () {
             this.waitForText('VFB_00017894', function () {
                 this.echo("Element JFRC2_template appeared in popup");
-            	test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
-		  		test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
-	    	}, null, 30000);
+                test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+                test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
+            }, null, 30000);
 
         });
     });
 
     // check items in term info popup
-    casper.then(function(){
-		testTermInfoWidget(test, "medulla", "#type","#Popup1_FBbt_00003748_metadata_el_");
-	});
-    
-    function testTermInfoWidget(test){
-    	casper.then(function(){
-    		//check that term info is populated
-    		casper.waitUntilVisible('div#Popup1_VFB_00017894_metadata_el_1', function () {
-    			casper.then(function () {
-    				test.assertVisible("div#Popup1_VFB_00017894_metadata_el_1", "Term info property correctly visible");
-    			});
-    		});
-    	});
-    	
-    	//click on Term Info popup item
-    	casper.then(function(){
-    		casper.evaluate(function(variableName) {
-    			$(variableName).find("a").click()
-    		},"#Popup1_VFB_00017894_metadata_el_1");
-    	});
-    	
-    	//wait for term info to reload with new info
-    	casper.then(function(){
-    		this.waitForText('adult head', function () {
+    casper.then(function () {
+        testTermInfoWidget(test, "medulla", "#type", "#Popup1_FBbt_00003748_metadata_el_");
+    });
+
+    function testTermInfoWidget(test) {
+        casper.then(function () {
+            //check that term info is populated
+            casper.waitUntilVisible('div#Popup1_VFB_00017894_metadata_el_1', function () {
+                casper.then(function () {
+                    test.assertVisible("div#Popup1_VFB_00017894_metadata_el_1", "Term info property correctly visible");
+                });
+            });
+        });
+
+        //click on Term Info popup item
+        casper.then(function () {
+            casper.evaluate(function (variableName) {
+                $(variableName).find("a").click()
+            }, "#Popup1_VFB_00017894_metadata_el_1");
+        });
+
+        //wait for term info to reload with new info
+        casper.then(function () {
+            this.waitForText('adult head', function () {
                 this.echo("Element adult head appeared in appeared in popup");
             }, null, 295000);
-    	});
+        });
     }
 
     casper.run(function () {
