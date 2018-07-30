@@ -74,6 +74,7 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
     		stackViewerTests();
     	});
     });
+});
     
     function stackViewerTests(){
     	//wait few seconds for stack viewer to finish loading

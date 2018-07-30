@@ -31,11 +31,11 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 
     // open dashboard
     casper.start(PROJECT_URL, function () {
-	this.echo("Loading project at URL: " + PROJECT_URL);
-        this.waitForSelector('div#geppettologo', function () {
+    this.echo("Loading project at URL: " + PROJECT_URL);
+        this.waitForSelector('#VFB_00017894_deselect_buttonBar_btn', function () {
             this.echo("I waited for the logo to load.");
-            test.assertTitle("geppetto's home", "geppetto's homepage title is the one expected");
-            test.assertExists('div#logo', "logo is found");
+            test.assertTitle("geppetto", "geppetto's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
         }, null, 120000);
     });
 

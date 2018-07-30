@@ -74,6 +74,7 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
     		spotlightTest(test, "medulla", "#buttonOne","#Popup1_FBbt_00003748_metadata_el_");
     	});
     });
+});
     
     function testMeshVisibility(test,visible,variableName){
     	var visibility = casper.evaluate(function(variableName) {
