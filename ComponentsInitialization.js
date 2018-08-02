@@ -366,15 +366,23 @@ define(function (require) {
                 }
 
                 var instance = undefined;
+                var flagRendering = true;
                 // check if we have swc
                 try {
                     instance = Instances.getInstance(path + "." + path + "_swc");
+                    if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
+                        window[path][path + '_swc'].show();
+                        flagRendering = false;
+                    }
                 } catch (ignore) {
                 }
                 // if no swc check if we have obj
                 if (instance == undefined) {
                     try {
                         instance = Instances.getInstance(path + "." + path + "_obj");
+                        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
+                            window[path][path + '_obj'].show();
+                        }
                     } catch (ignore) {
                     }
                 }
@@ -444,45 +452,10 @@ define(function (require) {
                 }
             };
 
-            window.addToSceneCallback = function (variableId) {
-                if (typeof (variableId) == "string") {
-                    var instance = Instances.getInstance(variableId);
-                    var meta = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                    resolve3D(variableId, function () {
-                        GEPPETTO.SceneController.deselectAll();
-                        instance.select();
-                        //GEPPETTO.Spotlight.openToInstance(instance);
-                        setTermInfo(meta, meta.getParent().getId());
-                    });
-                } else {
-                    for (var singleId = 0; variableId.length > singleId; singleId++) {
-                        var instance = Instances.getInstance(variableId[singleId]);
-                        var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
-                        resolve3D(variableId[singleId], function () {
-                            GEPPETTO.SceneController.deselectAll();
-                            instance.select();
-                            //GEPPETTO.Spotlight.openToInstance(instance);
-                            setTermInfo(meta, meta.getParent().getId());
-                        });
-                    }
-                }
-            };
-
-            window.setTermInfoCallback = function (variableId) {
-                // Failsafe check with old and new logic - to be refactored when finished
-                if (typeof (variableId) == "string") {
-                    var instance = Instances.getInstance(variableId + '.' + variableId + '_meta');
-                    setTermInfo(instance, instance.getParent().getId());
-                } else {
-                    var singleId = 0;
-                    for (; variableId.length > singleId; singleId++) {
-                        var instance = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
-                        setTermInfo(instance, instance.getParent().getId());
-                    }
-                }
-            };
-
             window.handleSceneAndTermInfoCallback = function (variableIds) {
+                if (typeof (variableIds) == "string") {
+                    variableIds = [variableIds];
+                }
                 for (var singleId = 0; variableIds.length > singleId; singleId++) {
                     if (hasVisualType(variableIds[singleId])) {
                         var instance = Instances.getInstance(variableIds[singleId]);
@@ -973,31 +946,7 @@ define(function (require) {
                         }
 
                         if (window[variableId[singleId]] != undefined) {
-                            if (hasVisualType(variableId[singleId])) {
-                                if (window[variableId[singleId]][variableId[singleId] + '_obj'] != undefined || window[variableId[singleId]][variableId[singleId] + '_swc'] != undefined) {
-                                    if (window[variableId[singleId]][variableId[singleId] + '_swc'] != undefined) {
-                                        if (!window[variableId[singleId]][variableId[singleId] + '_swc'].visible && typeof (window[variableId[singleId]][variableId[singleId] + '_swc'].show) == "function") {
-                                            window[variableId[singleId]][variableId[singleId] + '_swc'].show();
-                                        }
-                                    } else {
-                                        if (window[variableId[singleId]][variableId[singleId] + '_obj'] != undefined && !window[variableId[singleId]][variableId[singleId] + '_obj'].visible && typeof (window[variableId[singleId]][variableId[singleId] + '_obj'].show) == "function") {
-                                            window[variableId[singleId]][variableId[singleId] + '_obj'].show();
-                                        }
-                                    }
-                                    if (window[variableId[singleId]][variableId[singleId] + '_meta'] != undefined) {
-                                        try { window[variableId[singleId]].select(); } catch (ignore) { };
-                                        var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
-                                        setTermInfo(meta, variableId[singleId]);
-                                    } else {
-                                        continue;
-                                    }
-                                }
-                            } else {
-                                var instance = Instances.getInstance(variableId[singleId]);
-                                var meta = Instances.getInstance(variableId[singleId] + '.' + variableId[singleId] + '_meta');
-                                setTermInfo(meta, meta.getParent().getId());
-                                window.resolve3D(variableId[singleId]);
-                            }
+                            window.handleSceneAndTermInfoCallback(variableId[singleId]);
                             variableId.splice($.inArray(variableId[singleId], variableId), 1);
                             window.vfbLoadBuffer.splice($.inArray(variableId[singleId], window.vfbLoadBuffer), 1);
                         }
@@ -1150,7 +1099,7 @@ define(function (require) {
                         "customComponent": GEPPETTO.LinkArrayComponent,
                         "displayName": "Type",
                         "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
-                        "actions": "window.fetchVariableThenRun('$entity$', window.setTermInfoCallback);",
+                        "actions": "window.fetchVariableThenRun('$entity$', window.handleSceneAndTermInfoCallback);",
                     },
                     {
                         "columnName": "controls",
@@ -1376,7 +1325,7 @@ define(function (require) {
                                 icon: "fa-file-text-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"],
                                         icon: "fa-info-circle",
                                         label: "Show info",
                                         tooltip: "Show info"
@@ -1387,7 +1336,7 @@ define(function (require) {
                                 icon: "fa-file-text-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"],
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"],
                                         icon: "fa-info-circle",
                                         label: "Show info",
                                         tooltip: "Show info"
@@ -1404,7 +1353,7 @@ define(function (require) {
                                 icon: "fa-file-image-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.addToSceneCallback);"],
+                                        actions: ["window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"],
                                         icon: "fa-file-image-o",
                                         label: "Add to scene",
                                         tooltip: "Add to scene"
@@ -1510,7 +1459,7 @@ define(function (require) {
                         "info": {
                             "id": "info",
                             "actions": [
-                                "window.fetchVariableThenRun('$ID$', window.setTermInfoCallback);"
+                                "window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"
                             ],
                             "icon": "fa-info-circle",
                             "label": "Info",
