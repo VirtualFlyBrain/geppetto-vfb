@@ -457,29 +457,27 @@ define(function (require) {
                     variableIds = [variableIds];
                 }
                 for (var singleId = 0; variableIds.length > singleId; singleId++) {
+                    var meta = undefined;
+                    // check invalid id trying to get the meta data instance, if still undefined we catch the error and we remove this from the buffer.
+                    try {
+                        meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
+                    } catch (e) {
+                        console.log('Instance for '+variableIds[singleId] + '.' + variableIds[singleId] + '_meta'+' does not exist in the current model');
+                        window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+                        continue;
+                    }
                     if (hasVisualType(variableIds[singleId])) {
                         var instance = Instances.getInstance(variableIds[singleId]);
-                        var meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
                         resolve3D(variableIds[singleId], function () {
                             GEPPETTO.SceneController.deselectAll();
                             if ((instance != undefined) && (typeof instance.select === "function"))
                                 instance.select();
-                            //GEPPETTO.Spotlight.openToInstance(instance);
                             setTermInfo(meta, meta.getParent().getId());
                         });
                     } else {
-                        var instance = undefined;
-                        try {
-                            instance = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
-                        } catch (e) {
-                            console.log('Instance for '+variableIds[singleId] + '.' + variableIds[singleId] + '_meta'+' does not exist in the current model');
-                        }
-                        if((instance == undefined) && (window[variableIds[singleId]] == undefined)) {
-                            window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
-                        } else {
-                            setTermInfo(instance, instance.getParent().getId());
-                        }
+                        setTermInfo(meta, meta.getParent().getId());
                     }
+                    // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
                     if (window[variableIds[singleId]] != undefined) {
                         window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
                     }
