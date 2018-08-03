@@ -1,5 +1,5 @@
 var urlBase = casper.cli.get('host');
-if(urlBase==null || urlBase==undefined){
+if (urlBase == null || urlBase == undefined) {
     urlBase = "http://127.0.0.1:8080/";
 }
 
@@ -17,7 +17,7 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
     // casper.options.logLevel = "debug";
 
     // show unhandled js errors
-    casper.on("page.error", function(msg, trace) {
+    casper.on("page.error", function (msg, trace) {
         this.echo("Error: " + msg, "ERROR");
     });
 
@@ -31,28 +31,28 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 
     // open dashboard
     casper.start(PROJECT_URL, function () {
-	this.echo("Loading project at URL: " + PROJECT_URL);
-        this.waitForSelector('div#geppettologo', function () {
+        this.echo("Loading project at URL: " + PROJECT_URL);
+        this.waitForSelector('#VFB_00017894_deselect_buttonBar_btn', function () {
             this.echo("I waited for the logo to load.");
-            test.assertTitle("geppetto's home", "geppetto's homepage title is the one expected");
-            test.assertExists('div#logo', "logo is found");
+            test.assertTitle("geppetto", "geppetto's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
         }, null, 120000);
     });
 
     // check for items in control panel + instances
     casper.then(function () {
-	test.assertExists('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for JFRC2_template after load');
-	test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
+        test.assertExists('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for JFRC2_template after load');
+        test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
     });
 
     // open control panel, check it's visible
     casper.then(function () {
-    	casper.evaluate(function(){
-    		Popup1.destroy();
-    	});
-    	
-    	this.mouseEvent('click', 'button[id=infoBtn]', 'Opening term info popup');
-    	
+        casper.evaluate(function () {
+            Popup1.destroy();
+        });
+
+        this.mouseEvent('click', 'button[id=infoBtn]', 'Opening term info popup');
+
         // check that control panel is invisible
         test.assertNotVisible('#controlpanel', "Control panel is invisible");
 
@@ -68,14 +68,14 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         this.echo("Clicking on selection control button for JFRC2_template");
         this.mouseEvent('click', 'button[id=VFB_00017894_deselect_ctrlPanel_btn]', 'Clicking de-selection button on JFRC2_template');
 
-		casper.wait(2000, function(){
-	        casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
+        casper.wait(2000, function () {
+            casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
 
-	        // wait for text to appear in the term info widget
-	        casper.waitForSelector('div#Popup1_VFB_00017894_metadata_el_0', function () {
-	            test.assertExists('div#Popup1_VFB_00017894_metadata_el_0', 'Term info correctly populated  for JFRC2_template after control panel selection click');
-	        }, null, 10000);
-		});
+            // wait for text to appear in the term info widget
+            casper.waitForSelector('div#Popup1_VFB_00017894_metadata_el_0', function () {
+                test.assertExists('div#Popup1_VFB_00017894_metadata_el_0', 'Term info correctly populated  for JFRC2_template after control panel selection click');
+            }, null, 10000);
+        });
 
     });
 
