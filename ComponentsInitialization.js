@@ -1047,7 +1047,7 @@ define(function (require) {
                         "customComponent": GEPPETTO.LinkComponent,
                         "displayName": "Name",
                         "source": "$entity$.getName()",
-                        "actions": "window.fetchVariableThenRun('$entity$', window.handleSceneAndTermInfoCallback);"
+                        "actions": "window.addVfbId('$entity$');"
                     },
                     {
                         "columnName": "type",
@@ -1056,7 +1056,7 @@ define(function (require) {
                         "customComponent": GEPPETTO.LinkArrayComponent,
                         "displayName": "Type",
                         "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
-                        "actions": "window.fetchVariableThenRun('$entity$', window.handleSceneAndTermInfoCallback);",
+                        "actions": "window.addVfbId('$entity$');",
                     },
                     {
                         "columnName": "controls",
@@ -1282,7 +1282,7 @@ define(function (require) {
                                 icon: "fa-file-text-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"],
+                                        actions: ["window.addVfbId('$ID$');"],
                                         icon: "fa-info-circle",
                                         label: "Show info",
                                         tooltip: "Show info"
@@ -1293,7 +1293,7 @@ define(function (require) {
                                 icon: "fa-file-text-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"],
+                                        actions: ["window.addVfbId('$ID$');"],
                                         icon: "fa-info-circle",
                                         label: "Show info",
                                         tooltip: "Show info"
@@ -1310,7 +1310,7 @@ define(function (require) {
                                 icon: "fa-file-image-o",
                                 buttons: {
                                     buttonOne: {
-                                        actions: ["window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"],
+                                        actions: ["window.addVfbId('$ID$');"],
                                         icon: "fa-file-image-o",
                                         label: "Add to scene",
                                         tooltip: "Add to scene"
@@ -1358,7 +1358,7 @@ define(function (require) {
                         "locked": false,
                         "visible": true,
                         "customComponent": GEPPETTO.QueryLinkComponent,
-                        "actions": "window.fetchVariableThenRun('$entity$', function(){ var instance = Instances.getInstance('$entity$.$entity$_meta'); setTermInfo(instance, instance.getParent().getName());});",
+                        "actions": "window.addVfbId('$entity$');",
                         "displayName": "Name",
                         "cssClassName": "query-results-name-column",
                     },
@@ -1395,7 +1395,7 @@ define(function (require) {
                         "visible": true,
                         "customComponent": GEPPETTO.SlideshowImageComponent,
                         "displayName": "Images",
-                        "actions": "window.fetchVariableThenRun('$entity$', function () { var meta = '$entity$' + '.' + '$entity$' + '_meta'; var inst = Instances.getInstance(meta); setTermInfo(inst, $entity$.getName()); resolve3D('$entity$'); });",
+                        "actions": "window.addVfbId('$entity$');",
                         "cssClassName": "query-results-images-column"
                     },
                     {
@@ -1416,7 +1416,7 @@ define(function (require) {
                         "info": {
                             "id": "info",
                             "actions": [
-                                "window.fetchVariableThenRun('$ID$', window.handleSceneAndTermInfoCallback);"
+                                "window.addVfbId('$ID$');"
                             ],
                             "icon": "fa-info-circle",
                             "label": "Info",
