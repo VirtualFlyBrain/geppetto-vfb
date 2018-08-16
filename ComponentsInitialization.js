@@ -1047,7 +1047,7 @@ define(function (require) {
                         "customComponent": GEPPETTO.LinkComponent,
                         "displayName": "Name",
                         "source": "$entity$.getName()",
-                        "actions": "setTermInfo($entity$['$entity$' + '_meta'], $entity$.getName());"
+                        "actions": "window.fetchVariableThenRun('$entity$', window.handleSceneAndTermInfoCallback);"
                     },
                     {
                         "columnName": "type",
