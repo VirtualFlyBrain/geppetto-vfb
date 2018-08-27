@@ -70,7 +70,6 @@ USER virgo
 RUN echo Updating Modules... && \
 cd /opt/geppetto/org.geppetto && \
 VERSION=$(cat pom.xml | grep version | sed -e 's/\///g' | sed -e 's/\ //g' | sed -e 's/\t//g' | sed -e 's/<version>//g') && \
-VERSION=[${VERSION},) && \
 echo "$VERSION" && \
 mv pom.xml.temp pom.xml && \
 sed -i "s@%VERSION%@${VERSION}@g" pom.xml && \
