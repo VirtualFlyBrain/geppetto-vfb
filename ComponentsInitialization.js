@@ -922,7 +922,9 @@ define(function (require) {
                         }
                         window.vfbUpdatingHistory = false;
                     }
-                } catch (ignore) {};
+                } catch (ignore) {
+                    window.vfbUpdatingHistory = true; // block further updates
+                };
             };
 
             window.addIndCallback = function (variableId) {
