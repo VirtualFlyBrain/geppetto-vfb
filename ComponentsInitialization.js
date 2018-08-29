@@ -886,41 +886,43 @@ define(function (require) {
             };
 
             window.updateHistory = function (title) {
-                if (window.vfbUpdatingHistory == undefined) {
-                    window.vfbUpdatingHistory = false;
-                }
-                if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25) {
-                    window.vfbUpdatingHistory = true;
-                    // Update the parent windows history with current instances (i=) and popup selection (id=)
-                    var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
-                    var visualParents = [];
-                    for (var i = 0; i < visualInstances.length; i++) {
-                        if (visualInstances[i].getParent() != null) {
-                            visualParents.push(visualInstances[i].getParent());
-                        }
+                try {
+                    if (window.vfbUpdatingHistory == undefined) {
+                        window.vfbUpdatingHistory = false;
                     }
-                    visualInstances = visualInstances.concat(visualParents);
-                    var compositeInstances = [];
-                    for (var i = 0; i < visualInstances.length; i++) {
-                        if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-                            compositeInstances.push(visualInstances[i]);
+                    if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25) {
+                        window.vfbUpdatingHistory = true;
+                        // Update the parent windows history with current instances (i=) and popup selection (id=)
+                        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+                        var visualParents = [];
+                        for (var i = 0; i < visualInstances.length; i++) {
+                            if (visualInstances[i].getParent() != null) {
+                                visualParents.push(visualInstances[i].getParent());
+                            }
                         }
-                    }
+                        visualInstances = visualInstances.concat(visualParents);
+                        var compositeInstances = [];
+                        for (var i = 0; i < visualInstances.length; i++) {
+                            if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+                                compositeInstances.push(visualInstances[i]);
+                            }
+                        }
 
-                    var items = 'i=';
-                    if (window.templateID) {
-                        items = items + ',' + window.templateID;
+                        var items = 'i=';
+                        if (window.templateID) {
+                            items = items + ',' + window.templateID;
+                        }
+                        compositeInstances.forEach(function (compositeInstance) { if (!items.includes(compositeInstance.getId())) { items = items + ',' + compositeInstance.getId() } });
+                        items = items.replace(',,', ',').replace('i=,', 'i=');
+                        try {
+                            items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
+                        } catch (ignore) { };
+                        if (items != "i=") {
+                            parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+                        }
+                        window.vfbUpdatingHistory = false;
                     }
-                    compositeInstances.forEach(function (compositeInstance) { if (!items.includes(compositeInstance.getId())) { items = items + ',' + compositeInstance.getId() } });
-                    items = items.replace(',,', ',').replace('i=,', 'i=');
-                    try {
-                        items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
-                    } catch (ignore) { };
-                    if (items != "i=") {
-                        parent.history.pushState({}, title, parent.location.pathname + "?" + items);
-                    }
-                    window.vfbUpdatingHistory = false;
-                }
+                } catch (ignore) {};
             };
 
             window.addIndCallback = function (variableId) {
