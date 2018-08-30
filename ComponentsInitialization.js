@@ -845,8 +845,6 @@ define(function (require) {
             };
 
             window.setTermInfo = function (data, name) {
-                window.clearQS();
-                window.checkConnection();
                 //check if to level has been passed:
                 if (data.parent == null) {
                     if (data[data.getId() + '_meta'] != undefined) {
@@ -946,6 +944,7 @@ define(function (require) {
 
             window.addVfbId = function (variableId) {
                 if (window.canvasAvilable) {
+                    window.clearQS();
                     if (typeof (variableId) == "string") {
                         variableId = [variableId];
                     }
