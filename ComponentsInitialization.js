@@ -976,7 +976,6 @@ define(function (require) {
             };
 
             window.clearQS = function () {
-                window.checkConnection();
                 if (GEPPETTO.Spotlight) {
                     $("#spotlight").hide();
                     $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
@@ -985,6 +984,7 @@ define(function (require) {
                 {
                 	GEPPETTO.QueryBuilder.close();
                 }
+                window.checkConnection();
             };
 
             window.checkConnection = function () {
