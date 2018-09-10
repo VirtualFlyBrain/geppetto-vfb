@@ -264,26 +264,26 @@ export default class VFBToolBar extends React.Component {
                     spotlightConfig={this.spotlightConfig}
                     spotlightDataSourceConfig={this.spotlightDataSourceConfig} />
                 
-                <TutorialWidget
-                    id="TutorialWidget"
-                    componentType={'TUTORIAL'}
-                    position={{ left: 400, top: 400 }}
-                    size={{ height: 350, width: 350 }}
-                    onCtrlClick="togglMode"
-                    resizable={true}
-                    draggable={true}
-                    help={false}
-                    fixPosition={false}
-                    showHistoryIcon={false}
-                    closable={true}
-                    minimizable={true}
-                    collapsable={true}
-                    tutorialsList={tutorialsList}
-                    tutorialData={vfbDefaultTutorial}
-                    closeByDefault={false}
-                    tutorialMessageClass="tutorialMessage"
-                    showMemoryCheckbox={false} 
-                    activeTutorial="/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json" />
+                <Rnd
+					enableResizing={{
+						top: false, right: false, bottom: false, 
+						left: false, topRight: false, bottomRight: false, 
+						bottomLeft: false, topLeft: false}}
+					default={{ 
+						x: 100, y: 70, 
+						height: 350, width: 350}}
+					className="tutorial-widget"
+					disableDragging={true}
+					maxHeight={350} minHeight={150}
+					maxWidth={350} minWidth={150}
+					ref={c => { this.rnd = c; }} >
+                    <Tutorial
+                        tutorialData={vfbDefaultTutorial}
+                        closeByDefault={true}
+                        tutorialMessageClass="tutorialMessage"
+                        showMemoryCheckbox={false}
+                        tutorialsList={tutorialsList} />
+                </Rnd>
             </div>
         );
     }
