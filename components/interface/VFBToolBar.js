@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import ButtonBar from '../../../../js/components/interface/buttonBar/ButtonBar'
-import Logo from '../../../../js/components/interface/logo/Logo'
 import WidgetCapability from '../../../../js/components/widgets/WidgetCapability';
-var SpotLight = require('../../../../js/components/interface/spotlight/spotlight');
+import SpotLight from '../../../../js/components/interface/spotlight/spotlight';
+import Tutorial from '../../../../js/components/interface/tutorial/Tutorial';
+
+var Rnd = require('react-rnd').default;
+var vfbDefaultTutorial = require('../../tutorials/stackTutorial.json');
 var GEPPETTO = require('geppetto');
 
 export default class VFBToolBar extends React.Component {
@@ -232,31 +235,55 @@ export default class VFBToolBar extends React.Component {
     };
 
     render() {
-        var ButtonBarWidget = WidgetCapability.createWidget(ButtonBar);
+        var tutorialsList = [
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json",
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json",
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"];
+        var TutorialWidget = WidgetCapability.createWidget(Tutorial);
 
         return (
             <div>
-                <Logo logo='gpt-fly' />
-
-                <ButtonBarWidget
+                <ButtonBar
                     id="ButtonBarContainer"
-                    componentType={'BUTTONBAR'}
                     configuration={this.buttonBarConfig}
-                    position={{left: this.getButtonBarDefaultX(), top: this.getButtonBarDefaultY()}} 
-                    resizable={false}
-                    draggable={false}
-                    fixPosition={true}
-                    help={false}
-                    showHistoryIcon={false}
-                    closable={false}
-                    minimizable={false}
-                    maximizable={false}
-                    collapsable={false} />
+                    position={{
+                        x: this.getButtonBarDefaultX(), 
+                        y: this.getButtonBarDefaultY(),
+                        style: {
+                            border: 'none !important',
+                            marginRight: 5,
+                            marginLeft: 5,
+                            minWidth: 35,
+                            minHeight: 35,
+                        }}}>
+                </ButtonBar>
 
                 <SpotLight 
                     indexInstances={false} 
                     spotlightConfig={this.spotlightConfig}
                     spotlightDataSourceConfig={this.spotlightDataSourceConfig} />
+                
+                <TutorialWidget
+                    id="TutorialWidget"
+                    componentType={'TUTORIAL'}
+                    position={{ left: 400, top: 400 }}
+                    size={{ height: 350, width: 350 }}
+                    onCtrlClick="togglMode"
+                    resizable={true}
+                    draggable={true}
+                    help={false}
+                    fixPosition={false}
+                    showHistoryIcon={false}
+                    closable={true}
+                    minimizable={true}
+                    collapsable={true}
+                    tutorialsList={tutorialsList}
+                    tutorialData={vfbDefaultTutorial}
+                    closeByDefault={false}
+                    tutorialMessageClass="tutorialMessage"
+                    showMemoryCheckbox={false} 
+                    activeTutorial="/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json" />
             </div>
         );
     }

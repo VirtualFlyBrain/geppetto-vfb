@@ -4,7 +4,7 @@ export default class VFBSideBar extends React.Component {
 
     constructor(props) {
         super(props);
-
+    }
 
 
     render() {
@@ -13,6 +13,6 @@ export default class VFBSideBar extends React.Component {
             <div>
                 
             </div>
-        );
+        )
     }
 }
