@@ -5,6 +5,11 @@ export default class TermInfoWidget extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            termInfoOpened: false,
+            idSelected: undefined
+        }
+
         this.addTermInfo = this.addTermInfo.bind(this);
         this.customHandler = this.customHandler.bind(this);
         this.getTermInfoDefaultWidth = this.getTermInfoDefaultWidth.bind(this);
@@ -13,9 +18,15 @@ export default class TermInfoWidget extends React.Component {
         this.getTermInfoDefaultY = this.getTermInfoDefaultY.bind(this);
         this.getMDText = this.getMDText.bind(this);
         this.vfbWindowResize = this.vfbWindowResize.bind(this);
+        this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
+        this.setTermInfo = this.setTermInfo.bind(this);
+        this.getTermInfoWidget = this.getTermInfoWidget.bind(this);
+        this.closeHandler = this.closeHandler.bind(this);
 
         this.termMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/term.md";
         this.termHelpInfo = this.getMDText(this.termMD);
+
+        this.termInfoToRender = <div> </div>;
     }
 
     getTermInfoDefaultWidth() { 
@@ -119,6 +130,66 @@ export default class TermInfoWidget extends React.Component {
         }
     };
 
+    handleSceneAndTermInfoCallback(variableIds) {
+        if (typeof (variableIds) == "string") {
+            variableIds = [variableIds];
+        }
+        for (var singleId = 0; variableIds.length > singleId; singleId++) {
+            var meta = undefined;
+            // check invalid id trying to get the meta data instance, if still undefined we catch the error and we remove this from the buffer.
+            try {
+                meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
+            } catch (e) {
+                console.log('Instance for '+variableIds[singleId] + '.' + variableIds[singleId] + '_meta'+' does not exist in the current model');
+                //window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+                continue;
+            }
+            if (hasVisualType(variableIds[singleId])) {
+                var instance = Instances.getInstance(variableIds[singleId]);
+                resolve3D(variableIds[singleId], function () {
+                    GEPPETTO.SceneController.deselectAll();
+                    if ((instance != undefined) && (typeof instance.select === "function"))
+                        instance.select();
+                    setTermInfo(meta, meta.getParent().getId());
+                });
+            } else {
+                setTermInfo(meta, meta.getParent().getId());
+            }
+            // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
+            if (window[variableIds[singleId]] != undefined) {
+                console.log('Instance for '+variableIds[singleId] + '.' + variableIds[singleId] + '_meta'+' does not exist in the current model');
+                //window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+            }
+        }
+        //if (window.vfbLoadBuffer.length > 0) {
+        //    GEPPETTO.trigger('spin_logo');
+        //} else {
+        //    GEPPETTO.trigger('stop_spin_logo');
+        //}
+    };
+
+    setTermInfo(data, name) {
+        //check if to level has been passed:
+        if (data.parent == null) {
+            if (data[data.getId() + '_meta'] != undefined) {
+                data = data[data.getId() + '_meta'];
+                console.log('meta passed to term info for ' + data.parent.getName());
+            }
+        }
+        if (this.getTermInfoWidget() != undefined) {
+            this.getTermInfoWidget().setData(data).setName(name);
+        }
+        window.updateHistory(name);
+        GEPPETTO.SceneController.deselectAll();
+        if (typeof data.getParent().select === "function") {
+            data.getParent().select(); // Select if visual type loaded.
+        }
+    };
+
+    getTermInfoWidget() {
+        return window[window.termInfoPopupId];
+    };
+
     vfbWindowResize() {
         // reset size and position of term info widget, if any
         if (window[window.termInfoPopupId] != undefined && !window[window.termInfoPopupId].maximize) {
@@ -137,9 +208,11 @@ export default class TermInfoWidget extends React.Component {
     };
 
     addTermInfo() {
-        if (window.termInfoPopupId == undefined || (window.termInfoPopupId != undefined && window[window.termInfoPopupId] == undefined)) {
+        if (this.state.termInfoOpened === false) {
             // init empty term info area
-            G.addWidget(1, { isStateless: true }).then(
+            this.setState({
+                termInfoOpened: true
+            }, function() { G.addWidget(1, { isStateless: true }).then(
                 w => {
                     window.termInfoPopup = w;
                     window.termInfoPopup.setName('Click on image to show info').addCustomNodeHandler(this.customHandler, 'click');
@@ -148,6 +221,7 @@ export default class TermInfoWidget extends React.Component {
                     window.termInfoPopupId = window.termInfoPopup.getId();
                     window.termInfoPopup.setTransparentBackground(false);
                     window.termInfoPopup.showHistoryNavigationBar(true);
+                    window.termInfoPopup.reactReference = this;
                     $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
 
                     window[window.termInfoPopupId].$el.bind('restored', function (event, id) {
@@ -252,19 +326,38 @@ export default class TermInfoWidget extends React.Component {
                     window.termInfoPopup.setHelpInfo(this.termHelpInfo);
                     window.termInfoPopup.showHelpIcon(true);
                 }
-            );
+            )});
         } else {
             this.vfbWindowResize();
             $('#' + window.termInfoPopupId).parent().effect('shake', { distance: 5, times: 3 }, 500);
         }
     };
 
-    render() {
-        
+    closeHandler() {
+        this.setState({
+            termInfoOpened: false
+        });
+        this.props.termInfoHandler(false);
+        console.log("term info has been closed");
+    };
 
+    componentWillMount() {
+        this.termInfoToRender = this.addTermInfo();
+    };
+
+    componentWillReceiveProps() {
+        if((this.props.idSelected !== undefined) && (this.state.idSelected !== this.props.idSelected)) {
+            this.handleSceneAndTermInfoCallback(this.props.idSelected);
+            this.setState({
+                idSelected: this.props.idSelected
+            });
+        }
+    }
+
+    render() {
         return (
             <div>
-                {this.addTermInfo()}
+                {this.termInfoToRender}
             </div>
         )
     }
