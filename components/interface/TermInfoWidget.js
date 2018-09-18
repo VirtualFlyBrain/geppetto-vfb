@@ -6,9 +6,13 @@ export default class TermInfoWidget extends React.Component {
         super(props);
 
         this.state = {
-            termInfoOpened: false,
-            idSelected: undefined
+            termInfoOpened: true,
+            termInfoMounted: false,
+            idSelected: undefined,
+            termInfoToRender: undefined
         }
+
+        this.termInfoToRender = undefined;
 
         this.addTermInfo = this.addTermInfo.bind(this);
         this.customHandler = this.customHandler.bind(this);
@@ -22,11 +26,10 @@ export default class TermInfoWidget extends React.Component {
         this.setTermInfo = this.setTermInfo.bind(this);
         this.getTermInfoWidget = this.getTermInfoWidget.bind(this);
         this.closeHandler = this.closeHandler.bind(this);
+        this.updateHistory = this.updateHistory.bind(this);
 
         this.termMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/term.md";
         this.termHelpInfo = this.getMDText(this.termMD);
-
-        this.termInfoToRender = <div> </div>;
     }
 
     getTermInfoDefaultWidth() { 
@@ -176,14 +179,60 @@ export default class TermInfoWidget extends React.Component {
                 console.log('meta passed to term info for ' + data.parent.getName());
             }
         }
-        if (this.getTermInfoWidget() != undefined) {
-            this.getTermInfoWidget().setData(data).setName(name);
+        if (window.termInfoPopup != undefined) {
+            this.forceUpdate();
+            window.termInfoPopup.setData(data).setName(name);
         }
-        window.updateHistory(name);
+        this.updateHistory(name);
         GEPPETTO.SceneController.deselectAll();
         if (typeof data.getParent().select === "function") {
             data.getParent().select(); // Select if visual type loaded.
         }
+        this.setState({
+            idSelected: name
+        });
+    };
+
+    updateHistory(title) {
+        try {
+            if (window.vfbUpdatingHistory == undefined) {
+                window.vfbUpdatingHistory = false;
+            }
+            if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25) {
+                window.vfbUpdatingHistory = true;
+                // Update the parent windows history with current instances (i=) and popup selection (id=)
+                var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+                var visualParents = [];
+                for (var i = 0; i < visualInstances.length; i++) {
+                    if (visualInstances[i].getParent() != null) {
+                        visualParents.push(visualInstances[i].getParent());
+                    }
+                }
+                visualInstances = visualInstances.concat(visualParents);
+                var compositeInstances = [];
+                for (var i = 0; i < visualInstances.length; i++) {
+                    if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+                        compositeInstances.push(visualInstances[i]);
+                    }
+                }
+
+                var items = 'i=';
+                if (window.templateID) {
+                    items = items + ',' + window.templateID;
+                }
+                compositeInstances.forEach(function (compositeInstance) { if (!items.includes(compositeInstance.getId())) { items = items + ',' + compositeInstance.getId() } });
+                items = items.replace(',,', ',').replace('i=,', 'i=');
+                try {
+                    items = 'id=' + window.getTermInfoWidget().data.split('.')[0] + '&' + items;
+                } catch (ignore) { };
+                if (items != "i=") {
+                    parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+                }
+                window.vfbUpdatingHistory = false;
+            }
+        } catch (ignore) {
+            window.vfbUpdatingHistory = true; // block further updates
+        };
     };
 
     getTermInfoWidget() {
@@ -208,11 +257,9 @@ export default class TermInfoWidget extends React.Component {
     };
 
     addTermInfo() {
-        if (this.state.termInfoOpened === false) {
+        if (true) {
             // init empty term info area
-            this.setState({
-                termInfoOpened: true
-            }, function() { G.addWidget(1, { isStateless: true }).then(
+            G.addWidget(1, { isStateless: true }).then(
                 w => {
                     window.termInfoPopup = w;
                     window.termInfoPopup.setName('Click on image to show info').addCustomNodeHandler(this.customHandler, 'click');
@@ -326,7 +373,7 @@ export default class TermInfoWidget extends React.Component {
                     window.termInfoPopup.setHelpInfo(this.termHelpInfo);
                     window.termInfoPopup.showHelpIcon(true);
                 }
-            )});
+            );
         } else {
             this.vfbWindowResize();
             $('#' + window.termInfoPopupId).parent().effect('shake', { distance: 5, times: 3 }, 500);
@@ -341,22 +388,28 @@ export default class TermInfoWidget extends React.Component {
         console.log("term info has been closed");
     };
 
-    componentWillMount() {
-        this.termInfoToRender = this.addTermInfo();
+    componentDidMount() {
+        // Timeout necessary to avoid the terminfoWidget to disappear, related to loadProjectFromURL event apparently.
+        setTimeout(function() {
+            console.log("Rendering Term Info Widget...");
+            if((this.state.termInfoOpened) && !(this.state.termInfoMounted)){
+                this.termInfoToRender = this.addTermInfo();
+        }}.bind(this), 2000);
     };
 
     componentWillReceiveProps() {
-        if((this.props.idSelected !== undefined) && (this.state.idSelected !== this.props.idSelected)) {
-            this.handleSceneAndTermInfoCallback(this.props.idSelected);
-            this.setState({
-                idSelected: this.props.idSelected
-            });
-        }
-    }
+        console.log("component received props from VFBMain");
+        //if((this.props.idSelected !== undefined) && (this.state.idSelected !== this.props.idSelected)) {
+        //    this.handleSceneAndTermInfoCallback(this.props.idSelected);
+        //    this.setState({
+        //        idSelected: this.props.idSelected
+        //    });
+        //}
+    };
 
     render() {
         return (
-            <div>
+            <div id="vfbTermInfoWidget">
                 {this.termInfoToRender}
             </div>
         )

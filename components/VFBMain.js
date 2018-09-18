@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar'
 import WidgetCapability from '../../../js/components/widgets/WidgetCapability';
 import SpotLight from '../../../js/components/interface/spotlight/spotlight';
@@ -9,12 +8,15 @@ import Logo from '../../../js/components/interface/logo/Logo'
 import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
 import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
 import TermInfoWidget from './interface/TermInfoWidget';
+import StackWidget from './interface/StackWidget';
 import StackViewer from '../../../js/components/widgets/stackViewer/StackViewerComponent';
 import TutorialWidget from './interface/TutorialWidget';
 import NewWidget from '../../../js/components/widgets/NewWidget';
 
+var $ = require('jquery');
 var Rnd = require('react-rnd').default;
 var ImportType = require('./../../../js/geppettoModel/model/ImportType');
+var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 var vfbDefaultTutorial = require('../tutorials/stackTutorial.json');
 var GEPPETTO = require('geppetto');
 
@@ -43,9 +45,11 @@ export default class VFBMain extends React.Component {
         this.termInfoHandler = this.termInfoHandler.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
         this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
+        this.customSorter = this.customSorter.bind(this);
 
         this.coli = 1;
         this.colours = ["0x5b5b5b", "0x00ff00", "0xff0000", "0x0000ff", "0x0084f6", "0x008d46", "0xa7613e", "0x4f006a", "0x00fff6", "0x3e7b8d", "0xeda7ff", "0xd3ff95", "0xb94fff", "0xe51a58", "0x848400", "0x00ff95", "0x61002c", "0xf68412", "0xcaff00", "0x2c3e00", "0x0035c1", "0xffca84", "0x002c61", "0x9e728d", "0x4fb912", "0x9ec1ff", "0x959e7b", "0xff7bb0", "0x9e0900", "0xffb9b9", "0x8461ca", "0x9e0072", "0x84dca7", "0xff00f6", "0x00d3ff", "0xff7258", "0x583e35", "0x003e35", "0xdc61dc", "0x6172b0", "0xb9ca2c", "0x12b0a7", "0x611200", "0x2c002c", "0x5800ca", "0x95c1ca", "0xd39e23", "0x84b058", "0xe5edb9", "0xf6d3ff", "0xb94f61", "0x8d09a7", "0x6a4f00", "0x003e9e", "0x7b3e7b", "0x3e7b61", "0xa7ff61", "0x0095d3", "0x3e7200", "0xb05800", "0xdc007b", "0x9e9eff", "0x4f4661", "0xa7fff6", "0xe5002c", "0x72dc72", "0xffed7b", "0xb08d46", "0x6172ff", "0xdc4600", "0x000072", "0x090046", "0x35ed4f", "0x2c0000", "0xa700ff", "0x00f6c1", "0x9e002c", "0x003eff", "0xf69e7b", "0x6a7235", "0xffff46", "0xc1b0b0", "0x727272", "0xc16aa7", "0x005823", "0xff848d", "0xb08472", "0x004661", "0x8dff12", "0xb08dca", "0x724ff6", "0x729e00", "0xd309c1", "0x9e004f", "0xc17bff", "0x8d95b9", "0xf6a7d3", "0x232309", "0xff6aca", "0x008d12", "0xffa758", "0xe5c19e", "0x00122c", "0xc1b958", "0x00c17b", "0x462c00", "0x7b3e58", "0x9e46a7", "0x4f583e", "0x6a35b9", "0x72b095", "0xffb000", "0x4f3584", "0xb94635", "0x61a7ff", "0xd38495", "0x7b613e", "0x6a004f", "0xed58ff", "0x95d300", "0x35a7c1", "0x00009e", "0x7b3535", "0xdcff6a", "0x95d34f", "0x84ffb0", "0x843500", "0x4fdce5", "0x462335", "0x002c09", "0xb9dcc1", "0x588d4f", "0x9e7200", "0xca4684", "0x00c146", "0xca09ed", "0xcadcff", "0x0058a7", "0x2ca77b", "0x8ddcff", "0x232c35", "0xc1ffb9", "0x006a9e", "0x0058ff", "0xf65884", "0xdc7b46", "0xca35a7", "0xa7ca8d", "0x4fdcc1", "0x6172d3", "0x6a23ff", "0x8d09ca", "0xdcc12c", "0xc1b97b", "0x3e2358", "0x7b6195", "0xb97bdc", "0xffdcd3", "0xed5861", "0xcab9ff", "0x3e5858", "0x729595", "0x7bff7b", "0x95356a", "0xca9eb9", "0x723e1a", "0x95098d", "0xf68ddc", "0x61b03e", "0xffca61", "0xd37b72", "0xffed9e", "0xcaf6ff", "0x58c1ff", "0x8d61ed", "0x61b972", "0x8d6161", "0x46467b", "0x0058d3", "0x58dc09", "0x001a72", "0xd33e2c", "0x959546", "0xca7b00", "0x4f6a8d", "0x9584ff", "0x46238d", "0x008484", "0xf67235", "0x9edc84", "0xcadc6a", "0xb04fdc", "0x4f0912", "0xff1a7b", "0x7bb0d3", "0x1a001a", "0x8d35f6", "0x5800a7", "0xed8dff", "0x969696", "0xffd300"];
+        this.vfbLoadBuffer = [];
 
         this.buttonBarConfig = {
             "searchBtn": {
@@ -244,14 +248,14 @@ export default class VFBMain extends React.Component {
                 bloodhoundConfig: {
                     datumTokenizer: function (d) {
                         return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                    },
+                    }.bind(this),
                     queryTokenizer: function (q) {
                         return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                    },
+                    }.bind(this),
                     sorter: function (a, b) {
                         var term = $('#typeahead').val();
-                        return customSorter(a, b, term);
-                    }
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
                 }
             }
         };
@@ -297,6 +301,81 @@ export default class VFBMain extends React.Component {
         return;
     };
 
+    customSorter(a, b, InputString) {
+        //move exact matches to top
+        if (InputString == a.label) {
+            return -1;
+        }
+        if (InputString == b.label) {
+            return 1;
+        }
+        //close match without case matching
+        if (InputString.toLowerCase() == a.label.toLowerCase()) {
+            return -1;
+        }
+        if (InputString.toLowerCase() == b.label.toLowerCase()) {
+            return 1;
+        }
+        //match ignoring joinging nonwords
+        Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
+        if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
+            return -1;
+        }
+        if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
+            return 1;
+        }
+        //match against id
+        if (InputString.toLowerCase() == a.id.toLowerCase()) {
+            return -1;
+        }
+        if (InputString.toLowerCase() == b.id.toLowerCase()) {
+            return 1;
+        }
+        //pick up any match without nonword join character match
+        if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+            return 1;
+        }
+        if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+            return -1;
+        }
+        //also with underscores ignored
+        if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+            return 1;
+        }
+        if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+            return -1;
+        }
+        //if not found in one then advance the other
+        if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+            return 1;
+        }
+        if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+            return -1;
+        }
+        // if the match is closer to start than the other move up
+        if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+            return -1;
+        }
+        if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+            return 1;
+        }
+        // if the match in the id is closer to start then move up
+        if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+            return -1;
+        }
+        if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+            return 1;
+        }
+        // move the shorter synonyms to the top
+        if (a.label < b.label) {
+            return -1;
+        }
+        else if (a.label > b.label) {
+            return 1;
+        }
+        else return 0; // if nothing found then do nothing.
+    };
+
     // Logic to add VFB ids into the scene starts here
 
     setSepCol(entityPath) {
@@ -324,11 +403,42 @@ export default class VFBMain extends React.Component {
     };
 
     addVfbId(idsList) {
-        this.fetchVariableThenRun(idsList, this.resolve3D);
-        this.refs.termInfoRef.handleSceneAndTermInfoCallback(idsList);
-        this.setState({
-            idSelected: idsList[idsList.length - 1]
-        });
+        if(this.state.modelLoaded === true) {
+            if(typeof (idsList) == "string") {
+                if(idsList.indexOf(',') > -1) {
+                    var idArray = idsList.split(",");
+                    idsList = idArray;
+                }
+                else {
+                    idsList = [idsList];
+                }
+            }
+            idsList = Array.from(new Set(idsList));
+            if (idsList != null && idsList.length > 0) {
+                for (var singleId = 0; idsList.length > singleId; singleId++) {
+                    if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
+                        this.vfbLoadBuffer.push(idsList[singleId]);
+                    }
+
+                    if (window[idsList[singleId]] != undefined) {
+                        this.handleSceneAndTermInfoCallback(idsList[singleId]);
+                        idsList.splice($.inArray(idsList[singleId], idsList), 1);
+                        this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
+                    }
+                }
+                if (idsList.length > 0) {
+                    this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
+                    this.setState({
+                        idSelected: idsList[idsList.length - 1]
+                    });
+                }
+            }
+        } else {
+            console.log("model has not been loaded, in the old initialization here I was triggering a setTimeout to call recursively this same function addvfbid");
+            //setTimeout(function () { this.addVfbId(idsList); }, 1000);
+        }
+
+        
     };
 
     fetchVariableThenRun(variableId, callback, label) {
@@ -356,7 +466,7 @@ export default class VFBMain extends React.Component {
                 meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
             } catch (e) {
                 console.log('Instance for '+variableIds[singleId] + '.' + variableIds[singleId] + '_meta'+' does not exist in the current model');
-                window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+                this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
                 continue;
             }
             if (this.hasVisualType(variableIds[singleId])) {
@@ -365,17 +475,17 @@ export default class VFBMain extends React.Component {
                     GEPPETTO.SceneController.deselectAll();
                     if ((instance != undefined) && (typeof instance.select === "function"))
                         instance.select();
-                    setTermInfo(meta, meta.getParent().getId());
-                });
+                    this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
+                }.bind(this));
             } else {
-                setTermInfo(meta, meta.getParent().getId());
+                this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
             }
             // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
             if (window[variableIds[singleId]] != undefined) {
-                window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+                this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
             }
         }
-        if (window.vfbLoadBuffer.length > 0) {
+        if (this.vfbLoadBuffer.length > 0) {
             GEPPETTO.trigger('spin_logo');
         } else {
             GEPPETTO.trigger('stop_spin_logo');
@@ -526,8 +636,7 @@ export default class VFBMain extends React.Component {
         const logoStyle = { fontSize: '20px'};
 
         var tutorialRendered = this.state.tutorialOpened ? <TutorialWidget /> : <div id="tutorialContainerEmpty"> </div>;
-        var termInfoRendered = (this.state.termInfoOpened) ? <TermInfoWidget ref="termInfoRef" idSelected={this.state.idSelected} termInfoHandler={this.termInfoHandler} /> : <div id="terminfo-empty"> </div>; 
-
+        //var termInfoRendered = (this.state.termInfoOpened) ? <TermInfoWidget ref="termInfoRef" idSelected={this.state.idSelected} termInfoHandler={this.termInfoHandler} /> : <div id="terminfo-empty"> </div>; 
         return (
             <div>
                 <Rnd
@@ -575,12 +684,13 @@ export default class VFBMain extends React.Component {
                 <ControlPanel
                     enableInfiniteScroll={true} />
 
-                <StackViewer
-                    config={this.stackConfiguration}
-                    voxel={this.voxel}
-                    data={this.stackViewerData} />
+                <StackWidget
+                    ref="stackViewRef" />
 
-                {termInfoRendered}
+                <TermInfoWidget 
+                    ref="termInfoRef" 
+                    idSelected={this.state.idSelected} 
+                    termInfoHandler={this.termInfoHandler} />
             </div>
         );
     }
