@@ -43,13 +43,15 @@ env:
   - VFBSUB=v2-dev
   - VFBSUB=larval
   - VFBSUB=larva
+  - VFBSUB=v2-preview
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
 - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
 - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-- sed -i "s|ENV BRANCH_${VFB_REPO}=.*|ENV BRANCH_${VFB_REPO}=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-} ; fi`
+- sed -i "s|ENV BRANCH_DEFAULT=.*|ENV BRANCH_DEFAULT=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
+- cat $TRAVIS_BUILD_DIR/Dockerfile
 - sed -i 's|"useSsl":.*,|"useSsl":false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i 's|"embedded":.*,|"embedded":false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i 's|"embedderURL":.*,|"embedderURL":"/",|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json 
@@ -72,13 +74,19 @@ script:
 - echo "$TRAVIS_BRANCH"
 - | 
   if [ "$VFBSUB" = "local" ]; then
+    for testfile in ./*.js; do
+      if [ "$TRAVIS_BRANCH" == "development" ]; then
+        sed -i "s|v2.virtualflybrain.org|v2-dev.virtualflybrain.org|g" $testfile
+      fi
+    done
     docker network inspect dockernet
     curl -s -I $1 http://192.168.0.1:8080/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'}
-    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
-    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
-    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test control-panel-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test query-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test term-info-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test batch_request.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
-    #xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
+    xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
   fi
 - echo -e "travis_fold:start:Virgo-Log"
 - cd $TRAVIS_BUILD_DIR

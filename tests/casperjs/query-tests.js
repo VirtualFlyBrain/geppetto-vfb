@@ -1,5 +1,5 @@
 var urlBase = casper.cli.get('host');
-if(urlBase==null || urlBase==undefined){
+if (urlBase == null || urlBase == undefined) {
     urlBase = "http://127.0.0.1:8080/";
 }
 
@@ -17,7 +17,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
     // casper.options.logLevel = "debug";
 
     // show unhandled js errors
-    casper.on("page.error", function(msg, trace) {
+    casper.on("page.error", function (msg, trace) {
         this.echo("Error: " + msg, "ERROR");
     });
 
@@ -55,7 +55,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
         }, null, 20000);
     });
 
-    var queryTests = function() {
+    var queryTests = function () {
         // open query builder, check it's visible
         casper.then(function () {
             // check if query builder is invisible
@@ -74,13 +74,13 @@ casper.test.begin('VFB query component tests', function suite(test) {
 
             this.waitForSelector('div.tt-suggestion', function () {
                 this.echo("Selecting medulla, first suggestion from suggestion box");
-                this.evaluate(function() {
+                this.evaluate(function () {
                     $('div.tt-suggestion').first().click();
                 });
                 //this.mouseEvent('click', 'button[id=queryBuilderBtn]', 'Opening query builder again');
                 this.waitForSelector('select.query-item-option', function () {
                     this.echo("Selecting first query for medulla");
-                    this.evaluate(function() {
+                    this.evaluate(function () {
                         var selectElement = $('select.query-item-option');
                         selectElement.val('0').change();
                         var event = new Event('change', { bubbles: true });
@@ -104,10 +104,10 @@ casper.test.begin('VFB query component tests', function suite(test) {
         casper.waitForSelector('div[id=VFB_00030810-image-container]', function () {
             this.echo("Results rows appeared - click on results info for accessory medulla");
 
-            casper.evaluate(function() {
-            	$("#VFB_00030810-image-container").find("img").click();
+            casper.evaluate(function () {
+                $("#VFB_00030810-image-container").find("img").click();
             });
-            
+
             // wait for text to appear in the term info widget
             this.waitForSelector('div[id=Popup1_VFB_00030810_metadata_el_0]', function () {
                 test.assertExists('div[id=Popup1_VFB_00030810_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');

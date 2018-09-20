@@ -22,6 +22,7 @@ ENV SOLR_SERVER=/solr/ontology/select
 
 USER virgo
 # Geppetto:
+ENV BRANCH_BASE=development
 ENV BRANCH_DEFAULT=master
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_FRONTEND=$BRANCH_DEFAULT
@@ -38,20 +39,41 @@ ENV SERVER_HOME=/home/virgo/
 
 RUN cd /opt/geppetto && \
 echo cloning required modules: && \
-git clone https://github.com/openworm/org.geppetto.git -b $BRANCH_ORG_GEPPETTO && \
-git clone https://github.com/openworm/org.geppetto.frontend.git -b $BRANCH_ORG_GEPPETTO_FRONTEND && \
-git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b $BRANCH_GEPPETTO_VFB && \
-git clone https://github.com/openworm/org.geppetto.core.git -b $BRANCH_ORG_GEPPETTO_CORE && \
-git clone https://github.com/openworm/org.geppetto.model.git -b $BRANCH_ORG_GEPPETTO_MODEL && \
-git clone https://github.com/openworm/org.geppetto.datasources.git -b $BRANCH_ORG_GEPPETTO_DATASOURCES && \
-git clone https://github.com/openworm/org.geppetto.model.swc.git -b $BRANCH_ORG_GEPPETTO_MODEL_SWC && \
-git clone https://github.com/openworm/org.geppetto.simulation.git -b $BRANCH_ORG_GEPPETTO_SIMULATION && \
-git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b $BRANCH_UK_AC_VFB_GEPPETTO && \
+git clone https://github.com/openworm/org.geppetto.git -b $BRANCH_BASE && \
+cd org.geppetto && git checkout $BRANCH_ORG_GEPPETTO || true
+RUN cd /opt/geppetto && \
+git clone https://github.com/openworm/org.geppetto.frontend.git -b $BRANCH_BASE && \
+cd org.geppetto.frontend && git checkout $BRANCH_ORG_GEPPETTO_FRONTEND || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b $BRANCH_BASE && \
+cd geppetto-vfb && git checkout $BRANCH_GEPPETTO_VFB || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/openworm/org.geppetto.core.git -b $BRANCH_BASE && \
+cd org.geppetto.core && git checkout $BRANCH_ORG_GEPPETTO_CORE || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/openworm/org.geppetto.model.git -b $BRANCH_BASE && \
+cd org.geppetto.model && git checkout $BRANCH_ORG_GEPPETTO_MODEL || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/openworm/org.geppetto.datasources.git -b $BRANCH_BASE && \
+cd org.geppetto.datasources && git checkout $BRANCH_ORG_GEPPETTO_DATASOURCES || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/openworm/org.geppetto.model.swc.git -b $BRANCH_BASE && \
+cd org.geppetto.model.swc && git checkout $BRANCH_ORG_GEPPETTO_MODEL_SWC || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/openworm/org.geppetto.simulation.git -b $BRANCH_BASE && \
+cd org.geppetto.simulation && git checkout $BRANCH_ORG_GEPPETTO_SIMULATION || true 
+RUN cd /opt/geppetto && \
+git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b $BRANCH_BASE && \
+cd uk.ac.vfb.geppetto && git checkout $BRANCH_UK_AC_VFB_GEPPETTO || true 
+RUN cd /opt/geppetto && \
 sed -i "s|\"/solr/ontology/select|\"${SOLR_SERVER}|g" geppetto-vfb/ComponentsInitialization.js && \
 mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 
 #Set GA keys TBD:Check if still needed
 RUN grep -rnwl '/opt/geppetto/' -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|UA-18509775-2|g" 
+
+#temp fix for results table layout
+RUN sed -i "s/table-layout: fixed;/table-layout: auto;/g" /opt/geppetto/org.geppetto.frontend/src/main/webapp/js/components/interface/query/query.less
 
 #Remove automatic capitalisation:
 RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i "s|text-transform: capitalize;|text-transform: none;|g" 
@@ -91,7 +113,7 @@ cat /opt/geppetto/org.geppetto/pom.xml && \
 echo -e "\n\n\n"
 
 # Build Geppetto:
-RUN cd /opt/geppetto/org.geppetto && mvn --quiet clean install
+RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
 
 # deploy Geppetto:
 RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
