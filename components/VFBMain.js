@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar'
-import WidgetCapability from '../../../js/components/widgets/WidgetCapability';
 import SpotLight from '../../../js/components/interface/spotlight/spotlight';
 import Tutorial from '../../../js/components/interface/tutorial/Tutorial';
 import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
@@ -9,9 +8,11 @@ import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
 import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
 import TermInfoWidget from './interface/TermInfoWidget';
 import StackWidget from './interface/StackWidget';
-import StackViewer from '../../../js/components/widgets/stackViewer/StackViewerComponent';
 import TutorialWidget from './interface/TutorialWidget';
-import NewWidget from '../../../js/components/widgets/NewWidget';
+import QueryBuilder from '../../../js/components/interface/query/query';
+import VFBToolBar from './interface/VFBToolBar';
+
+// import NewWidget from '../../../js/components/widgets/NewWidget'; For future use.
 
 var $ = require('jquery');
 var Rnd = require('react-rnd').default;
@@ -19,6 +20,8 @@ var ImportType = require('./../../../js/geppettoModel/model/ImportType');
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 var vfbDefaultTutorial = require('../tutorials/stackTutorial.json');
 var GEPPETTO = require('geppetto');
+require('./VFBMain.less');
+require('../css/VFB.css');
 
 export default class VFBMain extends React.Component {
 
@@ -28,72 +31,74 @@ export default class VFBMain extends React.Component {
         this.state = {
             canvasAvailable: false,
             modelLoaded: (window.Model != undefined),
-            tutorialOpened: false,
-            termInfoOpened: true,
-            stackViewerOpened: true,
+            infoBtn: true, // All states handled by the button bar
+            stackBtn: true, 
+            tutorialBtn: false,
+            searchBtn: false,
+            controlPanelBtn: false,
+            meshBtn: false,
+            queryBtn: false, // END buttonbar states
             idSelected: undefined
         };
 
         this.addVfbId = this.addVfbId.bind(this);
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
+        this.customSorter = this.customSorter.bind(this);
+        this.hasVisualType = this.hasVisualType.bind(this);
+        this.termInfoHandler = this.termInfoHandler.bind(this);
+        this.buttonBarHandler = this.buttonBarHandler.bind(this);
+        this.stackViewerRequest = this.stackViewerRequest.bind(this);
+        this.stackViewerHandler = this.stackViewerHandler.bind(this);
         this.fetchVariableThenRun = this.fetchVariableThenRun.bind(this);
         this.getButtonBarDefaultX = this.getButtonBarDefaultX.bind(this);
         this.getButtonBarDefaultY = this.getButtonBarDefaultY.bind(this);
         this.getStackViewerDefaultX = this.getStackViewerDefaultX.bind(this);
         this.getStackViewerDefaultY = this.getStackViewerDefaultY.bind(this);
-        this.termInfoHandler = this.termInfoHandler.bind(this);
-        this.hasVisualType = this.hasVisualType.bind(this);
         this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
-        this.customSorter = this.customSorter.bind(this);
 
         this.coli = 1;
         this.colours = ["0x5b5b5b", "0x00ff00", "0xff0000", "0x0000ff", "0x0084f6", "0x008d46", "0xa7613e", "0x4f006a", "0x00fff6", "0x3e7b8d", "0xeda7ff", "0xd3ff95", "0xb94fff", "0xe51a58", "0x848400", "0x00ff95", "0x61002c", "0xf68412", "0xcaff00", "0x2c3e00", "0x0035c1", "0xffca84", "0x002c61", "0x9e728d", "0x4fb912", "0x9ec1ff", "0x959e7b", "0xff7bb0", "0x9e0900", "0xffb9b9", "0x8461ca", "0x9e0072", "0x84dca7", "0xff00f6", "0x00d3ff", "0xff7258", "0x583e35", "0x003e35", "0xdc61dc", "0x6172b0", "0xb9ca2c", "0x12b0a7", "0x611200", "0x2c002c", "0x5800ca", "0x95c1ca", "0xd39e23", "0x84b058", "0xe5edb9", "0xf6d3ff", "0xb94f61", "0x8d09a7", "0x6a4f00", "0x003e9e", "0x7b3e7b", "0x3e7b61", "0xa7ff61", "0x0095d3", "0x3e7200", "0xb05800", "0xdc007b", "0x9e9eff", "0x4f4661", "0xa7fff6", "0xe5002c", "0x72dc72", "0xffed7b", "0xb08d46", "0x6172ff", "0xdc4600", "0x000072", "0x090046", "0x35ed4f", "0x2c0000", "0xa700ff", "0x00f6c1", "0x9e002c", "0x003eff", "0xf69e7b", "0x6a7235", "0xffff46", "0xc1b0b0", "0x727272", "0xc16aa7", "0x005823", "0xff848d", "0xb08472", "0x004661", "0x8dff12", "0xb08dca", "0x724ff6", "0x729e00", "0xd309c1", "0x9e004f", "0xc17bff", "0x8d95b9", "0xf6a7d3", "0x232309", "0xff6aca", "0x008d12", "0xffa758", "0xe5c19e", "0x00122c", "0xc1b958", "0x00c17b", "0x462c00", "0x7b3e58", "0x9e46a7", "0x4f583e", "0x6a35b9", "0x72b095", "0xffb000", "0x4f3584", "0xb94635", "0x61a7ff", "0xd38495", "0x7b613e", "0x6a004f", "0xed58ff", "0x95d300", "0x35a7c1", "0x00009e", "0x7b3535", "0xdcff6a", "0x95d34f", "0x84ffb0", "0x843500", "0x4fdce5", "0x462335", "0x002c09", "0xb9dcc1", "0x588d4f", "0x9e7200", "0xca4684", "0x00c146", "0xca09ed", "0xcadcff", "0x0058a7", "0x2ca77b", "0x8ddcff", "0x232c35", "0xc1ffb9", "0x006a9e", "0x0058ff", "0xf65884", "0xdc7b46", "0xca35a7", "0xa7ca8d", "0x4fdcc1", "0x6172d3", "0x6a23ff", "0x8d09ca", "0xdcc12c", "0xc1b97b", "0x3e2358", "0x7b6195", "0xb97bdc", "0xffdcd3", "0xed5861", "0xcab9ff", "0x3e5858", "0x729595", "0x7bff7b", "0x95356a", "0xca9eb9", "0x723e1a", "0x95098d", "0xf68ddc", "0x61b03e", "0xffca61", "0xd37b72", "0xffed9e", "0xcaf6ff", "0x58c1ff", "0x8d61ed", "0x61b972", "0x8d6161", "0x46467b", "0x0058d3", "0x58dc09", "0x001a72", "0xd33e2c", "0x959546", "0xca7b00", "0x4f6a8d", "0x9584ff", "0x46238d", "0x008484", "0xf67235", "0x9edc84", "0xcadc6a", "0xb04fdc", "0x4f0912", "0xff1a7b", "0x7bb0d3", "0x1a001a", "0x8d35f6", "0x5800a7", "0xed8dff", "0x969696", "0xffd300"];
         this.vfbLoadBuffer = [];
+        this.tutorialRender = undefined;
+        this.spotlightRender = undefined;
+        this.controlpanelRender = undefined;
+        this.querybuilderRender = undefined;
+        //this.logoStyle = { fontSize: '33px'};
+        this.tutorialsList = [
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json",
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json",
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
+            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"];
 
         this.buttonBarConfig = {
             "searchBtn": {
-                "actions": [
-                    ""
-                ],
                 "icon": "fa fa-search",
                 "label": "",
                 "tooltip": "Search"
             },
             "queryBtn": {
-                "actions": [
-                    ""
-                ],
                 "icon": "fa fa-quora",
                 "label": "",
                 "tooltip": "Open Query"
             },
             "controlPanelBtn": {
-                "actions": [
-                    ""
-                ],
                 "icon": "fa fa-list",
                 "label": "",
                 "tooltip": "Layers"
             },
             "infoBtn": {
-                "actions": [
-                    ""
-                ],
                 "icon": "fa fa-info",
                 "label": "",
                 "tooltip": "Show term info"
             },
             "stackBtn": {
-                "actions": [
-                    ""
-                ],
                 "icon": "gpt-stack",
                 "label": "",
                 "tooltip": "Show slice viewer"
             },
             "meshBtn": {
-                "condition": "",
+                "condition": "true",
                 "false": {
                     "actions": [
                         ""
@@ -112,9 +117,6 @@ export default class VFBMain extends React.Component {
                 }
             },
             "tutorialBtn": {
-                "actions": [
-                    ""
-                ],
                 "icon": "fa fa-question",
                 "label": "",
                 "tooltip": "Open tutorial"
@@ -275,10 +277,151 @@ export default class VFBMain extends React.Component {
             id: "StackViewerWidget_"
         };
 
-        //var that = this;
-        //GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        //    that.setState({modelLoaded: true});
-        //});
+        this.controlPanelColMeta = [
+            {
+                "columnName": "path",
+                "order": 1,
+                "locked": false,
+                "displayName": "Path",
+                "source": "$entity$.getPath()"
+            },
+            {
+                "columnName": "name",
+                "order": 2,
+                "locked": false,
+                "customComponent": GEPPETTO.LinkComponent,
+                "displayName": "Name",
+                "source": "$entity$.getName()",
+                "actions": "window.addVfbId('$entity$');"
+            },
+            {
+                "columnName": "type",
+                "order": 3,
+                "locked": false,
+                "customComponent": GEPPETTO.LinkArrayComponent,
+                "displayName": "Type",
+                "source": "$entity$.$entity$_meta.getTypes().map(function (t) {return t.type.getInitialValue().value})",
+                "actions": "window.addVfbId('$entity$');",
+            },
+            {
+                "columnName": "controls",
+                "order": 4,
+                "locked": false,
+                "customComponent": GEPPETTO.ControlsComponent,
+                "displayName": "Controls",
+                "cssClassName": "controlpanel-controls-column",
+                "source": "",
+                "actions": "GEPPETTO.ControlPanel.refresh();"
+            },
+            {
+                "columnName": "image",
+                "order": 5,
+                "locked": false,
+                "customComponent": GEPPETTO.ImageComponent,
+                "displayName": "Image",
+                "cssClassName": "img-column",
+                "source": "GEPPETTO.ModelFactory.getAllVariablesOfMetaType($entity$.$entity$_meta.getType(), 'ImageType')[0].getInitialValues()[0].value.data"
+            }
+        ];
+
+        this.controlPanelConfig = {
+            "VisualCapability": {
+                "select": {
+                    "id": "select",
+                    "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
+                    "false": {
+                        "actions": ["$instance$.select()"],
+                        "icon": "fa-hand-stop-o",
+                        "label": "Unselected",
+                        "tooltip": "Select",
+                        "id": "select",
+                    },
+                    "true": {
+                        "actions": ["$instance$.deselect()"],
+                        "icon": "fa-hand-rock-o",
+                        "label": "Selected",
+                        "tooltip": "Deselect",
+                        "id": "deselect",
+                    }
+                },
+                "color": {
+                    "id": "color",
+                    "actions": ["$instance$.setColor('$param$');"],
+                    "icon": "fa-tint",
+                    "label": "Color",
+                    "tooltip": "Color"
+                },
+                "zoom": {
+                    "id": "zoom",
+                    "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
+                    "icon": "fa-search-plus",
+                    "label": "Zoom",
+                    "tooltip": "Zoom"
+                },
+                "visibility_obj": {
+                    "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
+                    "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
+                    "false": {
+                        "id": "visibility_obj",
+                        "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                        "icon": "gpt-shapehide",
+                        "label": "Hidden",
+                        "tooltip": "Show 3D Volume"
+                    },
+                    "true": {
+                        "id": "visibility_obj",
+                        "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
+                        "icon": "gpt-shapeshow",
+                        "label": "Visible",
+                        "tooltip": "Hide 3D Volume"
+                    }
+                },
+                "visibility_swc": {
+                    "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
+                    "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
+                    "false": {
+                        "id": "visibility_swc",
+                        "actions": ["(function(){var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { GEPPETTO.SceneController.show([instance]); }})()"],
+                        "icon": "gpt-3dhide",
+                        "label": "Hidden",
+                        "tooltip": "Show 3D Skeleton"
+                    },
+                    "true": {
+                        "id": "visibility_swc",
+                        "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
+                        "icon": "gpt-3dshow",
+                        "label": "Visible",
+                        "tooltip": "Hide 3D Skeleton"
+                    }
+                },
+            },
+            "Common": {
+                "info": {
+                    "id": "info",
+                    "actions": ["var displayTxt = '$instance$'.split('.')['$instance$'.split('.').length - 1]; setTermInfo($instance$[displayTxt + '_meta'], displayTxt);"],
+                    "icon": "fa-info-circle",
+                    "label": "Info",
+                    "tooltip": "Info"
+                },
+                "delete": {
+                    "showCondition": "$instance$.getId()!=window.templateID",
+                    "id": "delete",
+                    "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+                    "icon": "fa-trash-o",
+                    "label": "Delete",
+                    "tooltip": "Delete"
+                }
+            }
+        };
+
+        this.controlPanelControlConfigs = {
+            "Common": ['info', 'delete'],
+            "VisualCapability": ['select', 'color', 'visibility', 'zoom', 'visibility_obj', 'visibility_swc']
+        };
+
+        this.controlPanelColumns = ['name', 'type', 'controls', 'image'];
+
+        window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
 
     getButtonBarDefaultX() {
@@ -286,7 +429,7 @@ export default class VFBMain extends React.Component {
     };
 
     getButtonBarDefaultY() {
-        return 10;
+        return 55;
     };
 
     getStackViewerDefaultX() { 
@@ -295,10 +438,6 @@ export default class VFBMain extends React.Component {
 
     getStackViewerDefaultY() {
         return 200;
-    };
-
-    handleNewId() {
-        return;
     };
 
     customSorter(a, b, InputString) {
@@ -515,7 +654,70 @@ export default class VFBMain extends React.Component {
 
     resolve3D(path, callback) {
         var rootInstance = Instances.getInstance(path);
+        this.refs.termInfoRef.updateHistory(rootInstance.getName());
         GEPPETTO.SceneController.deselectAll();
+
+        if (window.templateID == undefined) {
+            var superTypes = rootInstance.getType().getSuperType();
+            for (var i = 0; i < superTypes.length; i++) {
+                if (superTypes[i].getId() == 'Template') {
+                    window.templateID = rootInstance.getId();
+                }
+            }
+            // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
+            if (window.templateID == undefined) {
+                var meta = rootInstance[rootInstance.getId() + '_meta'];
+                if (meta != undefined) {
+                    if (typeof meta.getType().template != "undefined") {
+                        var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+                        var domObj = $(templateMarkup);
+                        var anchorElement = domObj.filter('a');
+                        // extract ID
+                        var templateID = anchorElement.attr('instancepath');
+                        this.addVfbId(templateID);
+                    }
+                }
+            }
+        } else {
+            // check if the user is adding to the scene something belonging to another template
+            var superTypes = rootInstance.getType().getSuperType();
+            var templateID = "unknown";
+            for (var i = 0; i < superTypes.length; i++) {
+                if (superTypes[i].getId() == window.templateID) {
+                    templateID = superTypes[i].getId()
+                }
+                if (superTypes[i].getId() == 'Class') {
+                    templateID = window.templateID;
+                    return; // Exit if Class - Class doesn't have image types.
+                }
+            }
+
+            var meta = rootInstance[rootInstance.getId() + '_meta'];
+            if (meta != undefined) {
+                if (typeof meta.getType().template != "undefined") {
+                    var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+                    var domObj = $(templateMarkup);
+                    var anchorElement = domObj.filter('a');
+                    // extract ID
+                    var templateID = anchorElement.attr('instancepath');
+                    if (window.EMBEDDED) {
+                        var curHost = parent.document.location.host;
+                        var curProto = parent.document.location.protocol;
+                    } else {
+                        var curHost = document.location.host;
+                        var curProto = document.location.protocol;
+                    }
+                    if (templateID != window.templateID) {
+                        // open new window with the new template and the instance ID
+                        var targetWindow = '_blank';
+                        var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
+                        window.open(newUrl, targetWindow);
+                        // stop flow here, we don't want to add to scene something with a different template
+                        return;
+                    }
+                }
+            }
+        }
 
         var instance = undefined;
         var flagRendering = true;
@@ -578,7 +780,7 @@ export default class VFBMain extends React.Component {
         console.log("component will mount");
     };
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
         console.log("component did update called");
         var idsList = this.props.location.search.replace("?id=", "");
         if((idsList.length > 1) && (this.state.modelLoaded == true)) {
@@ -588,10 +790,34 @@ export default class VFBMain extends React.Component {
                 that.addVfbId(idArray);
             });
         }
+
+        // Reopen Terminfo from button bar if previously has been closed.
+        if((this.state.infoBtn === true) && (prevState.infoBtn !== this.state.infoBtn) && (prevState.infoBtn !== undefined)) {
+            this.refs.termInfoRef.addTermInfo();
+            var meta = Instances.getInstance(this.state.idSelected + '.' + this.state.idSelected + '_meta');
+            this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
+        }
+        // Reopen stackViewer from button bar if previously has been closed.
+        if((this.state.stackBtn === true) && (prevState.stackBtn !== this.state.stackBtn) && (prevState.stackBtn !== undefined)) {
+            this.refs.stackViewerRef.addStackWidget();
+        }
+
+        if((this.state.controlPanelBtn === true) && (prevState.controlPanelBtn !== this.state.controlPanelBtn)) {
+            $('#controlpanel').show();
+        }
+
+        if((this.state.searchBtn === true) && (prevState.searchBtn !== this.state.searchBtn)) {
+            $('#spotlight').show();
+        }
+
+        if((this.state.queryBtn === true) && (prevState.queryBtn !== this.state.queryBtn)) {
+            $('#querybuilder').show();
+        }
     };
 
-    componentWillUpdate() {
+    componentWillUpdate(nextProps, nextState) {
         console.log("component will update called");
+        console.log("NextState is "+nextState);
     };
 
     componentDidMount() {
@@ -602,6 +828,30 @@ export default class VFBMain extends React.Component {
         this.refs.vfbCanvas.displayAllInstances();
         this.refs.vfbCanvas.engine.controls.rotateSpeed = 3;
         this.refs.vfbCanvas.engine.setLinesThreshold(0);
+        //Control panel filter which instances to display
+        if(this.controlpanelRender !== undefined) {
+            this.refs.controlpanelRef.setDataFilter(function (entities) {
+                var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
+                var visualParents = [];
+                for (var i = 0; i < visualInstances.length; i++) {
+                    if (visualInstances[i].getParent() != null) {
+                        visualParents.push(visualInstances[i].getParent());
+                    }
+                }
+                visualInstances = visualInstances.concat(visualParents);
+                var compositeInstances = [];
+                for (var i = 0; i < visualInstances.length; i++) {
+                    if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+                        compositeInstances.push(visualInstances[i]);
+                    }
+                }
+                return compositeInstances;
+            });
+        }
+
+        window.stackViewerRequest = function(idFromStack) {
+            this.stackViewerRequest(idFromStack);
+        }.bind(this);
 
         var idsList = this.props.location.search.replace("?id=", "");
         if((idsList.length > 1) && (this.state.modelLoaded == true)) {
@@ -613,32 +863,98 @@ export default class VFBMain extends React.Component {
             Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + '/project/vfb.json');
             this.setState({modelLoaded: true});
         }
+
+        GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
+            var selection = GEPPETTO.SceneController.getSelection();
+            if (selection.length > 0 && instance.isSelected()) {
+                var latestSelection = instance;
+                var currentSelectionName = "";
+                if (this.refs.termInfoRef.getTermInfoWidget() != undefined) {
+                    currentSelectionName = this.refs.termInfoRef.getTermInfoWidget().name;
+                }
+                if (latestSelection.getChildren().length > 0) {
+                    // it's a wrapper object - if name is different from current selection set term info
+                    if (currentSelectionName != latestSelection.getName()) {
+                        this.refs.termInfoRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                    }
+                } else {
+                    // it's a leaf (no children) / grab parent if name is different from current selection set term info
+                    var parent = latestSelection.getParent();
+                    if (parent != null && currentSelectionName != parent.getName()) {
+                        this.refs.termInfoRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
+                    }
+                }
+            }
+            if (window.StackViewer1 != undefined) {
+                this.refs.stackViewerRef.updateStackWidget();
+            }
+        }.bind(this));
     };
 
     // Children handlers
+
+    handleNewId() {
+        return;
+    };
+
+    buttonBarHandler(buttonState) {
+        if((buttonState !== "infoBtn") || (buttonState !== "stackBtn")) {
+            var tempState = this.state[buttonState];
+            this.setState({
+                [buttonState] : !tempState
+            });
+        }
+    }
+
     termInfoHandler(childrenState) {
         console.log("term info has been closed");
         if(childrenState !== undefined) {
-            this.setState({ termInfoOpened: childrenState });
+            this.setState({ infoBtn: childrenState });
         } else {
-            this.setState({ termInfoOpened: !(this.state.termInfoOpened) });
+            this.setState({ infoBtn: !(this.state.infoBtn) });
         }       
+    };
+
+    stackViewerHandler(childrenState) {
+        console.log("term info has been closed");
+        if(childrenState !== undefined) {
+            this.setState({ stackBtn: childrenState });
+        } else {
+            this.setState({ stackBtn: !(this.state.infoBtn) });
+        }       
+    };
+
+    stackViewerRequest(variableId) {
+        this.addVfbId([variableId]);
     };
 
     render() {
 
-        var tutorialsList = [
-            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json",
-            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json",
-            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
-            "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"];
-        
-        const logoStyle = { fontSize: '20px'};
+        this.tutorialRender = this.state.tutorialBtn ? <TutorialWidget />  : undefined;
 
-        var tutorialRendered = this.state.tutorialOpened ? <TutorialWidget /> : <div id="tutorialContainerEmpty"> </div>;
-        //var termInfoRendered = (this.state.termInfoOpened) ? <TermInfoWidget ref="termInfoRef" idSelected={this.state.idSelected} termInfoHandler={this.termInfoHandler} /> : <div id="terminfo-empty"> </div>; 
+        this.spotlightRender = this.state.searchBtn ? 
+            <div id="spotlight" style={{top: 0}}>
+                <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig} 
+                    spotlightDataSourceConfig={this.spotlightDataSourceConfig} icon={"styles.Modal"}
+                    useBuiltInFilter={false} /> 
+            </div> : undefined;
+
+        this.controlpanelRender = this.state.controlPanelBtn ?
+            <div id="controlpanel" style={{top: 0}}>
+                <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true} 
+                    useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta} 
+                    controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
+                    controlPanelControlConfigs={this.controlPanelControlConfigs}/>
+            </div> : undefined;
+
+        this.querybuilderRender = this.state.queryBtn ?
+            <div id="querybuilder" style={{top: 0}}>
+                <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} /> 
+            </div> : undefined;
+
         return (
-            <div>
+            <div style={{height: '100%', width: '100%'}}>
+                <VFBToolBar />
                 <Rnd
                     enableResizing={{
                         top: false, right: false, bottom: false,
@@ -654,42 +970,42 @@ export default class VFBMain extends React.Component {
                     ref={c => { this.rnd = c; }} >
                     <ButtonBar
                         id="ButtonBarContainer"
-                        configuration={this.buttonBarConfig} />
+                        configuration={this.buttonBarConfig}
+                        buttonBarHandler={this.buttonBarHandler} />
                 </Rnd>
 
-                {tutorialRendered}
-
-                <Logo 
+                <Logo
                     logo='gpt-fly'
-                    propStyle={logoStyle} />
+                    id="geppettologo" />
 
                 <LinkButton
                     left={41}
-                    top={340}
+                    top={365}
                     icon='fa fa-github' 
                     url='https://github.com/VirtualFlyBrain/VFB2' />
 
-                <Canvas
-                    id="CanvasContainer"
-                    name={"Canvas"}
-                    componentType={'Canvas'}
-                    ref="vfbCanvas"
-                    style={{ height: '100%', width: '100%' }} />
+                <div id="sim">
+                    <Canvas
+                        id="CanvasContainer"
+                        name={"Canvas"}
+                        ref="vfbCanvas" />
+                </div>
 
-                <SpotLight 
-                    indexInstances={false} 
-                    spotlightConfig={this.spotlightConfig}
-                    spotlightDataSourceConfig={this.spotlightDataSourceConfig} />
+                {this.spotlightRender}
 
-                <ControlPanel
-                    enableInfiniteScroll={true} />
+                {this.controlpanelRender}
+
+                {this.querybuilderRender}
+
+                {this.tutorialRender}
 
                 <StackWidget
-                    ref="stackViewRef" />
+                    ref="stackViewerRef" 
+                    canvasRef={this.refs.vfbCanvas} />
 
-                <TermInfoWidget 
-                    ref="termInfoRef" 
-                    idSelected={this.state.idSelected} 
+                <TermInfoWidget
+                    ref="termInfoRef"
+                    idSelected={this.state.idSelected}
                     termInfoHandler={this.termInfoHandler} />
             </div>
         );

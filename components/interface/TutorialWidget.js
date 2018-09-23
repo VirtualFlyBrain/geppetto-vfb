@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Tutorial from '../../../../js/components/interface/tutorial/Tutorial';
 import WidgetCapability from '../../../../js/components/widgets/WidgetCapability';
 
-var Rnd = require('react-rnd').default;
 var vfbDefaultTutorial = require('../../tutorials/stackTutorial.json');
 var GEPPETTO = require('geppetto');
 
@@ -14,11 +13,11 @@ export default class TutorialWidget extends React.Component {
         //this.state = {
         //}
 
-        this.hide = this.hide.bind(this);
+        this.closeHandler = this.closeHandler.bind(this);
     }
 
-    hide() {
-        console.log("hide called by the tutorial component through parent class");
+    closeHandler() {
+        console.log("tutorial close handler called");
     }
 
     render() {
@@ -36,15 +35,15 @@ export default class TutorialWidget extends React.Component {
                     tutorialData={vfbDefaultTutorial}
                     closeByDefault={false}
                     position={{left: 100, top: 70}}
-                    size={{height: 100, width: 100}}
+                    size={{height: 400, width: 400}}
                     tutorialMessageClass="tutorialMessage"
                     showMemoryCheckbox={false}
                     tutorialsList={tutorialsList}
                     isStateLess={true}
-                    resizable={false}
+                    resizable={true}
                     draggable={false}
                     fixPosition={true}
-                    help={false}
+                    help={true}
                     showHistoryIcon={false}
                     closable={true}
                     minimizable={true}

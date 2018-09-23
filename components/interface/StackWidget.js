@@ -94,7 +94,7 @@ export default class StackWidget extends React.Component {
     addStackWidget() {
         var sliceInstances = this.getSliceInstances();
 
-        if (window.StackViewer1 == undefined) {
+        //if (window.StackViewer1 == undefined) {
             var config;
             var domainId = [];
             var domainName = [];
@@ -124,8 +124,8 @@ export default class StackWidget extends React.Component {
 
 
                     // set canvas if it's already there
-                    if (window.vfbCanvas != undefined) {
-                        window.StackViewer1.setCanvasRef(window.vfbCanvas);
+                    if (this.props.canvasRef != undefined) {
+                        window.StackViewer1.setCanvasRef(this.props.canvasRef);
                     }
 
                     // set initial position:
@@ -195,10 +195,10 @@ export default class StackWidget extends React.Component {
                     $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
                 }
             );
-        } else {
-            window.vfbWindowResize();
-            $('#' + window.StackViewer1.getId()).parent().effect('shake', { distance: 5, times: 3 }, 500);
-        }
+        //} else {
+        //    this.vfbWindowResize();
+        //    $('#' + window.StackViewer1.getId()).parent().effect('shake', { distance: 5, times: 3 }, 500);
+        //}
     };
 
     // stack widget helper methods
@@ -220,7 +220,7 @@ export default class StackWidget extends React.Component {
         this.setState({
             stackViewOpened: false
         });
-        this.props.termInfoHandler(false);
+        this.props.stackViewerHandler(false);
         console.log("Stack viewer has been closed");
     };
 

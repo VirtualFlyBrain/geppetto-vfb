@@ -37,7 +37,7 @@ export default class TermInfoWidget extends React.Component {
     };
 
     getTermInfoDefaultHeight() { 
-        return ((window.innerHeight - Math.ceil(window.innerHeight / 4)) - 20); 
+        return ((window.innerHeight - Math.ceil(window.innerHeight / 4)) - 65); 
     };
 
     getTermInfoDefaultX() { 
@@ -45,7 +45,7 @@ export default class TermInfoWidget extends React.Component {
     };
 
     getTermInfoDefaultY() { 
-        return 10; 
+        return 55; 
     };
 
     getMDText(urlLocation) {
@@ -385,7 +385,7 @@ export default class TermInfoWidget extends React.Component {
             termInfoOpened: false
         });
         this.props.termInfoHandler(false);
-        console.log("term info has been closed");
+        window.termInfoPopup = undefined;
     };
 
     componentDidMount() {

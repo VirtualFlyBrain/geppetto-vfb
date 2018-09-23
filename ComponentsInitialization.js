@@ -6,7 +6,6 @@ define(function (require) {
         var Switch = require('react-router-dom').Switch;
         var Redirect = require('react-router-dom').Redirect;
         var Router = require('react-router-dom').BrowserRouter;
-        var browserHistory = require('react-router-dom').browserHistory;
         var VFBMain = require('./components/VFBMain').default;
 
         GEPPETTO.G.setIdleTimeOut(-1);
