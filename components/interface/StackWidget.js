@@ -86,7 +86,7 @@ export default class StackWidget extends React.Component {
         this.checkConnection();
         console.log('Updating stack...');
         if (this.changedStacks()) {
-            window.StackViewer1.addSlices(getSliceInstances());
+            window.StackViewer1.addSlices(this.getSliceInstances());
         }
         window.StackViewer1.updateScene();
     };

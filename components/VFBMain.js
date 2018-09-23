@@ -41,6 +41,7 @@ export default class VFBMain extends React.Component {
             idSelected: undefined
         };
 
+        this.clearQS = this.clearQS.bind(this);
         this.addVfbId = this.addVfbId.bind(this);
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
@@ -50,6 +51,7 @@ export default class VFBMain extends React.Component {
         this.buttonBarHandler = this.buttonBarHandler.bind(this);
         this.stackViewerRequest = this.stackViewerRequest.bind(this);
         this.stackViewerHandler = this.stackViewerHandler.bind(this);
+        this.addToQueryCallback = this.addToQueryCallback.bind(this);
         this.fetchVariableThenRun = this.fetchVariableThenRun.bind(this);
         this.getButtonBarDefaultX = this.getButtonBarDefaultX.bind(this);
         this.getButtonBarDefaultY = this.getButtonBarDefaultY.bind(this);
@@ -541,6 +543,40 @@ export default class VFBMain extends React.Component {
         }
     };
 
+    clearQS() {
+        if (this.refs.spotlightRef) {
+            $("#spotlight").hide();
+            $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
+        }
+        if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift")))
+        {
+            this.refs.querybuilderRef.close();
+        }
+        this.checkConnection();
+    };
+
+    addToQueryCallback(variableId, label) {
+        // Failsafe check with old and new logic - to be refactored when finished
+        if (typeof (variableId) == "string") {
+            window.clearQS();
+            this.refs.querybuilderRef.switchView(false, true);
+            this.refs.querybuilderRef.addQueryItem({
+                term: (label != undefined) ? label : window[variableId].getName(),
+                id: variableId
+            });
+        } else {
+            for (var singleId = 0; variableId.length > singleId; singleId++) {
+                this.clearQS();
+                this.refs.querybuilderRef.switchView(false, true);
+                this.refs.querybuilderRef.addQueryItem({
+                    term: (label != undefined) ? label : window[variableId[singleId]].getName(),
+                    id: variableId[singleId]
+                });
+            }
+        }
+        this.refs.querybuilderRef.open();
+    };
+
     addVfbId(idsList) {
         if(this.state.modelLoaded === true) {
             if(typeof (idsList) == "string") {
@@ -852,6 +888,23 @@ export default class VFBMain extends React.Component {
         window.stackViewerRequest = function(idFromStack) {
             this.stackViewerRequest(idFromStack);
         }.bind(this);
+
+        window.addVfbId = function(idFromOutside) {
+            this.addVfbId(idFromOutside);
+        }.bind(this);
+
+        window.setTermInfo = function(meta, id) {
+            this.refs.termInfoRef.setTermInfo(meta, id);
+        }.bind(this);
+
+        window.fetchVariableThenRun = function(idsList, cb) {
+            this.fetchVariableThenRun(idsList, cb);
+        }.bind(this);
+
+        window.addToQueryCallback = function(variableId, label) {
+            this.addToQueryCallback(variableId, label)
+        }.bind(this);
+
 
         var idsList = this.props.location.search.replace("?id=", "");
         if((idsList.length > 1) && (this.state.modelLoaded == true)) {
