@@ -1,27 +1,25 @@
 import React, { Component } from 'react';
-import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar'
-import SpotLight from '../../../js/components/interface/spotlight/spotlight';
-import Tutorial from '../../../js/components/interface/tutorial/Tutorial';
-import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
-import Logo from '../../../js/components/interface/logo/Logo'
-import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
-import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
-import TermInfoWidget from './interface/TermInfoWidget';
-import StackWidget from './interface/StackWidget';
-import TutorialWidget from './interface/TutorialWidget';
-import QueryBuilder from '../../../js/components/interface/query/query';
 import VFBToolBar from './interface/VFBToolBar';
+import StackWidget from './interface/StackWidget';
+import TermInfoWidget from './interface/TermInfoWidget';
+import TutorialWidget from './interface/TutorialWidget';
+import Logo from '../../../js/components/interface/logo/Logo';
+import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
+import QueryBuilder from '../../../js/components/interface/query/query';
+import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar';
+import SpotLight from '../../../js/components/interface/spotlight/spotlight';
+import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
+import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
+
 
 // import NewWidget from '../../../js/components/widgets/NewWidget'; For future use.
-
-var $ = require('jquery');
-var Rnd = require('react-rnd').default;
-var ImportType = require('./../../../js/geppettoModel/model/ImportType');
-var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-var vfbDefaultTutorial = require('../tutorials/stackTutorial.json');
-var GEPPETTO = require('geppetto');
 require('./VFBMain.less');
 require('../css/VFB.css');
+var $ = require('jquery');
+var GEPPETTO = require('geppetto');
+var Rnd = require('react-rnd').default;
+var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
+var ImportType = require('./../../../js/geppettoModel/model/ImportType');
 
 export default class VFBMain extends React.Component {
 
@@ -33,11 +31,11 @@ export default class VFBMain extends React.Component {
             modelLoaded: (window.Model != undefined),
             infoBtn: true, // All states handled by the button bar
             stackBtn: true, 
-            tutorialBtn: false,
-            searchBtn: false,
-            controlPanelBtn: false,
-            meshBtn: false,
-            queryBtn: false, // END buttonbar states
+            tutorialBtn: true,
+            searchBtn: true,
+            controlPanelBtn: true,
+            meshBtn: true,
+            queryBtn: true, // END buttonbar states
             idSelected: undefined
         };
 
@@ -423,6 +421,174 @@ export default class VFBMain extends React.Component {
 
         this.controlPanelColumns = ['name', 'type', 'controls', 'image'];
 
+        this.queryResultsColMeta = [
+            {
+                "columnName": "id",
+                "order": 1,
+                "locked": false,
+                "visible": true,
+                "displayName": "ID",
+            },
+            {
+                "columnName": "name",
+                "order": 2,
+                "locked": false,
+                "visible": true,
+                "customComponent": GEPPETTO.QueryLinkComponent,
+                "actions": "window.addVfbId('$entity$');",
+                "displayName": "Name",
+                "cssClassName": "query-results-name-column",
+            },
+            {
+                "columnName": "description",
+                "order": 3,
+                "locked": false,
+                "visible": true,
+                "displayName": "Definition",
+                "cssClassName": "query-results-description-column"
+            },
+            {
+                "columnName": "type",
+                "order": 4,
+                "locked": false,
+                "visible": true,
+                "displayName": "Type",
+                "cssClassName": "query-results-type-column"
+            },
+            {
+                "columnName": "controls",
+                "order": 5,
+                "locked": false,
+                "visible": false,
+                "customComponent": GEPPETTO.QueryResultsControlsComponent,
+                "displayName": "Controls",
+                "actions": "",
+                "cssClassName": "query-results-controls-column"
+            },
+            {
+                "columnName": "images",
+                "order": 6,
+                "locked": false,
+                "visible": true,
+                "customComponent": GEPPETTO.SlideshowImageComponent,
+                "displayName": "Images",
+                "actions": "window.addVfbId('$entity$');",
+                "cssClassName": "query-results-images-column"
+            },
+            {
+                "columnName": "score",
+                "order": 7,
+                "locked": false,
+                "visible": true,
+                "displayName": "Score",
+                "cssClassName": "query-results-score-column"
+            }
+        ];
+
+        // which columns to display in the results
+        this. queryResultsColumns = ['name', 'description', 'type', 'images', 'score'];
+
+        this.queryResultsControlConfig = {
+            "Common": {
+                "info": {
+                    "id": "info",
+                    "actions": [
+                        "window.addVfbId('$ID$');"
+                    ],
+                    "icon": "fa-info-circle",
+                    "label": "Info",
+                    "tooltip": "Info"
+                },
+                "flybase": {
+                    "showCondition": "'$ID$'.startsWith('FBbt')",
+                    "id": "flybase",
+                    "actions": [
+                        "window.open('http://flybase.org/cgi-bin/cvreport.html?rel=is_a&id=' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
+                    ],
+                    "icon": "gpt-fly",
+                    "label": "FlyBase",
+                    "tooltip": "FlyBase Term"
+                },
+                "flybase": {
+                    "showCondition": "('$ID$'.startsWith('FB') && !'$ID$'.startsWith('FBbt'))",
+                    "id": "flybase",
+                    "actions": [
+                        "window.open('http://flybase.org/reports/' + '$ID$'.replace(/_/g, ':'), '_blank').focus()"
+                    ],
+                    "icon": "gpt-fly",
+                    "label": "FlyBase",
+                    "tooltip": "FlyBase Report"
+                }
+            }
+        };
+
+        // add datasource config to query control
+        this.queryBuilderDatasourceConfig = {
+            VFB: {
+                url: "http://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
+                crossDomain: true,
+                id: "short_form",
+                label: { field: "label", formatting: "$VALUE$" },
+                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
+                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
+                type: {
+                    class: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-dot-circle-o"
+                    },
+                    individual: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-square-o"
+                    }
+                },
+                queryNameToken: '$NAME',
+                resultsFilters: {
+                    getItem: function (record, header, field) {
+                        var recordIndex = header.indexOf(field);
+                        return record[recordIndex]
+                    },
+                    getId: function (record) {
+                        return record[0]
+                    },
+                    getName: function (record) {
+                        return record[1]
+                    },
+                    getDescription: function (record) {
+                        return record[2]
+                    },
+                    getType: function (record) {
+                        return record[3]
+                    },
+                    getImageData: function (record) {
+                        return record[4]
+                    },
+                    getScore: function (record) {
+                        return record[5]
+                    },
+                    getRecords: function (payload) {
+                        return payload.results.map(function (item) {
+                            return item.values
+                        })
+                    },
+                    getHeaders: function (payload) {
+                        return payload.header;
+                    }
+                },
+                bloodhoundConfig: {
+                    datumTokenizer: function (d) {
+                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                    },
+                    queryTokenizer: function (q) {
+                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                    },
+                    sorter: function (a, b) {
+                        var term = $("#query-typeahead").val();
+                        return customSorter(a, b, term);
+                    }
+                }
+            }
+        };
+
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
 
@@ -434,7 +600,7 @@ export default class VFBMain extends React.Component {
         return 55;
     };
 
-    getStackViewerDefaultX() { 
+    getStackViewerDefaultX() {
         return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10)); 
     };
 
@@ -552,13 +718,13 @@ export default class VFBMain extends React.Component {
         {
             this.refs.querybuilderRef.close();
         }
-        this.checkConnection();
+        this.refs.stackViewerRef.checkConnection();
     };
 
     addToQueryCallback(variableId, label) {
         // Failsafe check with old and new logic - to be refactored when finished
         if (typeof (variableId) == "string") {
-            window.clearQS();
+            this.clearQS();
             this.refs.querybuilderRef.switchView(false, true);
             this.refs.querybuilderRef.addQueryItem({
                 term: (label != undefined) ? label : window[variableId].getName(),
@@ -830,23 +996,21 @@ export default class VFBMain extends React.Component {
         // Reopen Terminfo from button bar if previously has been closed.
         if((this.state.infoBtn === true) && (prevState.infoBtn !== this.state.infoBtn) && (prevState.infoBtn !== undefined)) {
             this.refs.termInfoRef.addTermInfo();
-            var meta = Instances.getInstance(this.state.idSelected + '.' + this.state.idSelected + '_meta');
-            this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
         }
         // Reopen stackViewer from button bar if previously has been closed.
-        if((this.state.stackBtn === true) && (prevState.stackBtn !== this.state.stackBtn) && (prevState.stackBtn !== undefined)) {
+        if((prevState.stackBtn !== this.state.stackBtn) && (prevState.stackBtn !== undefined)) {
             this.refs.stackViewerRef.addStackWidget();
         }
 
-        if((this.state.controlPanelBtn === true) && (prevState.controlPanelBtn !== this.state.controlPanelBtn)) {
+        if((prevState.controlPanelBtn !== this.state.controlPanelBtn)) {
             $('#controlpanel').show();
         }
 
-        if((this.state.searchBtn === true) && (prevState.searchBtn !== this.state.searchBtn)) {
+        if((prevState.searchBtn !== this.state.searchBtn)) {
             $('#spotlight').show();
         }
 
-        if((this.state.queryBtn === true) && (prevState.queryBtn !== this.state.queryBtn)) {
+        if((prevState.queryBtn !== this.state.queryBtn)) {
             $('#querybuilder').show();
         }
     };
@@ -913,7 +1077,7 @@ export default class VFBMain extends React.Component {
 
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
             //Project.loadFromURL(window.location.origin + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + '/project/vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", ":8888") + '/' + 'vfb.json');
             this.setState({modelLoaded: true});
         }
 
@@ -945,11 +1109,6 @@ export default class VFBMain extends React.Component {
     };
 
     // Children handlers
-
-    handleNewId() {
-        return;
-    };
-
     buttonBarHandler(buttonState) {
         if((buttonState !== "infoBtn") || (buttonState !== "stackBtn")) {
             var tempState = this.state[buttonState];
@@ -974,7 +1133,7 @@ export default class VFBMain extends React.Component {
             this.setState({ stackBtn: childrenState });
         } else {
             this.setState({ stackBtn: !(this.state.infoBtn) });
-        }       
+        }
     };
 
     stackViewerRequest(variableId) {
@@ -985,24 +1144,24 @@ export default class VFBMain extends React.Component {
 
         this.tutorialRender = this.state.tutorialBtn ? <TutorialWidget />  : undefined;
 
-        this.spotlightRender = this.state.searchBtn ? 
+        this.spotlightRender = this.state.searchBtn ?
             <div id="spotlight" style={{top: 0}}>
-                <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig} 
+                <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig}
                     spotlightDataSourceConfig={this.spotlightDataSourceConfig} icon={"styles.Modal"}
-                    useBuiltInFilter={false} /> 
+                    useBuiltInFilter={false} />
             </div> : undefined;
 
         this.controlpanelRender = this.state.controlPanelBtn ?
             <div id="controlpanel" style={{top: 0}}>
                 <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true} 
-                    useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta} 
+                    useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta}
                     controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
                     controlPanelControlConfigs={this.controlPanelControlConfigs}/>
             </div> : undefined;
 
         this.querybuilderRender = this.state.queryBtn ?
             <div id="querybuilder" style={{top: 0}}>
-                <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} /> 
+                <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
             </div> : undefined;
 
         return (
@@ -1044,17 +1203,29 @@ export default class VFBMain extends React.Component {
                         ref="vfbCanvas" />
                 </div>
 
-                {this.spotlightRender}
+                <div id="spotlight" style={{top: 0}}>
+                <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig}
+                    spotlightDataSourceConfig={this.spotlightDataSourceConfig} icon={"styles.Modal"}
+                    useBuiltInFilter={false} />
+                </div>
 
-                {this.controlpanelRender}
+                <div id="controlpanel" style={{top: 0}}>
+                    <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true}
+                        useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta}
+                        controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
+                        controlPanelControlConfigs={this.controlPanelControlConfigs}/>
+                </div>
 
-                {this.querybuilderRender}
+                <div id="querybuilder" style={{top: 0}}>
+                    <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
+                </div>
 
-                {this.tutorialRender}
+                <TutorialWidget />
 
                 <StackWidget
                     ref="stackViewerRef" 
-                    canvasRef={this.refs.vfbCanvas} />
+                    canvasRef={this.refs.vfbCanvas}
+                    stackViewerHandler={this.stackViewerHandler} />
 
                 <TermInfoWidget
                     ref="termInfoRef"

@@ -375,7 +375,7 @@ export default class TermInfoWidget extends React.Component {
                 }
             );
         } else {
-            this.vfbWindowResize();
+            //this.vfbWindowResize();
             $('#' + window.termInfoPopupId).parent().effect('shake', { distance: 5, times: 3 }, 500);
         }
     };

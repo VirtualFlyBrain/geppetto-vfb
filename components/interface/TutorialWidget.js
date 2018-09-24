@@ -29,7 +29,7 @@ export default class TutorialWidget extends React.Component {
             "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
             "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"];
         return (
-            <div>
+            <div id="tutorial">
                 <TutorialWidget
                     componentType={'TUTORIAL'}
                     tutorialData={vfbDefaultTutorial}

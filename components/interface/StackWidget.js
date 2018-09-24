@@ -94,7 +94,7 @@ export default class StackWidget extends React.Component {
     addStackWidget() {
         var sliceInstances = this.getSliceInstances();
 
-        //if (window.StackViewer1 == undefined) {
+        if (window.StackViewer1 == undefined) {
             var config;
             var domainId = [];
             var domainName = [];
@@ -195,10 +195,10 @@ export default class StackWidget extends React.Component {
                     $('.ui-dialog-titlebar-minimize').hide(); //hide all minimize buttons
                 }
             );
-        //} else {
-        //    this.vfbWindowResize();
-        //    $('#' + window.StackViewer1.getId()).parent().effect('shake', { distance: 5, times: 3 }, 500);
-        //}
+        } else {
+            //this.vfbWindowResize();
+            $('#' + window.StackViewer1.getId()).parent().effect('shake', { distance: 5, times: 3 }, 500);
+        }
     };
 
     // stack widget helper methods
@@ -216,12 +216,14 @@ export default class StackWidget extends React.Component {
         return sliceInstances;
     };
 
+    // TOCHECK the stack viewer widget is not triggering the close method defined in widget.js
+    // so this method is never called and the update when closed is not propagated to VFBMain
     closeHandler() {
         this.setState({
             stackViewOpened: false
         });
         this.props.stackViewerHandler(false);
-        console.log("Stack viewer has been closed");
+        window.StackViewer1 = undefined;
     };
 
     componentDidMount() {
