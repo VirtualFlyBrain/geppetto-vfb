@@ -257,7 +257,7 @@ export default class TermInfoWidget extends React.Component {
     };
 
     addTermInfo() {
-        if (true) {
+        if (window.termInfoPopup == undefined) {
             // init empty term info area
             G.addWidget(1, { isStateless: true }).then(
                 w => {

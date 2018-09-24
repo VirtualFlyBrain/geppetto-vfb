@@ -577,17 +577,19 @@ export default class VFBMain extends React.Component {
                 bloodhoundConfig: {
                     datumTokenizer: function (d) {
                         return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                    },
+                    }.bind(this),
                     queryTokenizer: function (q) {
                         return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                    },
+                    }.bind(this),
                     sorter: function (a, b) {
                         var term = $("#query-typeahead").val();
-                        return customSorter(a, b, term);
-                    }
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
                 }
             }
         };
+
+        this.queryBuilderInitialized = false;
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
@@ -1049,6 +1051,14 @@ export default class VFBMain extends React.Component {
             });
         }
 
+        if(this.queryBuilderInitialized == false) {
+            this.refs.querybuilderRef.setResultsColumnMeta(this.queryResultsColMeta);
+            this.refs.querybuilderRef.setResultsColumns(this.queryResultsColumns);
+            this.refs.querybuilderRef.setResultsControlsConfig(this.queryResultsControlConfig);
+            this.refs.querybuilderRef.addDataSource(this.queryBuilderDatasourceConfig);
+            this.queryBuilderInitialized = true;
+        }
+
         window.stackViewerRequest = function(idFromStack) {
             this.stackViewerRequest(idFromStack);
         }.bind(this);
@@ -1077,7 +1087,7 @@ export default class VFBMain extends React.Component {
 
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
             //Project.loadFromURL(window.location.origin + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            Project.loadFromURL(window.location.origin.replace(":8081", ":8888") + '/' + 'vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
             this.setState({modelLoaded: true});
         }
 
