@@ -1004,9 +1004,9 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            //Project.loadFromURL(window.location.origin + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            console.log("loading the model");
-            Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
+            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            // Local deployment for development. Uncomment the line below.
+            // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
             this.setState({modelLoaded: true});
         }
     };
