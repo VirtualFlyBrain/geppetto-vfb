@@ -129,7 +129,7 @@ export default class VFBMain extends React.Component {
                 "CompositeType": {
                     "type": {
                         "actions": [
-                            "setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
+                            "window.setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
                         ],
                         "icon": "fa-info-circle",
                         "label": "Show info",
@@ -589,7 +589,7 @@ export default class VFBMain extends React.Component {
             }
         };
 
-        this.queryBuilderInitialized = false;
+        this.urlIdsLoaded = false;
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
@@ -975,26 +975,7 @@ export default class VFBMain extends React.Component {
         }
     };
 
-    // End of logic to add VFB Ids to scene
-
-    // Component react update handlers
-
-    componentWillMount() {
-        //GEPPETTO.trigger(GEPPETTO.Events.Show_spinner, "Initialising Virtual Fly Brain");
-        console.log("component will mount");
-    };
-
     componentDidUpdate(prevProps, prevState) {
-        console.log("component did update called");
-        var idsList = this.props.location.search.replace("?id=", "");
-        if((idsList.length > 1) && (this.state.modelLoaded == true)) {
-            var idArray = idsList.split(",");
-            var that = this;
-            GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-                that.addVfbId(idArray);
-            });
-        }
-
         // Reopen Terminfo from button bar if previously has been closed.
         if((this.state.infoBtn === true) && (prevState.infoBtn !== this.state.infoBtn) && (prevState.infoBtn !== undefined)) {
             this.refs.termInfoRef.addTermInfo();
@@ -1019,10 +1000,39 @@ export default class VFBMain extends React.Component {
 
     componentWillUpdate(nextProps, nextState) {
         console.log("component will update called");
-        console.log("NextState is "+nextState);
+    };
+
+    componentWillMount() {
+        if((window.Model == undefined) && (this.state.modelLoaded == false)) {
+            //Project.loadFromURL(window.location.origin + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            console.log("loading the model");
+            Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
+            this.setState({modelLoaded: true});
+        }
     };
 
     componentDidMount() {
+        // Global functions linked to VFBMain functions
+        window.stackViewerRequest = function(idFromStack) {
+            this.stackViewerRequest(idFromStack);
+        }.bind(this);
+
+        window.addVfbId = function(idFromOutside) {
+            this.addVfbId(idFromOutside);
+        }.bind(this);
+
+        window.setTermInfo = function(meta, id) {
+            this.refs.termInfoRef.setTermInfo(meta, id);
+        }.bind(this);
+
+        window.fetchVariableThenRun = function(idsList, cb, label) {
+            this.fetchVariableThenRun(idsList, cb, label);
+        }.bind(this);
+
+        window.addToQueryCallback = function(variableId, label) {
+            this.addToQueryCallback(variableId, label)
+        }.bind(this);
+
         // Canvas initialization
         this.refs.vfbCanvas.flipCameraY();
         this.refs.vfbCanvas.flipCameraZ();
@@ -1030,8 +1040,13 @@ export default class VFBMain extends React.Component {
         this.refs.vfbCanvas.displayAllInstances();
         this.refs.vfbCanvas.engine.controls.rotateSpeed = 3;
         this.refs.vfbCanvas.engine.setLinesThreshold(0);
-        //Control panel filter which instances to display
-        if(this.controlpanelRender !== undefined) {
+        
+        //Control panel initialization and filter which instances to display
+        if(this.refs.controlpanelRef !== undefined) {
+            this.refs.controlpanelRef.setColumnMeta(this.controlPanelColMeta);
+            this.refs.controlpanelRef.setColumns(this.controlPanelColumns);
+            this.refs.controlpanelRef.setControlsConfig(this.controlPanelConfig);
+            this.refs.controlpanelRef.setControls(this.controlPanelControlConfigs);
             this.refs.controlpanelRef.setDataFilter(function (entities) {
                 var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
                 var visualParents = [];
@@ -1051,46 +1066,25 @@ export default class VFBMain extends React.Component {
             });
         }
 
-        if(this.queryBuilderInitialized == false) {
-            this.refs.querybuilderRef.setResultsColumnMeta(this.queryResultsColMeta);
-            this.refs.querybuilderRef.setResultsColumns(this.queryResultsColumns);
-            this.refs.querybuilderRef.setResultsControlsConfig(this.queryResultsControlConfig);
-            this.refs.querybuilderRef.addDataSource(this.queryBuilderDatasourceConfig);
-            this.queryBuilderInitialized = true;
+        // Query builder initialization
+        this.refs.querybuilderRef.setResultsColumnMeta(this.queryResultsColMeta);
+        this.refs.querybuilderRef.setResultsColumns(this.queryResultsColumns);
+        this.refs.querybuilderRef.setResultsControlsConfig(this.queryResultsControlConfig);
+        this.refs.querybuilderRef.addDataSource(this.queryBuilderDatasourceConfig);
+
+        // Loading ids passed through the browser's url
+        var idsList = this.props.location.search.replace("?i=", "");
+        if((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+            this.urlIdsLoaded = true;
+            var idArray = idsList.split(",");
+            var that = this;
+            console.log("Loading IDS from url");
+            GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+                that.addVfbId(idArray);
+            });
         }
 
-        window.stackViewerRequest = function(idFromStack) {
-            this.stackViewerRequest(idFromStack);
-        }.bind(this);
-
-        window.addVfbId = function(idFromOutside) {
-            this.addVfbId(idFromOutside);
-        }.bind(this);
-
-        window.setTermInfo = function(meta, id) {
-            this.refs.termInfoRef.setTermInfo(meta, id);
-        }.bind(this);
-
-        window.fetchVariableThenRun = function(idsList, cb) {
-            this.fetchVariableThenRun(idsList, cb);
-        }.bind(this);
-
-        window.addToQueryCallback = function(variableId, label) {
-            this.addToQueryCallback(variableId, label)
-        }.bind(this);
-
-
-        var idsList = this.props.location.search.replace("?id=", "");
-        if((idsList.length > 1) && (this.state.modelLoaded == true)) {
-            this.addVfbId(idsList);
-        }
-
-        if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            //Project.loadFromURL(window.location.origin + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
-            this.setState({modelLoaded: true});
-        }
-
+        // Selection listener
         GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
             var selection = GEPPETTO.SceneController.getSelection();
             if (selection.length > 0 && instance.isSelected()) {
@@ -1161,14 +1155,6 @@ export default class VFBMain extends React.Component {
                     useBuiltInFilter={false} />
             </div> : undefined;
 
-        this.controlpanelRender = this.state.controlPanelBtn ?
-            <div id="controlpanel" style={{top: 0}}>
-                <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true} 
-                    useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta}
-                    controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
-                    controlPanelControlConfigs={this.controlPanelControlConfigs}/>
-            </div> : undefined;
-
         this.querybuilderRender = this.state.queryBtn ?
             <div id="querybuilder" style={{top: 0}}>
                 <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
@@ -1220,7 +1206,7 @@ export default class VFBMain extends React.Component {
                 </div>
 
                 <div id="controlpanel" style={{top: 0}}>
-                    <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true}
+                    <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true} 
                         useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta}
                         controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
                         controlPanelControlConfigs={this.controlPanelControlConfigs}/>
@@ -1229,8 +1215,6 @@ export default class VFBMain extends React.Component {
                 <div id="querybuilder" style={{top: 0}}>
                     <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
                 </div>
-
-                <TutorialWidget />
 
                 <StackWidget
                     ref="stackViewerRef" 

@@ -394,7 +394,7 @@ export default class TermInfoWidget extends React.Component {
             console.log("Rendering Term Info Widget...");
             if((this.state.termInfoOpened) && !(this.state.termInfoMounted)){
                 this.termInfoToRender = this.addTermInfo();
-        }}.bind(this), 2000);
+        }}.bind(this), 1000);
     };
 
     componentWillReceiveProps() {
