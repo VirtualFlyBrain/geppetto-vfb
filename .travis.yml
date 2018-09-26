@@ -99,7 +99,7 @@ script:
 - |
   if [ "$VFBSUB" != "local" ]; then 
     sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-    sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+    sed -i 's|"embedded":.*,|"embedded":fasle,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i "s|http://www.virtualflybrain.com/solr/|/solr/|g" $TRAVIS_BUILD_DIR/ComponentsInitialization.js
     docker build -f Dockerfile -t $REPO:$VFBSUB . 
