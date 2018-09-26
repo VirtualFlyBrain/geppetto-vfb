@@ -14,7 +14,7 @@
     ],
     "geppettoModel": {
         "id": 9,
-        "url": "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/model/vfb.xmi",
+        "url": "/vfb.xmi",
         "type": "GEPPETTO_PROJECT"
     }
 }
