@@ -37,7 +37,13 @@ env:
   - COMMIT=${TRAVIS_COMMIT::8}
   matrix:
   - VFBSUB=local
-  
+  - VFBSUB=www
+  - VFBSUB=v2
+  - VFBSUB=v2a
+  - VFBSUB=v2-dev
+  - VFBSUB=larval
+  - VFBSUB=larva
+  - VFBSUB=v2-preview
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
@@ -90,8 +96,24 @@ script:
 - echo "Current time :$(date +"%T")"
 - echo -e "travis_fold:start:Docker-Deploy"
 - cd $TRAVIS_BUILD_DIR
+- |
+  if [ "$VFBSUB" != "local" ]; then 
+    sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+    sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+    sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
+    sed -i "s|http://www.virtualflybrain.com/solr/|/solr/|g" $TRAVIS_BUILD_DIR/ComponentsInitialization.js
+    docker build -f Dockerfile -t $REPO:$VFBSUB . 
+    docker tag $REPO:$VFBSUB $REPO:$TAG-$VFBSUB
+  else
+    docker tag $REPO:$COMMIT $REPO:$TAG
+  fi
 - echo -e "travis_fold:end:Docker-Deploy"
 after_success:
 - cd $TRAVIS_BUILD_DIR
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
-- docker push $REPO:$TAG
+- |
+  if [ "$VFBSUB" != "local" ]; then
+    docker push $REPO:$TAG-$VFBSUB
+  else
+    docker push $REPO:$TAG
+  fi
