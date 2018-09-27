@@ -31,10 +31,10 @@ export default class VFBMain extends React.Component {
             modelLoaded: (window.Model != undefined),
             infoBtn: true, // All states handled by the button bar
             stackBtn: true, 
-            tutorialBtn: true,
+            tutorialBtn: false,
             searchBtn: true,
             controlPanelBtn: true,
-            meshBtn: true,
+            meshBtn: false,
             queryBtn: true, // END buttonbar states
             idSelected: undefined
         };
@@ -985,6 +985,10 @@ export default class VFBMain extends React.Component {
             this.refs.stackViewerRef.addStackWidget();
         }
 
+        if((prevState.meshBtn !== this.state.meshBtn)) {
+            this.refs.vfbCanvas.setWireframe(!this.refs.vfbCanvas.getWireframe());
+        }
+
         if((prevState.controlPanelBtn !== this.state.controlPanelBtn)) {
             $('#controlpanel').show();
         }
@@ -1004,9 +1008,9 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            // Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
             // Local deployment for development. Uncomment the line below.
-            // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
             this.setState({modelLoaded: true});
         }
     };
@@ -1148,18 +1152,6 @@ export default class VFBMain extends React.Component {
 
         this.tutorialRender = this.state.tutorialBtn ? <TutorialWidget />  : undefined;
 
-        this.spotlightRender = this.state.searchBtn ?
-            <div id="spotlight" style={{top: 0}}>
-                <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig}
-                    spotlightDataSourceConfig={this.spotlightDataSourceConfig} icon={"styles.Modal"}
-                    useBuiltInFilter={false} />
-            </div> : undefined;
-
-        this.querybuilderRender = this.state.queryBtn ?
-            <div id="querybuilder" style={{top: 0}}>
-                <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
-            </div> : undefined;
-
         return (
             <div style={{height: '100%', width: '100%'}}>
                 <VFBToolBar />
@@ -1225,6 +1217,8 @@ export default class VFBMain extends React.Component {
                     ref="termInfoRef"
                     idSelected={this.state.idSelected}
                     termInfoHandler={this.termInfoHandler} />
+
+                {this.tutorialRender}
             </div>
         );
     }
