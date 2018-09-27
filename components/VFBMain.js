@@ -263,7 +263,7 @@ export default class VFBMain extends React.Component {
         };
 
         this.stackConfiguration = {
-            serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
+            serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
             templateId: 'NOTSET'
         };
 
