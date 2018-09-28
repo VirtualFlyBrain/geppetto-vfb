@@ -20,6 +20,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 var ImportType = require('./../../../js/geppettoModel/model/ImportType');
+var Query = require('./../../../js/geppettoModel/model/Query');
 
 export default class VFBMain extends React.Component {
 
