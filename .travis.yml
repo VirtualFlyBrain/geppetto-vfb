@@ -5,6 +5,9 @@ dist: trusty
 node_js:
 - "7"
 
+before_install:
+  - sudo apt-get install -y xserver-xorg-dev libxext-dev libxi-dev 
+
 install:
 - npm install --silent -g phantomjs 
 - npm install --silent -g casperjs 
@@ -28,7 +31,6 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - export SLIMERJSLAUNCHER=/home/travis/firefox-58.0/firefox/firefox
   - export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
-  - sudo apt-get install -y xserver-xorg-dev libxext-dev libxi-dev 
 
 env:
   global:
