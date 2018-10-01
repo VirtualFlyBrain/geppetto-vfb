@@ -19,7 +19,6 @@ var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-var ImportType = require('./../../../js/geppettoModel/model/ImportType');
 
 export default class VFBMain extends React.Component {
 
@@ -857,6 +856,7 @@ export default class VFBMain extends React.Component {
     };
 
     resolve3D(path, callback) {
+        var ImportType = require('./../../../js/geppettoModel/model/ImportType');
         var rootInstance = Instances.getInstance(path);
         this.refs.termInfoRef.updateHistory(rootInstance.getName());
         GEPPETTO.SceneController.deselectAll();
