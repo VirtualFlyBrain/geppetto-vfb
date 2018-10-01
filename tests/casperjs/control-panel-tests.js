@@ -69,7 +69,7 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         casper.wait(1000, function () {
             casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
             // wait for neuron to be deselected in response
-            casper.waitForSelector('#VFB_00000001_select_buttonBar_btn', function () {
+            casper.waitForSelector('#VFB_00000001_select_ctrlPanel_btn', function () {
                 casper.wait(1000, function () {
                     test.assertExists('div#Popup1_VFB_00017894_metadata_el_0', 'Term info correctly populated  for JFRC2_template after control panel selection click');
                 });
