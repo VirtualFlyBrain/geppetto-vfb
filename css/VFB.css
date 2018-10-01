@@ -42,14 +42,16 @@
     .wideDivC {
         display: none;
     }
-}
-
-@media screen and (max-width: 700px) {
-    .wideDivC {
-        display: none;
-    }
     .uk-visible-large {
         display: none;
     }
 }
+
+@media screen and (max-width: 680px) {
+    .uk-navbar-content {
+        display: none;
+    }
+}
+
+
 
