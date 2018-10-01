@@ -62,6 +62,7 @@ export default class TermInfoWidget extends React.Component {
     }
 
     customHandler(node, path, widget) {
+        var Query = require('./../../../../js/geppettoModel/model/Query');
         var n = window[path];
         var otherId;
         var otherName;
