@@ -957,7 +957,7 @@ export default class VFBMain extends React.Component {
                 instance.getType().resolve(postResolve);
             } else {
                 // add instance to scene
-                vfbCanvas.display([instance]);
+                this.refs.vfbCanvas.display([instance]);
                 // trigger update for components that are listening
                 GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
                 postResolve();
