@@ -40,13 +40,13 @@ env:
   - COMMIT=${TRAVIS_COMMIT::8}
   matrix:
   - VFBSUB=local
-  - VFBSUB=www
-  - VFBSUB=v2
-  - VFBSUB=v2a
+#  - VFBSUB=www
+#  - VFBSUB=v2
+#  - VFBSUB=v2a
   - VFBSUB=v2-dev
-  - VFBSUB=larval
-  - VFBSUB=larva
-  - VFBSUB=v2-preview
+#  - VFBSUB=larval
+#  - VFBSUB=larva
+#  - VFBSUB=v2-preview
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
