@@ -88,7 +88,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
                     });
 
                     // not ideal - react injects strange markup in strings
-                    this.waitForText('<!-- react-text: 93 -->2<!-- /react-text --><!-- react-text: 94 --> results<!-- /react-text -->', function () {
+                    this.waitForText(' -->2<!-- /react-text --><!-- react-text: ', function () {
                         this.echo("Verified we have 2 results");
                         runQueryTests();
                     }, null, 10000);
