@@ -4,7 +4,7 @@ if (urlBase == null || urlBase == undefined) {
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
-var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 casper.test.begin('VFB Batch request tests', function suite(test) {
     casper.options.viewportSize = {
