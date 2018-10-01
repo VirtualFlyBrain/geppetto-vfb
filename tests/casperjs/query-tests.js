@@ -101,16 +101,16 @@ casper.test.begin('VFB query component tests', function suite(test) {
         casper.echo("Clicking on run query button");
         casper.mouseEvent('click', 'button[id=run-query-btn]', 'Running query');
 
-        casper.waitForSelector('div[id=VFB_00030810-image-container]', function () {
-            this.echo("Results rows appeared - click on results info for accessory medulla");
+        casper.waitForSelector('div[id=VFB_00030624-image-container]', function () {
+            this.echo("Results rows appeared - click on results info for JFRC2 example of medulla");
 
             casper.evaluate(function () {
-                $("#VFB_00030810-image-container").find("img").click();
+                $("#VFB_00030624-image-container").find("img").click();
             });
 
             // wait for text to appear in the term info widget
-            this.waitForSelector('div[id=Popup1_VFB_00030810_metadata_el_0]', function () {
-                test.assertExists('div[id=Popup1_VFB_00030810_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
+            this.waitForSelector('div[id=Popup1_VFB_00030624_metadata_el_0]', function () {
+                test.assertExists('div[id=Popup1_VFB_00030624_metadata_el_0]', 'Term info correctly populated for example of Medulla after query results info button click');
             }, null, 20000);
 
         }, null, 20000);
