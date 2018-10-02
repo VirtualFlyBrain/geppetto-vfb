@@ -78,7 +78,7 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
 
     function testMeshVisibility(test, visible, variableName) {
         var visibility = casper.evaluate(function (variableName) {
-            var visibility = Canvas1.engine.getRealMeshesForInstancePath(variableName)[0].visible;
+            var visibility = CanvasContainer.engine.getRealMeshesForInstancePath(variableName)[0].visible;
             return visibility;
         }, variableName);
 
