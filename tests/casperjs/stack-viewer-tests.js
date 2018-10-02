@@ -54,10 +54,10 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
 
             casper.then(function () {
                 var canvasMeshes = this.evaluate(function () {
-                    return Object.keys(Canvas1.engine.meshes).length;
+                    return Object.keys(CanvasContainer.engine.meshes).length;
                 });
 
-                test.assertEquals(canvasMeshes, 1, "Canvas1 has 1 mesh");
+                test.assertEquals(canvasMeshes, 1, "CanvasContainer has 1 mesh");
 
                 var stackViewerMeshes = this.evaluate(function () {
                     return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
@@ -98,7 +98,7 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
 
             casper.then(function () {
                 var meshVisible = this.evaluate(function () {
-                    return Canvas1.engine.scene.children[2].visible;
+                    return CanvasContainer.engine.scene.children[2].visible;
                 });
 
                 test.assertEquals(meshVisible, false, "3D Plane not visible");
@@ -116,7 +116,7 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
             casper.then(function () {
                 casper.wait(2000, function () {
                     var meshVisible = this.evaluate(function () {
-                        return Canvas1.engine.scene.children[2].visible;
+                        return CanvasContainer.engine.scene.children[2].visible;
                     });
 
                     test.assertEquals(meshVisible, true, "3D Plane visible");
@@ -126,7 +126,7 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
             casper.then(function () {
                 casper.wait(2000, function () {
                     var meshVisible = this.evaluate(function () {
-                        return Canvas1.engine.scene.children[2].visible;
+                        return CanvasContainer.engine.scene.children[2].visible;
                     });
 
                     test.assertEquals(meshVisible, true, "3D Plane visible");
@@ -136,10 +136,10 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
             casper.then(function () {
                 casper.wait(10000, function () {
                     var canvasMeshes = this.evaluate(function () {
-                        return Object.keys(Canvas1.engine.meshes).length;
+                        return Object.keys(CanvasContainer.engine.meshes).length;
                     });
 
-                    test.assertEquals(canvasMeshes, 2, "Canvas1 has 2 meshes");
+                    test.assertEquals(canvasMeshes, 2, "CanvasContainer has 2 meshes");
 
                     var stackViewerMeshes = this.evaluate(function () {
                         return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
