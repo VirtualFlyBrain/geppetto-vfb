@@ -56,10 +56,10 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
 
     casper.then(function () {
         var canvasMeshes = this.evaluate(function () {
-            return Object.keys(Canvas1.engine.meshes).length;
+            return Object.keys(CanvasContainer.engine.meshes).length;
         });
 
-        test.assertEquals(canvasMeshes, 5, "Canvas1 has 5 mesh");
+        test.assertEquals(canvasMeshes, 5, "CanvasContainer has 5 mesh");
 
         var stackViewerMeshes = this.evaluate(function () {
             return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
