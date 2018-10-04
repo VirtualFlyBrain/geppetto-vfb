@@ -1526,6 +1526,7 @@ define(function (require) {
                 this.setWireframe(false);
                 this.displayAllInstances();
                 this.engine.controls.rotateSpeed = 3;
+                this.engine.setAllGeometriesType('lines');
                 this.engine.setLinesThreshold(0);
                 window.vfbCanvas = this;
 
