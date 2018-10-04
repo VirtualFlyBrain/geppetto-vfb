@@ -597,6 +597,7 @@ export default class VFBMain extends React.Component {
         };
 
         this.urlIdsLoaded = false;
+        this.idInitialized = false;
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
@@ -783,6 +784,7 @@ export default class VFBMain extends React.Component {
                     });
                 }
             }
+
         } else {
             console.log("model has not been loaded, in the old initialization here I was triggering a setTimeout to call recursively this same function addvfbid");
             //setTimeout(function () { this.addVfbId(idsList); }, 1000);
@@ -1099,15 +1101,69 @@ export default class VFBMain extends React.Component {
         this.refs.querybuilderRef.addDataSource(this.queryBuilderDatasourceConfig);
 
         // Loading ids passed through the browser's url
-        var idsList = this.props.location.search.replace("?i=", "");
-        if((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
-            this.urlIdsLoaded = true;
-            var idArray = idsList.split(",");
+        if((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=") == -1)) {
             var that = this;
-            console.log("Loading IDS from url");
+            console.log("Loading default Adult Brain VFB_00017894 template.");
             GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-                that.addVfbId(idArray);
+                that.addVfbId("VFB_00017894");
             });
+        }
+
+        if(this.props.location.search.indexOf("id=") > -1) {
+            var idsList = this.props.location.search;
+            var regex3D = /i=/gi;
+            var results3D, starts3DString = [], ends3DString = [];
+            while((results3D = regex3D.exec(idsList))) {
+                starts3DString.push(results3D.index + results3D[0].length);
+                if(results3D.input.substring(results3D.index).indexOf("&") > -1) {
+                    ends3DString.push(results3D.input.substring(results3D.index).indexOf("&") + results3D.index);
+                } else {
+                    ends3DString.push(results3D.input.length);
+                }
+            }
+
+            var resultsTermInfo, startsTermInfoString = [], endsTermInfoString = [];
+            var regexTermInfo = /id=/gi;
+            while((resultsTermInfo = regexTermInfo.exec(idsList))) {
+                startsTermInfoString.push(resultsTermInfo.index + resultsTermInfo[0].length);
+                if(resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") > -1) {
+                    endsTermInfoString.push(resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") + resultsTermInfo.index);
+                } else {
+                    endsTermInfoString.push(resultsTermInfo.input.length);
+                }
+                
+            }
+            for(var i=0 ; i < startsTermInfoString.length ; i++) {
+                var idsTermInfoSubstring = idsList.substring(startsTermInfoString[i], endsTermInfoString[i]).split(",");
+                var that = this;
+                console.log("Loading IDS to add to term info from url");
+                GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+                    that.addVfbId(idsTermInfoSubstring);
+                });
+            }
+
+            for(var i=0 ; i < starts3DString.length ; i++) {
+                var ids3DSubstring = idsList.substring(starts3DString[i], ends3DString[i]).split(",");
+                var that = this;
+                console.log("Loading IDS to add to term info from url");
+                GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+                    that.addVfbId(ids3DSubstring);
+                    //that.focusIdTermInfo(ids3DSubstring, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
+                    var metaTermInfo = Instances.getInstance(idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '.' + idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '_meta');
+                    that.refs.termInfoRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
+                });
+            }
+        } else {
+            var idsList = this.props.location.search.replace("?i=", "");
+            if((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+                this.urlIdsLoaded = true;
+                var idArray = idsList.split(",");
+                var that = this;
+                console.log("Loading IDS to add to the scene from url");
+                GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+                    that.addVfbId(idArray);
+                });
+            }
         }
 
         // Selection listener
