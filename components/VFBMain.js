@@ -16,7 +16,7 @@ import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
 // import NewWidget from '../../../js/components/widgets/NewWidget'; For future use.
 require('./VFBMain.less');
 require('../css/VFB.css');
-require('../css/base.css');
+//require('../css/base.css');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -31,7 +31,7 @@ export default class VFBMain extends React.Component {
             canvasAvailable: false,
             modelLoaded: (window.Model != undefined),
             infoBtn: true, // All states handled by the button bar
-            stackBtn: true, 
+            stackBtn: true,
             tutorialBtn: false,
             searchBtn: true,
             controlPanelBtn: true,
@@ -105,19 +105,13 @@ export default class VFBMain extends React.Component {
                 "tooltip": "Show slice viewer"
             },
             "meshBtn": {
-                "condition": "true",
+                "condition": "false",
                 "false": {
-                    "actions": [
-                        ""
-                    ],
                     "icon": "gpt-sphere_solid",
                     "label": "",
                     "tooltip": "Show wireframe"
                 },
                 "true": {
-                    "actions": [
-                        ""
-                    ],
                     "icon": "gpt-sphere_wireframe-jpg",
                     "label": "",
                     "tooltip": "Hide wireframe"
@@ -1016,13 +1010,10 @@ export default class VFBMain extends React.Component {
         }
     };
 
-    componentWillUpdate(nextProps, nextState) {
-        console.log("component will update called");
-    };
-
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
             Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
             this.setState({modelLoaded: true});
@@ -1068,7 +1059,7 @@ export default class VFBMain extends React.Component {
         this.refs.vfbCanvas.displayAllInstances();
         this.refs.vfbCanvas.engine.controls.rotateSpeed = 3;
         this.refs.vfbCanvas.engine.setLinesThreshold(0);
-        
+
         //Control panel initialization and filter which instances to display
         if(this.refs.controlpanelRef !== undefined) {
             this.refs.controlpanelRef.setColumnMeta(this.controlPanelColMeta);

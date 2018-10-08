@@ -41,8 +41,8 @@ export default class TutorialWidget extends React.Component {
                     tutorialsList={tutorialsList}
                     isStateLess={true}
                     resizable={true}
-                    draggable={false}
-                    fixPosition={true}
+                    draggable={true}
+                    fixPosition={false}
                     help={true}
                     showHistoryIcon={false}
                     closable={true}

@@ -8,11 +8,6 @@ define(function (require) {
         var Router = require('react-router-dom').BrowserRouter;
         var VFBMain = require('./components/VFBMain').default;
 
-        GEPPETTO.G.setIdleTimeOut(-1);
-        GEPPETTO_CONFIGURATION.properties.title = "VFB - Virtual Fly Brain";
-        GEPPETTO_CONFIGURATION.properties.description = "VFB - Virtual Fly Brain, a hub for Drosophila melanogaster neuroscience research";
-        GEPPETTO_CONFIGURATION.properties.icon = "https://v2.virtualflybrain.org/images/vfbbrain_icon.png";
-        
         ReactDOM.render( 
                 <Router basename={GEPPETTO_CONFIGURATION.contextPath}>
                     <Switch>
