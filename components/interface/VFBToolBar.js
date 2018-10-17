@@ -453,10 +453,10 @@ export default class VFBToolBar extends React.Component {
 
 				<div className="rightSide">
 					<div className="wideDivR">
-						<a href="https://v2.virtualflybrain.org/?i=VFB_00017894">Adult Brain</a>&nbsp;&nbsp;
-						<a href="https://v2.virtualflybrain.org/?i=VFB_00100000">Adult VNS</a>&nbsp;&nbsp;
-						<a href="https://v2.virtualflybrain.org/?i=VFB_00050000">Larva L1</a>&nbsp;&nbsp;
-						<a href="https://v2.virtualflybrain.org/?i=VFB_00049000">Larva L3</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00017894">Adult Brain</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00100000">Adult VNS</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00050000">Larva L1</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00049000">Larva L3</a>&nbsp;&nbsp;
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<a onClick={this.clickAbout}>About</a>
 						<a onClick={this.clickContribute}>Contribute</a>

@@ -15,6 +15,7 @@ import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
 
 // import NewWidget from '../../../js/components/widgets/NewWidget'; For future use.
 require('./VFBMain.less');
+require('../css/base.less');
 require('../css/VFB.css');
 //require('../css/base.css');
 var $ = require('jquery');
