@@ -6,8 +6,8 @@ export default class StackWidget extends React.Component {
         super(props);
 
         this.state = {
-            stackViewOpened: true,
-            stackViewMounted: false,
+            stackViewerOpened: true,
+            stackViewerMounted: false,
         }
 
         this.addStackWidget = this.addStackWidget.bind(this);
@@ -220,7 +220,7 @@ export default class StackWidget extends React.Component {
     // so this method is never called and the update when closed is not propagated to VFBMain
     closeHandler() {
         this.setState({
-            stackViewOpened: false
+            stackViewerOpened: false
         });
         this.props.stackViewerHandler(false);
         window.StackViewer1 = undefined;
@@ -230,7 +230,7 @@ export default class StackWidget extends React.Component {
         // Timeout necessary to avoid the terminfoWidget to disappear, related to loadProjectFromURL event apparently.
         setTimeout(function() {
             console.log("Rendering stack viewer Widget...");
-            if((this.state.stackViewOpened) && !(this.state.stackViewMounted)){
+            if((this.state.stackViewerOpened) && !(this.state.stackViewerMounted)){
                 this.stackViewToRender = this.addStackWidget();
         }}.bind(this), 2000);
     };

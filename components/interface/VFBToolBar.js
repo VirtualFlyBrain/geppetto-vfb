@@ -1,8 +1,6 @@
 import React from 'react';
 
-require('./VFBToolBar.less');
-require('../../css/slideshow.min.css');
-require('../../css/uikit.min.css');
+require('../../css/VFBToolBar.less');
 var Rnd = require('react-rnd').default;
 var HTMLViewer = require('../../../../js/components/interface/htmlViewer/HTMLViewer');
 
