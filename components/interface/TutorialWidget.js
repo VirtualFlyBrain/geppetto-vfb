@@ -14,10 +14,16 @@ export default class TutorialWidget extends React.Component {
         //}
 
         this.closeHandler = this.closeHandler.bind(this);
+        this.openHandler = this.openHandler.bind(this);
     }
 
     closeHandler() {
         console.log("tutorial close handler called");
+        this.props.tutorialHandler();
+    }
+
+    openHandler() {
+        console.log(this.refs.tutorialRef);
     }
 
     render() {
@@ -29,27 +35,28 @@ export default class TutorialWidget extends React.Component {
             "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
             "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"];
         return (
-            <div id="tutorial">
                 <TutorialWidget
+                    id={'widgetTutorial'}
                     componentType={'TUTORIAL'}
                     tutorialData={vfbDefaultTutorial}
                     closeByDefault={false}
-                    position={{left: 100, top: 70}}
-                    size={{height: 400, width: 400}}
+                    position={{left: 100, top: 70, position: "absolute"}}
+                    size={{height: 300, width: 350}}
                     tutorialMessageClass="tutorialMessage"
-                    showMemoryCheckbox={false}
+                    showMemoryCheckbox={true}
                     tutorialsList={tutorialsList}
+                    closeHandler={this.closeHandler}
                     isStateLess={true}
                     resizable={true}
                     draggable={true}
                     fixPosition={false}
                     help={true}
-                    showHistoryIcon={false}
+                    showHistoryIcon={true}
                     closable={true}
                     minimizable={true}
                     maximizable={true}
-                    collapsable={true} />
-            </div>
+                    collapsable={true}
+                    ref="tutorialRef" />
         );
     }
 }

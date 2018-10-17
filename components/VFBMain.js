@@ -47,6 +47,7 @@ export default class VFBMain extends React.Component {
         this.setSepCol = this.setSepCol.bind(this);
         this.customSorter = this.customSorter.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
+        this.tutorialHandler = this.tutorialHandler.bind(this)
         this.termInfoHandler = this.termInfoHandler.bind(this);
         this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
         this.buttonBarHandler = this.buttonBarHandler.bind(this);
@@ -1012,10 +1013,11 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            //Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
             // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             this.setState({modelLoaded: true});
         }
 
@@ -1195,8 +1197,15 @@ export default class VFBMain extends React.Component {
         }
     }
 
+    tutorialHandler() {
+        if(this.state.tutorialBtn == true) {
+            this.setState({
+                tutorialBtn: false
+            });
+        }
+    }
+
     termInfoHandler(childrenState) {
-        console.log("term info has been closed");
         if(childrenState !== undefined) {
             this.setState({ infoBtn: childrenState });
         } else {
@@ -1205,7 +1214,6 @@ export default class VFBMain extends React.Component {
     };
 
     stackViewerHandler(childrenState) {
-        console.log("term info has been closed");
         if(childrenState !== undefined) {
             this.setState({ stackBtn: childrenState });
         } else {
@@ -1241,7 +1249,11 @@ export default class VFBMain extends React.Component {
 
     render() {
 
-        this.tutorialRender = this.state.tutorialBtn ? <TutorialWidget />  : undefined;
+        if((this.state.tutorialBtn == true) && (this.tutorialRender == undefined)) {
+            this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
+        } else if((this.state.tutorialBtn == true) && (this.tutorialRender != undefined)){
+            this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
+        }
 
         this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined) ?
             <Rnd enableResizing={{
