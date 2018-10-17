@@ -430,9 +430,22 @@ export default class VFBToolBar extends React.Component {
 
 	render() {
 		return (
+			<Rnd enableResizing={{
+				top: false, right: false, bottom: false, left: false,
+				topRight: false, bottomRight: false, bottomLeft: false,
+				topLeft: false
+				}}
+				default={{ x: 0, y: 0,
+						height: 100,
+						width: '100%'}}
+				className="vfbToolBarClass"
+				disableDragging={true}
+				ref={e => { this.rnd = e; }} >
 			<nav>
 				<div className="leftSide">
 					<div className="wideDivL">
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<a href="https://v2.virtualflybrain.org/?i=VFB_00017894">
 							<b>Virtual Fly Brain</b>
 							<small className="uk-visible-large"> A hub for
@@ -471,6 +484,7 @@ export default class VFBToolBar extends React.Component {
 					</div>
 				</div>
 			</nav>
+			</Rnd>
 		);
 	}
 }

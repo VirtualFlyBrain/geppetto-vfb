@@ -768,11 +768,11 @@ export default class VFBMain extends React.Component {
         this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined) ?
             <Rnd enableResizing={{
                 top: false, right: false, bottom: false, left: false,
-                topRight: false, bottomRight: false, bottomLeft: false, 
+                topRight: false, bottomRight: false, bottomLeft: false,
                 topLeft: false
                 }}
                 default={{ x: 50, y: 50, 
-                        height: window.innerHeight - 100, 
+                        height: window.innerHeight - 100,
                         width: window.innerWidth - 100}}
                 className="htmlViewerVFB"
                 disableDragging={true}
