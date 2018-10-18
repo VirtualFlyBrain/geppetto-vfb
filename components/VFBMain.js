@@ -821,7 +821,7 @@ export default class VFBMain extends React.Component {
 
                 <LinkButton
                     left={41}
-                    top={365}
+                    top={325}
                     icon='fa fa-github' 
                     url='https://github.com/VirtualFlyBrain/VFB2' />
 
