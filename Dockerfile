@@ -45,8 +45,8 @@ RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.frontend.git -b $BRANCH_BASE && \
 cd org.geppetto.frontend && git checkout $BRANCH_ORG_GEPPETTO_FRONTEND || true 
 RUN cd /opt/geppetto && \
-git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b $BRANCH_BASE && \
-cd geppetto-vfb && git checkout $BRANCH_GEPPETTO_VFB || true 
+git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b refactored-widgets-fix && \
+cd geppetto-vfb && git checkout refactored-widgets-fix || true 
 RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.core.git -b $BRANCH_BASE && \
 cd org.geppetto.core && git checkout $BRANCH_ORG_GEPPETTO_CORE || true 
