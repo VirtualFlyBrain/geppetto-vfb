@@ -41,40 +41,45 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
     // open project, check for items in term info popup
     casper.thenOpen(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
-
+    	this.waitForSelector('#VFB_00017894_select_ctrlPanel_btn', function () {
+            this.echo("I waited for the logo to load.");
+            test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
+        }, null, 120000);
+    });
+    
+    casper.then(function () {
         casper.then(function () {
-            casper.then(function () {
-                this.waitForText('VFB_00017894', function () {
-                    casper.wait(2000, function () {
-                        this.echo("Element JFRC2_template appeared in popup");
-                        test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
-                        test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
-                    });
-                }, null, 30000);
+            this.waitForText('VFB_00017894', function () {
+                casper.wait(2000, function () {
+                    this.echo("Element JFRC2_template appeared in popup");
+                    test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+                    test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
+                });
+            }, null, 30000);
 
 
-            });
+        });
+    });
+
+    // open spotlight and check functionality
+    casper.then(function () {
+        casper.then(function () {
+            this.waitForSelector('button[id=spotlightVisible]', function () {
+                test.assertExists('button[id=spotlightVisible]', "Spotlight button exists");
+            }, null, 20000);
         });
 
-        // open spotlight and check functionality
         casper.then(function () {
-            casper.then(function () {
-                this.waitForSelector('button[id=searchBtn]', function () {
-                    test.assertExists('button[id=searchBtn]', "Spotlight button exists");
-                }, null, 20000);
-            });
+            spotlightTest(test, "VFB_00000001", "#buttonTwo", "#Popup1_VFB_00000001_metadata_el_");
+        });
 
-            casper.then(function () {
-                spotlightTest(test, "VFB_00000001", "#buttonTwo", "#Popup1_VFB_00000001_metadata_el_");
-            });
+        casper.then(function () {
+            testMeshVisibility(test, true, "VFB_00017894.VFB_00017894_obj");
+        });
 
-            casper.then(function () {
-                testMeshVisibility(test, true, "VFB_00017894.VFB_00017894_obj");
-            });
-
-            casper.then(function () {
-                spotlightTest(test, "medulla", "#buttonOne", "#Popup1_FBbt_00003748_metadata_el_");
-            });
+        casper.then(function () {
+            spotlightTest(test, "medulla", "#buttonOne", "#Popup1_FBbt_00003748_metadata_el_");
         });
     });
 
@@ -88,7 +93,7 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
     }
 
     function spotlightTest(test, searchQuery, buttonClick, termInfoData) {
-        casper.mouseEvent('click', 'button[id=searchBtn]', "attempting to open spotlight");
+        casper.mouseEvent('click', 'button[id=spotlightVisible]', "attempting to open spotlight");
 
         casper.waitUntilVisible('div#spotlight', function () {
             test.assertVisible('div#spotlight', "Spotlight opened");

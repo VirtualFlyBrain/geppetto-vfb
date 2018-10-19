@@ -1,6 +1,6 @@
 var urlBase = casper.cli.get('host');
 if (urlBase == null || urlBase == undefined) {
-    urlBase = "http://127.0.0.1:8081/";
+    urlBase = "http://127.0.0.1:8080/";
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
@@ -47,17 +47,13 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 
     // open control panel, check it's visible
     casper.then(function () {
-        casper.evaluate(function () {
-            Popup1.destroy();
-        });
-
-        this.mouseEvent('click', 'button[id=infoBtn]', 'Opening term info popup');
+        this.mouseEvent('click', 'button[id=termInfoVisible]', 'Opening term info popup');
 
         // check that control panel is invisible
         test.assertNotVisible('#controlpanel', "Control panel is invisible");
 
         this.echo("Clicking on control panel button to open query builder");
-        this.mouseEvent('click', 'button[id=controlPanelBtn]', 'Opening control panel');
+        this.mouseEvent('click', 'button[id=controlPanelVisible]', 'Opening control panel');
 
         test.assertVisible('#controlpanel', "Control panel is visible");
     });

@@ -1,6 +1,6 @@
 var urlBase = casper.cli.get('host');
 if (urlBase == null || urlBase == undefined) {
-    urlBase = "http://127.0.0.1:8080/";
+    urlBase = "http://127.0.0.1:8081/";
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
@@ -42,8 +42,8 @@ casper.test.begin('VFB query component tests', function suite(test) {
     casper.thenOpen(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
 
-        this.waitForSelector('button[id=queryBtn]', function () {
-            test.assertExists('button[id=queryBtn]', "Query builder button appeared");
+        this.waitForSelector('button[id=queryBuilderVisible]', function () {
+            test.assertExists('button[id=queryBuilderVisible]', "Query builder button appeared");
         }, null, 20000);
 
         // wait for control panel items to be populated - this will ensure scene has loaded
@@ -62,7 +62,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
             test.assertNotVisible('#querybuilder', "Query builder is invisible");
 
             this.echo("Clicking on query builder button to open query builder");
-            this.mouseEvent('click', 'button[id=queryBtn]', 'Opening query builder');
+            this.mouseEvent('click', 'button[id=queryBuilderVisible]', 'Opening query builder');
 
             test.assertVisible('#querybuilder', "Query builder is visible");
         });
