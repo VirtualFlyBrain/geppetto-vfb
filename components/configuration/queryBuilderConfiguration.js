@@ -1,4 +1,4 @@
-import default from '../VFBMain';
+var default = require('../VFBMain');
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
 var queryResultsColMeta = [
