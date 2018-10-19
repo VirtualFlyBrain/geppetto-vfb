@@ -227,12 +227,12 @@ export default class StackWidget extends React.Component {
     };
 
     componentDidMount() {
-        // Timeout necessary to avoid the terminfoWidget to disappear, related to loadProjectFromURL event apparently.
-        setTimeout(function() {
-            console.log("Rendering stack viewer Widget...");
-            if((this.state.stackViewerOpened) && !(this.state.stackViewerMounted)){
-                this.stackViewToRender = this.addStackWidget();
-        }}.bind(this), 2000);
+    	var self = this;
+    	GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
+    		if((self.state.termInfoOpened) && !(self.state.termInfoMounted)){
+    			self.termInfoToRender = self.addTermInfo();
+    		}
+    	});
     };
 
     render() {
