@@ -229,8 +229,8 @@ export default class StackWidget extends React.Component {
     componentDidMount() {
     	var self = this;
     	GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
-    		if((self.state.termInfoOpened) && !(self.state.termInfoMounted)){
-    			self.termInfoToRender = self.addTermInfo();
+    		if((self.state.stackViewerOpened) && !(self.state.stackViewerMounted)){
+    			 self.stackViewToRender = self.addStackWidget();
     		}
     	});
     };
