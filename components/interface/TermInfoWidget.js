@@ -394,6 +394,7 @@ export default class TermInfoWidget extends React.Component {
     	GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
     		if((self.state.termInfoOpened) && !(self.state.termInfoMounted)){
     			self.termInfoToRender = self.addTermInfo();
+    			console.log("Term info mounted");
     		}
     	});
     };

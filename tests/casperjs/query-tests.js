@@ -1,10 +1,10 @@
 var urlBase = casper.cli.get('host');
 if (urlBase == null || urlBase == undefined) {
-    urlBase = "http://127.0.0.1:8081/";
+    urlBase = "http://127.0.0.1:8080/";
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
-var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json?i=VFB_00017894";
 
 casper.test.begin('VFB query component tests', function suite(test) {
     casper.options.viewportSize = {
@@ -40,8 +40,15 @@ casper.test.begin('VFB query component tests', function suite(test) {
 
     // open project, check for items in control panel + instances
     casper.thenOpen(PROJECT_URL, function () {
-        this.echo("Loading project at URL: " + PROJECT_URL);
-
+    	this.echo("Loading project at URL: " + PROJECT_URL);
+    	this.waitForSelector('#VFB_00017894_select_ctrlPanel_btn', function () {
+            this.echo("I waited for the logo to load.");
+            test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
+        }, null, 120000);
+    });
+    
+    casper.then(function () {
         this.waitForSelector('button[id=queryBuilderVisible]', function () {
             test.assertExists('button[id=queryBuilderVisible]', "Query builder button appeared");
         }, null, 20000);

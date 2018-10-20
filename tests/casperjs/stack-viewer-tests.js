@@ -4,7 +4,7 @@ if (urlBase == null || urlBase == undefined) {
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
-var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json?i=VFB_00017894";
 
 casper.test.begin('VFB StackViewer tests', function suite(test) {
     casper.options.viewportSize = {
@@ -44,38 +44,36 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
 
         casper.then(function () {
             casper.then(function () {
-                this.waitForText('VFB_00017894', function () {
-                    casper.wait(2000, function () {
-                        this.echo("Element JFRC2_template appeared in popup");
-                        test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
-                        test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
-                    });
-                }, null, 30000);
-
-            });
-
-            casper.then(function () {
-                var canvasMeshes = this.evaluate(function () {
-                    return Object.keys(CanvasContainer.engine.meshes).length;
-                });
-
-                test.assertEquals(canvasMeshes, 1, "CanvasContainer has 1 mesh");
-
-                var stackViewerMeshes = this.evaluate(function () {
-                    return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
-                });
-
-                test.assertEquals(stackViewerMeshes, 1, "StackViewer has 1 mesh");
-            });
-
-            casper.then(function () {
-                queryTests(test, "#VFB_00030810-image-container", "Popup1_VFB_00030810_metadata_el_0");
-            });
-
-            casper.then(function () {
-                stackViewerTests();
+                this.wait(10000);
+                this.waitForSelector('#VFB_00017894_deselect_buttonBar_btn', function () {
+                    this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
+                    test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00017894 as last in the list to be rendered');
+                    test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created 1');
+                }, null, 50000);
             });
         });
+    });
+    
+    casper.then(function () {
+        var canvasMeshes = this.evaluate(function () {
+            return Object.keys(CanvasContainer.engine.meshes).length;
+        });
+
+        test.assertEquals(canvasMeshes, 1, "CanvasContainer has 1 mesh");
+
+        var stackViewerMeshes = this.evaluate(function () {
+            return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
+        });
+
+        test.assertEquals(stackViewerMeshes, 1, "StackViewer has 1 mesh");
+    });
+
+    casper.then(function () {
+        queryTests(test, "#VFB_00030810-image-container", "Popup1_VFB_00030810_metadata_el_0");
+    });
+
+    casper.then(function () {
+        stackViewerTests();
     });
 
     function stackViewerTests() {
@@ -160,7 +158,7 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
             test.assertNotVisible('#querybuilder', "Query builder is invisible");
 
             this.echo("Clicking on query builder button to open query builder");
-            this.mouseEvent('click', 'button[id=queryBtn]', 'Opening query builder');
+            this.mouseEvent('click', 'button[id=queryBuilderVisible]', 'Opening query builder');
 
             test.assertVisible('#querybuilder', "Query builder is visible");
         });
