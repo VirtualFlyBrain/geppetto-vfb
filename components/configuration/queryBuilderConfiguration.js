@@ -170,9 +170,11 @@ var queryBuilderDatasourceConfig = {
     }
 };
 
-module.exports = {
-    queryResultsColMeta,
-    queryResultsColumns,
-    queryResultsControlConfig,
-    queryBuilderDatasourceConfig
-};
+define(function (require, exports, module) {
+    module.exports = {
+        queryResultsColMeta,
+        queryResultsColumns,
+        queryResultsControlConfig,
+        queryBuilderDatasourceConfig
+    };
+});
