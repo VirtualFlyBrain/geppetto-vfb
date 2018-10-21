@@ -1,5 +1,3 @@
-import customSorter from '../VFBMain';
-
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
 var queryResultsColMeta = [
@@ -164,7 +162,7 @@ var queryBuilderDatasourceConfig = {
             }.bind(this),
             sorter: function (a, b) {
                 var term = $("#query-typeahead").val();
-                return customSorter(a, b, term);
+                return this.customSorter(a, b, term);
             }.bind(this)
         }
     }
