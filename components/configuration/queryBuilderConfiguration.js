@@ -162,7 +162,7 @@ var queryBuilderDatasourceConfig = {
             }.bind(this),
             sorter: function (a, b) {
                 var term = $("#query-typeahead").val();
-                return this.customSorter(a, b, term);
+                return customSorter(a, b, term);
             }.bind(this)
         }
     }

@@ -133,7 +133,7 @@ var spotlightDataSourceConfig = {
             }.bind(this),
             sorter: function (a, b) {
                 var term = $('#typeahead').val();
-                return this.customSorter(a, b, term);
+                return customSorter(a, b, term);
             }.bind(this)
         }
     }
