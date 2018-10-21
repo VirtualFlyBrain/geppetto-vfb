@@ -141,7 +141,10 @@ var spotlightDataSourceConfig = {
     }
 };
 
-module.exports = {
-    spotlightConfig,
-    spotlightDataSourceConfig
-};
+
+define(function (require, exports, module) {
+    module.exports = {
+        spotlightConfig,
+        spotlightDataSourceConfig
+    };
+});
