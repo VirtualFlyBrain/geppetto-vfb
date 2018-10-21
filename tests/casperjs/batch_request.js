@@ -49,7 +49,7 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
                     this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
                     test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00017894 as last in the list to be rendered');
                     test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created 1');
-                }, null, 50000);
+                }, null, 100000);
             });
         });
     });
