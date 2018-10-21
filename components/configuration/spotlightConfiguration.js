@@ -1,4 +1,4 @@
-import customSorter from '../VFBMain';
+import VFBMain from '../VFBMain';
 
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
@@ -135,7 +135,7 @@ var spotlightDataSourceConfig = {
             }.bind(this),
             sorter: function (a, b) {
                 var term = $('#typeahead').val();
-                return customSorter(a, b, term);
+                return VFBMain.customSorter(a, b, term);
             }.bind(this)
         }
     }
