@@ -169,8 +169,8 @@ var queryBuilderDatasourceConfig = {
 };
 
 module.exports = {
-    queryResultsColMeta,
-    queryResultsColumns,
-    queryResultsControlConfig,
-    queryBuilderDatasourceConfig
+	queryResultsColMeta,
+	queryResultsColumns,
+	queryResultsControlConfig,
+	queryBuilderDatasourceConfig
 };
