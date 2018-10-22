@@ -10,20 +10,11 @@ export default class TutorialWidget extends React.Component {
     constructor(props) {
         super(props);
 
-        //this.state = {
-        //}
-
         this.closeHandler = this.closeHandler.bind(this);
-        this.openHandler = this.openHandler.bind(this);
     }
 
     closeHandler() {
-        console.log("tutorial close handler called");
         this.props.tutorialHandler();
-    }
-
-    openHandler() {
-        console.log(this.refs.tutorialRef);
     }
 
     render() {

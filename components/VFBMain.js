@@ -11,6 +11,7 @@ import SpotLight from '../../../js/components/interface/spotlight/spotlight';
 import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
 import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
 import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
+import VFBTermInfoWidget from './interface/VFBTermInfo';
 
 // import NewWidget from '../../../js/components/widgets/NewWidget'; For future use.
 require('../css/base.less');
@@ -67,6 +68,7 @@ export default class VFBMain extends React.Component {
         this.coli = 1;
         this.vfbLoadBuffer = [];
         this.tutorialRender = undefined;
+        this.termInfoRender = undefined;
         this.htmlToolbarRender = undefined;
         this.urlIdsLoaded = false;
         this.idInitialized = false;
@@ -92,7 +94,6 @@ export default class VFBMain extends React.Component {
         this.buttonBarConfig = require('../components/configuration/buttonBarConfiguration').buttonBarConfig;
 
         this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
-        this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
 
         this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
         this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
@@ -102,7 +103,142 @@ export default class VFBMain extends React.Component {
         this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
         this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
         this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
-        this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
+
+        this.spotlightDataSourceConfig = {
+            VFB: {
+                url: "http://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E110.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
+                crossDomain: true,
+                id: "short_form",
+                label: { field: "label", formatting: "$VALUE$" },
+                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
+                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
+                type: {
+                    property: {
+                        icon: "fa-file-text-o",
+                        buttons: {
+                            buttonOne: {
+                                actions: ["window.addVfbId('$ID$');"],
+                                icon: "fa-info-circle",
+                                label: "Show info",
+                                tooltip: "Show info"
+                            }
+                        }
+                    },
+                    class: {
+                        icon: "fa-file-text-o",
+                        buttons: {
+                            buttonOne: {
+                                actions: ["window.addVfbId('$ID$');"],
+                                icon: "fa-info-circle",
+                                label: "Show info",
+                                tooltip: "Show info"
+                            },
+                            buttonTwo: {
+                                actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
+                                icon: "fa-quora",
+                                label: "Add to query",
+                                tooltip: "Add to query"
+                            }
+                        }
+                    },
+                    individual: {
+                        icon: "fa-file-image-o",
+                        buttons: {
+                            buttonOne: {
+                                actions: ["window.addVfbId('$ID$');"],
+                                icon: "fa-file-image-o",
+                                label: "Add to scene",
+                                tooltip: "Add to scene"
+                            },
+                            buttonTwo: {
+                                actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
+                                icon: "fa-quora",
+                                label: "Add to query",
+                                tooltip: "Add to query"
+                            }
+                        }
+                    }
+                },
+                bloodhoundConfig: {
+                    datumTokenizer: function (d) {
+                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                    }.bind(this),
+                    queryTokenizer: function (q) {
+                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                    }.bind(this),
+                    sorter: function (a, b) {
+                        var term = $('#typeahead').val();
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
+                }
+            }
+        };
+
+        this.queryBuilderDatasourceConfig = {
+            VFB: {
+                url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
+                crossDomain: true,
+                id: "short_form",
+                label: { field: "label", formatting: "$VALUE$" },
+                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
+                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
+                type: {
+                    class: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-dot-circle-o"
+                    },
+                    individual: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-square-o"
+                    }
+                },
+                queryNameToken: '$NAME',
+                resultsFilters: {
+                    getItem: function (record, header, field) {
+                        var recordIndex = header.indexOf(field);
+                        return record[recordIndex]
+                    },
+                    getId: function (record) {
+                        return record[0]
+                    },
+                    getName: function (record) {
+                        return record[1]
+                    },
+                    getDescription: function (record) {
+                        return record[2]
+                    },
+                    getType: function (record) {
+                        return record[3]
+                    },
+                    getImageData: function (record) {
+                        return record[4]
+                    },
+                    getScore: function (record) {
+                        return record[5]
+                    },
+                    getRecords: function (payload) {
+                        return payload.results.map(function (item) {
+                            return item.values
+                        })
+                    },
+                    getHeaders: function (payload) {
+                        return payload.header;
+                    }
+                },
+                bloodhoundConfig: {
+                    datumTokenizer: function (d) {
+                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                    }.bind(this),
+                    queryTokenizer: function (q) {
+                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                    }.bind(this),
+                    sorter: function (a, b) {
+                        var term = $("#query-typeahead").val();
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
+                }
+            }
+        };
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
@@ -333,9 +469,11 @@ export default class VFBMain extends React.Component {
                     if ((instance != undefined) && (typeof instance.select === "function"))
                         instance.select();
                     this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
+                    //this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
                 }.bind(this));
             } else {
                 this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
+                //this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
             }
             // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
             if (window[variableIds[singleId]] != undefined) {
@@ -491,13 +629,17 @@ export default class VFBMain extends React.Component {
     };
 
     componentDidUpdate(prevProps, prevState) {
-        // Reopen Terminfo from button bar if previously has been closed.
-        if((this.state.termInfoVisible === true) && (prevState.termInfoVisible !== this.state.termInfoVisible) && (prevState.termInfoVisible !== undefined)) {
-            this.refs.termInfoRef.addTermInfo();
-        }
         // Reopen stackViewer from button bar if previously has been closed.
         if((prevState.stackViewerVisible !== this.state.stackViewerVisible) && (prevState.stackViewerVisible !== undefined)) {
             this.refs.stackViewerRef.addStackWidget();
+        }
+
+        if((prevState.termInfoVisible !== this.state.termInfoVisible) && (this.termInfoRender !== undefined)) {
+            this.refs.termInfoWidgetRef.refs.termInfoRef.open(true);
+        }
+
+        if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
+            this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
         }
 
         if((prevState.wireframeVisible !== this.state.wireframeVisible)) {
@@ -523,7 +665,7 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            //Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
             // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
@@ -543,6 +685,7 @@ export default class VFBMain extends React.Component {
     }
 
     componentDidMount() {
+        G.setIdleTimeOut("-1");
         // Global functions linked to VFBMain functions
         window.stackViewerRequest = function(idFromStack) {
             this.stackViewerRequest(idFromStack);
@@ -554,6 +697,7 @@ export default class VFBMain extends React.Component {
 
         window.setTermInfo = function(meta, id) {
             this.refs.termInfoRef.setTermInfo(meta, id);
+            //this.refs.termInfoWidgetRef.setTermInfo(meta, id);
         }.bind(this);
 
         window.fetchVariableThenRun = function(idsList, cb, label) {
@@ -654,6 +798,7 @@ export default class VFBMain extends React.Component {
                     //that.focusIdTermInfo(ids3DSubstring, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                     var metaTermInfo = Instances.getInstance(idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '.' + idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '_meta');
                     that.refs.termInfoRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
+                    //that.refs.termInfoWidgetRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                 });
             }
         } else {
@@ -682,12 +827,14 @@ export default class VFBMain extends React.Component {
                     // it's a wrapper object - if name is different from current selection set term info
                     if (currentSelectionName != latestSelection.getName()) {
                         this.refs.termInfoRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                        //this.refs.termInfoWidgetRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
                     }
                 } else {
                     // it's a leaf (no children) / grab parent if name is different from current selection set term info
                     var parent = latestSelection.getParent();
                     if (parent != null && currentSelectionName != parent.getName()) {
                         this.refs.termInfoRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
+                        //this.refs.termInfoWidgetRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                     }
                 }
             }
@@ -715,12 +862,18 @@ export default class VFBMain extends React.Component {
         }
     }
 
-    termInfoHandler(childrenState) {
-        if(childrenState !== undefined) {
-            this.setState({ termInfoVisible: childrenState });
-        } else {
-            this.setState({ termInfoVisible: !(this.state.termInfoVisible) });
-        }       
+    termInfoHandler() {
+        if(this.state.termInfoVisible == true) {
+            this.termInfoRender = undefined;
+            this.setState({
+                termInfoVisible: false
+            });
+        }
+        // if(childrenState !== undefined) {
+        //     this.setState({ termInfoVisible: childrenState });
+        // } else {
+        //     this.setState({ termInfoVisible: !(this.state.termInfoVisible) });
+        // }
     };
 
     stackViewerHandler(childrenState) {
@@ -758,12 +911,16 @@ export default class VFBMain extends React.Component {
     }
 
     render() {
-
         if((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
             this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
-        } else if((this.state.tutorialWidgetVisible == true) && (this.tutorialRender != undefined)){
-            this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
         }
+
+        if((this.state.termInfoVisible == true) && (this.termInfoRender == undefined)) {
+            this.termInfoRender = <VFBTermInfoWidget termInfoHandler={this.termInfoHandler} ref="termInfoWidgetRef"/>
+        }
+        // else if((this.state.termInfoVisible == true) && (this.termInfoRender != undefined)){
+        //     this.refs.termInfoWidgetRef.refs.termInfoRef.open(true);
+        // }
 
         this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined) ?
             <Rnd enableResizing={{
@@ -859,7 +1016,14 @@ export default class VFBMain extends React.Component {
                     idSelected={this.state.idSelected}
                     termInfoHandler={this.termInfoHandler} />
 
-                {this.tutorialRender}
+                <div id="termInfoDiv">
+                    {this.termInfoRender}
+                </div>
+
+                <div id="tutorialDiv">
+                    {this.tutorialRender}
+                </div>
+
                 {this.htmlToolbarRender}
             </div>
         );
