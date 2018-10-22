@@ -44,7 +44,6 @@ export default class VFBMain extends React.Component {
         this.addVfbId = this.addVfbId.bind(this);
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
-        //this.customSorter = this.customSorter.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
         this.tutorialHandler = this.tutorialHandler.bind(this)
         this.termInfoHandler = this.termInfoHandler.bind(this);
@@ -448,8 +447,7 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            //Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
             // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
@@ -791,6 +789,8 @@ export default class VFBMain extends React.Component {
     }
 }
 
+//Moved out of VFBMain class, and placed here as a global function in order to be accessed by 
+//spotlight and query configuration files
 window.customSorter = function(a, b, InputString) {
     //move exact matches to top
     if (InputString == a.label) {

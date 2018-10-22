@@ -4,7 +4,7 @@ if (urlBase == null || urlBase == undefined) {
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
-var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json?i=VFB_00017894";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894";
 
 casper.test.begin('VFB query component tests', function suite(test) {
     casper.options.viewportSize = {
@@ -41,6 +41,8 @@ casper.test.begin('VFB query component tests', function suite(test) {
     // open project, check for items in control panel + instances
     casper.thenOpen(PROJECT_URL, function () {
     	this.echo("Loading project at URL: " + PROJECT_URL);
+    	//wait for VFB_00017894 select control panel button to appear, should appear after last mesh 
+    	//is rendered
     	this.waitForSelector('#VFB_00017894_select_ctrlPanel_btn', function () {
             this.echo("I waited for the logo to load.");
             test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
