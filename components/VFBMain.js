@@ -92,7 +92,6 @@ export default class VFBMain extends React.Component {
         this.buttonBarConfig = require('../components/configuration/buttonBarConfiguration').buttonBarConfig;
 
         this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
-        this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
 
         this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
         this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
@@ -102,7 +101,142 @@ export default class VFBMain extends React.Component {
         this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
         this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
         this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
-        this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
+
+        this.queryBuilderDatasourceConfig = {
+            VFB: {
+                url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
+                crossDomain: true,
+                id: "short_form",
+                label: { field: "label", formatting: "$VALUE$" },
+                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
+                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
+                type: {
+                    class: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-dot-circle-o"
+                    },
+                    individual: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-square-o"
+                    }
+                },
+                queryNameToken: '$NAME',
+                resultsFilters: {
+                    getItem: function (record, header, field) {
+                        var recordIndex = header.indexOf(field);
+                        return record[recordIndex]
+                    },
+                    getId: function (record) {
+                        return record[0]
+                    },
+                    getName: function (record) {
+                        return record[1]
+                    },
+                    getDescription: function (record) {
+                        return record[2]
+                    },
+                    getType: function (record) {
+                        return record[3]
+                    },
+                    getImageData: function (record) {
+                        return record[4]
+                    },
+                    getScore: function (record) {
+                        return record[5]
+                    },
+                    getRecords: function (payload) {
+                        return payload.results.map(function (item) {
+                            return item.values
+                        })
+                    },
+                    getHeaders: function (payload) {
+                        return payload.header;
+                    }
+                },
+                bloodhoundConfig: {
+                    datumTokenizer: function (d) {
+                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                    }.bind(this),
+                    queryTokenizer: function (q) {
+                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                    }.bind(this),
+                    sorter: function (a, b) {
+                        var term = $("#query-typeahead").val();
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
+                }
+            }
+        };
+
+        this.spotlightDataSourceConfig = {
+            VFB: {
+                url: "http://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E110.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
+                crossDomain: true,
+                id: "short_form",
+                label: { field: "label", formatting: "$VALUE$" },
+                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
+                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
+                type: {
+                    property: {
+                        icon: "fa-file-text-o",
+                        buttons: {
+                            buttonOne: {
+                                actions: ["window.addVfbId('$ID$');"],
+                                icon: "fa-info-circle",
+                                label: "Show info",
+                                tooltip: "Show info"
+                            }
+                        }
+                    },
+                    class: {
+                        icon: "fa-file-text-o",
+                        buttons: {
+                            buttonOne: {
+                                actions: ["window.addVfbId('$ID$');"],
+                                icon: "fa-info-circle",
+                                label: "Show info",
+                                tooltip: "Show info"
+                            },
+                            buttonTwo: {
+                                actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
+                                icon: "fa-quora",
+                                label: "Add to query",
+                                tooltip: "Add to query"
+                            }
+                        }
+                    },
+                    individual: {
+                        icon: "fa-file-image-o",
+                        buttons: {
+                            buttonOne: {
+                                actions: ["window.addVfbId('$ID$');"],
+                                icon: "fa-file-image-o",
+                                label: "Add to scene",
+                                tooltip: "Add to scene"
+                            },
+                            buttonTwo: {
+                                actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
+                                icon: "fa-quora",
+                                label: "Add to query",
+                                tooltip: "Add to query"
+                            }
+                        }
+                    }
+                },
+                bloodhoundConfig: {
+                    datumTokenizer: function (d) {
+                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                    }.bind(this),
+                    queryTokenizer: function (q) {
+                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                    }.bind(this),
+                    sorter: function (a, b) {
+                        var term = $('#typeahead').val();
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
+                }
+            }
+        };
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
@@ -543,6 +677,8 @@ export default class VFBMain extends React.Component {
     }
 
     componentDidMount() {
+        GEPPETTO.G.setIdleTimeOut(-1);
+
         // Global functions linked to VFBMain functions
         window.stackViewerRequest = function(idFromStack) {
             this.stackViewerRequest(idFromStack);

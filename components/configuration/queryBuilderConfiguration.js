@@ -1,5 +1,3 @@
-var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-
 var queryResultsColMeta = [
     {
         "columnName": "id",
@@ -101,76 +99,8 @@ var queryResultsControlConfig = {
     }
 };
 
-// add datasource config to query control
-var queryBuilderDatasourceConfig = {
-    VFB: {
-        url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
-        crossDomain: true,
-        id: "short_form",
-        label: { field: "label", formatting: "$VALUE$" },
-        explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
-        explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
-        type: {
-            class: {
-                actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                icon: "fa-dot-circle-o"
-            },
-            individual: {
-                actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                icon: "fa-square-o"
-            }
-        },
-        queryNameToken: '$NAME',
-        resultsFilters: {
-            getItem: function (record, header, field) {
-                var recordIndex = header.indexOf(field);
-                return record[recordIndex]
-            },
-            getId: function (record) {
-                return record[0]
-            },
-            getName: function (record) {
-                return record[1]
-            },
-            getDescription: function (record) {
-                return record[2]
-            },
-            getType: function (record) {
-                return record[3]
-            },
-            getImageData: function (record) {
-                return record[4]
-            },
-            getScore: function (record) {
-                return record[5]
-            },
-            getRecords: function (payload) {
-                return payload.results.map(function (item) {
-                    return item.values
-                })
-            },
-            getHeaders: function (payload) {
-                return payload.header;
-            }
-        },
-        bloodhoundConfig: {
-            datumTokenizer: function (d) {
-                return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-            }.bind(this),
-            queryTokenizer: function (q) {
-                return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-            }.bind(this),
-            sorter: function (a, b) {
-                var term = $("#query-typeahead").val();
-                return this.customSorter(a, b, term);
-            }.bind(this)
-        }
-    }
-};
-
 module.exports = {
     queryResultsColMeta,
     queryResultsColumns,
     queryResultsControlConfig,
-    queryBuilderDatasourceConfig
 };
