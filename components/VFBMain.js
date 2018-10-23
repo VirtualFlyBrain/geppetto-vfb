@@ -639,15 +639,15 @@ export default class VFBMain extends React.Component {
         }
 
         if((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-            $('#controlpanel').show();
+            this.refs.controlpanelRef.open();
         }
 
         if((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-            $('#spotlight').show();
+            this.refs.spotlightRef.open();
         }
 
         if((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
-            $('#querybuilder').show();
+            this.refs.querybuilderRef.open();
         }
 
         if(this.state.htmlFromToolbar !== undefined) {
