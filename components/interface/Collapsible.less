@@ -1,13 +1,16 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,700,700italic,400italic);
+@import "../../css/colors.less";
 
 .Collapsible {
-    background-color: white;
+    background-color: transparent;
 }
 
 .Collapsible__contentInner {
     padding: 10px;
-    border: 1px solid #ebebeb;
+    border: 1px solid transparent;
     border-top: 0;
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
 }
 
 .Collapsible__contentInner p {
@@ -22,19 +25,19 @@
 
 .Collapsible__trigger {
     display: block;
-    font-weight: 400;
-    text-decoration: none;
-    color: #333333;
+    text-transform: capitalize;
+    font-weight: 600;
+    font-size: 14px;
+    color: @primary_color;
     position: relative;
-    border: 1px solid white;
+    border: 1px solid transparent;
     padding: 10px;
-    background: #00ac9d;
-    color: white;
+    background: transparent;
 }
 
 .Collapsible__trigger:after {
     font-family: 'FontAwesome';
-    content: '\f107';
+    content: '\f139';
     position: absolute;
     right: 10px;
     top: 10px;
@@ -44,6 +47,7 @@
 
 .Collapsible__trigger.is-open:after {
     transform: rotateZ(180deg);
+    color: #8A7F7F;
 }
 
 .Collapsible__trigger.is-disabled {

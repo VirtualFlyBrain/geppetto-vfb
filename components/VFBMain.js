@@ -469,11 +469,11 @@ export default class VFBMain extends React.Component {
                     if ((instance != undefined) && (typeof instance.select === "function"))
                         instance.select();
                     this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
-                    //this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
+                    this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
                 }.bind(this));
             } else {
                 this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
-                //this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
+                this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
             }
             // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
             if (window[variableIds[singleId]] != undefined) {
@@ -647,15 +647,19 @@ export default class VFBMain extends React.Component {
         }
 
         if((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-            $('#controlpanel').show();
+            //$('#controlpanel').show();
+            this.refs.controlpanelRef.open();
         }
 
         if((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-            $('#spotlight').show();
+            //$('#spotlight').show();
+            this.refs.spotlightRef.open();
         }
 
         if((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
-            $('#querybuilder').show();
+            //$('#querybuilder').show();
+            this.refs.querybuilderRef.open();
+
         }
 
         if(this.state.htmlFromToolbar !== undefined) {
@@ -669,7 +673,7 @@ export default class VFBMain extends React.Component {
             // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
-            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             this.setState({modelLoaded: true});
         }
 
@@ -697,7 +701,7 @@ export default class VFBMain extends React.Component {
 
         window.setTermInfo = function(meta, id) {
             this.refs.termInfoRef.setTermInfo(meta, id);
-            //this.refs.termInfoWidgetRef.setTermInfo(meta, id);
+            this.refs.termInfoWidgetRef.setTermInfo(meta, id);
         }.bind(this);
 
         window.fetchVariableThenRun = function(idsList, cb, label) {
@@ -798,7 +802,7 @@ export default class VFBMain extends React.Component {
                     //that.focusIdTermInfo(ids3DSubstring, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                     var metaTermInfo = Instances.getInstance(idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '.' + idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '_meta');
                     that.refs.termInfoRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
-                    //that.refs.termInfoWidgetRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
+                    that.refs.termInfoWidgetRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                 });
             }
         } else {
@@ -827,14 +831,14 @@ export default class VFBMain extends React.Component {
                     // it's a wrapper object - if name is different from current selection set term info
                     if (currentSelectionName != latestSelection.getName()) {
                         this.refs.termInfoRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
-                        //this.refs.termInfoWidgetRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                        this.refs.termInfoWidgetRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
                     }
                 } else {
                     // it's a leaf (no children) / grab parent if name is different from current selection set term info
                     var parent = latestSelection.getParent();
                     if (parent != null && currentSelectionName != parent.getName()) {
                         this.refs.termInfoRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
-                        //this.refs.termInfoWidgetRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
+                        this.refs.termInfoWidgetRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                     }
                 }
             }
@@ -916,7 +920,20 @@ export default class VFBMain extends React.Component {
         }
 
         if((this.state.termInfoVisible == true) && (this.termInfoRender == undefined)) {
-            this.termInfoRender = <VFBTermInfoWidget termInfoHandler={this.termInfoHandler} ref="termInfoWidgetRef"/>
+            this.termInfoRender = <VFBTermInfoWidget
+                                    termInfoHandler={this.termInfoHandler}
+                                    ref="termInfoWidgetRef"
+                                    showButtonBar={true}
+                                    order={['name',
+                                            'alternative names',
+                                            'query for',
+                                            'depicts',
+                                            'thumbnail',
+                                            'relationship',
+                                            'description',
+                                            'references',
+                                            'aligned to',
+                                            'download']} />
         }
         // else if((this.state.termInfoVisible == true) && (this.termInfoRender != undefined)){
         //     this.refs.termInfoWidgetRef.refs.termInfoRef.open(true);

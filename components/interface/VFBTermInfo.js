@@ -1,21 +1,40 @@
-import React, { Component } from 'react';
+import React from 'react';
+import Slider from "react-slick";
 import Collapsible from './Collapsible';
 import WidgetCapability from '../../../../js/components/widgets/WidgetCapability';
 
-require('../../css/VFBTermInfo.less');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
+var anchorme = require('anchorme');
+var slick = require('slick-carousel');
 var Type = require('../../../../js/geppettoModel/model/Type');
+var ButtonBarComponent = require('../../../../js/components/widgets/popup/ButtonBarComponent');
+
+require('../../css/VFBTermInfo.less');
+require('../../../../js/components/widgets/popup/Popup.less');
+require('../../../../js/components/widgets/popup/vendor/slick.less');
+require('../../../../js/components/widgets/popup/vendor/slick-theme.less');
 
 class VFBTermInfo extends React.Component {
 
     constructor(props) {
         super(props);
 
+        this.state = {
+            htmlTermInfo: undefined
+        }
+
         this.getHTML = this.getHTML.bind(this);
         this.setData = this.setData.bind(this);
+        this.getOrder = this.getOrder.bind(this);
         this.getVariable = this.getVariable.bind(this);
         this.setRawMessage = this.setRawMessage.bind(this);
+
+        this.contentTermInfo = {
+            keys : [],
+            values : []
+        };
+        this.orderItems = [];
     };
 
     close() {
@@ -36,9 +55,19 @@ class VFBTermInfo extends React.Component {
 		closeButton.click(this.close.bind(this));
     };
 
+    getOrder() {
+        if(this.props.order !== undefined) {
+            for(var i=0; i<this.props.order; i++) {
+                this.orderItems.push(this.props.order[i].toLowerCase());
+            }
+        }
+    }
+
     setData(anyInstance, filter) {
+        this.getOrder();
+        this.getHTML(anyInstance, "", filter);
+        this.setState({htmlTermInfo: anyInstance.id});
         //this.setRawMessage(this.getHTML(anyInstance, "", filter));
-        this.forceUpdate();
     }
 
     setRawMessage(msg) {
@@ -67,7 +96,7 @@ class VFBTermInfo extends React.Component {
         }
     }
 
-    getHTML(anyInstance, id, filter) {
+    getHTML(anyInstance, id, counter) {
         var anchorOptions = {
             "attributes": {
                 "target": "_blank",
@@ -85,93 +114,112 @@ class VFBTermInfo extends React.Component {
         if (!(type instanceof Type)) {
             type = anyInstance.getType();
         }
-        var html = "";
-
-        //let's check the filter
-        if (filter != undefined && type.getMetaType() != GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-            if ($.inArray(type.getMetaType(), filter) == -1) {
-                //this type is not in the filter!
-                return html;
-            }
-        }
 
         if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
             for (var i = 0; i < type.getVariables().length; i++) {
                 var v = type.getVariables()[i];
 
-                if (filter != undefined) {
-                    if ($.inArray(v.getType().getMetaType(), filter) == -1) {
-                        //this type is not in the filter!
-                        continue;
-                    }
-                }
-
                 //var id = this.getId() + "_" + type.getId() + "_el_" + i;
+                var nameKey = v.getName();
+                this.contentTermInfo.keys[i] = nameKey;
                 var id = "VFBTermInfo_el_" + i;
-                if (filter == undefined) {
-                    //Titles are only displayed if there's no filter..maybe random, make it a separate parameter
-                    html += "<div class='popup-title' data-toggle='collapse' data-target='#" + id + "'>" + v.getName() + "</div><div id='" + id + "_chevron" + "' data-toggle='collapse' data-target='#" + id + "' class='popup-chevron fa fa-chevron-circle-down '></div>"
-                }
-                html += this.getHTML(v, id, filter);
+                this.getHTML(v, id, i);
             }
         }
         else if (type.getMetaType() == GEPPETTO.Resources.HTML_TYPE) {
             var value = this.getVariable(anyInstance).getInitialValues()[0].value;
-            html += "<div id='" + id + "' class='collapse in popup-html'>" + value.html + "</div>";
+            var prevCounter = this.contentTermInfo.keys.length;
+            if(counter !== undefined) {
+                prevCounter = counter;
+            }
+            this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+                <div className="popup-html"> {value.html} </div>
+            </Collapsible>);
         }
         else if (type.getMetaType() == GEPPETTO.Resources.TEXT_TYPE) {
             var value = this.getVariable(anyInstance).getInitialValues()[0].value;
-            html += "<div id='" + id + "' class='collapse in popup-text'>" + anchorme(value.text, anchorOptions) + "</div>";
+            var prevCounter = this.contentTermInfo.keys.length;
+            if(counter !== undefined) {
+                prevCounter = counter;
+            }
+            this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+                <div className="popup-text"> {anchorme(value.text, anchorOptions)} </div>
+            </Collapsible>);
         }
         else if (type.getMetaType() == GEPPETTO.Resources.IMAGE_TYPE) {
             if (this.getVariable(anyInstance).getInitialValues()[0] != undefined) {
                 var value = this.getVariable(anyInstance).getInitialValues()[0].value;
+                var prevCounter = this.contentTermInfo.keys.length;
+                if(counter !== undefined) {
+                    prevCounter = counter;
+                }
                 if (value.eClass == GEPPETTO.Resources.ARRAY_VALUE) {
                     //if it's an array we use slick to create a carousel
                     var elements = "";
                     for (var j = 0; j < value.elements.length; j++) {
                         var image = value.elements[j].initialValue;
-                        elements += "<div class='popup-slick-image'>" + image.name + "<a href='' instancepath='" + image.reference + "'><img  class='popup-image' src='" + image.data + "'/></a></div>";
+                        elements += (<div className="popup-slick-image">
+                            {image.name}
+                            <a href="" onClick="" instancepath={image.reference}>
+                                <img className="popup-image" src={image.data}></img>
+                            </a>
+                        </div>);
                     }
-                    html += "<div id='" + id + "' class='slickdiv popup-slick collapse in' data-slick='{\"fade\": true,\"centerMode\": true, \"slidesToShow\": 1, \"slidesToScroll\": 1}' >" + elements + "</div>";
+                    var settings = {
+                        fade: true,
+                        centerMode: true,
+                        slideToShow: 1,
+                        slidesToScroll: 1
+                    };
+                    this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+                        <Slider {...settings}>
+                            {elements}
+                        </Slider>
+                    </Collapsible>);
                 }
                 else if (value.eClass == GEPPETTO.Resources.IMAGE) {
                     //otherwise we just show an image
                     var image = value;
-                    html += "<div id='" + id + "' class='popup-image collapse in'><a href='' instancepath='" + image.reference + "'><img  class='popup-image' src='" + image.data + "'/></a></div>";
+                    this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+                        <div className="popup-image">
+                            <a href='' instancepath={image.reference}>
+                                <img className="popup-image" src={image.data}></img>
+                            </a>
+                        </div>
+                    </Collapsible>);
                 }
             }
         }
-        return html;
     }
 
     render() {
+        var toRender = undefined;
+        if((this.orderItems !== undefined ) && (this.orderItems.length > 0)) {
+            for(var x=0; x<this.props.order.length; x++) {
+                var index = this.contentTermInfo.keys.indexOf(this.orderItems[x]);
+                if(index > -1) {
+                    toRender += this.contentTermInfo.values[index];
+                    this.contentTermInfo.keys.splice(index, index);
+                    this.contentTermInfo.values.splice(index, index);
+                }
+            }
+            if(this.contentTermInfo.keys.length > 0) {
+                for(var j=0; j < this.contentTermInfo.keys.length; j++) {
+                    toRender += this.contentTermInfo.values[j];
+                }
+            }
+            this.contentTermInfo.keys = [];
+            this.contentTermInfo.values = [];
+        } else {
+            for(var z=0; z < this.contentTermInfo.keys.length; z++) {
+                toRender += this.contentTermInfo.values[z];
+            }
+            this.contentTermInfo.keys = [];
+            this.contentTermInfo.values = [];
+        }
         return(
             <div>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
-                <Collapsible open={true} trigger={'Hello'}>
-                    <p>World</p>
-                </Collapsible>
+                {toRender}
             </div>);
     };
 }
@@ -219,8 +267,7 @@ export default class VFBTermInfoWidget extends React.Component {
             }
         }
         if (this.refs.termInfoRef != undefined) {
-            //this.forceUpdate();
-            //this.refs.termInfoRef.setData(data).setName(name);
+            this.refs.termInfoRef.setData(data).setName(name);
         }
         //this.updateHistory(name);
         GEPPETTO.SceneController.deselectAll();
@@ -236,7 +283,9 @@ export default class VFBTermInfoWidget extends React.Component {
             <VFBTermInfoWidget
                 id={'vfbterminfowidget'}
                 componentType={'VFBTERMINFO'}
-                title={"dario test"}
+                title={"Virtual Fly Brain Term Info"}
+                order={this.props.order}
+                showButtonBar={this.props.showButtonBar}
                 closeByDefault={false}
                 position={{ left: this.getTermInfoDefaultX(), top: this.getTermInfoDefaultY(), position: "absolute" }}
                 size={{ height: this.getTermInfoDefaultHeight(), width: this.getTermInfoDefaultWidth() }}
