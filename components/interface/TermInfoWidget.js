@@ -390,13 +390,12 @@ export default class TermInfoWidget extends React.Component {
     };
 
     componentDidMount() {
-    	var self = this;
-    	GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
-    		if((self.state.termInfoOpened) && !(self.state.termInfoMounted)){
-    			self.termInfoToRender = self.addTermInfo();
-    			console.log("Term info mounted");
-    		}
-    	});
+        // Timeout necessary to avoid the terminfoWidget to disappear, related to loadProjectFromURL event apparently.
+        GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
+            console.log("Rendering Term Info Widget...");
+            if((this.state.termInfoOpened) && !(this.state.termInfoMounted)){
+                this.termInfoToRender = this.addTermInfo();
+        }}.bind(this));
     };
 
     componentWillReceiveProps() {
