@@ -1,3 +1,5 @@
+import customSorter from '../VFBMain';
+
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
 var queryResultsColMeta = [
@@ -169,8 +171,8 @@ var queryBuilderDatasourceConfig = {
 };
 
 module.exports = {
-	queryResultsColMeta,
-	queryResultsColumns,
-	queryResultsControlConfig,
-	queryBuilderDatasourceConfig
+    queryResultsColMeta,
+    queryResultsColumns,
+    queryResultsControlConfig,
+    queryBuilderDatasourceConfig
 };

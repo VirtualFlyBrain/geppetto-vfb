@@ -165,11 +165,11 @@ export default class TermInfoWidget extends React.Component {
                 //window.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
             }
         }
-        if (window.vfbLoadBuffer.length > 0) {
-            GEPPETTO.trigger('spin_logo');
-        } else {
-            GEPPETTO.trigger('stop_spin_logo');
-        }
+        //if (window.vfbLoadBuffer.length > 0) {
+        //    GEPPETTO.trigger('spin_logo');
+        //} else {
+        //    GEPPETTO.trigger('stop_spin_logo');
+        //}
     };
 
     setTermInfo(data, name) {
