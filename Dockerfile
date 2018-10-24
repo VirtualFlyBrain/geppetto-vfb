@@ -101,7 +101,9 @@ RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i 
 COPY dockerFiles/pom.xml /opt/geppetto/org.geppetto/pom.xml.temp
 COPY dockerFiles/geppetto.plan /opt/geppetto/org.geppetto/geppetto.plan
 COPY dockerFiles/GeppettoConfiguration.json /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json
-RUN mkdir -p /opt/VFB
+USER root
+RUN mkdir -p /opt/VFB && chmod -R 777 /opt/VFB
+USER developer
 COPY dockerFiles/startup.sh /opt/VFB/startup.sh
 USER root
 RUN chmod -R 777 /opt/geppetto | true
