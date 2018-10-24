@@ -51,7 +51,10 @@ ENV BRANCH_ORG_GEPPETTO_SIMULATION=$BRANCH_DEFAULT
 ENV BRANCH_GEPPETTO_VFB=$BRANCH_DEFAULT
 ENV BRANCH_UK_AC_VFB_GEPPETTO=$BRANCH_DEFAULT
 
-RUN mkdir -p /opt/geppetto
+USER root
+RUN mkdir -p /opt/geppetto && chmod -R 777 /opt/geppetto
+USER developer
+
 
 RUN cd /opt/geppetto && \
 echo cloning required modules: && \
