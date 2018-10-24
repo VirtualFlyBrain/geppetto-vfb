@@ -51,7 +51,7 @@ script:
 - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
 - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-} ; fi`
-- sed -i "s|ENV BRANCH_DEFAULT=.*|ENV BRANCH_DEFAULT=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
+#- sed -i "s|ENV BRANCH_DEFAULT=.*|ENV BRANCH_DEFAULT=$TRAVIS_BRANCH|g" $TRAVIS_BUILD_DIR/Dockerfile
 - cat $TRAVIS_BUILD_DIR/Dockerfile
 - sed -i 's|"useSsl":.*,|"useSsl":false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
 - sed -i 's|"embedded":.*,|"embedded":false,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
