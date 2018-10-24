@@ -4,7 +4,8 @@ sudo: required
 dist: trusty
 node_js:
 - "7"
-
+before_install:
+- sudo apt-get install -y xserver-xorg-dev libxext-dev libxi-dev
 install:
 - npm install --silent -g phantomjs 
 - npm install --silent -g casperjs 
