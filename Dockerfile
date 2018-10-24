@@ -34,9 +34,6 @@ RUN sudo rm -f /tmp/apache-maven-3.5.2-bin.tar.gz
 ENV MAVEN_HOME /opt/maven
 RUN mvn --version
 
-# Forcing bash:
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh && rm /bin/sh.distrib && ln -s /bin/bash /bin/sh.distrib
-
 #SOLR server:
 ENV SOLR_SERVER=/solr/ontology/select
 
