@@ -1,21 +1,21 @@
 #!/bin/bash
 
 #Start a logfile
-mkdir -p ~/serviceability/logs
-echo 'Start of log...' > ~/serviceability/logs/log.log
+mkdir -p $SERVER_HOME/serviceability/logs
+echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
 
 # deploy Geppetto
 cd /opt/geppetto/org.geppetto/utilities/source_setup 
 python update_server.py
 
 # set java memory maximum 
-sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i /home/virgo/bin/dmk.sh
-sed 's/Xmx512m/Xmx$MAXSIZE/' -i /home/virgo/bin/dmk.sh
+sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
+sed 's/Xmx512m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
 # Remove redirect in tomcat config
-sed 's\redirectPort="8443"\\g' -i /home/virgo/configuration/tomcat-server.xml
+sed 's\redirectPort="8443"\\g' -i $SERVER_HOME/configuration/tomcat-server.xml
 
 # output log
-tail -F --retry ~/serviceability/logs/log.log & 
+tail -F --retry $SERVER_HOME/serviceability/logs/log.log & 
 
 # start virgo server
-/home/virgo/bin/startup.sh 
+$SERVER_HOME/bin/startup.sh
