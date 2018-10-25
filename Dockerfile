@@ -155,7 +155,7 @@ echo -e "\n\n\n"
 RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
 
 # deploy Geppetto:
-RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
-python update_server.py 
+# RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
+# python update_server.py 
 
 ENTRYPOINT ["/opt/VFB/startup.sh"]
