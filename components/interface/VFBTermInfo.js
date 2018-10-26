@@ -30,6 +30,7 @@ class VFBTermInfo extends React.Component {
         this.setData = this.setData.bind(this);
         this.getVariable = this.getVariable.bind(this);
         this.addToHistory = this.addToHistory.bind(this);
+        this.renderButtonBar = this.renderButtonBar.bind(this);
         this.setRawMessage = this.setRawMessage.bind(this);
         this.hookupCustomHandler = this.hookupCustomHandler.bind(this);
         //this.renderButtonBar = this.renderButtonBar.bind(this);
@@ -40,6 +41,8 @@ class VFBTermInfo extends React.Component {
         };
         this.tempArray = [];
         this.staticHistoryMenu = [];
+        this.arrowsInitialized = false;
+        this.buttonBar = undefined;
     };
 
     close() {
@@ -148,7 +151,43 @@ class VFBTermInfo extends React.Component {
 
         this.getHTML(anyInstance, "", filter);
         this.setState({htmlTermInfo: anyInstance.id});
+
+        if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined) {
+            this.renderButtonBar(anyInstance);
+        }
         //this.setRawMessage(this.getHTML(anyInstance, "", filter));
+    }
+
+    renderButtonBar(anyInstance) {
+        var that = this;
+        var buttonBarContainer = 'button-bar-container-' + this.props.id;
+        var barDiv = 'bar-div-' + this.props.id;
+        if (this.buttonBar != undefined) {
+            ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
+            $("#" + buttonBarContainer).remove();
+        }
+
+        this.$el.parent().append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
+
+        var instance = null;
+        var instancePath = '';
+
+        if (this.props.buttonBarConfiguration.filter != null && this.props.buttonBarConfiguration.filter != undefined) {
+            if (anyInstance != null && anyInstance != undefined) {
+                instance = this.props.buttonBarConfiguration.filter(anyInstance);
+                instancePath = instance.getPath();
+            }
+        }
+        var originalZIndex = $("#" + this.id).parent().css("z-index");
+        this.buttonBar = ReactDOM.render(
+            React.createElement(ButtonBarComponent, {
+                buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
+                instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () { that.setSize(that.size.height, that.size.width); }
+            }),
+            document.getElementById(barDiv)
+        );
+
+        $("#" + this.props.id).parent().css('z-index', originalZIndex);
     }
 
     setRawMessage(msg) {
@@ -284,6 +323,13 @@ class VFBTermInfo extends React.Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if ((this.arrowsInitialized === false) && (window.historyWidgetCapability != undefined) && (window.historyWidgetCapability.length > 1)) {
+            this.showHistoryNavigationBar(true);
+            this.arrowsInitialized = true;
+        }
+    }
+
     render() {
         var toRender = undefined;
         if((this.props.order !== undefined ) && (this.props.order.length > 0)) {
@@ -346,7 +392,7 @@ export default class VFBTermInfoWidget extends React.Component {
                 if (typeof (instancePath) == "string") {
                     return Instances.getInstance(instancePath).getParent();
                 }
-                return instancePath[0].getParent();
+                return instancePath.getParent();
             },
             "VisualCapability": {
                 "select": {
