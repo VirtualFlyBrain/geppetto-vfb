@@ -438,7 +438,7 @@ export default class VFBToolBar extends React.Component {
 				}}
 				default={{
 					x: 0, y: 0,
-					height: 100,
+					height: 0,
 					width: '100%'
 				}}
 				className="vfbToolBarClass"

@@ -862,10 +862,10 @@ export default class VFBMain extends React.Component {
                         bottomLeft: false, topLeft: false}}
                     default={{
                         x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
-                        height: 80, width: 340}}
+                        height: 35, width: 340}}
                     className="new-widget"
                     disableDragging={true}
-                    maxHeight={80} minHeight={50}
+                    maxHeight={35} minHeight={35}
                     maxWidth={350} minWidth={150}
                     ref={c => { this.rnd = c; }} >
                     <ButtonBar
