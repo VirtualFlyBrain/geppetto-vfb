@@ -1,5 +1,16 @@
+@import "./colors.less";
+
 #vfbterminfowidget {
   overflow: scroll;
+}
+
+.ui-widget-content a {
+    color: @primary_color;
+    font-family: arial, sans-serif;
+}
+
+.ui-dialog span {
+    margin-left: -4px;
 }
 
 .container {
@@ -33,7 +44,6 @@
                 background-color: #e5e8eb;
                 border-color: #DFDFDF;
                 justify-content: space-between;
-                padding: 0 7px;
                 align-items: center;
                 cursor: pointer;
                 color: #1F384D;
@@ -54,7 +64,6 @@
         }
         ul {
             list-style: none;
-            padding: 0px;
             margin: 0px;
             position: absolute;
             top: 32px;
@@ -76,7 +85,6 @@
                         display: flex;
                         align-items: center;
                         width: 100%;
-                        padding: 0 10px;
                         height: 43px;
                         border-right: 1px solid #DFDFDF;
                     }

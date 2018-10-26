@@ -530,7 +530,7 @@ export default class VFBMain extends React.Component {
                         var domObj = $(templateMarkup);
                         var anchorElement = domObj.filter('a');
                         // extract ID
-                        var templateID = anchorElement.attr('instancepath');
+                        var templateID = anchorElement.attr('data-instancepath');
                         this.addVfbId(templateID);
                     }
                 }
@@ -556,7 +556,7 @@ export default class VFBMain extends React.Component {
                     var domObj = $(templateMarkup);
                     var anchorElement = domObj.filter('a');
                     // extract ID
-                    var templateID = anchorElement.attr('instancepath');
+                    var templateID = anchorElement.attr('data-instancepath');
                     if (window.EMBEDDED) {
                         var curHost = parent.document.location.host;
                         var curProto = parent.document.location.protocol;
@@ -691,6 +691,10 @@ export default class VFBMain extends React.Component {
     componentDidMount() {
         G.setIdleTimeOut("-1");
         // Global functions linked to VFBMain functions
+        window.resolve3D = function(globalID) {
+            this.resolve3D(globalID);
+        }.bind(this);
+
         window.stackViewerRequest = function(idFromStack) {
             this.stackViewerRequest(idFromStack);
         }.bind(this);
@@ -924,16 +928,16 @@ export default class VFBMain extends React.Component {
                                     termInfoHandler={this.termInfoHandler}
                                     ref="termInfoWidgetRef"
                                     showButtonBar={true}
-                                    order={['name',
-                                            'alternative names',
-                                            'query for',
-                                            'depicts',
-                                            'thumbnail',
-                                            'relationship',
-                                            'description',
-                                            'references',
-                                            'aligned to',
-                                            'download']} />
+                                    order={['Name',
+                                            'Alternative Names',
+                                            'Query For',
+                                            'Depicts',
+                                            'Thumbnail',
+                                            'Relationship',
+                                            'Description',
+                                            'References',
+                                            'Aligned To',
+                                            'Download']} />
         }
         // else if((this.state.termInfoVisible == true) && (this.termInfoRender != undefined)){
         //     this.refs.termInfoWidgetRef.refs.termInfoRef.open(true);
