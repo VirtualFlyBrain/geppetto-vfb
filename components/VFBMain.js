@@ -192,7 +192,7 @@ export default class VFBMain extends React.Component {
                         icon: "fa-file-text-o",
                         buttons: {
                             buttonOne: {
-                                actions: ["window.addVfbId('$ID$');"],
+                                actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
                                 icon: "fa-info-circle",
                                 label: "Show info",
                                 tooltip: "Show info"
@@ -698,6 +698,10 @@ export default class VFBMain extends React.Component {
 
         window.addToQueryCallback = function(variableId, label) {
             this.addToQueryCallback(variableId, label)
+        }.bind(this);
+
+        window.resolve3D = function(externalID) {
+            this.resolve3D(externalID);
         }.bind(this);
 
         // Canvas initialization

@@ -128,7 +128,7 @@ export default class TermInfoWidget extends React.Component {
                 Model.getDatasources()[0].fetchVariable(path, function () {
                     var m = Instances.getInstance(meta);
                     target.setData(m).setName(window[path].getName());
-                    resolve3D(path);
+                    window.resolve3D(path);
                 });
             }
         }

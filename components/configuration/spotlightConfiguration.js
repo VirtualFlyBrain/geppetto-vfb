@@ -4,7 +4,7 @@ var spotlightConfig = {
         "CompositeType": {
             "type": {
                 "actions": [
-                    "window.setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
+                    "window.setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');$(\"#spotlight\").hide();",
                 ],
                 "icon": "fa-info-circle",
                 "label": "Show info",
