@@ -140,10 +140,10 @@ class VFBTermInfo extends React.Component {
                     var elements = [];
                     for (var j = 0; j < value.elements.length; j++) {
                         var image = value.elements[j].initialValue;
-                        elements.push(<div className="popup-slick-image">
+                        elements.push(<div>
                             {image.name}
                             <a href="#" data-instancepath={image.reference}>
-                                <img src={image.data}></img>
+                                <img className='popup-image' src={image.data}></img>
                             </a>
                         </div>);
                     }
@@ -160,7 +160,7 @@ class VFBTermInfo extends React.Component {
                                 var Element = React.cloneElement(element);
                                 var imageId = "image_"+key;
                                 return(
-                                    <div id={imageId} key={key}> {Element} </div>
+                                    <div className='popup-slick-image' id={imageId} key={key}> {Element} </div>
                                 );
                             })}
                         </Slider>
@@ -345,21 +345,21 @@ class VFBTermInfo extends React.Component {
     render() {
         var toRender = undefined;
         if((this.props.order !== undefined ) && (this.props.order.length > 0)) {
-            var tempArray2 = [];
+            var tempArray = [];
             for(var x=0; x<this.props.order.length; x++) {
                 var index = this.contentTermInfo.keys.indexOf(this.props.order[x]);
                 if(index > -1) {
-                    tempArray2.push(this.contentTermInfo.values[index]);
+                    tempArray.push(this.contentTermInfo.values[index]);
                     this.contentTermInfo.keys.splice(index, 1);
                     this.contentTermInfo.values.splice(index, 1);
                 }
             }
             if(this.contentTermInfo.keys.length > 0) {
                 for(var j=0; j < this.contentTermInfo.keys.length; j++) {
-                    tempArray2.push(this.contentTermInfo.values[j]);
+                    tempArray.push(this.contentTermInfo.values[j]);
                 }
             }
-            toRender = tempArray2.map((item, key) => {
+            toRender = tempArray.map((item, key) => {
                 var Item = React.cloneElement(item);
                 return (
                 <div key={key}> {Item} </div>
