@@ -4,7 +4,7 @@ var spotlightConfig = {
         "CompositeType": {
             "type": {
                 "actions": [
-                    "window.setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$');GEPPETTO.Spotlight.close();",
+                    "window.setTermInfo($variableid$['$variableid$' + '_meta'],'$variableid$'); $(\"#spotlight\").hide();",
                 ],
                 "icon": "fa-info-circle",
                 "label": "Show info",
@@ -57,7 +57,7 @@ var spotlightConfig = {
             },
             "buttonThree": {
                 "actions": [
-                    "GEPPETTO.SceneController.zoomTo($instances$);GEPPETTO.Spotlight.close();"
+                    "GEPPETTO.SceneController.zoomTo($instances$);$(\"#spotlight\").hide();"
                 ],
                 "icon": "fa-search-plus",
                 "label": "Zoom",

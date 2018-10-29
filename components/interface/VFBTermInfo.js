@@ -11,7 +11,6 @@ var anchorme = require('anchorme');
 var Type = require('../../../../js/geppettoModel/model/Type');
 var ButtonBarComponent = require('../../../../js/components/widgets/popup/ButtonBarComponent');
 
-require('./Collapsible.less');
 require('../../css/VFBTermInfo.less');
 require('../../../../js/components/widgets/popup/Popup.less');
 require('../../../../js/components/widgets/popup/vendor/slick.less');
@@ -143,7 +142,7 @@ class VFBTermInfo extends React.Component {
                         elements.push(<div>
                             {image.name}
                             <a href="#" data-instancepath={image.reference}>
-                                <img className='popup-image' src={image.data}></img>
+                                <img src={image.data}></img>
                             </a>
                         </div>);
                     }
@@ -160,7 +159,7 @@ class VFBTermInfo extends React.Component {
                                 var Element = React.cloneElement(element);
                                 var imageId = "image_"+key;
                                 return(
-                                    <div className='popup-slick-image' id={imageId} key={key}> {Element} </div>
+                                    <div id={imageId} key={key}> {Element} </div>
                                 );
                             })}
                         </Slider>

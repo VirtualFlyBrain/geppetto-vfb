@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
 import StackWidget from './interface/StackWidget';
-import TermInfoWidget from './interface/TermInfoWidget';
 import TutorialWidget from './interface/TutorialWidget';
 import Logo from '../../../js/components/interface/logo/Logo';
 import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
@@ -128,7 +127,7 @@ export default class VFBMain extends React.Component {
                         icon: "fa-file-text-o",
                         buttons: {
                             buttonOne: {
-                                actions: ["window.addVfbId('$ID$');"],
+                                actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
                                 icon: "fa-info-circle",
                                 label: "Show info",
                                 tooltip: "Show info"
