@@ -464,15 +464,14 @@ export default class VFBMain extends React.Component {
             }
             if (this.hasVisualType(variableIds[singleId])) {
                 var instance = Instances.getInstance(variableIds[singleId]);
+                this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
                 this.resolve3D(variableIds[singleId], function () {
                     GEPPETTO.SceneController.deselectAll();
                     if ((instance != undefined) && (typeof instance.select === "function"))
                         instance.select();
-                    this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
-                    this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
+                    //this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
                 }.bind(this));
             } else {
-                this.refs.termInfoRef.setTermInfo(meta, meta.getParent().getId());
                 this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
             }
             // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
@@ -511,7 +510,6 @@ export default class VFBMain extends React.Component {
     resolve3D(path, callback) {
         var ImportType = require('./../../../js/geppettoModel/model/ImportType');
         var rootInstance = Instances.getInstance(path);
-        this.refs.termInfoRef.updateHistory(rootInstance.getName());
         GEPPETTO.SceneController.deselectAll();
 
         if (window.templateID == undefined) {
@@ -634,8 +632,8 @@ export default class VFBMain extends React.Component {
             this.refs.stackViewerRef.addStackWidget();
         }
 
-        if((prevState.termInfoVisible !== this.state.termInfoVisible) && (this.termInfoRender !== undefined)) {
-            this.refs.termInfoWidgetRef.refs.termInfoRef.open(true);
+        if((prevState.termInfoVisible !== this.state.termInfoVisible) && (this.termInfoRender !== undefined) && (this.state.termInfoVisible === true)) {
+            this.refs.termInfoWidgetRef.refs.termInfoRef.open();
         }
 
         if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
@@ -704,7 +702,6 @@ export default class VFBMain extends React.Component {
         }.bind(this);
 
         window.setTermInfo = function(meta, id) {
-            this.refs.termInfoRef.setTermInfo(meta, id);
             this.refs.termInfoWidgetRef.setTermInfo(meta, id);
         }.bind(this);
 
@@ -805,7 +802,6 @@ export default class VFBMain extends React.Component {
                     that.addVfbId(ids3DSubstring);
                     //that.focusIdTermInfo(ids3DSubstring, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                     var metaTermInfo = Instances.getInstance(idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '.' + idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '_meta');
-                    that.refs.termInfoRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                     that.refs.termInfoWidgetRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                 });
             }
@@ -828,20 +824,18 @@ export default class VFBMain extends React.Component {
             if (selection.length > 0 && instance.isSelected()) {
                 var latestSelection = instance;
                 var currentSelectionName = "";
-                if (this.refs.termInfoRef.getTermInfoWidget() != undefined) {
-                    currentSelectionName = this.refs.termInfoRef.getTermInfoWidget().name;
+                if (this.refs.termInfoWidgetRef != undefined) {
+                    currentSelectionName = this.refs.termInfoWidgetRef.refs.termInfoRef.name;
                 }
                 if (latestSelection.getChildren().length > 0) {
                     // it's a wrapper object - if name is different from current selection set term info
                     if (currentSelectionName != latestSelection.getName()) {
-                        this.refs.termInfoRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
                         this.refs.termInfoWidgetRef.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
                     }
                 } else {
                     // it's a leaf (no children) / grab parent if name is different from current selection set term info
                     var parent = latestSelection.getParent();
                     if (parent != null && currentSelectionName != parent.getName()) {
-                        this.refs.termInfoRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                         this.refs.termInfoWidgetRef.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
                     }
                 }
@@ -854,7 +848,7 @@ export default class VFBMain extends React.Component {
 
     // Children handlers
     buttonBarHandler(buttonState) {
-        if((buttonState !== "termInfoVisible") || (buttonState !== "stackViewerVisible")) {
+        if(buttonState !== "stackViewerVisible") {
             var tempState = this.state[buttonState];
             this.setState({
                 [buttonState] : !tempState
@@ -872,16 +866,10 @@ export default class VFBMain extends React.Component {
 
     termInfoHandler() {
         if(this.state.termInfoVisible == true) {
-            this.termInfoRender = undefined;
             this.setState({
                 termInfoVisible: false
             });
         }
-        // if(childrenState !== undefined) {
-        //     this.setState({ termInfoVisible: childrenState });
-        // } else {
-        //     this.setState({ termInfoVisible: !(this.state.termInfoVisible) });
-        // }
     };
 
     stackViewerHandler(childrenState) {
@@ -1031,11 +1019,6 @@ export default class VFBMain extends React.Component {
                     ref="stackViewerRef" 
                     canvasRef={this.refs.vfbCanvas}
                     stackViewerHandler={this.stackViewerHandler} />
-
-                <TermInfoWidget
-                    ref="termInfoRef"
-                    idSelected={this.state.idSelected}
-                    termInfoHandler={this.termInfoHandler} />
 
                 <div id="termInfoDiv">
                     {this.termInfoRender}

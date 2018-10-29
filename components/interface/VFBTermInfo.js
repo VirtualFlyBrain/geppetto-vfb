@@ -1,21 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Slider from "react-slick";
-import Collapsible from './Collapsible';
+import Collapsible from 'react-collapsible';
 import WidgetCapability from '../../../../js/components/widgets/WidgetCapability';
 import HTMLViewer from '../../../../js/components/interface/htmlViewer/HTMLViewer';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
-var slick = require('slick-carousel');
 var Type = require('../../../../js/geppettoModel/model/Type');
 var ButtonBarComponent = require('../../../../js/components/widgets/popup/ButtonBarComponent');
 
+require('./Collapsible.less');
 require('../../css/VFBTermInfo.less');
 require('../../../../js/components/widgets/popup/Popup.less');
 require('../../../../js/components/widgets/popup/vendor/slick.less');
 require('../../../../js/components/widgets/popup/vendor/slick-theme.less');
+
 
 class VFBTermInfo extends React.Component {
 
@@ -45,176 +46,33 @@ class VFBTermInfo extends React.Component {
         this.buttonBar = undefined;
     };
 
+
     close() {
-        this.dialog.parent().hide();
+        this.hide();
         this.props.termInfoHandler();
-        this.props.closeHandler();
     };
+
 
     open() {
-        this.dialog.parent().show();
+        this.show();
     };
 
-    addToHistory(label, method, args, id) {
-        if (parent.historyWidgetCapability == undefined) {
-            parent.historyWidgetCapability = [];
-        }
 
-        if (this.staticHistoryMenu == undefined) {
-            this.staticHistoryMenu = [];
-        }
+    setData(anyInstance) {
+        this.addToHistory(anyInstance.getName(), "setData", [anyInstance], this.props.id);
 
-		var elementPresentInHistory = false;
-		for (var i = 0; i < parent.historyWidgetCapability.length; i++) {
-			if (parent.historyWidgetCapability[i].label == label && parent.historyWidgetCapability[i].method == method) {
-				elementPresentInHistory = true;
-				//moves it to the first position
-				parent.historyWidgetCapability.splice(0, 0, parent.historyWidgetCapability.splice(i, 1)[0]);
-				break;
-			}
-		}
-		if (!elementPresentInHistory) {
-			parent.historyWidgetCapability.unshift({
-				"label": label,
-				"method": method,
-				"arguments": args,
-			});
-			
-			this.staticHistoryMenu.unshift({
-				"label": label,
-				"method": method,
-				"arguments": args,
-			});
-		}
-
-		this.props.updateWidgetHistory();
-	}
-
-    hookupCustomHandler(handler, popupDOM, popup) {
-        if (handler.hooked === false) {
-            // set hooked to avoid double triggers
-            handler.hooked = true;
-            // Find and iterate <a> element with an instancepath attribute
-            popupDOM.find("a[data-instancepath]").each(function () {
-                var fun = handler.funct;
-                var ev = handler.event;
-                var metaType = handler.meta;
-                var path = $(this).attr("data-instancepath").replace(/\$/g, "");
-                var node;
-
-                try {
-                    node = eval(path);
-                } catch (ex) {
-                    // if instance path doesn't exist set path to undefined
-                    node = undefined;
-                }
-
-                // hookup IF domain type is undefined OR it's defined and it matches the node type
-                if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
-                    // hookup custom handler
-                    $(this).on(ev, function () {
-                        // invoke custom handler with instancepath as arg
-                        fun(node, path, popup);
-
-                        // stop default event handler of the anchor from doing anything
-                        return false;
-                    });
-                }
-            });
-        }
-    };
-
-    componentDidMount() {
-        var dialog = this.dialog.parent();
-		var closeButton = dialog.find("button.ui-dialog-titlebar-close");
-		closeButton.off("click");
-        closeButton.click(this.close.bind(this));
-
-        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
-        this.hookupCustomHandler(innerHandler, $("#" + this.props.id), domTermInfo);
-
-        window.updateHistoryWidget = function(historyInstance) {
-            this.setData(historyInstance);
-        }.bind(this);
-
-    };
-
-    componentDidUpdate(prevProps, prevState) {
-        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
-        this.hookupCustomHandler(innerHandler, $("#" + this.props.id), domTermInfo);
-    }
-
-    setData(anyInstance, filter) {
-        this.addToHistory(anyInstance.getName(), "setData", [anyInstance, filter], this.props.id);
-
-        this.getHTML(anyInstance, "", filter);
-        this.setState({htmlTermInfo: anyInstance.id});
+        this.getHTML(anyInstance, "vfbTermInfoWidgetInnerID");
+        this.setName(anyInstance.name);
+        this.setState({
+            termInfoId: anyInstance.id,
+            termInfoName: anyInstance.name
+        });
 
         if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined) {
             this.renderButtonBar(anyInstance);
         }
-        //this.setRawMessage(this.getHTML(anyInstance, "", filter));
-    }
+    };
 
-    renderButtonBar(anyInstance) {
-        var that = this;
-        var buttonBarContainer = 'button-bar-container-' + this.props.id;
-        var barDiv = 'bar-div-' + this.props.id;
-        if (this.buttonBar != undefined) {
-            ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
-            $("#" + buttonBarContainer).remove();
-        }
-
-        this.$el.parent().append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
-
-        var instance = null;
-        var instancePath = '';
-
-        if (this.props.buttonBarConfiguration.filter != null && this.props.buttonBarConfiguration.filter != undefined) {
-            if (anyInstance != null && anyInstance != undefined) {
-                instance = this.props.buttonBarConfiguration.filter(anyInstance);
-                instancePath = instance.getPath();
-            }
-        }
-        var originalZIndex = $("#" + this.id).parent().css("z-index");
-        this.buttonBar = ReactDOM.render(
-            React.createElement(ButtonBarComponent, {
-                buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
-                instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () { that.setSize(that.size.height, that.size.width); }
-            }),
-            document.getElementById(barDiv)
-        );
-
-        $("#" + this.props.id).parent().css('z-index', originalZIndex);
-    }
-
-    setRawMessage(msg) {
-        //$("#" + this.id).html(msg);
-        GEPPETTO.CommandController.log("Set new Message for " + this.id, true);
-
-        if (this.customHandlers.length > 0) {
-            // msg has changed, set hooked attribute on handlers to false
-            for (var i = 0; i < this.customHandlers.length; i++) {
-                this.customHandlers[i].hooked = false;
-            }
-
-            // trigger routine that hooks up handlers
-            this.hookupCustomHandler(this.customHandlers, $("#" + this.id), this);
-            GEPPETTO.CommandController.log("Hooked up custom handlers for " + this.id, true);
-        }
-
-        return this;
-    }
-
-    getVariable(node) {
-        if (node.getMetaType() == GEPPETTO.Resources.INSTANCE_NODE) {
-            return node.getVariable();
-        } else {
-            return node;
-        }
-    }
 
     getHTML(anyInstance, id, counter) {
         var anchorOptions = {
@@ -254,7 +112,7 @@ class VFBTermInfo extends React.Component {
             }
             this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
                 <div>
-                    <HTMLViewer id="vfbTermInfoHtmlViewer" content={value.html} />
+                    <HTMLViewer id={id} content={value.html} />
                 </div>
             </Collapsible>);
         }
@@ -266,7 +124,7 @@ class VFBTermInfo extends React.Component {
             }
             this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
                 <div>
-                    <HTMLViewer id="vfbTermInfoHtmlViewer" content={anchorme(value.text, anchorOptions)} />
+                    <HTMLViewer id={id} content={anchorme(value.text, anchorOptions)} />
                 </div>
             </Collapsible>);
         }
@@ -321,14 +179,168 @@ class VFBTermInfo extends React.Component {
                 }
             }
         }
-    }
+    };
+
+
+    addToHistory(label, method, args, id) {
+        if (window.historyWidgetCapability == undefined) {
+            window.historyWidgetCapability = [];
+
+            if(window.historyWidgetCapability[id] == undefined)
+                window.historyWidgetCapability[id] = [];
+        }
+
+        if (this.staticHistoryMenu == undefined) {
+            this.staticHistoryMenu = [];
+        }
+
+		var elementPresentInHistory = false;
+		for (var i = 0; i < window.historyWidgetCapability[id].length; i++) {
+			if (window.historyWidgetCapability[id][i].label == label && window.historyWidgetCapability[id][i].method == method) {
+				elementPresentInHistory = true;
+				//moves it to the first position
+				window.historyWidgetCapability[id].splice(0, 0, window.historyWidgetCapability[id].splice(i, 1)[0]);
+				break;
+			}
+		}
+		if (!elementPresentInHistory) {
+			parent.historyWidgetCapability[id].unshift({
+				"label": label,
+				"method": method,
+				"arguments": args,
+			});
+			
+			this.staticHistoryMenu.unshift({
+				"label": label,
+				"method": method,
+				"arguments": args,
+			});
+		}
+		this.props.updateWidgetHistory();
+    };
+
+
+    hookupCustomHandler(handler, popupDOM, popup) {
+        if (handler.hooked === false) {
+            // set hooked to avoid double triggers
+            handler.hooked = true;
+            // Find and iterate <a> element with an instancepath attribute
+            popupDOM.find("a[data-instancepath]").each(function () {
+                var fun = handler.funct;
+                var ev = handler.event;
+                var metaType = handler.meta;
+                var path = $(this).attr("data-instancepath").replace(/\$/g, "");
+                var node;
+
+                try {
+                    node = eval(path);
+                } catch (ex) {
+                    // if instance path doesn't exist set path to undefined
+                    node = undefined;
+                }
+
+                // hookup IF domain type is undefined OR it's defined and it matches the node type
+                if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
+                    // hookup custom handler
+                    $(this).on(ev, function () {
+                        // invoke custom handler with instancepath as arg
+                        fun(node, path, popup);
+
+                        // stop default event handler of the anchor from doing anything
+                        return false;
+                    });
+                }
+            });
+        }
+    };
+
+
+    renderButtonBar(anyInstance) {
+        var that = this;
+        var buttonBarContainer = 'button-bar-container-' + this.props.id;
+        var barDiv = 'bar-div-' + this.props.id;
+        if (this.buttonBar != undefined) {
+            ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
+            $("#" + buttonBarContainer).remove();
+        }
+
+        this.$el.parent().append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
+
+        var instance = null;
+        var instancePath = '';
+
+        if (this.props.buttonBarConfiguration.filter != null && this.props.buttonBarConfiguration.filter != undefined) {
+            if (anyInstance != null && anyInstance != undefined) {
+                instance = this.props.buttonBarConfiguration.filter(anyInstance);
+                instancePath = instance.getPath();
+            }
+        }
+        var originalZIndex = $("#" + this.id).parent().css("z-index");
+        this.buttonBar = ReactDOM.render(
+            React.createElement(ButtonBarComponent, {
+                buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
+                instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () { that.setSize(that.size.height, that.size.width); }
+            }),
+            document.getElementById(barDiv)
+        );
+
+        $("#" + this.props.id).parent().css('z-index', originalZIndex);
+    };
+
+
+    setRawMessage(msg) {
+        //$("#" + this.id).html(msg);
+        GEPPETTO.CommandController.log("Set new Message for " + this.id, true);
+
+        if (this.customHandlers.length > 0) {
+            // msg has changed, set hooked attribute on handlers to false
+            for (var i = 0; i < this.customHandlers.length; i++) {
+                this.customHandlers[i].hooked = false;
+            }
+            // trigger routine that hooks up handlers
+            this.hookupCustomHandler(this.customHandlers, $("#" + this.id), this);
+            GEPPETTO.CommandController.log("Hooked up custom handlers for " + this.id, true);
+        }
+        return this;
+    };
+
+
+    getVariable(node) {
+        if (node.getMetaType() == GEPPETTO.Resources.INSTANCE_NODE) {
+            return node.getVariable();
+        } else {
+            return node;
+        }
+    };
+
+
+    componentDidMount() {
+        var dialog = this.dialog.parent();
+		var closeButton = dialog.find("button.ui-dialog-titlebar-close");
+		closeButton.off("click");
+        closeButton.click(this.close.bind(this));
+
+        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
+        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
+        this.hookupCustomHandler(innerHandler, $("#" + this.props.id), domTermInfo);
+
+        window.updateHistoryWidget = function(historyInstance) {
+            this.setData(historyInstance);
+        }.bind(this);
+    };
+
 
     componentDidUpdate(prevProps, prevState) {
-        if ((this.arrowsInitialized === false) && (window.historyWidgetCapability != undefined) && (window.historyWidgetCapability.length > 1)) {
+        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
+        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
+        this.hookupCustomHandler(innerHandler, $("#" + this.props.id), domTermInfo);
+
+        if ((this.arrowsInitialized === false) && (window.historyWidgetCapability[this.props.id] != undefined) && (window.historyWidgetCapability[this.props.id].length > 1)) {
             this.showHistoryNavigationBar(true);
             this.arrowsInitialized = true;
         }
-    }
+    };
+
 
     render() {
         var toRender = undefined;
@@ -482,6 +494,7 @@ export default class VFBTermInfoWidget extends React.Component {
                                                         'delete']};
 
         this.data = [];
+        this.idWidget = "vfbterminfowidget";
     }
 
     getTermInfoDefaultWidth() {
@@ -500,10 +513,12 @@ export default class VFBTermInfoWidget extends React.Component {
         return 55;
     };
 
+
     closeHandler() {
         console.log("close handler called");
-        //this.props.tutorialHandler();
+        this.props.termInfoHandler();
     };
+
 
     setTermInfo(data, name) {
         //check if to level has been passed:
@@ -525,9 +540,6 @@ export default class VFBTermInfoWidget extends React.Component {
         }
     };
 
-    updateNavigationHistoryBar() {
-        this.refs.termInfoRef.updateNavigationHistoryBar();
-    }
 
     customHandler(node, path, widget) {
         var Query = require('./../../../../js/geppettoModel/model/Query');
@@ -607,8 +619,8 @@ export default class VFBTermInfoWidget extends React.Component {
 
     updateHistory(title) {
         try {
-            if (parent.historyWidgetCapability == undefined) {
-                parent.historyWidgetCapability = [];
+            if (window.historyWidgetCapability[this.idWidget] == undefined) {
+                window.historyWidgetCapability[this.idWidget] = [];
             }
             if (window.vfbUpdatingHistory == undefined) {
                 window.vfbUpdatingHistory = false;
@@ -641,7 +653,7 @@ export default class VFBTermInfoWidget extends React.Component {
                     items = 'id=' + this.refs.termInfoRef.data.split('.')[0] + '&' + items;
                 } catch (ignore) { };
                 if (items != "i=") {
-                    parent.historyWidgetCapability.pushState({}, title, parent.location.pathname + "?" + items);
+                    window.historyWidgetCapability[this.idWidget].pushState({}, title, parent.location.pathname + "?" + items);
                 }
                 window.vfbUpdatingHistory = false;
             }
@@ -651,7 +663,7 @@ export default class VFBTermInfoWidget extends React.Component {
     };
 
     componentDidUpdate() {
-        if ((parent.historyWidgetCapability != undefined) && (parent.historyWidgetCapability.length > 1)) {
+        if ((window.historyWidgetCapability[this.idWidget] != undefined) && (window.historyWidgetCapability[this.idWidget].length > 1)) {
             this.refs.termInfoRef.showHistoryNavigationBar(true);
         }
     }
@@ -661,7 +673,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
         return (
             <VFBTermInfoWidget
-                id={'vfbterminfowidget'}
+                id={this.idWidget}
                 componentType={'VFBTERMINFO'}
                 title={"Click on image to show info"}
                 order={this.props.order}
