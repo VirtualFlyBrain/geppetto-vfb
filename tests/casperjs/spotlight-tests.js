@@ -41,40 +41,55 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
     // open project, check for items in term info popup
     casper.thenOpen(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
-
+    	this.waitForSelector('#VFB_00017894_select_ctrlPanel_btn', function () {
+            this.echo("I waited for the logo to load.");
+            test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
+        }, null, 120000);
+    });
+    
+    casper.then(function () {
         casper.then(function () {
-            casper.then(function () {
-                this.waitForText('VFB_00017894', function () {
-                    casper.wait(2000, function () {
-                        this.echo("Element JFRC2_template appeared in popup");
-                        test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
-                        test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
-                    });
-                }, null, 30000);
+            this.waitForText('VFB_00017894', function () {
+                casper.wait(2000, function () {
+                    this.echo("Element JFRC2_template appeared in popup");
+                    test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+                    test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
+                });
+            }, null, 30000);
 
 
-            });
+        });
+    });
+
+    // open spotlight and check functionality
+    casper.then(function () {
+        casper.then(function () {
+            this.waitForSelector('button[id=spotlightVisible]', function () {
+                test.assertExists('button[id=spotlightVisible]', "Spotlight button exists");
+            }, null, 20000);
         });
 
-        // open spotlight and check functionality
         casper.then(function () {
-            casper.then(function () {
-                this.waitForSelector('button[id=searchBtn]', function () {
-                    test.assertExists('button[id=searchBtn]', "Spotlight button exists");
-                }, null, 20000);
+            spotlightTest(test, "VFB_00000001", "#buttonOne", "#Popup1_VFB_00000001_metadata_el_");
+        });
+        
+        casper.then(function () {
+        	casper.evaluate(function() {
+                $("#spotlight").hide();
             });
+            casper.echo("Clicking to close spotlight");
+            this.waitWhileVisible('div#spotlight', function () {
+                test.assertNotVisible('div#spotlight', "Spotlight closed");
+            }, null, 20000);
+        });
 
-            casper.then(function () {
-                spotlightTest(test, "VFB_00000001", "#buttonTwo", "#Popup1_VFB_00000001_metadata_el_");
-            });
+        casper.then(function () {
+            testMeshVisibility(test, true, "VFB_00017894.VFB_00017894_obj");
+        });
 
-            casper.then(function () {
-                testMeshVisibility(test, true, "VFB_00017894.VFB_00017894_obj");
-            });
-
-            casper.then(function () {
-                spotlightTest(test, "medulla", "#buttonOne", "#Popup1_FBbt_00003748_metadata_el_");
-            });
+        casper.then(function () {
+            spotlightTest(test, "VFB_00000001", "#query", "#queryitem-fru-M-200266_0");
         });
     });
 
@@ -88,41 +103,58 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
     }
 
     function spotlightTest(test, searchQuery, buttonClick, termInfoData) {
-        casper.mouseEvent('click', 'button[id=searchBtn]', "attempting to open spotlight");
+    	casper.mouseEvent('click', 'button[id=spotlightVisible]', "attempting to open spotlight");
 
-        casper.waitUntilVisible('div#spotlight', function () {
-            test.assertVisible('div#spotlight', "Spotlight opened");
+    	casper.waitUntilVisible('div#spotlight', function () {
+    		test.assertVisible('div#spotlight', "Spotlight opened");
 
-            //type in the spotlight
-            this.sendKeys('input#typeahead', searchQuery, { keepFocus: true });
-            //press enter
-            this.sendKeys('input#typeahead', this.page.event.key.Return, { keepFocus: true });
+    		//type in the spotlight
+    		this.sendKeys('input#typeahead', searchQuery, { keepFocus: true, reset: true });
+    		//press enter
+    		this.sendKeys('input#typeahead', this.page.event.key.Return, { keepFocus: true });
 
-            this.waitForSelector('div.tt-suggestion', function () {
-                this.echo("Selecting first suggestion from suggestion box");
-                this.evaluate(function () {
-                    $('div.tt-suggestion').first().click();
-                });
-            });
-            casper.waitUntilVisible('div#spotlight', function () {
-                casper.then(function () {
-                    this.echo("Waiting to see if the button becomes visible");
-                    casper.waitUntilVisible(buttonClick, function () {
-                        test.assertVisible(buttonClick, "Show Info correctly visible");
-                        this.echo("Show Info button became visible correctly");
-                        this.evaluate(function (buttonClick) {
-                            $(buttonClick).click();
-                        }, buttonClick);
-                        this.waitUntilVisible(termInfoData + "0", function () {
-                            this.echo("Added to scene correctly");
-                            test.assertVisible(termInfoData + "1", "Term info property correctly visible");
-                            test.assertVisible(termInfoData + "3", "Term info property correctly visible");
-                            test.assertVisible(termInfoData + "5", "Term info property correctly visible");
-                        }, 25000);
-                    }, null, 295000);
-                });
-            }, 25000);
-        }, 25000);
+    		casper.then(function () {
+    			this.waitForSelector('div.tt-suggestion', function () {
+    				this.echo("Selecting first suggestion from suggestion box");
+    				this.evaluate(function () {
+    					$('div.tt-suggestion').first().click();
+    				});
+    			});
+    		});
+
+    		casper.then(function () {
+    			casper.waitUntilVisible('button'+buttonClick, function () {
+    				this.echo("Waited for button to be visible");
+    				this.evaluate(function (button) {
+    					$(button).first().click();
+    				},buttonClick);
+    			}, 25000);
+    		});
+
+    		if(buttonClick=="#buttonOne"){
+    			casper.then(function () {
+    				casper.waitUntilVisible('div'+termInfoData+"1", function () {
+    					casper.then(function () {
+    						this.echo("Testing info widget becomes properly populated");
+    						this.waitUntilVisible(termInfoData + "5", function () {
+    							this.echo("Added to scene correctly");
+    							test.assertVisible(termInfoData + "1", "Term info property correctly visible");
+    							test.assertVisible(termInfoData + "3", "Term info property correctly visible");
+    							test.assertVisible(termInfoData + "5", "Term info property correctly visible");
+    						}, 25000);
+    					});
+    				}, 25000);
+    			});
+    		}else if(buttonClick=="#query"){
+    			casper.then(function () {
+    				casper.waitUntilVisible('div'+termInfoData, function () {
+    					casper.then(function () {
+    						test.assertVisible(termInfoData, "Query Builder Panel Came Up and visible");
+    					});
+    				}, 25000);
+    			});
+    		}
+    	}, 25000);
     }
 
     casper.run(function () {

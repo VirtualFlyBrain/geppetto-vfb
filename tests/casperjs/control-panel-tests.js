@@ -32,8 +32,8 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
     // open dashboard
     casper.start(PROJECT_URL, function () {
         this.echo("Loading project at URL: " + PROJECT_URL);
-        this.waitForSelector('#VFB_00000001_deselect_buttonBar_btn', function () {
-            this.echo("I waited for the logo to load.");
+        this.waitForSelector('#VFB_00017894_deselect_buttonBar_btn', function () {
+            this.echo("I waited for the logo and VFB_00017894 deselect button on button bar to load.");
             test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
             test.assertExists('#geppettologo', "logo is found");
         }, null, 120000);
@@ -41,23 +41,19 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
 
     // check for items in control panel + instances
     casper.then(function () {
-        test.assertExists('div#Popup1_VFB_00000001_metadata_el_1', 'Term info correctly populated  for neuron after load');
-        test.assertExists('button[id=VFB_00000001_zoom_buttonBar_btn]', 'Term info button bar button created');
+        test.assertExists('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for neuron after load');
+        test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
     });
 
     // open control panel, check it's visible
     casper.then(function () {
-        casper.evaluate(function () {
-            Popup1.destroy();
-        });
-
-        this.mouseEvent('click', 'button[id=infoBtn]', 'Opening term info popup');
+        this.mouseEvent('click', 'button[id=termInfoVisible]', 'Opening term info popup');
 
         // check that control panel is invisible
         test.assertNotVisible('#controlpanel', "Control panel is invisible");
 
         this.echo("Clicking on control panel button to open query builder");
-        this.mouseEvent('click', 'button[id=controlPanelBtn]', 'Opening control panel');
+        this.mouseEvent('click', 'button[id=controlPanelVisible]', 'Opening control panel');
 
         test.assertVisible('#controlpanel', "Control panel is visible");
     });
@@ -67,11 +63,11 @@ casper.test.begin('VFB control panel tests', 7, function suite(test) {
         // click on select control
         this.echo("Clicking on selection control button for JFRC2_template");
         casper.wait(1000, function () {
-            casper.mouseEvent('click', 'button[id=VFB_00017894_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
+            casper.mouseEvent('click', 'button[id=VFB_00000001_select_ctrlPanel_btn]', 'Clicking selection button on JFRC2_template');
             // wait for neuron to be deselected in response
-            casper.waitForSelector('#VFB_00000001_select_ctrlPanel_btn', function () {
+            casper.waitForSelector('#VFB_00000001_deselect_buttonBar_btn', function () {
                 casper.wait(1000, function () {
-                    test.assertExists('div#Popup1_VFB_00017894_metadata_el_0', 'Term info correctly populated  for JFRC2_template after control panel selection click');
+                    test.assertExists('div#Popup1_VFB_00000001_metadata_el_0', 'Term info correctly populated  for JFRC2_template after control panel selection click');
                 });
             }, null, 10000);
         });

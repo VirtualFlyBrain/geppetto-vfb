@@ -44,7 +44,6 @@ export default class VFBMain extends React.Component {
         this.addVfbId = this.addVfbId.bind(this);
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
-        this.customSorter = this.customSorter.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
         this.tutorialHandler = this.tutorialHandler.bind(this)
         this.termInfoHandler = this.termInfoHandler.bind(this);
@@ -255,81 +254,6 @@ export default class VFBMain extends React.Component {
 
     getStackViewerDefaultY() {
         return 200;
-    };
-
-    customSorter(a, b, InputString) {
-        //move exact matches to top
-        if (InputString == a.label) {
-            return -1;
-        }
-        if (InputString == b.label) {
-            return 1;
-        }
-        //close match without case matching
-        if (InputString.toLowerCase() == a.label.toLowerCase()) {
-            return -1;
-        }
-        if (InputString.toLowerCase() == b.label.toLowerCase()) {
-            return 1;
-        }
-        //match ignoring joinging nonwords
-        Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
-        if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
-            return -1;
-        }
-        if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
-            return 1;
-        }
-        //match against id
-        if (InputString.toLowerCase() == a.id.toLowerCase()) {
-            return -1;
-        }
-        if (InputString.toLowerCase() == b.id.toLowerCase()) {
-            return 1;
-        }
-        //pick up any match without nonword join character match
-        if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
-            return 1;
-        }
-        if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
-            return -1;
-        }
-        //also with underscores ignored
-        if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
-            return 1;
-        }
-        if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
-            return -1;
-        }
-        //if not found in one then advance the other
-        if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-            return 1;
-        }
-        if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-            return -1;
-        }
-        // if the match is closer to start than the other move up
-        if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return -1;
-        }
-        if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return 1;
-        }
-        // if the match in the id is closer to start then move up
-        if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return -1;
-        }
-        if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return 1;
-        }
-        // move the shorter synonyms to the top
-        if (a.label < b.label) {
-            return -1;
-        }
-        else if (a.label > b.label) {
-            return 1;
-        }
-        else return 0; // if nothing found then do nothing.
     };
 
     // Logic to add VFB ids into the scene starts here
@@ -657,8 +581,7 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
             // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
@@ -943,10 +866,10 @@ export default class VFBMain extends React.Component {
                         bottomLeft: false, topLeft: false}}
                     default={{
                         x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
-                        height: 80, width: 340}}
+                        height: 35, width: 340}}
                     className="new-widget"
                     disableDragging={true}
-                    maxHeight={80} minHeight={50}
+                    maxHeight={35} minHeight={35}
                     maxWidth={350} minWidth={150}
                     ref={c => { this.rnd = c; }} >
                     <ButtonBar
@@ -1005,3 +928,80 @@ export default class VFBMain extends React.Component {
         );
     }
 }
+
+//Moved out of VFBMain class, and placed here as a global function in order to be accessed by 
+//spotlight and query configuration files
+window.customSorter = function(a, b, InputString) {
+    //move exact matches to top
+    if (InputString == a.label) {
+        return -1;
+    }
+    if (InputString == b.label) {
+        return 1;
+    }
+    //close match without case matching
+    if (InputString.toLowerCase() == a.label.toLowerCase()) {
+        return -1;
+    }
+    if (InputString.toLowerCase() == b.label.toLowerCase()) {
+        return 1;
+    }
+    //match ignoring joinging nonwords
+    Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
+    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
+        return -1;
+    }
+    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
+        return 1;
+    }
+    //match against id
+    if (InputString.toLowerCase() == a.id.toLowerCase()) {
+        return -1;
+    }
+    if (InputString.toLowerCase() == b.id.toLowerCase()) {
+        return 1;
+    }
+    //pick up any match without nonword join character match
+    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+        return 1;
+    }
+    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+        return -1;
+    }
+    //also with underscores ignored
+    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+        return 1;
+    }
+    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+        return -1;
+    }
+    //if not found in one then advance the other
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return 1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return -1;
+    }
+    // if the match is closer to start than the other move up
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return -1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return 1;
+    }
+    // if the match in the id is closer to start then move up
+    if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return -1;
+    }
+    if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return 1;
+    }
+    // move the shorter synonyms to the top
+    if (a.label < b.label) {
+        return -1;
+    }
+    else if (a.label > b.label) {
+        return 1;
+    }
+    else return 0; // if nothing found then do nothing.
+};

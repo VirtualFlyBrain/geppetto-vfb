@@ -102,5 +102,5 @@ var queryResultsControlConfig = {
 module.exports = {
     queryResultsColMeta,
     queryResultsColumns,
-    queryResultsControlConfig,
+    queryResultsControlConfig
 };
