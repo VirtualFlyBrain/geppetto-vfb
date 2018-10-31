@@ -23,17 +23,17 @@ class VFBTermInfo extends React.Component {
         super(props);
 
         this.state = {
-            htmlTermInfo: undefined
+            htmlTermInfo: undefined,
+            activeSlide: undefined,
         }
 
         this.getHTML = this.getHTML.bind(this);
         this.setData = this.setData.bind(this);
         this.getVariable = this.getVariable.bind(this);
+        this.hookupImages = this.hookupImages.bind(this);
         this.addToHistory = this.addToHistory.bind(this);
         this.renderButtonBar = this.renderButtonBar.bind(this);
-        this.setRawMessage = this.setRawMessage.bind(this);
         this.hookupCustomHandler = this.hookupCustomHandler.bind(this);
-        //this.renderButtonBar = this.renderButtonBar.bind(this);
 
         this.contentTermInfo = {
             keys : [],
@@ -43,6 +43,7 @@ class VFBTermInfo extends React.Component {
         this.staticHistoryMenu = [];
         this.arrowsInitialized = false;
         this.buttonBar = undefined;
+        this.sliderId = "termInfoSlider";
     };
 
 
@@ -141,25 +142,28 @@ class VFBTermInfo extends React.Component {
                         var image = value.elements[j].initialValue;
                         elements.push(<div>
                             {image.name}
-                            <a href="#" data-instancepath={image.reference}>
-                                <img src={image.data}></img>
+                            <a id={"slider_image_"+j} href="#" data-instancepath={image.reference}>
+                                <img id={"image_"+j} src={image.data}></img>
                             </a>
                         </div>);
                     }
 
-                    var settings = {
+                    const settings = {
                         fade: true,
                         centerMode: true,
                         slideToShow: 1,
-                        slidesToScroll: 1
+                        slidesToScroll: 1,
+                        lazyLoad: "progressive",
+                        afterChange: current => (this.hookupImages(current))
                     };
                     this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
                         <Slider {...settings}>
                             {elements.map((element, key) => {
                                 var Element = React.cloneElement(element);
-                                var imageId = "image_"+key;
+                                // The id in the following div is used to hookup the images into the slider
+                                // with the handler that has to load the id linked to that image
                                 return(
-                                    <div id={imageId} key={key}> {Element} </div>
+                                    <div id={this.sliderId+key} key={key}> {Element} </div>
                                 );
                             })}
                         </Slider>
@@ -179,6 +183,13 @@ class VFBTermInfo extends React.Component {
             }
         }
     };
+
+    // Method to hookup the images into the slider, avoided to re-call this logic on all the term info due
+    // to performances but also to the fact that the query were appended eachother.
+    hookupImages(idKey) {
+        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
+        this.hookupCustomHandler(innerHandler, $("#" + this.sliderId + idKey), undefined);
+    }
 
 
     addToHistory(label, method, args, id) {
@@ -241,7 +252,8 @@ class VFBTermInfo extends React.Component {
                 // hookup IF domain type is undefined OR it's defined and it matches the node type
                 if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
                     // hookup custom handler
-                    $(this).on(ev, function () {
+                    var that = this;
+                    $(that).on(ev, function () {
                         // invoke custom handler with instancepath as arg
                         fun(node, path, popup);
 
@@ -284,23 +296,6 @@ class VFBTermInfo extends React.Component {
         );
 
         $("#" + this.props.id).parent().css('z-index', originalZIndex);
-    };
-
-
-    setRawMessage(msg) {
-        //$("#" + this.id).html(msg);
-        GEPPETTO.CommandController.log("Set new Message for " + this.id, true);
-
-        if (this.customHandlers.length > 0) {
-            // msg has changed, set hooked attribute on handlers to false
-            for (var i = 0; i < this.customHandlers.length; i++) {
-                this.customHandlers[i].hooked = false;
-            }
-            // trigger routine that hooks up handlers
-            this.hookupCustomHandler(this.customHandlers, $("#" + this.id), this);
-            GEPPETTO.CommandController.log("Hooked up custom handlers for " + this.id, true);
-        }
-        return this;
     };
 
 
@@ -610,7 +605,7 @@ export default class VFBTermInfoWidget extends React.Component {
                     var m = Instances.getInstance(meta);
                     this.refs.termInfoRef.setData(m);
                     this.refs.termInfoRef.setName(m.name);
-                    window.resolve3D(path);
+                    window.addVfbId(path);
                 }.bind(this));
             }
         }
