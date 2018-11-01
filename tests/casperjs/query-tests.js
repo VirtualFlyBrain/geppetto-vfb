@@ -40,10 +40,19 @@ casper.test.begin('VFB query component tests', function suite(test) {
 
     // open project, check for items in control panel + instances
     casper.thenOpen(PROJECT_URL, function () {
-        this.echo("Loading project at URL: " + PROJECT_URL);
-
-        this.waitForSelector('button[id=queryBtn]', function () {
-            test.assertExists('button[id=queryBtn]', "Query builder button appeared");
+    	this.echo("Loading project at URL: " + PROJECT_URL);
+    	//wait for VFB_00017894 select control panel button to appear, should appear after last mesh 
+    	//is rendered
+    	this.waitForSelector('#VFB_00017894_select_ctrlPanel_btn', function () {
+            this.echo("I waited for the logo to load.");
+            test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
+        }, null, 120000);
+    });
+    
+    casper.then(function () {
+        this.waitForSelector('button[id=queryBuilderVisible]', function () {
+            test.assertExists('button[id=queryBuilderVisible]', "Query builder button appeared");
         }, null, 20000);
 
         // wait for control panel items to be populated - this will ensure scene has loaded
@@ -62,7 +71,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
             test.assertNotVisible('#querybuilder', "Query builder is invisible");
 
             this.echo("Clicking on query builder button to open query builder");
-            this.mouseEvent('click', 'button[id=queryBtn]', 'Opening query builder');
+            this.mouseEvent('click', 'button[id=queryBuilderVisible]', 'Opening query builder');
 
             test.assertVisible('#querybuilder', "Query builder is visible");
         });

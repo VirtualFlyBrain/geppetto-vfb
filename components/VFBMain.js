@@ -44,7 +44,6 @@ export default class VFBMain extends React.Component {
         this.addVfbId = this.addVfbId.bind(this);
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
-        this.customSorter = this.customSorter.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
         this.tutorialHandler = this.tutorialHandler.bind(this)
         this.termInfoHandler = this.termInfoHandler.bind(this);
@@ -102,6 +101,72 @@ export default class VFBMain extends React.Component {
         this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
         this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
         this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
+
+        this.queryBuilderDatasourceConfig = {
+            VFB: {
+                url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
+                crossDomain: true,
+                id: "short_form",
+                label: { field: "label", formatting: "$VALUE$" },
+                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
+                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
+                type: {
+                    class: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-dot-circle-o"
+                    },
+                    individual: {
+                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+                        icon: "fa-square-o"
+                    }
+                },
+                queryNameToken: '$NAME',
+                resultsFilters: {
+                    getItem: function (record, header, field) {
+                        var recordIndex = header.indexOf(field);
+                        return record[recordIndex]
+                    },
+                    getId: function (record) {
+                        return record[0]
+                    },
+                    getName: function (record) {
+                        return record[1]
+                    },
+                    getDescription: function (record) {
+                        return record[2]
+                    },
+                    getType: function (record) {
+                        return record[3]
+                    },
+                    getImageData: function (record) {
+                        return record[4]
+                    },
+                    getScore: function (record) {
+                        return record[5]
+                    },
+                    getRecords: function (payload) {
+                        return payload.results.map(function (item) {
+                            return item.values
+                        })
+                    },
+                    getHeaders: function (payload) {
+                        return payload.header;
+                    }
+                },
+                bloodhoundConfig: {
+                    datumTokenizer: function (d) {
+                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
+                    }.bind(this),
+                    queryTokenizer: function (q) {
+                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
+                    }.bind(this),
+                    sorter: function (a, b) {
+                        var term = $("#query-typeahead").val();
+                        return this.customSorter(a, b, term);
+                    }.bind(this)
+                }
+            }
+        };
 
         this.spotlightDataSourceConfig = {
             VFB: {
@@ -173,72 +238,6 @@ export default class VFBMain extends React.Component {
             }
         };
 
-        this.queryBuilderDatasourceConfig = {
-            VFB: {
-                url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
-                crossDomain: true,
-                id: "short_form",
-                label: { field: "label", formatting: "$VALUE$" },
-                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
-                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
-                type: {
-                    class: {
-                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                        icon: "fa-dot-circle-o"
-                    },
-                    individual: {
-                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                        icon: "fa-square-o"
-                    }
-                },
-                queryNameToken: '$NAME',
-                resultsFilters: {
-                    getItem: function (record, header, field) {
-                        var recordIndex = header.indexOf(field);
-                        return record[recordIndex]
-                    },
-                    getId: function (record) {
-                        return record[0]
-                    },
-                    getName: function (record) {
-                        return record[1]
-                    },
-                    getDescription: function (record) {
-                        return record[2]
-                    },
-                    getType: function (record) {
-                        return record[3]
-                    },
-                    getImageData: function (record) {
-                        return record[4]
-                    },
-                    getScore: function (record) {
-                        return record[5]
-                    },
-                    getRecords: function (payload) {
-                        return payload.results.map(function (item) {
-                            return item.values
-                        })
-                    },
-                    getHeaders: function (payload) {
-                        return payload.header;
-                    }
-                },
-                bloodhoundConfig: {
-                    datumTokenizer: function (d) {
-                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                    }.bind(this),
-                    queryTokenizer: function (q) {
-                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                    }.bind(this),
-                    sorter: function (a, b) {
-                        var term = $("#query-typeahead").val();
-                        return this.customSorter(a, b, term);
-                    }.bind(this)
-                }
-            }
-        };
-
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
 
@@ -256,81 +255,6 @@ export default class VFBMain extends React.Component {
 
     getStackViewerDefaultY() {
         return 200;
-    };
-
-    customSorter(a, b, InputString) {
-        //move exact matches to top
-        if (InputString == a.label) {
-            return -1;
-        }
-        if (InputString == b.label) {
-            return 1;
-        }
-        //close match without case matching
-        if (InputString.toLowerCase() == a.label.toLowerCase()) {
-            return -1;
-        }
-        if (InputString.toLowerCase() == b.label.toLowerCase()) {
-            return 1;
-        }
-        //match ignoring joinging nonwords
-        Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
-        if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
-            return -1;
-        }
-        if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
-            return 1;
-        }
-        //match against id
-        if (InputString.toLowerCase() == a.id.toLowerCase()) {
-            return -1;
-        }
-        if (InputString.toLowerCase() == b.id.toLowerCase()) {
-            return 1;
-        }
-        //pick up any match without nonword join character match
-        if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
-            return 1;
-        }
-        if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
-            return -1;
-        }
-        //also with underscores ignored
-        if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
-            return 1;
-        }
-        if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
-            return -1;
-        }
-        //if not found in one then advance the other
-        if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-            return 1;
-        }
-        if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-            return -1;
-        }
-        // if the match is closer to start than the other move up
-        if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return -1;
-        }
-        if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return 1;
-        }
-        // if the match in the id is closer to start then move up
-        if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return -1;
-        }
-        if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-            return 1;
-        }
-        // move the shorter synonyms to the top
-        if (a.label < b.label) {
-            return -1;
-        }
-        else if (a.label > b.label) {
-            return 1;
-        }
-        else return 0; // if nothing found then do nothing.
     };
 
     // Logic to add VFB ids into the scene starts here
@@ -644,19 +568,15 @@ export default class VFBMain extends React.Component {
         }
 
         if((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-            //$('#controlpanel').show();
             this.refs.controlpanelRef.open();
         }
 
         if((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-            //$('#spotlight').show();
             this.refs.spotlightRef.open();
         }
 
         if((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
-            //$('#querybuilder').show();
             this.refs.querybuilderRef.open();
-
         }
 
         if(this.state.htmlFromToolbar !== undefined) {
@@ -666,11 +586,11 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            //Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
+            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
-            Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
+            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             this.setState({modelLoaded: true});
         }
 
@@ -686,7 +606,8 @@ export default class VFBMain extends React.Component {
     }
 
     componentDidMount() {
-        G.setIdleTimeOut("-1");
+        GEPPETTO.G.setIdleTimeOut(-1);
+
         // Global functions linked to VFBMain functions
         window.resolve3D = function(globalID) {
             this.resolve3D(globalID);
@@ -710,6 +631,10 @@ export default class VFBMain extends React.Component {
 
         window.addToQueryCallback = function(variableId, label) {
             this.addToQueryCallback(variableId, label)
+        }.bind(this);
+
+        window.resolve3D = function(externalID) {
+            this.resolve3D(externalID);
         }.bind(this);
 
         // Canvas initialization
@@ -968,10 +893,10 @@ export default class VFBMain extends React.Component {
                         bottomLeft: false, topLeft: false}}
                     default={{
                         x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
-                        height: 80, width: 340}}
+                        height: 35, width: 340}}
                     className="new-widget"
                     disableDragging={true}
-                    maxHeight={80} minHeight={50}
+                    maxHeight={35} minHeight={35}
                     maxWidth={350} minWidth={150}
                     ref={c => { this.rnd = c; }} >
                     <ButtonBar
@@ -1032,3 +957,80 @@ export default class VFBMain extends React.Component {
         );
     }
 }
+
+//Moved out of VFBMain class, and placed here as a global function in order to be accessed by 
+//spotlight and query configuration files
+window.customSorter = function(a, b, InputString) {
+    //move exact matches to top
+    if (InputString == a.label) {
+        return -1;
+    }
+    if (InputString == b.label) {
+        return 1;
+    }
+    //close match without case matching
+    if (InputString.toLowerCase() == a.label.toLowerCase()) {
+        return -1;
+    }
+    if (InputString.toLowerCase() == b.label.toLowerCase()) {
+        return 1;
+    }
+    //match ignoring joinging nonwords
+    Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
+    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
+        return -1;
+    }
+    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
+        return 1;
+    }
+    //match against id
+    if (InputString.toLowerCase() == a.id.toLowerCase()) {
+        return -1;
+    }
+    if (InputString.toLowerCase() == b.id.toLowerCase()) {
+        return 1;
+    }
+    //pick up any match without nonword join character match
+    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+        return 1;
+    }
+    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+        return -1;
+    }
+    //also with underscores ignored
+    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+        return 1;
+    }
+    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+        return -1;
+    }
+    //if not found in one then advance the other
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return 1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return -1;
+    }
+    // if the match is closer to start than the other move up
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return -1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return 1;
+    }
+    // if the match in the id is closer to start then move up
+    if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return -1;
+    }
+    if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+        return 1;
+    }
+    // move the shorter synonyms to the top
+    if (a.label < b.label) {
+        return -1;
+    }
+    else if (a.label > b.label) {
+        return 1;
+    }
+    else return 0; // if nothing found then do nothing.
+};

@@ -1,6 +1,3 @@
-var GEPPETTO = require('geppetto');
-var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-
 var queryResultsColMeta = [
     {
         "columnName": "id",

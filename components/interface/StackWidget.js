@@ -228,7 +228,8 @@ export default class StackWidget extends React.Component {
 
     componentDidMount() {
         // Timeout necessary to avoid the terminfoWidget to disappear, related to loadProjectFromURL event apparently.
-        GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {            console.log("Rendering stack viewer Widget...");
+        GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
+            console.log("Rendering stack viewer Widget...");
             if((this.state.stackViewerOpened) && !(this.state.stackViewerMounted)){
                 this.stackViewToRender = this.addStackWidget();
         }}.bind(this));

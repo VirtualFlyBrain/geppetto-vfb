@@ -438,7 +438,7 @@ export default class VFBToolBar extends React.Component {
 				}}
 				default={{
 					x: 0, y: 0,
-					height: 100,
+					height: 0,
 					width: '100%'
 				}}
 				className="vfbToolBarClass"
@@ -467,10 +467,10 @@ export default class VFBToolBar extends React.Component {
 
 					<div className="rightSide">
 						<div className="wideDivR">
-							<a href="/org.geppetto.frontend/geppetto?i=VFB_00017894">Adult Brain</a>&nbsp;&nbsp;
-						<a href="/org.geppetto.frontend/geppetto?i=VFB_00100000">Adult VNS</a>&nbsp;&nbsp;
-						<a href="/org.geppetto.frontend/geppetto?i=VFB_00050000">Larva L1</a>&nbsp;&nbsp;
-						<a href="/org.geppetto.frontend/geppetto?i=VFB_00049000">Larva L3</a>&nbsp;&nbsp;
+							<a href="/org.geppetto.frontend/geppetto?i=VFB_00017894" target="VFBJFRC2">Adult Brain</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00100000" target="VFBVNS">Adult VNS</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00050000" target="VFBL1">Larva L1</a>&nbsp;&nbsp;
+						<a href="/org.geppetto.frontend/geppetto?i=VFB_00049000" target="VFBL3">Larva L3</a>&nbsp;&nbsp;
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<a onClick={this.clickAbout}>About</a>
 							<a onClick={this.clickContribute}>Contribute</a>
