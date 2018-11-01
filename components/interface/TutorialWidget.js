@@ -14,7 +14,6 @@ export default class TutorialWidget extends React.Component {
     }
 
     closeHandler() {
-        console.log("tutorial close handler called");
         this.props.tutorialHandler();
     }
 

@@ -57,7 +57,7 @@ var spotlightConfig = {
             },
             "buttonThree": {
                 "actions": [
-                    "GEPPETTO.SceneController.zoomTo($instances$);GEPPETTO.Spotlight.close();"
+                    "GEPPETTO.SceneController.zoomTo($instances$);$(\"#spotlight\").hide();"
                 ],
                 "icon": "fa-search-plus",
                 "label": "Zoom",

@@ -301,7 +301,7 @@
       id="owleryDataSourceSubclass"
       name="owlery Data Source (subclasses)"
       dataSourceService="owleryDataSource"
-      url="http://VFB_OWL_SERVER/kbs/vfb/subclasses"
+      url="http://owl.virtualflybrain.org/kbs/vfb/subclasses"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <queries
@@ -383,7 +383,7 @@
       id="owleryDataSourceRealise"
       name="owlery Data Source (instances)"
       dataSourceService="owleryDataSource"
-      url="http://VFB_OWL_SERVER/kbs/vfb/instances"
+      url="http://owl.virtualflybrain.org/kbs/vfb/instances"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <queries
