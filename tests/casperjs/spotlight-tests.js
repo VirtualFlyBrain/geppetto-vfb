@@ -1,6 +1,6 @@
 var urlBase = casper.cli.get('host');
 if (urlBase == null || urlBase == undefined) {
-    urlBase = "http://127.0.0.1:8080/";
+    urlBase = "http://127.0.0.1:8081/";
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
@@ -53,7 +53,8 @@ casper.test.begin('VFB Spotlight tests', function suite(test) {
             this.waitForText('VFB_00017894', function () {
                 casper.wait(2000, function () {
                     this.echo("Element JFRC2_template appeared in popup");
-                    test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load');
+                    test.assertVisible('div#VFBTermInfo_el_1_component', 'Term info correctly populated  for JFRC2_template after load');
+                    test.assertTextExists('adult brain template JFRC2 (VFB_00017894)', 'Term info correctly populated  for JFRC2_template after control panel selection click');
                     test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
                 });
             }, null, 30000);

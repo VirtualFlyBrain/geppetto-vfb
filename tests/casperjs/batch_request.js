@@ -45,10 +45,11 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
         casper.then(function () {
             casper.then(function () {
                 this.wait(10000);
-                this.waitForSelector('#VFB_00017894_deselect_buttonBar_btn', function () {
+                this.waitForSelector('#VFB_00030880_deselect_buttonBar_btn', function () {
                     this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
-                    test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00017894 as last in the list to be rendered');
-                    test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created 1');
+                    test.assertExists('div#VFBTermInfo_el_1_component', 'Term info correctly populated on load');
+                    test.assertTextExists('ventral complex on adult brain template JFRC2 (VFB_00030880)', 'Term info correctly populated on load');
+                    test.assertExists('button[id=VFB_00030880_zoom_buttonBar_btn]', 'Term info button bar button created 1');
                 }, null, 100000);
             });
         });
