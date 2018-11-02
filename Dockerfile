@@ -140,7 +140,7 @@ RUN cd /opt/geppetto && \
 REPO='{"sourcesdir":"..//..//..//", "repos":[' && \
 for folder in * ; do if [ "$folder" != "org.geppetto" ]; then REPO=${REPO}'{"name":"'$folder'", "url":"", "auto_install":"yes"},' ; fi; done; REPO=$REPO']}' && \
 REPO=$(${REPO} | /bin/sed -e 's/,]/]/g') && \
-echo $REPO > org.geppetto/utilities/source_setup/config.json
+echo $REPO > /opt/geppetto/org.geppetto/utilities/source_setup/config.json
 
 # Output amended config files
 RUN echo -e "\n\n\n\n/opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json" && \
@@ -156,6 +156,7 @@ RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean
 
 # deploy Geppetto:
 RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
+ls && cat *.json && \
 python update_server.py 
 
 ENTRYPOINT ["/opt/VFB/startup.sh"]
