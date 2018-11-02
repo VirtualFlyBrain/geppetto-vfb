@@ -21,7 +21,7 @@ RUN mkdir -p /home/developer && mkdir -p /etc/sudoers.d \
 
 USER developer
 ENV HOME /home/developer
-WORKDIR /home/developer
+ENV WORKDIR /home/developer
 
 # get maven 3.5.2
 RUN sudo wget -q --no-verbose -O /tmp/apache-maven-3.5.2-bin.tar.gz http://archive.apache.org/dist/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.tar.gz
