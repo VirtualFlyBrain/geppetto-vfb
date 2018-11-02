@@ -35,15 +35,14 @@ class VFBTermInfo extends React.Component {
         this.renderButtonBar = this.renderButtonBar.bind(this);
         this.hookupCustomHandler = this.hookupCustomHandler.bind(this);
 
-        this.contentTermInfo = {
-            keys : [],
-            values : []
-        };
-        this.tempArray = [];
         this.staticHistoryMenu = [];
         this.arrowsInitialized = false;
         this.buttonBar = undefined;
         this.sliderId = "termInfoSlider";
+        this.contentTermInfo = {
+            keys : [],
+            values : []
+        };
     };
 
 
@@ -383,10 +382,18 @@ export default class VFBTermInfoWidget extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            coordX: this.getTermInfoDefaultX(),
+            coordY: this.getTermInfoDefaultY(),
+            widgetHeight: this.getTermInfoDefaultHeight(),
+            widgetWidth: this.getTermInfoDefaultWidth()
+        }
+
         this.setTermInfo = this.setTermInfo.bind(this)
         this.closeHandler = this.closeHandler.bind(this);
         this.customHandler = this.customHandler.bind(this);
         this.updateHistory = this.updateHistory.bind(this);
+        this.updateDimensions = this.updateDimensions.bind(this);
         this.getTermInfoDefaultX = this.getTermInfoDefaultX.bind(this);
         this.getTermInfoDefaultY = this.getTermInfoDefaultY.bind(this);
         this.getTermInfoDefaultWidth = this.getTermInfoDefaultWidth.bind(this);
@@ -605,7 +612,7 @@ export default class VFBTermInfoWidget extends React.Component {
                     var m = Instances.getInstance(meta);
                     this.refs.termInfoRef.setData(m);
                     this.refs.termInfoRef.setName(m.name);
-                    window.addVfbId(path);
+                    window.resolve3D(path);
                 }.bind(this));
             }
         }
@@ -662,6 +669,28 @@ export default class VFBTermInfoWidget extends React.Component {
         }
     }
 
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
+
+    updateDimensions() {
+        if(this.refs.termInfoRef !== undefined) {
+            this.refs.termInfoRef.setPosition(this.getTermInfoDefaultX(), this.getTermInfoDefaultY());
+            this.refs.termInfoRef.setSize(this.getTermInfoDefaultHeight(), this.getTermInfoDefaultWidth());
+        } else {
+            this.setState({
+                coordX: this.getTermInfoDefaultX(),
+                coordY: this.getTermInfoDefaultY(),
+                widgetHeight: this.getTermInfoDefaultHeight(),
+                widgetWidth: this.getTermInfoDefaultWidth()
+            });
+        }
+    }
+
     render() {
         var VFBTermInfoWidget = WidgetCapability.createWidget(VFBTermInfo);
 
@@ -673,8 +702,8 @@ export default class VFBTermInfoWidget extends React.Component {
                 order={this.props.order}
                 showButtonBar={this.props.showButtonBar}
                 closeByDefault={false}
-                position={{ left: this.getTermInfoDefaultX(), top: this.getTermInfoDefaultY(), position: "absolute" }}
-                size={{ height: this.getTermInfoDefaultHeight(), width: this.getTermInfoDefaultWidth() }}
+                position={{ left: this.state.coordX, top: this.state.coordY, position: "absolute" }}
+                size={{ height: this.state.widgetHeight, width: this.state.widgetWidth }}
                 closeHandler={this.closeHandler}
                 termInfoHandler={this.props.termInfoHandler}
                 isStateLess={false}

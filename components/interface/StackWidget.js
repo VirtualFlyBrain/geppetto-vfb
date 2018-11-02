@@ -10,17 +10,18 @@ export default class StackWidget extends React.Component {
             stackViewerMounted: false,
         }
 
-        this.addStackWidget = this.addStackWidget.bind(this);
+        this.getMDText = this.getMDText.bind(this);
         this.closeHandler = this.closeHandler.bind(this);
+        this.changedStacks = this.changedStacks.bind(this);
+        this.addStackWidget = this.addStackWidget.bind(this);
+        this.checkConnection = this.checkConnection.bind(this);
+        this.updateDimensions = this.updateDimensions.bind(this);
+        this.updateStackWidget = this.updateStackWidget.bind(this);
         this.getSliceInstances = this.getSliceInstances.bind(this);
-        this.getStackViewerDefaultHeight = this.getStackViewerDefaultHeight.bind(this);
-        this.getStackViewerDefaultWidth = this.getStackViewerDefaultWidth.bind(this);
         this.getStackViewerDefaultX = this.getStackViewerDefaultX.bind(this);
         this.getStackViewerDefaultY = this.getStackViewerDefaultY.bind(this);
-        this.getMDText = this.getMDText.bind(this);
-        this.updateStackWidget = this.updateStackWidget.bind(this);
-        this.checkConnection = this.checkConnection.bind(this);
-        this.changedStacks = this.changedStacks.bind(this);
+        this.getStackViewerDefaultWidth = this.getStackViewerDefaultWidth.bind(this);
+        this.getStackViewerDefaultHeight = this.getStackViewerDefaultHeight.bind(this);
 
         this.stackViewToRender = undefined;
         this.stackConfiguration = {
@@ -227,6 +228,7 @@ export default class StackWidget extends React.Component {
     };
 
     componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
         // Timeout necessary to avoid the terminfoWidget to disappear, related to loadProjectFromURL event apparently.
         GEPPETTO.on(GEPPETTO.Events.Experiment_loaded, function () {
             console.log("Rendering stack viewer Widget...");
@@ -234,6 +236,17 @@ export default class StackWidget extends React.Component {
                 this.stackViewToRender = this.addStackWidget();
         }}.bind(this));
     };
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
+
+    updateDimensions() {
+        if(window.StackViewer1 !== undefined) {
+            window.StackViewer1.setPosition(this.getStackViewerDefaultX(), this.getStackViewerDefaultY());
+            window.StackViewer1.setSize(this.getStackViewerDefaultHeight(), this.getStackViewerDefaultWidth());
+        }
+    }
 
     render() {
         return (
