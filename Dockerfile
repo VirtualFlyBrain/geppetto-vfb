@@ -42,8 +42,8 @@ echo cloning required modules: && \
 git clone https://github.com/openworm/org.geppetto.git -b $BRANCH_BASE && \
 cd org.geppetto && git checkout $BRANCH_ORG_GEPPETTO || true
 RUN cd /opt/geppetto && \
-git clone https://github.com/openworm/org.geppetto.frontend.git -b feature/react_refactoring && \
-cd org.geppetto.frontend && git checkout feature/react_refactoring || true 
+git clone https://github.com/openworm/org.geppetto.frontend.git -b $BRANCH_BASE && \
+cd org.geppetto.frontend && git checkout $BRANCH_ORG_GEPPETTO_FRONTEND || true 
 RUN cd /opt/geppetto && \
 git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -b $BRANCH_BASE && \
 cd geppetto-vfb && git checkout $BRANCH_GEPPETTO_VFB || true 
@@ -63,8 +63,8 @@ RUN cd /opt/geppetto && \
 git clone https://github.com/openworm/org.geppetto.simulation.git -b $BRANCH_BASE && \
 cd org.geppetto.simulation && git checkout $BRANCH_ORG_GEPPETTO_SIMULATION || true 
 RUN cd /opt/geppetto && \
-git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b feature/react_refactoring && \
-cd uk.ac.vfb.geppetto && git checkout feature/react_refactoring || true 
+git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b $BRANCH_BASE && \
+cd uk.ac.vfb.geppetto && git checkout $BRANCH_UK_AC_VFB_GEPPETTO || true 
 RUN cd /opt/geppetto && \
 sed -ir "s|url: \".*solr/ontology/select|url: \"${SOLR_SERVER}|g" geppetto-vfb/components/VFBMain.js && \
 mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
