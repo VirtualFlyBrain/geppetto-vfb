@@ -118,8 +118,8 @@ casper.test.begin('VFB query component tests', function suite(test) {
             });
 
             // wait for text to appear in the term info widget
-            this.waitForSelector('div[id=Popup1_VFB_00030624_metadata_el_0]', function () {
-                test.assertExists('div[id=Popup1_VFB_00030624_metadata_el_0]', 'Term info correctly populated for example of Medulla after query results info button click');
+            this.waitForSelector('#VFB_00030624_deselect_buttonBar_btn', function () {
+                test.assertTextExists('medulla on adult brain template JFRC2 (VFB_00030624)', 'Term info correctly populated for example of Medulla after query results info button click');
             }, null, 20000);
 
         }, null, 20000);

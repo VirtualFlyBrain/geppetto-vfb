@@ -47,7 +47,8 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
                 this.wait(10000);
                 this.waitForSelector('#VFB_00017894_deselect_buttonBar_btn', function () {
                     this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
-                    test.assertVisible('div[id=Popup1_VFB_00017894_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00017894 as last in the list to be rendered');
+                    test.assertVisible('div#VFBTermInfo_el_1_component', 'Term info correctly populated  for JFRC2_template after load');
+                    test.assertTextExists('adult brain template JFRC2 (VFB_00017894)', 'Term info correctly populated  for JFRC2_template after load');
                     test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created 1');
                 }, null, 50000);
             });
@@ -205,8 +206,8 @@ casper.test.begin('VFB StackViewer tests', function suite(test) {
             });
 
             // wait for text to appear in the term info widget
-            this.waitForSelector('div[id=Popup1_VFB_00030624_metadata_el_0]', function () {
-                test.assertExists('div[id=Popup1_VFB_00030624_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
+            this.waitForSelector('#VFB_00030624_deselect_buttonBar_btn', function () {
+                test.assertTextExists('medulla on adult brain template JFRC2 (VFB_00030624)', 'Term info correctly populated for example of Medulla after query results info button click');
             }, null, 20000);
 
         }, null, 20000);
