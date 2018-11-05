@@ -139,7 +139,7 @@ sed -i "s@%VERSION%@${VERSION}@g" geppetto.plan
 RUN cd /opt/geppetto && \
 REPO='{"sourcesdir":"..//..//..//", "repos":[' && \
 for folder in * ; do if [ "$folder" != "org.geppetto" ]; then REPO=${REPO}'{"name":"'$folder'", "url":"", "auto_install":"yes"},' ; fi; done; REPO=$REPO']}' && \
-REPO=$(${REPO} | /bin/sed -e 's/,]/]/g') && \
+REPO=$(/bin/echo "${REPO}" | /bin/sed -e 's/,]/]/g') && \
 /bin/echo "$REPO" > /opt/geppetto/org.geppetto/utilities/source_setup/config.json && \
 cat /opt/geppetto/org.geppetto/utilities/source_setup/config.json
 
