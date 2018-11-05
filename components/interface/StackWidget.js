@@ -143,7 +143,7 @@ export default class StackWidget extends React.Component {
                                 window.StackViewer1.setPosition(this.getStackViewerDefaultX(), this.getStackViewerDefaultY());
                             }
                         }
-                    });
+                    }.bind(this));
 
                     // on change to instances reload stack:
                     GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
