@@ -140,7 +140,7 @@ RUN cd /opt/geppetto && \
 REPO='{"sourcesdir":"..//..//..//", "repos":[' && \
 for folder in * ; do if [ "$folder" != "org.geppetto" ]; then REPO=${REPO}'{"name":"'$folder'", "url":"", "auto_install":"yes"},' ; fi; done; REPO=$REPO']}' && \
 REPO=$(${REPO} | /bin/sed -e 's/,]/]/g') && \
-echo "$REPO" > /opt/geppetto/org.geppetto/utilities/source_setup/config.json && \
+/bin/echo "$REPO" > /opt/geppetto/org.geppetto/utilities/source_setup/config.json && \
 cat /opt/geppetto/org.geppetto/utilities/source_setup/config.json
 
 # Output amended config files
