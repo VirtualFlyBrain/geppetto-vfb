@@ -6,7 +6,7 @@ if (urlBase == null || urlBase == undefined) {
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
 var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894";
 
-casper.test.begin('VFB Term Info tests', 7, function suite(test) {
+casper.test.begin('VFB Term Info tests', 8, function suite(test) {
     casper.options.viewportSize = {
         width: 1340,
         height: 768
@@ -53,7 +53,8 @@ casper.test.begin('VFB Term Info tests', 7, function suite(test) {
         this.waitForText('VFB_00017894', function () {
             casper.wait(2000, function () {
             	this.echo("Element JFRC2_template appeared in popup");
-            	test.assertVisible('div#Popup1_VFB_00017894_metadata_el_1', 'Term info correctly populated  for JFRC2_template after load');
+            	test.assertVisible('div#VFBTermInfo_el_1_component', 'Term info correctly populated  for JFRC2_template after load');
+                test.assertTextExists('adult brain template JFRC2 (VFB_00017894)', 'Term info correctly populated  for JFRC2_template after load');
             	test.assertExists('button[id=VFB_00017894_zoom_buttonBar_btn]', 'Term info button bar button created');
             });
         }, null, 30000);
@@ -66,28 +67,17 @@ casper.test.begin('VFB Term Info tests', 7, function suite(test) {
     });
 
     function testTermInfoWidget(test) {
-        casper.then(function () {
-            //check that term info is populated
-            casper.waitUntilVisible('div#Popup1_VFB_00017894_metadata_el_1', function () {
-                casper.then(function () {
-                    test.assertVisible("div#Popup1_VFB_00017894_metadata_el_1", "Term info property correctly visible");
-                });
-            });
-        });
-
         //click on Term Info popup item
         casper.then(function () {
             casper.evaluate(function (variableName) {
                 $(variableName).find("a").click()
-            }, "#Popup1_VFB_00017894_metadata_el_1");
+            }, "#VFBTermInfo_el_1_component");
         });
 
-        //wait for term info to reload with new info
-        casper.then(function () {
-            this.waitForText('adult head', function () {
-                this.echo("Element adult head appeared in appeared in popup");
-            }, null, 295000);
-        });
+        // wait for text to appear in the term info widget
+        casper.waitForText('GMR_60B11_AE_01_00-fA01b', function () {
+            test.assertTextExists('adult brain (FBbt_00003624)', 'Term info correctly populated after term info interaction');
+        }, null, 20000);
     }
 
     casper.run(function () {
