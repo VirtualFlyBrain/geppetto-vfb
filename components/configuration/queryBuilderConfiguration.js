@@ -49,7 +49,7 @@ var queryResultsColMeta = [
         "visible": true,
         "customComponent": GEPPETTO.SlideshowImageComponent,
         "displayName": "Images",
-        "actions": "window.addVfbId('$entity$');",
+        "actions": "window.addVfbId('$entity$');$(\"#querybuilder\").hide();",
         "cssClassName": "query-results-images-column"
     },
     {
