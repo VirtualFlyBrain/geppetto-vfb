@@ -240,6 +240,8 @@ export default class VFBMain extends React.Component {
             }
         };
 
+        this.idForTermInfo = undefined;
+
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     }
 
@@ -798,22 +800,16 @@ export default class VFBMain extends React.Component {
             }
             for(var i=0 ; i < startsTermInfoString.length ; i++) {
                 var idsTermInfoSubstring = idsList.substring(startsTermInfoString[i], endsTermInfoString[i]).split(",");
-                var that = this;
-                console.log("Loading IDS to add to term info from url");
-                GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-                    that.addVfbId(idsTermInfoSubstring);
-                });
             }
+            this.idForTermInfo = idsTermInfoSubstring[idsTermInfoSubstring.length - 1];
 
             for(var i=0 ; i < starts3DString.length ; i++) {
                 var ids3DSubstring = idsList.substring(starts3DString[i], ends3DString[i]).split(",");
                 var that = this;
                 console.log("Loading IDS to add to term info from url");
                 GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+                    ids3DSubstring.push(this.idForTermInfo);
                     that.addVfbId(ids3DSubstring);
-                    //that.focusIdTermInfo(ids3DSubstring, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
-                    var metaTermInfo = Instances.getInstance(idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '.' + idsTermInfoSubstring[idsTermInfoSubstring.length - 1] + '_meta');
-                    that.refs.termInfoWidgetRef.setTermInfo(metaTermInfo, idsTermInfoSubstring[idsTermInfoSubstring.length - 1]);
                 });
             }
         } else {
