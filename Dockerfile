@@ -123,6 +123,8 @@ RUN rm /home/developer/virgo/configuration/tomcat-server.xml
 RUN cp /opt/geppetto/org.geppetto/utilities/docker/geppetto/tomcat-server.xml /home/developer/virgo/configuration/
 USER root
 RUN chown developer /home/developer/virgo/bin/dmk.sh
+# Create repository/usr folder
+RUN mkdir /home/developer/virgo/./repository/usr
 USER developer
 RUN chmod u+x /home/developer/virgo/bin/*.sh
 ENV SERVER_HOME /home/developer/virgo
@@ -151,9 +153,6 @@ cat /opt/geppetto/org.geppetto/geppetto.plan && \
 echo -e "\n\n\n\n/opt/geppetto/org.geppetto/pom.xml" && \
 cat /opt/geppetto/org.geppetto/pom.xml && \
 echo -e "\n\n\n"
-
-# Create repository/usr folder
-RUN mkdir rm /home/developer/virgo/./repository/usr
  
 # Build Geppetto:
 RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
