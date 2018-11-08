@@ -123,9 +123,9 @@ RUN rm /home/developer/virgo/configuration/tomcat-server.xml
 RUN cp /opt/geppetto/org.geppetto/utilities/docker/geppetto/tomcat-server.xml /home/developer/virgo/configuration/
 USER root
 RUN chown developer /home/developer/virgo/bin/dmk.sh
+USER developer
 # Create repository/usr folder
 RUN mkdir /home/developer/virgo/./repository/usr
-USER developer
 RUN chmod u+x /home/developer/virgo/bin/*.sh
 ENV SERVER_HOME /home/developer/virgo
 #END VIRGO INSTALL
