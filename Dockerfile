@@ -152,6 +152,9 @@ echo -e "\n\n\n\n/opt/geppetto/org.geppetto/pom.xml" && \
 cat /opt/geppetto/org.geppetto/pom.xml && \
 echo -e "\n\n\n"
 
+# Create repository/usr folder
+RUN mkdir rm /home/developer/virgo/./repository/usr
+ 
 # Build Geppetto:
 RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
 
