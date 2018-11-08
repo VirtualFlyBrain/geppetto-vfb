@@ -157,6 +157,9 @@ echo -e "\n\n\n"
 # Build Geppetto:
 RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
 
+RUN mkdir -p geppetto/
+RUN mkdir rm /home/developer/virgo/./repository/usr
+
 # deploy Geppetto:
 RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
 ls && cat *.json && \
