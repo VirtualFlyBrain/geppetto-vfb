@@ -1,0 +1,182 @@
+@import "./colors.less";
+
+#vfbterminfowidget {
+  overflow: scroll;
+}
+
+.ui-widget-content a {
+    color: @primary_color;
+    font-family: arial, sans-serif;
+}
+
+.ui-dialog span {
+    margin-left: -4px;
+}
+
+.container {
+    // position: fixed;
+    // top: 0px;
+    // bottom: 0px;
+    // left: 0px;
+    // right: 0px;
+    height: 100vh;
+    width: 100vw; // overflow: scroll;
+    .topbox {
+        background: #c8e0ec;
+    }
+    .table {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        .header {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            width: 100%;
+            border-bottom: 1px solid #d3d3d3;
+            .shadow {
+                position: absolute;
+                top: 31px;
+            }
+            .hcol {
+                display: flex;
+                background-color: #e5e8eb;
+                border-color: #DFDFDF;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                color: #1F384D;
+                box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.5);
+                width: 100%;
+            }
+        }
+        .header.fixed {
+            background: #e5e8eb;
+            z-index: 99;
+            position: fixed;
+            top: 0px;
+            .shadow {
+                height: 3px;
+                width: 100%;
+                background: 0 0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAECAYAAABP2FU6AAAAF0lEQVR4AWPUkNeSBhHCjJoK2twgFisAFagCCp3pJlAAAAAASUVORK5CYII=) repeat-x;
+            }
+        }
+        ul {
+            list-style: none;
+            margin: 0px;
+            position: absolute;
+            top: 32px;
+            width: 100%;
+            li {
+                width: 100%;
+                border-bottom: 1px solid #DFDFDF;
+                .heading {
+                    display: flex;
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: nowrap;
+                    align-items: stretch;
+                    width: 100%;
+                    height: 43px;
+                    cursor: pointer;
+                    transition: background 0.5s;
+                    .col {
+                        display: flex;
+                        align-items: center;
+                        width: 100%;
+                        height: 43px;
+                        border-right: 1px solid #DFDFDF;
+                    }
+                }
+                .content {
+                    width: 100%;
+                    height: 0px;
+                    opacity: 0;
+                    transition: height 1s;
+                }
+            }
+            li.open {
+                .heading {
+                    background: #4d98bc;
+                    color: #ffffff;
+                    .col {
+                        border: none;
+                    }
+                }
+                .content {
+                    height: 100%; // height: auto;
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+
+.Collapsible {
+    background-color: transparent;
+}
+
+.Collapsible__contentInner {
+    padding: 6px 2px 2px 2px;
+    border-top: 0;
+    font-size: 14px;
+    color: white;
+}
+
+.Collapsible__contentInner p {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.Collapsible__contentInner p:last-child {
+    margin-bottom: 0;
+}
+
+.Collapsible__trigger {
+    display: block;
+    text-transform: capitalize;
+    font-weight: 600;
+    font-size: 14px;
+    color: @primary_color;
+    position: relative;
+    padding: 2px;
+    background: transparent;
+}
+
+.Collapsible__trigger:after {
+    font-family: 'FontAwesome';
+    content: '\f139';
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: block;
+    transition: transform 300ms;
+}
+
+.Collapsible__trigger.is-open:after {
+    transform: rotateZ(180deg);
+    color: #8A7F7F;
+}
+
+.Collapsible__trigger.is-disabled {
+    opacity: 0.5;
+    background-color: grey;
+}
+
+.CustomTriggerCSS {
+    background-color: lightcoral;
+    transition: background-color 200ms ease;
+}
+
+.CustomTriggerCSS--open {
+    background-color: darkslateblue;
+}
+
+.Collapsible__custom-sibling {
+    padding: 5px;
+    font-size: 12px;
+    background-color: #CBB700;
+    color: black;
+}

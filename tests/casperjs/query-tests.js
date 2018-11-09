@@ -4,7 +4,7 @@ if (urlBase == null || urlBase == undefined) {
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
-var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894";
 
 casper.test.begin('VFB query component tests', function suite(test) {
     casper.options.viewportSize = {
@@ -40,10 +40,19 @@ casper.test.begin('VFB query component tests', function suite(test) {
 
     // open project, check for items in control panel + instances
     casper.thenOpen(PROJECT_URL, function () {
-        this.echo("Loading project at URL: " + PROJECT_URL);
-
-        this.waitForSelector('button[id=queryBtn]', function () {
-            test.assertExists('button[id=queryBtn]', "Query builder button appeared");
+    	this.echo("Loading project at URL: " + PROJECT_URL);
+    	//wait for VFB_00017894 select control panel button to appear, should appear after last mesh 
+    	//is rendered
+    	this.waitForSelector('#VFB_00017894_select_ctrlPanel_btn', function () {
+            this.echo("I waited for the logo to load.");
+            test.assertTitle("VirtualFlyBrain", "VFB's homepage title is the one expected");
+            test.assertExists('#geppettologo', "logo is found");
+        }, null, 120000);
+    });
+    
+    casper.then(function () {
+        this.waitForSelector('button[id=queryBuilderVisible]', function () {
+            test.assertExists('button[id=queryBuilderVisible]', "Query builder button appeared");
         }, null, 20000);
 
         // wait for control panel items to be populated - this will ensure scene has loaded
@@ -62,7 +71,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
             test.assertNotVisible('#querybuilder', "Query builder is invisible");
 
             this.echo("Clicking on query builder button to open query builder");
-            this.mouseEvent('click', 'button[id=queryBtn]', 'Opening query builder');
+            this.mouseEvent('click', 'button[id=queryBuilderVisible]', 'Opening query builder');
 
             test.assertVisible('#querybuilder', "Query builder is visible");
         });
@@ -88,7 +97,7 @@ casper.test.begin('VFB query component tests', function suite(test) {
                     });
 
                     // not ideal - react injects strange markup in strings
-                    this.waitForText('<!-- react-text: 9 -->2<!-- /react-text --><!-- react-text: 10 --> results<!-- /react-text -->', function () {
+                    this.waitForText(' -->2<!-- /react-text --><!-- react-text: ', function () {
                         this.echo("Verified we have 2 results");
                         runQueryTests();
                     }, null, 10000);
@@ -101,16 +110,16 @@ casper.test.begin('VFB query component tests', function suite(test) {
         casper.echo("Clicking on run query button");
         casper.mouseEvent('click', 'button[id=run-query-btn]', 'Running query');
 
-        casper.waitForSelector('div[id=VFB_00030810-image-container]', function () {
-            this.echo("Results rows appeared - click on results info for accessory medulla");
+        casper.waitForSelector('div[id=VFB_00030624-image-container]', function () {
+            this.echo("Results rows appeared - click on results info for JFRC2 example of medulla");
 
             casper.evaluate(function () {
-                $("#VFB_00030810-image-container").find("img").click();
+                $("#VFB_00030624-image-container").find("img").click();
             });
 
             // wait for text to appear in the term info widget
-            this.waitForSelector('div[id=Popup1_VFB_00030810_metadata_el_0]', function () {
-                test.assertExists('div[id=Popup1_VFB_00030810_metadata_el_0]', 'Term info correctly populated for FBbt_00045003(accessory medulla) after query results info button click');
+            this.waitForSelector('#VFB_00030624_deselect_buttonBar_btn', function () {
+                test.assertTextExists('medulla on adult brain template JFRC2 (VFB_00030624)', 'Term info correctly populated for example of Medulla after query results info button click');
             }, null, 20000);
 
         }, null, 20000);

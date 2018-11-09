@@ -1,0 +1,108 @@
+@import "./colors.less";
+
+@-webkit-keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+#geppettologo {
+	top: 10px;
+	left: 34px;
+}
+
+.htmlViewerVFB {
+	animation: fadeIn 1s;
+	-webkit-animation: fadeIn 1s;
+	transition: opacity 1s ease-out;
+	background-color: @background_color_widget;
+	background: @background_color_widget;
+	color: white;
+	opacity: 0.9;
+	z-index: 999999;
+	overflow-y: scroll;
+	box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
+}
+
+.closeHTMLViewer {
+	float: right;
+	height: 5px;
+	font-size: 26px;
+	color: @primary_color;
+	margin-left: 5px;
+	cursor: pointer;
+}
+
+#HTMLViewerContainer {
+	padding: 20px;
+}
+
+.spinner-container .gpt-fly {
+	width: 100px;
+	font-size: 100px;
+	margin: 0 auto;
+	margin-bottom: 30px;
+}
+
+.transparent {
+	background: transparent !important;
+}
+
+#querybuilder .query-results-images-column img{
+	max-height: 110px;
+}
+
+#querybuilder .query-results-images-column img:hover{
+	max-height: 300px;
+}
+
+.tutorialMessage{
+	height : 100% !important;
+}
+
+.gpt-query:before {
+	margin-top: 3px;
+}
+
+.gpt-shapehide:before {
+	margin-top: 3px;
+}
+
+.gpt-shapeshow:before {
+	margin-top: 5px;
+}
+
+.ui-widget {
+	font-family: arial, sans-serif;
+	font-size:13px;
+}
+
+@media screen and (max-width: 1200px) {
+	.uk-visible-large {
+	display: none !important;
+	}
+}
+
+@media screen and (max-width: 1000px) {
+	.wideDivC {
+		display: none !important;
+	}
+}
+
+@media screen and (max-width: 680px) {
+	.uk-navbar-content {
+		display: none !important;
+	}
+}

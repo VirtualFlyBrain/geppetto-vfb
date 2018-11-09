@@ -4,8 +4,10 @@ sudo: required
 dist: trusty
 node_js:
 - "7"
+
 before_install:
-- sudo apt-get install -y xserver-xorg-dev libxext-dev libxi-dev
+  - sudo apt-get install -y xserver-xorg-dev libxext-dev libxi-dev 
+
 install:
 - npm install --silent -g phantomjs 
 - npm install --silent -g casperjs 
@@ -38,13 +40,13 @@ env:
   - COMMIT=${TRAVIS_COMMIT::8}
   matrix:
   - VFBSUB=local
-  - VFBSUB=www
-  - VFBSUB=v2
-  - VFBSUB=v2a
+#  - VFBSUB=www
+#  - VFBSUB=v2
+#  - VFBSUB=v2a
   - VFBSUB=v2-dev
-  - VFBSUB=larval
-  - VFBSUB=larva
-  - VFBSUB=v2-preview
+#  - VFBSUB=larval
+#  - VFBSUB=larva
+#  - VFBSUB=v2-preview
 
 script:
 - echo -e "travis_fold:start:Geppetto-Config"
@@ -67,7 +69,7 @@ script:
 - echo -e "travis_fold:start:Docker-Run"
 - travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
-- sleep 3m
+- sleep 2m
 - curl -sSf http://192.168.0.1:8080/org.geppetto.frontend/
 - echo -e "travis_fold:end:Docker-Run"
 - echo "Current time :$(date +"%T")"
@@ -100,9 +102,7 @@ script:
 - |
   if [ "$VFBSUB" != "local" ]; then 
     sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-    sed -i 's|"embedded":.*,|"embedded":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-    sed -i "s|\"embedderURL\":.*,|\"embedderURL\":\"https://${VFBSUB}.virtualflybrain.org\",|g" $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
-    sed -i "s|http://www.virtualflybrain.com/solr/|/solr/|g" $TRAVIS_BUILD_DIR/ComponentsInitialization.js
+    sed -i "s|http://solr.virtualflybrain.com/solr/|/solr/|g" $TRAVIS_BUILD_DIR/components/VFBMain.js
     docker build -f Dockerfile -t $REPO:$VFBSUB . 
     docker tag $REPO:$VFBSUB $REPO:$TAG-$VFBSUB
   else

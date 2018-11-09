@@ -85,7 +85,7 @@ RUN cd /opt/geppetto && \
 git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -b $BRANCH_BASE && \
 cd uk.ac.vfb.geppetto && git checkout $BRANCH_UK_AC_VFB_GEPPETTO || true 
 RUN cd /opt/geppetto && \
-sed -i "s|\"/solr/ontology/select|\"${SOLR_SERVER}|g" geppetto-vfb/ComponentsInitialization.js && \
+sed -ir "s|url: \".*solr/ontology/select|url: \"${SOLR_SERVER}|g" geppetto-vfb/components/VFBMain.js && \
 mv geppetto-vfb org.geppetto.frontend/src/main/webapp/extensions/
 
 #Set GA keys TBD:Check if still needed
