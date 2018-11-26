@@ -139,7 +139,7 @@ class VFBTermInfo extends React.Component {
                     var elements = [];
                     for (var j = 0; j < value.elements.length; j++) {
                         var image = value.elements[j].initialValue;
-                        elements.push(<div>
+                        elements.push(<div className="slider_image_container">
                             {image.name}
                             <a id={"slider_image_"+j} href="#" data-instancepath={image.reference}>
                                 <img id={"image_"+j} src={image.data}></img>
@@ -626,7 +626,7 @@ export default class VFBTermInfoWidget extends React.Component {
             if (window.vfbUpdatingHistory == undefined) {
                 window.vfbUpdatingHistory = false;
             }
-            if (window.vfbUpdatingHistory == false && parent.location.toString().indexOf('virtualflybrain.org') > 0 && parent.location.toString().indexOf('virtualflybrain.org') < 25) {
+            if (window.vfbUpdatingHistory == false) {
                 window.vfbUpdatingHistory = true;
                 // Update the parent windows history with current instances (i=) and popup selection (id=)
                 var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
@@ -654,7 +654,7 @@ export default class VFBTermInfoWidget extends React.Component {
                     items = 'id=' + this.refs.termInfoRef.data.split('.')[0] + '&' + items;
                 } catch (ignore) { };
                 if (items != "i=") {
-                    window.historyWidgetCapability[this.idWidget].pushState({}, title, parent.location.pathname + "?" + items);
+                	parent.history.pushState({}, title, parent.location.pathname + "?" + items);
                 }
                 window.vfbUpdatingHistory = false;
             }

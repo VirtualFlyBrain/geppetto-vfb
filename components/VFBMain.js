@@ -469,8 +469,10 @@ export default class VFBMain extends React.Component {
                 this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
                 this.resolve3D(variableIds[singleId], function () {
                     GEPPETTO.SceneController.deselectAll();
-                    if ((instance != undefined) && (typeof instance.select === "function"))
+                    if ((instance != undefined) && (typeof instance.select === "function")){
                         instance.select();
+                         this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
+                    }
                     //this.refs.termInfoWidgetRef.setTermInfo(meta, meta.getParent().getId());
                 }.bind(this));
             } else {
