@@ -853,6 +853,11 @@ export default class VFBMain extends React.Component {
                 this.refs.stackViewerRef.updateStackWidget();
             }
         }.bind(this));
+        
+        GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
+        	console.log("Reloading websocket connection by reloading page");
+        	window.location.reload();
+        });
     };
 
     // Children handlers
