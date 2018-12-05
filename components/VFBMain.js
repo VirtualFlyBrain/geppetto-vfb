@@ -862,12 +862,10 @@ export default class VFBMain extends React.Component {
 
     // Children handlers
     buttonBarHandler(buttonState) {
-        if(buttonState !== "stackViewerVisible") {
-            var tempState = this.state[buttonState];
-            this.setState({
-                [buttonState] : !tempState
-            });
-        }
+        var tempState = this.state[buttonState];
+        this.setState({
+            [buttonState] : !tempState
+        });
     }
 
     tutorialHandler() {
