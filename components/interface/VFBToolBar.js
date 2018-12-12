@@ -438,7 +438,7 @@ export default class VFBToolBar extends React.Component {
 				}}
 				default={{
 					x: 0, y: 0,
-					height: 0,
+					height: 40,
 					width: '100%'
 				}}
 				className="vfbToolBarClass"
@@ -447,8 +447,7 @@ export default class VFBToolBar extends React.Component {
 				<nav>
 					<div className="leftSide">
 						<div className="wideDivL">
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<a href="https://v2.virtualflybrain.org/?i=VFB_00017894">
 								<b>Virtual Fly Brain</b>
 								<small className="uk-visible-large"> A hub for
@@ -461,7 +460,9 @@ export default class VFBToolBar extends React.Component {
 
 					<div className="centralTitle">
 						<div className="wideDivC">
-							<a href="http://blog.virtualflybrain.org/post/171867319039/vfb-virtual-fly-brain-a-hub-for-drosophila" target="_Blank">Beta Testing Site</a>
+						<a href="http://blog.virtualflybrain.org/post/171867319039/vfb-virtual-fly-brain-a-hub-for-drosophila" target="_Blank">
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							</a>
 						</div>
 					</div>
 

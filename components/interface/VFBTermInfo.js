@@ -29,6 +29,7 @@ class VFBTermInfo extends React.Component {
 
         this.getHTML = this.getHTML.bind(this);
         this.setData = this.setData.bind(this);
+        this.setName = this.setName.bind(this);
         this.getVariable = this.getVariable.bind(this);
         this.hookupImages = this.hookupImages.bind(this);
         this.addToHistory = this.addToHistory.bind(this);
@@ -37,9 +38,14 @@ class VFBTermInfo extends React.Component {
 
         this.staticHistoryMenu = [];
         this.arrowsInitialized = false;
+        this.name = undefined;
         this.buttonBar = undefined;
         this.sliderId = "termInfoSlider";
         this.contentTermInfo = {
+            keys : [],
+            values : []
+        };
+        this.contentBackup = {
             keys : [],
             values : []
         };
@@ -68,8 +74,12 @@ class VFBTermInfo extends React.Component {
         });
 
         if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined) {
-            this.renderButtonBar(anyInstance);
+            //this.renderButtonBar(anyInstance);
         }
+    };
+
+    setName(input) {
+        this.name = input;
     };
 
 
@@ -306,38 +316,15 @@ class VFBTermInfo extends React.Component {
         }
     };
 
-
-    componentDidMount() {
-        var dialog = this.dialog.parent();
-		var closeButton = dialog.find("button.ui-dialog-titlebar-close");
-		closeButton.off("click");
-        closeButton.click(this.close.bind(this));
-
-        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
-        this.hookupCustomHandler(innerHandler, $("#" + this.props.id), domTermInfo);
-
-        window.updateHistoryWidget = function(historyInstance) {
-            this.setData(historyInstance);
-        }.bind(this);
-    };
-
-
-    componentDidUpdate(prevProps, prevState) {
-        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
-        this.hookupCustomHandler(innerHandler, $("#" + this.props.id), domTermInfo);
-
-        if ((this.arrowsInitialized === false) && (window.historyWidgetCapability[this.props.id] != undefined) && (window.historyWidgetCapability[this.props.id].length > 1)) {
-            this.showHistoryNavigationBar(true);
-            this.arrowsInitialized = true;
-        }
-    };
-
-
     render() {
         var toRender = undefined;
+        if(this.contentTermInfo.values === undefined || this.contentTermInfo.values.length == 0){
+            this.contentTermInfo.keys = this.contentBackup.keys.slice();
+            this.contentTermInfo.values = this.contentBackup.values.slice();
+        }
         if((this.props.order !== undefined ) && (this.props.order.length > 0)) {
+            this.contentBackup.keys = this.contentTermInfo.keys.slice();
+            this.contentBackup.values = this.contentTermInfo.values.slice();
             var tempArray = [];
             for(var x=0; x<this.props.order.length; x++) {
                 var index = this.contentTermInfo.keys.indexOf(this.props.order[x]);
@@ -367,7 +354,9 @@ class VFBTermInfo extends React.Component {
                 <div key={key}> {Item} </div>
                 );
             });
+            this.contentBackup.keys = this.contentTermInfo.keys;
             this.contentTermInfo.keys = [];
+            this.contentBackup.values = this.contentTermInfo.values;
             this.contentTermInfo.values = [];
         }
         return(
@@ -664,9 +653,7 @@ export default class VFBTermInfoWidget extends React.Component {
     };
 
     componentDidUpdate() {
-        if ((window.historyWidgetCapability[this.idWidget] != undefined) && (window.historyWidgetCapability[this.idWidget].length > 1)) {
-            this.refs.termInfoRef.showHistoryNavigationBar(true);
-        }
+
     }
 
     componentDidMount() {
@@ -679,8 +666,8 @@ export default class VFBTermInfoWidget extends React.Component {
 
     updateDimensions() {
         if(this.refs.termInfoRef !== undefined) {
-            this.refs.termInfoRef.setPosition(this.getTermInfoDefaultX(), this.getTermInfoDefaultY());
-            this.refs.termInfoRef.setSize(this.getTermInfoDefaultHeight(), this.getTermInfoDefaultWidth());
+            //this.refs.termInfoRef.setPosition(this.getTermInfoDefaultX(), this.getTermInfoDefaultY());
+            //this.refs.termInfoRef.setSize(this.getTermInfoDefaultHeight(), this.getTermInfoDefaultWidth());
         } else {
             this.setState({
                 coordX: this.getTermInfoDefaultX(),
@@ -692,35 +679,20 @@ export default class VFBTermInfoWidget extends React.Component {
     }
 
     render() {
-        var VFBTermInfoWidget = WidgetCapability.createWidget(VFBTermInfo);
+        //var VFBTermInfoWidget = WidgetCapability.createWidget(VFBTermInfo);
 
         return (
-            <VFBTermInfoWidget
+            <VFBTermInfo
                 id={this.idWidget}
-                componentType={'VFBTERMINFO'}
-                title={"Click on image to show info"}
-                order={this.props.order}
-                showButtonBar={this.props.showButtonBar}
-                closeByDefault={false}
-                position={{ left: this.state.coordX, top: this.state.coordY, position: "absolute" }}
-                size={{ height: this.state.widgetHeight, width: this.state.widgetWidth }}
-                closeHandler={this.closeHandler}
-                termInfoHandler={this.props.termInfoHandler}
-                isStateLess={false}
-                resizable={true}
-                draggable={true}
-                fixPosition={false}
-                help={false}
-                showHistoryIcon={true}
-                closable={true}
-                minimizable={true}
-                maximizable={true}
-                collapsable={true}
                 ref="termInfoRef"
-                buttonBarConfiguration={this.buttonBarConfiguration}
-                buttonBarControls={this.buttonBarControls}
+                order={this.props.order}
+                closeHandler={this.closeHandler}
                 customHandler={this.customHandler}
-                updateWidgetHistory={this.updateHistory} />
+                showButtonBar={this.props.showButtonBar}
+                updateWidgetHistory={this.updateHistory}
+                buttonBarControls={this.buttonBarControls}
+                termInfoHandler={this.props.termInfoHandler}
+                buttonBarConfiguration={this.buttonBarConfiguration}/>
         );
     }
 }
