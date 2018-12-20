@@ -756,6 +756,11 @@ export default class VFBMain extends React.Component {
         if(this.state.htmlFromToolbar !== undefined) {
             document.addEventListener('mousedown', this.handleClickOutside);
         }
+        
+        /**Important, needed to let know the Three.js control's library the real size of
+         * the canvas right after if finished rendering.Otherwise it thinks its width and 
+         * height 0 **/
+        this.canvasReference.engine.controls.handleResize();
     };
 
     componentWillMount() {
