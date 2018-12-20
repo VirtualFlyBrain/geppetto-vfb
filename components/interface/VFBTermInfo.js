@@ -49,6 +49,8 @@ class VFBTermInfo extends React.Component {
             keys : [],
             values : []
         };
+
+        this.innerHandler = {funct: undefined, event: 'click', meta: undefined, hooked: false, id: undefined};
     };
 
 
@@ -196,8 +198,8 @@ class VFBTermInfo extends React.Component {
     // Method to hookup the images into the slider, avoided to re-call this logic on all the term info due
     // to performances but also to the fact that the query were appended eachother.
     hookupImages(idKey) {
-        var innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
-        this.hookupCustomHandler(innerHandler, $("#" + this.sliderId + idKey), undefined);
+        this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
+        this.hookupCustomHandler(this.innerHandler, $("#" + this.sliderId + idKey), undefined);
     }
 
 
@@ -228,7 +230,7 @@ class VFBTermInfo extends React.Component {
 				"method": method,
 				"arguments": args,
 			});
-			
+
 			this.staticHistoryMenu.unshift({
 				"label": label,
 				"method": method,
@@ -316,6 +318,21 @@ class VFBTermInfo extends React.Component {
         }
     };
 
+    componentDidMount() {
+        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
+        this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
+        this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+    };
+
+
+    componentDidUpdate(prevProps, prevState) {
+        const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
+        if(this.state.termInfoId !== this.innerHandler.id) {
+            this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
+            this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+        }
+    };
+
     render() {
         var toRender = undefined;
         if(this.contentTermInfo.values === undefined || this.contentTermInfo.values.length == 0){
@@ -360,7 +377,7 @@ class VFBTermInfo extends React.Component {
             this.contentTermInfo.values = [];
         }
         return(
-            <div ref="termInfoInnerRef">
+            <div id={this.props.id} ref="termInfoInnerRef">
                 {toRender}
             </div>);
     };
@@ -658,6 +675,9 @@ export default class VFBTermInfoWidget extends React.Component {
 
     componentDidMount() {
         window.addEventListener("resize", this.updateDimensions);
+        if((this.props.termInfoName !== undefined) && (this.props.termInfoId !== undefined)) {
+            this.setTermInfo(this.props.termInfoName, this.props.termInfoId);
+        }
     }
 
     componentWillUnmount() {

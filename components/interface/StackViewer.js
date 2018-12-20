@@ -33,7 +33,7 @@ export default class StackViewer extends React.Component {
         this.options = null;
         // REMEMBER to define these props in the VFBMain
         this.data = {id: this.props.id, height: this.props.defHeight, width: this.props.defWidth, instances: [], selected: [] };
-        this.config = {};
+        this.config = undefined;
         this.canvasRef = null;
         this.voxelSize = {x:0.622088, y:0.622088, z:0.622088};
         this.stackConfiguration = {
@@ -42,6 +42,7 @@ export default class StackViewer extends React.Component {
         };
         this.stackMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/stack.md";
         this.stackHelpInfo = this.getMDText(this.stackMD);
+        this.stackElement = undefined;
     }
 
     getMDText(urlLocation) {
@@ -132,7 +133,17 @@ export default class StackViewer extends React.Component {
         }
     }
 
+    resizeStack() {
+        this.stackElement = $("#"+this.props.id);
+    }
+
     componentDidMount() {
+        //
+        var that = this;
+        window.addEventListener('resize', function(event){
+            that.resizeStack();
+        }.bind(this));
+
         // on change to instances reload stack:
         GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
             console.log(path.split('.')[0] + ' deleted...');
@@ -192,7 +203,7 @@ export default class StackViewer extends React.Component {
         if (typeof sliceInstances[0] !== "undefined") {
             this.config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
         }
-        if (this.config == undefined || typeof this.config !== "undefined") {
+        if (this.config == undefined) {
             this.config = {
                 serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
                 templateId: 'NOTSET'

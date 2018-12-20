@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import FlexLayout from 'flexlayout-react';
 //import * as FlexLayout from '../../../js/components/interface/FlexLayout/src/index';
@@ -56,7 +57,7 @@ var json = {
                 "children": [
                     {
                         "type": "tabset",
-                        "weight": 50,
+                        "weight": 65,
                         "height": 400,
                         "children": [
                             {
@@ -68,7 +69,7 @@ var json = {
                     },
                     {
                         "type": "tabset",
-                        "weight": 50,
+                        "weight": 35,
                         "height": 400,
                         "children": [
                             {
@@ -100,7 +101,9 @@ export default class VFBMain extends React.Component {
             wireframeVisible: false,
             queryBuilderVisible: true, // END buttonbar states
             idSelected: undefined,
-            htmlFromToolbar: undefined
+            htmlFromToolbar: undefined,
+            termInfoId: undefined,
+            termInfoName: undefined
         };
 
         this.clearQS = this.clearQS.bind(this);
@@ -138,6 +141,8 @@ export default class VFBMain extends React.Component {
         this.canvasReference = undefined;
         this.termInfoReference = undefined;
         this.stackWidgetReference = undefined;
+        this.termInfoId = undefined;
+        this.termInfoName = undefined;
 
         this.stackConfiguration = {
             serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
@@ -531,19 +536,28 @@ export default class VFBMain extends React.Component {
                 this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
                 continue;
             }
-            if (this.hasVisualType(variableIds[singleId])) {
+            if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
                 var instance = Instances.getInstance(variableIds[singleId]);
                 this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                this.termInfoName = meta;
+                this.termInfoId = meta.getParent().getId();
+                // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
                 this.resolve3D(variableIds[singleId], function () {
                     GEPPETTO.SceneController.deselectAll();
-                    if ((instance != undefined) && (typeof instance.select === "function")){
+                    if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
                         instance.select();
-                         this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                        this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                        this.termInfoName = meta;
+                        this.termInfoId = meta.getParent().getId();
+                        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
                     }
                     //this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
                 }.bind(this));
             } else {
                 this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                this.termInfoName = meta;
+                this.termInfoId = meta.getParent().getId();
+                // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
             }
             // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
             if (window[variableIds[singleId]] != undefined) {
@@ -705,8 +719,18 @@ export default class VFBMain extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         // Reopen stackViewer from button bar if previously has been closed.
-        if((prevState.termInfoVisible !== this.state.termInfoVisible) && (this.termInfoRender !== undefined) && (this.state.termInfoVisible === true)) {
-            this.termInfoReference.refs.termInfoRef.open();
+        if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.termInfoReference == undefined || this.termInfoReference == null)) {
+            this.refs.layout.addTabWithDragAndDropIndirect("Add the Term Info to the layout - Drag it.", {
+                "name": "Term Info",
+                "component": "terminfo"
+            }, undefined);
+        }
+
+        if((this.state.stackViewerVisible !== prevState.stackViewerVisible) && (this.stackWidgetReference == undefined || this.stackWidgetReference == null)) {
+            this.refs.layout.addTabWithDragAndDropIndirect("Add the Stack Viewer to the layout - Drag it.", {
+                "name": "Stack Widget",
+                "component": "stackwidget"
+            }, undefined);
         }
 
         if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
@@ -736,11 +760,11 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            // Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
             // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
             // Local deployment for development. Uncomment the line below.
             // Project.loadFromURL(window.location.origin.replace(":8081", "") + '/' + 'project/vfb.json');
-            // Project.loadFromURL(window.location.origin.replace(":8081", ":8989") + '/' + 'vfb.json');
+            Project.loadFromURL(window.location.origin.replace(":8081", ":8989").replace('https:','http:') + '/' + 'vfb.json');
             this.setState({modelLoaded: true});
         }
 
@@ -901,14 +925,20 @@ export default class VFBMain extends React.Component {
                 }
                 if (latestSelection.getChildren().length > 0) {
                     // it's a wrapper object - if name is different from current selection set term info
-                    if (currentSelectionName != latestSelection.getName()) {
+                    if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
                         this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                        this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
+                        this.termInfoId = latestSelection[latestSelection.getId() + "_meta"].getName();
+                        // this.setState({termInfoName: latestSelection[latestSelection.getId() + "_meta"], termInfoId: latestSelection[latestSelection.getId() + "_meta"].getName()});
                     }
                 } else {
                     // it's a leaf (no children) / grab parent if name is different from current selection set term info
                     var parent = latestSelection.getParent();
-                    if (parent != null && currentSelectionName != parent.getName()) {
+                    if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
                         this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
+                        this.termInfoName = parent[parent.getId() + "_meta"];
+                        this.termInfoId = parent[parent.getId() + "_meta"].getName();
+                        // this.setState({termInfoName: parent[parent.getId() + "_meta"], termInfoId: parent[parent.getId() + "_meta"].getName()});
                     }
                 }
             }
@@ -995,6 +1025,8 @@ export default class VFBMain extends React.Component {
                 termInfoHandler={this.termInfoHandler}
                 ref={ref => this.termInfoReference = ref}
                 showButtonBar={true}
+                termInfoName={this.termInfoName}
+                termInfoId={this.termInfoId}
                 order={['Name',
                         'Alternative Names',
                         'Query For',
@@ -1008,8 +1040,8 @@ export default class VFBMain extends React.Component {
         } else if (component === "stackwidget") {
             return (<StackViewer
                 id="NewStackViewer"
-                defHeight={400}
-                defWidth={600}
+                defHeight={window.innerHeight - 70}
+                defWidth={window.innerWidth - 35}
                 ref={ref => this.stackWidgetReference = ref}
                 canvasRef={this.canvasReference}
                 stackViewerHandler={this.stackViewerHandler} />)
@@ -1093,9 +1125,10 @@ export default class VFBMain extends React.Component {
                     url='https://github.com/VirtualFlyBrain/VFB2' />
 
                 <FlexLayout.Layout
-                                model={this.model}
-                                factory={this.factory.bind(this)}
-                                onRenderTabSet={onRenderTabSet}/>
+                    ref="layout"
+                    model={this.model}
+                    factory={this.factory.bind(this)}
+                    onRenderTabSet={onRenderTabSet}/>
                  {/* <div className="containerForTabs">
                     <Tabs customStyle={customStyle}>
                         <TabList>
