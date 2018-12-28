@@ -1,4 +1,3 @@
-import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import FlexLayout from 'flexlayout-react';
 //import * as FlexLayout from '../../../js/components/interface/FlexLayout/src/index';
@@ -18,6 +17,7 @@ import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
 require('../css/base.less');
 require('../css/VFBMain.less');
 
+var ReactDOM = require('react-dom');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -322,7 +322,7 @@ export default class VFBMain extends React.Component {
     };
 
     getButtonBarDefaultY() {
-        return 1;
+        return 0;
     };
 
     getStackViewerDefaultX() {
@@ -718,9 +718,18 @@ export default class VFBMain extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        // for(var i=0, borders = this.model.getBorderSet().getBorders(); i < borders.length; i++) {
+        //     var el = ReactDOM.findDOMNode(this.refs.layout).getElementsByClassName("flexlayout__"+borders[i].getId());
+        //     if(borders[i].getChildren().length > 0) {
+        //         el[0].style.backgroundColor = "red";
+        //     } else {
+        //         el[0].style.backgroundColor = "black";
+        //     }
+        // }
+
         // Reopen stackViewer from button bar if previously has been closed.
         if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.termInfoReference == undefined || this.termInfoReference == null)) {
-            this.refs.layout.addTabWithDragAndDropIndirect("Add the Term Info to the layout - Drag it.", {
+            this.refs.layout.addTabToActiveTabSet("Add the Term Info to the layout - Drag it.", {
                 "name": "Term Info",
                 "component": "terminfo"
             }, undefined);
@@ -756,7 +765,7 @@ export default class VFBMain extends React.Component {
         if(this.state.htmlFromToolbar !== undefined) {
             document.addEventListener('mousedown', this.handleClickOutside);
         }
-        
+
         /**Important, needed to let know the Three.js control's library the real size of
          * the canvas right after if finished rendering.Otherwise it thinks its width and 
          * height 0 **/
@@ -1026,7 +1035,8 @@ export default class VFBMain extends React.Component {
                 name={"Canvas"}
                 ref={ref => this.canvasReference = ref} />)
         } else if (component === "terminfo") {
-            return (<VFBTermInfoWidget
+            return (<div className="flexChildContainer">
+            <VFBTermInfoWidget
                 termInfoHandler={this.termInfoHandler}
                 ref={ref => this.termInfoReference = ref}
                 showButtonBar={true}
@@ -1041,15 +1051,16 @@ export default class VFBMain extends React.Component {
                         'Description',
                         'References',
                         'Aligned To',
-                        'Download']} />)
+                        'Download']} /></div>)
         } else if (component === "stackwidget") {
-            return (<StackViewer
+            return (<div className="flexChildContainer">
+            <StackViewer
                 id="NewStackViewer"
                 defHeight={window.innerHeight - 70}
                 defWidth={window.innerWidth - 35}
                 ref={ref => this.stackWidgetReference = ref}
                 canvasRef={this.canvasReference}
-                stackViewerHandler={this.stackViewerHandler} />)
+                stackViewerHandler={this.stackViewerHandler} /></div>)
         }
     };
 
@@ -1060,9 +1071,8 @@ export default class VFBMain extends React.Component {
 
         var key = 0;
         var onRenderTabSet = function (node:(TabSetNode), renderValues:any) {
-            if(node.getType() !== "border") {
-                //var customLocation = new FlexLayout.DockLocation("center", {_name: "vert"}, 0);
-                renderValues.buttons.push(<div key={key} className="fa fa-window-minimize" onClick={() => {
+            if(node.getType() === "tabset") {
+                renderValues.buttons.push(<div key={key} className="fa fa-window-minimize customIconFlexLayout" onClick={() => {
                     this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_left", FlexLayout.DockLocation.CENTER, 0));
                 }}  />);
                 key++;
