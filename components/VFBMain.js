@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import FlexLayout from 'flexlayout-react';
-//import * as FlexLayout from '../../../js/components/interface/FlexLayout/src/index';
+//import FlexLayout from 'flexlayout-react';
+import * as FlexLayout from '../../../js/components/interface/flexLayout2/src/index';
 import VFBToolBar from './interface/VFBToolBar';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
@@ -13,6 +13,8 @@ import SpotLight from '../../../js/components/interface/spotlight/spotlight';
 import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
 import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
 import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
+
+import Modal from 'react-modal';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -28,7 +30,7 @@ var json = {
     borders: [
         {
             "type": "border",
-            "location": "left",
+            "location": "bottom",
             "size": 100,
             "children": []
         }
@@ -103,7 +105,8 @@ export default class VFBMain extends React.Component {
             idSelected: undefined,
             htmlFromToolbar: undefined,
             termInfoId: undefined,
-            termInfoName: undefined
+            termInfoName: undefined,
+            historyModalOpen: false
         };
 
         this.clearQS = this.clearQS.bind(this);
@@ -130,6 +133,7 @@ export default class VFBMain extends React.Component {
         this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
         this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+        //this.toggleModal = this.toggleModal.bind(this);
 
         this.coli = 1;
         this.vfbLoadBuffer = [];
@@ -729,7 +733,7 @@ export default class VFBMain extends React.Component {
 
         // Reopen stackViewer from button bar if previously has been closed.
         if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.termInfoReference == undefined || this.termInfoReference == null)) {
-            this.refs.layout.addTabToActiveTabSet("Add the Term Info to the layout - Drag it.", {
+            this.refs.layout.addTabWithDragAndDropIndirect("Add the Term Info to the layout - Drag it.", {
                 "name": "Term Info",
                 "component": "terminfo"
             }, undefined);
@@ -1065,6 +1069,8 @@ export default class VFBMain extends React.Component {
     };
 
     render() {
+        var that = this;
+
         if((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
             this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
         }
@@ -1073,8 +1079,24 @@ export default class VFBMain extends React.Component {
         var onRenderTabSet = function (node:(TabSetNode), renderValues:any) {
             if(node.getType() === "tabset") {
                 renderValues.buttons.push(<div key={key} className="fa fa-window-minimize customIconFlexLayout" onClick={() => {
-                    this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_left", FlexLayout.DockLocation.CENTER, 0));
-                }}  />);
+                    this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_bottom", FlexLayout.DockLocation.CENTER, 0));
+                }} />);
+                key++;
+            }
+        };
+
+        key = 0;
+        var toggleModal = (event) => {
+            console.log(event);
+            this.setState({ historyModalOpen: !this.state.historyModalOpen });
+            event.stopPropagation();
+        };
+        var onRenderTab = function (node:(TabNode), renderValues:any) {
+            if(node.getType() === "tab" && node.getComponent() == "terminfo") {
+                renderValues.buttons.push(<div key={key} className="fa fa-history customIconTab"
+                    onMouseDown={toggleModal.bind(this)}
+                    onClick={toggleModal.bind(this)}
+                    onTouchStart={toggleModal.bind(this)} />);
                 key++;
             }
         };
@@ -1085,7 +1107,7 @@ export default class VFBMain extends React.Component {
                 topRight: false, bottomRight: false, bottomLeft: false,
                 topLeft: false
                 }}
-                default={{ x: 50, y: 50, 
+                default={{ x: 50, y: 50,
                         height: window.innerHeight - 100,
                         width: window.innerWidth - 100}}
                 className="htmlViewerVFB"
@@ -1100,10 +1122,10 @@ export default class VFBMain extends React.Component {
                         name={"HTMLViewer"}
                         componentType={'HTMLViewer'}
                         content={this.state.htmlFromToolbar}
-                        style={{ width: window.innerWidth - 150, 
-                                height: window.innerHeight - 150, 
+                        style={{ width: window.innerWidth - 150,
+                                height: window.innerHeight - 150,
                                 float: 'center' }}
-                        ref="htmlViewer" /> 
+                        ref="htmlViewer" />
                 </div>
             </Rnd> : undefined;
 
@@ -1136,14 +1158,28 @@ export default class VFBMain extends React.Component {
                 <LinkButton
                     left={450}
                     top={8}
-                    icon='fa fa-github' 
+                    icon='fa fa-github'
                     url='https://github.com/VirtualFlyBrain/VFB2' />
 
                 <FlexLayout.Layout
                     ref="layout"
                     model={this.model}
                     factory={this.factory.bind(this)}
+                    onRenderTab={onRenderTab}
                     onRenderTabSet={onRenderTabSet}/>
+
+                <Modal
+                    id="modal_with_forms"
+                    isOpen={this.state.historyModalOpen}
+                    closeTimeoutMS={150}
+                    contentLabel="modalB"
+                    shouldCloseOnOverlayClick={true}
+                    onRequestClose={toggleModal.bind(this)}
+                    aria={{
+                        labelledby: "heading",
+                        describedby: "fulldescription"}}>
+                    <p> Test 1 2 3 </p>
+                </Modal>
                  {/* <div className="containerForTabs">
                     <Tabs customStyle={customStyle}>
                         <TabList>
@@ -1174,7 +1210,7 @@ export default class VFBMain extends React.Component {
                 </div>
 
                 <div id="controlpanel" style={{top: 0}}>
-                    <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true} 
+                    <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true}
                         useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta}
                         controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
                         controlPanelControlConfigs={this.controlPanelControlConfigs}/>
