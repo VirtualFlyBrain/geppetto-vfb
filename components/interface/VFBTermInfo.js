@@ -541,8 +541,8 @@ export default class VFBTermInfoWidget extends React.Component {
             this.refs.termInfoRef.setName(data.name);
         }
         this.updateHistory(data.name);
-        GEPPETTO.SceneController.deselectAll();
-        if (typeof data.getParent().select === "function") {
+        if ((typeof data.getParent().select === "function") && (name != false)) {
+            GEPPETTO.SceneController.deselectAll();
             data.getParent().select(); // Select if visual type loaded.
         }
     };

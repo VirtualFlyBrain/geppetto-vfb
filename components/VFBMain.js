@@ -133,6 +133,7 @@ export default class VFBMain extends React.Component {
         this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
         this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+        this.setWrapperRef = this.setWrapperRef.bind(this);
         //this.toggleModal = this.toggleModal.bind(this);
 
         this.coli = 1;
@@ -147,6 +148,10 @@ export default class VFBMain extends React.Component {
         this.stackWidgetReference = undefined;
         this.termInfoId = undefined;
         this.termInfoName = undefined;
+        this.termInfoHistory = undefined;
+        this.modalX = undefined;
+        this.modalY = undefined;
+
 
         this.stackConfiguration = {
             serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
@@ -797,9 +802,12 @@ export default class VFBMain extends React.Component {
         }
 
         window.removeEventListener("resize", this.updateDimensions);
+        document.removeEventListener('mousedown', this.handleClickOutside);
     }
 
     componentDidMount() {
+        document.addEventListener('mousedown', this.handleClickOutside);
+
         window.addEventListener("resize", this.updateDimensions);
 
         GEPPETTO.G.setIdleTimeOut(-1);
@@ -1015,15 +1023,23 @@ export default class VFBMain extends React.Component {
         }
     };
 
+    htmlToolbarRef(node) {
+        this.toolBarRef = node;
+    }
+
+    setWrapperRef(node) {
+        this.historyRef = node;
+    }
+
     handleClickOutside() {
-        if(this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+        if(this.toolBarRef && !this.toolBarRef.contains(event.target)) {
             this.setState({htmlFromToolbar: undefined});
         }
-    };
 
-    htmlToolbarRef(node) {
-        this.wrapperRef = node;
-    }
+        if (this.historyRef && !this.historyRef.contains(event.target) && !event.target.contains(document.getElementById("historyTrigger"))) {
+            this.setState({ historyModalOpen: !this.state.historyModalOpen });
+        }
+    };
 
     closeHtmlViewer() {
         this.setState({htmlFromToolbar: undefined});
@@ -1069,10 +1085,39 @@ export default class VFBMain extends React.Component {
     };
 
     render() {
-        var that = this;
-
         if((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
             this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
+        }
+
+        if(this.state.historyModalOpen == true) {
+            var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function(item, index) {
+                return (
+                    <div className="historyItemList" key={index} onClick={() => {
+                        this.termInfoReference.setTermInfo(item.arguments[0], false);
+                    }}>
+                        {item.label}
+                    </div>
+                )
+            }, this);
+            this.termInfoHistory = <Rnd
+                enableResizing={{
+                    top: false, right: false, bottom: false,
+                    left: false, topRight: false, bottomRight: false,
+                    bottomLeft: false, topLeft: false}}
+                default={{
+                        x: this.modalX, y: this.modalY,
+                        height: 150, width: 150}}
+                    className="historyModal"
+                    disableDragging={true}
+                    maxHeight={150} minHeight={150}
+                    maxWidth={150} minWidth={150}
+                    ref="rndHistoryModal">
+                        <div id="anchorHistory" ref={this.setWrapperRef}>
+                            {historyList}
+                        </div>
+                </Rnd>
+        } else {
+            this.termInfoHistory = undefined;
         }
 
         var key = 0;
@@ -1088,15 +1133,16 @@ export default class VFBMain extends React.Component {
         key = 0;
         var toggleModal = (event) => {
             console.log(event);
+            this.modalX = event.clientX;
+            this.modalY = event.clientY;
             this.setState({ historyModalOpen: !this.state.historyModalOpen });
             event.stopPropagation();
         };
+
         var onRenderTab = function (node:(TabNode), renderValues:any) {
             if(node.getType() === "tab" && node.getComponent() == "terminfo") {
-                renderValues.buttons.push(<div key={key} className="fa fa-history customIconTab"
-                    onMouseDown={toggleModal.bind(this)}
-                    onClick={toggleModal.bind(this)}
-                    onTouchStart={toggleModal.bind(this)} />);
+                renderValues.buttons.push(<div key={key} id="historyTrigger"
+                    className="fa fa-history customIconTab" onMouseDown={toggleModal.bind(this)} />);
                 key++;
             }
         };
@@ -1168,7 +1214,7 @@ export default class VFBMain extends React.Component {
                     onRenderTab={onRenderTab}
                     onRenderTabSet={onRenderTabSet}/>
 
-                <Modal
+                {/* <Modal
                     id="modal_with_forms"
                     isOpen={this.state.historyModalOpen}
                     closeTimeoutMS={150}
@@ -1179,7 +1225,7 @@ export default class VFBMain extends React.Component {
                         labelledby: "heading",
                         describedby: "fulldescription"}}>
                     <p> Test 1 2 3 </p>
-                </Modal>
+                </Modal> */}
                  {/* <div className="containerForTabs">
                     <Tabs customStyle={customStyle}>
                         <TabList>
@@ -1225,6 +1271,7 @@ export default class VFBMain extends React.Component {
                 </div>
 
                 {this.htmlToolbarRender}
+                {this.termInfoHistory}
             </div>
         );
     }
