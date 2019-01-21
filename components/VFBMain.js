@@ -26,13 +26,17 @@ var Rnd = require('react-rnd').default;
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
 var json = {
-    global: { tabEnableClose: true },
+    global: {
+        tabEnableClose: true,
+        sideBorders: 8
+    },
     borders: [
         {
             "type": "border",
             "location": "bottom",
             "size": 100,
-            "children": []
+            "children": [],
+            "barSize": 35
         }
     ],
     layout: {
