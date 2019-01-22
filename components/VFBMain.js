@@ -1097,7 +1097,7 @@ export default class VFBMain extends React.Component {
             var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function(item, index) {
                 return (
                     <div className="historyItemList" key={index} onClick={() => {
-                        this.termInfoReference.setTermInfo(item.arguments[0], false);
+                        this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
                     }}>
                         {item.label}
                     </div>
@@ -1149,6 +1149,36 @@ export default class VFBMain extends React.Component {
                     className="fa fa-history customIconTab" onMouseDown={toggleModal.bind(this)} />);
                 key++;
             }
+        };
+
+        var clickOnBordersAction = function (node:(TabNode)) {
+            let idChild = 0;
+            let rightChild = 0;
+            let tempModel = node.getModel();
+            var rootNode = tempModel.getRoot();
+            var modelChildren = tempModel.getRoot().getChildren();
+            //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
+            if (node instanceof FlexLayout.TabNode || node instanceof FlexLayout.TabSetNode) {
+                if(modelChildren.length <= 1) {
+                    let tabSet: TabSetNode | undefined;
+                    tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset" });
+                    rootNode._addChild(tabSet);
+                    this.model.doAction(FlexLayout.Actions.moveNode(node.getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                    //tabSet.drop(tabNode, DockLocation.BOTTOM, 0);
+                } else {
+                    for(var i=0; i <= (modelChildren.length - 1); i++) {
+                        if(modelChildren[i].getRect().getRight() > rightChild) {
+                            rightChild = modelChildren[i].getRect().getRight();
+                            idChild = i;
+                        }
+                    }
+                    let toNode = modelChildren[idChild];
+                    if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
+                        this.model.doAction(FlexLayout.Actions.moveNode(node.getId(), toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                        //toNode.drop(tabNode, DockLocation.BOTTOM, 0);
+                    }
+                }
+            } 
         };
 
         this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined) ?
@@ -1216,7 +1246,8 @@ export default class VFBMain extends React.Component {
                     model={this.model}
                     factory={this.factory.bind(this)}
                     onRenderTab={onRenderTab}
-                    onRenderTabSet={onRenderTabSet}/>
+                    onRenderTabSet={onRenderTabSet}
+                    clickOnBordersAction={clickOnBordersAction}/>
 
                 {/* <Modal
                     id="modal_with_forms"
