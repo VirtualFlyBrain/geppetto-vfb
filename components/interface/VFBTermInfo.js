@@ -76,7 +76,7 @@ class VFBTermInfo extends React.Component {
         });
 
         if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined) {
-            //this.renderButtonBar(anyInstance);
+            this.renderButtonBar(anyInstance);
         }
     };
 
@@ -286,7 +286,7 @@ class VFBTermInfo extends React.Component {
             $("#" + buttonBarContainer).remove();
         }
 
-        this.$el.parent().append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
+        $(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
 
         var instance = null;
         var instancePath = '';
@@ -301,7 +301,11 @@ class VFBTermInfo extends React.Component {
         this.buttonBar = ReactDOM.render(
             React.createElement(ButtonBarComponent, {
                 buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
-                instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () { that.setSize(that.size.height, that.size.width); }
+                instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () { 
+                    //that.setSize(that.size.height, that.size.width);
+                    // This was to handle the resize of the widget before, it's not required now since
+                    // FlexLayout will handle that.
+                }
             }),
             document.getElementById(barDiv)
         );

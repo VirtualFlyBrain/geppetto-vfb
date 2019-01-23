@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 //import FlexLayout from 'flexlayout-react';
-import * as FlexLayout from '../../../js/components/interface/flexLayout2/src/index';
 import VFBToolBar from './interface/VFBToolBar';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
@@ -11,15 +10,13 @@ import QueryBuilder from '../../../js/components/interface/query/query';
 import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar';
 import SpotLight from '../../../js/components/interface/spotlight/spotlight';
 import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
-import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
 import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
-
-import Modal from 'react-modal';
+import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
+import * as FlexLayout from '../../../js/components/interface/flexLayout2/src/index';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
 
-var ReactDOM = require('react-dom');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -731,6 +728,7 @@ export default class VFBMain extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        document.addEventListener('mousedown', this.handleClickOutside);
         // for(var i=0, borders = this.model.getBorderSet().getBorders(); i < borders.length; i++) {
         //     var el = ReactDOM.findDOMNode(this.refs.layout).getElementsByClassName("flexlayout__"+borders[i].getId());
         //     if(borders[i].getChildren().length > 0) {
@@ -775,10 +773,6 @@ export default class VFBMain extends React.Component {
             this.refs.querybuilderRef.open();
         }
 
-        if(this.state.htmlFromToolbar !== undefined) {
-            document.addEventListener('mousedown', this.handleClickOutside);
-        }
-
         /**Important, needed to let know the Three.js control's library the real size of
          * the canvas right after if finished rendering.Otherwise it thinks its width and 
          * height 0 **/
@@ -796,15 +790,10 @@ export default class VFBMain extends React.Component {
         }
 
         if(this.state.htmlFromToolbar !== undefined) {
-            document.addEventListener('mousedown', this.handleClickOutside);
         }
     };
 
     componentWillUnmount() {
-        if(this.state.htmlFromToolbar !== undefined) {
-            document.removeEventListener('mousedown', this.handleClickOutside);
-        }
-
         window.removeEventListener("resize", this.updateDimensions);
         document.removeEventListener('mousedown', this.handleClickOutside);
     }
@@ -1097,6 +1086,7 @@ export default class VFBMain extends React.Component {
             var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function(item, index) {
                 return (
                     <div className="historyItemList" key={index} onClick={() => {
+                        this.setState({ historyModalOpen: !this.state.historyModalOpen});
                         this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
                     }}>
                         {item.label}
@@ -1104,11 +1094,11 @@ export default class VFBMain extends React.Component {
                 )
             }, this);
             this.termInfoHistory = <Rnd
-                enableResizing={{
-                    top: false, right: false, bottom: false,
-                    left: false, topRight: false, bottomRight: false,
-                    bottomLeft: false, topLeft: false}}
-                default={{
+                    enableResizing={{
+                        top: false, right: false, bottom: false,
+                        left: false, topRight: false, bottomRight: false,
+                        bottomLeft: false, topLeft: false}}
+                    default={{
                         x: this.modalX, y: this.modalY,
                         height: 150, width: 150}}
                     className="historyModal"
@@ -1136,7 +1126,6 @@ export default class VFBMain extends React.Component {
 
         key = 0;
         var toggleModal = (event) => {
-            console.log(event);
             this.modalX = event.clientX;
             this.modalY = event.clientY;
             this.setState({ historyModalOpen: !this.state.historyModalOpen });
