@@ -23,7 +23,7 @@ export default class StackViewer extends React.Component {
         }
 
         this.addSlices = this.addSlices.bind(this);
-        this.getMDText = this.getMDText.bind(this);
+        this.removeSlice = this.removeSlice.bind(this);
         this.changedStacks = this.changedStacks.bind(this);
         this.checkConnection = this.checkConnection.bind(this);
         this.updateStackWidget = this.updateStackWidget.bind(this);
@@ -41,21 +41,7 @@ export default class StackViewer extends React.Component {
             templateId: 'NOTSET'
         };
         this.stackMD = "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/mdHelpFiles/stack.md";
-        this.stackHelpInfo = this.getMDText(this.stackMD);
         this.stackElement = undefined;
-    }
-
-    getMDText(urlLocation) {
-        var result = null;
-        $.ajax({
-            url: urlLocation,
-            type: 'get',
-            dataType: 'html',
-            async: false,
-            success: function (data) { result = data; }
-        }
-        );
-        return result;
     }
 
     changedStacks() {
@@ -96,6 +82,9 @@ export default class StackViewer extends React.Component {
         if (this.changedStacks()) {
             this.addSlices(this.getSliceInstances());
         }
+        if(this.refs.StackViewerRef != undefined) {
+            $(this.refs.StackViewerRef)[0].onHome();
+        }
         //window.StackViewer1.updateScene();
     };
 
@@ -133,12 +122,38 @@ export default class StackViewer extends React.Component {
         }
     }
 
+    removeSlice(path) {
+        console.log('Removing ' + path.split('.')[0] + ' from ' + this.data.instances.length);
+        var i;
+        for (i in this.data.instances){
+            try{
+                if (this.data.instances[i].parent.getId() == path.split('.')[0]){
+                    this.data.instances.splice(i,1);
+                }
+            }catch (ignore){ // handling already deleted instance
+                this.data.instances.splice(i,1);
+            }
+        }
+        console.log('Passing ' + this.data.instances.length + ' instances');
+        //this.updateScene();
+        this.setState({data: this.data});
+    }
+
     resizeStack() {
         this.stackElement = $("#"+this.props.id);
+        this.updateStackWidget();
+    }
+
+    componentWillUnmount() {
+        if(this.refs.StackViewerRef !== undefined || this.refs.StackViewerRef !== null) {
+            this.refs.StackViewerRef._isMounted = false;
+        }
     }
 
     componentDidMount() {
-        //
+        if(this.refs.StackViewerRef._isMounted === false && this.refs.StackViewerRef !== undefined) {
+            this.updateStackWidget();
+        }
         var that = this;
         window.addEventListener('resize', function(event){
             that.resizeStack();
@@ -172,9 +187,11 @@ export default class StackViewer extends React.Component {
                                 if (instance.parent.getId() == window.templateID) {
                                     try {
                                         config = JSON.parse(instance.getValue().wrappedObj.value.data);
+                                        that.setState({data: that.data});
                                         //window.StackViewer1.setConfig(config);
                                     } catch (err) {
                                         console.log(err.message);
+                                        that.setState({data: that.data});
                                         //window.StackViewer1.setConfig(config);
                                     }
                                 }
@@ -193,13 +210,13 @@ export default class StackViewer extends React.Component {
                 this.updateStackWidget();
             }
         }.bind(this));
+
+        this.updateStackWidget();
     }
 
     render() {
         var sliceInstances = this.getSliceInstances();
 
-        var domainId = [];
-        var domainName = [];
         if (typeof sliceInstances[0] !== "undefined") {
             this.config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
         }
@@ -216,7 +233,8 @@ export default class StackViewer extends React.Component {
                 config={this.config}
                 voxel={this.voxelSize}
                 canvasRef={this.props.canvasRef}
-                ref="StackViewerRef"/>
+                ref="StackViewerRef"
+                layout={this.props.layout}/>
         )
     }
 

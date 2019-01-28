@@ -753,6 +753,10 @@ export default class VFBMain extends React.Component {
             }, undefined);
         }
 
+        if(this.stackWidgetReference != undefined || this.stackWidgetReference != null) {
+            this.stackWidgetReference.updateStackWidget();
+        }
+
         if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
             this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
         }
@@ -1066,11 +1070,14 @@ export default class VFBMain extends React.Component {
                         'Aligned To',
                         'Download']} /></div>)
         } else if (component === "stackwidget") {
+            let _height = (node.getRect().height > 0) ? node.getRect().height : (window.innerHeight - 70);
+            let _width = (node.getRect().width > 0) ? node.getRect().width : (window.innerWidth - 35);
             return (<div className="flexChildContainer">
             <StackViewer
                 id="NewStackViewer"
-                defHeight={window.innerHeight - 70}
-                defWidth={window.innerWidth - 35}
+                defHeight={_height}
+                defWidth={_width}
+                layout={this.refs.layout}
                 ref={ref => this.stackWidgetReference = ref}
                 canvasRef={this.canvasReference}
                 stackViewerHandler={this.stackViewerHandler} /></div>)
@@ -1167,7 +1174,7 @@ export default class VFBMain extends React.Component {
                         //toNode.drop(tabNode, DockLocation.BOTTOM, 0);
                     }
                 }
-            } 
+            }
         };
 
         this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined) ?
