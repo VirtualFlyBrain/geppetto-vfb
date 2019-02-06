@@ -82,9 +82,6 @@ export default class StackViewer extends React.Component {
         if (this.changedStacks()) {
             this.addSlices(this.getSliceInstances());
         }
-        if(this.refs.StackViewerRef != undefined) {
-            $(this.refs.StackViewerRef)[0].onHome();
-        }
         //window.StackViewer1.updateScene();
     };
 
@@ -139,14 +136,18 @@ export default class StackViewer extends React.Component {
         this.setState({data: this.data});
     }
 
-    resizeStack() {
-        this.stackElement = $("#"+this.props.id);
-        this.updateStackWidget();
-    }
-
     componentWillUnmount() {
         if(this.refs.StackViewerRef !== undefined || this.refs.StackViewerRef !== null) {
             this.refs.StackViewerRef._isMounted = false;
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.state.data.height !== nextProps.defHeight || this.state.data.width !== nextProps.defWidth) {
+            let newData = this.state.data;
+            newData.height = nextProps.defHeight;
+            newData.width = nextProps.defWidth;
+            this.setState({ data: newData });
         }
     }
 
@@ -154,10 +155,6 @@ export default class StackViewer extends React.Component {
         if(this.refs.StackViewerRef._isMounted === false && this.refs.StackViewerRef !== undefined) {
             this.updateStackWidget();
         }
-        var that = this;
-        window.addEventListener('resize', function(event){
-            that.resizeStack();
-        }.bind(this));
 
         // on change to instances reload stack:
         GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {

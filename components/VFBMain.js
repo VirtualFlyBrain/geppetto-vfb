@@ -41,49 +41,49 @@ var json = {
         "weight": 100,
         "children": [
             {
-                "type": "tabset",
-                "weight": 70,
-                "selected": 0,
-                "height": 800,
-                "children": [
-                    {
-                        "type": "tab",
-                        "name": "Canvas",
-                        "component": "canvas"
-                    }
-                ]
-            },
-            {
                 "type": "row",
-                "weight": 30,
+                "weight": 60,
                 "selected": 0,
                 "children": [
                     {
                         "type": "tabset",
-                        "weight": 65,
+                        "weight": 45,
                         "height": 400,
                         "children": [
                             {
                                 "type": "tab",
-                                "name": "Term Info",
-                                "component": "terminfo"
+                                "name": "Stack Viewer",
+                                "component": "stackwidget"
                             }
                         ]
                     },
                     {
                         "type": "tabset",
-                        "weight": 35,
+                        "weight": 55,
                         "height": 400,
                         "children": [
                             {
                                 "type": "tab",
-                                "name": "Stack Widget",
-                                "component": "stackwidget"
+                                "name": "Canvas",
+                                "component": "canvas"
                             }
                         ]
                     }
                 ]
-            }
+            },
+            {
+                "type": "tabset",
+                "weight": 40,
+                "selected": 0,
+                "height": 800,
+                "children": [
+                    {
+                        "type": "tab",
+                        "name": "Term Info",
+                        "component": "terminfo"
+                    }
+                ]
+            },
         ]
     }
 };
@@ -1070,9 +1070,10 @@ export default class VFBMain extends React.Component {
                         'Aligned To',
                         'Download']} /></div>)
         } else if (component === "stackwidget") {
-            let _height = (node.getRect().height > 0) ? node.getRect().height : (window.innerHeight - 70);
-            let _width = (node.getRect().width > 0) ? node.getRect().width : (window.innerWidth - 35);
-            return (<div className="flexChildContainer">
+            let _height = node.getRect().height;
+            let _width = node.getRect().width;
+            if(_height > 0 || _width > 0) {
+                return (<div className="flexChildContainer">
             <StackViewer
                 id="NewStackViewer"
                 defHeight={_height}
@@ -1080,7 +1081,11 @@ export default class VFBMain extends React.Component {
                 layout={this.refs.layout}
                 ref={ref => this.stackWidgetReference = ref}
                 canvasRef={this.canvasReference}
-                stackViewerHandler={this.stackViewerHandler} /></div>)
+                stackViewerHandler={this.stackViewerHandler} /></div>);
+            } else {
+                return (<div className="flexChildContainer"></div>);
+            }
+            
         }
     };
 
