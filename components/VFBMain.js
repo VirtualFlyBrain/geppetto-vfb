@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-//import FlexLayout from 'flexlayout-react';
 import VFBToolBar from './interface/VFBToolBar';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
@@ -7,9 +6,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo';
 import Logo from '../../../js/components/interface/logo/Logo';
 import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '../../../js/components/interface/query/query';
-import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar';
 import SpotLight from '../../../js/components/interface/spotlight/spotlight';
-import LinkButton from '../../../js/components/interface/linkButton/LinkButton';
 import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from '../../../js/components/interface/flexLayout2/src/index';
@@ -96,6 +93,7 @@ export default class VFBMain extends React.Component {
         this.state = {
             canvasAvailable: false,
             modelLoaded: (window.Model != undefined),
+            canvasVisible: true,
             termInfoVisible: true, // All states handled by the button bar
             stackViewerVisible: true,
             tutorialWidgetVisible: false,
@@ -114,6 +112,7 @@ export default class VFBMain extends React.Component {
         this.addVfbId = this.addVfbId.bind(this);
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
+        this.menuHandler = this.menuHandler.bind(this);
         this.customSorter = this.customSorter.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
         this.tutorialHandler = this.tutorialHandler.bind(this)
@@ -325,10 +324,11 @@ export default class VFBMain extends React.Component {
         this.model = FlexLayout.Model.fromJson(json)
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
+        window.customAction = [];
     }
 
     getButtonBarDefaultX() {
-        return (Math.ceil(window.innerWidth / 2) - 195);
+        return (Math.ceil(window.innerWidth / 2) - 55);
     };
 
     getButtonBarDefaultY() {
@@ -729,16 +729,7 @@ export default class VFBMain extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         document.addEventListener('mousedown', this.handleClickOutside);
-        // for(var i=0, borders = this.model.getBorderSet().getBorders(); i < borders.length; i++) {
-        //     var el = ReactDOM.findDOMNode(this.refs.layout).getElementsByClassName("flexlayout__"+borders[i].getId());
-        //     if(borders[i].getChildren().length > 0) {
-        //         el[0].style.backgroundColor = "red";
-        //     } else {
-        //         el[0].style.backgroundColor = "black";
-        //     }
-        // }
 
-        // Reopen stackViewer from button bar if previously has been closed.
         if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.termInfoReference == undefined || this.termInfoReference == null)) {
             this.refs.layout.addTabWithDragAndDropIndirect("Add the Term Info to the layout - Drag it.", {
                 "name": "Term Info",
@@ -748,8 +739,15 @@ export default class VFBMain extends React.Component {
 
         if((this.state.stackViewerVisible !== prevState.stackViewerVisible) && (this.stackWidgetReference == undefined || this.stackWidgetReference == null)) {
             this.refs.layout.addTabWithDragAndDropIndirect("Add the Stack Viewer to the layout - Drag it.", {
-                "name": "Stack Widget",
+                "name": "Stack Viewer",
                 "component": "stackwidget"
+            }, undefined);
+        }
+
+        if((this.state.canvasVisible !== prevState.canvasVisible) && (this.canvasReference == undefined || this.canvasReference == null)) {
+            this.refs.layout.addTabWithDragAndDropIndirect("Add the 3D Viewer to the layout - Drag it.", {
+                "name": "3D Viewer",
+                "component": "canvas"
             }, undefined);
         }
 
@@ -780,7 +778,9 @@ export default class VFBMain extends React.Component {
         /**Important, needed to let know the Three.js control's library the real size of
          * the canvas right after if finished rendering.Otherwise it thinks its width and 
          * height 0 **/
-        this.canvasReference.engine.controls.handleResize();
+        if(this.canvasReference !== undefined && this.canvasReference !== null) {
+            this.canvasReference.engine.controls.handleResize();
+        }
     };
 
     componentWillMount() {
@@ -982,6 +982,35 @@ export default class VFBMain extends React.Component {
         this.setState({
             [buttonState] : !tempState
         });
+    }
+
+    menuHandler(click) {
+        switch (click.handlerAction) {
+            case 'UIElementHandler':
+                this.buttonBarHandler(click.parameters[0]);
+                break;
+            case 'historyMenuInjector': { }
+                var historyList = [];
+                for (var i = 0; window.historyWidgetCapability.vfbterminfowidget.length > i; i++) {
+                    historyList.push(
+                        {
+                            label: window.historyWidgetCapability.vfbterminfowidget[i].label,
+                            icon: "",
+                            action: {
+                                handlerAction: "triggerSetTermInfo",
+                                value: window.historyWidgetCapability.vfbterminfowidget[i].arguments
+                            }
+                        },
+                    );
+                }
+                return historyList;
+            case 'triggerSetTermInfo':
+                this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
+                break;
+            default:
+                console.log("Menu action not mapped, it is " + click);
+        }
+        console.log("I clicked in the new menu " + click);
     }
 
     tutorialHandler() {
@@ -1212,35 +1241,13 @@ export default class VFBMain extends React.Component {
 
         return (
             <div style={{height: '100%', width: '100%'}}>
-                <VFBToolBar htmlOutputHandler={this.renderHTMLViewer}/>
-                <Rnd
-                    enableResizing={{
-                        top: false, right: false, bottom: false,
-                        left: false, topRight: false, bottomRight: false,
-                        bottomLeft: false, topLeft: false}}
-                    default={{
-                        x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
-                        height: 35, width: 340}}
-                    className="new-widget"
-                    disableDragging={true}
-                    maxHeight={35} minHeight={35}
-                    maxWidth={350} minWidth={150}
-                    ref="buttonBarRef" >
-                    <ButtonBar
-                        id="ButtonBarContainer"
-                        configuration={this.buttonBarConfig}
-                        buttonBarHandler={this.buttonBarHandler} />
-                </Rnd>
+                <VFBToolBar 
+                    htmlOutputHandler={this.renderHTMLViewer}
+                    menuHandler={this.menuHandler}/>
 
                 <Logo
                     logo='gpt-fly'
                     id="geppettologo" />
-
-                <LinkButton
-                    left={450}
-                    top={8}
-                    icon='fa fa-github'
-                    url='https://github.com/VirtualFlyBrain/VFB2' />
 
                 <FlexLayout.Layout
                     ref="layout"

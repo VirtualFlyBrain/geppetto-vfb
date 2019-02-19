@@ -1,19 +1,256 @@
 import React from 'react';
+import Menu from '../../../../js/components/interface/menu/Menu';
 
 require('../../css/VFBToolBar.less');
 var Rnd = require('react-rnd').default;
 var HTMLViewer = require('../../../../js/components/interface/htmlViewer/HTMLViewer');
 
+var menuConfiguration = {
+	global: {
+		subMenuOpenOnHover: true,
+		menuOpenOnClick: true,
+		menuPadding: 2,
+		fontFamily: "Khan",
+		menuFontSize: "14",
+		subMenuFontSize: "12"
+	},
+	buttons: [
+		{
+			label: "Virtual Fly Brain",
+			icon: "fa fa-moschito",
+			action: "",
+			position: "bottom-start",
+			list: [
+				{
+					label: "About",
+					icon: "",
+					action: {
+						handlerAction: "clickAbout",
+						parameters: []
+					}
+				},
+				{
+					label: "Contribute",
+					icon: "",
+					action: {
+						handlerAction: "clickContribute",
+						parameters: []
+					}
+				},
+				{
+					label: "Feedback",
+					icon: "",
+					action: {
+						handlerAction: "clickFeedback",
+						parameters: []
+					}
+				},
+				{
+					label: "Share",
+					icon: "",
+					position: "right-start",
+					action: {
+						handlerAction: "submenu",
+						parameters: ["undefinedAction"]
+					},
+					list: [
+						{
+							label: "Twitter",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://twitter.com/virtualflybrain"]
+							}
+						},
+						{
+							label: "Facebook",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["https://www.facebook.com/pages/Virtual-Fly-Brain/131151036987118"]
+							}
+						},
+						{
+							label: "Rss",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://blog.virtualflybrain.org/rss"]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			label: "Window",
+			icon: "",
+			action: "",
+			position: "bottom-start",
+			list: [
+				{
+					label: "Info",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["termInfoVisible"]
+					}
+				},
+				{
+					label: "3D Viewer",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["canvasVisible"]
+					}
+				},
+				{
+					label: "Slice Viewer",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["stackViewerVisible"]
+					}
+				},
+				{
+					label: "Search",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["spotlightVisible"]
+					}
+				},
+				{
+					label: "Query",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["queryBuilderVisible"]
+					}
+				},
+				{
+					label: "Layers",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["controlPanelVisible"]
+					}
+				},
+				{
+					label: "Wireframe",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["wireframeVisible"]
+					}
+				}
+			]
+		},
+		{
+			label: "History",
+			icon: "",
+			action: "",
+			position: "bottom-start",
+			dynamicListInjector: {
+						handlerAction: "historyMenuInjector",
+						parameters: ["undefined"]
+					}
+		},
+		{
+			label: "Templates",
+			icon: "",
+			action: "",
+			position: "bottom-start",
+			list: [
+				{
+					label: "Adult Brain",
+					icon: "",
+					action: {
+						handlerAction: "redirectTo",
+						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+					}
+				},
+				{
+					label: "Adult VNS",
+					icon: "",
+					action: {
+						handlerAction: "redirectTo",
+						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
+					}
+				},
+				{
+					label: "Larva L1",
+					icon: "",
+					action: {
+						handlerAction: "redirectTo",
+						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00050000"]
+					}
+				},
+				{
+					label: "Larva L3",
+					icon: "",
+					action: {
+						handlerAction: "redirectTo",
+						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00049000"]
+					}
+				}
+			]
+		},
+		{
+			label: "Help",
+			icon: "",
+			action: "",
+			position: "bottom-start",
+			list: [
+				{
+					label: "Start Tutorial",
+					icon: "",
+					action: {
+						handlerAction: "UIElementHandler",
+						parameters: ["tutorialWidgetVisible"]
+					}
+				},
+				{
+					label: "F.A.Q.",
+					icon: "",
+					action: {
+						handlerAction: "openNewTab",
+						parameters: ["http://blog.virtualflybrain.org/rss"]
+					}
+				},
+				{
+					label: "Support Forum",
+					icon: "",
+					action: {
+						handlerAction: "openNewTab",
+						parameters: ["http://blog.virtualflybrain.org/rss"]
+					}
+				},
+				{
+					label: "Report an issue",
+					icon: "",
+					action: {
+						handlerAction: "openNewTab",
+						parameters: ["http://blog.virtualflybrain.org/rss"]
+					}
+				}
+			]
+		}
+	]
+};
 
 export default class VFBToolBar extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
+			open: false,
+			anchorEl: null,
 			htmlChild: undefined
 		}
 
 		this.clickAbout = this.clickAbout.bind(this);
+		this.menuHandler = this.menuHandler.bind(this);
 		this.clickFeedback = this.clickFeedback.bind(this);
 		this.clickContribute = this.clickContribute.bind(this);
 	}
@@ -426,9 +663,38 @@ export default class VFBToolBar extends React.Component {
 			"</script>";
 
 		this.props.htmlOutputHandler(htmlContent);
+	};
+
+	menuHandler(click) {
+		switch(click.handlerAction) {
+			case 'openNewTab':
+				click.parameters.map((item, index) => {
+					window.open(item, '_blank');
+				})
+				break;
+			case 'redirectTo':
+				window.location.href = click.parameters[0]; 
+				break;
+			case 'clickAbout':
+				this.clickAbout();
+				break;
+			case 'clickFeedback':
+				this.clickFeedback();
+				break;
+			case 'clickContribute':
+				this.clickContribute();
+				break;
+			default:
+				return this.props.menuHandler(click);
+		}
 	}
 
-	render() {
+    render() {
+		const style = {padding: 2};
+    	const { anchorEl } = this.state;
+    	const open = Boolean(anchorEl);
+    	const id = open ? 'simple-popper' : null;
+
 		return (
 			<Rnd
 				enableResizing={{
@@ -448,43 +714,25 @@ export default class VFBToolBar extends React.Component {
 					<div className="leftSide">
 						<div className="wideDivL">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<a href="https://v2.virtualflybrain.org/?i=VFB_00017894">
-								<b>Virtual Fly Brain</b>
-								<small className="uk-visible-large"> A hub for
-								<i> Drosophila melanogaster</i>
-									&nbsp;neuroscience research
-							</small>
-							</a>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<Menu
+								configuration={menuConfiguration} 
+								menuHandler={this.menuHandler} />
 						</div>
 					</div>
 
 					<div className="centralTitle">
 						<div className="wideDivC">
-						<a href="http://blog.virtualflybrain.org/post/171867319039/vfb-virtual-fly-brain-a-hub-for-drosophila" target="_Blank">
-								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							</a>
 						</div>
 					</div>
 
 					<div className="rightSide">
 						<div className="wideDivR">
 							<a href="/org.geppetto.frontend/geppetto?i=VFB_00017894" target="VFBJFRC2">Adult Brain</a>&nbsp;&nbsp;
-						<a href="/org.geppetto.frontend/geppetto?i=VFB_00100000" target="VFBVNS">Adult VNS</a>&nbsp;&nbsp;
-						<a href="/org.geppetto.frontend/geppetto?i=VFB_00050000" target="VFBL1">Larva L1</a>&nbsp;&nbsp;
-						<a href="/org.geppetto.frontend/geppetto?i=VFB_00049000" target="VFBL3">Larva L3</a>&nbsp;&nbsp;
+							<a href="/org.geppetto.frontend/geppetto?i=VFB_00100000" target="VFBVNS">Adult VNS</a>&nbsp;&nbsp;
+							<a href="/org.geppetto.frontend/geppetto?i=VFB_00050000" target="VFBL1">Larva L1</a>&nbsp;&nbsp;
+							<a href="/org.geppetto.frontend/geppetto?i=VFB_00049000" target="VFBL3">Larva L3</a>&nbsp;&nbsp;
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<a onClick={this.clickAbout}>About</a>
-							<a onClick={this.clickContribute}>Contribute</a>
-							<a onClick={this.clickFeedback}>Feedback</a>
-							<a href="http://blog.virtualflybrain.org/rss" target="_Blank">
-								<div className="fa fa-rss"></div>
-							</a>
-							<a href="https://www.facebook.com/pages/Virtual-Fly-Brain/131151036987118" target="_Blank">
-								<div className="fa fa-facebook"></div>
-							</a>
-							<a href="http://twitter.com/virtualflybrain" target="_Blank">
-								<div className="fa fa-twitter"></div>
-							</a>
 						</div>
 					</div>
 				</nav>
@@ -492,3 +740,4 @@ export default class VFBToolBar extends React.Component {
 		);
 	}
 }
+
