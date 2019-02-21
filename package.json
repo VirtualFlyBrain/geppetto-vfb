@@ -1,0 +1,29 @@
+{
+  "name": "org.geppetto.frontend",
+  "version": "0.4.2",
+  "description": "Geppetto web frontend. Geppetto is an open-source platform to build web-based tools to visualize and simulate neuroscience data and models.",
+  "repository": "http://git.geppetto.org",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "build": "webpack -p --progress",
+    "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "build-dev": "webpack --devtool eval",
+    "prebuild-dev-noTest": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "build-dev-noTest": "webpack --devtool source-map --env.noTest=true",
+    "prebuild-dev-noTest:watch": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "build-dev-noTest:watch": "webpack --devtool source-map --env.noTest=true --progress --watch",
+    "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
+  },
+  "devDependencies": {
+    "@geppettoengine/geppetto-client": "openworm/geppetto-client#infra-merge"
+  },
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "compile": {
+      "exclude": [
+        "node_modules"
+      ]
+    }
+  }
+}
