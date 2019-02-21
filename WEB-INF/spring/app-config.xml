@@ -20,17 +20,14 @@ http://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium/gemini-bluep
 	<mvc:annotation-driven />
 	
 	<!-- Map static resources to /assets/* url -->
-	<mvc:resources mapping="/geppetto/js/**" location="/js/" order="-1" />
-	<mvc:resources mapping="/geppetto/extensions/**" location="/extensions/" order="-1" />
+	<mvc:resources mapping="/geppetto/node_modules/**" location="/node_modules/" order="-1" />
 	<mvc:resources mapping="/geppetto/build/**" location="/build/" order="-1" />
-	<mvc:resources mapping="/geppetto/style/**" location="/style/" order="-1" />
 
 	<mvc:resources mapping="/jsdocs/**" location="/jsdocs/" />
 
 	<mvc:resources mapping="/**" location="/dashboard/" />
 
 	<mvc:resources mapping="/api/**" location="/dashboard/api/" />
-
 
 	<context:component-scan base-package="org.geppetto.frontend" />
 
