@@ -127,7 +127,7 @@ module.exports = function (env){
         path.resolve(__dirname, geppetto_client_path, 'node_modules'), 
         'node_modules'
       ],
-      extensions: ['*', '.js', '.json', '.tsx', '.jsx'],
+      extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx'],
     },
   
     module: {
