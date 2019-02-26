@@ -286,7 +286,9 @@ class VFBTermInfo extends React.Component {
             $("#" + buttonBarContainer).remove();
         }
 
-        $(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
+        //$(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
+        $("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
+        $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
 
         var instance = null;
         var instancePath = '';
@@ -334,6 +336,9 @@ class VFBTermInfo extends React.Component {
         if(this.state.termInfoId !== this.innerHandler.id) {
             this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
             this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+        }
+        if(document.getElementById('bar-div-vfbterminfowidget') !== null) {
+            $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
         }
     };
 
