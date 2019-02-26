@@ -152,7 +152,6 @@ export default class VFBMain extends React.Component {
         this.modalX = undefined;
         this.modalY = undefined;
 
-
         this.stackConfiguration = {
             serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
             templateId: 'NOTSET'
@@ -838,7 +837,10 @@ export default class VFBMain extends React.Component {
             this.resolve3D(externalID);
         }.bind(this);
 
-        // Canvas initialization
+        if(this.canvasReference.engine !== null) {
+            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
+            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+        }
         this.canvasReference.flipCameraY();
         this.canvasReference.flipCameraZ();
         this.canvasReference.setWireframe(false);
