@@ -785,14 +785,7 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-            if (location.host.indexOf('localhost:8081') < 0){
-                Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
-            }
-            else
-            {
-                // Local deployment for development.
-                Project.loadFromURL(window.location.origin.replace(":8081", ":8989").replace('https:','http:') + '/' + 'vfb.json');
-            }
+        	Project.loadFromURL('http://v2.virtualflybrain.org/conf/vfb.json');
             this.setState({modelLoaded: true});
         }
 
@@ -1223,7 +1216,6 @@ export default class VFBMain extends React.Component {
                 default={{ x: 50, y: 50,
                         height: window.innerHeight - 100,
                         width: window.innerWidth - 100}}
-                className="htmlViewerVFB"
                 disableDragging={true}
                 maxHeight={window.innerHeight - 100} minHeight={100}
                 maxWidth={window.innerWidth - 100} minWidth={100}
