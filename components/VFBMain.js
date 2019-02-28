@@ -45,7 +45,6 @@ var json = {
                     {
                         "type": "tabset",
                         "weight": 45,
-                        "height": 400,
                         "children": [
                             {
                                 "type": "tab",
@@ -57,7 +56,6 @@ var json = {
                     {
                         "type": "tabset",
                         "weight": 55,
-                        "height": 400,
                         "children": [
                             {
                                 "type": "tab",
@@ -72,7 +70,6 @@ var json = {
                 "type": "tabset",
                 "weight": 40,
                 "selected": 0,
-                "height": 800,
                 "children": [
                     {
                         "type": "tab",
