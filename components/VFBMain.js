@@ -45,7 +45,6 @@ var json = {
                     {
                         "type": "tabset",
                         "weight": 45,
-                        "height": 400,
                         "children": [
                             {
                                 "type": "tab",
@@ -57,7 +56,6 @@ var json = {
                     {
                         "type": "tabset",
                         "weight": 55,
-                        "height": 400,
                         "children": [
                             {
                                 "type": "tab",
@@ -72,7 +70,6 @@ var json = {
                 "type": "tabset",
                 "weight": 40,
                 "selected": 0,
-                "height": 800,
                 "children": [
                     {
                         "type": "tab",
@@ -151,7 +148,6 @@ export default class VFBMain extends React.Component {
         this.termInfoHistory = undefined;
         this.modalX = undefined;
         this.modalY = undefined;
-
 
         this.stackConfiguration = {
             serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
@@ -834,7 +830,10 @@ export default class VFBMain extends React.Component {
             this.resolve3D(externalID);
         }.bind(this);
 
-        // Canvas initialization
+        if(this.canvasReference.engine !== null) {
+            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
+            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+        }
         this.canvasReference.flipCameraY();
         this.canvasReference.flipCameraZ();
         this.canvasReference.setWireframe(false);

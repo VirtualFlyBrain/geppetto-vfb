@@ -726,12 +726,13 @@ export default class VFBToolBar extends React.Component {
 				}}
 				default={{
 					x: 0, y: 0,
-					height: 40,
+					height: 35,
 					width: '100%'
 				}}
 				className="vfbToolBarClass"
 				disableDragging={true}
-				ref={e => { this.rnd = e; }} >
+				ref={e => { this.rnd = e; }} 
+				style={{"backgroundColor": "#010101"}} >
 				<nav>
 					<div className="leftSide">
 						<div className="wideDivL">
