@@ -39,12 +39,12 @@ before_script:
 script:
   - npm config set registry http://registry.npmjs.org/
   - echo "Current time :$(date +"%T")"
-  - docker --version
-  - cd $TRAVIS_BUILD_DIR/src/main/webapp/js/pages/tests/casperjs
+  - docker --version 
+  - cd $TRAVIS_BUILD_DIR/tests/casperjs
   - echo "$TRAVIS_BRANCH"
-  - travis_retry docker build -t="geppetto" --build-arg mainBranch=$TRAVIS_BRANCH https://github.com/openworm/org.geppetto.git#development:utilities/docker/geppetto/
+  - travis_retry docker build -t="geppetto" --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$TRAVIS_PULL_REQUEST_BRANCH --build-arg defaultBranch=development https://github.com/openworm/org.geppetto.git#infra-merge:utilities/docker/geppetto/
   - travis_retry docker run  -t -dit --name=geppetto_container -p 28081:8080 geppetto
-  - bash $TRAVIS_BUILD_DIR/src/main/webapp/js/pages/tests/casperjs/utilities/test_geppetto_server.sh
+  - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
   - sleep 30
   - http_status=$(curl -s -I $1 http://localhost:28081/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'})
   - echo "$http_status"
@@ -58,7 +58,7 @@ script:
       docker rm $(docker ps -a -q);
       sleep 10;
       travis_retry docker run  -t -dit --name=geppetto_container -p 28081:8080 geppetto;
-      bash $TRAVIS_BUILD_DIR/src/main/webapp/js/pages/tests/casperjs/utilities/test_geppetto_server.sh;
+      bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
       sleep 60;
       http_status=$(curl -s -I $1 http://localhost:28081/org.geppetto.frontend | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting";
