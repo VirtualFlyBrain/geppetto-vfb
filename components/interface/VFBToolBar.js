@@ -270,7 +270,6 @@ export default class VFBToolBar extends React.Component {
 			"<div id='vfb-content-block' class='callout vfbcontent'> " +
 			"<div id='vfb-content-titlebar'> " +
             "	<div id='vfb-content-title'>Give us feedback!</div> " +
-            "	<i onclick='vfbclose();' class='close-slider uk-icon-justify uk-icon-large uk-icon-close'></i> " +
             "</div>" +
 			"<div id='vfb-content-text' class='vfbcontent'>" +
 			"<h2>Help us improve the site</h2>" +
@@ -359,7 +358,6 @@ export default class VFBToolBar extends React.Component {
 			"		    <div id='vfb-content-block' class='callout vfbcontent'> " +
 			"           <div id='vfb-content-titlebar'> " +
             "          		<div id='vfb-content-title'>About <span style='color:white;'> Virtual Fly Brain</span></div> "+
-            "        		<i onclick='vfbclose();' class='close-slider uk-icon-justify uk-icon-large uk-icon-close'></i> " +
             "			</div>		" +
 			"			<div id='vfb-content-text' class='vfbcontent'><div>" +
 			"				<h2>Who we are</h2>" +
@@ -481,7 +479,7 @@ export default class VFBToolBar extends React.Component {
 			"				<h2>Collaborators</h2>" +
 			"			</div>" +
 			"			<div class='col-xs-12'>" +
-			"				<div class=''>" +
+			"				<div class='row'>" +
 			"					<div class='small-3 columns text-center content-image'>" +
 			"						<a href='http://www.hgu.mrc.ac.uk/' target='_blank'>" +
 			"							<img class='' src='https://v2.virtualflybrain.org/images/vfb/project/logos/mrchguLogo.png' border='0' /></a>" +
@@ -496,7 +494,7 @@ export default class VFBToolBar extends React.Component {
 			"						<br clear='all' />" +
 			"					</div>" +
 			"				</div>" +
-			"				<div class=''>" +
+			"				<div class='row'>" +
 			"					<div class='small-3 columns text-center content-image'>" +
 			"						<a href='http://www.flybase.org/' target='_blank'>" +
 			"							<img class='' src='https://v2.virtualflybrain.org/images/vfb/project/logos/flybase.gif' border='0' /></a>" +
@@ -551,7 +549,7 @@ export default class VFBToolBar extends React.Component {
 			"		</p>" +
 			"	" +
 			"	</div >" +
-			"			<div >" +
+			"			<div>" +
 			"				<h2>Publications</h2>" +
 			"				<p>" +
 			"					For more information on the technology behind the VFB website:" +
@@ -602,7 +600,7 @@ export default class VFBToolBar extends React.Component {
 			"			<div >" +
 			"				<h2>Contact us</h2>" +
 			"			</div>" +
-			"			<div class='col-xs-7'>" +
+			"			<div class=''>" +
 			"				<p>" +
 			"					To report a bug on the site, use the <a href='Feedback.htm'>Report an issue</a> page. For help, comments or" +
 			"					suggestions, please use" +
@@ -616,7 +614,7 @@ export default class VFBToolBar extends React.Component {
 			"					To tell us about new data that you generated that could be incorporated into VFB see <a href='yourPaper.htm'>here</a>." +
 			"			</p>" +
 			"			</div>" +
-			"			<div >" +
+			"			<div class=''>" +
 			"				<h2>Using our software or registered image data</h2>" +
 			"				<p> The VFB software can be embedded in any third-party website where it can provide the same functionality as on" +
 			"				the VFB website. This is because it was developed as part of an open source project and freely distributed under a" +
@@ -642,7 +640,6 @@ export default class VFBToolBar extends React.Component {
 			"<div id='vfb-content-block' class='callout vfbcontent'> " +
 			"<div id='vfb-content-titlebar'> " +
             "	<div id='vfb-content-title'>Contribute your data to <span style='color:white;'> Virtual Fly Brain</span></div> " +
-            "	<i onclick='vfbclose();' class='close-slider uk-icon-justify uk-icon-large uk-icon-close'></i> " +
             "</div>" +
 			"<div id='vfb-content-text' class='vfbcontent'>" +
 			"<h2>Submitting new data to VFB</h2>" +

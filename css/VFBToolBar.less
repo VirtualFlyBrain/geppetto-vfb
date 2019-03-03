@@ -163,6 +163,10 @@ nav {
 	}
 }
 
+#HTMLViewerContainer_component:focus {
+    outline: none;
+}
+
 #vfb-content-text {
     height: 89%;
     overflow-y: auto;
@@ -185,10 +189,11 @@ nav {
     font-weight: 400;
     text-transform: none;
 }
-
+    
 .vfb-content-container {
 	height: 100%;
     width: 100%;
+    margin-bottom: 50px;
 }
 
 .callout-fullscreen{
@@ -220,11 +225,26 @@ nav {
     font-weight: bold;
 }
 
+.close-slider{
+    position: absolute; 
+    right:3px;
+    top:0px;
+    color:#11bffe;
+    font-size: 18px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.close-slider:hover{
+    color:white;
+    background: transparent;
+}
+
 .vfbcontent div p {
     font-size: 14px;
     font-weight: 200;
     color: whitesmoke;
-    margin-top : 15px;
+    margin : 15px 0 15px 0;
 }
 
 .vfbcontent div b {
