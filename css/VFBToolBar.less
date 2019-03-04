@@ -162,3 +162,116 @@ nav {
 		}
 	}
 }
+
+#HTMLViewerContainer_component:focus {
+    outline: none;
+}
+
+#vfb-content-text {
+    height: 89%;
+    overflow-y: auto;
+    color: whitesmoke;
+    padding: 20px;
+}
+
+#vfb-content-text::-webkit-scrollbar{
+    width: -1px;
+    background:lightgrey; 
+}
+
+#vfb-content-text::-webkit-scrollbar-thumb {
+    background:grey; 
+}
+
+#vfb-content-text h2{
+    margin: 0 0 15px 0;
+    font-family: 'Khand', sans-serif;
+    color: #11bffe;
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 400;
+    text-transform: none;
+}
+    
+.vfb-content-container {
+	height: 100%;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.callout-fullscreen{
+    position: absolute;
+    padding: 3%;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+}
+.callout.vfbcontent {
+    background: rgba(100, 100, 100, 0.80);
+    position: absolute;
+    width: 100%;
+    z-index: 2000  !important;
+    height: 100%;
+}
+
+.callout.vfbcontent .close-button {
+    background: transparent;
+    float: right;
+    padding: 0px;
+}
+.callout.vfbcontent .close-button span {
+    font-size: xx-large;
+    color: #11bffe;
+    font-weight: bold;
+}
+
+.close-slider{
+    position: absolute; 
+    right:3px;
+    top:0px;
+    color:#11bffe;
+    font-size: 18px;
+    cursor: pointer;
+    background: transparent;
+    z-index : 9999 !important;
+}
+
+.close-slider:hover{
+    color:white;
+    background: transparent;
+}
+
+.vfbcontent div p {
+    font-size: 14px;
+    font-weight: 200;
+    color: whitesmoke;
+    margin : 15px 0 15px 0;
+}
+
+.vfbcontent div b {
+    font-weight: 700;
+    color: #fff;
+}
+
+::selection {
+    background: #39f;
+    color: #fff;
+    text-shadow: none;
+}
+
+.vfbcontent div .fa {
+    background: rgba(66, 59, 59, 0.8);
+    color: #11bffe;
+    box-sizing: border-box;
+    padding: 2px 6px 3px;
+    border-width: 2px;
+}
+.vfbcontent div h1, .vfbcontent div h2, .vfbcontent div h3, .vfbcontent div h4, .vfbcontent div h5, .vfbcontent div h6 {
+    color: #11bffe;
+}
+.vfbcontent div small{
+    color: #11bffe;
+}
