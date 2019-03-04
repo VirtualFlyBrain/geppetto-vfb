@@ -19,12 +19,14 @@ export default class StackViewer extends React.Component {
         super(props);
 
         this.state = {
-            data: {id: this.props.id, height: this.props.defHeight, width: this.props.defWidth, instances: [], selected: [] }
+            data: {id: this.props.id, height: this.props.defHeight, width: this.props.defWidth, instances: [], selected: [] },
+            canvasRef: this.props.canvasRef
         }
 
         this.addSlices = this.addSlices.bind(this);
         this.removeSlice = this.removeSlice.bind(this);
         this.changedStacks = this.changedStacks.bind(this);
+        this.updateCanvasRef = this.updateCanvasRef.bind(this);
         this.checkConnection = this.checkConnection.bind(this);
         this.updateStackWidget = this.updateStackWidget.bind(this);
         this.getSliceInstances = this.getSliceInstances.bind(this);
@@ -83,6 +85,12 @@ export default class StackViewer extends React.Component {
             this.addSlices(this.getSliceInstances());
         }
         //window.StackViewer1.updateScene();
+    };
+
+    updateCanvasRef(newRef) {
+        this.setState({
+            canvasRef: newRef
+        });
     };
 
     // stack widget helper methods

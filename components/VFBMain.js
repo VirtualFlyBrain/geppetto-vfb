@@ -39,12 +39,12 @@ var json = {
         "children": [
             {
                 "type": "row",
-                "weight": 60,
+                "weight": 55,
                 "selected": 0,
                 "children": [
                     {
                         "type": "tabset",
-                        "weight": 45,
+                        "weight": 36,
                         "children": [
                             {
                                 "type": "tab",
@@ -55,7 +55,7 @@ var json = {
                     },
                     {
                         "type": "tabset",
-                        "weight": 55,
+                        "weight": 64,
                         "children": [
                             {
                                 "type": "tab",
@@ -68,7 +68,7 @@ var json = {
             },
             {
                 "type": "tabset",
-                "weight": 40,
+                "weight": 45,
                 "selected": 0,
                 "children": [
                     {
@@ -118,6 +118,7 @@ export default class VFBMain extends React.Component {
         this.updateDimensions = this.updateDimensions.bind(this);
         this.buttonBarHandler = this.buttonBarHandler.bind(this);
         this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+        this.reopenUIComponent = this.reopenUIComponent.bind(this);
         this.stackViewerRequest = this.stackViewerRequest.bind(this);
         this.stackViewerHandler = this.stackViewerHandler.bind(this);
         this.addToQueryCallback = this.addToQueryCallback.bind(this);
@@ -544,7 +545,9 @@ export default class VFBMain extends React.Component {
             }
             if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
                 var instance = Instances.getInstance(variableIds[singleId]);
-                this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                if(this.termInfoReference !== undefined) {
+                    this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                }
                 this.termInfoName = meta;
                 this.termInfoId = meta.getParent().getId();
                 // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
@@ -552,15 +555,17 @@ export default class VFBMain extends React.Component {
                     GEPPETTO.SceneController.deselectAll();
                     if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
                         instance.select();
-                        this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                        if(this.termInfoReference !== undefined) {
+                            this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                        }
                         this.termInfoName = meta;
                         this.termInfoId = meta.getParent().getId();
-                        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
                     }
-                    //this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
                 }.bind(this));
             } else {
-                this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                if(this.termInfoReference !== undefined) {
+                    this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+                }
                 this.termInfoName = meta;
                 this.termInfoId = meta.getParent().getId();
                 // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
@@ -723,28 +728,78 @@ export default class VFBMain extends React.Component {
         }
     }
 
+    reopenUIComponent(json) {
+        let idChild = 0;
+            let rightChild = 0;
+            let tempModel = this.model;
+            var rootNode = tempModel.getRoot();
+            var modelChildren = tempModel.getRoot().getChildren();
+            //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
+            if (modelChildren.length <= 1) {
+                let tabSet: TabSetNode | undefined;
+                tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset" });
+                rootNode._addChild(tabSet);
+                this.model.doAction(FlexLayout.Actions.addNode(json, tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                //tabSet.drop(tabNode, DockLocation.BOTTOM, 0);
+            } else {
+                for (var i = 0; i <= (modelChildren.length - 1); i++) {
+                    if (modelChildren[i].getRect().getRight() > rightChild) {
+                        rightChild = modelChildren[i].getRect().getRight();
+                        idChild = i;
+                    }
+                }
+                let toNode = modelChildren[idChild];
+                if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
+                    this.model.doAction(FlexLayout.Actions.addNode(json, toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                    //toNode.drop(tabNode, DockLocation.BOTTOM, 0);
+                }
+            }
+    }
+
     componentDidUpdate(prevProps, prevState) {
         document.addEventListener('mousedown', this.handleClickOutside);
 
-        if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.termInfoReference == undefined || this.termInfoReference == null)) {
-            this.refs.layout.addTabWithDragAndDropIndirect("Add the Term Info to the layout - Drag it.", {
-                "name": "Term Info",
-                "component": "terminfo"
-            }, undefined);
+        if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
+            this.reopenUIComponent({
+                type: "tab",
+                name: "Term Info",
+                component: "terminfo"
+            });
         }
 
-        if((this.state.stackViewerVisible !== prevState.stackViewerVisible) && (this.stackWidgetReference == undefined || this.stackWidgetReference == null)) {
-            this.refs.layout.addTabWithDragAndDropIndirect("Add the Stack Viewer to the layout - Drag it.", {
-                "name": "Stack Viewer",
-                "component": "stackwidget"
-            }, undefined);
+        if((this.state.stackViewerVisible !== prevState.stackViewerVisible) && (this.state.stackViewerVisible === true)) {
+            this.reopenUIComponent({
+                type: "tab",
+                name: "Stack Viewer",
+                component: "stackwidget"
+            });
         }
 
-        if((this.state.canvasVisible !== prevState.canvasVisible) && (this.canvasReference == undefined || this.canvasReference == null)) {
-            this.refs.layout.addTabWithDragAndDropIndirect("Add the 3D Viewer to the layout - Drag it.", {
-                "name": "3D Viewer",
-                "component": "canvas"
-            }, undefined);
+        if((this.state.canvasVisible !== prevState.canvasVisible) && (this.state.canvasVisible === true)) {
+            //this.canvasReference == undefined || this.canvasReference == null
+            this.reopenUIComponent({
+                type: "tab",
+                name: "3D Viewer",
+                component: "canvas"
+            });
+            this.setState({canvasAvailable: true});
+        }
+
+        if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined || this.canvasReference !== null)) {
+            this.stackWidgetReference.updateCanvasRef(this.canvasReference);
+            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
+            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+            this.canvasReference.flipCameraY();
+            this.canvasReference.flipCameraZ();
+            this.canvasReference.setWireframe(false);
+            this.canvasReference.displayAllInstances();
+            this.canvasReference.engine.controls.rotateSpeed = 3;
+            this.canvasReference.engine.setLinesThreshold(0);
+            for(var i=0; i < Instances.length; i++) {
+                if((Instances[i].id !== "time")) {
+                    this.addVfbId(Instances[i].id);
+                }
+            }
         }
 
         if(this.stackWidgetReference != undefined || this.stackWidgetReference != null) {
@@ -822,7 +877,9 @@ export default class VFBMain extends React.Component {
         }.bind(this);
 
         window.setTermInfo = function(meta, id) {
-            this.termInfoReference.setTermInfo(meta, id);
+            if(this.termInfoReference !== undefined) {
+                this.termInfoReference.setTermInfo(meta, id);
+            }
         }.bind(this);
 
         window.fetchVariableThenRun = function(idsList, cb, label) {
@@ -951,7 +1008,9 @@ export default class VFBMain extends React.Component {
                 if (latestSelection.getChildren().length > 0) {
                     // it's a wrapper object - if name is different from current selection set term info
                     if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-                        this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                        if(this.termInfoReference !== undefined) {
+                            this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
+                        }
                         this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
                         this.termInfoId = latestSelection[latestSelection.getId() + "_meta"].getName();
                         // this.setState({termInfoName: latestSelection[latestSelection.getId() + "_meta"], termInfoId: latestSelection[latestSelection.getId() + "_meta"].getName()});
@@ -960,7 +1019,9 @@ export default class VFBMain extends React.Component {
                     // it's a leaf (no children) / grab parent if name is different from current selection set term info
                     var parent = latestSelection.getParent();
                     if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-                        this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
+                        if(this.termInfoReference !== undefined) {
+                            this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
+                        }
                         this.termInfoName = parent[parent.getId() + "_meta"];
                         this.termInfoId = parent[parent.getId() + "_meta"].getName();
                         // this.setState({termInfoName: parent[parent.getId() + "_meta"], termInfoId: parent[parent.getId() + "_meta"].getName()});
@@ -1007,7 +1068,9 @@ export default class VFBMain extends React.Component {
                 }
                 return historyList;
             case 'triggerSetTermInfo':
-                this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
+                if(this.termInfoReference !== undefined) {
+                    this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
+                }
                 break;
             default:
                 console.log("Menu action not mapped, it is " + click);
@@ -1078,11 +1141,23 @@ export default class VFBMain extends React.Component {
         if (component === "text") {
             return (<div className="">Panel {node.getName()}</div>);
         } else if (component === "canvas") {
+            node.setEventListener("close", () => {
+                this.setState({
+                    canvasVisible: false,
+                    canvasAvailable: false
+                });
+            });
             return (<Canvas
                 id="CanvasContainer"
                 name={"Canvas"}
+                baseZoom="1.2"
                 ref={ref => this.canvasReference = ref} />)
         } else if (component === "terminfo") {
+            node.setEventListener("close", () => {
+                this.setState({
+                    termInfoVisible: false
+                });
+            });
             return (<div className="flexChildContainer">
             <VFBTermInfoWidget
                 termInfoHandler={this.termInfoHandler}
@@ -1101,6 +1176,11 @@ export default class VFBMain extends React.Component {
                         'Aligned To',
                         'Download']} /></div>)
         } else if (component === "stackwidget") {
+            node.setEventListener("close", () => {
+                this.setState({
+                    stackViewerVisible: false
+                });
+            });
             let _height = node.getRect().height;
             let _width = node.getRect().width;
             if(_height > 0 || _width > 0) {
@@ -1130,7 +1210,9 @@ export default class VFBMain extends React.Component {
                 return (
                     <div className="historyItemList" key={index} onClick={() => {
                         this.setState({ historyModalOpen: !this.state.historyModalOpen});
-                        this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
+                        if(this.termInfoReference !== undefined) {
+                            this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
+                        }
                     }}>
                         {item.label}
                     </div>
