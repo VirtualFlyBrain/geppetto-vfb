@@ -781,7 +781,14 @@ export default class VFBMain extends React.Component {
 
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
-        	Project.loadFromURL('http://v2.virtualflybrain.org/conf/vfb.json');
+            if (location.host.indexOf('localhost:8081') < 0){
+                Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+            }
+            else
+            {
+                // Local deployment for development.
+                Project.loadFromURL(window.location.origin.replace(":8081", ":8989").replace('https:','http:') + '/' + 'vfb.json');
+            }
             this.setState({modelLoaded: true});
         }
 
@@ -1219,9 +1226,7 @@ export default class VFBMain extends React.Component {
                 maxHeight={window.innerHeight - 100} minHeight={100}
                 maxWidth={window.innerWidth - 100} minWidth={100}
                 ref={d => { this.rnd2 = d; }} >
-        		<div>
-					<i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'></i>
-				</div>
+        		<div><i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'/></div>
                 <div ref={this.htmlToolbarRef}>
                     <HTMLViewer
                         id="HTMLViewerContainer"
