@@ -174,12 +174,15 @@ nav {
     padding: 20px;
 }
 
-#vfb-content-text{
-    height: 89%;
-    overflow-y: auto;
-    color: whitesmoke;
-    padding:20px;
+#vfb-content-text::-webkit-scrollbar{
+    width: -1px;
+    background:lightgrey; 
 }
+
+#vfb-content-text::-webkit-scrollbar-thumb {
+    background:grey; 
+}
+
 #vfb-content-text h2{
     margin: 0 0 15px 0;
     font-family: 'Khand', sans-serif;
@@ -210,7 +213,7 @@ nav {
     background: rgba(100, 100, 100, 0.80);
     position: absolute;
     width: 100%;
-    z-index: 2000;
+    z-index: 2000  !important;
     height: 100%;
 }
 
@@ -233,6 +236,7 @@ nav {
     font-size: 18px;
     cursor: pointer;
     background: transparent;
+    z-index : 9999 !important;
 }
 
 .close-slider:hover{
