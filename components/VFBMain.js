@@ -1222,12 +1222,11 @@ export default class VFBMain extends React.Component {
                 default={{ x: 50, y: 50,
                         height: window.innerHeight - 100,
                         width: window.innerWidth - 100}}
-                className="htmlViewerVFB"
                 disableDragging={true}
                 maxHeight={window.innerHeight - 100} minHeight={100}
                 maxWidth={window.innerWidth - 100} minWidth={100}
                 ref={d => { this.rnd2 = d; }} >
-                <div onClick={this.closeHtmlViewer} className="closeHTMLViewer fa fa-times"></div>
+        		<div><i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'/></div>
                 <div ref={this.htmlToolbarRef}>
                     <HTMLViewer
                         id="HTMLViewerContainer"
