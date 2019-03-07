@@ -1302,7 +1302,7 @@ export default class VFBMain extends React.Component {
                 }}
                 default={{ x: 50, y: 50,
                         height: window.innerHeight - 100,
-                        width: window.innerWidth - 100}}
+                        width: window.innerWidth - 100}}className="htmlViewerVFB"
                 disableDragging={true}
                 maxHeight={window.innerHeight - 100} minHeight={100}
                 maxWidth={window.innerWidth - 100} minWidth={100}
@@ -1310,12 +1310,12 @@ export default class VFBMain extends React.Component {
         		<div><i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'/></div>
                 <div ref={this.htmlToolbarRef}>
                     <HTMLViewer
-                        id="HTMLViewerContainer"
+                        id="ButtonBarComponentViewerContainer"
                         name={"HTMLViewer"}
                         componentType={'HTMLViewer'}
                         content={this.state.htmlFromToolbar}
-                        style={{ width: window.innerWidth - 150,
-                                height: window.innerHeight - 150,
+                        style={{ width: '100%',
+                                height: '100%',
                                 float: 'center' }}
                         ref="htmlViewer" />
                 </div>
