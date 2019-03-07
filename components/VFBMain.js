@@ -288,7 +288,7 @@ export default class VFBMain extends React.Component {
                         icon: "fa-file-image-o",
                         buttons: {
                             buttonOne: {
-                                actions: ["window.addVfbId('$ID$');"],
+                                actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
                                 icon: "fa-file-image-o",
                                 label: "Add to scene",
                                 tooltip: "Add to scene"
@@ -791,7 +791,6 @@ export default class VFBMain extends React.Component {
             this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
             this.canvasReference.flipCameraY();
             this.canvasReference.flipCameraZ();
-            this.canvasReference.setWireframe(false);
             this.canvasReference.displayAllInstances();
             this.canvasReference.engine.controls.rotateSpeed = 3;
             this.canvasReference.engine.setLinesThreshold(0);
