@@ -319,7 +319,7 @@ export default class VFBMain extends React.Component {
         this.idForTermInfo = undefined;
         this.model = FlexLayout.Model.fromJson(json)
 
-        window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
+        window.redirectURL = '$PROTOCOL$//$HOST$/'+GEPPETTO_CONFIGURATION.contextPath+'/geppetto?i=$TEMPLATE$,$VFB_ID$,$VFB_ID$';
         window.customAction = [];
     }
 
@@ -1090,6 +1090,7 @@ export default class VFBMain extends React.Component {
                 showButtonBar={true}
                 termInfoName={this.termInfoName}
                 termInfoId={this.termInfoId}
+                resolve3D = {this.resolve3D}
                 order={['Name',
                         'Alternative Names',
                         'Query For',

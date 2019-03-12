@@ -202,7 +202,6 @@ class VFBTermInfo extends React.Component {
         this.hookupCustomHandler(this.innerHandler, $("#" + this.sliderId + idKey), undefined);
     }
 
-
     addToHistory(label, method, args, id) {
         if (window.historyWidgetCapability == undefined) {
             window.historyWidgetCapability = [];
@@ -333,10 +332,8 @@ class VFBTermInfo extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-        if(this.state.termInfoId !== this.innerHandler.id) {
-            this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
-            this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
-        }
+        this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
+		this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);           
         if(document.getElementById('bar-div-vfbterminfowidget') !== null) {
             $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
         }
@@ -627,7 +624,8 @@ export default class VFBTermInfoWidget extends React.Component {
                     var m = Instances.getInstance(meta);
                     this.refs.termInfoRef.setData(m);
                     this.refs.termInfoRef.setName(m.name);
-                    window.resolve3D(path);
+                    console.log("LOOK AT ME "+ this.props.termInfoName);
+                    this.props.resolve3D(path);
                 }.bind(this));
             }
         }
