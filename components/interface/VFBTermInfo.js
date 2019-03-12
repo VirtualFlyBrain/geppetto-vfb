@@ -624,7 +624,6 @@ export default class VFBTermInfoWidget extends React.Component {
                     var m = Instances.getInstance(meta);
                     this.refs.termInfoRef.setData(m);
                     this.refs.termInfoRef.setName(m.name);
-                    console.log("LOOK AT ME "+ this.props.termInfoName);
                     this.props.resolve3D(path);
                 }.bind(this));
             }
