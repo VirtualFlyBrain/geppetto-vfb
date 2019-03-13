@@ -108,7 +108,7 @@ var menuConfiguration = {
 					icon: "",
 					action: {
 						handlerAction: "UIElementHandler",
-						parameters: ["stackViewerVisible"]
+						parameters: ["sliceViewerVisible"]
 					}
 				},
 				{

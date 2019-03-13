@@ -19,68 +19,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 
-var json = {
-    global: {
-        tabEnableClose: true,
-        sideBorders: 8
-    },
-    borders: [
-        {
-            "type": "border",
-            "location": "bottom",
-            "size": 100,
-            "children": [],
-            "barSize": 35
-        }
-    ],
-    layout: {
-        "type": "row",
-        "weight": 100,
-        "children": [
-            {
-                "type": "row",
-                "weight": 55,
-                "selected": 0,
-                "children": [
-                    {
-                        "type": "tabset",
-                        "weight": 36,
-                        "children": [
-                            {
-                                "type": "tab",
-                                "name": "Slice Viewer",
-                                "component": "stackwidget"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "tabset",
-                        "weight": 64,
-                        "children": [
-                            {
-                                "type": "tab",
-                                "name": "3D Viewer",
-                                "component": "canvas"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "type": "tabset",
-                "weight": 45,
-                "selected": 0,
-                "children": [
-                    {
-                        "type": "tab",
-                        "name": "Info",
-                        "component": "terminfo"
-                    }
-                ]
-            },
-        ]
-    }
-};
+var modelJson = require('../components/configuration/layoutModel').modelJson;
 
 export default class VFBMain extends React.Component {
 
@@ -91,18 +30,19 @@ export default class VFBMain extends React.Component {
             canvasAvailable: false,
             modelLoaded: (window.Model != undefined),
             canvasVisible: true,
-            termInfoVisible: true, // All states handled by the button bar
-            stackViewerVisible: true,
+            termInfoVisible: true,
+            sliceViewerVisible: true,
             tutorialWidgetVisible: false,
             spotlightVisible: true,
             controlPanelVisible: true,
             wireframeVisible: false,
-            queryBuilderVisible: true, // END buttonbar states
+            queryBuilderVisible: true,
             idSelected: undefined,
             htmlFromToolbar: undefined,
             termInfoId: undefined,
             termInfoName: undefined,
-            historyModalOpen: false
+            historyModalOpen: false,
+            UIUpdated: false
         };
 
         this.clearQS = this.clearQS.bind(this);
@@ -110,17 +50,17 @@ export default class VFBMain extends React.Component {
         this.resolve3D = this.resolve3D.bind(this);
         this.setSepCol = this.setSepCol.bind(this);
         this.menuHandler = this.menuHandler.bind(this);
+        this.UIDidUpdate = this.UIDidUpdate.bind(this);
         this.customSorter = this.customSorter.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
         this.tutorialHandler = this.tutorialHandler.bind(this)
-        this.termInfoHandler = this.termInfoHandler.bind(this);
         this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
+        this.UIUpdateManager = this.UIUpdateManager.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
-        this.buttonBarHandler = this.buttonBarHandler.bind(this);
         this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
         this.reopenUIComponent = this.reopenUIComponent.bind(this);
+        this.restoreUIComponent = this.restoreUIComponent.bind(this);
         this.stackViewerRequest = this.stackViewerRequest.bind(this);
-        this.stackViewerHandler = this.stackViewerHandler.bind(this);
         this.addToQueryCallback = this.addToQueryCallback.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
         this.fetchVariableThenRun = this.fetchVariableThenRun.bind(this);
@@ -136,13 +76,11 @@ export default class VFBMain extends React.Component {
         this.coli = 1;
         this.vfbLoadBuffer = [];
         this.tutorialRender = undefined;
-        this.termInfoRender = undefined;
         this.htmlToolbarRender = undefined;
         this.urlIdsLoaded = false;
-        this.idInitialized = false;
         this.canvasReference = undefined;
         this.termInfoReference = undefined;
-        this.stackWidgetReference = undefined;
+        this.sliceViewerReference = undefined;
         this.termInfoId = undefined;
         this.termInfoName = undefined;
         this.termInfoHistory = undefined;
@@ -182,144 +120,12 @@ export default class VFBMain extends React.Component {
         this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
         this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
 
-        this.queryBuilderDatasourceConfig = {
-            VFB: {
-                url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E100.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
-                crossDomain: true,
-                id: "short_form",
-                label: { field: "label", formatting: "$VALUE$" },
-                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
-                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
-                type: {
-                    class: {
-                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                        icon: "fa-dot-circle-o"
-                    },
-                    individual: {
-                        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
-                        icon: "fa-square-o"
-                    }
-                },
-                queryNameToken: '$NAME',
-                resultsFilters: {
-                    getItem: function (record, header, field) {
-                        var recordIndex = header.indexOf(field);
-                        return record[recordIndex]
-                    },
-                    getId: function (record) {
-                        return record[0]
-                    },
-                    getName: function (record) {
-                        return record[1]
-                    },
-                    getDescription: function (record) {
-                        return record[2]
-                    },
-                    getType: function (record) {
-                        return record[3]
-                    },
-                    getImageData: function (record) {
-                        return record[4]
-                    },
-                    getScore: function (record) {
-                        return record[5]
-                    },
-                    getRecords: function (payload) {
-                        return payload.results.map(function (item) {
-                            return item.values
-                        })
-                    },
-                    getHeaders: function (payload) {
-                        return payload.header;
-                    }
-                },
-                bloodhoundConfig: {
-                    datumTokenizer: function (d) {
-                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                    }.bind(this),
-                    queryTokenizer: function (q) {
-                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                    }.bind(this),
-                    sorter: function (a, b) {
-                        var term = $("#query-typeahead").val();
-                        return this.customSorter(a, b, term);
-                    }.bind(this)
-                }
-            }
-        };
+        this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
 
-        this.spotlightDataSourceConfig = {
-            VFB: {
-                url: "http://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&rows=250&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E110.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=*$SEARCH_TERM$*%20OR%20$SEARCH_TERM$&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", crossDomain: true,
-                crossDomain: true,
-                id: "short_form",
-                label: { field: "label", formatting: "$VALUE$" },
-                explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
-                explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
-                type: {
-                    property: {
-                        icon: "fa-file-text-o",
-                        buttons: {
-                            buttonOne: {
-                                actions: ["window.addVfbId('$ID$');"],
-                                icon: "fa-info-circle",
-                                label: "Show info",
-                                tooltip: "Show info"
-                            }
-                        }
-                    },
-                    class: {
-                        icon: "fa-file-text-o",
-                        buttons: {
-                            buttonOne: {
-                                actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
-                                icon: "fa-info-circle",
-                                label: "Show info",
-                                tooltip: "Show info"
-                            },
-                            buttonTwo: {
-                                actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                icon: "fa-quora",
-                                label: "Add to query",
-                                tooltip: "Add to query"
-                            }
-                        }
-                    },
-                    individual: {
-                        icon: "fa-file-image-o",
-                        buttons: {
-                            buttonOne: {
-                                actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
-                                icon: "fa-file-image-o",
-                                label: "Add to scene",
-                                tooltip: "Add to scene"
-                            },
-                            buttonTwo: {
-                                actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-                                icon: "fa-quora",
-                                label: "Add to query",
-                                tooltip: "Add to query"
-                            }
-                        }
-                    }
-                },
-                bloodhoundConfig: {
-                    datumTokenizer: function (d) {
-                        return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
-                    }.bind(this),
-                    queryTokenizer: function (q) {
-                        return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
-                    }.bind(this),
-                    sorter: function (a, b) {
-                        var term = $('#typeahead').val();
-                        return this.customSorter(a, b, term);
-                    }.bind(this)
-                }
-            }
-        };
+        this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
 
         this.idForTermInfo = undefined;
-        this.model = FlexLayout.Model.fromJson(json)
+        this.model = FlexLayout.Model.fromJson(modelJson)
 
         window.redirectURL = '$PROTOCOL$//$HOST$/?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
         window.customAction = [];
@@ -451,7 +257,7 @@ export default class VFBMain extends React.Component {
         {
             this.refs.querybuilderRef.close();
         }
-        this.stackWidgetReference.checkConnection();
+        this.sliceViewerReference.checkConnection();
     };
 
     addToQueryCallback(variableId, label) {
@@ -729,91 +535,77 @@ export default class VFBMain extends React.Component {
         }
     }
 
-    reopenUIComponent(json) {
-        let idChild = 0;
-        let rightChild = 0;
-        let tempModel = this.model;
-        let rootNode = tempModel.getRoot();
-        let modelChildren = tempModel.getRoot().getChildren();
-        //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
-        if (modelChildren.length <= 1) {
-            let tabSet: TabSetNode | undefined;
-            tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
-            rootNode._addChild(tabSet);
-            this.model.doAction(FlexLayout.Actions.addNode(json, tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
-        } else {
-            for (var i = 0; i <= (modelChildren.length - 1); i++) {
-                if (modelChildren[i].getRect().getRight() > rightChild) {
-                    rightChild = modelChildren[i].getRect().getRight();
-                    idChild = i;
-                }
-            }
-            let toNode = modelChildren[idChild];
-            if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
-                this.model.doAction(FlexLayout.Actions.addNode(json, toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
-            }
-        }
-    }
-
-    restoreUIComponent(componentName) {
-        let idChild = 0;
-        let rightChild = 0;
-        let tempModel = this.model;
-        let rootNode = tempModel.getRoot();
-        let modelChildren = tempModel.getRoot().getChildren();
-        //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
-        if (modelChildren.length <= 1) {
-            let tabSet: TabSetNode | undefined;
-            tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
-            rootNode._addChild(tabSet);
-            let borders = tempModel.getBorderSet().getBorders();
-            for(var i=0; i < borders.length; i++) {
-                let borderChildren = borders[i].getChildren;
-                for(var j=0; j < borderChildren.length; j++) {
-                    if(borderChildren[j].getComponent() === componentName) {
-                        this.model.doAction(FlexLayout.Actions.moveNode(borderChildren[j].getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
-                        return;
-                    }
-                }
-            }
-        } else {
-            for (var i = 0; i <= (modelChildren.length - 1); i++) {
-                if (modelChildren[i].getRect().getRight() > rightChild) {
-                    rightChild = modelChildren[i].getRect().getRight();
-                    idChild = i;
-                }
-            }
-            let toNode = modelChildren[idChild];
-            let borders = tempModel.getBorderSet().getBorders();
-            for(var i=0; i < borders.length; i++) {
-                let borderChildren = borders[i].getChildren;
-                for(var j=0; j < borderChildren.length; j++) {
-                    if(borderChildren[j].getComponent() === componentName) {
-                        if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
-                            this.model.doAction(FlexLayout.Actions.addNode(borderChildren[j].getId(), toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
-                        }
-                        return;
-                    }
-                }
-            }
-            
-        }
-    }
-
     // Children handlers
-    buttonBarHandler(buttonState) {
+    UIUpdateManager(buttonState) {
         var tempState = this.state[buttonState];
-        this.setState({
-            [buttonState] : !tempState
-        });
+        switch (buttonState) {
+            case 'termInfoVisible':
+                if (this.state[buttonState] === false) {
+                    this.setState({
+                        [buttonState]: !tempState
+                    });
+                } else if (this.UIElementsVisibility["termInfo"] === false) {
+                    this.setState({
+                        UIUpdated: buttonState
+                    });
+                }
+                break;
+            case 'canvasVisible':
+                if (this.state[buttonState] === false) {
+                    this.setState({
+                        [buttonState]: !tempState
+                    });
+                } else if (this.UIElementsVisibility["canvas"] === false) {
+                    this.setState({
+                        UIUpdated: buttonState
+                    });
+                }
+                break;
+            case 'sliceViewerVisible':
+                if (this.state[buttonState] === false) {
+                    this.setState({
+                        [buttonState]: !tempState
+                    });
+                } else if (this.UIElementsVisibility["sliceViewer"] === false) {
+                    this.setState({
+                        UIUpdated: buttonState
+                    });
+                }
+                break;
+            case 'spotlightVisible':
+                this.setState({
+                    [buttonState]: !tempState
+                });
+                break;
+            case 'queryBuilderVisible':
+                this.setState({
+                    [buttonState]: !tempState
+                });
+                break;
+            case 'controlPanelVisible':
+                this.setState({
+                    [buttonState]: !tempState
+                });
+                break;
+            case 'wireframeVisible':
+                this.setState({
+                    [buttonState]: !tempState
+                });
+                break;
+            case 'tutorialWidgetVisible':
+                this.setState({
+                    [buttonState]: !tempState
+                });
+                break;
+        }
     }
 
     menuHandler(click) {
         switch (click.handlerAction) {
             case 'UIElementHandler':
-                this.buttonBarHandler(click.parameters[0]);
+                this.UIUpdateManager(click.parameters[0]);
                 break;
-            case 'historyMenuInjector': { }
+            case 'historyMenuInjector':
                 var historyList = [];
                 for (var i = 0; window.historyWidgetCapability.vfbterminfowidget.length > i; i++) {
                     historyList.push(
@@ -846,22 +638,6 @@ export default class VFBMain extends React.Component {
             });
         }
     }
-
-    termInfoHandler() {
-        if(this.state.termInfoVisible == true) {
-            this.setState({
-                termInfoVisible: false
-            });
-        }
-    };
-
-    stackViewerHandler(childrenState) {
-        if(childrenState !== undefined) {
-            this.setState({ stackViewerVisible: childrenState });
-        } else {
-            this.setState({ stackViewerVisible: !(this.state.stackViewerVisible) });
-        }
-    };
 
     stackViewerRequest(variableId) {
         this.addVfbId([variableId]);
@@ -897,7 +673,170 @@ export default class VFBMain extends React.Component {
         this.setState({htmlFromToolbar: undefined});
     }
 
+    /* FLEXLayout custom methods used to reopen an element of the UI according to our logic 
+     * (2 columns and bottom-right corner) */
+    reopenUIComponent(json) {
+        let idChild = 0;
+        let rightChild = 0;
+        let tempModel = this.model;
+        let rootNode = tempModel.getRoot();
+        let modelChildren = tempModel.getRoot().getChildren();
+        //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
+        if (modelChildren.length <= 1) {
+            let tabSet: TabSetNode | undefined;
+            tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
+            rootNode._addChild(tabSet);
+            this.model.doAction(FlexLayout.Actions.addNode(json, tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+        } else {
+            for (var i = 0; i <= (modelChildren.length - 1); i++) {
+                if (modelChildren[i].getRect().getRight() > rightChild) {
+                    rightChild = modelChildren[i].getRect().getRight();
+                    idChild = i;
+                }
+            }
+            let toNode = modelChildren[idChild];
+            if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
+                this.model.doAction(FlexLayout.Actions.addNode(json, toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+            }
+        }
+    }
+
+    /* FLEXLayout custom methods used to restore a minimised element of the UI according to our logic 
+     * (2 columns and bottom-right corner) */
+    restoreUIComponent(componentName) {
+        let idChild = 0;
+        let rightChild = 0;
+        let tempModel = this.model;
+        let rootNode = tempModel.getRoot();
+        let modelChildren = tempModel.getRoot().getChildren();
+        //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
+        if (modelChildren.length <= 1) {
+            let tabSet: TabSetNode | undefined;
+            tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
+            rootNode._addChild(tabSet);
+            var borders = tempModel.getBorderSet().getBorders();
+            for(var i=0; i < borders.length; i++) {
+                var borderChildren = borders[i].getChildren();
+                for(var j=0; j < borderChildren.length; j++) {
+                    if(borderChildren[j].getComponent() === componentName) {
+                        this.model.doAction(FlexLayout.Actions.moveNode(borderChildren[j].getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                        return;
+                    }
+                }
+            }
+        } else {
+            for (var i = 0; i <= (modelChildren.length - 1); i++) {
+                if (modelChildren[i].getRect().getRight() > rightChild) {
+                    rightChild = modelChildren[i].getRect().getRight();
+                    idChild = i;
+                }
+            }
+            var toNode = modelChildren[idChild];
+            var borders = tempModel.getBorderSet().getBorders();
+            for(var i=0; i < borders.length; i++) {
+                var borderChildren = borders[i].getChildren();
+                for(var j=0; j < borderChildren.length; j++) {
+                    if(borderChildren[j].getComponent() === componentName) {
+                        if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
+                            this.model.doAction(FlexLayout.Actions.moveNode(borderChildren[j].getId(), toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                        }
+                        return;
+                    }
+                }
+            }
+            
+        }
+    }
+
+    UIDidUpdate(prevState) {
+        if ((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
+            this.reopenUIComponent({
+                type: "tab",
+                name: "Info",
+                component: "termInfo"
+            });
+        }
+        if ((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true)) {
+            this.reopenUIComponent({
+                type: "tab",
+                name: "Slice Viewer",
+                component: "sliceViewer"
+            });
+        }
+        if ((this.state.canvasVisible !== prevState.canvasVisible) && (this.state.canvasVisible === true)) {
+            this.reopenUIComponent({
+                type: "tab",
+                name: "3D Viewer",
+                component: "canvas"
+            });
+            this.setState({ canvasAvailable: true });
+        }
+
+        if(this.sliceViewerReference != undefined || this.sliceViewerReference != null) {
+            this.sliceViewerReference.updateStackWidget();
+        }
+        if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
+            this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
+        }
+        if((prevState.wireframeVisible !== this.state.wireframeVisible)) {
+            this.canvasReference.setWireframe(!this.canvasReference.getWireframe());
+        }
+        if((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
+            this.refs.controlpanelRef.open();
+        }
+        if((prevState.spotlightVisible !== this.state.spotlightVisible)) {
+            this.refs.spotlightRef.open();
+        }
+        if((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
+            this.refs.querybuilderRef.open();
+        }
+        if ((this.state.UIUpdated !== prevState.UIUpdated) && (this.state.UIUpdated !== false)) {
+            switch (this.state.UIUpdated) {
+                case 'termInfoVisible':
+                    if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+                        this.restoreUIComponent("termInfo");
+                    }
+                    this.setState({UIUpdated: false});
+                    break;
+                case 'canvasVisible':
+                    if (this.canvasReference !== undefined && this.canvasReference !== null) {
+                        this.restoreUIComponent("canvas");
+                    }
+                    this.setState({UIUpdated: false});
+                    break;
+                case 'sliceViewerVisible':
+                    if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+                        this.restoreUIComponent("sliceViewer");
+                    }
+                    this.setState({UIUpdated: false});
+                    break;
+            }
+        }
+
+        if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
+            this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
+            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+            this.canvasReference.flipCameraY();
+            this.canvasReference.flipCameraZ();
+            this.canvasReference.displayAllInstances();
+            this.canvasReference.engine.controls.rotateSpeed = 3;
+            this.canvasReference.engine.setLinesThreshold(0);
+            for(var i=0; i < Instances.length; i++) {
+                if((Instances[i].id !== "time")) {
+                    this.addVfbId(Instances[i].id);
+                }
+            }
+        }
+    }
+
+    /* FLEXLayout factory method */
     factory(node) {
+        // This is an hard fix waiting for the slice viewer refactoring
+        if(this.sliceViewerReference != undefined || this.sliceViewerReference != null) {
+            this.sliceViewerReference.updateStackWidget();
+        }
+        
         var component = node.getComponent();
         if (component === "text") {
             return (<div className="">Panel {node.getName()}</div>);
@@ -909,23 +848,19 @@ export default class VFBMain extends React.Component {
                     canvasAvailable: false
                 });
             });
-            node.setEventListener("visibility", () => {
-                this.UIElementsVisibility[node.getComponent()] = node.isVisible();
-            });
+            this.UIElementsVisibility[component] = node.isVisible();
             return (<Canvas
                 id="CanvasContainer"
                 name={"Canvas"}
                 baseZoom="1.2"
                 ref={ref => this.canvasReference = ref} />)
-        } else if (component === "terminfo") {
+        } else if (component === "termInfo") {
             node.setEventListener("close", () => {
                 this.setState({
                     termInfoVisible: false
                 });
             });
-            node.setEventListener("visibility", () => {
-                this.UIElementsVisibility[node.getComponent()] = node.isVisible();
-            });
+            this.UIElementsVisibility[component] = node.isVisible();
             return (<div className="flexChildContainer">
             <VFBTermInfoWidget
                 termInfoHandler={this.termInfoHandler}
@@ -943,15 +878,13 @@ export default class VFBMain extends React.Component {
                         'References',
                         'Aligned To',
                         'Download']} /></div>)
-        } else if (component === "stackwidget") {
+        } else if (component === "sliceViewer") {
             node.setEventListener("close", () => {
                 this.setState({
-                    stackViewerVisible: false
+                    sliceViewerVisible: false
                 });
             });
-            node.setEventListener("visibility", () => {
-                this.UIElementsVisibility[node.getComponent()] = node.isVisible();
-            });
+            this.UIElementsVisibility[component] = node.isVisible();
             let _height = node.getRect().height;
             let _width = node.getRect().width;
             if(_height > 0 || _width > 0) {
@@ -961,7 +894,7 @@ export default class VFBMain extends React.Component {
                 defHeight={_height}
                 defWidth={_width}
                 layout={this.refs.layout}
-                ref={ref => this.stackWidgetReference = ref}
+                ref={ref => this.sliceViewerReference = ref}
                 canvasRef={this.canvasReference}
                 stackViewerHandler={this.stackViewerHandler} /></div>);
             } else {
@@ -971,85 +904,11 @@ export default class VFBMain extends React.Component {
         }
     };
 
+    /* React functions */
     componentDidUpdate(prevProps, prevState) {
         document.addEventListener('mousedown', this.handleClickOutside);
 
-        if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
-            if(this.termInfoReference !== null && this.termInfoReference !== undefined) {
-                this.restoreUIComponent("terminfo");
-            } else {
-                this.reopenUIComponent({
-                    type: "tab",
-                    name: "Term Info",
-                    component: "terminfo"
-                });
-            }
-        }
-
-        if((this.state.stackViewerVisible !== prevState.stackViewerVisible) && (this.state.stackViewerVisible === true)) {
-            if(this.stackWidgetReference !== null && this.stackWidgetReference !== undefined) {
-                this.restoreUIComponent("stackwidget");
-            } else {
-                this.reopenUIComponent({
-                    type: "tab",
-                    name: "Stack Viewer",
-                    component: "stackwidget"
-                });
-            }
-        }
-
-        if((this.state.canvasVisible !== prevState.canvasVisible) && (this.state.canvasVisible === true)) {
-            if(this.canvasReference !== null && this.canvasReference !== undefined) {
-                this.restoreUIComponent("canvas");
-            } else {
-                this.reopenUIComponent({
-                    type: "tab",
-                    name: "3D Viewer",
-                    component: "canvas"
-                });
-                this.setState({canvasAvailable: true});
-            }
-        }
-
-        if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
-            this.stackWidgetReference.updateCanvasRef(this.canvasReference);
-            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
-            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
-            this.canvasReference.flipCameraY();
-            this.canvasReference.flipCameraZ();
-            this.canvasReference.displayAllInstances();
-            this.canvasReference.engine.controls.rotateSpeed = 3;
-            this.canvasReference.engine.setLinesThreshold(0);
-            for(var i=0; i < Instances.length; i++) {
-                if((Instances[i].id !== "time")) {
-                    this.addVfbId(Instances[i].id);
-                }
-            }
-        }
-
-        if(this.stackWidgetReference != undefined || this.stackWidgetReference != null) {
-            this.stackWidgetReference.updateStackWidget();
-        }
-
-        if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
-            this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
-        }
-
-        if((prevState.wireframeVisible !== this.state.wireframeVisible)) {
-            this.canvasReference.setWireframe(!this.canvasReference.getWireframe());
-        }
-
-        if((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-            this.refs.controlpanelRef.open();
-        }
-
-        if((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-            this.refs.spotlightRef.open();
-        }
-
-        if((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
-            this.refs.querybuilderRef.open();
-        }
+        this.UIDidUpdate(prevState);
 
         /**Important, needed to let know the Three.js control's library the real size of
          * the canvas right after if finished rendering.Otherwise it thinks its width and 
@@ -1254,7 +1113,7 @@ export default class VFBMain extends React.Component {
                 }
             }
             if (window.StackViewer1 != undefined) {
-                this.stackWidgetReference.updateStackWidget();
+                this.sliceViewerReference.updateStackWidget();
             }
         }.bind(this));
 
@@ -1322,7 +1181,7 @@ export default class VFBMain extends React.Component {
         };
 
         var onRenderTab = function (node:(TabNode), renderValues:any) {
-            if(node.getType() === "tab" && node.getComponent() == "terminfo") {
+            if(node.getType() === "tab" && node.getComponent() == "termInfo") {
                 renderValues.buttons.push(<div key={key} id="historyTrigger"
                     className="fa fa-history customIconTab" onMouseDown={toggleModal.bind(this)} />);
                 key++;
