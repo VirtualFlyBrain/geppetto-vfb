@@ -48,7 +48,7 @@ var json = {
                         "children": [
                             {
                                 "type": "tab",
-                                "name": "Stack Viewer",
+                                "name": "Slice Viewer",
                                 "component": "stackwidget"
                             }
                         ]
@@ -59,7 +59,7 @@ var json = {
                         "children": [
                             {
                                 "type": "tab",
-                                "name": "Canvas",
+                                "name": "3D Viewer",
                                 "component": "canvas"
                             }
                         ]
@@ -73,7 +73,7 @@ var json = {
                 "children": [
                     {
                         "type": "tab",
-                        "name": "Term Info",
+                        "name": "Info",
                         "component": "terminfo"
                     }
                 ]
@@ -132,7 +132,6 @@ export default class VFBMain extends React.Component {
 
         this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
         this.setWrapperRef = this.setWrapperRef.bind(this);
-        //this.toggleModal = this.toggleModal.bind(this);
 
         this.coli = 1;
         this.vfbLoadBuffer = [];
@@ -149,6 +148,8 @@ export default class VFBMain extends React.Component {
         this.termInfoHistory = undefined;
         this.modalX = undefined;
         this.modalY = undefined;
+
+        this.UIElementsVisibility = {};
 
         this.stackConfiguration = {
             serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
@@ -730,62 +731,287 @@ export default class VFBMain extends React.Component {
 
     reopenUIComponent(json) {
         let idChild = 0;
-            let rightChild = 0;
-            let tempModel = this.model;
-            var rootNode = tempModel.getRoot();
-            var modelChildren = tempModel.getRoot().getChildren();
-            //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
-            if (modelChildren.length <= 1) {
-                let tabSet: TabSetNode | undefined;
-                tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset" });
-                rootNode._addChild(tabSet);
-                this.model.doAction(FlexLayout.Actions.addNode(json, tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
-                //tabSet.drop(tabNode, DockLocation.BOTTOM, 0);
-            } else {
-                for (var i = 0; i <= (modelChildren.length - 1); i++) {
-                    if (modelChildren[i].getRect().getRight() > rightChild) {
-                        rightChild = modelChildren[i].getRect().getRight();
-                        idChild = i;
-                    }
-                }
-                let toNode = modelChildren[idChild];
-                if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
-                    this.model.doAction(FlexLayout.Actions.addNode(json, toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
-                    //toNode.drop(tabNode, DockLocation.BOTTOM, 0);
+        let rightChild = 0;
+        let tempModel = this.model;
+        let rootNode = tempModel.getRoot();
+        let modelChildren = tempModel.getRoot().getChildren();
+        //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
+        if (modelChildren.length <= 1) {
+            let tabSet: TabSetNode | undefined;
+            tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
+            rootNode._addChild(tabSet);
+            this.model.doAction(FlexLayout.Actions.addNode(json, tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+        } else {
+            for (var i = 0; i <= (modelChildren.length - 1); i++) {
+                if (modelChildren[i].getRect().getRight() > rightChild) {
+                    rightChild = modelChildren[i].getRect().getRight();
+                    idChild = i;
                 }
             }
+            let toNode = modelChildren[idChild];
+            if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
+                this.model.doAction(FlexLayout.Actions.addNode(json, toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+            }
+        }
     }
+
+    restoreUIComponent(componentName) {
+        let idChild = 0;
+        let rightChild = 0;
+        let tempModel = this.model;
+        let rootNode = tempModel.getRoot();
+        let modelChildren = tempModel.getRoot().getChildren();
+        //const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
+        if (modelChildren.length <= 1) {
+            let tabSet: TabSetNode | undefined;
+            tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
+            rootNode._addChild(tabSet);
+            let borders = tempModel.getBorderSet().getBorders();
+            for(var i=0; i < borders.length; i++) {
+                let borderChildren = borders[i].getChildren;
+                for(var j=0; j < borderChildren.length; j++) {
+                    if(borderChildren[j].getComponent() === componentName) {
+                        this.model.doAction(FlexLayout.Actions.moveNode(borderChildren[j].getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                        return;
+                    }
+                }
+            }
+        } else {
+            for (var i = 0; i <= (modelChildren.length - 1); i++) {
+                if (modelChildren[i].getRect().getRight() > rightChild) {
+                    rightChild = modelChildren[i].getRect().getRight();
+                    idChild = i;
+                }
+            }
+            let toNode = modelChildren[idChild];
+            let borders = tempModel.getBorderSet().getBorders();
+            for(var i=0; i < borders.length; i++) {
+                let borderChildren = borders[i].getChildren;
+                for(var j=0; j < borderChildren.length; j++) {
+                    if(borderChildren[j].getComponent() === componentName) {
+                        if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
+                            this.model.doAction(FlexLayout.Actions.addNode(borderChildren[j].getId(), toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
+                        }
+                        return;
+                    }
+                }
+            }
+            
+        }
+    }
+
+    // Children handlers
+    buttonBarHandler(buttonState) {
+        var tempState = this.state[buttonState];
+        this.setState({
+            [buttonState] : !tempState
+        });
+    }
+
+    menuHandler(click) {
+        switch (click.handlerAction) {
+            case 'UIElementHandler':
+                this.buttonBarHandler(click.parameters[0]);
+                break;
+            case 'historyMenuInjector': { }
+                var historyList = [];
+                for (var i = 0; window.historyWidgetCapability.vfbterminfowidget.length > i; i++) {
+                    historyList.push(
+                        {
+                            label: window.historyWidgetCapability.vfbterminfowidget[i].label,
+                            icon: "",
+                            action: {
+                                handlerAction: "triggerSetTermInfo",
+                                value: window.historyWidgetCapability.vfbterminfowidget[i].arguments
+                            }
+                        },
+                    );
+                }
+                return historyList;
+            case 'triggerSetTermInfo':
+                if(this.termInfoReference !== undefined) {
+                    this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
+                }
+                break;
+            default:
+                console.log("Menu action not mapped, it is " + click);
+        }
+        console.log("I clicked in the new menu " + click);
+    }
+
+    tutorialHandler() {
+        if(this.state.tutorialWidgetVisible == true) {
+            this.setState({
+                tutorialWidgetVisible: false
+            });
+        }
+    }
+
+    termInfoHandler() {
+        if(this.state.termInfoVisible == true) {
+            this.setState({
+                termInfoVisible: false
+            });
+        }
+    };
+
+    stackViewerHandler(childrenState) {
+        if(childrenState !== undefined) {
+            this.setState({ stackViewerVisible: childrenState });
+        } else {
+            this.setState({ stackViewerVisible: !(this.state.stackViewerVisible) });
+        }
+    };
+
+    stackViewerRequest(variableId) {
+        this.addVfbId([variableId]);
+    };
+
+    renderHTMLViewer(htmlChild) {
+        if(htmlChild !== undefined) {
+            this.setState({
+                htmlFromToolbar: htmlChild
+            });
+        }
+    };
+
+    htmlToolbarRef(node) {
+        this.toolBarRef = node;
+    }
+
+    setWrapperRef(node) {
+        this.historyRef = node;
+    }
+
+    handleClickOutside() {
+        if(this.toolBarRef && !this.toolBarRef.contains(event.target)) {
+            this.setState({htmlFromToolbar: undefined});
+        }
+
+        if (this.historyRef && !this.historyRef.contains(event.target) && !event.target.contains(document.getElementById("historyTrigger"))) {
+            this.setState({ historyModalOpen: !this.state.historyModalOpen });
+        }
+    };
+
+    closeHtmlViewer() {
+        this.setState({htmlFromToolbar: undefined});
+    }
+
+    factory(node) {
+        var component = node.getComponent();
+        if (component === "text") {
+            return (<div className="">Panel {node.getName()}</div>);
+        } else if (component === "canvas") {
+            this.UIElementsVisibility;
+            node.setEventListener("close", () => {
+                this.setState({
+                    canvasVisible: false,
+                    canvasAvailable: false
+                });
+            });
+            node.setEventListener("visibility", () => {
+                this.UIElementsVisibility[node.getComponent()] = node.isVisible();
+            });
+            return (<Canvas
+                id="CanvasContainer"
+                name={"Canvas"}
+                baseZoom="1.2"
+                ref={ref => this.canvasReference = ref} />)
+        } else if (component === "terminfo") {
+            node.setEventListener("close", () => {
+                this.setState({
+                    termInfoVisible: false
+                });
+            });
+            node.setEventListener("visibility", () => {
+                this.UIElementsVisibility[node.getComponent()] = node.isVisible();
+            });
+            return (<div className="flexChildContainer">
+            <VFBTermInfoWidget
+                termInfoHandler={this.termInfoHandler}
+                ref={ref => this.termInfoReference = ref}
+                showButtonBar={true}
+                termInfoName={this.termInfoName}
+                termInfoId={this.termInfoId}
+                order={['Name',
+                        'Alternative Names',
+                        'Query For',
+                        'Depicts',
+                        'Thumbnail',
+                        'Relationship',
+                        'Description',
+                        'References',
+                        'Aligned To',
+                        'Download']} /></div>)
+        } else if (component === "stackwidget") {
+            node.setEventListener("close", () => {
+                this.setState({
+                    stackViewerVisible: false
+                });
+            });
+            node.setEventListener("visibility", () => {
+                this.UIElementsVisibility[node.getComponent()] = node.isVisible();
+            });
+            let _height = node.getRect().height;
+            let _width = node.getRect().width;
+            if(_height > 0 || _width > 0) {
+                return (<div className="flexChildContainer">
+            <StackViewer
+                id="NewStackViewer"
+                defHeight={_height}
+                defWidth={_width}
+                layout={this.refs.layout}
+                ref={ref => this.stackWidgetReference = ref}
+                canvasRef={this.canvasReference}
+                stackViewerHandler={this.stackViewerHandler} /></div>);
+            } else {
+                return (<div className="flexChildContainer"></div>);
+            }
+            
+        }
+    };
 
     componentDidUpdate(prevProps, prevState) {
         document.addEventListener('mousedown', this.handleClickOutside);
 
         if((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
-            this.reopenUIComponent({
-                type: "tab",
-                name: "Term Info",
-                component: "terminfo"
-            });
+            if(this.termInfoReference !== null && this.termInfoReference !== undefined) {
+                this.restoreUIComponent("terminfo");
+            } else {
+                this.reopenUIComponent({
+                    type: "tab",
+                    name: "Term Info",
+                    component: "terminfo"
+                });
+            }
         }
 
         if((this.state.stackViewerVisible !== prevState.stackViewerVisible) && (this.state.stackViewerVisible === true)) {
-            this.reopenUIComponent({
-                type: "tab",
-                name: "Stack Viewer",
-                component: "stackwidget"
-            });
+            if(this.stackWidgetReference !== null && this.stackWidgetReference !== undefined) {
+                this.restoreUIComponent("stackwidget");
+            } else {
+                this.reopenUIComponent({
+                    type: "tab",
+                    name: "Stack Viewer",
+                    component: "stackwidget"
+                });
+            }
         }
 
         if((this.state.canvasVisible !== prevState.canvasVisible) && (this.state.canvasVisible === true)) {
-            //this.canvasReference == undefined || this.canvasReference == null
-            this.reopenUIComponent({
-                type: "tab",
-                name: "3D Viewer",
-                component: "canvas"
-            });
-            this.setState({canvasAvailable: true});
+            if(this.canvasReference !== null && this.canvasReference !== undefined) {
+                this.restoreUIComponent("canvas");
+            } else {
+                this.reopenUIComponent({
+                    type: "tab",
+                    name: "3D Viewer",
+                    component: "canvas"
+                });
+                this.setState({canvasAvailable: true});
+            }
         }
 
-        if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined || this.canvasReference !== null)) {
+        if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
             this.stackWidgetReference.updateCanvasRef(this.canvasReference);
             this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
             this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
@@ -1038,167 +1264,6 @@ export default class VFBMain extends React.Component {
         });
     };
 
-    // Children handlers
-    buttonBarHandler(buttonState) {
-        var tempState = this.state[buttonState];
-        this.setState({
-            [buttonState] : !tempState
-        });
-    }
-
-    menuHandler(click) {
-        switch (click.handlerAction) {
-            case 'UIElementHandler':
-                this.buttonBarHandler(click.parameters[0]);
-                break;
-            case 'historyMenuInjector': { }
-                var historyList = [];
-                for (var i = 0; window.historyWidgetCapability.vfbterminfowidget.length > i; i++) {
-                    historyList.push(
-                        {
-                            label: window.historyWidgetCapability.vfbterminfowidget[i].label,
-                            icon: "",
-                            action: {
-                                handlerAction: "triggerSetTermInfo",
-                                value: window.historyWidgetCapability.vfbterminfowidget[i].arguments
-                            }
-                        },
-                    );
-                }
-                return historyList;
-            case 'triggerSetTermInfo':
-                if(this.termInfoReference !== undefined) {
-                    this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
-                }
-                break;
-            default:
-                console.log("Menu action not mapped, it is " + click);
-        }
-        console.log("I clicked in the new menu " + click);
-    }
-
-    tutorialHandler() {
-        if(this.state.tutorialWidgetVisible == true) {
-            this.setState({
-                tutorialWidgetVisible: false
-            });
-        }
-    }
-
-    termInfoHandler() {
-        if(this.state.termInfoVisible == true) {
-            this.setState({
-                termInfoVisible: false
-            });
-        }
-    };
-
-    stackViewerHandler(childrenState) {
-        if(childrenState !== undefined) {
-            this.setState({ stackViewerVisible: childrenState });
-        } else {
-            this.setState({ stackViewerVisible: !(this.state.stackViewerVisible) });
-        }
-    };
-
-    stackViewerRequest(variableId) {
-        this.addVfbId([variableId]);
-    };
-
-    renderHTMLViewer(htmlChild) {
-        if(htmlChild !== undefined) {
-            this.setState({
-                htmlFromToolbar: htmlChild
-            });
-        }
-    };
-
-    htmlToolbarRef(node) {
-        this.toolBarRef = node;
-    }
-
-    setWrapperRef(node) {
-        this.historyRef = node;
-    }
-
-    handleClickOutside() {
-        if(this.toolBarRef && !this.toolBarRef.contains(event.target)) {
-            this.setState({htmlFromToolbar: undefined});
-        }
-
-        if (this.historyRef && !this.historyRef.contains(event.target) && !event.target.contains(document.getElementById("historyTrigger"))) {
-            this.setState({ historyModalOpen: !this.state.historyModalOpen });
-        }
-    };
-
-    closeHtmlViewer() {
-        this.setState({htmlFromToolbar: undefined});
-    }
-
-    factory(node) {
-        var component = node.getComponent();
-        if (component === "text") {
-            return (<div className="">Panel {node.getName()}</div>);
-        } else if (component === "canvas") {
-            node.setEventListener("close", () => {
-                this.setState({
-                    canvasVisible: false,
-                    canvasAvailable: false
-                });
-            });
-            return (<Canvas
-                id="CanvasContainer"
-                name={"Canvas"}
-                baseZoom="1.2"
-                ref={ref => this.canvasReference = ref} />)
-        } else if (component === "terminfo") {
-            node.setEventListener("close", () => {
-                this.setState({
-                    termInfoVisible: false
-                });
-            });
-            return (<div className="flexChildContainer">
-            <VFBTermInfoWidget
-                termInfoHandler={this.termInfoHandler}
-                ref={ref => this.termInfoReference = ref}
-                showButtonBar={true}
-                termInfoName={this.termInfoName}
-                termInfoId={this.termInfoId}
-                order={['Name',
-                        'Alternative Names',
-                        'Query For',
-                        'Depicts',
-                        'Thumbnail',
-                        'Relationship',
-                        'Description',
-                        'References',
-                        'Aligned To',
-                        'Download']} /></div>)
-        } else if (component === "stackwidget") {
-            node.setEventListener("close", () => {
-                this.setState({
-                    stackViewerVisible: false
-                });
-            });
-            let _height = node.getRect().height;
-            let _width = node.getRect().width;
-            if(_height > 0 || _width > 0) {
-                return (<div className="flexChildContainer">
-            <StackViewer
-                id="NewStackViewer"
-                defHeight={_height}
-                defWidth={_width}
-                layout={this.refs.layout}
-                ref={ref => this.stackWidgetReference = ref}
-                canvasRef={this.canvasReference}
-                stackViewerHandler={this.stackViewerHandler} /></div>);
-            } else {
-                return (<div className="flexChildContainer"></div>);
-            }
-            
-        }
-    };
-
     render() {
         if((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
             this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
@@ -1338,41 +1403,6 @@ export default class VFBMain extends React.Component {
                     onRenderTab={onRenderTab}
                     onRenderTabSet={onRenderTabSet}
                     clickOnBordersAction={clickOnBordersAction}/>
-
-                {/* <Modal
-                    id="modal_with_forms"
-                    isOpen={this.state.historyModalOpen}
-                    closeTimeoutMS={150}
-                    contentLabel="modalB"
-                    shouldCloseOnOverlayClick={true}
-                    onRequestClose={toggleModal.bind(this)}
-                    aria={{
-                        labelledby: "heading",
-                        describedby: "fulldescription"}}>
-                    <p> Test 1 2 3 </p>
-                </Modal> */}
-                 {/* <div className="containerForTabs">
-                    <Tabs customStyle={customStyle}>
-                        <TabList>
-                            <Tab closable={true}>Adult Brain</Tab>
-                            <Tab closable={true}>Other tab</Tab>
-                        </TabList>
-                        <PanelList>
-                            <Panel>
-                            <FlexLayout.Layout
-                                model={this.model}
-                                factory={this.factory.bind(this)}
-                                onRenderTabSet={onRenderTabSet}/>
-                            </Panel>
-                            <Panel>
-                                Officiis commodi facilis optio eum aliquam.<br />
-                                Tempore libero sit est architecto voluptate. Harum dolor modi
-                                deleniti animi qui similique facilis. Sit delectus voluptatem
-                                praesentium recusandae neque quo quod.
-                            </Panel>
-                        </PanelList>
-                    </Tabs>
-                </div> */}
 
                 <div id="spotlight" style={{top: 0}}>
                 <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig}
