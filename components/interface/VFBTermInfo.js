@@ -165,6 +165,7 @@ class VFBTermInfo extends React.Component {
                         slideToShow: 1,
                         slidesToScroll: 1,
                         lazyLoad: "progressive",
+                        afterChange: current => (this.hookupImages(current))
                     };
                     this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
                         <Slider {...settings}>
@@ -263,13 +264,16 @@ class VFBTermInfo extends React.Component {
                 if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
                     // hookup custom handler
                     var that = this;
-                    $(that).on(ev, function () {
-                        // invoke custom handler with instancepath as arg
-                        fun(node, path, popup);
+                    if(that.listenerHooked==undefined){
+                    	$(that).on(ev, function () {
+                    		// invoke custom handler with instancepath as arg
+                    		fun(node, path, popup);
 
-                        // stop default event handler of the anchor from doing anything
-                        return false;
-                    });
+                    		// stop default event handler of the anchor from doing anything
+                    		return false;
+                    	});
+                    	that.listenerHooked = true; //avoids adding the a listener to anchor element with one already
+                    }
                 }
             });
         }
@@ -333,7 +337,7 @@ class VFBTermInfo extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
         if(this.state.termInfoId !== this.innerHandler.id) {
-            this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.props.id};
+            this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false};
             this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
         }
         if(document.getElementById('bar-div-vfbterminfowidget') !== null) {

@@ -868,7 +868,6 @@ export default class VFBMain extends React.Component {
                 showButtonBar={true}
                 termInfoName={this.termInfoName}
                 termInfoId={this.termInfoId}
-            	resolve3D = {this.resolve3D}
                 order={['Name',
                         'Alternative Names',
                         'Query For',
