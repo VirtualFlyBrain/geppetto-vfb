@@ -165,7 +165,6 @@ class VFBTermInfo extends React.Component {
                         slideToShow: 1,
                         slidesToScroll: 1,
                         lazyLoad: "progressive",
-                        afterChange: current => (this.hookupImages(current))
                     };
                     this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
                         <Slider {...settings}>
@@ -334,7 +333,7 @@ class VFBTermInfo extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
         if(this.state.termInfoId !== this.innerHandler.id) {
-            this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId};
+            this.innerHandler = {funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.props.id};
             this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
         }
         if(document.getElementById('bar-div-vfbterminfowidget') !== null) {
