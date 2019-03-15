@@ -106,23 +106,17 @@ export default class VFBMain extends React.Component {
 
         this.colours = require('./configuration/colours.json');
         this.tutorialsList = require('./configuration/tutorialsList.json');
-
         this.buttonBarConfig = require('../components/configuration/buttonBarConfiguration').buttonBarConfig;
-
         this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
-
+        this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
         this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
         this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
         this.controlPanelControlConfigs = require('./configuration/controlPanelConfiguration').controlPanelControlConfigs;
         this.controlPanelColumns = require('./configuration/controlPanelConfiguration').controlPanelColumns;
-
         this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
         this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
         this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
-
         this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
-
-        this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
 
         this.idForTermInfo = undefined;
         this.model = FlexLayout.Model.fromJson(modelJson)
@@ -318,8 +312,6 @@ export default class VFBMain extends React.Component {
             console.log("model has not been loaded, in the old initialization here I was triggering a setTimeout to call recursively this same function addvfbid");
             //setTimeout(function () { this.addVfbId(idsList); }, 1000);
         }
-
-        
     };
 
     fetchVariableThenRun(variableId, callback, label) {
@@ -673,7 +665,7 @@ export default class VFBMain extends React.Component {
         this.setState({htmlFromToolbar: undefined});
     }
 
-    /* FLEXLayout custom methods used to reopen an element of the UI according to our logic 
+    /* FLEXLayout custom methods used to reopen an element of the UI according to our logic
      * (2 columns and bottom-right corner) */
     reopenUIComponent(json) {
         let idChild = 0;
@@ -701,7 +693,7 @@ export default class VFBMain extends React.Component {
         }
     }
 
-    /* FLEXLayout custom methods used to restore a minimised element of the UI according to our logic 
+    /* FLEXLayout custom methods used to restore a minimised element of the UI according to our logic
      * (2 columns and bottom-right corner) */
     restoreUIComponent(componentName) {
         let idChild = 0;
@@ -744,7 +736,6 @@ export default class VFBMain extends React.Component {
                     }
                 }
             }
-            
         }
     }
 
@@ -836,7 +827,7 @@ export default class VFBMain extends React.Component {
         if(this.sliceViewerReference != undefined || this.sliceViewerReference != null) {
             this.sliceViewerReference.updateStackWidget();
         }
-        
+
         var component = node.getComponent();
         if (component === "text") {
             return (<div className="">Panel {node.getName()}</div>);
@@ -900,18 +891,25 @@ export default class VFBMain extends React.Component {
             } else {
                 return (<div className="flexChildContainer"></div>);
             }
-            
         }
     };
 
     /* React functions */
+    shouldComponentUpdate(nextProps, nextState) {
+        if((nextState.UIUpdated === false) && (this.state.UIUpdated !== nextState.UIUpdated)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     componentDidUpdate(prevProps, prevState) {
         document.addEventListener('mousedown', this.handleClickOutside);
 
         this.UIDidUpdate(prevState);
 
         /**Important, needed to let know the Three.js control's library the real size of
-         * the canvas right after if finished rendering.Otherwise it thinks its width and 
+         * the canvas right after if finished rendering.Otherwise it thinks its width and
          * height 0 **/
         if(this.canvasReference !== undefined && this.canvasReference !== null) {
             this.canvasReference.engine.controls.handleResize();
