@@ -52,7 +52,7 @@ var modelJson = {
                 "children": [
                     {
                         "type": "tab",
-                        "name": "Info",
+                        "name": "Term Info",
                         "component": "termInfo"
                     }
                 ]

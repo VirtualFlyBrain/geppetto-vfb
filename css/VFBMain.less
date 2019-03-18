@@ -18,12 +18,25 @@
 		}
 	}
 
+.flexlayout__layout {
+	left: 0;
+	top: 30px;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	overflow:hidden;
+	border-top: 5px solid @background_color_body_0;
+	//border-left: 8px solid @background_color_body_0;
+	//border-right: 8px solid @background_color_body_0;
+}
+
+
 #mainContainer {
     background: #252323;
 }
 
 #geppettologo {
-	top: 8px;
+	top: 5px;
     left: 15px;
     height: 21px;
     font-size: 21px;
@@ -34,6 +47,16 @@
 
 #simple-popper {
 	z-index: 100;
+}
+
+.button-bar-btn {
+    border: none !important;
+    margin-right: 5px;
+    margin-left: 5px;
+    min-width: 25px;
+	min-height: 25px;
+	font-size: 14px;
+	margin-top: 2px;
 }
 
 .fa-spin {
@@ -76,7 +99,7 @@
 }
 
 .containerForTabs {
-    top: 35px;
+    top: 30px;
     height: 100%;
     width: 100%;
     position: absolute;

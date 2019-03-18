@@ -14,16 +14,6 @@ var buttonBarConfig = {
         "label": "",
         "tooltip": "Layers"
     },
-    "termInfoVisible": {
-        "icon": "fa fa-info",
-        "label": "",
-        "tooltip": "Show term info"
-    },
-    "stackViewerVisible": {
-        "icon": "gpt-stack",
-        "label": "",
-        "tooltip": "Show slice viewer"
-    },
     "wireframeVisible": {
         "condition": "false",
         "false": {
@@ -36,11 +26,6 @@ var buttonBarConfig = {
             "label": "",
             "tooltip": "Hide wireframe"
         }
-    },
-    "tutorialWidgetVisible": {
-        "icon": "fa fa-question",
-        "label": "",
-        "tooltip": "Open tutorial"
     }
 };
 

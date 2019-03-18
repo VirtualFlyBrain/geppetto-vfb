@@ -6,6 +6,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo';
 import Logo from '../../../js/components/interface/logo/Logo';
 import Canvas from '../../../js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '../../../js/components/interface/query/query';
+import ButtonBar from '../../../js/components/interface/buttonBar/ButtonBar';
 import SpotLight from '../../../js/components/interface/spotlight/spotlight';
 import HTMLViewer from '../../../js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from '../../../js/components/interface/controlPanel/controlpanel';
@@ -52,17 +53,18 @@ export default class VFBMain extends React.Component {
         this.menuHandler = this.menuHandler.bind(this);
         this.UIDidUpdate = this.UIDidUpdate.bind(this);
         this.customSorter = this.customSorter.bind(this);
+        this.UIUpdateItem = this.UIUpdateItem.bind(this);
         this.hasVisualType = this.hasVisualType.bind(this);
-        this.tutorialHandler = this.tutorialHandler.bind(this)
         this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
+        this.tutorialHandler = this.tutorialHandler.bind(this);
         this.UIUpdateManager = this.UIUpdateManager.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
         this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
         this.reopenUIComponent = this.reopenUIComponent.bind(this);
-        this.restoreUIComponent = this.restoreUIComponent.bind(this);
-        this.stackViewerRequest = this.stackViewerRequest.bind(this);
         this.addToQueryCallback = this.addToQueryCallback.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
+        this.restoreUIComponent = this.restoreUIComponent.bind(this);
+        this.stackViewerRequest = this.stackViewerRequest.bind(this);
         this.fetchVariableThenRun = this.fetchVariableThenRun.bind(this);
         this.getButtonBarDefaultX = this.getButtonBarDefaultX.bind(this);
         this.getButtonBarDefaultY = this.getButtonBarDefaultY.bind(this);
@@ -126,7 +128,8 @@ export default class VFBMain extends React.Component {
     }
 
     getButtonBarDefaultX() {
-        return (Math.ceil(window.innerWidth / 2) - 55);
+        //return (Math.ceil(window.innerWidth / 2) - 55);
+        return ((window.innerWidth) - 251);
     };
 
     getButtonBarDefaultY() {
@@ -527,67 +530,40 @@ export default class VFBMain extends React.Component {
         }
     }
 
+    UIUpdateItem(itemState, visibilityAnchor) {
+        if (this.state[itemState] === false) {
+            this.setState({ [itemState]: !this.state[itemState] });
+        } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
+            this.setState({ UIUpdated: itemState });
+        }
+    }
+
     // Children handlers
     UIUpdateManager(buttonState) {
-        var tempState = this.state[buttonState];
         switch (buttonState) {
             case 'termInfoVisible':
-                if (this.state[buttonState] === false) {
-                    this.setState({
-                        [buttonState]: !tempState
-                    });
-                } else if (this.UIElementsVisibility["termInfo"] === false) {
-                    this.setState({
-                        UIUpdated: buttonState
-                    });
-                }
+                this.UIUpdateItem(buttonState, "termInfo");
                 break;
             case 'canvasVisible':
-                if (this.state[buttonState] === false) {
-                    this.setState({
-                        [buttonState]: !tempState
-                    });
-                } else if (this.UIElementsVisibility["canvas"] === false) {
-                    this.setState({
-                        UIUpdated: buttonState
-                    });
-                }
+                this.UIUpdateItem(buttonState, "canvas");
                 break;
             case 'sliceViewerVisible':
-                if (this.state[buttonState] === false) {
-                    this.setState({
-                        [buttonState]: !tempState
-                    });
-                } else if (this.UIElementsVisibility["sliceViewer"] === false) {
-                    this.setState({
-                        UIUpdated: buttonState
-                    });
-                }
+                this.UIUpdateItem(buttonState, "sliceViewer");
                 break;
             case 'spotlightVisible':
-                this.setState({
-                    [buttonState]: !tempState
-                });
+                this.setState({ [buttonState]: !this.state[buttonState] });
                 break;
             case 'queryBuilderVisible':
-                this.setState({
-                    [buttonState]: !tempState
-                });
+                this.setState({ [buttonState]: !this.state[buttonState] });
                 break;
             case 'controlPanelVisible':
-                this.setState({
-                    [buttonState]: !tempState
-                });
+                this.setState({ [buttonState]: !this.state[buttonState] });
                 break;
             case 'wireframeVisible':
-                this.setState({
-                    [buttonState]: !tempState
-                });
+                this.setState({ [buttonState]: !this.state[buttonState] });
                 break;
             case 'tutorialWidgetVisible':
-                this.setState({
-                    [buttonState]: !tempState
-                });
+                this.setState({ [buttonState]: !this.state[buttonState] });
                 break;
         }
     }
@@ -620,7 +596,6 @@ export default class VFBMain extends React.Component {
             default:
                 console.log("Menu action not mapped, it is " + click);
         }
-        console.log("I clicked in the new menu " + click);
     }
 
     tutorialHandler() {
@@ -743,7 +718,7 @@ export default class VFBMain extends React.Component {
         if ((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
             this.reopenUIComponent({
                 type: "tab",
-                name: "Info",
+                name: "Term Info",
                 component: "termInfo"
             });
         }
@@ -1248,6 +1223,25 @@ export default class VFBMain extends React.Component {
                 <VFBToolBar 
                     htmlOutputHandler={this.renderHTMLViewer}
                     menuHandler={this.menuHandler}/>
+
+                <Rnd
+                    enableResizing={{
+                        top: false, right: false, bottom: false,
+                        left: false, topRight: false, bottomRight: false,
+                        bottomLeft: false, topLeft: false}}
+                    default={{
+                        x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
+                        height: 28, width: 340}}
+                    className="new-widget"
+                    disableDragging={true}
+                    maxHeight={35} minHeight={20}
+                    maxWidth={350} minWidth={150}
+                    ref="buttonBarRef" >
+                    <ButtonBar
+                        id="ButtonBarContainer"
+                        configuration={this.buttonBarConfig}
+                        buttonBarHandler={this.UIUpdateManager} />
+                </Rnd>
 
                 <Logo
                     logo='gpt-fly'

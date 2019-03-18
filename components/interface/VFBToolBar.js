@@ -29,6 +29,14 @@ var menuConfiguration = {
 					}
 				},
 				{
+					label: "Blog",
+					icon: "",
+					action: {
+						handlerAction: "openNewTab",
+						parameters: ["https://virtualflybrain.tumblr.com/"]
+					}
+				},
+				{
 					label: "Contribute",
 					icon: "",
 					action: {
@@ -45,7 +53,7 @@ var menuConfiguration = {
 					}
 				},
 				{
-					label: "Share",
+					label: "Social media",
 					icon: "",
 					position: "right-start",
 					action: {
@@ -82,13 +90,13 @@ var menuConfiguration = {
 			]
 		},
 		{
-			label: "Window",
+			label: "Tools",
 			icon: "",
 			action: "",
 			position: "bottom-start",
 			list: [
 				{
-					label: "Info",
+					label: "Term Info",
 					icon: "",
 					action: {
 						handlerAction: "UIElementHandler",
@@ -109,38 +117,6 @@ var menuConfiguration = {
 					action: {
 						handlerAction: "UIElementHandler",
 						parameters: ["sliceViewerVisible"]
-					}
-				},
-				{
-					label: "Search",
-					icon: "",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["spotlightVisible"]
-					}
-				},
-				{
-					label: "Query",
-					icon: "",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["queryBuilderVisible"]
-					}
-				},
-				{
-					label: "Layers",
-					icon: "",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["controlPanelVisible"]
-					}
-				},
-				{
-					label: "Wireframe",
-					icon: "",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["wireframeVisible"]
 					}
 				}
 			]
@@ -165,32 +141,32 @@ var menuConfiguration = {
 					label: "Adult Brain",
 					icon: "",
 					action: {
-						handlerAction: "redirectTo",
-						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+						handlerAction: "openNewTab",
+						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00017894"]
 					}
 				},
 				{
 					label: "Adult VNS",
 					icon: "",
 					action: {
-						handlerAction: "redirectTo",
-						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
+						handlerAction: "openNewTab",
+						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00100000"]
 					}
 				},
 				{
 					label: "Larva L1",
 					icon: "",
 					action: {
-						handlerAction: "redirectTo",
-						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00050000"]
+						handlerAction: "openNewTab",
+						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00050000"]
 					}
 				},
 				{
 					label: "Larva L3",
 					icon: "",
 					action: {
-						handlerAction: "redirectTo",
-						parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00049000"]
+						handlerAction: "openNewTab",
+						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00049000"]
 					}
 				}
 			]
@@ -214,7 +190,7 @@ var menuConfiguration = {
 					icon: "",
 					action: {
 						handlerAction: "openNewTab",
-						parameters: ["http://blog.virtualflybrain.org/rss"]
+						parameters: ["http://www.virtualflybrain.org/site/vfb_site/faq.htm"]
 					}
 				},
 				{
@@ -222,7 +198,7 @@ var menuConfiguration = {
 					icon: "",
 					action: {
 						handlerAction: "openNewTab",
-						parameters: ["http://blog.virtualflybrain.org/rss"]
+						parameters: ["https://groups.google.com/forum/#!forum/vfb-suport"]
 					}
 				},
 				{
@@ -230,7 +206,7 @@ var menuConfiguration = {
 					icon: "",
 					action: {
 						handlerAction: "openNewTab",
-						parameters: ["http://blog.virtualflybrain.org/rss"]
+						parameters: ["http://www.virtualflybrain.org/site/vfb_site/Feedback.htm"]
 					}
 				}
 			]
@@ -723,7 +699,7 @@ export default class VFBToolBar extends React.Component {
 				}}
 				default={{
 					x: 0, y: 0,
-					height: 35,
+					height: 30,
 					width: '100%'
 				}}
 				className="vfbToolBarClass"
@@ -747,13 +723,7 @@ export default class VFBToolBar extends React.Component {
 					</div>
 
 					<div className="rightSide">
-						<div className="wideDivR">
-							<a href="/org.geppetto.frontend/geppetto?i=VFB_00017894" target="VFBJFRC2">Adult Brain</a>&nbsp;&nbsp;
-							<a href="/org.geppetto.frontend/geppetto?i=VFB_00100000" target="VFBVNS">Adult VNS</a>&nbsp;&nbsp;
-							<a href="/org.geppetto.frontend/geppetto?i=VFB_00050000" target="VFBL1">Larva L1</a>&nbsp;&nbsp;
-							<a href="/org.geppetto.frontend/geppetto?i=VFB_00049000" target="VFBL3">Larva L3</a>&nbsp;&nbsp;
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						</div>
+						<div className="wideDivR"> </div>
 					</div>
 				</nav>
 			</Rnd>
