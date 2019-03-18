@@ -129,7 +129,7 @@ export default class VFBMain extends React.Component {
 
     getButtonBarDefaultX() {
         //return (Math.ceil(window.innerWidth / 2) - 55);
-        return ((window.innerWidth) - 251);
+        return ((window.innerWidth) - 237);
     };
 
     getButtonBarDefaultY() {
