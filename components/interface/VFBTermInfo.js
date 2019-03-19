@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
-import WidgetCapability from '../../../../js/components/widgets/WidgetCapability';
-import HTMLViewer from '../../../../js/components/interface/htmlViewer/HTMLViewer';
+import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');

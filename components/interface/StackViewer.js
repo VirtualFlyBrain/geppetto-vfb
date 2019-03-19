@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import StackViewerComponent from '../../../../js/components/widgets/stackViewer/StackViewerComponent';
+import StackViewerComponent from 'geppetto-client/js/components/widgets/stackViewer/StackViewerComponent';
 
 function arrayUnique(array) {
     var a = array.concat();

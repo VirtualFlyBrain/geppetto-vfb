@@ -1,5 +1,5 @@
 import React from 'react';
-import Menu from '../../../../js/components/interface/menu/Menu';
+import Menu from 'geppetto-client/js/components/interface/menu/Menu';
 
 require('../../css/VFBToolBar.less');
 var Rnd = require('react-rnd').default;
