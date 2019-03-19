@@ -229,8 +229,8 @@ var menuConfiguration = {
 					label: "Report an issue",
 					icon: "",
 					action: {
-						handlerAction: "openNewTab",
-						parameters: ["http://www.virtualflybrain.org/site/vfb_site/Feedback.htm"]
+						handlerAction: "clickFeedback",
+						parameters: []
 					}
 				}
 			]
