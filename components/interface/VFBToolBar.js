@@ -95,6 +95,30 @@ var menuConfiguration = {
 			action: "",
 			position: "bottom-start",
 			list: [
+				{	
+					label: "Search",	
+					icon: "",	
+					action: {	
+						handlerAction: "UIElementHandler",	
+						parameters: ["spotlightVisible"]	
+					}	
+				},	
+				{	
+					label: "Query",	
+					icon: "",	
+					action: {	
+						handlerAction: "UIElementHandler",	
+						parameters: ["queryBuilderVisible"]	
+					}	
+				},	
+				{	
+					label: "Layers",	
+					icon: "",	
+					action: {	
+						handlerAction: "UIElementHandler",	
+						parameters: ["controlPanelVisible"]	
+					}	
+				},
 				{
 					label: "Term Info",
 					icon: "",
@@ -118,7 +142,7 @@ var menuConfiguration = {
 						handlerAction: "UIElementHandler",
 						parameters: ["sliceViewerVisible"]
 					}
-				}
+				}				
 			]
 		},
 		{
