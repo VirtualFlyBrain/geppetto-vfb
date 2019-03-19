@@ -406,7 +406,7 @@ export default class VFBMain extends React.Component {
     };
 
     resolve3D(path, callback) {
-        var ImportType = require('./../../../js/geppettoModel/model/ImportType');
+        var ImportType = require('geppetto-client/js/geppettoModel/model/ImportType');
         var rootInstance = Instances.getInstance(path);
         GEPPETTO.SceneController.deselectAll();
 

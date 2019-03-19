@@ -7,13 +7,13 @@ import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLV
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
-var Type = require('../../../../js/geppettoModel/model/Type');
-var ButtonBarComponent = require('../../../../js/components/widgets/popup/ButtonBarComponent');
+var Type = require('geppetto-client/js/geppettoModel/model/Type');
+var ButtonBarComponent = require('geppetto-client/js/components/widgets/popup/ButtonBarComponent');
 
 require('../../css/VFBTermInfo.less');
-require('../../../../js/components/widgets/popup/Popup.less');
-require('../../../../js/components/widgets/popup/vendor/slick.less');
-require('../../../../js/components/widgets/popup/vendor/slick-theme.less');
+require('geppetto-client/js/components/widgets/popup/Popup.less');
+require('geppetto-client/js/components/widgets/popup/vendor/slick.less');
+require('geppetto-client/js/components/widgets/popup/vendor/slick-theme.less');
 
 
 class VFBTermInfo extends React.Component {
@@ -560,7 +560,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
 
     customHandler(node, path, widget) {
-        var Query = require('./../../../../js/geppettoModel/model/Query');
+        var Query = require('geppetto-client/js/geppettoModel/model/Query');
         var n = window[path];
         var otherId;
         var otherName;
