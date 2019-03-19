@@ -162,36 +162,66 @@ var menuConfiguration = {
 			position: "bottom-start",
 			list: [
 				{
-					label: "Adult Brain",
+					label: "Adult",
 					icon: "",
+					position: "right-start",
 					action: {
-						handlerAction: "openNewTab",
-						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00017894"]
-					}
+						handlerAction: "submenu",
+						parameters: ["undefinedAction"]
+					},
+					list: [
+						{
+							label: "Adult Brain (JFRC2)",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+							}
+						},
+						{
+							label: "Adult VNS",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00100000"]
+							}
+						},
+						{
+							label: "Ito Half Brain",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00030786"]
+							}
+						}
+					]
 				},
 				{
-					label: "Adult VNS",
+					label: "Larval",
 					icon: "",
+					position: "right-start",
 					action: {
-						handlerAction: "openNewTab",
-						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00100000"]
-					}
-				},
-				{
-					label: "Larva L1",
-					icon: "",
-					action: {
-						handlerAction: "openNewTab",
-						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00050000"]
-					}
-				},
-				{
-					label: "Larva L3",
-					icon: "",
-					action: {
-						handlerAction: "openNewTab",
-						parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00049000"]
-					}
+						handlerAction: "submenu",
+						parameters: ["undefinedAction"]
+					},
+					list: [
+						{
+							label: "L1 CNS (ssTEM)",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00050000"]
+							}
+						},
+						{
+							label: "L3 CNS (Wood2018)",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00049000"]
+							}
+						}
+					]
 				}
 			]
 		},
