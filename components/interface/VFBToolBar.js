@@ -29,14 +29,6 @@ var menuConfiguration = {
 					}
 				},
 				{
-					label: "Blog",
-					icon: "",
-					action: {
-						handlerAction: "openNewTab",
-						parameters: ["https://virtualflybrain.tumblr.com/"]
-					}
-				},
-				{
 					label: "Contribute",
 					icon: "",
 					action: {
@@ -75,6 +67,14 @@ var menuConfiguration = {
 							action: {
 								handlerAction: "openNewTab",
 								parameters: ["https://www.facebook.com/pages/Virtual-Fly-Brain/131151036987118"]
+							}
+						},
+						{
+							label: "Blog",
+							icon: "",
+							action: {
+								handlerAction: "openNewTab",
+								parameters: ["https://virtualflybrain.tumblr.com/"]
 							}
 						},
 						{
