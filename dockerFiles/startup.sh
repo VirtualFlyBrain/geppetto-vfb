@@ -13,6 +13,10 @@ sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
 sed 's/Xmx512m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
 # Remove redirect in tomcat config
 sed 's\redirectPort="8443"\\g' -i $SERVER_HOME/configuration/tomcat-server.xml
+# Swap servers
+grep -rls pdb.virtualflybrain.org /home/developer/virgo | xargs sed -i "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g"
+grep -rls owl.virtualflybrain.org /home/developer/virgo | xargs sed -i "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g"
+grep -rls solr.virtualflybrain.org /home/developer/virgo | xargs sed -i "s@solr.virtualflybrain.org@$VFB_SOLR_SERVER@g"
 
 # output log
 tail -F --retry $SERVER_HOME/serviceability/logs/log.log & 
