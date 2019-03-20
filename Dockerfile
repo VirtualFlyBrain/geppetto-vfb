@@ -4,6 +4,9 @@ MAINTAINER Robert Court "rcourt@ed.ac.uk"
 
 ENV MAXSIZE=5G
 ENV VFB_EMBEDDER_URL=https://www.virtualflybrain.org
+ENV VFB_PDB_SERVER=pdb.virtualflybrain.org
+ENV VFB_OWL_SERVER=owl.virtualflybrain.org
+ENV VFB_SOLR_SERVER=solr.virtualflybrain.org
 
 USER root
 
