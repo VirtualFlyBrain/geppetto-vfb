@@ -175,7 +175,7 @@ var menuConfiguration = {
 							icon: "",
 							action: {
 								handlerAction: "openNewTab",
-								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
 							}
 						},
 						{
@@ -183,7 +183,7 @@ var menuConfiguration = {
 							icon: "",
 							action: {
 								handlerAction: "openNewTab",
-								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00100000"]
+								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
 							}
 						},
 						{
@@ -191,7 +191,7 @@ var menuConfiguration = {
 							icon: "",
 							action: {
 								handlerAction: "openNewTab",
-								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00030786"]
+								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00030786"]
 							}
 						}
 					]
@@ -210,7 +210,7 @@ var menuConfiguration = {
 							icon: "",
 							action: {
 								handlerAction: "openNewTab",
-								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00050000"]
+								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00050000"]
 							}
 						},
 						{
@@ -218,7 +218,7 @@ var menuConfiguration = {
 							icon: "",
 							action: {
 								handlerAction: "openNewTab",
-								parameters: ["http://v2-dev2.virtualflybrain.org/org.geppetto.frontend/geppetto?i=VFB_00049000"]
+								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00049000"]
 							}
 						}
 					]
