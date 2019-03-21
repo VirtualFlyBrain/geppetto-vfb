@@ -781,8 +781,8 @@ export default class VFBMain extends React.Component {
 
         if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
             this.sliceViewerReference.updateCanvasRef(this.canvasReference);
-            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
-            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+            //this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
+            //this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
             this.canvasReference.flipCameraY();
             this.canvasReference.flipCameraZ();
             this.canvasReference.displayAllInstances();
@@ -951,10 +951,6 @@ export default class VFBMain extends React.Component {
             this.resolve3D(externalID);
         }.bind(this);
 
-        if(this.canvasReference.engine !== null) {
-            this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
-            this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
-        }
         this.canvasReference.flipCameraY();
         this.canvasReference.flipCameraZ();
         this.canvasReference.setWireframe(false);

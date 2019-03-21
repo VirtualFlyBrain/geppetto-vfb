@@ -6,6 +6,7 @@
         "module": "commonjs",
         "target": "es5",
         "stripInternal":true,
+        "skipLibCheck": true,
         "alwaysStrict":true,
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": true,
