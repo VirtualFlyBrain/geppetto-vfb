@@ -97,7 +97,7 @@ var menuConfiguration = {
 			list: [
 				{	
 					label: "Search",	
-					icon: "",	
+					icon: "fa fa-search",	
 					action: {	
 						handlerAction: "UIElementHandler",	
 						parameters: ["spotlightVisible"]	
@@ -105,7 +105,7 @@ var menuConfiguration = {
 				},	
 				{	
 					label: "Query",	
-					icon: "",	
+					icon: "fa fa-quora",	
 					action: {	
 						handlerAction: "UIElementHandler",	
 						parameters: ["queryBuilderVisible"]	
@@ -113,7 +113,7 @@ var menuConfiguration = {
 				},	
 				{	
 					label: "Layers",	
-					icon: "",	
+					icon: "fa fa-list",	
 					action: {	
 						handlerAction: "UIElementHandler",	
 						parameters: ["controlPanelVisible"]	
