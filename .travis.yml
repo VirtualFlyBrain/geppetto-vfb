@@ -49,7 +49,7 @@ env:
 #  - VFBSUB=v2-preview
 
 script:
-- echo -e "travis_fold:start:Geppetto-Config"
+- echo -e "travis_fold:start:Geppetto-Config" || true
 - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
 - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-} ; fi`
@@ -62,19 +62,19 @@ script:
   if [ "$VFBSUB" = "local" ]; then
     sed -i 's|SOLR_SERVER=/solr/ontology/select|SOLR_SERVER=http://solr.virtualflybrain.org/solr/ontology/select|g' $TRAVIS_BUILD_DIR/Dockerfile   
   fi
-- echo -e "travis_fold:end:Geppetto-Config"
-- echo -e "travis_fold:start:Docker-Build"
+- echo -e "travis_fold:end:Geppetto-Config" || true
+- echo -e "travis_fold:start:Docker-Build" || true
 - travis_wait 200 docker build -t $REPO:$COMMIT .
-- echo -e "travis_fold:end:Docker-Build"
-- echo -e "travis_fold:start:Docker-Run"
+- echo -e "travis_fold:end:Docker-Build" || true
+- echo -e "travis_fold:start:Docker-Run" || true
 - travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
-- sleep 3m
+- sleep 2m
 - curl -sSf http://192.168.0.1:8080/org.geppetto.frontend/
-- echo -e "travis_fold:end:Docker-Run"
-- echo "Current time :$(date +"%T")"
+- echo -e "travis_fold:end:Docker-Run" || true
+- echo "Current time :$(date +"%T")" || true
 - cd $TRAVIS_BUILD_DIR/tests/casperjs/
-- echo "$TRAVIS_BRANCH"
+- echo "$TRAVIS_BRANCH" || true
 - | 
   if [ "$VFBSUB" = "local" ]; then
     for testfile in ./*.js; do
@@ -91,13 +91,13 @@ script:
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test spotlight-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs  
     xvfb-run -a --server-args="-screen 0 1024x768x24"  casperjs test stack-viewer-tests.js --host=http://192.168.0.1:8080/ --engine=slimerjs
   fi
-- echo -e "travis_fold:start:Virgo-Log"
+- echo -e "travis_fold:start:Virgo-Log" || true
 - cd $TRAVIS_BUILD_DIR
 - sudo docker cp geppetto_container:/home/developer/virgo/serviceability/logs/log.log $TRAVIS_BUILD_DIR/
 - tail $TRAVIS_BUILD_DIR/log.log -n 200 || true
-- echo -e "travis_fold:end:Virgo-Log"
-- echo "Current time :$(date +"%T")"
-- echo -e "travis_fold:start:Docker-Deploy"
+- echo -e "travis_fold:end:Virgo-Log" || true
+- echo "Current time :$(date +"%T")" || true
+- echo -e "travis_fold:start:Docker-Deploy" || true
 - cd $TRAVIS_BUILD_DIR
 - |
   if [ "$VFBSUB" != "local" ]; then 
@@ -108,7 +108,7 @@ script:
   else
     docker tag $REPO:$COMMIT $REPO:$TAG
   fi
-- echo -e "travis_fold:end:Docker-Deploy"
+- echo -e "travis_fold:end:Docker-Deploy" || true
 after_success:
 - cd $TRAVIS_BUILD_DIR
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
