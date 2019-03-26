@@ -10,7 +10,9 @@ ENV VFB_SOLR_SERVER=solr.virtualflybrain.org
 
 USER root
 
-RUN apt-get update && apt-get install -qq -y sudo xvfb 
+RUN deb http://cdn-fastly.deb.debian.org/debian stable main && \
+deb http://cdn-fastly.deb.debian.org/debian-security stable/updates main && \
+apt-get update && apt-get install -qq -y sudo xvfb 
 
 RUN useradd -ms /bin/bash developer
 
