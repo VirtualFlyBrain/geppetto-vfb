@@ -1,4 +1,4 @@
-FROM java:8
+FROM openjdk:8
 
 MAINTAINER Robert Court "rcourt@ed.ac.uk"
 
@@ -10,9 +10,7 @@ ENV VFB_SOLR_SERVER=solr.virtualflybrain.org
 
 USER root
 
-RUN deb http://cdn-fastly.deb.debian.org/debian stable main && \
-deb http://cdn-fastly.deb.debian.org/debian-security stable/updates main && \
-apt-get update && apt-get install -qq -y sudo xvfb 
+RUN apt-get update && apt-get install -qq -y sudo xvfb 
 
 RUN useradd -ms /bin/bash developer
 
