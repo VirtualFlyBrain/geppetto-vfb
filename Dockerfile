@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8-jdk-stretch
 
 MAINTAINER Robert Court "rcourt@ed.ac.uk"
 
