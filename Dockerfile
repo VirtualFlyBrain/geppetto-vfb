@@ -14,7 +14,7 @@ COPY dockerFiles/sources.list /etc/apt/sources.list
 
 RUN rm /etc/apt/sources.list.d/jessie-backports.list
 
-RUN apt-get update && apt-get install -qq -y sudo xvfb 
+RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y sudo xvfb 
 
 RUN useradd -ms /bin/bash developer
 
