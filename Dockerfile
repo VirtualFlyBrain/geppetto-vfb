@@ -158,7 +158,7 @@ cat /opt/geppetto/org.geppetto/pom.xml && \
 echo -e "\n\n\n"
  
 # Build Geppetto:
-RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
+RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 -Djdk.net.URLClassPath.disableClassPathURLCheck=true --quiet clean install
 
 # deploy Geppetto:
 RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
