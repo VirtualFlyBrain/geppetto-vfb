@@ -1,2 +1,2 @@
-deb ftp://deb.debian.org/debian oldstable main
+deb http://deb.debian.org/debian oldstable main
 deb http://security.debian.org oldstable/updates main
