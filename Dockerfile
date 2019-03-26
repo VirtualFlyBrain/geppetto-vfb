@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-stretch
+FROM java:8
 
 MAINTAINER Robert Court "rcourt@ed.ac.uk"
 
@@ -9,6 +9,8 @@ ENV VFB_OWL_SERVER=owl.virtualflybrain.org
 ENV VFB_SOLR_SERVER=solr.virtualflybrain.org
 
 USER root
+
+COPY dockerFiles/sources.list /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -qq -y sudo xvfb 
 
