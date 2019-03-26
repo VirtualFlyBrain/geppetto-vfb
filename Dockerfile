@@ -119,7 +119,7 @@ USER developer
 
 #VIRGO INSTALL
 USER root
-RUN apt-get update && apt-get install -qq -y curl bsdtar locate
+RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y curl bsdtar locate
 USER developer
 RUN mkdir -p /home/developer/virgo
 RUN curl -L 'http://www.eclipse.org/downloads/download.php?file=/virgo/release/VP/3.7.2.RELEASE/virgo-tomcat-server-3.7.2.RELEASE.zip&r=1' | bsdtar --strip-components 1 -C /home/developer/virgo -xzf -
