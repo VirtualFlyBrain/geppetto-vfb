@@ -4,9 +4,9 @@
 grep -rls pdb.virtualflybrain.org /opt/geppetto/ | xargs sed -iv "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g"
 grep -rls owl.virtualflybrain.org /opt/geppetto/ | xargs sed -iv "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g"
 grep -rls solr.virtualflybrain.org /opt/geppetto/ | xargs sed -iv "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"
-grep -rls pdb.virtualflybrain.org /home/ | xargs sed -iv "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g"
-grep -rls owl.virtualflybrain.org /home/ | xargs sed -iv "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g"
-grep -rls solr.virtualflybrain.org /home/ | xargs sed -iv "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"
+sleep 2m && grep -rls pdb.virtualflybrain.org /home/ | xargs sed -iv "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" &
+sleep 2m && grep -rls owl.virtualflybrain.org /home/ | xargs sed -iv "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g" &
+sleep 2m && grep -rls solr.virtualflybrain.org /home/ | xargs sed -iv "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" &
 
 #Start a logfile
 mkdir -p $SERVER_HOME/serviceability/logs
