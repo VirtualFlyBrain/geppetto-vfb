@@ -1,6 +1,6 @@
 [
-    "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json",
-    "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json",
-    "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
-    "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"
+    "/org.geppetto.frontend/geppetto/build/queryTutorial.json",
+    "/org.geppetto.frontend/geppetto/build/spotlightTutorial.json",
+    "/org.geppetto.frontend/geppetto/build/stackTutorial.json",
+    "/org.geppetto.frontend/geppetto/build/termTutorial.json"
 ]

@@ -4,6 +4,6 @@
     "width": "700",
 	"steps": [{
 		"title": "Search Tutorial",
-		 "content_url": "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlight.html"
+		 "content_url": "/org.geppetto.frontend/geppetto/build/spotlight.html"
 	}]
 }

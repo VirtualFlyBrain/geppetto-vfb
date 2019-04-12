@@ -23,12 +23,13 @@ console.log("\nThe public path (used by the main bundle when including split bun
 var isProduction = process.argv.indexOf('-p') >= 0;
 console.log("\n Building for a " + ((isProduction) ? "production" : "development") + " environment")
 
-const availableExtensions = [
-  { from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true },
-];
+var availableExtensions = [];
+
+availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
+availableExtensions.push({ from: 'tutorials/*', to: './', flatten: true });
+console.log(availableExtensions);
 
 module.exports = function (env){
-  // geppettoConfig._webapp_folder
   if (env != undefined){
     console.log(env);
     if (env.contextPath){
@@ -50,7 +51,7 @@ module.exports = function (env){
 
   console.log('Geppetto configuration \n');
   console.log(JSON.stringify(geppettoConfig, null, 2), '\n');
-  
+
   var entries = {
     main: path.resolve(__dirname, "ComponentsInitialization.js"),
     admin: path.resolve(__dirname, geppetto_client_path, "js/pages/admin/admin.js"),
@@ -58,10 +59,10 @@ module.exports = function (env){
 
   console.log("\nThe Webpack entries are:");
   console.log(entries);
-  
+
   return {
     entry: entries,
-    
+
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: '[name].bundle.js',
@@ -74,7 +75,7 @@ module.exports = function (env){
        * }),
        */
       new webpack.optimize.CommonsChunkPlugin(['common']),
-      new CopyWebpackPlugin(availableExtensions),
+      new CopyWebpackPlugin(availableExtensions, { copyUnmodified: true }),
       new HtmlWebpackPlugin({
         filename: 'geppetto.vm',
         template: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/geppetto.ejs'),
@@ -112,7 +113,7 @@ module.exports = function (env){
       new webpack.DefinePlugin({ 'process.env': { 'NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'), } }),
       new ExtractTextPlugin("[name].css"),
     ],
-      
+
     resolve: {
       alias: {
         root: path.resolve(__dirname),
@@ -120,7 +121,7 @@ module.exports = function (env){
         geppetto: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/GEPPETTO.js'),
         'geppetto-client-initialization': path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/main'),
         handlebars: 'handlebars/dist/handlebars.js'
-  
+
       },
       // symlinks: true,
       modules: [
@@ -129,7 +130,7 @@ module.exports = function (env){
       ],
       extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx'],
     },
-  
+
     module: {
       rules: [
         {
@@ -156,13 +157,11 @@ module.exports = function (env){
           loader: 'url-loader?limit=100000'
         },
         {
-                  
           test: /\.css$/,
           use: ExtractTextPlugin.extract({
             fallback: "style-loader",
             use: "css-loader"
           })
-                    
         },
         {
           test: /\.less$/,

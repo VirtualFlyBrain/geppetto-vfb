@@ -4,6 +4,6 @@
     "width": "200",
 	"steps": [{
 		"title": "Stack Viewer Tutorial",
-		 "content_url": "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stack-viewer.html"
+		 "content_url": "/org.geppetto.frontend/geppetto/build/stack-viewer.html"
 	}]
 }
