@@ -819,6 +819,7 @@ export default class VFBMain extends React.Component {
                 id="CanvasContainer"
                 name={"Canvas"}
                 baseZoom="1.2"
+                wireframeEnabled={true}
                 ref={ref => this.canvasReference = ref} />)
         } else if (component === "termInfo") {
             node.setEventListener("close", () => {
