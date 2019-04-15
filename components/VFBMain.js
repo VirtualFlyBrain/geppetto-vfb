@@ -780,7 +780,9 @@ export default class VFBMain extends React.Component {
         }
 
         if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
-            this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+            if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+                this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+            }
             //this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
             //this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
             this.canvasReference.flipCameraY();
