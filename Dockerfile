@@ -47,16 +47,16 @@ ENV SOLR_SERVER=/solr/ontology/select
 USER developer
 # Geppetto:
 ENV BRANCH_BASE=release_march_2019
-ENV BRANCH_DEFAULT=vfb_geppetto_application
+ENV BRANCH_DEFAULT=development
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_DEFAULT
-ENV BRANCH_ORG_GEPPETTO_FRONTEND=vfb_geppetto_application
+ENV BRANCH_ORG_GEPPETTO_FRONTEND=$BRANCH_BASE
 ENV BRANCH_ORG_GEPPETTO_CORE=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_MODEL=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_MODEL_SWC=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_DATASOURCES=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_SIMULATION=$BRANCH_DEFAULT
-ENV BRANCH_GEPPETTO_VFB=vfb_geppetto_application
-ENV BRANCH_UK_AC_VFB_GEPPETTO=$BRANCH_DEFAULT
+ENV BRANCH_GEPPETTO_VFB=$BRANCH_BASE
+ENV BRANCH_UK_AC_VFB_GEPPETTO=$BRANCH_BASE
 
 USER root
 RUN mkdir -p /opt/geppetto && chmod -R 777 /opt/geppetto
@@ -103,9 +103,9 @@ RUN grep -rnwl '/opt/geppetto/' -e "UA-45841517-1" | xargs sed -i "s|UA-45841517
 RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i "s|text-transform: capitalize;|text-transform: none;|g" 
 
 #Setup config:
-COPY dockerFiles/pom.xml /opt/geppetto/org.geppetto/pom.xml.temp
-COPY dockerFiles/geppetto.plan /opt/geppetto/org.geppetto/geppetto.plan
-COPY dockerFiles/GeppettoConfiguration.json /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json
+# COPY dockerFiles/pom.xml /opt/geppetto/org.geppetto/pom.xml.temp
+# COPY dockerFiles/geppetto.plan /opt/geppetto/org.geppetto/geppetto.plan
+# COPY dockerFiles/GeppettoConfiguration.json /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json
 USER root
 RUN mkdir -p /opt/VFB && chmod -R 777 /opt/VFB
 USER developer
