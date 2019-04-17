@@ -16,7 +16,7 @@ RUN rm /etc/apt/sources.list.d/jessie-backports.list
 
 RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y sudo xvfb 
 
-RUN curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+RUN apt-get -o Acquire::Check-Valid-Until=false update && curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
 RUN sudo apt-get install -y nodejs
 RUN sudo npm i -g npm
 
