@@ -46,8 +46,8 @@ ENV SOLR_SERVER=/solr/ontology/select
 
 USER developer
 # Geppetto:
-ENV BRANCH_BASE=development
-ENV BRANCH_DEFAULT=release_march_2019
+ENV BRANCH_BASE=release_march_2019
+ENV BRANCH_DEFAULT=vfb_geppetto_application
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_FRONTEND=vfb_geppetto_application
 ENV BRANCH_ORG_GEPPETTO_CORE=$BRANCH_DEFAULT
