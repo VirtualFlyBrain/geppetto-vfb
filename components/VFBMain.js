@@ -796,6 +796,12 @@ export default class VFBMain extends React.Component {
                 }
             }
         }
+
+        if((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
+            if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+                this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+            }
+        }
     }
 
     /* FLEXLayout factory method */

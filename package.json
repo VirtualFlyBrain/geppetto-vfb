@@ -16,7 +16,7 @@
     "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
   },
   "dependencies": {
-    "@geppettoengine/geppetto-client": "openworm/geppetto-client#infra-merge",
+    "@geppettoengine/geppetto-client": "openworm/geppetto-client#development",
     "@material-ui/icons": "3.0.1",
     "react-collapsible": "^2.3.1"
   },
