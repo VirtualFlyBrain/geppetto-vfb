@@ -99,9 +99,6 @@ mv geppetto-vfb webapp && mv webapp org.geppetto.frontend/src/main/
 #Set GA keys TBD:Check if still needed
 RUN grep -rnwl '/opt/geppetto/' -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|UA-18509775-2|g" 
 
-#temp fix for results table layout
-RUN sed -i "s/table-layout: fixed;/table-layout: auto;/g" /opt/geppetto/org.geppetto.frontend/src/main/webapp/js/components/interface/query/query.less
-
 #Remove automatic capitalisation:
 RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i "s|text-transform: capitalize;|text-transform: none;|g" 
 
