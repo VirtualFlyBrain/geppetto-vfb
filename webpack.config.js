@@ -27,6 +27,7 @@ var availableExtensions = [];
 
 availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
 availableExtensions.push({ from: 'tutorials/*', to: './', flatten: true });
+availableExtensions.push({ from: 'model/*', to: './', flatten: true });
 console.log(availableExtensions);
 
 module.exports = function (env){
