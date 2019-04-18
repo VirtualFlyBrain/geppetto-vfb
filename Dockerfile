@@ -49,7 +49,7 @@ USER developer
 ENV BRANCH_BASE=development
 ENV BRANCH_DEFAULT=vfb_geppetto_application
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_BASE
-ENV BRANCH_ORG_GEPPETTO_FRONTEND=infra-merge
+ENV BRANCH_ORG_GEPPETTO_FRONTEND=$BRANCH_DEFAULT
 ENV BRANCH_ORG_GEPPETTO_CORE=$BRANCH_BASE
 ENV BRANCH_ORG_GEPPETTO_MODEL=$BRANCH_BASE
 ENV BRANCH_ORG_GEPPETTO_MODEL_SWC=$BRANCH_BASE
@@ -61,7 +61,6 @@ ENV BRANCH_UK_AC_VFB_GEPPETTO=release_march_2019
 USER root
 RUN mkdir -p /opt/geppetto && chmod -R 777 /opt/geppetto
 USER developer
-
 
 RUN cd /opt/geppetto && \
 echo cloning required modules: && \
@@ -105,7 +104,7 @@ RUN grep -rnwl '/opt/geppetto/' -e "text-transform: capitalize;" | xargs sed -i 
 #Setup config:
 COPY dockerFiles/pom.xml /opt/geppetto/org.geppetto/pom.xml.temp
 COPY dockerFiles/geppetto.plan /opt/geppetto/org.geppetto/geppetto.plan
-COPY dockerFiles/GeppettoConfiguration.json /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json
+# COPY dockerFiles/GeppettoConfiguration.json /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json
 USER root
 RUN mkdir -p /opt/VFB && chmod -R 777 /opt/VFB
 USER developer
@@ -157,8 +156,10 @@ echo -e "\n\n\n\n/opt/geppetto/org.geppetto/geppetto.plan" && \
 cat /opt/geppetto/org.geppetto/geppetto.plan && \
 echo -e "\n\n\n\n/opt/geppetto/org.geppetto/pom.xml" && \
 cat /opt/geppetto/org.geppetto/pom.xml && \
+echo -e "\n\n\n" && \
+cat /opt/geppetto/org.geppetto.frontend/pom.xml && \
 echo -e "\n\n\n"
- 
+
 # Build Geppetto:
 RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
 
