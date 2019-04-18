@@ -16,8 +16,6 @@ RUN rm /etc/apt/sources.list.d/jessie-backports.list
 
 RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y sudo xvfb
 
-RUN echo "node and npm versions: " && node --version && npm --version
-
 RUN useradd -ms /bin/bash developer
 
 RUN mkdir -p /home/developer && mkdir -p /etc/sudoers.d \

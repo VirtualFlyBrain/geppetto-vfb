@@ -25,7 +25,7 @@ console.log("\n Building for a " + ((isProduction) ? "production" : "development
 
 var availableExtensions = [];
 
-availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
+//availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
 availableExtensions.push({ from: 'tutorials/*', to: './', flatten: true });
 console.log(availableExtensions);
 
