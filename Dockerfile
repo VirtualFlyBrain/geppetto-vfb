@@ -16,9 +16,6 @@ RUN rm /etc/apt/sources.list.d/jessie-backports.list
 
 RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y sudo xvfb
 
-RUN curl -sL https://deb.nodesource.com/setup_11.x | sed -E "s/apt-get update/apt-get -o Acquire::Check-Valid-Until=false update/g" | sudo -E bash -
-RUN sudo apt-get install -y nodejs
-RUN sudo npm i -g npm
 RUN echo "node and npm versions: " && node --version && npm --version
 
 RUN useradd -ms /bin/bash developer
@@ -54,7 +51,7 @@ USER developer
 ENV BRANCH_BASE=development
 ENV BRANCH_DEFAULT=vfb_geppetto_application
 ENV BRANCH_ORG_GEPPETTO=$BRANCH_BASE
-ENV BRANCH_ORG_GEPPETTO_FRONTEND=$BRANCH_DEFAULT
+ENV BRANCH_ORG_GEPPETTO_FRONTEND=infra-merge
 ENV BRANCH_ORG_GEPPETTO_CORE=$BRANCH_BASE
 ENV BRANCH_ORG_GEPPETTO_MODEL=$BRANCH_BASE
 ENV BRANCH_ORG_GEPPETTO_MODEL_SWC=$BRANCH_BASE
