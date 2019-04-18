@@ -14,11 +14,11 @@ COPY dockerFiles/sources.list /etc/apt/sources.list
 
 RUN rm /etc/apt/sources.list.d/jessie-backports.list
 
-RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y sudo xvfb 
+RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -qq -y sudo xvfb
 
+RUN echo 'Acquire::Check-Valid-Until no;' > /etc/apt/apt.conf.d/99no-check-valid-until
 RUN curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
-RUN sudo apt-get install -y nodejs
-RUN sudo npm i -g npm
+RUN sudo apt-get install -y nodejs npm
 
 RUN useradd -ms /bin/bash developer
 
