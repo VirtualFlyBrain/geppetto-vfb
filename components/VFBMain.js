@@ -780,7 +780,9 @@ export default class VFBMain extends React.Component {
         }
 
         if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
-            this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+            if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+                this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+            }
             this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
             this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
             this.canvasReference.flipCameraY();
@@ -792,6 +794,12 @@ export default class VFBMain extends React.Component {
                 if((Instances[i].id !== "time")) {
                     this.addVfbId(Instances[i].id);
                 }
+            }
+        }
+
+        if((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
+            if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+                this.sliceViewerReference.updateCanvasRef(this.canvasReference);
             }
         }
     }
