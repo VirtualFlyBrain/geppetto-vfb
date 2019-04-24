@@ -903,7 +903,7 @@ export default class VFBMain extends React.Component {
     componentWillMount() {
         if((window.Model == undefined) && (this.state.modelLoaded == false)) {
             if (location.host.indexOf('localhost:8081') < 0){
-                Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/extensions/geppetto-vfb/model/vfb.json');
+                Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/build/vfb.json');
             }
             else
             {
