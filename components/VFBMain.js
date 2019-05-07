@@ -738,9 +738,6 @@ export default class VFBMain extends React.Component {
             this.setState({ canvasAvailable: true });
         }
 
-        if(this.sliceViewerReference != undefined || this.sliceViewerReference != null) {
-            this.sliceViewerReference.updateStackWidget();
-        }
         if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
             this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
         }
@@ -806,11 +803,6 @@ export default class VFBMain extends React.Component {
 
     /* FLEXLayout factory method */
     factory(node) {
-        // This is an hard fix waiting for the slice viewer refactoring
-        if(this.sliceViewerReference != undefined || this.sliceViewerReference != null) {
-            this.sliceViewerReference.updateStackWidget();
-        }
-
         var component = node.getComponent();
         if (component === "text") {
             return (<div className="">Panel {node.getName()}</div>);
