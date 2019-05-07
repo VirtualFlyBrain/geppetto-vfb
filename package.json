@@ -1,7 +1,7 @@
 {
-  "name": "geppetto-application",
+  "name": "Virtual_Fly_Brain",
   "version": "0.4.2",
-  "description": "Geppetto web frontend. Geppetto is an open-source platform to build web-based tools to visualize and simulate neuroscience data and models.",
+  "description": "A hub for Drosophila melanogaster neural anatomy and imaging data.",
   "repository": "http://git.geppetto.org",
   "license": "MIT",
   "scripts": {
