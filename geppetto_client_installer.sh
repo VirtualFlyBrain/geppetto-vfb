@@ -1,9 +1,9 @@
 #!/bin/bash
 
 DIRECTORY=./geppetto-client
-BRANCH="feature_wireframe_in_canvas"
+BRANCH="fix-griddle_infinite_updates_loop"
 
- if [ -d "$DIRECTORY" ]; then
+if [ -d "$DIRECTORY" ]; then
   pushd geppetto-client;
   git pull;
   git checkout $BRANCH
