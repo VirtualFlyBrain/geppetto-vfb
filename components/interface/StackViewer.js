@@ -220,6 +220,14 @@ export default class StackViewer extends React.Component {
         this.updateStackWidget();
       }
     }.bind(this));
+
+    // on colour change update:
+    GEPPETTO.on(GEPPETTO.Events.Select, function (instances) {
+      console.log('Selection change...');
+      if (this.refs.StackViewerRef != undefined) {
+        this.updateStackWidget();
+      }
+    }.bind(this));
   }
 
   render () {
