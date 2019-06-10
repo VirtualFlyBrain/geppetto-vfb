@@ -1,4 +1,7 @@
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
+var QueryLinkComponent = require("geppetto-client/js/components/interface/query/customComponents/queryLinkComponent");
+var SlideshowImageComponent = require("geppetto-client/js/components/interface/query/customComponents/slideshowImageComponent");
+var QueryResultsControlsComponent = require("geppetto-client/js/components/interface/query/customComponents/queryResultsControlsComponent");
 
 var queryResultsColMeta = [
   {
@@ -13,7 +16,7 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": GEPPETTO.QueryLinkComponent,
+    "customComponent": QueryLinkComponent,
     "actions": "window.addVfbId('$entity$');",
     "displayName": "Name",
     "cssClassName": "query-results-name-column",
@@ -39,7 +42,7 @@ var queryResultsColMeta = [
     "order": 5,
     "locked": false,
     "visible": false,
-    "customComponent": GEPPETTO.QueryResultsControlsComponent,
+    "customComponent": QueryResultsControlsComponent,
     "displayName": "Controls",
     "actions": "",
     "cssClassName": "query-results-controls-column"
@@ -49,9 +52,9 @@ var queryResultsColMeta = [
     "order": 6,
     "locked": false,
     "visible": true,
-    "customComponent": GEPPETTO.SlideshowImageComponent,
+    "customComponent": SlideshowImageComponent,
     "displayName": "Images",
-    "actions": "window.addVfbId('$entity$');$(\"#querybuilder\").hide();",
+    "actions": "window.addVfbId('$entity$');",
     "cssClassName": "query-results-images-column"
   },
   {
@@ -160,7 +163,7 @@ var queryBuilderDatasourceConfig = {
         return Bloodhound.tokenizers.nonword(q.replace('_', ' '));
       },
       sorter: function (a, b) {
-        var term = $("#query-typeahead").val();
+        var InputString = $("#query-typeahead").val();
         // move exact matches to top
         if (InputString == a.label) {
           return -1;

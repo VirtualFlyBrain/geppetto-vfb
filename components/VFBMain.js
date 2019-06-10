@@ -5,7 +5,7 @@ import TutorialWidget from './interface/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo';
 import Logo from 'geppetto-client/js/components/interface/logo/Logo';
 import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
-import QueryBuilder from 'geppetto-client/js/components/interface/query/query';
+import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
 import ButtonBar from 'geppetto-client/js/components/interface/buttonBar/ButtonBar';
 import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
@@ -121,7 +121,7 @@ export default class VFBMain extends React.Component {
     this.idForTermInfo = undefined;
     this.model = FlexLayout.Model.fromJson(modelJson)
 
-    window.redirectURL = '$PROTOCOL$//$HOST$/'+GEPPETTO_CONFIGURATION.contextPath+'/geppetto?i=$TEMPLATE$,$VFB_ID$,$VFB_ID$';
+    window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$,$VFB_ID$';
     window.customAction = [];
   }
 
@@ -210,11 +210,11 @@ export default class VFBMain extends React.Component {
     // move the shorter synonyms to the top
     if (a.label < b.label) {
       return -1;
-    }
-    else if (a.label > b.label) {
+    } else if (a.label > b.label) {
       return 1;
+    } else {
+      return 0; // if nothing found then do nothing.
     }
-    else return 0; // if nothing found then do nothing.
   }
 
   // Logic to add VFB ids into the scene starts here
@@ -235,7 +235,7 @@ export default class VFBMain extends React.Component {
         Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
       } catch (ignore) {
       }
-      if (c = 0) {
+      if (c == 0) {
         Instances.getInstance(entityPath).setOpacity(0.2, true);
       }
     } else {
@@ -248,8 +248,7 @@ export default class VFBMain extends React.Component {
       $("#spotlight").hide();
       $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
     }
-    if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift")))
-    {
+    if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
     }
     this.sliceViewerReference.checkConnection();
@@ -278,13 +277,12 @@ export default class VFBMain extends React.Component {
   }
 
   addVfbId (idsList) {
-    if(this.state.modelLoaded === true) {
-      if(typeof (idsList) == "string") {
-        if(idsList.indexOf(',') > -1) {
+    if (this.state.modelLoaded === true) {
+      if (typeof (idsList) == "string") {
+        if (idsList.indexOf(',') > -1) {
           var idArray = idsList.split(",");
           idsList = idArray;
-        }
-        else {
+        } else {
           idsList = [idsList];
         }
       }
@@ -303,7 +301,7 @@ export default class VFBMain extends React.Component {
         }
         if (idsList.length > 0) {
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({idSelected: idsList[idsList.length - 1]});
+          this.setState({ idSelected: idsList[idsList.length - 1] });
         }
       }
 
@@ -318,12 +316,14 @@ export default class VFBMain extends React.Component {
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
     if (!variables.length > 0) {
       Model.getDatasources()[0].fetchVariable(variableId, function () {
-        if (callback != undefined)
+        if (callback != undefined) {
           callback(variableId, label);
+        }
       });
     } else {
-      if (callback != undefined)
+      if (callback != undefined) {
         callback(variableId, label);
+      }
     }
   }
 
@@ -337,13 +337,13 @@ export default class VFBMain extends React.Component {
       try {
         meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
       } catch (e) {
-        console.log('Instance for '+variableIds[singleId] + '.' + variableIds[singleId] + '_meta'+' does not exist in the current model');
+        console.log('Instance for ' + variableIds[singleId] + '.' + variableIds[singleId] + '_meta' + ' does not exist in the current model');
         this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
       if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
         var instance = Instances.getInstance(variableIds[singleId]);
-        if(this.termInfoReference !== undefined) {
+        if (this.termInfoReference !== undefined) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
@@ -353,7 +353,7 @@ export default class VFBMain extends React.Component {
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
             instance.select();
-            if(this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
             }
             this.termInfoName = meta;
@@ -361,7 +361,7 @@ export default class VFBMain extends React.Component {
           }
         }.bind(this));
       } else {
-        if(this.termInfoReference !== undefined) {
+        if (this.termInfoReference !== undefined) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
@@ -394,7 +394,7 @@ export default class VFBMain extends React.Component {
       } catch (ignore) { }
       counter++;
     }
-    if(instance != undefined) {
+    if (instance != undefined) {
       return true;
     } else {
       return false;
@@ -521,7 +521,7 @@ export default class VFBMain extends React.Component {
   }
 
   updateDimensions () {
-    if(this.refs.buttonBarRef !== undefined) {
+    if (this.refs.buttonBarRef !== undefined) {
       this.refs.buttonBarRef.updatePosition({ x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY() });
     }
   }
@@ -585,7 +585,7 @@ export default class VFBMain extends React.Component {
       }
       return historyList;
     case 'triggerSetTermInfo':
-      if(this.termInfoReference !== undefined) {
+      if (this.termInfoReference !== undefined) {
         this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
       }
       break;
@@ -595,8 +595,8 @@ export default class VFBMain extends React.Component {
   }
 
   tutorialHandler () {
-    if(this.state.tutorialWidgetVisible == true) {
-      this.setState({tutorialWidgetVisible: false});
+    if (this.state.tutorialWidgetVisible == true) {
+      this.setState({ tutorialWidgetVisible: false });
     }
   }
 
@@ -605,8 +605,8 @@ export default class VFBMain extends React.Component {
   }
 
   renderHTMLViewer (htmlChild) {
-    if(htmlChild !== undefined) {
-      this.setState({htmlFromToolbar: htmlChild});
+    if (htmlChild !== undefined) {
+      this.setState({ htmlFromToolbar: htmlChild });
     }
   }
 
@@ -619,7 +619,7 @@ export default class VFBMain extends React.Component {
   }
 
   handleClickOutside () {
-    if(this.toolBarRef && !this.toolBarRef.contains(event.target)) {
+    if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
       this.setState({ htmlFromToolbar: undefined });
     }
 
@@ -632,8 +632,10 @@ export default class VFBMain extends React.Component {
     this.setState({ htmlFromToolbar: undefined });
   }
 
-  /* FLEXLayout custom methods used to reopen an element of the UI according to our logic
-     * (2 columns and bottom-right corner) */
+  /*
+   * FLEXLayout custom methods used to reopen an element of the UI according to our logic
+   *(2 columns and bottom-right corner)
+   */
   reopenUIComponent (json) {
     let idChild = 0;
     let rightChild = 0;
@@ -660,8 +662,10 @@ export default class VFBMain extends React.Component {
     }
   }
 
-  /* FLEXLayout custom methods used to restore a minimised element of the UI according to our logic
-     * (2 columns and bottom-right corner) */
+  /*
+   * FLEXLayout custom methods used to restore a minimised element of the UI according to our logic
+   *(2 columns and bottom-right corner)
+   */
   restoreUIComponent (componentName) {
     let idChild = 0;
     let rightChild = 0;
@@ -674,10 +678,10 @@ export default class VFBMain extends React.Component {
       tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
       rootNode._addChild(tabSet);
       var borders = tempModel.getBorderSet().getBorders();
-      for(var i=0; i < borders.length; i++) {
+      for (var i = 0; i < borders.length; i++) {
         var borderChildren = borders[i].getChildren();
-        for(var j=0; j < borderChildren.length; j++) {
-          if(borderChildren[j].getComponent() === componentName) {
+        for (var j = 0; j < borderChildren.length; j++) {
+          if (borderChildren[j].getComponent() === componentName) {
             this.model.doAction(FlexLayout.Actions.moveNode(borderChildren[j].getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
             return;
           }
@@ -692,10 +696,10 @@ export default class VFBMain extends React.Component {
       }
       var toNode = modelChildren[idChild];
       var borders = tempModel.getBorderSet().getBorders();
-      for(var i=0; i < borders.length; i++) {
+      for (var i = 0; i < borders.length; i++) {
         var borderChildren = borders[i].getChildren();
-        for(var j=0; j < borderChildren.length; j++) {
-          if(borderChildren[j].getComponent() === componentName) {
+        for (var j = 0; j < borderChildren.length; j++) {
+          if (borderChildren[j].getComponent() === componentName) {
             if (toNode instanceof FlexLayout.TabSetNode || toNode instanceof FlexLayout.BorderNode || toNode instanceof FlexLayout.RowNode) {
               this.model.doAction(FlexLayout.Actions.moveNode(borderChildren[j].getId(), toNode.getId(), FlexLayout.DockLocation.BOTTOM, 0));
             }
@@ -730,19 +734,19 @@ export default class VFBMain extends React.Component {
       this.setState({ canvasAvailable: true });
     }
 
-    if((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
+    if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
     }
-    if((prevState.wireframeVisible !== this.state.wireframeVisible)) {
+    if ((prevState.wireframeVisible !== this.state.wireframeVisible)) {
       this.canvasReference.setWireframe(!this.canvasReference.getWireframe());
     }
-    if((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
+    if ((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
       this.refs.controlpanelRef.open();
     }
-    if((prevState.spotlightVisible !== this.state.spotlightVisible)) {
+    if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
       this.refs.spotlightRef.open();
     }
-    if((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
+    if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
       this.refs.querybuilderRef.open();
     }
     if ((this.state.UIUpdated !== prevState.UIUpdated) && (this.state.UIUpdated !== false)) {
@@ -768,26 +772,28 @@ export default class VFBMain extends React.Component {
       }
     }
 
-    if((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
-      if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+    if ((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
+      if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
         this.sliceViewerReference.updateCanvasRef(this.canvasReference);
       }
-      // this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
-      // this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+      /*
+       * this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
+       * this.canvasReference.engine.THREE.Points.prototype.raycast = this.canvasReference.engine.Points.Points.prototype.raycast;
+       */
       this.canvasReference.flipCameraY();
       this.canvasReference.flipCameraZ();
       this.canvasReference.displayAllInstances();
       this.canvasReference.engine.controls.rotateSpeed = 3;
       this.canvasReference.engine.setLinesThreshold(0);
-      for(var i=0; i < Instances.length; i++) {
-        if((Instances[i].id !== "time")) {
+      for (var i = 0; i < Instances.length; i++) {
+        if ((Instances[i].id !== "time")) {
           this.addVfbId(Instances[i].id);
         }
       }
     }
 
-    if((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
-      if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
+    if ((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
+      if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
         this.sliceViewerReference.updateCanvasRef(this.canvasReference);
       }
     }
@@ -815,7 +821,7 @@ export default class VFBMain extends React.Component {
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
-        this.setState({termInfoVisible: false});
+        this.setState({ termInfoVisible: false });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       return (<div className="flexChildContainer">
@@ -837,12 +843,12 @@ export default class VFBMain extends React.Component {
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
       node.setEventListener("close", () => {
-        this.setState({sliceViewerVisible: false});
+        this.setState({ sliceViewerVisible: false });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
-      if(_height > 0 || _width > 0) {
+      if (_height > 0 || _width > 0) {
         return (<div className="flexChildContainer">
           <StackViewer
             id="NewStackViewer"
@@ -860,7 +866,7 @@ export default class VFBMain extends React.Component {
 
   /* React functions */
   shouldComponentUpdate (nextProps, nextState) {
-    if((nextState.UIUpdated === false) && (this.state.UIUpdated !== nextState.UIUpdated)) {
+    if ((nextState.UIUpdated === false) && (this.state.UIUpdated !== nextState.UIUpdated)) {
       return false;
     } else {
       return true;
@@ -872,28 +878,28 @@ export default class VFBMain extends React.Component {
 
     this.UIDidUpdate(prevState);
 
-    /** Important, needed to let know the Three.js control's library the real size of
-         * the canvas right after if finished rendering.Otherwise it thinks its width and
-         * height 0 **/
-    if(this.canvasReference !== undefined && this.canvasReference !== null) {
+    /**
+     * Important, needed to let know the Three.js control's library the real size of
+     * the canvas right after if finished rendering.Otherwise it thinks its width and
+     *height 0 *
+     */
+    if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
     }
   }
 
   componentWillMount () {
-    if((window.Model == undefined) && (this.state.modelLoaded == false)) {
+    if ((window.Model == undefined) && (this.state.modelLoaded == false)) {
       if (location.host.indexOf('localhost:8081') < 0){
         Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/build/vfb.json');
-      }
-      else
-      {
+      } else {
         // Local deployment for development.
         Project.loadFromURL(window.location.origin.replace(":8081", ":8989").replace('https:','http:') + '/' + 'vfb.json');
       }
       this.setState({ modelLoaded: true });
     }
 
-    if(this.state.htmlFromToolbar !== undefined) {
+    if (this.state.htmlFromToolbar !== undefined) {
     }
   }
 
@@ -952,7 +958,7 @@ export default class VFBMain extends React.Component {
     this.canvasReference.engine.setLinesThreshold(0);
 
     // Control panel initialization and filter which instances to display
-    if(this.refs.controlpanelRef !== undefined) {
+    if (this.refs.controlpanelRef !== undefined) {
       this.refs.controlpanelRef.setColumnMeta(this.controlPanelColMeta);
       this.refs.controlpanelRef.setColumns(this.controlPanelColumns);
       this.refs.controlpanelRef.setControlsConfig(this.controlPanelConfig);
@@ -983,7 +989,7 @@ export default class VFBMain extends React.Component {
     this.refs.querybuilderRef.addDataSource(this.queryBuilderDatasourceConfig);
 
     // Loading ids passed through the browser's url
-    if((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=") == -1)) {
+    if ((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=") == -1)) {
       var that = this;
       console.log("Loading default Adult Brain VFB_00017894 template.");
       GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
@@ -991,13 +997,13 @@ export default class VFBMain extends React.Component {
       });
     }
 
-    if(this.props.location.search.indexOf("id=") > -1) {
+    if (this.props.location.search.indexOf("id=") > -1) {
       var idsList = this.props.location.search;
       var regex3D = /i=/gi;
       var results3D, starts3DString = [], ends3DString = [];
-      while((results3D = regex3D.exec(idsList))) {
+      while ((results3D = regex3D.exec(idsList))) {
         starts3DString.push(results3D.index + results3D[0].length);
-        if(results3D.input.substring(results3D.index).indexOf("&") > -1) {
+        if (results3D.input.substring(results3D.index).indexOf("&") > -1) {
           ends3DString.push(results3D.input.substring(results3D.index).indexOf("&") + results3D.index);
         } else {
           ends3DString.push(results3D.input.length);
@@ -1006,21 +1012,21 @@ export default class VFBMain extends React.Component {
 
       var resultsTermInfo, startsTermInfoString = [], endsTermInfoString = [];
       var regexTermInfo = /id=/gi;
-      while((resultsTermInfo = regexTermInfo.exec(idsList))) {
+      while ((resultsTermInfo = regexTermInfo.exec(idsList))) {
         startsTermInfoString.push(resultsTermInfo.index + resultsTermInfo[0].length);
-        if(resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") > -1) {
+        if (resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") > -1) {
           endsTermInfoString.push(resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") + resultsTermInfo.index);
         } else {
           endsTermInfoString.push(resultsTermInfo.input.length);
         }
 
       }
-      for(var i=0 ; i < startsTermInfoString.length ; i++) {
+      for (var i = 0 ; i < startsTermInfoString.length ; i++) {
         var idsTermInfoSubstring = idsList.substring(startsTermInfoString[i], endsTermInfoString[i]).split(",");
       }
       this.idForTermInfo = idsTermInfoSubstring[idsTermInfoSubstring.length - 1];
 
-      for(var i=0 ; i < starts3DString.length ; i++) {
+      for (var i = 0 ; i < starts3DString.length ; i++) {
         var ids3DSubstring = idsList.substring(starts3DString[i], ends3DString[i]).split(",");
         var that = this;
         console.log("Loading IDS to add to term info from url");
@@ -1031,7 +1037,7 @@ export default class VFBMain extends React.Component {
       }
     } else {
       var idsList = this.props.location.search.replace("?i=", "");
-      if((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+      if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
         this.urlIdsLoaded = true;
         var idArray = idsList.split(",");
         var that = this;
@@ -1054,7 +1060,7 @@ export default class VFBMain extends React.Component {
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
           if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if(this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
             }
             this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
@@ -1065,7 +1071,7 @@ export default class VFBMain extends React.Component {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
           var parent = latestSelection.getParent();
           if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if(this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
             }
             this.termInfoName = parent[parent.getId() + "_meta"];
@@ -1080,22 +1086,22 @@ export default class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-        	console.log("Reloading websocket connection by reloading page");
-        	window.location.reload();
+      console.log("Reloading websocket connection by reloading page");
+      window.location.reload();
     });
   }
 
   render () {
-    if((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
+    if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
     }
 
-    if(this.state.historyModalOpen == true) {
+    if (this.state.historyModalOpen == true) {
       var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function (item, index) {
         return (
           <div className="historyItemList" key={index} onClick={() => {
             this.setState({ historyModalOpen: !this.state.historyModalOpen });
-            if(this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
             }
           }}>
@@ -1108,11 +1114,11 @@ export default class VFBMain extends React.Component {
           top: false, right: false, bottom: false,
           left: false, topRight: false, bottomRight: false,
           bottomLeft: false, topLeft: false 
-}}
+        }}
         default={{
           x: this.modalX, y: this.modalY,
           height: 150, width: 150 
-}}
+        }}
         className="historyModal"
         disableDragging={true}
         maxHeight={150} minHeight={150}
@@ -1128,7 +1134,7 @@ export default class VFBMain extends React.Component {
 
     var key = 0;
     var onRenderTabSet = function (node:(TabSetNode), renderValues:any) {
-      if(node.getType() === "tabset") {
+      if (node.getType() === "tabset") {
         renderValues.buttons.push(<div key={key} className="fa fa-window-minimize customIconFlexLayout" onClick={() => {
           this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_bottom", FlexLayout.DockLocation.CENTER, 0));
         }} />);
@@ -1137,7 +1143,7 @@ export default class VFBMain extends React.Component {
     };
 
     key = 0;
-    var toggleModal = (event) => {
+    var toggleModal = event => {
       this.modalX = event.clientX;
       this.modalY = event.clientY;
       this.setState({ historyModalOpen: !this.state.historyModalOpen });
@@ -1145,7 +1151,7 @@ export default class VFBMain extends React.Component {
     };
 
     var onRenderTab = function (node:(TabNode), renderValues:any) {
-      if(node.getType() === "tab" && node.getComponent() == "termInfo") {
+      if (node.getType() === "tab" && node.getComponent() == "termInfo") {
         renderValues.buttons.push(<div key={key} id="historyTrigger"
           className="fa fa-history customIconTab" onMouseDown={toggleModal.bind(this)} />);
         key++;
@@ -1160,15 +1166,15 @@ export default class VFBMain extends React.Component {
       var modelChildren = tempModel.getRoot().getChildren();
       // const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
       if (node instanceof FlexLayout.TabNode || node instanceof FlexLayout.TabSetNode) {
-        if(modelChildren.length <= 1) {
+        if (modelChildren.length <= 1) {
           let tabSet: TabSetNode | undefined;
           tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset" });
           rootNode._addChild(tabSet);
           this.model.doAction(FlexLayout.Actions.moveNode(node.getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
           // tabSet.drop(tabNode, DockLocation.BOTTOM, 0);
         } else {
-          for(var i=0; i <= (modelChildren.length - 1); i++) {
-            if(modelChildren[i].getRect().getRight() > rightChild) {
+          for (var i = 0; i <= (modelChildren.length - 1); i++) {
+            if (modelChildren[i].getRect().getRight() > rightChild) {
               rightChild = modelChildren[i].getRect().getRight();
               idChild = i;
             }
@@ -1189,15 +1195,17 @@ export default class VFBMain extends React.Component {
         topLeft: false
       }}
       default={{
- x: 50, y: 50,
-                 height: window.innerHeight - 100,
-                 width: window.innerWidth - 100 
-}}className="htmlViewerVFB"
+        x: 50, y: 50,
+        height: window.innerHeight - 100,
+        width: window.innerWidth - 100 
+      }}className="htmlViewerVFB"
       disableDragging={true}
       maxHeight={window.innerHeight - 100} minHeight={100}
       maxWidth={window.innerWidth - 100} minWidth={100}
-      ref={d => { this.rnd2 = d; }} >
-        		<div><i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'/></div>
+      ref={d => {
+        this.rnd2 = d; 
+      }} >
+        <div><i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'/></div>
         <div ref={this.htmlToolbarRef}>
           <HTMLViewer
             id="ButtonBarComponentViewerContainer"
@@ -1205,10 +1213,10 @@ export default class VFBMain extends React.Component {
             componentType={'HTMLViewer'}
             content={this.state.htmlFromToolbar}
             style={{
- width: '100%',
-                     height: '100%',
-                     float: 'center' 
-}}
+              width: '100%',
+              height: '100%',
+              float: 'center' 
+            }}
             ref="htmlViewer" />
         </div>
       </Rnd> : undefined;
@@ -1224,11 +1232,11 @@ export default class VFBMain extends React.Component {
             top: false, right: false, bottom: false,
             left: false, topRight: false, bottomRight: false,
             bottomLeft: false, topLeft: false 
-}}
+          }}
           default={{
             x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
             height: 28, width: 340 
-}}
+          }}
           className="new-widget"
           disableDragging={true}
           maxHeight={35} minHeight={20}
@@ -1265,9 +1273,7 @@ export default class VFBMain extends React.Component {
             controlPanelControlConfigs={this.controlPanelControlConfigs}/>
         </div>
 
-        <div id="querybuilder" style={{ top: 0 }}>
-          <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
-        </div>
+        <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
 
         <div id="tutorialDiv">
           {this.tutorialRender}
