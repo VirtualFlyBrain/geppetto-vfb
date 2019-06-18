@@ -61,10 +61,11 @@ script:
 - echo -e "travis_fold:end:Geppetto-Config" || true
 - echo -e "travis_fold:start:Docker-Build" || true
 - docker pull java:8
-- travis_wait 400 docker build --cache-from java:8 -t $REPO:$COMMIT . ; if [ $RESULT -eq 0 ]; then echo -e "travis_fold:end:Docker-Build" || true; fi
+- travis_wait 60 $(docker build --cache-from java:8 -t $REPO:$COMMIT .) 
+- if [ $(docker images | grep "$REPO:$COMMIT" | wc -l) -eq 1 ]; then echo -e "travis_fold:end:Docker-Build" || true; fi
 - echo -e "travis_fold:start:Docker-Run" || true
-- travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
-- travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
+- travis_wait 60 $(docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet)
+- travis_wait 60 $(docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT)
 - sleep 2m
 - curl -sSf http://192.168.0.1:8080/org.geppetto.frontend/
 - echo -e "travis_fold:end:Docker-Run" || true
