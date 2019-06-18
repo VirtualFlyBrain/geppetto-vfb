@@ -4,7 +4,6 @@ node_js:
   - "9"
 env:
   global:
-    - secure: dn0FPQ5IG4M/3kdwnyI78ElQ308Vc3QnKAvkWfwMFb8QxDqxQdnTo7AV1qTMtbLrDNkeEWIgi4nc7jmXNtvGTwOfhAULVh6606Qs5B+ezTdwzajbbFMI8SKQx/pnTojOMu8dx7V4lMoR/YWcojR0VC1IWVC62TGbSB1k5BDGgH0=
     - DOCKER_FOLDER: "https://github.com/openworm/org.geppetto.git#development:utilities/docker/geppetto/"
     - CONTAINER_NAME: vfb_container
     - DEFAULT_BRANCH: development
