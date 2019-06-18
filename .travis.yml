@@ -23,7 +23,9 @@ install:
 script:
   - travis_retry docker build -t=$REPO:$TAG --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$TRAVIS_PULL_REQUEST_BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER
   - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG
+  - echo -e "travis_fold:start:Test_Server" || true
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
+  - echo -e "travis_fold:end:Test_Server" || true
   - sleep 30
   - http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'})
   - echo "$http_status"
