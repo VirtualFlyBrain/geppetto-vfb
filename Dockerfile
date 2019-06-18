@@ -6,6 +6,8 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
+ARG googleAnalyticsSiteCode=UA-45841517-1
+
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
@@ -52,6 +54,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
 
 RUN cd $HOME/workspace/org.geppetto.frontend &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
+  grep -rnwl '/opt/geppetto/' -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" &&\
   mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests --quiet install &&\
   rm -rf src
 
