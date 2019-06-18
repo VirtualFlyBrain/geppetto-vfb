@@ -31,9 +31,9 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.core.git "${targetBranch
   mvn -Dhttps.protocols=TLSv1.2 -DskipTests --quiet install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/openworm/org.geppetto.model.neuroml.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
-  cd org.geppetto.model.neuroml &&\
-  /bin/echo -e "\e[96mMaven install org.geppetto.model.neuroml\e[0m" &&\
+RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
+  cd uk.ac.vfb.geppetto &&\
+  /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
   mvn -Dhttps.protocols=TLSv1.2 -DskipTests --quiet install &&\
   rm -rf src
 
