@@ -411,6 +411,17 @@ export default class VFBMain extends React.Component {
       for (var i = 0; i < superTypes.length; i++) {
         if (superTypes[i].getId() == 'Template') {
           window.templateID = rootInstance.getId();
+          // Set wireframe by template:
+          switch(window.templateID) {
+            case "VFB_00030786":
+                this.canvasReference.setWireframe(true);
+                break;
+            case "VFB_00050000":
+                this.canvasReference.setWireframe(true);
+                break;
+            default:
+                this.canvasReference.setWireframe(false);
+          }
         }
       }
       // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
