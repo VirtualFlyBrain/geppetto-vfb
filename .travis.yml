@@ -61,7 +61,7 @@ script:
 - echo -e "travis_fold:end:Geppetto-Config" || true
 - echo -e "travis_fold:start:Docker-Build" || true
 - travis_wait 400 docker build -t $REPO:$COMMIT .
-- echo -e "travis_fold:end:Docker-Build" || true
+- if [ $RESULT -eq 0 ]; then echo -e "travis_fold:end:Docker-Build" || true; fi
 - echo -e "travis_fold:start:Docker-Run" || true
 - travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
