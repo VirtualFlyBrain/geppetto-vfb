@@ -149,19 +149,20 @@ REPO=$(/bin/echo "${REPO}" | /bin/sed -e 's/,]/]/g') && \
 /bin/echo "$REPO" > /opt/geppetto/org.geppetto/utilities/source_setup/config.json && \
 cat /opt/geppetto/org.geppetto/utilities/source_setup/config.json
 
-# Output amended config files
-RUN echo -e "\n\n\n\n/opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json" && \
-cat /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json && \ 
-echo -e "\n\n\n\n/opt/geppetto/org.geppetto/geppetto.plan" && \
-cat /opt/geppetto/org.geppetto/geppetto.plan && \
-echo -e "\n\n\n\n/opt/geppetto/org.geppetto/pom.xml" && \
-cat /opt/geppetto/org.geppetto/pom.xml && \
-echo -e "\n\n\n" && \
-cat /opt/geppetto/org.geppetto.frontend/pom.xml && \
-echo -e "\n\n\n"
+# # Output amended config files
+# RUN echo -e "\n\n\n\n/opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json" && \
+# cat /opt/geppetto/org.geppetto.frontend/src/main/webapp/GeppettoConfiguration.json && \ 
+# echo -e "\n\n\n\n/opt/geppetto/org.geppetto/geppetto.plan" && \
+# cat /opt/geppetto/org.geppetto/geppetto.plan && \
+# echo -e "\n\n\n\n/opt/geppetto/org.geppetto/pom.xml" && \
+# cat /opt/geppetto/org.geppetto/pom.xml && \
+# echo -e "\n\n\n" && \
+# cat /opt/geppetto/org.geppetto.frontend/pom.xml && \
+# echo -e "\n\n\n"
 
 # Build Geppetto:
-RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 --quiet clean install
+RUN cd /opt/geppetto/org.geppetto && mvn -Dhttps.protocols=TLSv1.2 clean install 
+# --quiet
 
 # deploy Geppetto:
 RUN cd /opt/geppetto/org.geppetto/utilities/source_setup && \
