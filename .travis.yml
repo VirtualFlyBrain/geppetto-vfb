@@ -21,8 +21,8 @@ before_install:
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@3.9.0 babel-preset-env@1.6.0 url-join@4.0.0
 script:
-  - travis_retry docker build -t=$REPO:$TAG --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$TRAVIS_PULL_REQUEST_BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER
-  - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG
+  - travis_retry docker build -t=$REPO:$TAG --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$TRAVIS_PULL_REQUEST_BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1 
+  - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
   - echo -e "travis_fold:start:Test_Server" || true
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
   - echo -e "travis_fold:end:Test_Server" || true
