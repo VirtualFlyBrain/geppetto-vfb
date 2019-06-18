@@ -16,7 +16,7 @@ var menuConfiguration = {
 	buttons: [
 		{
 			label: "Virtual Fly Brain",
-			icon: "fa fa-moschito",
+			icon: "",
 			action: "",
 			position: "bottom-start",
 			list: [
@@ -55,7 +55,7 @@ var menuConfiguration = {
 					list: [
 						{
 							label: "Twitter",
-							icon: "",
+							icon: "fa fa-twitter",
 							action: {
 								handlerAction: "openNewTab",
 								parameters: ["http://twitter.com/virtualflybrain"]
@@ -63,7 +63,7 @@ var menuConfiguration = {
 						},
 						{
 							label: "Facebook",
-							icon: "",
+							icon: "fa fa-facebook",
 							action: {
 								handlerAction: "openNewTab",
 								parameters: ["https://www.facebook.com/pages/Virtual-Fly-Brain/131151036987118"]
@@ -79,7 +79,7 @@ var menuConfiguration = {
 						},
 						{
 							label: "Rss",
-							icon: "",
+							icon: "fa fa-rss",
 							action: {
 								handlerAction: "openNewTab",
 								parameters: ["http://blog.virtualflybrain.org/rss"]
@@ -121,7 +121,7 @@ var menuConfiguration = {
 				},
 				{
 					label: "Term Info",
-					icon: "",
+					icon: "fa fa-info",
 					action: {
 						handlerAction: "UIElementHandler",
 						parameters: ["termInfoVisible"]
@@ -129,7 +129,7 @@ var menuConfiguration = {
 				},
 				{
 					label: "3D Viewer",
-					icon: "",
+					icon: "fa fa-cube",
 					action: {
 						handlerAction: "UIElementHandler",
 						parameters: ["canvasVisible"]
@@ -137,7 +137,7 @@ var menuConfiguration = {
 				},
 				{
 					label: "Slice Viewer",
-					icon: "",
+					icon: "fa fa-sliders",
 					action: {
 						handlerAction: "UIElementHandler",
 						parameters: ["sliceViewerVisible"]
