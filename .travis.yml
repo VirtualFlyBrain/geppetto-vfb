@@ -4,7 +4,7 @@ node_js:
   - "9"
 env:
   global:
-    - DOCKER_FOLDER: "https://github.com/openworm/org.geppetto.git#development:utilities/docker/geppetto/"
+    - DOCKER_FOLDER: "$TRAVIS_BUILD_DIR/"
     - CONTAINER_NAME: vfb_container
     - DEFAULT_BRANCH: development
     - LANDING_PAGE: "http://localhost:8080/org.geppetto.frontend"
