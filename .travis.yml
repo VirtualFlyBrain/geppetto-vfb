@@ -60,7 +60,8 @@ script:
   fi
 - echo -e "travis_fold:end:Geppetto-Config" || true
 - echo -e "travis_fold:start:Docker-Build" || true
-- travis_wait 400 docker build -t $REPO:$COMMIT . ; if [ $RESULT -eq 0 ]; then echo -e "travis_fold:end:Docker-Build" || true; fi
+- docker pull java:8
+- travis_wait 400 docker build --cache-from java:8 -t $REPO:$COMMIT . ; if [ $RESULT -eq 0 ]; then echo -e "travis_fold:end:Docker-Build" || true; fi
 - echo -e "travis_fold:start:Docker-Run" || true
 - travis_wait 200 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 dockernet
 - travis_wait 200 docker run -d --name geppetto_container -p 8080:8080 --net=dockernet $REPO:$COMMIT
@@ -98,7 +99,7 @@ script:
   if [ "$VFBSUB" != "local" ]; then 
     sed -i 's|"useSsl":.*,|"useSsl":true,|g' $TRAVIS_BUILD_DIR/dockerFiles/GeppettoConfiguration.json
     sed -i "s|http://solr.virtualflybrain.com/solr/|/solr/|g" $TRAVIS_BUILD_DIR/components/VFBMain.js
-    docker build -f Dockerfile -t $REPO:$VFBSUB . 
+    docker build --cache-from $REPO:$COMMIT -f Dockerfile -t $REPO:$VFBSUB . 
     docker tag $REPO:$VFBSUB $REPO:$TAG-$VFBSUB
   else
     docker tag $REPO:$COMMIT $REPO:$TAG
