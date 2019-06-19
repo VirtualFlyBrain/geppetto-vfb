@@ -8,7 +8,7 @@
     "test": "jest",
     "prebuild": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build": "webpack -p --progress",
-    "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "prebuild-dev": "eslint --verbose --debug --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint --verbose --debug ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev": "webpack --devtool eval",
     "prebuild-dev-noTest": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev-noTest": "webpack --devtool source-map --env.noTest=true",
