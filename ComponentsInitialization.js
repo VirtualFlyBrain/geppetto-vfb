@@ -1,7 +1,7 @@
 global.jQuery = require("jquery");
 global.GEPPETTO_CONFIGURATION = require('./GeppettoConfiguration.json');
 
-process.setMaxListeners(Infinity);
+emitter.setMaxListeners(Infinity);
 
 jQuery(function () {
   require('geppetto-client-initialization');
