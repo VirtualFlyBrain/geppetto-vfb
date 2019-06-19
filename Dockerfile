@@ -61,10 +61,10 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
 RUN cd $HOME/workspace/org.geppetto.frontend &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
   grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" &&\
-  mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests --quiet install ||\
-  tail -n +1 /home/developer/.npm/_logs/*-debug.log 
+  mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests --quiet install &&\
+  rm -rf src
   
-RUN rm -rf src
+RUN tail -n +1 /home/developer/.npm/_logs/*-debug.log
 
 WORKDIR $HOME
 RUN mkdir rm $SERVER_HOME/./repository/usr
