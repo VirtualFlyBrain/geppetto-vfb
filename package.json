@@ -1,26 +1,33 @@
 {
   "name": "Virtual_Fly_Brain",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "description": "A hub for Drosophila melanogaster neural anatomy and imaging data.",
   "repository": "http://git.geppetto.org",
   "license": "MIT",
   "scripts": {
-    "prebuild": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "test": "jest",
+    "prebuild": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build": "webpack -p --progress",
-    "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev": "webpack --devtool eval",
-    "prebuild-dev-noTest": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "prebuild-dev-noTest": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev-noTest": "webpack --devtool source-map --env.noTest=true",
-    "prebuild-dev-noTest:watch": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "prebuild-dev-noTest:watch": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev-noTest:watch": "webpack --devtool source-map --env.noTest=true --progress --watch",
+    "prestart": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
   },
-  "dependencies": {
-    "@geppettoengine/geppetto-client": "openworm/geppetto-client#development",
+  "devDependencies": {
     "@material-ui/icons": "3.0.1",
-    "react-collapsible": "^2.3.1"
+    "react-collapsible": "^2.3.1",
+    "babel-preset-env": "^1.6.0",
+    "eslint-plugin-jest": "^22.6.4",
+    "jest": "^24.8.0",
+    "jest-puppeteer": "^3.9.0",
+    "puppeteer": "^1.17.0",
+    "url-join": "^4.0.0",
+    "@geppettoengine/geppetto-client": "1.0.0"
   },
-  "devDependencies": {},
   "buildOptions": {
     "emitEntryPoint": true,
     "compile": {
