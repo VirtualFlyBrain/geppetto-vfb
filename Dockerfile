@@ -61,7 +61,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
 RUN cd $HOME/workspace/org.geppetto.frontend &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
   grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" &&\
-  mvn -e -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests --quiet install &&\
+  mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install &&\
   rm -rf src
   
 WORKDIR $HOME
