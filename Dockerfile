@@ -71,6 +71,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend &&\
   rm -rf src
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
+COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 
 WORKDIR $HOME
 RUN mkdir rm $SERVER_HOME/./repository/usr
