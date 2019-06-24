@@ -14,12 +14,12 @@ jQuery(function () {
 
   ReactDOM.render(
     <ErrorCatcher>
-    <Router basename={GEPPETTO_CONFIGURATION.contextPath}>
-      <Switch>
-        <Route path="/geppetto" component={VFBMain} />
-        <Redirect from="/" to="/geppetto" />
-      </Switch>
-    </Router>
+      <Router basename={GEPPETTO_CONFIGURATION.contextPath}>
+        <Switch>
+          <Route path="/geppetto" component={VFBMain} />
+          <Redirect from="/" to="/geppetto" />
+        </Switch>
+      </Router>
     </ErrorCatcher>
     , document.getElementById('mainContainer'));
 });

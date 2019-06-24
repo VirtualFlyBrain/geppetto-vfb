@@ -1,5 +1,5 @@
 var styled = require('react-tabtab').styled;
-let {TabListStyle, ActionButtonStyle, TabStyle, PanelStyle} = styled;
+let { TabListStyle, ActionButtonStyle, TabStyle, PanelStyle } = styled;
 TabListStyle = TabListStyle.extend`
 background-color: transparent;
 color: #ffffff;
@@ -11,13 +11,13 @@ background-color: transparent;
 color: #11bffe;
 transition: color .28s ease;
 border: 1px solid #11bffe;
-${props => props.active && !props.vertical ?
-    `
+${props => props.active && !props.vertical
+    ? `
     background-color: #ffffff;
     color: #11bffe;
     border: 2px solid #11bffe;
     `
-: null}
+    : null}
 &:hover {
     background-color: transparent;
     color: #00a0db;
@@ -42,8 +42,8 @@ border-radius: 2px;
 `;
 // need to follow this object naming
 module.exports = {
-    TabList: TabListStyle,
-    ActionButton: ActionButtonStyle,
-    Tab: TabStyle,
-    Panel: PanelStyle
+  TabList: TabListStyle,
+  ActionButton: ActionButtonStyle,
+  Tab: TabStyle,
+  Panel: PanelStyle
 };

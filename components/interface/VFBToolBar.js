@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 import React from 'react';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
 
@@ -5,267 +6,267 @@ require('../../css/VFBToolBar.less');
 var Rnd = require('react-rnd').default;
 
 var menuConfiguration = {
-	global: {
-		subMenuOpenOnHover: true,
-		menuOpenOnClick: true,
-		menuPadding: 2,
-		fontFamily: "Khan",
-		menuFontSize: "14",
-		subMenuFontSize: "12"
-	},
-	buttons: [
-		{
-			label: "Virtual Fly Brain",
-			icon: "",
-			action: "",
-			position: "bottom-start",
-			list: [
-				{
-					label: "About",
-					icon: "",
-					action: {
-						handlerAction: "clickAbout",
-						parameters: []
-					}
-				},
-				{
-					label: "Contribute",
-					icon: "",
-					action: {
-						handlerAction: "clickContribute",
-						parameters: []
-					}
-				},
-				{
-					label: "Feedback",
-					icon: "",
-					action: {
-						handlerAction: "clickFeedback",
-						parameters: []
-					}
-				},
-				{
-					label: "Social media",
-					icon: "",
-					position: "right-start",
-					action: {
-						handlerAction: "submenu",
-						parameters: ["undefinedAction"]
-					},
-					list: [
-						{
-							label: "Twitter",
-							icon: "fa fa-twitter",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["http://twitter.com/virtualflybrain"]
-							}
-						},
-						{
-							label: "Facebook",
-							icon: "fa fa-facebook",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["https://www.facebook.com/pages/Virtual-Fly-Brain/131151036987118"]
-							}
-						},
-						{
-							label: "Blog",
-							icon: "",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["https://virtualflybrain.tumblr.com/"]
-							}
-						},
-						{
-							label: "Rss",
-							icon: "fa fa-rss",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["http://blog.virtualflybrain.org/rss"]
-							}
-						}
-					]
-				}
-			]
-		},
-		{
-			label: "Tools",
-			icon: "",
-			action: "",
-			position: "bottom-start",
-			list: [
-				{	
-					label: "Search",	
-					icon: "fa fa-search",	
-					action: {	
-						handlerAction: "UIElementHandler",	
-						parameters: ["spotlightVisible"]	
-					}	
-				},	
-				{	
-					label: "Query",	
-					icon: "fa fa-quora",	
-					action: {	
-						handlerAction: "UIElementHandler",	
-						parameters: ["queryBuilderVisible"]	
-					}	
-				},	
-				{	
-					label: "Layers",	
-					icon: "fa fa-list",	
-					action: {	
-						handlerAction: "UIElementHandler",	
-						parameters: ["controlPanelVisible"]	
-					}	
-				},
-				{
-					label: "Term Info",
-					icon: "fa fa-info",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["termInfoVisible"]
-					}
-				},
-				{
-					label: "3D Viewer",
-					icon: "fa fa-cube",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["canvasVisible"]
-					}
-				},
-				{
-					label: "Slice Viewer",
-					icon: "fa fa-sliders",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["sliceViewerVisible"]
-					}
-				}				
-			]
-		},
-		{
-			label: "History",
-			icon: "",
-			action: "",
-			position: "bottom-start",
-			dynamicListInjector: {
-						handlerAction: "historyMenuInjector",
-						parameters: ["undefined"]
-					}
-		},
-		{
-			label: "Templates",
-			icon: "",
-			action: "",
-			position: "bottom-start",
-			list: [
-				{
-					label: "Adult",
-					icon: "",
-					position: "right-start",
-					action: {
-						handlerAction: "submenu",
-						parameters: ["undefinedAction"]
-					},
-					list: [
-						{
-							label: "Adult Brain (JFRC2)",
-							icon: "",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
-							}
-						},
-						{
-							label: "Adult VNS",
-							icon: "",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
-							}
-						},
-						{
-							label: "Ito Half Brain",
-							icon: "",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00030786"]
-							}
-						}
-					]
-				},
-				{
-					label: "Larval",
-					icon: "",
-					position: "right-start",
-					action: {
-						handlerAction: "submenu",
-						parameters: ["undefinedAction"]
-					},
-					list: [
-						{
-							label: "L1 CNS (ssTEM)",
-							icon: "",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00050000"]
-							}
-						},
-						{
-							label: "L3 CNS (Wood2018)",
-							icon: "",
-							action: {
-								handlerAction: "openNewTab",
-								parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00049000"]
-							}
-						}
-					]
-				}
-			]
-		},
-		{
-			label: "Help",
-			icon: "",
-			action: "",
-			position: "bottom-start",
-			list: [
-				{
-					label: "Start Tutorial",
-					icon: "",
-					action: {
-						handlerAction: "UIElementHandler",
-						parameters: ["tutorialWidgetVisible"]
-					}
-				},
-				{
-					label: "F.A.Q.",
-					icon: "",
-					action: {
-						handlerAction: "openNewTab",
-						parameters: ["http://www.virtualflybrain.org/site/vfb_site/faq.htm"]
-					}
-				},
-				{
-					label: "Support Forum",
-					icon: "",
-					action: {
-						handlerAction: "openNewTab",
-						parameters: ["https://groups.google.com/forum/#!forum/vfb-suport"]
-					}
-				},
-				{
-					label: "Report an issue",
-					icon: "",
-					action: {
-						handlerAction: "clickFeedback",
-						parameters: []
-					}
-				}
-			]
-		}
-	]
+  global: {
+    subMenuOpenOnHover: true,
+    menuOpenOnClick: true,
+    menuPadding: 2,
+    fontFamily: "Khan",
+    menuFontSize: "14",
+    subMenuFontSize: "12"
+  },
+  buttons: [
+    {
+      label: "Virtual Fly Brain",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      list: [
+        {
+          label: "About",
+          icon: "",
+          action: {
+            handlerAction: "clickAbout",
+            parameters: []
+          }
+        },
+        {
+          label: "Contribute",
+          icon: "",
+          action: {
+            handlerAction: "clickContribute",
+            parameters: []
+          }
+        },
+        {
+          label: "Feedback",
+          icon: "",
+          action: {
+            handlerAction: "clickFeedback",
+            parameters: []
+          }
+        },
+        {
+          label: "Social media",
+          icon: "",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "Twitter",
+              icon: "fa fa-twitter",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://twitter.com/virtualflybrain"]
+              }
+            },
+            {
+              label: "Facebook",
+              icon: "fa fa-facebook",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["https://www.facebook.com/pages/Virtual-Fly-Brain/131151036987118"]
+              }
+            },
+            {
+              label: "Blog",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["https://virtualflybrain.tumblr.com/"]
+              }
+            },
+            {
+              label: "Rss",
+              icon: "fa fa-rss",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://blog.virtualflybrain.org/rss"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      label: "Tools",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      list: [
+        {
+          label: "Search",
+          icon: "fa fa-search",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["spotlightVisible"]
+          }
+        },
+        {
+          label: "Query",
+          icon: "fa fa-quora",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["queryBuilderVisible"]
+          }
+        },
+        {
+          label: "Layers",
+          icon: "fa fa-list",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["controlPanelVisible"]
+          }
+        },
+        {
+          label: "Term Info",
+          icon: "fa fa-info",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["termInfoVisible"]
+          }
+        },
+        {
+          label: "3D Viewer",
+          icon: "fa fa-cube",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["canvasVisible"]
+          }
+        },
+        {
+          label: "Slice Viewer",
+          icon: "fa fa-sliders",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["sliceViewerVisible"]
+          }
+        }
+      ]
+    },
+    {
+      label: "History",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      dynamicListInjector: {
+        handlerAction: "historyMenuInjector",
+        parameters: ["undefined"]
+      }
+    },
+    {
+      label: "Templates",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      list: [
+        {
+          label: "Adult",
+          icon: "fa fa-twitter",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "Adult Brain (JFRC2)",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+              }
+            },
+            {
+              label: "Adult VNS",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
+              }
+            },
+            {
+              label: "Ito Half Brain",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00030786"]
+              }
+            }
+          ]
+        },
+        {
+          label: "Larval",
+          icon: "",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "L1 CNS (ssTEM)",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00050000"]
+              }
+            },
+            {
+              label: "L3 CNS (Wood2018)",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00049000"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      label: "Help",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      list: [
+        {
+          label: "Start Tutorial",
+          icon: "",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["tutorialWidgetVisible"]
+          }
+        },
+        {
+          label: "F.A.Q.",
+          icon: "",
+          action: {
+            handlerAction: "openNewTab",
+            parameters: ["http://www.virtualflybrain.org/site/vfb_site/faq.htm"]
+          }
+        },
+        {
+          label: "Support Forum",
+          icon: "",
+          action: {
+            handlerAction: "openNewTab",
+            parameters: ["https://groups.google.com/forum/#!forum/vfb-suport"]
+          }
+        },
+        {
+          label: "Report an issue",
+          icon: "",
+          action: {
+            handlerAction: "clickFeedback",
+            parameters: []
+          }
+        }
+      ]
+    }
+  ]
 };
 
 export default class VFBToolBar extends React.Component {
@@ -714,7 +715,7 @@ export default class VFBToolBar extends React.Component {
     this.props.htmlOutputHandler(htmlContent);
   }
 
-	menuHandler (click) {
+  menuHandler (click) {
     switch (click.handlerAction) {
     case 'openNewTab':
       click.parameters.map((item, index) => {
@@ -759,8 +760,8 @@ export default class VFBToolBar extends React.Component {
         className="vfbToolBarClass"
         disableDragging={true}
         ref={e => {
- this.rnd = e; 
-}}
+          this.rnd = e;
+        }}
         style={{ "backgroundColor": "#010101" }} >
         <nav>
           <div className="leftSide">

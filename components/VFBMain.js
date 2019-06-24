@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
 import StackViewer from './interface/StackViewer';
@@ -412,15 +413,15 @@ export default class VFBMain extends React.Component {
         if (superTypes[i].getId() == 'Template') {
           window.templateID = rootInstance.getId();
           // Set wireframe by template:
-          switch(window.templateID) {
-            case "VFB_00030786":
-                this.canvasReference.setWireframe(true);
-                break;
-            case "VFB_00050000":
-                this.canvasReference.setWireframe(true);
-                break;
-            default:
-                this.canvasReference.setWireframe(false);
+          switch (window.templateID) {
+          case "VFB_00030786":
+            this.canvasReference.setWireframe(true);
+            break;
+          case "VFB_00050000":
+            this.canvasReference.setWireframe(true);
+            break;
+          default:
+            this.canvasReference.setWireframe(false);
           }
         }
       }
@@ -1199,8 +1200,8 @@ export default class VFBMain extends React.Component {
       }
     };
 
-    this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined) ?
-      <Rnd enableResizing={{
+    this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined)
+      ? <Rnd enableResizing={{
         top: false, right: false, bottom: false, left: false,
         topRight: false, bottomRight: false, bottomLeft: false,
         topLeft: false
