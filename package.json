@@ -5,7 +5,6 @@
   "repository": "http://git.geppetto.org",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
     "prebuild": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build": "webpack -p --progress",
     "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
@@ -20,12 +19,6 @@
   "devDependencies": {
     "@material-ui/icons": "3.0.1",
     "react-collapsible": "^2.3.1",
-    "babel-preset-env": "^1.6.0",
-    "eslint-plugin-jest": "^22.6.4",
-    "jest": "^24.8.0",
-    "jest-puppeteer": "^3.9.0",
-    "puppeteer": "^1.17.0",
-    "url-join": "^4.0.0",
     "@geppettoengine/geppetto-client": "openworm/geppetto-client#fix_linting"
   },
   "buildOptions": {
