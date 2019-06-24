@@ -63,7 +63,9 @@ RUN cd $HOME/workspace/org.geppetto.frontend &&\
   grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" &&\
   mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install &&\
   rm -rf src
-  
+
+COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
+
 WORKDIR $HOME
 RUN mkdir rm $SERVER_HOME/./repository/usr
 RUN cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
