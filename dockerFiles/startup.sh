@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Swap servers
-grep -rls pdb.virtualflybrain.org /home/ | xargs sed -i "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" &
+grep -rls pdb.virtualflybrain.org $HOME/ | xargs sed -i "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" &
 grep -rls owl.virtualflybrain.org $HOME/workspace/ | xargs sed -iv "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g"	grep -rls owl.virtualflybrain.org /home/ | xargs sed -i "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g" &
 grep -rls solr.virtualflybrain.org $HOME/workspace/ | xargs sed -iv "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"	grep -rls solr.virtualflybrain.org /home/ | xargs sed -i "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" &
 
