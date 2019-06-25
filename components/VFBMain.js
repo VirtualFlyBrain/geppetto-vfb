@@ -844,17 +844,17 @@ export default class VFBMain extends React.Component {
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
           order={['Label',
-                 'Types',
-                 'Parents',
-                 'Thumbnail',
-                 'Examples',
-                 'Relationships',
-                 'Query For',
-                 'Description',
-                 'References',
-                 'Cross References',
-                 'Aligned To',
-                 'Download']} /></div>)
+                  'Types',
+                  'Parents',
+                  'Thumbnail',
+                  'Examples',
+                  'Relationships',
+                  'Query For',
+                  'Description',
+                  'References',
+                  'Cross References',
+                  'Aligned To',
+                  'Download']} /></div>)
     } else if (component === "sliceViewer") {
       node.setEventListener("close", () => {
         this.setState({ sliceViewerVisible: false });
