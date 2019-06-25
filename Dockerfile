@@ -72,6 +72,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend &&\
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
+COPY dockerFiles/startup.sh /
 
 WORKDIR $HOME
 RUN mkdir rm $SERVER_HOME/./repository/usr
@@ -79,4 +80,4 @@ RUN cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_serv
 
 
 EXPOSE 8080
-CMD [ "/bin/bash", "-c", "$SERVER_HOME/bin/startup.sh" ]
+CMD [ "/bin/bash", "-c", "/startup.sh" ]
