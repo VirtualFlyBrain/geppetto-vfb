@@ -840,6 +840,7 @@ export default class VFBMain extends React.Component {
         <VFBTermInfoWidget
           termInfoHandler={this.termInfoHandler}
           ref={ref => this.termInfoReference = ref}
+          queryBuilder={this.refs.querybuilderRef}
           showButtonBar={true}
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
@@ -994,12 +995,6 @@ export default class VFBMain extends React.Component {
       });
     }
 
-    // Query builder initialization
-    this.refs.querybuilderRef.setResultsColumnMeta(this.queryResultsColMeta);
-    this.refs.querybuilderRef.setResultsColumns(this.queryResultsColumns);
-    this.refs.querybuilderRef.setResultsControlsConfig(this.queryResultsControlConfig);
-    this.refs.querybuilderRef.addDataSource(this.queryBuilderDatasourceConfig);
-
     // Loading ids passed through the browser's url
     if ((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=") == -1)) {
       var that = this;
@@ -1125,11 +1120,11 @@ export default class VFBMain extends React.Component {
         enableResizing={{
           top: false, right: false, bottom: false,
           left: false, topRight: false, bottomRight: false,
-          bottomLeft: false, topLeft: false 
+          bottomLeft: false, topLeft: false
         }}
         default={{
           x: this.modalX, y: this.modalY,
-          height: 150, width: 150 
+          height: 150, width: 150
         }}
         className="historyModal"
         disableDragging={true}
@@ -1203,19 +1198,18 @@ export default class VFBMain extends React.Component {
     this.htmlToolbarRender = (this.state.htmlFromToolbar !== undefined)
       ? <Rnd enableResizing={{
         top: false, right: false, bottom: false, left: false,
-        topRight: false, bottomRight: false, bottomLeft: false,
-        topLeft: false
+        topRight: false, bottomRight: false, bottomLeft: false, topLeft: false
       }}
       default={{
         x: 50, y: 50,
         height: window.innerHeight - 100,
-        width: window.innerWidth - 100 
+        width: window.innerWidth - 100
       }}className="htmlViewerVFB"
       disableDragging={true}
       maxHeight={window.innerHeight - 100} minHeight={100}
       maxWidth={window.innerWidth - 100} minWidth={100}
       ref={d => {
-        this.rnd2 = d; 
+        this.rnd2 = d;
       }} >
         <div><i onClick={this.closeHtmlViewer} className='close-slider fa fa-times'/></div>
         <div ref={this.htmlToolbarRef}>
@@ -1227,7 +1221,7 @@ export default class VFBMain extends React.Component {
             style={{
               width: '100%',
               height: '100%',
-              float: 'center' 
+              float: 'center'
             }}
             ref="htmlViewer" />
         </div>
@@ -1235,19 +1229,19 @@ export default class VFBMain extends React.Component {
 
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        <VFBToolBar 
+        <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
 
         <Rnd
           enableResizing={{
-            top: false, right: false, bottom: false,
-            left: false, topRight: false, bottomRight: false,
-            bottomLeft: false, topLeft: false 
+            top: false, right: false, bottom: false, left: false,
+            topRight: false, bottomRight: false, bottomLeft: false, topLeft: false
           }}
           default={{
-            x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY(),
-            height: 28, width: 340 
+            x: this.getButtonBarDefaultX(),
+            y: this.getButtonBarDefaultY(),
+            height: 28, width: 340
           }}
           className="new-widget"
           disableDragging={true}
@@ -1273,19 +1267,32 @@ export default class VFBMain extends React.Component {
           clickOnBordersAction={clickOnBordersAction}/>
 
         <div id="spotlight" style={{ top: 0 }}>
-          <SpotLight ref="spotlightRef" indexInstances={false} spotlightConfig={this.spotlightConfig}
-            spotlightDataSourceConfig={this.spotlightDataSourceConfig} icon={"styles.Modal"}
+          <SpotLight ref="spotlightRef"
+            indexInstances={false}
+            spotlightConfig={this.spotlightConfig}
+            spotlightDataSourceConfig={this.spotlightDataSourceConfig}
+            icon={"styles.Modal"}
             useBuiltInFilter={false} />
         </div>
 
         <div id="controlpanel" style={{ top: 0 }}>
-          <ControlPanel ref="controlpanelRef" icon={"styles.Modal"} enableInfiniteScroll={true}
-            useBuiltInFilter={false} controlPanelColMeta={this.controlPanelColMeta}
-            controlPanelConfig={this.controlPanelConfig} columns={this.controlPanelColumns}
+          <ControlPanel ref="controlpanelRef"
+            icon={"styles.Modal"}
+            enableInfiniteScroll={true}
+            useBuiltInFilter={false}
+            controlPanelColMeta={this.controlPanelColMeta}
+            controlPanelConfig={this.controlPanelConfig}
+            columns={this.controlPanelColumns}
             controlPanelControlConfigs={this.controlPanelControlConfigs}/>
         </div>
 
-        <QueryBuilder ref="querybuilderRef" icon={"styles.Modal"} useBuiltInFilter={false} />
+        <QueryBuilder ref="querybuilderRef"
+          icon={"styles.Modal"}
+          useBuiltInFilter={false}
+          resultsColMeta={this.queryResultsColMeta}
+          resultsColumns={this.queryResultsColumns}
+          resultsControlConfig={this.queryResultsControlConfig}
+          datasourceConfig={this.queryBuilderDatasourceConfig} />
 
         <div id="tutorialDiv">
           {this.tutorialRender}
