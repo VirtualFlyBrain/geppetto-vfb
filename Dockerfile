@@ -49,6 +49,12 @@ RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${targ
   mvn -Dhttps.protocols=TLSv1.2 -DskipTests --quiet install &&\
   rm -rf src
 
+RUN ../copy.sh https://github.com/openworm/org.geppetto.model.swc.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
+  cd org.geppetto.model.swc &&\
+  /bin/echo -e "\e[96mMaven install org.geppetto.model.swc\e[0m" &&\
+  mvn -Dhttps.protocols=TLSv1.2 -DskipTests --quiet install &&\
+  rm -rf src
+
 RUN ../copy.sh https://github.com/openworm/org.geppetto.frontend.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
@@ -63,11 +69,16 @@ RUN cd $HOME/workspace/org.geppetto.frontend &&\
   grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" &&\
   mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install &&\
   rm -rf src
-  
+
+COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
+COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
+COPY dockerFiles/startup.sh /
+
 WORKDIR $HOME
 RUN mkdir rm $SERVER_HOME/./repository/usr
 RUN cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
 
 
 EXPOSE 8080
-CMD [ "/bin/bash", "-c", "$SERVER_HOME/bin/startup.sh" ]
+EXPOSE 8443
+CMD [ "/bin/bash", "-c", "/startup.sh" ]
