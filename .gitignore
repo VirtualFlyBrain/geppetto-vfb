@@ -1,4 +1,3 @@
-
 .project
 
 .settings/.jsdtscope
@@ -7,4 +6,11 @@
 
 *.name
 
+node_modules
+
+package-lock.json
+
+build
+
 .DS_Store
+

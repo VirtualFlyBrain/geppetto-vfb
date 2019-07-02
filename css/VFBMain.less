@@ -1,0 +1,224 @@
+@import "./colors.less";
+
+@-webkit-keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+.flexlayout__layout {
+	left: 0;
+	top: 30px;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	overflow:hidden;
+	border-top: 5px solid @background_color_body_0;
+	//border-left: 8px solid @background_color_body_0;
+	//border-right: 8px solid @background_color_body_0;
+}
+
+#spotlightVisible {
+	color: white;
+	background-color: rgb(1, 1, 1);
+}
+
+#spotlightVisible:hover {
+	background-color: #11bffe;
+}
+
+#queryBuilderVisible {
+	color: white;
+	background-color: rgb(1, 1, 1);
+}
+
+#queryBuilderVisible:hover {
+	background-color: #11bffe;
+}
+
+#controlPanelVisible {
+	color: white;
+	background-color: rgb(1, 1, 1);
+}
+
+#controlPanelVisible:hover {
+	background-color: #11bffe;
+}
+
+#mainContainer {
+    background: #252323;
+}
+
+#geppettologo {
+	top: 5px;
+    left: 15px;
+    height: 21px;
+    font-size: 21px;
+    display: block;
+	text-align: center;
+	color: #ffffff;
+}
+
+#simple-popper {
+	z-index: 100;
+}
+
+.button-bar-btn {
+    border: none !important;
+    margin-right: 5px;
+    margin-left: 5px;
+    min-width: 25px;
+	min-height: 25px;
+	font-size: 14px;
+	margin-top: 2px;
+}
+
+.fa-spin {
+	color: #11bffe;
+}
+
+.flexChildContainer {
+    padding: 8px;
+}
+
+.historyModal {
+    border-color: #11bffe;
+    color: #ffffff;
+    font-size: 20px;
+    font-family: 'Khand', sans-serif;
+    border: 0px solid;
+    background: #444141;
+	padding: 4px 5px 4px 5px;
+	z-index: 100;
+}
+
+.historyItemList {
+    text-overflow: ellipsis;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.historyItemList:hover {
+    color: #ffffff;
+    background-color: #11bffe;
+}
+
+.new-widget {
+	z-index: 1;
+	color: white;
+	background-color: rgb(1, 1, 1);
+}
+
+.containerForTabs {
+    top: 30px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.htmlViewerVFB {
+	animation: fadeIn 1s;
+	-webkit-animation: fadeIn 1s;
+	transition: opacity 1s ease-out;
+	background-color: @background_color_widget;
+	background: @background_color_widget;
+	color: white;
+	opacity: 0.9;
+	z-index: 999999;
+	overflow-y: scroll;
+	box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
+}
+
+.closeHTMLViewer {
+	float: right;
+	height: 5px;
+	font-size: 26px;
+	color: @primary_color;
+	margin-left: 5px;
+	cursor: pointer;
+}
+
+#HTMLViewerContainer {
+	padding: 20px;
+}
+
+.spinner-container .gpt-fly {
+	width: 100px;
+	font-size: 100px;
+	margin: 0 auto;
+	margin-bottom: 30px;
+}
+
+.transparent {
+	background: transparent !important;
+}
+
+#querybuilder .query-results-images-column img{
+	max-height: 110px;
+}
+
+#querybuilder .query-results-images-column img:hover{
+	max-height: 300px;
+}
+
+.tutorialMessage{
+	height : 100% !important;
+}
+
+.gpt-query:before {
+	margin-top: 3px;
+}
+
+.gpt-shapehide:before {
+	margin-top: 3px;
+}
+
+.gpt-shapeshow:before {
+	margin-top: 5px;
+}
+
+.ui-widget {
+	font-family: arial, sans-serif;
+	font-size:13px;
+}
+
+@media screen and (max-width: 1200px) {
+	.uk-visible-large {
+	display: none !important;
+	}
+}
+
+@media screen and (max-width: 1000px) {
+	.wideDivC {
+		display: none !important;
+	}
+}
+
+@media screen and (max-width: 680px) {
+	.uk-navbar-content {
+		display: none !important;
+	}
+}
+
+.btn:not(ul):not(.btn-warning):not([disabled]) {
+    background-color: #252323;
+    color: #11bffe;
+}
+
+// query results rows 
+.griddle-body {
+	font-size: 14px !important;
+}
