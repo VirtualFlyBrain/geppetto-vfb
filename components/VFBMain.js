@@ -844,16 +844,20 @@ export default class VFBMain extends React.Component {
           showButtonBar={true}
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
-          order={['Label',
+          order={['Name',
+                  'Label',
                   'Types',
+                  'Classification',
                   'Parents',
                   'Thumbnail',
                   'Examples',
+                  'Source',
+                  'License',
                   'Relationships',
                   'Query For',
                   'Description',
-                  'References',
                   'Cross References',
+                  'References',
                   'Aligned To',
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
