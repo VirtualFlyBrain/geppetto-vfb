@@ -570,6 +570,7 @@ export default class VFBTermInfoWidget extends React.Component {
     var otherId;
     var otherName;
     var target = widget;
+    var that = this;
     var meta = path + "." + path + "_meta";
     if (n != undefined) {
       var metanode = Instances.getInstance(meta);
@@ -599,12 +600,12 @@ export default class VFBTermInfoWidget extends React.Component {
       var entity = Model[path];
       if (typeof (entity) != 'undefined' && entity instanceof Query) {
         // clear query builder unless ctrl pressed them add to compound.
-        GEPPETTO.QueryBuilder.open();
+        this.props.queryBuilder.open();
         if (!GEPPETTO.isKeyPressed("shift")) {
-          GEPPETTO.QueryBuilder.switchView(false, false);
-          GEPPETTO.QueryBuilder.clearAllQueryItems();
+          this.props.queryBuilder.switchView(false, false);
+          this.props.queryBuilder.clearAllQueryItems();
         } else {
-          GEPPETTO.QueryBuilder.switchView(false, false);
+          this.props.queryBuilder.switchView(false, false);
         }
 
         GEPPETTO.trigger('spin_logo');
@@ -612,25 +613,25 @@ export default class VFBTermInfoWidget extends React.Component {
 
         var callback = function () {
           // check if any results with count flag
-          if (GEPPETTO.QueryBuilder.props.model.count > 0) {
+          if (that.props.queryBuilder.props.model.count > 0) {
             // runQuery if any results
-            GEPPETTO.QueryBuilder.runQuery();
+            that.props.queryBuilder.runQuery();
           } else {
-            GEPPETTO.QueryBuilder.switchView(false);
+            that.props.queryBuilder.switchView(false);
           }
           // show query component
-          GEPPETTO.QueryBuilder.open();
+          that.props.queryBuilder.open();
           $("body").css("cursor", "default");
           GEPPETTO.trigger('stop_spin_logo');
         };
         // add query item + selection
         if (window[otherId] == undefined) {
           window.fetchVariableThenRun(otherId, function () {
-            GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback) 
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback) 
           });
         } else {
           setTimeout(function () {
-            GEPPETTO.QueryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback); 
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback); 
           }, 100);
         }
       } else {
@@ -725,8 +726,6 @@ export default class VFBTermInfoWidget extends React.Component {
   }
 
   render () {
-    // var VFBTermInfoWidget = WidgetCapability.createWidget(VFBTermInfo);
-
     return (
       <VFBTermInfo
         id={this.idWidget}

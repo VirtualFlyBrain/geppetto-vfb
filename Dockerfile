@@ -80,4 +80,5 @@ RUN cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_serv
 
 
 EXPOSE 8080
+EXPOSE 8443
 CMD [ "/bin/bash", "-c", "/startup.sh" ]
