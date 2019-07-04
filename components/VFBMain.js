@@ -854,6 +854,7 @@ export default class VFBMain extends React.Component {
                   'Source',
                   'License',
                   'Relationships',
+                  'Query for',
                   'Query For',
                   'Description',
                   'Cross References',
