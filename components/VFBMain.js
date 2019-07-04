@@ -849,6 +849,7 @@ export default class VFBMain extends React.Component {
                   'Types',
                   'Classification',
                   'Parents',
+                  'Logo',
                   'Thumbnail',
                   'Examples',
                   'Source',
