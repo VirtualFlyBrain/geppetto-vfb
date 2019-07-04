@@ -846,6 +846,7 @@ export default class VFBMain extends React.Component {
           termInfoId={this.termInfoId}
           order={['Name',
                   'Label',
+                  'Alternative Names',
                   'Types',
                   'Classification',
                   'Parents',
