@@ -58,4 +58,4 @@ after_success:
   type NOT IN (pull_request)
   - cd $TRAVIS_BUILD_DIR
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then docker push $REPO:$TAG ; fi
+  - docker push $REPO:$TAG
