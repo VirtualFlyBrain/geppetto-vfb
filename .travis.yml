@@ -55,7 +55,8 @@ script:
   - docker stop $(docker ps -a -q)
   - docker rm $(docker ps -a -q)
 after_success:
-  type NOT IN (pull_request)
+  - name: deploy
+  if: type NOT IN (pull_request)
   - cd $TRAVIS_BUILD_DIR
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
   - docker push $REPO:$TAG
