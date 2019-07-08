@@ -57,6 +57,6 @@ script:
 after_success:
   - name: deploy
   if: type NOT IN (pull_request)
-  - cd $TRAVIS_BUILD_DIR
-  - docker login -u $DOCKER_USER -p $DOCKER_PASS
-  - docker push $REPO:$TAG
+    - cd $TRAVIS_BUILD_DIR
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - docker push $REPO:$TAG
