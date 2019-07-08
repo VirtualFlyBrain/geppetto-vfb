@@ -22,24 +22,48 @@ var queryResultsColMeta = [
     "cssClassName": "query-results-name-column",
   },
   {
-    "columnName": "description",
+    "columnName": "expressed_in",
     "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Expressed_in",
+    "cssClassName": "query-results-expressed_in-column"
+  },
+  {
+    "columnName": "description",
+    "order": 4,
     "locked": false,
     "visible": true,
     "displayName": "Definition",
     "cssClassName": "query-results-description-column"
   },
   {
+    "columnName": "reference",
+    "order": 5,
+    "locked": false,
+    "visible": true,
+    "displayName": "Reference",
+    "cssClassName": "query-results-reference-column"
+  },
+  {
     "columnName": "type",
-    "order": 4,
+    "order": 6,
     "locked": false,
     "visible": true,
     "displayName": "Type",
     "cssClassName": "query-results-type-column"
   },
   {
+    "columnName": "stage",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Stage",
+    "cssClassName": "query-results-stage-column"
+  },
+  {
     "columnName": "controls",
-    "order": 5,
+    "order": 8,
     "locked": false,
     "visible": false,
     "customComponent": QueryResultsControlsComponent,
@@ -49,7 +73,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "images",
-    "order": 6,
+    "order": 9,
     "locked": false,
     "visible": true,
     "customComponent": SlideshowImageComponent,
@@ -59,7 +83,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "score",
-    "order": 7,
+    "order": 10,
     "locked": false,
     "visible": true,
     "displayName": "Score",
@@ -68,7 +92,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'description', 'type', 'images', 'score'];
+var queryResultsColumns = ['name', 'expressed_in', 'description', 'reference', 'type', 'stage', 'images', 'score'];
 
 var queryResultsControlConfig = {
   "Common": {
