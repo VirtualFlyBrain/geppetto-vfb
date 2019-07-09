@@ -55,7 +55,7 @@ script:
   - docker stop $(docker ps -a -q)
   - docker rm $(docker ps -a -q)
 after_success:
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+  - if [ $TRAVIS_PULL_REQUEST == false ]; then
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
