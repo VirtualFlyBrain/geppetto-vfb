@@ -17,7 +17,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "window.addVfbId('$entity$'.split(';')[0]);",
+    "actions": "window.addVfbId('$entity$'.split('&')[0]);",
     "displayName": "Name",
     "cssClassName": "query-results-name-column",
   },
