@@ -26,6 +26,8 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "if ('$entity$'.split(',').length > 1) window.addVfbId('$entity$'.split(',')[1]);",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column"
   },
@@ -42,6 +44,8 @@ var queryResultsColMeta = [
     "order": 5,
     "locked": false,
     "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "if ('$entity$'.split(',').length > 2) window.addVfbId('$entity$'.split(',')[3]);",
     "displayName": "Reference",
     "cssClassName": "query-results-reference-column"
   },
