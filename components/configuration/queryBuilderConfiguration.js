@@ -45,7 +45,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "if ('$entity$'.split(',').length > 2) window.addVfbId('$entity$'.split(',')[3]);",
+    "actions": "if ('$entity$'.split(',').length > 2) window.addVfbId('$entity$'.split(',')[2]);",
     "displayName": "Reference",
     "cssClassName": "query-results-reference-column"
   },
