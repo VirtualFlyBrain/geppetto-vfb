@@ -360,6 +360,26 @@
           returnType="//@libraries.3/@types.1"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        name="Test Query for exp from anatomy without warning copy"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Query for Exp from Anatomy"
+          description="Test Query for Exp from Anatomy"
+          returnType="//@libraries.3/@types.1"
+          query="&quot;statement&quot;: &quot;MATCH (ep:Class)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in {ARRAY_ID_RESULTS} WITH DISTINCT collect(ar.pub) as pubs, anat, ep UNWIND pubs as p MATCH (pub:pub { short_form: p}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub) } , PubMed: coalesce(pub.PMID, ''), FlyBase: coalesce(pub.FlyBase, ''), DOI: coalesce(pub.DOI, '') }) as pubs OPTIONAL MATCH (ep)&lt;-[:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, anat, ep, pubs , i  OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i) } , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel) } , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique) } ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template) } , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat) } ,image_folder: irw.folder, index: coalesce(irw.index, []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat) }  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep) }  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, '6959794' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (anat:Class) WHERE anat.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (ep:Class)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat) RETURN count(ep) as count&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS, &quot;ID&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="vfb_query schema processor"
+          description="vfb_query schema processor"
+          runForCount="false"
+          returnType="//@libraries.3/@types.1"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -562,6 +582,13 @@
         name="Owlery Pass 1st id list only"
         description="Keep nothing slimply pass ids to 1st list"
         queryProcessorId="owleryIdOnlyQueryProcessor2"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="OverlapsX"
+        name="subClassOf overlaps some X"
+        description="subClassOf overlaps some X"
+        query="object=%3Chttp://purl.obolibrary.org/obo/RO_0002131%3E%20some%20%3Chttp://purl.obolibrary.org/obo/$ID%3E&amp;amp;direct=false&amp;amp;includeDeprecated=false&amp;amp;includeEquivalent=false"
+        countQuery=""/>
   </dataSources>
   <dataSources
       id="owleryDataSourceRealise"
@@ -651,7 +678,7 @@
       name="Expression overlapping selected anatomy"
       description="Transgenes expressed in the $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.11 //@dataSources.2/@queries.14 //@dataSources.0/@queries.8 //@dataSources.2/@queries.0 //@dataSources.2/@queries.12 //@dataSources.0/@queries.9">
+      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.14 //@dataSources.0/@queries.11 //@dataSources.2/@queries.15 //@dataSources.2/@queries.12 //@dataSources.0/@queries.9">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28"/>
   </queries>
