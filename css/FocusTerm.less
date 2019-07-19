@@ -1,8 +1,8 @@
-.vfbToolBar {
+.focusTerm {
 	overflow: hidden;
     padding: 1em;
 	border-bottom: 0;
-	margin-top: -20px;
+	margin-top: 0;
 
 	a {
 		color: #FFF;
@@ -28,7 +28,7 @@
 		}
     }
 
-    .toolBarLeft {
+    .focusTermLeft {
 		float: left;
 		left: -20px;
 		margin-left: -20px;
@@ -36,11 +36,10 @@
         padding : 0 0 0 1em;
 
 
-		.toolBarDivL {
+		.focusTermDivL {
 			text-align: left;
 			left: -20px;
 			margin-left: -20px;
-			margin-top: 3px;
 
 			a {
 				color: whitesmoke !important;
@@ -64,12 +63,11 @@
 		}
     }
 
-    .toolBarCenter {
+    .focusTermCenter {
 		margin: 0 auto;
 		width: 25%;
-		padding-top : 1em;
 
-		.toolBarDivC {
+		.focusTermDivC {
 			text-align: center;
 
 			a {
@@ -94,12 +92,11 @@
 		}
     }
 
-    .toolBarRight {
-		margin-top: -40px;
+    .focusTermRight {
+		margin-top: -17px;
 		float: right;
-		padding-top : 1em;
 
-		.toolBarDivR {
+		.focusTermDivR {
 			text-align: left;
 
 			a {
@@ -148,133 +145,100 @@
 	}
 }
 
-// Adjust breakpoint as desired to select when the "hamburger" menu is
-// replaced by just the links.
-@media (min-width: 480px) {
-	
-	nav {
-
-		.navWide {
-			display: block;
-		}
-
-		.navNarrow {
-			display: none;
-		}
-	}
-}
-
-#HTMLViewerContainer_component:focus {
-    outline: none;
-}
-
-#vfb-content-text {
-    height: 89%;
-    overflow-y: auto;
-    color: whitesmoke;
-    padding: 20px;
-}
-
-#vfb-content-text::-webkit-scrollbar{
-    width: -1px;
-    background:lightgrey; 
-}
-
-#vfb-content-text::-webkit-scrollbar-thumb {
-    background:grey; 
-}
-
-#vfb-content-text h2{
-    margin: 0 0 15px 0;
-    font-family: 'Khand', sans-serif;
-    color: #11bffe;
-    font-size: 24px;
-    line-height: 30px;
-    font-weight: 400;
-    text-transform: none;
-}
-
-.callout-fullscreen{
-    position: absolute;
-    padding: 3%;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1999;
-}
-.callout.vfbcontent {
-    background: rgba(100, 100, 100, 0.80);
-    position: absolute;
-    width: 100%;
-    z-index: 2000  !important;
-    height: 100%;
-}
-
-.callout.vfbcontent .close-button {
-    background: transparent;
-    float: right;
-    padding: 0px;
-}
-.callout.vfbcontent .close-button span {
-    font-size: xx-large;
-    color: #11bffe;
-    font-weight: bold;
-}
-
-.close-slider{
-    position: absolute; 
-    right:3px;
-    top:0px;
-    color:#11bffe;
-    font-size: 18px;
+.arrowsStyle {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-right: 0px;
+    font-size: 20px;
     cursor: pointer;
-    background: transparent;
-    z-index : 9999 !important;
-}
-
-.close-slider:hover{
-    color:white;
-    background: transparent;
-}
-
-.vfbcontent div p {
-    font-size: 14px;
-    font-weight: 200;
-    color: whitesmoke;
-    margin : 15px 0 15px 0;
-}
-
-.vfbcontent div b {
-    font-weight: 700;
+    vertical-align: middle;
     color: #fff;
+
 }
 
-::selection {
-    background: #39f;
-    color: #fff;
-    text-shadow: none;
+.arrowsStyle:hover {
+    color: #11bffe
 }
 
-.vfbcontent div .fa {
-    background: rgba(66, 59, 59, 0.8);
-    color: #11bffe;
-    box-sizing: border-box;
-    padding: 2px 6px 3px;
-    border-width: 2px;
-}
-.vfbcontent div h1, .vfbcontent div h2, .vfbcontent div h3, .vfbcontent div h4, .vfbcontent div h5, .vfbcontent div h6 {
-    color: #11bffe;
-}
-.vfbcontent div small{
-    color: #11bffe;
-}
+.react-tabs {
+    -webkit-tap-highlight-color: transparent;
+    position: absolute;
+    top: 5px;
+  
+    &__tab-list {
+      border-bottom: 1px solid #aaa;
+      margin: 0 0 10px;
+      padding: 0;
+    }
+  
+    &__tab {
+      display: inline-block;
+      border: 1px solid transparent;
+      border-bottom: none;
+      bottom: -1px;
+      position: relative;
+      list-style: none;
+      padding: 2px 12px;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: 'Khand', sans-serif;
+      background: #010101;
+      border-color: #fff;
+      color: #fff;
+  
+      &--selected {
+        background: #4b9ebd;
+        border-color: #fff;
+        color: #fff;
+        font-size: 15px;
+	    font-family: 'Khand', sans-serif;
+      }
 
-.htmlViewerVFB {
-	width : 94% !important;
-	height : 85% !important;
-	max-width : 94% !important;
-	max-height : 85% !important;
-	overflow-y: hidden !important;
-}
+      &--selected:hover {
+        background: #11bffe;
+        border-color: #fff;
+        color: #fff;
+        font-size: 15px;
+	    font-family: 'Khand', sans-serif;
+      }
+  
+      &--disabled {
+        color: GrayText;
+        border-color: #fff;
+        cursor: default;
+      }
+  
+      &:focus {
+        box-shadow: 0 0 5px hsl(208, 99%, 50%);
+        border-color: hsl(208, 99%, 50%);
+        outline: none;
+  
+        &:after {
+          content: "";
+          position: absolute;
+          height: 5px;
+          left: -4px;
+          right: -4px;
+          bottom: -5px;
+          background: #11bffe;
+        }
+      }
+    }
+
+    &__tab:hover {
+        background: #11bffe;
+        border-color: #fff;
+        color: #fff;
+        font-size: 15px;
+	    font-family: 'Khand', sans-serif;
+    }
+  
+    &__tab-panel {
+      display: none;
+  
+      &--selected {
+        display: block;
+      }
+    }
+  }
+  

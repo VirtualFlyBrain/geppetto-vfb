@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
+import FocusTerm from './interface/FocusTerm';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo';
@@ -19,8 +20,6 @@ require('../css/VFBMain.less');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
-var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-
 var modelJson = require('../components/configuration/layoutModel').modelJson;
 
 export default class VFBMain extends React.Component {
@@ -47,34 +46,10 @@ export default class VFBMain extends React.Component {
       UIUpdated: false
     };
 
-    this.clearQS = this.clearQS.bind(this);
-    this.addVfbId = this.addVfbId.bind(this);
-    this.resolve3D = this.resolve3D.bind(this);
-    this.setSepCol = this.setSepCol.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
-    this.UIDidUpdate = this.UIDidUpdate.bind(this);
-    this.customSorter = this.customSorter.bind(this);
-    this.UIUpdateItem = this.UIUpdateItem.bind(this);
-    this.hasVisualType = this.hasVisualType.bind(this);
-    this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
-    this.tutorialHandler = this.tutorialHandler.bind(this);
-    this.UIUpdateManager = this.UIUpdateManager.bind(this);
-    this.updateDimensions = this.updateDimensions.bind(this);
-    this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
-    this.reopenUIComponent = this.reopenUIComponent.bind(this);
-    this.addToQueryCallback = this.addToQueryCallback.bind(this);
-    this.handleClickOutside = this.handleClickOutside.bind(this);
-    this.restoreUIComponent = this.restoreUIComponent.bind(this);
-    this.stackViewerRequest = this.stackViewerRequest.bind(this);
-    this.fetchVariableThenRun = this.fetchVariableThenRun.bind(this);
-    this.getButtonBarDefaultX = this.getButtonBarDefaultX.bind(this);
-    this.getButtonBarDefaultY = this.getButtonBarDefaultY.bind(this);
-    this.getStackViewerDefaultX = this.getStackViewerDefaultX.bind(this);
-    this.getStackViewerDefaultY = this.getStackViewerDefaultY.bind(this);
-    this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
-
-    this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
+    this.UIUpdateManager = this.UIUpdateManager.bind(this);
+    this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
     this.coli = 1;
     this.vfbLoadBuffer = [];
@@ -84,6 +59,7 @@ export default class VFBMain extends React.Component {
     this.canvasReference = undefined;
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
+    this.focusTermReference = undefined;
     this.termInfoId = undefined;
     this.termInfoName = undefined;
     this.termInfoHistory = undefined;
@@ -127,7 +103,6 @@ export default class VFBMain extends React.Component {
   }
 
   getButtonBarDefaultX () {
-    // return (Math.ceil(window.innerWidth / 2) - 55);
     return ((window.innerWidth) - 237);
   }
 
@@ -143,83 +118,7 @@ export default class VFBMain extends React.Component {
     return 200;
   }
 
-  customSorter (a, b, InputString) {
-    // move exact matches to top
-    if (InputString == a.label) {
-      return -1;
-    }
-    if (InputString == b.label) {
-      return 1;
-    }
-    // close match without case matching
-    if (InputString.toLowerCase() == a.label.toLowerCase()) {
-      return -1;
-    }
-    if (InputString.toLowerCase() == b.label.toLowerCase()) {
-      return 1;
-    }
-    // match ignoring joinging nonwords
-    Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
-    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
-      return -1;
-    }
-    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
-      return 1;
-    }
-    // match against id
-    if (InputString.toLowerCase() == a.id.toLowerCase()) {
-      return -1;
-    }
-    if (InputString.toLowerCase() == b.id.toLowerCase()) {
-      return 1;
-    }
-    // pick up any match without nonword join character match
-    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
-      return 1;
-    }
-    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
-      return -1;
-    }
-    // also with underscores ignored
-    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
-      return 1;
-    }
-    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
-      return -1;
-    }
-    // if not found in one then advance the other
-    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-      return 1;
-    }
-    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-      return -1;
-    }
-    // if the match is closer to start than the other move up
-    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-      return -1;
-    }
-    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-      return 1;
-    }
-    // if the match in the id is closer to start then move up
-    if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-      return -1;
-    }
-    if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-      return 1;
-    }
-    // move the shorter synonyms to the top
-    if (a.label < b.label) {
-      return -1;
-    } else if (a.label > b.label) {
-      return 1;
-    } else {
-      return 0; // if nothing found then do nothing.
-    }
-  }
-
   // Logic to add VFB ids into the scene starts here
-
   setSepCol (entityPath) {
     if (entityPath.indexOf(window.templateID) < 0) {
       var c = this.coli;
@@ -844,6 +743,7 @@ export default class VFBMain extends React.Component {
           showButtonBar={true}
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
+          focusTermRef={this.focusTermReference}
           order={['Name',
                   'Label',
                   'Alternative Names',
@@ -921,9 +821,6 @@ export default class VFBMain extends React.Component {
       }
       this.setState({ modelLoaded: true });
     }
-
-    if (this.state.htmlFromToolbar !== undefined) {
-    }
   }
 
   componentWillUnmount () {
@@ -949,10 +846,6 @@ export default class VFBMain extends React.Component {
 
     window.addVfbId = function (idFromOutside) {
       this.addVfbId(idFromOutside);
-    }.bind(this);
-
-    window.customSorter = function (a, b, InputString) {
-      this.customSorter(a, b, InputString);
     }.bind(this);
 
     window.setTermInfo = function (meta, id) {
@@ -1242,6 +1135,9 @@ export default class VFBMain extends React.Component {
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
+
+        <FocusTerm
+          ref={ref => this.focusTermReference = ref} />
 
         <Rnd
           enableResizing={{
