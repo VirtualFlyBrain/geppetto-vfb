@@ -27,7 +27,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "if ('$entity$'.split('----').length > 1) window.addVfbId('$entity$'.split('----')[1]);",
+    "actions": "if ('$entity$'.split('----').length > 1) {window.addVfbId('$entity$'.split('----')[1]);}else{ return false;}",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column"
   },
@@ -45,7 +45,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "if ('$entity$'.split('----').length > 2) window.addVfbId('$entity$'.split('----')[2]);",
+    "actions": "if ('$entity$'.split('----').length > 2) {window.addVfbId('$entity$'.split('----')[2]);}else{ return false;}",
     "displayName": "Reference",
     "cssClassName": "query-results-reference-column"
   },
