@@ -17,7 +17,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "window.addVfbId('$entity$'.split('----')[0]);",
+    "actions": "window.addVfbId('$entity$'.split('----')[0]); return false;",
     "displayName": "Name",
     "cssClassName": "query-results-name-column",
   },
@@ -27,7 +27,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "if ('$entity$'.split('----').length > 1) {window.addVfbId('$entity$'.split('----')[1]); console.log('$entity$'.split('----')[1]);}else{ return false;}",
+    "actions": "if ('$entity$'.split('----').length > 1) window.addVfbId('$entity$'.split('----')[1]); return false;",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column"
   },
@@ -45,7 +45,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
-    "actions": "if ('$entity$'.split('----').length > 2) {window.addVfbId('$entity$'.split('----')[2]); console.log('$entity$'.split('----')[2]);}else{ return false;}",
+    "actions": "if ('$entity$'.split('----').length > 2) window.addVfbId('$entity$'.split('----')[2]); return false;",
     "displayName": "Reference",
     "cssClassName": "query-results-reference-column"
   },
