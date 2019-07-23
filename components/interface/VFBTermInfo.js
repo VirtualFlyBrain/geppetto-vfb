@@ -683,7 +683,7 @@ export default class VFBTermInfoWidget extends React.Component {
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
         try {
-          items = 'id=' + this.refs.termInfoRef.data.split('.')[0] + '&' + items;
+          items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
         } catch (ignore) { }
         if (items != "i=") {
           parent.history.pushState({}, title, parent.location.pathname + "?" + items);
