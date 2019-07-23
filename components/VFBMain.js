@@ -329,6 +329,10 @@ export default class VFBMain extends React.Component {
   }
 
   handleSceneAndTermInfoCallback (variableIds) {
+    if (typeof(variableIds) == "undefined") {
+       console.log('Blank Term Info Callback ');
+       return;
+    }
     if (typeof (variableIds) == "string") {
       variableIds = [variableIds];
     }
