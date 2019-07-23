@@ -610,6 +610,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
         GEPPETTO.trigger('spin_logo');
         $("body").css("cursor", "progress");
+        $('#query-results-label')[0].innerText = "Pulling Query Results...";
 
         var callback = function () {
           // check if any results with count flag
