@@ -74,7 +74,7 @@ class ErrorCatcher extends React.Component {
               <DialogContent>
                 <DialogContentText
                   classes={{ root: classes.rootText }}>
-                    An error just occurred, you can either reload the application or help us reporting
+                    An error just occurred, you can either reload the application or help us out by reporting
                     the issue using the button below.
                 </DialogContentText>
               </DialogContent>
