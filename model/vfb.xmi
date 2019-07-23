@@ -433,6 +433,16 @@
       </queryChain>
       <queryChain
           xsi:type="gep_2:SimpleQuery"
+          name="Get JSON for pub"
+          description="Fetches JSON for pub."
+          runForCount="false"
+          query="&quot;statement&quot;: &quot;MATCH (primary:pub:Individual {short_form: {ID} }) OPTIONAL MATCH (o)-[r:has_reference]->(primary) WHERE o:DataSet OR o:Class WITH primary, r, o ORDER BY labels(o)[0] DESC, o.label ASC WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT (DISTINCT { relation: { label: r.label, iri: r.uri, type: type(r) }, object: { short_form: o.short_form, label: o.label, iri: o.iri, types: labels(o) }  }) END AS relationships, primary RETURN { core: { short_form: primary.short_form, label: primary.label, iri: primary.iri, types: labels(primary) } , description: coalesce(primary.description, []), comment: coalesce(primary.`annotation-comment`, [])} as term, relationships, 'pub' as query, 'manual' AS version&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:pub:Individual {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
+        <matchingCriteria
+            type="//@libraries.3/@types.16"/>
+      </queryChain>
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
           name="Get JSON for DataSet"
           description="Fetches JSON for DataSet."
           runForCount="false"
@@ -450,16 +460,6 @@
           countQuery="&quot;statement&quot;: &quot;MATCH (primary:License {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
         <matchingCriteria
             type="//@libraries.3/@types.30"/>
-      </queryChain>
-      <queryChain
-          xsi:type="gep_2:SimpleQuery"
-          name="Get JSON for pub"
-          description="Fetches JSON for pub."
-          runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (primary:pub:Individual {short_form: {ID} }) OPTIONAL MATCH (o)-[r:has_reference]->(primary) WHERE o:DataSet OR o:Class WITH primary, r, o ORDER BY labels(o)[0] DESC, o.label ASC WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT (DISTINCT { relation: { label: r.label, iri: r.uri, type: type(r) }, object: { short_form: o.short_form, label: o.label, iri: o.iri, types: labels(o) }  }) END AS relationships, primary RETURN { core: { short_form: primary.short_form, label: primary.label, iri: primary.iri, types: labels(primary) } , description: coalesce(primary.description, []), comment: coalesce(primary.`annotation-comment`, [])} as term, relationships, 'pub' as query, 'manual' AS version&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID }"
-          countQuery="&quot;statement&quot;: &quot;MATCH (primary:pub:Individual {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
-        <matchingCriteria
-            type="//@libraries.3/@types.16"/>
       </queryChain>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
