@@ -1021,7 +1021,7 @@ export default class VFBMain extends React.Component {
 
     
     var idList = this.props.location.search;
-    var idList = idsList.replace("?","").split("&");
+    var idList = idList.replace("?","").split("&");
     var idsList = "";
     var idsTermInfoSubstring = "";
     for (list in idList) {
