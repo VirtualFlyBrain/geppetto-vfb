@@ -1024,6 +1024,7 @@ export default class VFBMain extends React.Component {
     var idList = idList.replace("?","").split("&");
     var idsList = "";
     var idsTermInfoSubstring = "";
+    var list;
     for (list in idList) {
       if (list.contains("id=")) {
         idsTermInfoSubstring = list.replace("id=","");
