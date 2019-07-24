@@ -288,12 +288,13 @@ export default class VFBMain extends React.Component {
         }
       }
       idsList = Array.from(new Set(idsList));
+      // Udate URL in case of reload before items loaded:
+      window.history.pushState({}, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0]) + "," + idsList.join(','));
       if (idsList != null && idsList.length > 0) {
         for (var singleId = 0; idsList.length > singleId; singleId++) {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
             this.vfbLoadBuffer.push(idsList[singleId]);
           }
-
           if (window[idsList[singleId]] != undefined) {
             this.handleSceneAndTermInfoCallback(idsList[singleId]);
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
