@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Swap servers
-grep -rls pdb.virtualflybrain.org $HOME/ | xargs sed -i "s@pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" &
-grep -rls owl.virtualflybrain.org $HOME/workspace/ | xargs sed -iv "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g"	grep -rls owl.virtualflybrain.org /home/ | xargs sed -i "s@owl.virtualflybrain.org@$VFB_OWL_SERVER@g" &
-grep -rls solr.virtualflybrain.org $HOME/workspace/ | xargs sed -iv "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"	grep -rls solr.virtualflybrain.org /home/ | xargs sed -i "s@http://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" &
+sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/model/vfb.xmi
+sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/model/vfb.xmi	
+sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/model/vfb.xmi
+sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/components/configuration/queryBuilderConfiguration.js
+sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/components/configuration/spotlightConfiguration.js
 
 #Start a logfile
 mkdir -p $SERVER_HOME/serviceability/logs
