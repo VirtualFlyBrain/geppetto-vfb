@@ -1051,7 +1051,9 @@ export default class VFBMain extends React.Component {
         that.addVfbId(idArray);
         if (idsTermInfoSubstring.length > 0) {
           this.idForTermInfo = idsTermInfoSubstring;
-          this.termInfoReference.setTermInfo(this.idForTermInfo + "_meta", window[this.idForTermInfo].getName());
+          if (this.termInfoReference !== undefined) {
+            this.termInfoReference.setTermInfo(this.idForTermInfo + "_meta", window[this.idForTermInfo].getName());
+          }
         }
       });
     }
