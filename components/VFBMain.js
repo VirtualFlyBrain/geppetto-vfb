@@ -1088,7 +1088,7 @@ export default class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
       console.log("Reloading websocket connection by reloading page");
-      window.location.reload();
+      window.location.reload(true);
     });
   }
 
