@@ -12,6 +12,7 @@ mkdir -p $SERVER_HOME/serviceability/logs
 echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
 
 # re-deploy Geppetto
+rm $SERVER_HOME/./repository/usr/*
 cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
 
 # set java memory maximum 
