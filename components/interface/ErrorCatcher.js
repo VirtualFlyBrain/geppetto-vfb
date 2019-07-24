@@ -87,7 +87,7 @@ class ErrorCatcher extends React.Component {
                     Report
                 </Button>
                 <Button 
-                  onClick={() => location.reload()} 
+                  onClick={() => location.reload(true)} 
                   size="medium"
                   classes={{ root: classes.rootButton }}>
                     Reload
