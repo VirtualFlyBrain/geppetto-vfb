@@ -1046,11 +1046,11 @@ export default class VFBMain extends React.Component {
       console.log("Loading IDS to add to the scene from url");
       GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
         that.addVfbId(idArray);
+        if (idsTermInfoSubstring.length > 0) {
+          this.idForTermInfo = idsTermInfoSubstring;
+          this.termInfoReference.setTermInfo(this.idForTermInfo + "_meta", window[this.idForTermInfo].getName());
+        }
       });
-      if (idsTermInfoSubstring.length > 0) {
-        this.idForTermInfo = idsTermInfoSubstring;
-        this.termInfoReference.setTermInfo(this.idForTermInfo + "_meta", window[this.idForTermInfo].getName());
-      }
     }
 
     // Selection listener
