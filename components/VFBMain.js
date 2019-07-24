@@ -1056,6 +1056,23 @@ export default class VFBMain extends React.Component {
       });
     }
 
+    // browser back/forward handling
+    window.onpopstate = function () {
+      var idList = this.props.location.search;
+      var idList = idList.replace("?","").split("&");
+      var idsTermInfoSubstring = "";
+      var list;
+      for (list in idList) {
+        if (idList[list].indexOf("id=") > -1) {
+          idsTermInfoSubstring = idList[list].replace("id=","");
+        } 
+      }
+      if (idsTermInfoSubstring.length > 0) {
+        console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
+        that.addVfbId(idsTermInfoSubstring);
+      }
+    }
+
     // Selection listener
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
       var selection = GEPPETTO.SceneController.getSelection();
