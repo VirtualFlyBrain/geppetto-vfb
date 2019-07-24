@@ -81,9 +81,6 @@ COPY dockerFiles/startup.sh /
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
-RUN rm $SERVER_HOME/./repository/usr/*
-RUN cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
-
 
 EXPOSE 8080
 EXPOSE 8443
