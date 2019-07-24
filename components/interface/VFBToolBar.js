@@ -164,7 +164,6 @@ var menuConfiguration = {
       list: [
         {
           label: "Adult",
-          icon: "fa fa-twitter",
           position: "right-start",
           action: {
             handlerAction: "submenu",
