@@ -1033,6 +1033,9 @@ export default class VFBMain extends React.Component {
         }
         idsList += idsTermInfoSubstring;
       } else if (idList[list].indexOf("i=") > -1) {
+        if (idsList.length > 0) {
+          idsList = "," + idsList;
+        }
         idsList = idList[list].replace("i=","") + idsList;
       }
     }
@@ -1046,7 +1049,7 @@ export default class VFBMain extends React.Component {
       });
       if (idsTermInfoSubstring.length > 0) {
         this.idForTermInfo = idsTermInfoSubstring;
-        ids3DSubstring.push(this.idForTermInfo);
+        this.termInfoReference.setTermInfo(this.idForTermInfo + "_meta", window[this.idForTermInfo].getName());
       }
     }
 
