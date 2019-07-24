@@ -1026,13 +1026,13 @@ export default class VFBMain extends React.Component {
     var idsTermInfoSubstring = "";
     var list;
     for (list in idList) {
-      if (list.contains("id=")) {
+      if (list.indexOf("id=") > -1) {
         idsTermInfoSubstring = list.replace("id=","");
         if (idsList.length > 0) {
           idsList += ",";
         }
         idsList += idsTermInfoSubstring;
-      } else if (list.contains("i=")) {
+      } else if (list.indexOf("i=") > -1) {
         idsList = list.replace("i=","") + idsList;
       }
     }
