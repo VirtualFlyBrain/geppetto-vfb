@@ -136,11 +136,11 @@ export default class VFBMain extends React.Component {
   }
 
   getStackViewerDefaultX () {
-    return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10));
+    return (Math.ceil(window.innerWidth / 1.826));
   }
 
   getStackViewerDefaultY () {
-    return 200;
+    return (Math.ceil(window.innerHeight / 3.14));
   }
 
   customSorter (a, b, InputString) {

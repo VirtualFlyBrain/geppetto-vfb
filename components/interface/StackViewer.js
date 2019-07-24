@@ -70,7 +70,7 @@ export default class StackViewer extends React.Component {
       if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage) {
         window.vfbRelaodMessage = false;
         if (confirm("Sorry but your connection to our servers has timed out. \nClick OK to reconnect and reload your current items or click Cancel to do nothing.")) {
-          location.reload();
+          location.reload(true);
         }
       }
     } catch (err) {
