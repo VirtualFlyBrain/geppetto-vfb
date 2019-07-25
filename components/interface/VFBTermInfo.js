@@ -688,16 +688,16 @@ export default class VFBTermInfoWidget extends React.Component {
         } catch (ignore) { }
         if (items != "i=") {
           if (window.history.state == null) {
-            window.history.replaceState({ from:"termInfo", name:title, back:"", forward:"" }, title, window.location.pathname + "?" + items);
+            window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
           }
-          if (window.history.state.from == "browser"){
-            window.history.replaceState({ from:"termInfo", name:title, back:window.history.state.back, forward:window.history.forward }, title, window.location.pathname + "?" + items);
-          } else if (window.history.state.from == "loading"){
-            window.history.replaceState({ from:"termInfo", name:window.history.state.name, back:window.history.state.back, forward:title }, window.history.state.name, window.location.pathname + window.history.state.search);
-            window.history.pushState({ from:"termInfo", name:title, back:window.history.state.name, forward:"" }, title, window.location.pathname + "?" + items);
+          if (window.history.state.s == 2){
+            window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
+          } else if (window.history.state.s == 0){
+            window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.history.state.u);
+            window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
           } else {
-            window.history.replaceState({ from:"termInfo", name:window.history.state.name, back:window.history.state.back, forward:title }, window.history.state.name, window.location.pathname + window.location.search);
-            window.history.pushState({ from:"termInfo", name:title, back:window.history.state.name, forward:"" }, title, window.location.pathname + "?" + items);
+            window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.location.search);
+            window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
           }
         }
       }
