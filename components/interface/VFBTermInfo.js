@@ -649,60 +649,57 @@ export default class VFBTermInfoWidget extends React.Component {
 
   updateHistory (title) {
     try {
-      if (window.dontUpdateHistory != true) {
-        if (window.historyWidgetCapability[this.idWidget] == undefined) {
-          window.historyWidgetCapability[this.idWidget] = [];
+      if (window.historyWidgetCapability[this.idWidget] == undefined) {
+        window.historyWidgetCapability[this.idWidget] = [];
+      }
+      if (window.vfbUpdatingHistory == undefined) {
+        window.vfbUpdatingHistory = false;
+      }
+      if (window.vfbUpdatingHistory == false) {
+        window.vfbUpdatingHistory = true;
+        // Update the parent windows history with current instances (i=) and popup selection (id=)
+        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+        var visualParents = [];
+        for (var i = 0; i < visualInstances.length; i++) {
+          if (visualInstances[i].getParent() != null) {
+            visualParents.push(visualInstances[i].getParent());
+          }
         }
-        if (window.vfbUpdatingHistory == undefined) {
-          window.vfbUpdatingHistory = false;
+        visualInstances = visualInstances.concat(visualParents);
+        var compositeInstances = [];
+        for (var i = 0; i < visualInstances.length; i++) {
+          if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+            compositeInstances.push(visualInstances[i]);
+          }
         }
-        if (window.vfbUpdatingHistory == false) {
-          window.vfbUpdatingHistory = true;
-          // Update the parent windows history with current instances (i=) and popup selection (id=)
-          var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
-          var visualParents = [];
-          for (var i = 0; i < visualInstances.length; i++) {
-            if (visualInstances[i].getParent() != null) {
-              visualParents.push(visualInstances[i].getParent());
-            }
+        var items = 'i=';
+        if (window.templateID) {
+          items = items + ',' + window.templateID;
+        }
+        compositeInstances.forEach(function (compositeInstance) {
+          if (!items.includes(compositeInstance.getId())) {
+            items = items + ',' + compositeInstance.getId() 
+          } 
+        });
+        items = items.replace(',,', ',').replace('i=,', 'i=');
+        try {
+          items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
+        } catch (ignore) { }
+        if (items != "i=") {
+          if (window.history.state == null) {
+            window.history.replaceState({ from:"termInfo", name:title, back:"", forward:"" }, title, window.location.pathname + "?" + items);
           }
-          visualInstances = visualInstances.concat(visualParents);
-          var compositeInstances = [];
-          for (var i = 0; i < visualInstances.length; i++) {
-            if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-              compositeInstances.push(visualInstances[i]);
-            }
-          }
-          var items = 'i=';
-          if (window.templateID) {
-            items = items + ',' + window.templateID;
-          }
-          compositeInstances.forEach(function (compositeInstance) {
-            if (!items.includes(compositeInstance.getId())) {
-              items = items + ',' + compositeInstance.getId() 
-            } 
-          });
-          items = items.replace(',,', ',').replace('i=,', 'i=');
-          try {
-            items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
-          } catch (ignore) { }
-          if (items != "i=") {
-            if (window.history.state == null) {
-              window.history.replaceState({ from:"termInfo", name:title, back:"", forward:"" }, title, window.location.pathname + "?" + items);
-            }
-            if (window.history.state.from == "browser"){
-              window.history.replaceState({ from:"termInfo", name:title, back:window.history.state.back, forward:window.history.forward }, title, window.location.pathname + "?" + items);
-            } else if (window.history.state.from == "loading"){
-              window.history.replaceState({ from:"termInfo", name:window.history.state.name, back:window.history.state.back, forward:title }, window.history.state.name, window.location.pathname + window.history.state.search);
-              window.history.pushState({ from:"termInfo", name:title, back:window.history.state.name, forward:"" }, title, window.location.pathname + "?" + items);
-            } else {
-              window.history.replaceState({ from:"termInfo", name:window.history.state.name, back:window.history.state.back, forward:title }, window.history.state.name, window.location.pathname + window.location.search);
-              window.history.pushState({ from:"termInfo", name:title, back:window.history.state.name, forward:"" }, title, window.location.pathname + "?" + items);
-            }
+          if (window.history.state.from == "browser"){
+            window.history.replaceState({ from:"termInfo", name:title, back:window.history.state.back, forward:window.history.forward }, title, window.location.pathname + "?" + items);
+          } else if (window.history.state.from == "loading"){
+            window.history.replaceState({ from:"termInfo", name:window.history.state.name, back:window.history.state.back, forward:title }, window.history.state.name, window.location.pathname + window.history.state.search);
+            window.history.pushState({ from:"termInfo", name:title, back:window.history.state.name, forward:"" }, title, window.location.pathname + "?" + items);
+          } else {
+            window.history.replaceState({ from:"termInfo", name:window.history.state.name, back:window.history.state.back, forward:title }, window.history.state.name, window.location.pathname + window.location.search);
+            window.history.pushState({ from:"termInfo", name:title, back:window.history.state.name, forward:"" }, title, window.location.pathname + "?" + items);
           }
         }
       }
-      window.dontUpdateHistory = false;
     } catch (ignore) {
       window.vfbUpdatingHistory = true; // block further updates
     }
