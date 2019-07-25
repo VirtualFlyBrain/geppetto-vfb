@@ -7,6 +7,8 @@ sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SER
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/target/frontend-*/build/ | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
 sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/components/configuration/queryBuilderConfiguration.js #just for consistency
 sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/components/configuration/spotlightConfiguration.js #just for consistency
+grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/virgo/work/deployer/ | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
+
 
 #Start a logfile
 mkdir -p $SERVER_HOME/serviceability/logs
