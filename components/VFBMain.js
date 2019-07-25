@@ -289,7 +289,7 @@ export default class VFBMain extends React.Component {
       }
       idsList = Array.from(new Set(idsList));
       // Udate URL in case of reload before items loaded:
-      if (window.dontUpdateHistory == false) {
+      if (window.dontUpdateHistory == false && window.history.state != null) {
         window.history.replaceState({ from:"loading", name:window.history.state.name, back:window.history.state.back, forward:window.history.state.forward, search:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0]) + "," + idsList.join(','));
       }
       if (idsList != null && idsList.length > 0) {
@@ -1073,7 +1073,11 @@ export default class VFBMain extends React.Component {
       }
       if (idsTermInfoSubstring.length > 0) {
         console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
-        window.history.replaceState({ from:"browser", name:window.history.state.name, back:window.history.state.back, forward:window.history.forward }, window.history.state.name, window.location.pathname + window.history.state.search);
+        if (window.history.state != null) {
+          window.history.replaceState({ from:"browser", name:window.history.state.name, back:window.history.state.back, forward:window.history.forward }, window.history.state.name, window.location.pathname + window.history.state.search);
+        } else {
+          window.history.replaceState({ from:"browser", name:"", back:"", forward:"" }, "", window.location.pathname + window.location.search);
+        }
         that.addVfbId(idsTermInfoSubstring);
       }
     }
