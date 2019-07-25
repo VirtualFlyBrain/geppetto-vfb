@@ -649,48 +649,50 @@ export default class VFBTermInfoWidget extends React.Component {
 
   updateHistory (title) {
     try {
-      if (window.historyWidgetCapability[this.idWidget] == undefined) {
-        window.historyWidgetCapability[this.idWidget] = [];
-      }
-      if (window.vfbUpdatingHistory == undefined) {
-        window.vfbUpdatingHistory = false;
-      }
-      if (window.vfbUpdatingHistory == false) {
-        window.vfbUpdatingHistory = true;
-        // Update the parent windows history with current instances (i=) and popup selection (id=)
-        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
-        var visualParents = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getParent() != null) {
-            visualParents.push(visualInstances[i].getParent());
+      if (window.dontUpdateHistory != true) {
+        if (window.historyWidgetCapability[this.idWidget] == undefined) {
+          window.historyWidgetCapability[this.idWidget] = [];
+        }
+        if (window.vfbUpdatingHistory == undefined) {
+          window.vfbUpdatingHistory = false;
+        }
+        if (window.vfbUpdatingHistory == false) {
+          window.vfbUpdatingHistory = true;
+          // Update the parent windows history with current instances (i=) and popup selection (id=)
+          var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+          var visualParents = [];
+          for (var i = 0; i < visualInstances.length; i++) {
+            if (visualInstances[i].getParent() != null) {
+              visualParents.push(visualInstances[i].getParent());
+            }
           }
-        }
-        visualInstances = visualInstances.concat(visualParents);
-        var compositeInstances = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-            compositeInstances.push(visualInstances[i]);
+          visualInstances = visualInstances.concat(visualParents);
+          var compositeInstances = [];
+          for (var i = 0; i < visualInstances.length; i++) {
+            if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+              compositeInstances.push(visualInstances[i]);
+            }
           }
+          var items = 'i=';
+          if (window.templateID) {
+            items = items + ',' + window.templateID;
+          }
+          compositeInstances.forEach(function (compositeInstance) {
+            if (!items.includes(compositeInstance.getId())) {
+              items = items + ',' + compositeInstance.getId() 
+            } 
+          });
+          items = items.replace(',,', ',').replace('i=,', 'i=');
+          try {
+            items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
+          } catch (ignore) { }
+          if (items != "i=") {
+            parent.history.pushState({ from:"termInfo" }, title, parent.location.pathname + "?" + items);
+          }
+          window.vfbUpdatingHistory = false;
         }
-
-        var items = 'i=';
-        if (window.templateID) {
-          items = items + ',' + window.templateID;
-        }
-        compositeInstances.forEach(function (compositeInstance) {
-          if (!items.includes(compositeInstance.getId())) {
-            items = items + ',' + compositeInstance.getId() 
-          } 
-        });
-        items = items.replace(',,', ',').replace('i=,', 'i=');
-        try {
-          items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
-        } catch (ignore) { }
-        if (items != "i=") {
-          parent.history.pushState({}, title, parent.location.pathname + "?" + items);
-        }
-        window.vfbUpdatingHistory = false;
       }
+      window.dontUpdateHistory = false;
     } catch (ignore) {
       window.vfbUpdatingHistory = true; // block further updates
     }

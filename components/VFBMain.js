@@ -289,7 +289,9 @@ export default class VFBMain extends React.Component {
       }
       idsList = Array.from(new Set(idsList));
       // Udate URL in case of reload before items loaded:
-      window.history.pushState({}, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0]) + "," + idsList.join(','));
+      if (window.dontUpdateHistory == false) {
+        window.history.pushState({ from:"loading" }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0]) + "," + idsList.join(','));
+      }
       if (idsList != null && idsList.length > 0) {
         for (var singleId = 0; idsList.length > singleId; singleId++) {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
@@ -1071,6 +1073,7 @@ export default class VFBMain extends React.Component {
       }
       if (idsTermInfoSubstring.length > 0) {
         console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
+        window.dontUpdateHistory = true;
         that.addVfbId(idsTermInfoSubstring);
       }
     }
