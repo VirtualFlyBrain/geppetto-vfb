@@ -1,26 +1,24 @@
 #!/bin/bash
 
 # Swap servers
-sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/model/vfb.xmi
-sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/model/vfb.xmi	
-sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" $HOME/workspace/org.geppetto.frontend/target/frontend-*/model/vfb.xmi
+grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" 
+grep -rls http://owl-dev.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
+grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" 
+grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
+grep -rls UA-45841517-1 $HOME/workspace/org.geppetto.frontend | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" 
 
-cd $HOME/workspace/org.geppetto.frontend/target/ 
-mkdir tmp
-cd tmp
-unzip ../org.geppetto.frontend.war
-grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/target/tmp/ | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"
-jar -cvf org.geppetto.frontend.war *
-cp org.geppetto.frontend.war ..
-cd ..
-chown development:development 
-rm -rf tmp
+# Frontend final build
+cd $HOME/workspace/org.geppetto.frontend 
+/bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
+grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g"
+mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install
+rm -rf src
 
-#Start a logfile
+# Start a logfile
 mkdir -p $SERVER_HOME/serviceability/logs
 echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
 
-# re-deploy Geppetto
+# Deploy Geppetto
 rm $SERVER_HOME/./repository/usr/*
 cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
 
