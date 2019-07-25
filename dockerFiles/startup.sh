@@ -8,7 +8,7 @@ sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SER
 cd $HOME/workspace/org.geppetto.frontend/target/ 
 mkdir tmp
 cd tmp
-jar -xvf ../org.geppetto.frontend.war
+unzip ../org.geppetto.frontend.war
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/target/tmp/ | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"
 jar -cvf org.geppetto.frontend.war *
 cp org.geppetto.frontend.war ..
