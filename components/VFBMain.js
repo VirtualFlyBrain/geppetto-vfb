@@ -479,7 +479,7 @@ export default class VFBMain extends React.Component {
             // open new window with the new template and the instance ID
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
-            if (confirm("The image you requested is aligned to another template. \nClick OK to open with new template in a new tab or click Cancel to just view the term info.")) {
+            if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
               window.open(newUrl, targetWindow);
             }
             // stop flow here, we don't want to add to scene something with a different template
