@@ -10,9 +10,10 @@ mkdir tmp
 cd tmp
 jar -xvf ../org.geppetto.frontend.war
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/target/tmp/ | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"
-sudo jar -cvf org.geppetto.frontend.war *
+jar -cvf org.geppetto.frontend.war *
 cp org.geppetto.frontend.war ..
 cd ..
+chown development:development 
 rm -rf tmp
 
 #Start a logfile
