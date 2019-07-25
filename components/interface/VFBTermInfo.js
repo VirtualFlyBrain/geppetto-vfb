@@ -684,6 +684,7 @@ export default class VFBTermInfoWidget extends React.Component {
         items = items.replace(',,', ',').replace('i=,', 'i=');
         try {
           items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
+          title = title || this.refs.termInfoRef.state.termInfoName ;
         } catch (ignore) { }
         if (items != "i=") {
           if (window.history.state == null) {
