@@ -1060,7 +1060,7 @@ export default class VFBMain extends React.Component {
 
     // browser back/forward handling
     window.onpopstate = function () {
-      var idList = this.props.location.search;
+      var idList = window.location.search;
       var idList = idList.replace("?","").split("&");
       var idsTermInfoSubstring = "";
       var list;
