@@ -21,9 +21,7 @@ before_install:
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@3.9.0 babel-preset-env@1.6.0 url-join@4.0.0
 before_script:
-  - echo -e "travis_fold:start:Docker_Buffer" || true
-  - docker pull metacell/java-virgo-maven:development
-  - echo -e "travis_fold:end:Docker_Buffer" || true
+  - docker pull metacell/java-virgo-maven:development || true
 script:
   - echo -e "travis_fold:start:Docker_Build" || true
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
