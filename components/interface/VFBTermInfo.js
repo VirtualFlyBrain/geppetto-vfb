@@ -690,12 +690,16 @@ export default class VFBTermInfoWidget extends React.Component {
           if (window.history.state == null) {
             window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
           }
-          if (window.history.state.s == 2){
+          var state = window.history.state.s;
+          switch (state) {
+          case 2:
             window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
-          } else if (window.history.state.s == 0){
+            break;
+          case 0:
             window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.history.state.u);
             window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
-          } else {
+            break;
+          default:
             window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.location.search);
             window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
           }
