@@ -700,8 +700,10 @@ export default class VFBTermInfoWidget extends React.Component {
             window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
           }
         }
+        window.vfbUpdatingHistory = false;
       }
     } catch (ignore) {
+      console.log("URL update error!");
       window.vfbUpdatingHistory = true; // block further updates
     }
   }
