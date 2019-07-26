@@ -292,15 +292,28 @@ class VFBTermInfo extends React.Component {
     var previous = "";
     var next = "";
     if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
-      previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> " + window.history.state.b + "</div>";
+      previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> ";
+      if (this.refs.termInfoInnerRef.clientWidth > 400) {
+        previous += window.history.state.b;
+      }
+      previous += "</div>";
     }
     if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0) {
-      next = "<div class=\"button-bar-vfbHistoryLinks-forward\" onClick=\"window.history.forward();\">" + window.history.state.f + " <i class=\"fa fa-arrow-right\"></i></div>";
+      next = "<div class=\"button-bar-vfbHistoryLinks-forward\" onClick=\"window.history.forward();\">";
+      if (this.refs.termInfoInnerRef.clientWidth > 400) {
+        next += window.history.state.f;
+      }
+      next += " <i class=\"fa fa-arrow-right\"></i></div>";
     }
 
     // $(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
     $("<div id='" + buttonBarContainer + "' class='button-bar-container'>" + previous + next + "<div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
     $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
+    
+    if (this.refs.termInfoInnerRef.clientWidth > 380) {
+      $('#bar-div-vfbterminfowidget').css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 200) / 2) );
+      $('#bar-div-vfbterminfowidget').css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 200) / 2) );  
+    }
 
     var instance = null;
     var instancePath = '';
