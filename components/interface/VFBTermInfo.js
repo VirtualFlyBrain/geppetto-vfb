@@ -292,10 +292,10 @@ class VFBTermInfo extends React.Component {
     var previous = "";
     var next = "";
     if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
-      previous = "<div style=\"position:absolute;left:0px;top:5px;\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> " + window.history.state.b + "</div>";
+      previous = "<div style=\"position:absolute;left:0px;top:5px;z-index: 1;\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> " + window.history.state.b + "</div>";
     }
     if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0) {
-      previous = "<div style=\"position:absolute;right:0px;top:5px;\" onClick=\"window.history.forward();\">" + window.history.state.f + " <i class=\"fa fa-arrow-right\"></i></div>";
+      next = "<div style=\"position:absolute;right:0px;top:5px;z-index: 1;\" onClick=\"window.history.forward();\">" + window.history.state.f + " <i class=\"fa fa-arrow-right\"></i></div>";
     }
 
     // $(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
