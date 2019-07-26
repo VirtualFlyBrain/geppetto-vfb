@@ -289,7 +289,7 @@ export default class VFBMain extends React.Component {
       }
       idsList = Array.from(new Set(idsList));
       // Udate URL in case of reload before items loaded:
-      if (window.dontUpdateHistory == false && window.history.state != null) {
+      if (window.history.state != null && window.location.search.indexOf("i=" > -1)) {
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0] + "&") + "," + idsList.join(','));
       }
       if (idsList != null && idsList.length > 0) {
