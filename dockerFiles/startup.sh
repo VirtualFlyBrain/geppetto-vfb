@@ -32,7 +32,7 @@ sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
 sed 's/Xmx512m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
 
 # output log
-tail -F --retry $SERVER_HOME/serviceability/logs/log.log & 
+tail -F --retry $SERVER_HOME/serviceability/logs/log.log || true & 
 
 # start virgo server
 $SERVER_HOME/bin/startup.sh
