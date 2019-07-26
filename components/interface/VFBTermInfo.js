@@ -291,11 +291,11 @@ class VFBTermInfo extends React.Component {
 
     var previous = "";
     var next = "";
-    if (that.history.state != null && that.history.state.b != null && that.history.state.b.length > 0) {
-      previous = "<div style=\"position:absolute;left:0px;top:5px;\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> " + that.history.state.b + "</div>";
+    if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
+      previous = "<div style=\"position:absolute;left:0px;top:5px;\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> " + window.history.state.b + "</div>";
     }
-    if (that.history.state != null && that.history.state.f != null && that.history.state.f.length > 0) {
-      previous = "<div style=\"position:absolute;right:0px;top:5px;\" onClick=\"window.history.forward();\">" + that.history.state.f + " <i class=\"fa fa-arrow-right\"></i></div>";
+    if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0) {
+      previous = "<div style=\"position:absolute;right:0px;top:5px;\" onClick=\"window.history.forward();\">" + window.history.state.f + " <i class=\"fa fa-arrow-right\"></i></div>";
     }
 
     // $(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
