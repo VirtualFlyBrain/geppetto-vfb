@@ -1,16 +1,21 @@
 #!/bin/bash
 
 # Swap servers
+echo "Using Servers:"
+echo $VFB_PDB_SERVER
 grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" 
+echo $VFB_OWL_SERVER
 grep -rls http://owl-dev.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
+echo $VFB_R_SERVER
 grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" 
+echo $SOLR_SERVER
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
+echo "Google Analytics code: ${googleAnalyticsSiteCode}"
 grep -rls UA-45841517-1 $HOME/workspace/org.geppetto.frontend | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" 
 
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend 
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g"
 mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install
 rm -rf src
 
