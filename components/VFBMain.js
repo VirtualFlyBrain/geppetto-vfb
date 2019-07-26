@@ -122,7 +122,7 @@ export default class VFBMain extends React.Component {
     this.idForTermInfo = undefined;
     this.model = FlexLayout.Model.fromJson(modelJson)
 
-    window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$,$VFB_ID$';
+    window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
   }
 
@@ -288,12 +288,15 @@ export default class VFBMain extends React.Component {
         }
       }
       idsList = Array.from(new Set(idsList));
+      // Udate URL in case of reload before items loaded:
+      if (window.history.state != null && window.history.state.s == 1 && window.location.search.indexOf("i=") > -1) {
+        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0] + "&") + "," + idsList.join(','));
+      }
       if (idsList != null && idsList.length > 0) {
         for (var singleId = 0; idsList.length > singleId; singleId++) {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
             this.vfbLoadBuffer.push(idsList[singleId]);
           }
-
           if (window[idsList[singleId]] != undefined) {
             this.handleSceneAndTermInfoCallback(idsList[singleId]);
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
@@ -476,7 +479,9 @@ export default class VFBMain extends React.Component {
             // open new window with the new template and the instance ID
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
-            window.open(newUrl, targetWindow);
+            if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+              window.open(newUrl, targetWindow);
+            }
             // stop flow here, we don't want to add to scene something with a different template
             return;
           }
@@ -1048,9 +1053,30 @@ export default class VFBMain extends React.Component {
         that.addVfbId(idArray);
         if (idsTermInfoSubstring.length > 0) {
           this.idForTermInfo = idsTermInfoSubstring;
-          this.termInfoReference.setTermInfo(this.idForTermInfo + "_meta", window[this.idForTermInfo].getName());
         }
       });
+    }
+
+    // browser back/forward handling
+    window.onpopstate = function () {
+      var idList = window.location.search;
+      var idList = idList.replace("?","").split("&");
+      var idsTermInfoSubstring = "";
+      var list;
+      for (list in idList) {
+        if (idList[list].indexOf("id=") > -1) {
+          idsTermInfoSubstring = idList[list].replace("id=","");
+        } 
+      }
+      if (idsTermInfoSubstring.length > 0) {
+        console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
+        if (window.history.state != null) {
+          window.history.replaceState({ s:2, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f }, window.history.state.n, window.location.pathname + window.location.search);
+        } else {
+          window.history.replaceState({ s:2, n:"", b:"", f:"" }, "", window.location.pathname + window.location.search);
+        }
+        that.addVfbId(idsTermInfoSubstring);
+      }
     }
 
     // Selection listener

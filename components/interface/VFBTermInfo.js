@@ -672,7 +672,6 @@ export default class VFBTermInfoWidget extends React.Component {
             compositeInstances.push(visualInstances[i]);
           }
         }
-
         var items = 'i=';
         if (window.templateID) {
           items = items + ',' + window.templateID;
@@ -685,13 +684,36 @@ export default class VFBTermInfoWidget extends React.Component {
         items = items.replace(',,', ',').replace('i=,', 'i=');
         try {
           items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
+          title = title || this.refs.termInfoRef.state.termInfoName ;
         } catch (ignore) { }
         if (items != "i=") {
-          parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+          if (window.history.state == null) {
+            window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
+          }
+          var state = window.history.state.s;
+          switch (state) {
+          case 2:
+            if (window.location.search.indexOf(items.split("&")[0]) > -1) {
+              window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          case 0:
+            window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.history.state.u);
+            if (!(("?" + items) == window.location.search)) {
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          default:
+            if (!(("?" + items) == window.location.search)) {
+              window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.location.search);
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+          }
         }
         window.vfbUpdatingHistory = false;
       }
     } catch (ignore) {
+      console.log("URL update error!");
       window.vfbUpdatingHistory = true; // block further updates
     }
   }

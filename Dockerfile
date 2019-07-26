@@ -8,6 +8,12 @@ ARG defaultBranch=development
 
 ARG googleAnalyticsSiteCode=UA-45841517-1
 
+ENV VFB_PDB_SERVER=http://pdb.virtualflybrain.org
+ENV VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/
+ENV VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
+ENV SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
+ENV googleAnalyticsSiteCode=UA-18509775-2
+
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
@@ -64,20 +70,12 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
 
-RUN cd $HOME/workspace/org.geppetto.frontend &&\
-  /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
-  grep -rnwl "$HOME/workspace/" -e "UA-45841517-1" | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" &&\
-  mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install &&\
-  rm -rf src
-
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
 WORKDIR $HOME
-RUN mkdir rm $SERVER_HOME/./repository/usr
-RUN cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
-
+RUN mkdir -p $SERVER_HOME/./repository/usr
 
 EXPOSE 8080
 EXPOSE 8443
