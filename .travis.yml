@@ -20,10 +20,11 @@ before_install:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-} ; fi`
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@3.9.0 babel-preset-env@1.6.0 url-join@4.0.0
-script:
+before_script:
   - echo -e "travis_fold:start:Docker_Buffer" || true
-  - docker pull -q metacell/java-virgo-maven:development
+  - docker pull metacell/java-virgo-maven:development
   - echo -e "travis_fold:end:Docker_Buffer" || true
+script:
   - echo -e "travis_fold:start:Docker_Build" || true
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1 
