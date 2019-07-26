@@ -28,13 +28,16 @@ script:
   - echo -e "travis_fold:start:Docker_Run" || true
   - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
   - echo -e "travis_fold:end:Docker_Build" || true
-  - echo -e "travis_fold:start:Test_Server" || true
+  - echo -e "travis_fold:start:Startup_Server1" || true
   - sleep 60;
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
+  - echo -e "travis_fold:end:Startup_Server1" || true
   - docker logs $CONTAINER_NAME
+  - echo -e "travis_fold:start:Startup_Server2" || true
+  - sleep 60
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
-  - echo -e "travis_fold:end:Test_Server" || true
   - sleep 30
+  - echo -e "travis_fold:end:Startup_Server2" || true
   - http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'})
   - echo "$http_status"
   - while [ "$http_status" == "404" ]; do
