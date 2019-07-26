@@ -29,6 +29,9 @@ script:
   - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Test_Server" || true
+  - sleep 60;
+  - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
+  - docker logs $CONTAINER_NAME
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
   - echo -e "travis_fold:end:Test_Server" || true
   - sleep 30
