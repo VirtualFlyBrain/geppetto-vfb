@@ -3,7 +3,7 @@
 # Swap servers
 echo "Using Servers:"
 echo $VFB_PDB_SERVER
-grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" 
+grep -rls http://pdb-dev.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb-dev.virtualflybrain.org@$VFB_PDB_SERVER@g" 
 echo $VFB_OWL_SERVER
 grep -rls http://owl-dev.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
 echo $VFB_R_SERVER
@@ -11,7 +11,7 @@ grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/work
 echo $SOLR_SERVER
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
 echo "Google Analytics code: ${googleAnalyticsSiteCode}"
-grep -rls UA-45841517-1 $HOME/workspace/org.geppetto.frontend | xargs sed -i "s|UA-45841517-1|${googleAnalyticsSiteCode}|g" 
+grep -rls UA-45841517-1 $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@UA-45841517-1@${googleAnalyticsSiteCode}@g" 
 
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend 
