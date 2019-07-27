@@ -293,7 +293,7 @@ class VFBTermInfo extends React.Component {
     var next = "";
     if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
       previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> ";
-      if (this.refs.termInfoInnerRef.clientWidth > 400) {
+      if (this.refs.termInfoInnerRef.clientWidth > 600) {
         previous += "<div id=\"" + barDiv + "-back\" class=\"bar-div-vfbterminfowidget_long-and-truncated\">"; 
         if (anyInstance.name == window.history.state.n) {
           previous += window.history.state.b;
@@ -306,7 +306,7 @@ class VFBTermInfo extends React.Component {
     }
     if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0 && anyInstance.name == window.history.state.n) {
       next = "<div class=\"button-bar-vfbHistoryLinks-forward\" onClick=\"window.history.forward();\">";
-      if (this.refs.termInfoInnerRef.clientWidth > 400) {
+      if (this.refs.termInfoInnerRef.clientWidth > 600) {
         next += "<div id=\"" + barDiv + "-forward\" class=\"bar-div-vfbterminfowidget_long-and-truncated\">"; 
         next += window.history.state.f;
         next += "</div>"; 
@@ -318,7 +318,7 @@ class VFBTermInfo extends React.Component {
     $("<div id='" + buttonBarContainer + "' class='button-bar-container'>" + previous + next + "<div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
     $('#' + barDiv).css('width', this.refs.termInfoInnerRef.clientWidth);
     
-    if (this.refs.termInfoInnerRef.clientWidth > 380) {
+    if (this.refs.termInfoInnerRef.clientWidth > 600) {
       $('#' + barDiv).css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
       $('#' + barDiv).css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );  
       $('#' + barDiv).css('margin-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
