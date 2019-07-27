@@ -289,7 +289,7 @@ class VFBTermInfo extends React.Component {
       $("#" + buttonBarContainer).remove();
     }
 
-    var barWidth = 300;
+    var barWidth = 260;
     var previous = "";
     var next = "";
     if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
@@ -318,10 +318,10 @@ class VFBTermInfo extends React.Component {
     $('#' + barDiv).css('width', this.refs.termInfoInnerRef.clientWidth);
     
     if (this.refs.termInfoInnerRef.clientWidth > barWidth) {
-      $('#' + barDiv).css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2) );
-      $('#' + barDiv).css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2) );  
-      $('#' + barDiv + '-back-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2) );
-      $('#' + barDiv + '-forward-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2) );
+      $('#' + barDiv).css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2));
+      $('#' + barDiv).css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2));  
+      $('#' + barDiv + '-back-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2));
+      $('#' + barDiv + '-forward-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2));
     } else {
       $('#' + barDiv).css('padding-left', 10);
       $('#' + barDiv).css('padding-right', 10);
