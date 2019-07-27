@@ -315,8 +315,8 @@ class VFBTermInfo extends React.Component {
     $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
     
     if (this.refs.termInfoInnerRef.clientWidth > 380) {
-      $('#bar-div-vfbterminfowidget').css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 200) / 2) );
-      $('#bar-div-vfbterminfowidget').css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 200) / 2) );  
+      $('#bar-div-vfbterminfowidget').css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 400) / 2) );
+      $('#bar-div-vfbterminfowidget').css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 400) / 2) );  
     }
 
     var instance = null;
