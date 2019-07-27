@@ -317,6 +317,13 @@ class VFBTermInfo extends React.Component {
     if (this.refs.termInfoInnerRef.clientWidth > 380) {
       $('#bar-div-vfbterminfowidget').css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
       $('#bar-div-vfbterminfowidget').css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );  
+      $('#bar-div-vfbterminfowidget').css('margin-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
+      $('#bar-div-vfbterminfowidget').css('margin-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
+    }else{
+      $('#bar-div-vfbterminfowidget').css('padding-left', 10);
+      $('#bar-div-vfbterminfowidget').css('padding-right', 10);
+      $('#bar-div-vfbterminfowidget').css('margin-left', 10);
+      $('#bar-div-vfbterminfowidget').css('margin-right', 10);
     }
 
     var instance = null;
