@@ -295,7 +295,7 @@ class VFBTermInfo extends React.Component {
     if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
       previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i></div>";
       if (this.refs.termInfoInnerRef.clientWidth > barWidth) {
-        previous += "<div id=\"" + barDiv + "-back-name\" class=\"bar-div-vfbterminfowidget_long-and-truncated\">"; 
+        previous += "<div id=\"" + barDiv + "-back-name\" class=\"bar-div-vfbterminfowidget_long-and-truncated\" onClick=\"window.history.back();\">"; 
         if (anyInstance.name == window.history.state.n) {
           previous += window.history.state.b;
         } else {
@@ -307,7 +307,7 @@ class VFBTermInfo extends React.Component {
     if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0 && anyInstance.name == window.history.state.n) {
       next = "<div class=\"button-bar-vfbHistoryLinks-forward\" onClick=\"window.history.forward();\"><i class=\"fa fa-arrow-right\"></i></div>";
       if (this.refs.termInfoInnerRef.clientWidth > barWidth) {
-        next += "<div id=\"" + barDiv + "-forward-name\" class=\"bar-div-vfbterminfowidget_long-and-truncated\">"; 
+        next += "<div id=\"" + barDiv + "-forward-name\" class=\"bar-div-vfbterminfowidget_long-and-truncated\" onClick=\"window.history.forward();\">"; 
         next += window.history.state.f;
         next += "</div>"; 
       }
