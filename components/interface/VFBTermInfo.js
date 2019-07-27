@@ -319,7 +319,7 @@ class VFBTermInfo extends React.Component {
       $('#bar-div-vfbterminfowidget').css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );  
       $('#bar-div-vfbterminfowidget').css('margin-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
       $('#bar-div-vfbterminfowidget').css('margin-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - 550) / 2) );
-    }else{
+    } else {
       $('#bar-div-vfbterminfowidget').css('padding-left', 10);
       $('#bar-div-vfbterminfowidget').css('padding-right', 10);
       $('#bar-div-vfbterminfowidget').css('margin-left', 10);
