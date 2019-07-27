@@ -294,11 +294,15 @@ class VFBTermInfo extends React.Component {
     if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
       previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i> ";
       if (this.refs.termInfoInnerRef.clientWidth > 400) {
-        previous += window.history.state.b;
+        if (anyInstance.name == window.history.state.n) {
+          previous += window.history.state.b;
+        } else {
+          previous += window.history.state.n;
+        }
       }
       previous += "</div>";
     }
-    if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0) {
+    if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0 && anyInstance.name == window.history.state.n) {
       next = "<div class=\"button-bar-vfbHistoryLinks-forward\" onClick=\"window.history.forward();\">";
       if (this.refs.termInfoInnerRef.clientWidth > 400) {
         next += window.history.state.f;
