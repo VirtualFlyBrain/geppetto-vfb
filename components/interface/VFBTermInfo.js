@@ -292,7 +292,7 @@ class VFBTermInfo extends React.Component {
     var barWidth = 260;
     var previous = "";
     var next = "";
-    if (this.refs.termInfoInnerRef.clientWidth > (barwidth - 80)) {
+    if (this.refs.termInfoInnerRef.clientWidth > (barWidth - 80)) {
       if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
         previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i></div>";
         if (this.refs.termInfoInnerRef.clientWidth > (barWidth + 60)) {
@@ -324,7 +324,7 @@ class VFBTermInfo extends React.Component {
       $('#' + barDiv).css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2));  
       $('#' + barDiv + '-back-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2));
       $('#' + barDiv + '-forward-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2));
-    } else if (this.refs.termInfoInnerRef.clientWidth > (barwidth - 80)) {
+    } else if (this.refs.termInfoInnerRef.clientWidth > (barWidth - 80)) {
       $('#' + barDiv).css('padding-left', 10);
       $('#' + barDiv).css('padding-right', 10);
     } else {
