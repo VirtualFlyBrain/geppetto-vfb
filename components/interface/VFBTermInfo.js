@@ -327,6 +327,9 @@ class VFBTermInfo extends React.Component {
     } else if (this.refs.termInfoInnerRef.clientWidth > (barwidth - 80)) {
       $('#' + barDiv).css('padding-left', 10);
       $('#' + barDiv).css('padding-right', 10);
+    } else {
+      $('#' + barDiv).css('padding-left', 0);
+      $('#' + barDiv).css('padding-right', 0);
     }
 
     var instance = null;
