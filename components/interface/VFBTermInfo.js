@@ -325,8 +325,6 @@ class VFBTermInfo extends React.Component {
     } else {
       $('#' + barDiv).css('padding-left', 10);
       $('#' + barDiv).css('padding-right', 10);
-      $('#' + barDiv).css('margin-left', 10);
-      $('#' + barDiv).css('margin-right', 10);
     }
 
     var instance = null;
