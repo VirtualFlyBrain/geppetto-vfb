@@ -53,6 +53,8 @@ class ErrorCatcher extends React.Component {
     };
   
     componentDidCatch (error, info) {
+      // Report error to GA
+      window.ga('send', 'event', 'error', 'react', error.message + " - " + error.stack.replace("#",escape("#")));
       // Display fallback UI
       this.setState({ hasError: true, error: error });
     }
