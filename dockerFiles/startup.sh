@@ -19,6 +19,9 @@ cd $HOME/workspace/org.geppetto.frontend
 mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install
 rm -rf src
 
+echo "Google Analytics code: ${googleAnalyticsSiteCode}"
+grep -rls UA-45841517-1 $HOME/ | xargs sed -i "s@UA-45841517-1@${googleAnalyticsSiteCode}@g" 
+
 # Start a logfile
 mkdir -p $SERVER_HOME/serviceability/logs
 echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
@@ -26,6 +29,9 @@ echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
 # Deploy Geppetto
 rm $SERVER_HOME/./repository/usr/* || true
 cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
+
+echo "Google Analytics code: ${googleAnalyticsSiteCode}"
+grep -rls UA-45841517-1 $HOME/ | xargs sed -i "s@UA-45841517-1@${googleAnalyticsSiteCode}@g" 
 
 # set java memory maximum 
 sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
