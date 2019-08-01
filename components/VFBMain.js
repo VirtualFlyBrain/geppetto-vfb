@@ -1089,7 +1089,7 @@ export default class VFBMain extends React.Component {
     window.console.stdlog = console.log.bind(console);
     window.console.logs = [];
     console.log = function () {
-      window.ga('vfb.send', 'event', 'log', arguments);
+      window.ga('vfb.send', 'event', 'log', arguments.join("\n"));
       window.console.logs.push(Array.from(arguments));
       window.console.stdlog.apply(console, arguments);
     }
