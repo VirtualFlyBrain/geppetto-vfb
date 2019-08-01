@@ -1086,6 +1086,13 @@ export default class VFBMain extends React.Component {
 
     // google analytics vfb specific tracker
     ga('create', 'UA-18509775-2', 'auto', 'vfb');
+    window.console.stdlog = console.log.bind(console);
+    window.console.logs = [];
+    console.log = function () {
+      window.ga('vfb.send', 'event', 'log', arguments);
+      window.console.logs.push(Array.from(arguments));
+      window.console.stdlog.apply(console, arguments);
+    }
 
     // Selection listener
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
@@ -1125,7 +1132,7 @@ export default class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.origin + window.location.pathname + window.location.search));
+      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
       console.log("Reloading websocket connection by reloading page");
       window.location.reload(true);
     });
