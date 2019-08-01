@@ -164,6 +164,7 @@ var menuConfiguration = {
       list: [
         {
           label: "Adult",
+          icon: "",
           position: "right-start",
           action: {
             handlerAction: "submenu",
