@@ -365,7 +365,8 @@ export default class VFBToolBar extends React.Component {
 			+ "you can engage directly with our developer community on GitHub"
 			+ "[<a href='https://github.com/VirtualFlyBrain/VFB2' target='_blank'>VirtualFlyBrain/VFB2</a>].</p>"
 			+ "<p>If you have a GitHub account you can easily raise a new issue:"
-			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A'"
+			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A"
+			+ window.location.href + "\n\n" + window.console.logs.join('\n').replace("#",escape("#")) + "'"
 			+ "title='Report an issue via GitHub' target='_blank'>"
 			+ "Create GitHub Issue</a>"
 			+ "</p>"
@@ -381,6 +382,14 @@ export default class VFBToolBar extends React.Component {
 			+ "   </div>";
 
     this.props.htmlOutputHandler(htmlContent);
+    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
+    // add clinet data to console
+    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
+      console.log(JSON.stringify(data, null, 2));
+    });
+    // report console log for agrigated analysis
+    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace("#",escape("#")), );
+    
   }
 
   clickAbout () {
@@ -663,6 +672,7 @@ export default class VFBToolBar extends React.Component {
 			+ "   </div>";
 
     this.props.htmlOutputHandler(htmlContent);
+    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=About'));
   }
 
   clickContribute () {
@@ -712,12 +722,14 @@ export default class VFBToolBar extends React.Component {
 			+ "   </div>";
 
     this.props.htmlOutputHandler(htmlContent);
+    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
   }
 
   menuHandler (click) {
     switch (click.handlerAction) {
     case 'openNewTab':
       click.parameters.map((item, index) => {
+        window.ga('vfb.send', 'pageview', item);
         window.open(item, '_blank');
       })
       break;
