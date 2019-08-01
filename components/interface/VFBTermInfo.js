@@ -724,7 +724,7 @@ export default class VFBTermInfoWidget extends React.Component {
         try {
           items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
           title = title || this.refs.termInfoRef.state.termInfoName ;
-          window.ga('send', 'pageview', (window.location.origin + window.location.pathname + '?id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','')));
+          window.ga('vfb.send', 'pageview', (window.location.origin + window.location.pathname + '?id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','')));
         } catch (ignore) { }
         if (items != "i=") {
           if (window.history.state == null) {
@@ -750,7 +750,7 @@ export default class VFBTermInfoWidget extends React.Component {
             }
           }
         }
-        window.ga('send', 'pageview', (window.location.origin + window.location.pathname + window.location.search));
+        window.ga('vfb.send', 'pageview', (window.location.origin + window.location.pathname + window.location.search));
         window.vfbUpdatingHistory = false;
       }
     } catch (ignore) {

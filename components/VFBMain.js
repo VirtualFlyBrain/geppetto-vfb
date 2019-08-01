@@ -292,7 +292,7 @@ export default class VFBMain extends React.Component {
       if (window.history.state != null && window.history.state.s == 1 && window.location.search.indexOf("i=") > -1) {
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0] + "&") + "," + idsList.join(','));
       }
-      window.ga('send', 'event', 'request', 'addvfbid', idsList.join(','));
+      window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
         for (var singleId = 0; idsList.length > singleId; singleId++) {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
@@ -478,14 +478,14 @@ export default class VFBMain extends React.Component {
           }
           if (templateID != window.templateID) {
             // open new window with the new template and the instance ID
-            window.ga('send', 'event', 'request', 'newtemplate', templateID);
+            window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
             if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
               window.open(newUrl, targetWindow);
-              window.ga('send', 'event', 'opening', 'newtemplate', templateID);
+              window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
             } else {
-              window.ga('send', 'event', 'cancelled', 'newtemplate', templateID);
+              window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
             }
             // stop flow here, we don't want to add to scene something with a different template
             return;
@@ -1084,6 +1084,9 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    // google analytics vfb specific tracker
+    ga('create', 'UA-18509775-2', 'auto', 'vfb');
+
     // Selection listener
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
       var selection = GEPPETTO.SceneController.getSelection();
@@ -1122,7 +1125,7 @@ export default class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('send', 'event', 'reload', 'websocket-disconnect', (window.location.origin + window.location.pathname + window.location.search));
+      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.origin + window.location.pathname + window.location.search));
       console.log("Reloading websocket connection by reloading page");
       window.location.reload(true);
     });
