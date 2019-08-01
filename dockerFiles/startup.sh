@@ -11,16 +11,13 @@ grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/work
 echo $SOLR_SERVER
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
 echo "Google Analytics code: ${googleAnalyticsSiteCode}"
-grep -rls UA-45841517-1 $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@UA-45841517-1@${googleAnalyticsSiteCode}@g" 
+grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" 
 
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend 
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
 mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install
 rm -rf src
-
-echo "Google Analytics code: ${googleAnalyticsSiteCode}"
-grep -rls UA-45841517-1 $HOME/ | xargs sed -i "s@UA-45841517-1@${googleAnalyticsSiteCode}@g" 
 
 # Start a logfile
 mkdir -p $SERVER_HOME/serviceability/logs
@@ -29,9 +26,6 @@ echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
 # Deploy Geppetto
 rm $SERVER_HOME/./repository/usr/* || true
 cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
-
-echo "Google Analytics code: ${googleAnalyticsSiteCode}"
-grep -rls UA-45841517-1 $HOME/ | xargs sed -i "s@UA-45841517-1@${googleAnalyticsSiteCode}@g" 
 
 # set java memory maximum 
 sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
