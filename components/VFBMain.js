@@ -1137,7 +1137,9 @@ export default class VFBMain extends React.Component {
           menuHandler={this.menuHandler}/>
 
         <FocusTerm
-          ref={ref => this.focusTermReference = ref} />
+          ref={ref => this.focusTermReference = ref}
+          UIUpdateManager={this.UIUpdateManager}
+          queryBuilder={this.refs.querybuilderRef}/>
 
         <Rnd
           enableResizing={{
