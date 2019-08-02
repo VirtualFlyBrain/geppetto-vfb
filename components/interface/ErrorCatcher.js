@@ -47,14 +47,20 @@ class ErrorCatcher extends React.Component {
     
     handleClose = () => {
       var customMessage = "Steps to reproduce the problem: \n\nPlease fill the below with the necessary steps to reproduce the problem\n\n\n\nError Information:\n\n"
-      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?body=" + customMessage + this.state.error.message + "\n\n" + this.state.error.stack;
+      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?body=" + customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n" + window.console.logs.join('\n').replace("#",escape("#"));
       var win = window.open(encodeURI(url), '_blank');
       win.focus();
     };
   
     componentDidCatch (error, info) {
+      // Report error to GA
+      window.ga('vfb.send', 'event', 'error', 'react', error.message + " - " + error.stack.replace("#",escape("#")));
       // Display fallback UI
       this.setState({ hasError: true, error: error });
+      // add clinet data to console
+      $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
+        console.log(JSON.stringify(data, null, 2));
+      });
     }
   
     render () {
@@ -74,7 +80,7 @@ class ErrorCatcher extends React.Component {
               <DialogContent>
                 <DialogContentText
                   classes={{ root: classes.rootText }}>
-                    An error just occurred, you can either reload the application or help us reporting
+                    An error just occurred, you can either reload the application or help us out by reporting
                     the issue using the button below.
                 </DialogContentText>
               </DialogContent>
@@ -87,7 +93,7 @@ class ErrorCatcher extends React.Component {
                     Report
                 </Button>
                 <Button 
-                  onClick={() => location.reload()} 
+                  onClick={() => location.reload(true)} 
                   size="medium"
                   classes={{ root: classes.rootButton }}>
                     Reload

@@ -289,9 +289,48 @@ class VFBTermInfo extends React.Component {
       $("#" + buttonBarContainer).remove();
     }
 
+    var barWidth = 260;
+    var previous = "";
+    var next = "";
+    if (this.refs.termInfoInnerRef.clientWidth > (barWidth - 20)) {
+      if (window.history.state != null && window.history.state.b != null && window.history.state.b.length > 0) {
+        previous = "<div class=\"button-bar-vfbHistoryLinks-back\" onClick=\"window.history.back();\"><i class=\"fa fa-arrow-left\"></i></div>";
+        if (this.refs.termInfoInnerRef.clientWidth > (barWidth + 60)) {
+          previous += "<div id=\"" + barDiv + "-back-name\" class=\"bar-div-vfbterminfowidget_long-and-truncated\" onClick=\"window.history.back();\">"; 
+          if (anyInstance.name == window.history.state.n) {
+            previous += window.history.state.b;
+          } else {
+            previous += window.history.state.n;
+          }
+          previous += "</div>"; 
+        }
+      }
+    }
+    if (window.history.state != null && window.history.state.f != null && window.history.state.f.length > 0 && anyInstance.name == window.history.state.n) {
+      next = "<div class=\"button-bar-vfbHistoryLinks-forward\" onClick=\"window.history.forward();\"><i class=\"fa fa-arrow-right\"></i></div>";
+      if (this.refs.termInfoInnerRef.clientWidth > (barWidth + 60)) {
+        next += "<div id=\"" + barDiv + "-forward-name\" class=\"bar-div-vfbterminfowidget_long-and-truncated\" onClick=\"window.history.forward();\">"; 
+        next += window.history.state.f;
+        next += "</div>"; 
+      }
+    }
+
     // $(this.refs.termInfoInnerRef).append("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>");
-    $("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
-    $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
+    $("<div id='" + buttonBarContainer + "' class='button-bar-container'>" + previous + next + "<div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
+    $('#' + barDiv).css('width', this.refs.termInfoInnerRef.clientWidth);
+    
+    if (this.refs.termInfoInnerRef.clientWidth > (barWidth + 60)) {
+      $('#' + barDiv).css('padding-left', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2));
+      $('#' + barDiv).css('padding-right', Math.floor((this.refs.termInfoInnerRef.clientWidth - (barWidth - 40)) / 2));  
+      $('#' + barDiv + '-back-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2));
+      $('#' + barDiv + '-forward-name').css('width', Math.floor((this.refs.termInfoInnerRef.clientWidth - barWidth) / 2));
+    } else if (this.refs.termInfoInnerRef.clientWidth > (barWidth - 20)) {
+      $('#' + barDiv).css('padding-left', 10);
+      $('#' + barDiv).css('padding-right', 10);
+    } else {
+      $('#' + barDiv).css('padding-left', 0);
+      $('#' + barDiv).css('padding-right', 0);
+    }
 
     var instance = null;
     var instancePath = '';
@@ -613,6 +652,8 @@ export default class VFBTermInfoWidget extends React.Component {
 
         GEPPETTO.trigger('spin_logo');
         $("body").css("cursor", "progress");
+        $('#add-new-query-container')[0].hidden = true;
+        $('#query-builder-items-container')[0].hidden = true;
 
         var callback = function () {
           // check if any results with count flag
@@ -673,7 +714,6 @@ export default class VFBTermInfoWidget extends React.Component {
             compositeInstances.push(visualInstances[i]);
           }
         }
-
         var items = 'i=';
         if (window.templateID) {
           items = items + ',' + window.templateID;
@@ -685,14 +725,39 @@ export default class VFBTermInfoWidget extends React.Component {
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
         try {
-          items = 'id=' + this.refs.termInfoRef.data.split('.')[0] + '&' + items;
+          items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
+          title = title || this.refs.termInfoRef.state.termInfoName ;
+          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','')));
         } catch (ignore) { }
         if (items != "i=") {
-          parent.history.pushState({}, title, parent.location.pathname + "?" + items);
+          if (window.history.state == null) {
+            window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
+          }
+          var state = window.history.state.s;
+          switch (state) {
+          case 2:
+            if (window.location.search.indexOf(items.split("&")[0]) > -1) {
+              window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          case 0:
+            window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.history.state.u);
+            if (!(("?" + items) == window.location.search)) {
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          default:
+            if (!(("?" + items) == window.location.search)) {
+              window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.location.search);
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+          }
         }
+        window.ga('vfb.send', 'pageview', (window.location.pathname + window.location.search));
         window.vfbUpdatingHistory = false;
       }
     } catch (ignore) {
+      console.log("URL update error!");
       window.vfbUpdatingHistory = true; // block further updates
     }
   }

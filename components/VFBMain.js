@@ -98,7 +98,7 @@ export default class VFBMain extends React.Component {
     this.idForTermInfo = undefined;
     this.model = FlexLayout.Model.fromJson(modelJson)
 
-    window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$,$VFB_ID$';
+    window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
   }
 
@@ -111,11 +111,11 @@ export default class VFBMain extends React.Component {
   }
 
   getStackViewerDefaultX () {
-    return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10));
+    return (Math.ceil(window.innerWidth / 1.826));
   }
 
   getStackViewerDefaultY () {
-    return 200;
+    return (Math.ceil(window.innerHeight / 3.14));
   }
 
   // Logic to add VFB ids into the scene starts here
@@ -187,12 +187,16 @@ export default class VFBMain extends React.Component {
         }
       }
       idsList = Array.from(new Set(idsList));
+      // Udate URL in case of reload before items loaded:
+      if (window.history.state != null && window.history.state.s == 1 && window.location.search.indexOf("i=") > -1) {
+        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0] + "&") + "," + idsList.join(','));
+      }
+      window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
         for (var singleId = 0; idsList.length > singleId; singleId++) {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
             this.vfbLoadBuffer.push(idsList[singleId]);
           }
-
           if (window[idsList[singleId]] != undefined) {
             this.handleSceneAndTermInfoCallback(idsList[singleId]);
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
@@ -228,6 +232,10 @@ export default class VFBMain extends React.Component {
   }
 
   handleSceneAndTermInfoCallback (variableIds) {
+    if (typeof(variableIds) == "undefined") {
+      console.log('Blank Term Info Callback ');
+      return;
+    }
     if (typeof (variableIds) == "string") {
       variableIds = [variableIds];
     }
@@ -369,9 +377,15 @@ export default class VFBMain extends React.Component {
           }
           if (templateID != window.templateID) {
             // open new window with the new template and the instance ID
+            window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
-            window.open(newUrl, targetWindow);
+            if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+              window.open(newUrl, targetWindow);
+              window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
+            } else {
+              window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
+            }
             // stop flow here, we don't want to add to scene something with a different template
             return;
           }
@@ -756,6 +770,7 @@ export default class VFBMain extends React.Component {
                   'Examples',
                   'Source',
                   'License',
+                  'Related Individuals',
                   'Relationships',
                   'Query for',
                   'Query For',
@@ -899,7 +914,7 @@ export default class VFBMain extends React.Component {
     }
 
     // Loading ids passed through the browser's url
-    if ((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=") == -1)) {
+    if ((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
       var that = this;
       console.log("Loading default Adult Brain VFB_00017894 template.");
       GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
@@ -907,55 +922,69 @@ export default class VFBMain extends React.Component {
       });
     }
 
-    if (this.props.location.search.indexOf("id=") > -1) {
-      var idsList = this.props.location.search;
-      var regex3D = /i=/gi;
-      var results3D, starts3DString = [], ends3DString = [];
-      while ((results3D = regex3D.exec(idsList))) {
-        starts3DString.push(results3D.index + results3D[0].length);
-        if (results3D.input.substring(results3D.index).indexOf("&") > -1) {
-          ends3DString.push(results3D.input.substring(results3D.index).indexOf("&") + results3D.index);
-        } else {
-          ends3DString.push(results3D.input.length);
+    
+    var idList = this.props.location.search;
+    var idList = idList.replace("?","").split("&");
+    var idsList = "";
+    var idsTermInfoSubstring = "";
+    var list;
+    for (list in idList) {
+      if (idList[list].indexOf("id=") > -1) {
+        idsTermInfoSubstring = idList[list].replace("id=","");
+        if (idsList.length > 0) {
+          idsList += ",";
         }
-      }
-
-      var resultsTermInfo, startsTermInfoString = [], endsTermInfoString = [];
-      var regexTermInfo = /id=/gi;
-      while ((resultsTermInfo = regexTermInfo.exec(idsList))) {
-        startsTermInfoString.push(resultsTermInfo.index + resultsTermInfo[0].length);
-        if (resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") > -1) {
-          endsTermInfoString.push(resultsTermInfo.input.substring(resultsTermInfo.index).indexOf("&") + resultsTermInfo.index);
-        } else {
-          endsTermInfoString.push(resultsTermInfo.input.length);
+        idsList += idsTermInfoSubstring;
+      } else if (idList[list].indexOf("i=") > -1) {
+        if (idsList.length > 0) {
+          idsList = "," + idsList;
         }
+        idsList = idList[list].replace("i=","") + idsList;
+      }
+    }
+    if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+      this.urlIdsLoaded = true;
+      var idArray = idsList.split(",");
+      var that = this;
+      console.log("Loading IDS to add to the scene from url");
+      GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+        that.addVfbId(idArray);
+        if (idsTermInfoSubstring.length > 0) {
+          this.idForTermInfo = idsTermInfoSubstring;
+        }
+      });
+    }
 
+    // browser back/forward handling
+    window.onpopstate = function () {
+      var idList = window.location.search;
+      var idList = idList.replace("?","").split("&");
+      var idsTermInfoSubstring = "";
+      var list;
+      for (list in idList) {
+        if (idList[list].indexOf("id=") > -1) {
+          idsTermInfoSubstring = idList[list].replace("id=","");
+        } 
       }
-      for (var i = 0 ; i < startsTermInfoString.length ; i++) {
-        var idsTermInfoSubstring = idsList.substring(startsTermInfoString[i], endsTermInfoString[i]).split(",");
+      if (idsTermInfoSubstring.length > 0) {
+        console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
+        if (window.history.state != null) {
+          window.history.replaceState({ s:2, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f }, window.history.state.n, window.location.pathname + window.location.search);
+        } else {
+          window.history.replaceState({ s:2, n:"", b:"", f:"" }, "", window.location.pathname + window.location.search);
+        }
+        that.addVfbId(idsTermInfoSubstring);
       }
-      this.idForTermInfo = idsTermInfoSubstring[idsTermInfoSubstring.length - 1];
+    }
 
-      for (var i = 0 ; i < starts3DString.length ; i++) {
-        var ids3DSubstring = idsList.substring(starts3DString[i], ends3DString[i]).split(",");
-        var that = this;
-        console.log("Loading IDS to add to term info from url");
-        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-          ids3DSubstring.push(this.idForTermInfo);
-          that.addVfbId(ids3DSubstring);
-        });
-      }
-    } else {
-      var idsList = this.props.location.search.replace("?i=", "");
-      if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
-        this.urlIdsLoaded = true;
-        var idArray = idsList.split(",");
-        var that = this;
-        console.log("Loading IDS to add to the scene from url");
-        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-          that.addVfbId(idArray);
-        });
-      }
+    // google analytics vfb specific tracker
+    ga('create', 'UA-18509775-2', 'auto', 'vfb');
+    window.console.stdlog = console.log.bind(console);
+    window.console.logs = [];
+    console.log = function () {
+      window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
+      window.console.logs.push(Array.from(arguments));
+      window.console.stdlog.apply(console, arguments);
     }
 
     // Selection listener
@@ -996,8 +1025,9 @@ export default class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
+      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
       console.log("Reloading websocket connection by reloading page");
-      window.location.reload();
+      window.location.reload(true);
     });
   }
 
