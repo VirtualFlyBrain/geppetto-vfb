@@ -396,6 +396,15 @@ class VFBTermInfo extends React.Component {
       this.contentBackup.keys = this.contentTermInfo.keys.slice();
       this.contentBackup.values = this.contentTermInfo.values.slice();
       var tempArray = [];
+      if ((this.props.exclude !== undefined ) && (this.props.exclude.length > 0)) {
+        for (var x = 0; x < this.props.exclude.length; x++) {
+          var index = this.contentTermInfo.keys.indexOf(this.props.exclude[x]);
+          if (index > -1) {
+            this.contentTermInfo.keys.splice(index, 1);
+            this.contentTermInfo.values.splice(index, 1);
+          }
+        }
+      }
       for (var x = 0; x < this.props.order.length; x++) {
         var index = this.contentTermInfo.keys.indexOf(this.props.order[x]);
         if (index > -1) {
@@ -796,6 +805,7 @@ export default class VFBTermInfoWidget extends React.Component {
         id={this.idWidget}
         ref="termInfoRef"
         order={this.props.order}
+        exclude={this.props.exclude}
         closeHandler={this.closeHandler}
         customHandler={this.customHandler}
         showButtonBar={this.props.showButtonBar}
