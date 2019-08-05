@@ -770,6 +770,7 @@ export default class VFBMain extends React.Component {
       this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
+      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
       this.refs.spotlightRef.open();
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
