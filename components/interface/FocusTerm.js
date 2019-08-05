@@ -153,10 +153,18 @@ export default class FocusTerm extends React.Component {
       $("body").css("cursor", "progress");
       if (window[otherId] === undefined) {
         window.fetchVariableThenRun(otherId, function () {
+          if ($('#add-new-query-container')[0] !== undefined) {
+            $('#add-new-query-container')[0].hidden = true;
+            $('#query-builder-items-container')[0].hidden = true;
+          }
           this.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback) 
         }.bind(this));
       } else {
         setTimeout(function () {
+          if ($('#add-new-query-container')[0] !== undefined) {
+            $('#add-new-query-container')[0].hidden = true;
+            $('#query-builder-items-container')[0].hidden = true;
+          }
           this.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback); 
         }.bind(this), 100);
       }
@@ -174,13 +182,17 @@ export default class FocusTerm extends React.Component {
   }
 
   setInstance (instance) {
-    this.focusTermConfiguration.buttons[0].label = instance.name;
+    this.focusTermConfiguration.buttons[0].label = instance.getName();
     this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
     this.setState({ currentInstance: instance });
   }
 
   componentDidMount () {
-    
+    GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
+      if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
+        this.setInstance(instance[instance.getId() + "_meta"]);
+      }
+    }.bind(this));
   }
 
   render () {
@@ -232,13 +244,13 @@ export default class FocusTerm extends React.Component {
           <div className="focusTermRight">
             { this.state.currentInstance !== undefined
               ? <div className="focusTermDivR">
-                <i className="fa fa-arrow-left arrowsStyle"
+                <i className="fa fa-chevron-left arrowsStyle"
                   onClick={() => {
                     if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
                       window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
                     }
                   }}/>
-                <i className="fa fa-arrow-right arrowsStyle"
+                <i className="fa fa-chevron-right arrowsStyle"
                   onClick={() => {
                     if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
                       window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );

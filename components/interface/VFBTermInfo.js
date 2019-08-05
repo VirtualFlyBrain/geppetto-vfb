@@ -220,7 +220,12 @@ class VFBTermInfo extends React.Component {
       if (window.historyWidgetCapability[id][i].label == label && window.historyWidgetCapability[id][i].method == method) {
         elementPresentInHistory = true;
         // moves it to the first position
-        window.historyWidgetCapability[id].splice(0, 0, window.historyWidgetCapability[id].splice(i, 1)[0]);
+        if (window.historyWidgetCapability[id].length <= 2) {
+          window.historyWidgetCapability[id].splice(0, 0, window.historyWidgetCapability[id].splice(i, 1)[0]);
+        } else {
+          var extract = window.historyWidgetCapability[id].splice(i, window.historyWidgetCapability[id].length - 1);
+          window.historyWidgetCapability[id] = extract.concat(window.historyWidgetCapability[id]);
+        }
         break;
       }
     }

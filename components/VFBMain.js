@@ -261,7 +261,8 @@ export default class VFBMain extends React.Component {
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
             instance.select();
-            if (this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined && instance[instance.getId() + "_meta"] !== undefined) {
+              let meta = instance[instance.getId() + "_meta"];
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
             }
             this.termInfoName = meta;
