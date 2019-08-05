@@ -858,7 +858,7 @@ export default class VFBMain extends React.Component {
           showButtonBar={true}
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
-          exclude={["ClassQueriesFrom"]}
+          exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
                   'Label',
                   'Alternative Names',
