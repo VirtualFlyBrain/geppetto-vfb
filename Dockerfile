@@ -53,7 +53,7 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.datasources.git "${targe
 
 RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
   
-RUN export DEBUG=false; if [ "$build_type" == "development" ]; then export DEBUG=true; fi && \
+RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
   /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g"
   
 RUN cd uk.ac.vfb.geppetto &&\
