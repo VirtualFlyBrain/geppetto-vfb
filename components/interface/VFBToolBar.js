@@ -321,7 +321,7 @@ export default class VFBToolBar extends React.Component {
 			+ "<b>Referring page:</b> <small id='feedback_url'>$URL$ $DATE$</small><br />"
 			+ "<b>System details:</b> <small id='feedback_systemDetails'>$BROWSER$ $VERSION$ [$SCREEN$]</small><br />"
 			+ "<details>"
-			+ "<summary>Full Console Log (if requested)</summary>"
+			+ "<summary><b>Full Console Log</b> <small>(if requested)</small></summary>"
 			+ "<p style='padding-left:30px;padding-right:30px;font-size:75%;'>$COLOURLOG$</p>"
 			+ "</details>"
 			+ "</div>"
