@@ -305,7 +305,7 @@ export default class VFBToolBar extends React.Component {
 			+ "<div id='vfb-content-text' class='vfbcontent'>"
 			+ "<h2>Help us improve the site</h2>"
 			+ "<script> var theURL = window.thePreviousURL;"
-			+ "$('#feedback_url')[0].innerHTML = theURL;"
+			+ "$('#feedback_url')[0].innerHTML = window.location.href;"
 			+ "window.SupDetail = {};"
 			+ "var nVer = navigator.appVersion;"
 			+ "var nAgt = navigator.userAgent;"
@@ -357,7 +357,7 @@ export default class VFBToolBar extends React.Component {
 			+ "fullVersion  = ''+parseFloat(navigator.appVersion);"
 			+ "majorVersion = parseInt(navigator.appVersion,10);"
 			+ "}"
-			+ "$('#feedback_systemDetails')[0].innerHTML = navigator.userAgent + ' Size:[' + browserSize + ']';"
+			+ "$('#feedback_systemDetails')[0].innerHTML = browserName + ' ' + fullVersion + ' Size:[' + browserSize + ']';"
 			+ "$('#feedback_githubissue')[0].href = $('#feedback_githubissue')[0].href + 'Referring%20page%3A%20' + encodeURIComponent(theURL) + '%0ASystem%20details%3A%20' + encodeURIComponent(navigator.userAgent) + encodeURIComponent(' Size:[' + browserSize + ']');"
 			+ "</script>"
 			+ "<p>We really appreciate any feedback you could give us.</p>"
@@ -366,8 +366,8 @@ export default class VFBToolBar extends React.Component {
 			+ "you can engage directly with our developer community on GitHub"
 			+ "[<a href='https://github.com/VirtualFlyBrain/VFB2' target='_blank'>VirtualFlyBrain/VFB2</a>].</p>"
 			+ "<p>If you have a GitHub account you can easily raise a new issue:"
-			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A"
-			+ window.location.href + "\n\n" + window.console.logs.join('\n').replace("#",escape("#")) + "'"
+			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A'"
+			+ " + window.location.href + '\n\n```diff\n' + window.console.logs.join('\n').replace('#',escape('#')) + '\n```\n' + '\''"
 			+ "title='Report an issue via GitHub' target='_blank'>"
 			+ "Create GitHub Issue</a>"
 			+ "</p>"
@@ -375,22 +375,19 @@ export default class VFBToolBar extends React.Component {
 			+ "the page address and system details listed below to help us resolve any issue as quickly as possible."
 			+ "</p>"
 			+ "<div style='border: 1px solid green;''>"
-			+ "<b>Referring page:</b> <small id='feedback_url'>https://v2.virtualflybrain.org/</small><br />"
-			+ "<b>System details:</b> <small id='feedback_systemDetails'>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 Size:[1853,981]</small><br />"
+			+ "<b>Referring page:</b> <small id='feedback_url'></small><br />"
+			+ "<b>System details:</b> <small id='feedback_systemDetails'></small><br />"
 			+ "</div>"
 			+ "<p>Thank you for your help.</p>"
+			+ "window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));"
+			+ "// add clinet data to console"
+			+ "$.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) { console.log(JSON.stringify(data, null, 2));});"
+			+ "// report console log for agrigated analysis"
+			+ "window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace('#',escape('#')), );"
 			+ "   </div>"
 			+ "   </div>";
 
-    this.props.htmlOutputHandler(htmlContent);
-    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
-    // add clinet data to console
-    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
-      console.log(JSON.stringify(data, null, 2));
-    });
-    // report console log for agrigated analysis
-    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace("#",escape("#")), );
-    
+    this.props.htmlOutputHandler(htmlContent);    
   }
 
   clickAbout () {
