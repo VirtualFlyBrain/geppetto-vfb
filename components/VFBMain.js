@@ -1089,11 +1089,17 @@ export default class VFBMain extends React.Component {
     // google analytics vfb specific tracker
     ga('create', 'UA-18509775-2', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
+    window.console.stderr = console.error.bind(console);
     window.console.logs = [];
     console.log = function () {
       window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
       window.console.logs.push(Array.from(arguments));
       window.console.stdlog.apply(console, arguments);
+    }
+    console.error = function () {
+      window.ga('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
+      window.console.logs.push(Array.from(arguments));
+      window.console.stderr.apply(console, arguments);
     }
 
     // Selection listener
