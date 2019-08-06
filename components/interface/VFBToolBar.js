@@ -310,8 +310,7 @@ export default class VFBToolBar extends React.Component {
 			+ "you can engage directly with our developer community on GitHub "
 			+ "[<a href='https://github.com/VirtualFlyBrain/VFB2' target='_blank'>VirtualFlyBrain/VFB2</a>].</p>"
 			+ "<p>If you have a GitHub account you can easily raise a new issue: "
-			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A'"
-			+ " + window.location.href + '%0A%0A```diff%0A' + window.console.logs.join('%0A').replace('#',escape('#')) + '%0A```%0A' + '\''"
+			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$URL$%0A$BROWSER$%20$VERSION$%20%5B$SCREEN$%5D%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' "
 			+ "title='Report an issue via GitHub' target='_blank'>"
 			+ "Create GitHub Issue</a>"
 			+ "</p>"
@@ -319,77 +318,88 @@ export default class VFBToolBar extends React.Component {
 			+ "the page address and system details listed below to help us resolve any issue as quickly as possible."
 			+ "</p>"
 			+ "<div style='border: 1px solid green;''>"
-			+ "<b>Referring page:</b> <small id='feedback_url'></small><br />"
-			+ "<b>System details:</b> <small id='feedback_systemDetails'></small><br />"
+			+ "<b>Referring page:</b> <small id='feedback_url'>$URL$ $DATE$</small><br />"
+			+ "<b>System details:</b> <small id='feedback_systemDetails'>$BROWSER$ $VERSION$ [$SCREEN$]</small><br />"
+			+ "<details>"
+			+ "<summary>Full Console Log (if requested)</summary>"
+			+ "<p>$COLOURLOG$</p>"
+			+ "</details>"
 			+ "</div>"
 			+ "<p>Thank you for your help.</p>"
-			+ "<script>"
-			+ "window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));\n"
-			+ "// add clinet data to console\n"
-			+ "$.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) { console.log(JSON.stringify(data, null, 2));});\n"
-			+ "// report console log for agrigated analysis\n"
-			+ "window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('%0A').replace('#',escape('#')), );\n"
-			+ "</script>"
-			+ "<script>"
-			+ "$('#feedback_url')[0].innerHTML = window.location.href;"
-			+ "window.SupDetail = {};"
-			+ "var nVer = navigator.appVersion;"
-			+ "var nAgt = navigator.userAgent;"
-			+ "var browserName  = navigator.appName;"
-			+ "var fullVersion  = ''+parseFloat(navigator.appVersion);"
-			+ "var majorVersion = parseInt(navigator.appVersion,10);"
-			+ "var nameOffset,verOffset,ix;"
-			+ "var browserSize = String($(window).width()) + ',' + String($(window).height());"
-			+ "SupDetail.cookies = '';"
-			+ "if ((verOffset=nAgt.indexOf('Opera'))!=-1) {"
-			+ "browserName = 'Opera';"
-			+ "fullVersion = nAgt.substring(verOffset+6);"
-			+ "if ((verOffset=nAgt.indexOf('Version'))!=-1) "
-			+ "fullVersion = nAgt.substring(verOffset+8);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('MSIE'))!=-1) {"
-			+ "browserName = 'Microsoft Internet Explorer';"
-			+ "fullVersion = nAgt.substring(verOffset+5);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('Chrome'))!=-1) {"
-			+ "browserName = 'Chrome';"
-			+ "fullVersion = nAgt.substring(verOffset+7);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('Safari'))!=-1) {"
-			+ "browserName = 'Safari';"
-			+ "fullVersion = nAgt.substring(verOffset+7);"
-			+ "if ((verOffset=nAgt.indexOf('Version'))!=-1)"
-			+ "fullVersion = nAgt.substring(verOffset+8);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('Firefox'))!=-1) {"
-			+ "browserName = 'Firefox';"
-			+ "fullVersion = nAgt.substring(verOffset+8);"
-			+ "}"
-			+ "else if ( (nameOffset=nAgt.lastIndexOf(' ')+1) <"
-			+ "(verOffset=nAgt.lastIndexOf('/')) )"
-			+ "{"
-			+ "browserName = nAgt.substring(nameOffset,verOffset);"
-			+ "fullVersion = nAgt.substring(verOffset+1);"
-			+ "if (browserName.toLowerCase()==browserName.toUpperCase()) {"
-			+ "browserName = navigator.appName;"
-			+ "}"
-			+ "}"
-			+ "if ((ix=fullVersion.indexOf(';'))!=-1)"
-			+ "fullVersion=fullVersion.substring(0,ix);"
-			+ "if ((ix=fullVersion.indexOf(' '))!=-1)"
-			+ "fullVersion=fullVersion.substring(0,ix);"
-			+ "majorVersion = parseInt(''+fullVersion,10);"
-			+ "if (isNaN(majorVersion)) {"
-			+ "fullVersion  = ''+parseFloat(navigator.appVersion);"
-			+ "majorVersion = parseInt(navigator.appVersion,10);"
-			+ "}"
-			+ "$('#feedback_systemDetails')[0].innerHTML = browserName + ' ' + fullVersion + ' Size:[' + browserSize + '] ' + Date();"
-			+ "$('#feedback_githubissue')[0].href = $('#feedback_githubissue')[0].href + 'Referring%20page%3A%20' + encodeURIComponent(theURL) + '%0ASystem%20details%3A%20' + encodeURIComponent(navigator.userAgent) + encodeURIComponent(' Size:[' + browserSize + ']');"
-			+ "</script>"
-			+ "   </div>"
-			+ "   </div>";
+			+ "</div>"
+			+ "</div>";
 
-    this.props.htmlOutputHandler(htmlContent);    
+    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
+    // add clinet data to console
+    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
+      console.log(JSON.stringify(data, null, 2));
+    });
+    // report console log for agrigated analysis
+    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace('#',escape('#')), );
+
+    var nVer = navigator.appVersion;
+    var nAgt = navigator.userAgent;
+    var browserName = navigator.appName;
+    var fullVersion = '' + parseFloat(navigator.appVersion); 
+    var majorVersion = parseInt(navigator.appVersion,10);
+    var nameOffset,verOffset,ix;
+		
+    if ((verOffset = nAgt.indexOf("Opera")) != -1) { // In Opera, the true version is after "Opera" or after "Version"
+      browserName = "Opera";
+      fullVersion = nAgt.substring(verOffset + 6);
+      if ((verOffset = nAgt.indexOf("Version")) != -1) {
+        fullVersion = nAgt.substring(verOffset + 8);
+      }
+    } else if ((verOffset = nAgt.indexOf("MSIE")) != -1) { // In MSIE, the true version is after "MSIE" in userAgent
+      browserName = "Microsoft Internet Explorer";
+      fullVersion = nAgt.substring(verOffset + 5);
+    } else if ((verOffset = nAgt.indexOf("Chrome")) != -1) { // In Chrome, the true version is after "Chrome" 
+      browserName = "Chrome";
+      fullVersion = nAgt.substring(verOffset + 7);
+    } else if ((verOffset = nAgt.indexOf("Safari")) != -1) { // In Safari, the true version is after "Safari" or after "Version" 
+      browserName = "Safari";
+      fullVersion = nAgt.substring(verOffset + 7);
+      if ((verOffset = nAgt.indexOf("Version")) != -1) {
+        fullVersion = nAgt.substring(verOffset + 8);
+      }
+    } else if ((verOffset = nAgt.indexOf("Firefox")) != -1) { // In Firefox, the true version is after "Firefox" 
+      browserName = "Firefox";
+      fullVersion = nAgt.substring(verOffset + 8);
+    } else if ( (nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/')) ) { // In most other browsers, "name/version" is at the end of userAgent 
+      browserName = nAgt.substring(nameOffset,verOffset);
+      fullVersion = nAgt.substring(verOffset + 1);
+      if (browserName.toLowerCase() == browserName.toUpperCase()) {
+        browserName = navigator.appName;
+      }
+    }
+    // trim the fullVersion string at semicolon/space if present
+    if ((ix = fullVersion.indexOf(";")) != -1) {
+      fullVersion = fullVersion.substring(0,ix);
+    }
+    if ((ix = fullVersion.indexOf(" ")) != -1) {
+      fullVersion = fullVersion.substring(0,ix);
+    }
+    majorVersion = parseInt('' + fullVersion,10);
+    if (isNaN(majorVersion)) {
+      fullVersion = '' + parseFloat(navigator.appVersion); 
+      majorVersion = parseInt(navigator.appVersion,10);
+    }
+
+    this.props.htmlOutputHandler(
+      htmlContent.replace(
+        "$URL$",window.location.href
+      ).replace(
+        "$BROWSER$", browserName
+      ).replace(
+        "$VERSION$", fullVersion
+      ).replace(
+        "$DATE$", Date()
+      ).replace(
+        "$SCREEN$", window.innerWidth + ',' + window.innerHeight
+      ).replace(
+        "$LOG$", window.console.logs.join('</span>%0A').replace('- ','<span style="color:orange">').replace('+ ','<span style="color:yellow">')
+      )
+    );    
   }
 
   clickAbout () {
