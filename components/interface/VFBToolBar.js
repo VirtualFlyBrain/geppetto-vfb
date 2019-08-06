@@ -357,7 +357,7 @@ export default class VFBToolBar extends React.Component {
 			+ "fullVersion  = ''+parseFloat(navigator.appVersion);"
 			+ "majorVersion = parseInt(navigator.appVersion,10);"
 			+ "}"
-			+ "$('#feedback_systemDetails')[0].innerHTML = browserName + ' ' + fullVersion + ' Size:[' + browserSize + ']';"
+			+ "$('#feedback_systemDetails')[0].innerHTML = browserName + ' ' + fullVersion + ' Size:[' + browserSize + '] ' + Date();"
 			+ "$('#feedback_githubissue')[0].href = $('#feedback_githubissue')[0].href + 'Referring%20page%3A%20' + encodeURIComponent(theURL) + '%0ASystem%20details%3A%20' + encodeURIComponent(navigator.userAgent) + encodeURIComponent(' Size:[' + browserSize + ']');"
 			+ "</script>"
 			+ "<p>We really appreciate any feedback you could give us.</p>"
