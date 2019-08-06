@@ -379,11 +379,13 @@ export default class VFBToolBar extends React.Component {
 			+ "<b>System details:</b> <small id='feedback_systemDetails'></small><br />"
 			+ "</div>"
 			+ "<p>Thank you for your help.</p>"
+			+ "<script>"
 			+ "window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));"
 			+ "// add clinet data to console"
 			+ "$.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) { console.log(JSON.stringify(data, null, 2));});"
 			+ "// report console log for agrigated analysis"
 			+ "window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace('#',escape('#')), );"
+			+ "</script>"
 			+ "   </div>"
 			+ "   </div>";
 
