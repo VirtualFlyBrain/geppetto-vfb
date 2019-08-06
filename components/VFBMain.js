@@ -759,6 +759,7 @@ export default class VFBMain extends React.Component {
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
           focusTermRef={this.focusTermReference}
+          exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
                   'Label',
                   'Alternative Names',
