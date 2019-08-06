@@ -264,9 +264,9 @@ export default class VFBMain extends React.Component {
             if (this.termInfoReference !== undefined && instance[instance.getId() + "_meta"] !== undefined) {
               let meta = instance[instance.getId() + "_meta"];
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
+              this.termInfoName = meta;
+              this.termInfoId = meta.getParent().getId();
             }
-            this.termInfoName = meta;
-            this.termInfoId = meta.getParent().getId();
           }
         }.bind(this));
       } else {

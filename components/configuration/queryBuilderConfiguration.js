@@ -1,5 +1,6 @@
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
 var QueryLinkComponent = require("geppetto-client/js/components/interface/query/customComponents/queryLinkComponent");
+var QueryLinkArrayComponent = require("geppetto-client/js/components/interface/query/customComponents/queryLinkArrayComponent");
 var SlideshowImageComponent = require("geppetto-client/js/components/interface/query/customComponents/slideshowImageComponent");
 var QueryResultsControlsComponent = require("geppetto-client/js/components/interface/query/customComponents/queryResultsControlsComponent");
 
@@ -18,6 +19,8 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": QueryLinkComponent,
     "actions": "window.addVfbId('$entity$'.split('----')[0]);",
+    "entityIndex": 0,
+    "entityDelimiter": "----",
     "displayName": "Name",
     "cssClassName": "query-results-name-column",
   },
@@ -28,6 +31,8 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": QueryLinkComponent,
     "actions": "window.addVfbId('$entity$'.split('----')[1]);",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column"
   },
@@ -44,8 +49,11 @@ var queryResultsColMeta = [
     "order": 5,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
-    "actions": "window.addVfbId('$entity$'.split('----')[2]);",
+    "customComponent": QueryLinkArrayComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 2,
+    "entityDelimiter": "----",
+    "stringDelimiter": ";",
     "displayName": "Reference",
     "cssClassName": "query-results-reference-column"
   },
