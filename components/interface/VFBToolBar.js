@@ -397,7 +397,7 @@ export default class VFBToolBar extends React.Component {
       ).replace(
         "$SCREEN$", window.innerWidth + ',' + window.innerHeight
       ).replace(
-        "$LOG$", window.console.logs.join('%0A').replace('#','%23')
+        "$LOG$", escape(window.console.logs.join('\n'))
       ).replace(
         "$COLOURLOG$", window.console.logs.join('</span>%0A').replace('- ','<span style="color:orange">').replace('+ ','<span style="color:yellow">')
       )
