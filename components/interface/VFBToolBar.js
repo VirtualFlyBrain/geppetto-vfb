@@ -335,7 +335,7 @@ export default class VFBToolBar extends React.Component {
       console.log(JSON.stringify(data, null, 2));
     });
     // report console log for agrigated analysis
-    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace('#',escape('#')), );
+    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace(/\#/g,escape('#')), );
 
     var nVer = navigator.appVersion;
     var nAgt = navigator.userAgent;
@@ -397,7 +397,7 @@ export default class VFBToolBar extends React.Component {
       ).replace(
         /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
       ).replace(
-        /\$LOG\$/g, escape(window.console.logs.join('\n'))
+        /\$LOG\$/g, window.console.logs.join('\n').replace(/\&/g,escape('&'))
       ).replace(
         /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(/\-\ /g, '<span style="color:orange">').replace(/\+\ /g, '<span style="color:yellow">')
       )
