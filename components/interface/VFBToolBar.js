@@ -310,7 +310,7 @@ export default class VFBToolBar extends React.Component {
 			+ "you can engage directly with our developer community on GitHub "
 			+ "[<a href='https://github.com/VirtualFlyBrain/VFB2' target='_blank'>VirtualFlyBrain/VFB2</a>].</p>"
 			+ "<p>If you have a GitHub account you can easily raise a new issue: "
-			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$BROWSER$%20$VERSION$%0A$URL$%20%5B$SCREEN$%5D%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' "
+			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$BROWSER$%20$VERSION$%20%5B$SCREEN$%5D%0A$URL$%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' "
 			+ "title='Report an issue via GitHub' target='_blank'>"
 			+ "Create GitHub Issue</a>"
 			+ "</p>"
