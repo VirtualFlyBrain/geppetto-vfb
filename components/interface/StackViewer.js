@@ -74,13 +74,12 @@ export default class StackViewer extends React.Component {
         }
       }
     } catch (err) {
-      console.log(err.message);
+      console.error(err.message);
     }
   }
 
   updateStackWidget () {
     this.checkConnection();
-    console.log('Updating stack...');
     if (this.changedStacks()) {
       this.addSlices(this.getSliceInstances());
     }
@@ -179,7 +178,6 @@ export default class StackViewer extends React.Component {
     }.bind(this));
     GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
       var that = this;
-      console.log('Instance created...');
 
       if (this.refs.StackViewerRef != undefined) {
         if (instances != undefined && instances.length > 0) {
@@ -197,13 +195,11 @@ export default class StackViewer extends React.Component {
                     that.setState({ data: that.data }, () => {
                       that.updateStackWidget();
                     });
-                    // window.StackViewer1.setConfig(config);
                   } catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
                     that.setState({ data: that.data }, () => {
                       that.updateStackWidget();
                     });
-                    // window.StackViewer1.setConfig(config);
                   }
                 }
                 console.log('Passing instance: ' + instance.getId());
@@ -216,7 +212,6 @@ export default class StackViewer extends React.Component {
 
     // on colour change update:
     GEPPETTO.on(GEPPETTO.Events.Color_set, function (instances) {
-      console.log('Colour change...');
       if (this.refs.StackViewerRef != undefined) {
         this.updateStackWidget();
       }
@@ -224,7 +219,6 @@ export default class StackViewer extends React.Component {
 
     // on colour change update:
     GEPPETTO.on(GEPPETTO.Events.Select, function (instances) {
-      console.log('Selection change...');
       if (this.refs.StackViewerRef != undefined) {
         this.updateStackWidget();
       }

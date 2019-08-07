@@ -304,70 +304,13 @@ export default class VFBToolBar extends React.Component {
 			+ "</div>"
 			+ "<div id='vfb-content-text' class='vfbcontent'>"
 			+ "<h2>Help us improve the site</h2>"
-			+ "<script> var theURL = window.thePreviousURL;"
-			+ "$('#feedback_url')[0].innerHTML = theURL;"
-			+ "window.SupDetail = {};"
-			+ "var nVer = navigator.appVersion;"
-			+ "var nAgt = navigator.userAgent;"
-			+ "var browserName  = navigator.appName;"
-			+ "var fullVersion  = ''+parseFloat(navigator.appVersion);"
-			+ "var majorVersion = parseInt(navigator.appVersion,10);"
-			+ "var nameOffset,verOffset,ix;"
-			+ "var browserSize = String($(window).width()) + ',' + String($(window).height());"
-			+ "SupDetail.cookies = '';"
-			+ "if ((verOffset=nAgt.indexOf('Opera'))!=-1) {"
-			+ "browserName = 'Opera';"
-			+ "fullVersion = nAgt.substring(verOffset+6);"
-			+ "if ((verOffset=nAgt.indexOf('Version'))!=-1)"
-			+ "fullVersion = nAgt.substring(verOffset+8);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('MSIE'))!=-1) {"
-			+ "browserName = 'Microsoft Internet Explorer';"
-			+ "fullVersion = nAgt.substring(verOffset+5);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('Chrome'))!=-1) {"
-			+ "browserName = 'Chrome';"
-			+ "fullVersion = nAgt.substring(verOffset+7);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('Safari'))!=-1) {"
-			+ "browserName = 'Safari';"
-			+ "fullVersion = nAgt.substring(verOffset+7);"
-			+ "if ((verOffset=nAgt.indexOf('Version'))!=-1)"
-			+ "fullVersion = nAgt.substring(verOffset+8);"
-			+ "}"
-			+ "else if ((verOffset=nAgt.indexOf('Firefox'))!=-1) {"
-			+ "browserName = 'Firefox';"
-			+ "fullVersion = nAgt.substring(verOffset+8);"
-			+ "}"
-			+ "else if ( (nameOffset=nAgt.lastIndexOf(' ')+1) <"
-			+ "(verOffset=nAgt.lastIndexOf('/')) )"
-			+ "{"
-			+ "browserName = nAgt.substring(nameOffset,verOffset);"
-			+ "fullVersion = nAgt.substring(verOffset+1);"
-			+ "if (browserName.toLowerCase()==browserName.toUpperCase()) {"
-			+ "browserName = navigator.appName;"
-			+ "}"
-			+ "}"
-			+ "if ((ix=fullVersion.indexOf(';'))!=-1)"
-			+ "fullVersion=fullVersion.substring(0,ix);"
-			+ "if ((ix=fullVersion.indexOf(' '))!=-1)"
-			+ "fullVersion=fullVersion.substring(0,ix);"
-			+ "majorVersion = parseInt(''+fullVersion,10);"
-			+ "if (isNaN(majorVersion)) {"
-			+ "fullVersion  = ''+parseFloat(navigator.appVersion);"
-			+ "majorVersion = parseInt(navigator.appVersion,10);"
-			+ "}"
-			+ "$('#feedback_systemDetails')[0].innerHTML = navigator.userAgent + ' Size:[' + browserSize + ']';"
-			+ "$('#feedback_githubissue')[0].href = $('#feedback_githubissue')[0].href + 'Referring%20page%3A%20' + encodeURIComponent(theURL) + '%0ASystem%20details%3A%20' + encodeURIComponent(navigator.userAgent) + encodeURIComponent(' Size:[' + browserSize + ']');"
-			+ "</script>"
 			+ "<p>We really appreciate any feedback you could give us.</p>"
 			+ "<p>You can simply <b><span id='emailUs'></span></b>email us (support@virtualflybrain.org) with details.</p>"
 			+ "<p>Alternatively, as VFB is an opensource project,"
-			+ "you can engage directly with our developer community on GitHub"
+			+ "you can engage directly with our developer community on GitHub "
 			+ "[<a href='https://github.com/VirtualFlyBrain/VFB2' target='_blank'>VirtualFlyBrain/VFB2</a>].</p>"
-			+ "<p>If you have a GitHub account you can easily raise a new issue:"
-			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A"
-			+ window.location.href + "\n\n" + window.console.logs.join('\n').replace("#",escape("#")) + "'"
+			+ "<p>If you have a GitHub account you can easily raise a new issue: "
+			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$BROWSER$%20$VERSION$%20%5B$SCREEN$%5D%0A$URL$%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' "
 			+ "title='Report an issue via GitHub' target='_blank'>"
 			+ "Create GitHub Issue</a>"
 			+ "</p>"
@@ -375,22 +318,110 @@ export default class VFBToolBar extends React.Component {
 			+ "the page address and system details listed below to help us resolve any issue as quickly as possible."
 			+ "</p>"
 			+ "<div style='border: 1px solid green;''>"
-			+ "<b>Referring page:</b> <small id='feedback_url'>https://v2.virtualflybrain.org/</small><br />"
-			+ "<b>System details:</b> <small id='feedback_systemDetails'>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36 Size:[1853,981]</small><br />"
+			+ "<b>Referring page:</b> <small id='feedback_url'>$URL$</small><br />"
+			+ "<b>System details:</b> <small id='feedback_systemDetails'>$BROWSER$ $VERSION$ [$SCREEN$] $DATE$</small><br />"
+			+ "<details>"
+			+ "<summary><b>Full Console Log</b> <small>(if requested)</small></summary>"
+			+ "<p style='padding-left:30px;padding-right:30px;font-size:75%;'>$COLOURLOG$</p>"
+			+ "</details>"
 			+ "</div>"
 			+ "<p>Thank you for your help.</p>"
-			+ "   </div>"
-			+ "   </div>";
+			+ "</div>"
+			+ "</div>";
 
-    this.props.htmlOutputHandler(htmlContent);
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
     // add clinet data to console
     $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
       console.log(JSON.stringify(data, null, 2));
     });
     // report console log for agrigated analysis
-    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace("#",escape("#")), );
-    
+    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace(/\#/g,escape('#')), );
+
+    var nVer = navigator.appVersion;
+    var nAgt = navigator.userAgent;
+    var browserName = navigator.appName;
+    var fullVersion = '' + parseFloat(navigator.appVersion); 
+    var majorVersion = parseInt(navigator.appVersion,10);
+    var nameOffset,verOffset,ix;
+		
+    if ((verOffset = nAgt.indexOf("Opera")) != -1) { // In Opera, the true version is after "Opera" or after "Version"
+      browserName = "Opera";
+      fullVersion = nAgt.substring(verOffset + 6);
+      if ((verOffset = nAgt.indexOf("Version")) != -1) {
+        fullVersion = nAgt.substring(verOffset + 8);
+      }
+    } else if ((verOffset = nAgt.indexOf("MSIE")) != -1) { // In MSIE, the true version is after "MSIE" in userAgent
+      browserName = "Microsoft Internet Explorer";
+      fullVersion = nAgt.substring(verOffset + 5);
+    } else if ((verOffset = nAgt.indexOf("Chrome")) != -1) { // In Chrome, the true version is after "Chrome" 
+      browserName = "Chrome";
+      fullVersion = nAgt.substring(verOffset + 7);
+    } else if ((verOffset = nAgt.indexOf("Safari")) != -1) { // In Safari, the true version is after "Safari" or after "Version" 
+      browserName = "Safari";
+      fullVersion = nAgt.substring(verOffset + 7);
+      if ((verOffset = nAgt.indexOf("Version")) != -1) {
+        fullVersion = nAgt.substring(verOffset + 8);
+      }
+    } else if ((verOffset = nAgt.indexOf("Firefox")) != -1) { // In Firefox, the true version is after "Firefox" 
+      browserName = "Firefox";
+      fullVersion = nAgt.substring(verOffset + 8);
+    } else if ( (nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/')) ) { // In most other browsers, "name/version" is at the end of userAgent 
+      browserName = nAgt.substring(nameOffset,verOffset);
+      fullVersion = nAgt.substring(verOffset + 1);
+      if (browserName.toLowerCase() == browserName.toUpperCase()) {
+        browserName = navigator.appName;
+      }
+    }
+    // trim the fullVersion string at semicolon/space if present
+    if ((ix = fullVersion.indexOf(";")) != -1) {
+      fullVersion = fullVersion.substring(0,ix);
+    }
+    if ((ix = fullVersion.indexOf(" ")) != -1) {
+      fullVersion = fullVersion.substring(0,ix);
+    }
+    majorVersion = parseInt('' + fullVersion,10);
+    if (isNaN(majorVersion)) {
+      fullVersion = '' + parseFloat(navigator.appVersion); 
+      majorVersion = parseInt(navigator.appVersion,10);
+    }
+
+    this.props.htmlOutputHandler(
+      htmlContent.replace(
+        /\$URL\$/g,window.location.href.replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        )
+      ).replace(
+        /\$BROWSER\$/g, browserName
+      ).replace(
+        /\$VERSION\$/g, fullVersion
+      ).replace(
+        /\$DATE\$/g, Date()
+      ).replace(
+        /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
+      ).replace(
+        /\$LOG\$/g, window.console.logs.join('%0A').replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        ).replace(
+          /\-/g,'%2D'
+        ).replace(
+          /\+/g,'%2B'
+        )
+      ).replace(
+        /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        ).replace(
+          /\-\ /g, '<span style="color:orange">'
+        ).replace(
+          /\+\ /g, '<span style="color:yellow">'
+        )
+      )
+    );    
   }
 
   clickAbout () {

@@ -770,6 +770,7 @@ export default class VFBMain extends React.Component {
       this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
+      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
       this.refs.spotlightRef.open();
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
@@ -1088,11 +1089,21 @@ export default class VFBMain extends React.Component {
     // google analytics vfb specific tracker
     ga('create', 'UA-18509775-2', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
+    window.console.stderr = console.error.bind(console);
     window.console.logs = [];
     console.log = function () {
-      window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
-      window.console.logs.push(Array.from(arguments));
-      window.console.stdlog.apply(console, arguments);
+      if (Array.from(arguments).join("\n").indexOf('Pixi.js') < 0 && Array.from(arguments).join("\n") != 'unmount') {
+        window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
+        window.console.logs.push('+ ' + Array.from(arguments).join('\n'));
+        window.console.stdlog.apply(console, arguments);
+      }
+    }
+    console.error = function () {
+      if (Array.from(arguments).join("\n").indexOf('www.pixijs.com') < 0) {
+        window.ga('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
+        window.console.logs.push('- ' + Array.from(arguments).join('\n'));
+        window.console.stderr.apply(console, arguments);
+      }
     }
 
     // Selection listener
