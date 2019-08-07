@@ -310,7 +310,7 @@ export default class VFBToolBar extends React.Component {
 			+ "you can engage directly with our developer community on GitHub "
 			+ "[<a href='https://github.com/VirtualFlyBrain/VFB2' target='_blank'>VirtualFlyBrain/VFB2</a>].</p>"
 			+ "<p>If you have a GitHub account you can easily raise a new issue: "
-			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$URL$%0A$BROWSER$%20$VERSION$%20%5B$SCREEN$%5D%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' "
+			+ "<a id='feedback_githubissue' href='https://github.com/VirtualFlyBrain/VFB2/issues/new?body=%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$BROWSER$%20$VERSION$%0A$URL$%20%5B$SCREEN$%5D%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' "
 			+ "title='Report an issue via GitHub' target='_blank'>"
 			+ "Create GitHub Issue</a>"
 			+ "</p>"
@@ -387,7 +387,11 @@ export default class VFBToolBar extends React.Component {
 
     this.props.htmlOutputHandler(
       htmlContent.replace(
-        /\$URL\$/g,window.location.href.replace(/\&/g,'&amp;').replace(/\#/g,escape('#'))
+        /\$URL\$/g,window.location.href.replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        )
       ).replace(
         /\$BROWSER\$/g, browserName
       ).replace(
@@ -397,9 +401,25 @@ export default class VFBToolBar extends React.Component {
       ).replace(
         /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
       ).replace(
-        /\$LOG\$/g, window.console.logs.join('\n')
+        /\$LOG\$/g, window.console.logs.join('\n').replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        ).replace(
+          /\-/g,escape('-')
+        ).replace(
+          /\+/g,escape('+')
+        )
       ).replace(
-        /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(/\-\ /g, '<span style="color:orange">').replace(/\+\ /g, '<span style="color:yellow">')
+        /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        ).replace(
+          /\-\ /g, '<span style="color:orange">'
+        ).replace(
+          /\+\ /g, '<span style="color:yellow">'
+        )
       )
     );    
   }
