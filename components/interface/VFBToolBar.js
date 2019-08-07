@@ -401,7 +401,7 @@ export default class VFBToolBar extends React.Component {
       ).replace(
         /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
       ).replace(
-        /\$LOG\$/g, window.console.logs.join('\n').replace(
+        /\$LOG\$/g, window.console.logs.join('%0A').replace(
           /\&/g,escape('&')
         ).replace(
           /\#/g,escape('#')
