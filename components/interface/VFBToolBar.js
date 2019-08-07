@@ -406,9 +406,9 @@ export default class VFBToolBar extends React.Component {
         ).replace(
           /\#/g,escape('#')
         ).replace(
-          /\-/g,escape('-')
+          /\-/g,'%2D'
         ).replace(
-          /\+/g,escape('+')
+          /\+/g,'%2B'
         )
       ).replace(
         /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(
