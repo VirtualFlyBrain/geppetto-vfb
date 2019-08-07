@@ -8,7 +8,6 @@ import VFBTermInfoWidget from './interface/VFBTermInfo';
 import Logo from 'geppetto-client/js/components/interface/logo/Logo';
 import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import ButtonBar from 'geppetto-client/js/components/interface/buttonBar/ButtonBar';
 import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
@@ -83,7 +82,6 @@ export default class VFBMain extends React.Component {
 
     this.colours = require('./configuration/colours.json');
     this.tutorialsList = require('./configuration/tutorialsList.json');
-    this.buttonBarConfig = require('../components/configuration/buttonBarConfiguration').buttonBarConfig;
     this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
     this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
@@ -136,7 +134,7 @@ export default class VFBMain extends React.Component {
       } catch (ignore) {
       }
       if (c == 0) {
-        Instances.getInstance(entityPath).setOpacity(0.2, true);
+        Instances.getInstance(entityPath).setOpacity(0.4, true);
       }
     } else {
       console.log('Issue setting colour for ' + entityPath);
@@ -1038,7 +1036,7 @@ export default class VFBMain extends React.Component {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
     }
 
-    if (this.state.historyModalOpen == true) {
+    if (this.state.historyModalOpen == true && window.historyWidgetCapability !== undefined) {
       var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function (item, index) {
         return (
           <div className="historyItemList" key={index} onClick={() => {
@@ -1172,27 +1170,6 @@ export default class VFBMain extends React.Component {
           ref={ref => this.focusTermReference = ref}
           UIUpdateManager={this.UIUpdateManager}
           queryBuilder={this.refs.querybuilderRef}/>
-
-        <Rnd
-          enableResizing={{
-            top: false, right: false, bottom: false, left: false,
-            topRight: false, bottomRight: false, bottomLeft: false, topLeft: false
-          }}
-          default={{
-            x: this.getButtonBarDefaultX(),
-            y: this.getButtonBarDefaultY(),
-            height: 28, width: 340
-          }}
-          className="new-widget"
-          disableDragging={true}
-          maxHeight={35} minHeight={20}
-          maxWidth={350} minWidth={150}
-          ref="buttonBarRef" >
-          <ButtonBar
-            id="ButtonBarContainer"
-            configuration={this.buttonBarConfig}
-            buttonBarHandler={this.UIUpdateManager} />
-        </Rnd>
 
         <Logo
           logo='gpt-fly'

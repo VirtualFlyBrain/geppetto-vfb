@@ -2,21 +2,22 @@ var focusTermConfiguration = {
   global: {
     buttonsStyle: {
       standard: {
-        background: '#11bffe',
-        backgroundColor: "#11bffe",
+        background: '#191919',
+        backgroundColor: "#191919",
         borderRadius: 0,
         border: 0,
         boxShadow: '0px 0px',
         color: '#ffffff',
-        fontSize: '19px',
         fontFamily: 'Khand, sans-serif',
         margin: '0px -5px 0px 0px',
-        minWidth: '180px',
+        minWidth: '340px',
         height: '30px',
         textTransform: 'capitalize',
         textAlign: 'left',
         justifyContent: 'start',
-        marginTop: '1px'
+        marginTop: '1px',
+        fontSize: '15px',
+        fontWeight: '300'
       },
       hover: {
         background: "#11bffe",
@@ -25,66 +26,73 @@ var focusTermConfiguration = {
         border: 0,
         boxShadow: '0px 0px',
         color: '#ffffff',
-        fontSize: '19px',
         fontFamily: 'Khand, sans-serif',
         margin: '0px -5px 0px 0px',
-        minWidth: '180px',
+        minWidth: '340px',
         height: '30px',
         textTransform: 'capitalize',
         textAlign: 'left',
         justifyContent: 'start',
-        marginTop: '1px'
+        marginTop: '1px',
+        fontSize: '15px',
+        fontWeight: '300'
       }
     },
     drawersStyle: {
       standard: {
         top: '1px',
-        backgroundColor: '#444141f2',
+        backgroundColor: '#191919',
         borderRadius: 0,
         color: '#ffffff',
-        fontSize: '12px',
         fontFamily: 'Khand, sans-serif',
         minWidth: '120px',
         borderLeft: '1px solid #585858',
         borderRight: '1px solid #585858',
         borderBottom: '1px solid #585858',
+        borderTop: '1px solid #585858',
         borderBottomLeftRadius: '2px',
         borderBottomRightRadius: '2px',
+        fontSize: '15px',
+        fontWeight: '300'
       },
       hover: {
         top: '1px',
-        backgroundColor: '#444141f2',
+        backgroundColor: '#11bffe',
         borderRadius: 0,
         color: '#ffffff',
-        fontSize: '12px',
         fontFamily: 'Khand, sans-serif',
         minWidth: '120px',
         borderLeft: '1px solid #585858',
         borderRight: '1px solid #585858',
         borderBottom: '1px solid #585858',
+        borderTop: '1px solid #585858',
         borderBottomLeftRadius: '2px',
         borderBottomRightRadius: '2px',
+        fontSize: '15px',
+        fontWeight: '300'
       }
     },
     labelsStyle: {
       standard: {
-        backgroundColor: '#44414112',
+        backgroundColor: '#191919',
         borderRadius: 0,
         color: '#ffffff',
-        fontSize: '14px',
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
+        fontSize: '15px',
+        fontWeight: '300'
       },
       hover: {
         background: "#11bffe",
         backgroundColor: "#11bffe",
         borderRadius: 0,
         color: '#ffffff',
-        fontSize: '14px',
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
+        fontSize: '15px',
+        fontWeight: '300'
       }
     }
   },

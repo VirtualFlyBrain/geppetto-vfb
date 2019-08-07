@@ -136,6 +136,7 @@
     padding: 6px 2px 2px 2px;
     border-top: 0;
     font-size: 14px;
+    font-weight: 400;
     color: white;
 }
 
@@ -149,10 +150,14 @@
     margin-bottom: 0;
 }
 
+.Collapsible__contentInner a {
+    color: white;
+}
+
 .Collapsible__trigger {
     display: block;
     text-transform: capitalize;
-    font-weight: 600;
+    font-weight: 400;
     font-size: 14px;
     color: @primary_color;
     position: relative;
@@ -239,11 +244,11 @@
 }
 
  .terminfo-siteicon {
-	float: right;
-    	padding-right: 35px;
-    	max-height: 80px;
-    	max-width: 165px;
-}
+    float: right;
+    padding-right: 35px;
+    max-height: 40px;
+    max-width: 165px;
+ }
 
 .terminfo-logo {
     display: block;
@@ -442,4 +447,18 @@
     top: 0px;
     right: 0px;
     position: absolute;
+}
+
+.buttonBar-button {
+	height: 25px;
+	width: 33px;
+	margin: 0px;
+	background: none !important;
+	color: white;
+	font-size: 16px !important;
+	border: 0 !important;
+}
+
+.buttonBar-button:hover {
+	color: #11bffe;
 }

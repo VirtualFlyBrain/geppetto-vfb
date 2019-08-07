@@ -22,7 +22,8 @@ var menuConfiguration = {
         textTransform: 'capitalize',
         textAlign: 'left',
         justifyContent: 'start',
-        marginTop: '1px'
+        marginTop: '1px',
+        fontWeight: '300'
       },
       hover: {
         background: "#11bffe",
@@ -39,7 +40,8 @@ var menuConfiguration = {
         textTransform: 'capitalize',
         textAlign: 'left',
         justifyContent: 'start',
-        marginTop: '1px'
+        marginTop: '1px',
+        fontWeight: '300'
       }
     },
     drawersStyle: {
@@ -56,6 +58,7 @@ var menuConfiguration = {
         borderBottom: '1px solid #585858',
         borderBottomLeftRadius: '2px',
         borderBottomRightRadius: '2px',
+        fontWeight: '300'
       },
       hover: {
         top: '1px',
@@ -70,6 +73,7 @@ var menuConfiguration = {
         borderBottom: '1px solid #585858',
         borderBottomLeftRadius: '2px',
         borderBottomRightRadius: '2px',
+        fontWeight: '300'
       }
     },
     labelsStyle: {
@@ -81,6 +85,7 @@ var menuConfiguration = {
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
+        fontWeight: '300'
       },
       hover: {
         background: "#11bffe",
@@ -91,6 +96,7 @@ var menuConfiguration = {
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
+        fontWeight: '300'
       }
     }
   },
@@ -424,7 +430,7 @@ export default class VFBToolBar extends React.Component {
 
     link.type = "text/css";
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css?family=Khand"
+    link.href = "https://fonts.googleapis.com/css?family=Khand:300,400&display=swap"
 
     head.appendChild(link);
   }

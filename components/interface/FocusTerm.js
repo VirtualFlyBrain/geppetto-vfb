@@ -242,25 +242,39 @@ export default class FocusTerm extends React.Component {
           </div>
 
           <div className="focusTermRight">
-            { this.state.currentInstance !== undefined
-              ? <div className="focusTermDivR">
-                <i className="fa fa-chevron-left arrowsStyle"
-                  onClick={() => {
-                    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                      window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
-                    }
-                  }}/>
-                <i className="fa fa-chevron-right arrowsStyle"
-                  onClick={() => {
-                    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                      window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );
-                    }
-                  }}/>
-                <Menu
-                  configuration={this.focusTermConfiguration}
-                  menuHandler={this.menuHandler} />
-              </div>
-              : undefined }
+            <div className="focusTermDivR">
+              <i className="fa fa-search arrowsStyle"
+                onClick={() => {
+                  this.props.UIUpdateManager("spotlightVisible");
+                }}/>
+              <i className="fa fa-quora arrowsStyle"
+                onClick={() => {
+                  this.props.UIUpdateManager("queryBuilderVisible");
+                }}/>
+              <i className="fa fa-list arrowsStyle"
+                onClick={() => {
+                  this.props.UIUpdateManager("controlPanelVisible");
+                }}/>
+              { this.state.currentInstance !== undefined
+                ? <span>
+                  <i className="fa fa-chevron-left arrowsStyle"
+                    onClick={() => {
+                      if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
+                        window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
+                      }
+                    }}/>
+                  <i className="fa fa-chevron-right arrowsStyle"
+                    onClick={() => {
+                      if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
+                        window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );
+                      }
+                    }}/>
+                  <Menu
+                    configuration={this.focusTermConfiguration}
+                    menuHandler={this.menuHandler} />
+                </span>
+                : undefined }
+            </div>
           </div>
         </nav>
       </Rnd>
