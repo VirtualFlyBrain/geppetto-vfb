@@ -524,43 +524,43 @@ export default class VFBToolBar extends React.Component {
       majorVersion = parseInt(navigator.appVersion,10);
     }
 
-    this.props.htmlOutputHandler(
-      htmlContent.replace(
-        /\$URL\$/g,window.location.href.replace(
-          /\&/g,escape('&')
-        ).replace(
-          /\#/g,escape('#')
-        )
+    htmlContent = htmlContent.replace(
+      /\$URL\$/g,window.location.href.replace(
+        /\&/g,escape('&')
       ).replace(
-        /\$BROWSER\$/g, browserName
-      ).replace(
-        /\$VERSION\$/g, fullVersion
-      ).replace(
-        /\$DATE\$/g, Date()
-      ).replace(
-        /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
-      ).replace(
-        /\$LOG\$/g, window.console.logs.join('%0A').replace(
-          /\&/g,escape('&')
-        ).replace(
-          /\#/g,escape('#')
-        ).replace(
-          /\-/g,'%2D'
-        ).replace(
-          /\+/g,'%2B'
-        )
-      ).replace(
-        /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(
-          /\&/g,escape('&')
-        ).replace(
-          /\#/g,escape('#')
-        ).replace(
-          /\-\ /g, '<span style="color:orange">'
-        ).replace(
-          /\+\ /g, '<span style="color:yellow">'
-        )
+        /\#/g,escape('#')
       )
-    );    
+    ).replace(
+      /\$BROWSER\$/g, browserName
+    ).replace(
+      /\$VERSION\$/g, fullVersion
+    ).replace(
+      /\$DATE\$/g, Date()
+    ).replace(
+      /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
+    ).replace(
+      /\$LOG\$/g, window.console.logs.join('%0A').replace(
+        /\&/g,escape('&')
+      ).replace(
+        /\#/g,escape('#')
+      ).replace(
+        /\-/g,'%2D'
+      ).replace(
+        /\+/g,'%2B'
+      )
+    ).replace(
+      /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(
+        /\&/g,escape('&')
+      ).replace(
+        /\#/g,escape('#')
+      ).replace(
+        /\-\ /g, '<span style="color:orange">'
+      ).replace(
+        /\+\ /g, '<span style="color:yellow">'
+      )
+    );
+
+    this.props.htmlOutputHandler(htmlContent);    
   }
 
   clickAbout () {
