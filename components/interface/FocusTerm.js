@@ -231,9 +231,9 @@ export default class FocusTerm extends React.Component {
         items = items.replace(',,', ',').replace('i=,', 'i=');
         var title = null;
         try {
-          items = 'id=' + instance.getId() + '&' + items;
+          items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
           title = instance.getName();
-          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId() ));
+          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
         } catch (ignore) { }
         if (items != "i=") {
           if (window.history.state == null) {
