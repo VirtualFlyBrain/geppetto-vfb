@@ -100,14 +100,6 @@ export default class VFBMain extends React.Component {
     window.customAction = [];
   }
 
-  getButtonBarDefaultX () {
-    return ((window.innerWidth) - 237);
-  }
-
-  getButtonBarDefaultY () {
-    return 0;
-  }
-
   getStackViewerDefaultX () {
     return (Math.ceil(window.innerWidth / 1.826));
   }
@@ -441,12 +433,6 @@ export default class VFBMain extends React.Component {
       }
     } catch (ignore) {
       // any alternative handling goes here
-    }
-  }
-
-  updateDimensions () {
-    if (this.refs.buttonBarRef !== undefined) {
-      this.refs.buttonBarRef.updatePosition({ x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY() });
     }
   }
 
@@ -839,14 +825,12 @@ export default class VFBMain extends React.Component {
   }
 
   componentWillUnmount () {
-    window.removeEventListener("resize", this.updateDimensions);
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
 
-    window.addEventListener("resize", this.updateDimensions);
 
     GEPPETTO.G.setIdleTimeOut(-1);
 
