@@ -47,19 +47,7 @@ class ErrorCatcher extends React.Component {
     
     handleClose = () => {
       var customMessage = "Steps to reproduce the problem: \n\nPlease fill the below with the necessary steps to reproduce the problem\n\n\n\nError Information:\n\n"
-      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?body=" 
-      + customMessage 
-      + this.state.error.message 
-      + "\n\n" + this.state.error.stack.replace(
-        "#",escape("#")
-      ) + "\n\n```diff\n" 
-      + window.console.logs.join('\n').replace(
-        "#",escape("#")
-      ).replace(
-        /\-/g,'%2D'
-      ).replace(
-        /\+/g,'%2B'
-      ) + "\n```\n";
+      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?body=" + customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n```diff\n" + window.console.logs.join('\n').replace("#",escape("#")) + "\n```\n";
       var win = window.open(encodeURI(url), '_blank');
       win.focus();
     };
