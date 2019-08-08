@@ -345,7 +345,7 @@ export default class FocusTerm extends React.Component {
                           window.history.forward();
                         }
                       }} title={window.history.state.f} />
-                    : <i className="fa fa-chevron-right arrowsStyle arrow-disabled" />  }
+                    : <i className="fa fa-chevron-right arrowsStyle arrow-disabled" /> }
                   <Menu
                     configuration={this.focusTermConfiguration}
                     menuHandler={this.menuHandler} />
