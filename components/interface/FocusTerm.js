@@ -337,7 +337,7 @@ export default class FocusTerm extends React.Component {
                           window.history.back();
                         }
                       }} title={window.history.state.b} />
-                    : undefined }
+                    : <i className="fa fa-chevron-left arrowsStyle arrow-disabled" /> }
                   { window.history.state.f !== undefined && window.history.state.f !== "" 
                     ? <i className="fa fa-chevron-right arrowsStyle"
                       onClick={() => {
@@ -345,7 +345,7 @@ export default class FocusTerm extends React.Component {
                           window.history.forward();
                         }
                       }} title={window.history.state.f} />
-                    : undefined }
+                    : <i className="fa fa-chevron-right arrowsStyle arrow-disabled" />  }
                   <Menu
                     configuration={this.focusTermConfiguration}
                     menuHandler={this.menuHandler} />
