@@ -1,0 +1,249 @@
+.focusTerm {
+	overflow: hidden;
+    padding: 1em;
+	border-bottom: 0;
+  margin-top: 0;
+  height: 30px;
+  background: #131212;
+  border-bottom: 1px solid #0f0f0f;
+
+	a {
+		color: #FFF;
+	}
+
+	a:visited {
+		color: #FFF;
+	}
+
+	.navWide {
+		display: none;
+		margin: 0 auto;
+
+		.wideDiv {
+			text-align: center;
+
+			a {
+				text-decoration: none;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 0 2em;
+			}
+		}
+    }
+
+    .focusTermLeft {
+		float: left;
+		left: -20px;
+		margin-left: -20px;
+        margin: 0 auto;
+        padding : 0 0 0 1em;
+
+
+		.focusTermDivL {
+			text-align: left;
+			left: -20px;
+			margin-left: -20px;
+
+			a {
+				color: whitesmoke !important;
+                text-decoration: none;
+                font-family: 'Khand', sans-serif;
+                font-size: 18px;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 0 2em;
+            }
+
+            b, strong {
+                font-weight: 700;
+            }
+
+            .uk-visible-large {
+                color: #0d96c7;
+                margin-left: 8px;
+                font-size: 13px;
+            }
+		}
+    }
+
+    .focusTermCenter {
+		margin: 0 auto;
+		width: 25%;
+
+		.focusTermDivC {
+			text-align: center;
+
+			a {
+				color: whitesmoke !important;
+                text-decoration: none;
+                font-family: 'Khand', sans-serif;
+                font-size: 18px;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 0 2em;
+            }
+
+            b, strong {
+                font-weight: 700;
+            }
+
+            .uk-visible-large {
+                color: #0d96c7;
+                margin-left: 8px;
+                font-size: 13px;
+            }
+		}
+    }
+
+    .focusTermRight {
+		margin-top: -17px;
+    float: right;
+    margin-right: -14px;
+
+		.focusTermDivR {
+			text-align: left;
+
+			a {
+				color: #0d96c7;
+				font-size: 15px;
+				text-decoration: none;
+				cursor: pointer;
+				font-family: 'Khand', sans-serif;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 2px;
+			}
+
+			a:hover {
+				color: white;
+			}
+
+			.linkGroup {
+				padding: 10px;
+			}
+		}
+    }
+
+	// Navbar is set to default with the "hamburger" and links on the left
+	// side of the screen. To move to the right of the screen, simply
+	// change the three "float: Left;" references to read "float: right;".
+	.navNarrow {
+
+		i {
+			float: left;
+			cursor: pointer;
+			color: #FFF;
+		}
+
+		.narrowLinks {
+			display: none;
+
+			a {
+				text-decoration: none;
+				display: block;
+				float: left;
+				clear: left;
+				padding: 0.5em 0;
+			}
+		}
+	}
+}
+
+.arrowsStyle {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-right: 0px;
+    font-size: 15px;
+    cursor: pointer;
+    vertical-align: middle;
+    color: #fff;
+
+}
+
+.arrowsStyle:hover {
+    color: #11bffe
+}
+
+.react-tabs {
+    -webkit-tap-highlight-color: transparent;
+    position: absolute;
+    top: 5px;
+    font-weight: 300;
+  
+    &__tab-list {
+      border-bottom: 1px solid #333333;
+      margin: 0 0 10px;
+      padding: 0;
+    }
+  
+    &__tab {
+      display: inline-block;
+      border: 1px solid transparent;
+      border-bottom: none;
+      bottom: -1px;
+      position: relative;
+      list-style: none;
+      padding: 2px 12px;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: 'Khand', sans-serif;
+      background: #191919;
+      border-color: #0f0f0f;
+      color: #fff;
+  
+      &--selected {
+        background: #222121;
+        border-color: #0f0f0f;
+        color: white;
+        font-size: 15px;
+	      font-family: 'Khand', sans-serif;
+      }
+
+      &--selected:hover {
+        background: #222121 !important;
+        border-color: #0f0f0f !important;
+        color: white;
+        font-size: 15px;
+	      font-family: 'Khand', sans-serif;
+      }
+  
+      &--disabled {
+        color: GrayText;
+        border-color: #333333;
+        cursor: default;
+      }
+  
+      &:focus {
+        box-shadow: 0 0 5px #11bffe;
+        border-color: #11bffe;
+        outline: none;
+  
+        &:after {
+          content: "";
+          position: absolute;
+          height: 5px;
+          left: -4px;
+          right: -4px;
+          bottom: -5px;
+          background: #222121;
+        }
+      }
+    }
+
+    &__tab:hover {
+        background: #11bffe;
+        border-color: #333333;
+        color: #fff;
+        font-size: 15px;
+	    font-family: 'Khand', sans-serif;
+    }
+  
+    &__tab-panel {
+      display: none;
+  
+      &--selected {
+        display: block;
+      }
+    }
+  }
+  

@@ -54,7 +54,7 @@ module.exports = function (env){
   console.log(JSON.stringify(geppettoConfig, null, 2), '\n');
 
   var entries = {
-    main: path.resolve(__dirname, "ComponentsInitialization.js"),
+    main: path.resolve(__dirname, "Main.js"),
     admin: path.resolve(__dirname, geppetto_client_path, "js/pages/admin/admin.js"),
   };
 

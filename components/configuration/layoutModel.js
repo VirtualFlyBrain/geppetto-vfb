@@ -1,7 +1,9 @@
 var modelJson = {
   global: {
     tabEnableClose: true,
-    sideBorders: 8
+    sideBorders: 8,
+    tabSetHeaderHeight: 26,
+    tabSetTabStripHeight: 26
   },
   borders: [
     {
