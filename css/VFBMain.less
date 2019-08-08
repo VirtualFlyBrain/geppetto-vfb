@@ -741,3 +741,46 @@
 #controlpanel .griddle a {
 	color: white !important;
 }
+
+.tooltipLink {
+    cursor: pointer;
+    position: relative;
+}
+
+.tooltipBox {
+    top: -10px;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    opacity: 0;
+    position: fixed;
+    -webkit-transition: opacity 0.5s;
+    -moz-transition: opacity 0.5s;
+    -ms-transition: opacity 0.5s;
+    -o-transition: opacity 0.5s;
+    transition: opacity 0.5s;
+    font-family: 'Khand', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    min-width: 80px;
+    max-width: 250px;
+    min-height: 15px;
+    z-index: 1000;
+    overflow: hidden;
+    display: block;
+}
+
+.tooltipLink:hover .tooltipBox {
+    opacity:1;
+}
+
+.isDisabled {
+    color: #6b6a6a !important;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+}
+
+.isDisabled:hover {
+    color: #6b6a6a !important;
+}

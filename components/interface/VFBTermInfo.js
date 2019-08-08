@@ -377,6 +377,19 @@ class VFBTermInfo extends React.Component {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
     this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+
+    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
+      console.log('Deleting ' + path.split('.')[0] + ' from the history');
+      if (path != undefined && path.length > 0) {
+        for (var i = 0; i < window.historyWidgetCapability.vfbterminfowidget.length; i++) {
+          if (path.indexOf(window.historyWidgetCapability.vfbterminfowidget[i].arguments[0].getId())) {
+            window.historyWidgetCapability.vfbterminfowidget.splice(i, 1);
+          }
+        }
+      } else {
+        console.log('Removing instance issue: ' + path);
+      }
+    }.bind(this));
   }
 
 
