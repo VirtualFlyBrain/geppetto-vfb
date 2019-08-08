@@ -16,6 +16,7 @@ export default class FocusTerm extends React.Component {
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
 
     this.menuHandler = this.menuHandler.bind(this);
+    this.updateHistory = this.updateHistory.bind(this);
   }
 
   menuHandler (click) {
@@ -185,6 +186,7 @@ export default class FocusTerm extends React.Component {
     this.focusTermConfiguration.buttons[0].label = instance.getName();
     this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
     this.setState({ currentInstance: instance });
+    this.updateHistory(instance.getName());
   }
 
   componentDidMount () {
@@ -195,15 +197,85 @@ export default class FocusTerm extends React.Component {
     }.bind(this));
   }
 
+  updateHistory (title) {
+    try {
+      if (window.vfbUpdatingHistory == undefined) {
+        window.vfbUpdatingHistory = false;
+      }
+      if (window.vfbUpdatingHistory == false) {
+        window.vfbUpdatingHistory = true;
+        // Update the parent windows history with current instances (i=) and popup selection (id=)
+        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+        var visualParents = [];
+        for (var i = 0; i < visualInstances.length; i++) {
+          if (visualInstances[i].getParent() != null) {
+            visualParents.push(visualInstances[i].getParent());
+          }
+        }
+        visualInstances = visualInstances.concat(visualParents);
+        var compositeInstances = [];
+        for (var i = 0; i < visualInstances.length; i++) {
+          if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+            compositeInstances.push(visualInstances[i]);
+          }
+        }
+        var items = 'i=';
+        if (window.templateID) {
+          items = items + ',' + window.templateID;
+        }
+        compositeInstances.forEach(function (compositeInstance) {
+          if (!items.includes(compositeInstance.getId())) {
+            items = items + ',' + compositeInstance.getId() 
+          } 
+        });
+        items = items.replace(',,', ',').replace('i=,', 'i=');
+        try {
+          items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
+          title = title || this.refs.termInfoRef.state.termInfoName ;
+          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','')));
+        } catch (ignore) { }
+        if (items != "i=") {
+          if (window.history.state == null) {
+            window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
+          }
+          var state = window.history.state.s;
+          switch (state) {
+          case 2:
+            if (window.location.search.indexOf(items.split("&")[0]) > -1) {
+              window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          case 0:
+            window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.history.state.u);
+            if (!(("?" + items) == window.location.search)) {
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          default:
+            if (!(("?" + items) == window.location.search)) {
+              window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.name, window.location.pathname + window.location.search);
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+          }
+        }
+        window.ga('vfb.send', 'pageview', (window.location.pathname + window.location.search));
+        window.vfbUpdatingHistory = false;
+      }
+    } catch (ignore) {
+      console.error("Focus term URL update error!");
+      window.vfbUpdatingHistory = true; // block further updates
+    }
+  }
+
   render () {
     var buttonsToRender = (<span>
       <i className="fa fa-arrow-left arrowsStyle"
         onClick={() => {
-          window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[1], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[1].getName() );
+          window.history.back();
         }}/>
       <i className="fa fa-arrow-right arrowsStyle"
         onClick={() => {
-          window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[1], window.historyWidgetCapability.vfbterminfowidget[1].arguments[1].getName() );
+          window.history.forward();
         }}/>
     </span>);
     return (
@@ -257,18 +329,22 @@ export default class FocusTerm extends React.Component {
                 }}/>
               { this.state.currentInstance !== undefined
                 ? <span>
-                  <i className="fa fa-chevron-left arrowsStyle"
-                    onClick={() => {
-                      if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                        window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
-                      }
-                    }}/>
-                  <i className="fa fa-chevron-right arrowsStyle"
-                    onClick={() => {
-                      if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                        window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );
-                      }
-                    }}/>
+                  { window.history.state.b !== undefined && window.history.state.b !== ""
+                    ? <i className="fa fa-chevron-left arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.back();
+                        }
+                      }} title={window.history.state.b} />
+                    : undefined }
+                  { window.history.state.f !== undefined && window.history.state.f !== "" 
+                    ? <i className="fa fa-chevron-right arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.forward();
+                        }
+                      }} title={window.history.state.f} />
+                    : undefined }
                   <Menu
                     configuration={this.focusTermConfiguration}
                     menuHandler={this.menuHandler} />
