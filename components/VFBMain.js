@@ -806,7 +806,7 @@ export default class VFBMain extends React.Component {
     /**
      * Important, needed to let know the Three.js control's library the real size of
      * the canvas right after if finished rendering.Otherwise it thinks its width and
-     *height 0 *
+     * height 0 *
      */
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
@@ -831,7 +831,6 @@ export default class VFBMain extends React.Component {
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
-
 
     GEPPETTO.G.setIdleTimeOut(-1);
 

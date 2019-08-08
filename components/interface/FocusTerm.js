@@ -230,7 +230,7 @@ export default class FocusTerm extends React.Component {
               <Tabs>
                 <TabList>
                   <Tab>Adult Brain</Tab>
-                  <Tab>&nbsp; + &nbsp;</Tab>
+                  <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
               </Tabs>
             </div>
