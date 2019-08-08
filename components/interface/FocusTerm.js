@@ -186,7 +186,7 @@ export default class FocusTerm extends React.Component {
     this.focusTermConfiguration.buttons[0].label = instance.getName();
     this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
     this.setState({ currentInstance: instance });
-    this.updateHistory(instance.getName());
+    this.updateHistory(instance);
   }
 
   componentDidMount () {
@@ -197,7 +197,7 @@ export default class FocusTerm extends React.Component {
     }.bind(this));
   }
 
-  updateHistory (title) {
+  updateHistory (instance) {
     try {
       if (window.vfbUpdatingHistory == undefined) {
         window.vfbUpdatingHistory = false;
@@ -229,10 +229,11 @@ export default class FocusTerm extends React.Component {
           } 
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
+        var title = null;
         try {
-          items = 'id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','') + '&' + items;
-          title = title || this.refs.termInfoRef.state.termInfoName ;
-          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + this.refs.termInfoRef.state.termInfoId.replace('_meta','')));
+          items = 'id=' + instance.getId() + '&' + items;
+          title = instance.getName();
+          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId() ));
         } catch (ignore) { }
         if (items != "i=") {
           if (window.history.state == null) {
