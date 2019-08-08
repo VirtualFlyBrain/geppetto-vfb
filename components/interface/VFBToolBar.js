@@ -1,18 +1,104 @@
 /* eslint-disable no-tabs */
 import React from 'react';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+var Rnd = require('react-rnd').default;
 
 require('../../css/VFBToolBar.less');
-var Rnd = require('react-rnd').default;
 
 var menuConfiguration = {
   global: {
-    subMenuOpenOnHover: true,
-    menuOpenOnClick: true,
-    menuPadding: 2,
-    fontFamily: "Khan",
-    menuFontSize: "14",
-    subMenuFontSize: "12"
+    buttonsStyle: {
+      standard: {
+        background: '#010101',
+        borderRadius: 0,
+        border: 0,
+        boxShadow: '0px 0px',
+        color: '#ffffff',
+        fontSize: '16px',
+        fontFamily: 'Khand, sans-serif',
+        margin: '0px 0px 0px 0px',
+        minWidth: '44px',
+        height: '30px',
+        textTransform: 'capitalize',
+        textAlign: 'left',
+        justifyContent: 'start',
+        marginTop: '1px',
+        fontWeight: '300'
+      },
+      hover: {
+        background: "#11bffe",
+        backgroundColor: "#11bffe",
+        borderRadius: 0,
+        border: 0,
+        boxShadow: '0px 0px',
+        color: '#ffffff',
+        fontSize: '16px',
+        fontFamily: 'Khand, sans-serif',
+        margin: '0px 0px 0px 0px',
+        minWidth: '44px',
+        height: '30px',
+        textTransform: 'capitalize',
+        textAlign: 'left',
+        justifyContent: 'start',
+        marginTop: '1px',
+        fontWeight: '300'
+      }
+    },
+    drawersStyle: {
+      standard: {
+        top: '1px',
+        backgroundColor: '#444141f2',
+        borderRadius: 0,
+        color: '#ffffff',
+        fontSize: '12px',
+        fontFamily: 'Khand, sans-serif',
+        minWidth: '110px',
+        borderLeft: '1px solid #585858',
+        borderRight: '1px solid #585858',
+        borderBottom: '1px solid #585858',
+        borderBottomLeftRadius: '2px',
+        borderBottomRightRadius: '2px',
+        fontWeight: '300'
+      },
+      hover: {
+        top: '1px',
+        backgroundColor: '#444141f2',
+        borderRadius: 0,
+        color: '#ffffff',
+        fontSize: '12px',
+        fontFamily: 'Khand, sans-serif',
+        minWidth: '110px',
+        borderLeft: '1px solid #585858',
+        borderRight: '1px solid #585858',
+        borderBottom: '1px solid #585858',
+        borderBottomLeftRadius: '2px',
+        borderBottomRightRadius: '2px',
+        fontWeight: '300'
+      }
+    },
+    labelsStyle: {
+      standard: {
+        backgroundColor: '#44414112',
+        borderRadius: 0,
+        color: '#ffffff',
+        fontSize: '14px',
+        fontFamily: 'Khand, sans-serif',
+        paddingTop: 0,
+        paddingBottom: 0,
+        fontWeight: '300'
+      },
+      hover: {
+        background: "#11bffe",
+        backgroundColor: "#11bffe",
+        borderRadius: 0,
+        color: '#ffffff',
+        fontSize: '14px',
+        fontFamily: 'Khand, sans-serif',
+        paddingTop: 0,
+        paddingBottom: 0,
+        fontWeight: '300'
+      }
+    }
   },
   buttons: [
     {
@@ -269,6 +355,59 @@ var menuConfiguration = {
   ]
 };
 
+const popperStyles = {
+  root: {
+    top: '1px',
+    backgroundColor: '#444141f2',
+    borderRadius: 0,
+    color: '#ffffff',
+    fontSize: '12px',
+    fontFamily: 'Khand, sans-serif',
+    minWidth: '110px',
+    borderLeft: '1px solid #585858',
+    borderRight: '1px solid #585858',
+    borderBottom: '1px solid #585858',
+    borderBottomLeftRadius: '2px',
+    borderBottomRightRadius: '2px',
+  }
+};
+
+const sectionStyles = {
+  root1: {
+    background: '#010101',
+    borderRadius: 0,
+    border: 0,
+    boxShadow: '0px 0px',
+    color: '#ffffff',
+    fontSize: '16px',
+    fontFamily: 'Khand, sans-serif',
+    margin: '0px 0px 0px 0px',
+    minWidth: '44px',
+    height: '30px',
+    textTransform: 'capitalize',
+    textAlign: 'left',
+    justifyContent: 'start',
+    marginTop: '1px'
+  },
+  root2: {
+    background: "#11bffe",
+    backgroundColor: "#11bffe",
+    borderRadius: 0,
+    border: 0,
+    boxShadow: '0px 0px',
+    color: '#ffffff',
+    fontSize: '16px',
+    fontFamily: 'Khand, sans-serif',
+    margin: '0px 0px 0px 0px',
+    minWidth: '44px',
+    height: '30px',
+    textTransform: 'capitalize',
+    textAlign: 'left',
+    justifyContent: 'start',
+    marginTop: '1px'
+  }
+};
+
 export default class VFBToolBar extends React.Component {
   constructor (props) {
     super(props);
@@ -291,7 +430,7 @@ export default class VFBToolBar extends React.Component {
 
     link.type = "text/css";
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css?family=Khand"
+    link.href = "https://fonts.googleapis.com/css?family=Khand:300,400&display=swap"
 
     head.appendChild(link);
   }
@@ -806,24 +945,24 @@ export default class VFBToolBar extends React.Component {
           this.rnd = e;
         }}
         style={{ "backgroundColor": "#010101" }} >
-        <nav>
-          <div className="leftSide">
-            <div className="wideDivL">
+        <nav className="vfbToolBar">
+          <div className="toolBarLeft">
+            <div className="toolBarDivL">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <Menu
                 configuration={menuConfiguration}
-                menuHandler={this.menuHandler} />
+                menuHandler={this.menuHandler}/>
             </div>
           </div>
 
-          <div className="centralTitle">
-            <div className="wideDivC">
+          <div className="toolBarCenter">
+            <div className="toolBarDivC">
             </div>
           </div>
 
-          <div className="rightSide">
-            <div className="wideDivR"> </div>
+          <div className="toolBarRight">
+            <div className="toolBarDivR"> </div>
           </div>
         </nav>
       </Rnd>

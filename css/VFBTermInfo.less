@@ -136,6 +136,7 @@
     padding: 6px 2px 2px 2px;
     border-top: 0;
     font-size: 14px;
+    font-weight: 400;
     color: white;
 }
 
@@ -149,16 +150,21 @@
     margin-bottom: 0;
 }
 
+.Collapsible__contentInner a {
+    color: white;
+}
+
 .Collapsible__trigger {
     display: block;
     text-transform: capitalize;
-    font-weight: 600;
-    font-size: 14px;
-    color: @primary_color;
+    font-weight: 300;
+    font-size: 16px;
+    color: #11bffe;
     position: relative;
     padding: 2px;
     background: transparent;
     cursor: pointer;
+    font-family: 'Khand', sans-serif;
 }
 
 .Collapsible__trigger:after {
@@ -234,16 +240,17 @@
 
  .terminfo-licenseicon {
 	float: right;
-	margin-right: 35px;
-	max-height: 40px;
+    padding-right: 35px;
+    max-height: 40px;
+    max-width: 100px;
 }
 
  .terminfo-siteicon {
-	float: right;
-    	padding-right: 35px;
-    	max-height: 80px;
-    	max-width: 165px;
-}
+    float: right;
+    padding-right: 35px;
+    max-height: 40px;
+    max-width: 165px;
+ }
 
 .terminfo-logo {
     display: block;
@@ -266,118 +273,118 @@
   /* specific label colours: */
 
  .label.types>.label.label-Template {
-    background-color:blueviolet !Important;
+    background-color: #ff6cc8 !Important;
 }
 
  .label.types>.label.label-DataSet {
-    background-color:#c62be2 !Important;
+    background-color:#b700b5 !Important;
 }
 
  .label.types>.label.label-Anatomy {
-    background-color:darkgreen !Important;
+    background-color:#00a2aa !Important;
 }
 
  .label.types>.label.label-Synaptic_neuropil {
-    background-color:darkgreen !Important;
+    background-color:#00a2aa !Important;
 }
 
  .label.types>.label.label-pub {
-    background-color:blue !Important;
+    background-color:#0164d8 !Important;
 }
 
  .label.types>.label.label-License {
-    background-color:blue !Important;
+    background-color:#0164d8 !Important;
 }
 
  .label.types>.label.label-Person {
-    background-color:#0f8398 !Important;
+    background-color:#023f00 !Important;
 }
 
   .label.types>.label.label-Neuron {
-    background-color:#e91fa5 !Important;
+    background-color:#9ad58c !Important;
 }
 
  .label.types>.label.label-Neuron_projection_bundle {
-    background-color:#d11919 !Important;
+    background-color:#d6007d !Important;
 }
 
  .label.types>.label.label-Ganglion {
-    background-color:#d11919 !Important;
+    background-color:#d6007d !Important;
 }
 
  .label.types>.label.label-Neuromere {
-    background-color:#d11919 !Important;
+    background-color:#d6007d !Important;
 }
 
  .label.types>.label.label-GABAergic {
-    background-color:#ab6f09 !Important;
+    background-color:#9551ff !Important;
 }
 
  .label.types>.label.label-Dopaminergic {
-    background-color:#ab6f09 !Important;
+    background-color:#9551ff !Important;
 }
 
  .label.types>.label.label-Cholinergic {
-    background-color:#ab6f09 !Important;
+    background-color:#9551ff !Important;
 }
 
  .label.types>.label.label-Glutamatergic {
-    background-color:#ab6f09 !Important;
+    background-color:#9551ff !Important;
 }
 
  .label.types>.label.label-Octopaminergic {
-    background-color:#ab6f09 !Important;
+    background-color:#9551ff !Important;
 }
 
  .label.types>.label.label-Serotonergic {
-    background-color:#ab6f09 !Important;
+    background-color:#9551ff !Important;
 }
 
  .label.types>.label.label-Motor_neuron {
-    background-color:#e91fa5 !Important;
+    background-color:#ff6a3a !Important;
 }
 
  .label.types>.label.label-Sensory_neuron {
-    background-color:#e91fa5 !Important;
+    background-color:#ff6a3a !Important;
 }
 
  .label.types>.label.label-Peptidergic_neuron {
-    background-color:#e91fa5 !Important;
+    background-color:#ff6a3a !Important;
 }
 
  .label.types>.label.label-Glial_cell {
-    background-color:#e91fa5 !Important;
+    background-color:#ff6a3a !Important;
 }
 
  .label.types>.label.label-Cell {
-    background-color:#e91fa5 !Important;
+    background-color:#ff6a3a !Important;
 }
 
  .label.types>.label.label-Clone {
-    background-color:#d11919 !Important;
+    background-color:#d6007d !Important;
 }
 
  .label.types>.label.label-Property {
-    background-color:#7c1beb !Important;
+    background-color:#005f1d !Important;
 }
 
  .label.types>.label.label-Resource {
-    background-color:#7c1beb !Important;
+    background-color:#005f1d !Important;
 }
 
  .label.types>.label.label-Site {
-    background-color:#7c1beb !Important;
+    background-color:#005f1d !Important;
 }
 
 .label.types>.label.label-Expression_pattern {
-    background-color:#8d8f0c !Important;
+    background-color:#534700 !Important;
 }
 
 .button-bar-vfbHistoryLinks-back {
     position:absolute;
     left:10px;
     top:6px;
-    color: #428bca;
+    color: #10bffe;
     text-decoration:none;
     cursor: pointer;
     z-index: 2;
@@ -388,7 +395,7 @@
     position:absolute;
     right:10px;
     top:6px;
-    color: #428bca;
+    color: #10bffe;
     text-decoration:none;
     cursor: pointer;
     z-index: 2;
@@ -418,7 +425,7 @@
     position: absolute;
     top: 3px;
     left: 24px;
-    color: #428bca;
+    color: #10bffe;
     text-decoration:none;
     cursor: pointer;
     z-index: 2;
@@ -430,7 +437,7 @@
     position: absolute;
     top: 3px;
     right: 24px;
-    color: #428bca;
+    color: #10bffe;
     text-decoration:none;
     cursor: pointer;
     z-index: 2;
@@ -442,4 +449,25 @@
     top: 0px;
     right: 0px;
     position: absolute;
+}
+
+.buttonBar-button {
+	height: 25px;
+	width: 33px;
+	margin: 0px;
+	background: none !important;
+	color: white;
+	font-size: 16px !important;
+	border: 0 !important;
+}
+
+.buttonBar-button:hover {
+	color: #11bffe;
+}
+
+.popup-icon-link {
+    color: #ffe406;
+    font-size: 15px;
+    margin-right: 2px;
+    margin-left: 2px;
 }

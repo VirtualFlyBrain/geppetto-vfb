@@ -220,7 +220,12 @@ class VFBTermInfo extends React.Component {
       if (window.historyWidgetCapability[id][i].label == label && window.historyWidgetCapability[id][i].method == method) {
         elementPresentInHistory = true;
         // moves it to the first position
-        window.historyWidgetCapability[id].splice(0, 0, window.historyWidgetCapability[id].splice(i, 1)[0]);
+        if (window.historyWidgetCapability[id].length <= 2) {
+          window.historyWidgetCapability[id].splice(0, 0, window.historyWidgetCapability[id].splice(i, 1)[0]);
+        } else {
+          var extract = window.historyWidgetCapability[id].splice(i, window.historyWidgetCapability[id].length - 1);
+          window.historyWidgetCapability[id] = extract.concat(window.historyWidgetCapability[id]);
+        }
         break;
       }
     }
@@ -580,7 +585,7 @@ export default class VFBTermInfoWidget extends React.Component {
     return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10));
   }
 
-  getTermInfoDefaultY () { 
+  getTermInfoDefaultY () {
     return 55;
   }
 
@@ -605,6 +610,9 @@ export default class VFBTermInfoWidget extends React.Component {
       this.refs.termInfoRef.setName(data.name);
     }
     this.updateHistory(data.name);
+    if (this.props.focusTermRef !== undefined) {
+      this.props.focusTermRef.setInstance(data);
+    }
     GEPPETTO.SceneController.deselectAll();
     if (typeof data.getParent().select === "function") {
       data.getParent().select(); // Select if visual type loaded.
