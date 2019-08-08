@@ -59,7 +59,7 @@ class ErrorCatcher extends React.Component {
       this.setState({ hasError: true, error: error });
       // add clinet data to console
       $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
-        console.log(JSON.stringify(data, null, 2));
+        console.log('USER: ' + data.geobytesipaddress + '  ' + data.geobytesfqcn);
       });
     }
   
