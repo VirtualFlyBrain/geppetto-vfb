@@ -602,10 +602,8 @@ export default class VFBTermInfoWidget extends React.Component {
       var metanode = Instances.getInstance(meta);
       if ((this.data.length > 0) && (this.data[0] == metanode)) {
         window.resolve3D(path);
-      } else {
         this.data.unshift(metanode);
-        this.refs.termInfoRef.setData(metanode);
-        this.refs.termInfoRef.setName(metanode.name);
+        this.setTermInfo(metanode,metanode.name);
       }
     } else {
       // check for passed ID:
@@ -665,8 +663,7 @@ export default class VFBTermInfoWidget extends React.Component {
       } else {
         Model.getDatasources()[0].fetchVariable(path, function () {
           var m = Instances.getInstance(meta);
-          this.refs.termInfoRef.setData(m);
-          this.refs.termInfoRef.setName(m.name);
+          this.setTermInfo(m,m.name);
           window.resolve3D(path);
         }.bind(this));
       }
