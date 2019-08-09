@@ -191,6 +191,7 @@ export default class FocusTerm extends React.Component {
 
   componentDidMount () {
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
+      console.log('Selection of ' + instance.getName());
       if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
@@ -253,7 +254,7 @@ export default class FocusTerm extends React.Component {
             }
             break;
           default:
-            if (!(("?" + items) == window.location.search)) {
+            if (!(("?" + items) == window.location.search) && !(window.history.state.b == title)) {
               window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.location.search);
               window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
             }
