@@ -243,7 +243,7 @@ export default class VFBMain extends React.Component {
       }
       if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
         var instance = Instances.getInstance(variableIds[singleId]);
-        if (this.termInfoReference !== undefined) {
+        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
@@ -253,7 +253,7 @@ export default class VFBMain extends React.Component {
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
             instance.select();
-            if (this.termInfoReference !== undefined && instance[instance.getId() + "_meta"] !== undefined) {
+            if (this.termInfoReference !== undefined && this.termInfoReference !== null && instance[instance.getId() + "_meta"] !== undefined) {
               let meta = instance[instance.getId() + "_meta"];
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
               this.termInfoName = meta;
@@ -262,7 +262,7 @@ export default class VFBMain extends React.Component {
           }
         }.bind(this));
       } else {
-        if (this.termInfoReference !== undefined) {
+        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
@@ -497,7 +497,7 @@ export default class VFBMain extends React.Component {
       }
       return historyList;
     case 'triggerSetTermInfo':
-      if (this.termInfoReference !== undefined) {
+      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
         this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
       }
       break;
@@ -846,7 +846,7 @@ export default class VFBMain extends React.Component {
     }.bind(this);
 
     window.setTermInfo = function (meta, id) {
-      if (this.termInfoReference !== undefined) {
+      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
         this.termInfoReference.setTermInfo(meta, id);
       }
     }.bind(this);
@@ -991,7 +991,7 @@ export default class VFBMain extends React.Component {
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
           if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
               this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
             }
             this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
@@ -1002,7 +1002,7 @@ export default class VFBMain extends React.Component {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
           var parent = latestSelection.getParent();
           if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined) {
+            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
               this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
             }
             this.termInfoName = parent[parent.getId() + "_meta"];

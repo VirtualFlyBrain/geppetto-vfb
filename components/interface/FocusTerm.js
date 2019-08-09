@@ -16,6 +16,7 @@ export default class FocusTerm extends React.Component {
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
 
     this.menuHandler = this.menuHandler.bind(this);
+    this.updateHistory = this.updateHistory.bind(this);
   }
 
   menuHandler (click) {
@@ -184,23 +185,100 @@ export default class FocusTerm extends React.Component {
   setInstance (instance) {
     this.focusTermConfiguration.buttons[0].label = instance.getName();
     this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
+    this.updateHistory(instance);
     this.setState({ currentInstance: instance });
   }
 
   componentDidMount () {
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
+      console.log('Selection of ' + instance.getName());
       if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
     }.bind(this));
   }
 
+  updateHistory (instance) {
+    try {
+      if (window.vfbUpdatingHistory == undefined) {
+        window.vfbUpdatingHistory = false;
+      }
+      if (window.vfbUpdatingHistory == false) {
+        window.vfbUpdatingHistory = true;
+        // Update the parent windows history with current instances (i=) and popup selection (id=)
+        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, Instances);
+        var visualParents = [];
+        for (var i = 0; i < visualInstances.length; i++) {
+          if (visualInstances[i].getParent() != null) {
+            visualParents.push(visualInstances[i].getParent());
+          }
+        }
+        visualInstances = visualInstances.concat(visualParents);
+        var compositeInstances = [];
+        for (var i = 0; i < visualInstances.length; i++) {
+          if (visualInstances[i] != null && visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+            compositeInstances.push(visualInstances[i]);
+          }
+        }
+        var items = 'i=';
+        if (window.templateID) {
+          items = items + ',' + window.templateID;
+        }
+        compositeInstances.forEach(function (compositeInstance) {
+          if (!items.includes(compositeInstance.getId())) {
+            items = items + ',' + compositeInstance.getId() 
+          } 
+        });
+        items = items.replace(',,', ',').replace('i=,', 'i=');
+        var title = null;
+        try {
+          items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
+          title = instance.getName();
+          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
+        } catch (ignore) { }
+        if (items != "i=") {
+          if (window.history.state == null) {
+            window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
+          }
+          var state = window.history.state.s;
+          switch (state) {
+          case 2:
+            if (window.location.search.indexOf(items.split("&")[0]) > -1) {
+              window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          case 0:
+            window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.history.state.u);
+            if (!(("?" + items) == window.location.search)) {
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+            break;
+          default:
+            if (!(("?" + items) == window.location.search) && !(window.history.state.b == title)) {
+              window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.location.search);
+              window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
+            }
+          }
+        }
+        window.ga('vfb.send', 'pageview', (window.location.pathname + window.location.search));
+        window.vfbUpdatingHistory = false;
+      }
+    } catch (ignore) {
+      console.error("Focus term URL update error!");
+      window.vfbUpdatingHistory = true; // block further updates
+    }
+  }
+
   render () {
     var tooltipNext = "";
     var tooltipPrevious = "";
-    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-      tooltipPrevious = window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].label;
-      tooltipNext = window.historyWidgetCapability.vfbterminfowidget[1].label;
+    if (window.history.state !== null){
+      if (window.history.state.b !== undefined && window.history.state.b !== ""){
+        tooltipPrevious = window.history.state.b
+      }
+      if (window.history.state.f !== undefined && window.history.state.f !== ""){
+        tooltipNext = window.history.state.f
+      }
     }
     return (
       <Rnd
@@ -257,35 +335,28 @@ export default class FocusTerm extends React.Component {
                 }}>
                 <span className="tooltipBox"> Open the control panel </span>
               </i>
-              { (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1)
+              { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
                 ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
                   onClick={() => {
-                    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                      window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
+                    if (window.vfbUpdatingHistory == false) {
+                      window.history.back();
                     }
                   }}>
                   <span className="tooltipBox"> {tooltipPrevious} </span>
                 </i>
-                : <i className="fa fa-chevron-left arrowsStyle isDisabled"
-                  onClick={() => {
-                    console.log("Only 1 instance loaded.")
-                  }}>
-                </i>
+                : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
               }
-              { (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1)
+              { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
                 ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
                   onClick={() => {
-                    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                      window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );
+                    if (window.vfbUpdatingHistory == false) {
+                      window.history.forward();
                     }
                   }}>
                   <span className="tooltipBox"> {tooltipNext} </span>
                 </i>
-                : <i className="fa fa-chevron-right arrowsStyle isDisabled"
-                  onClick={() => {
-                    console.log("Only 1 instance loaded.")
-                  }}>
-                </i> }
+                : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
+              }
               <Menu
                 configuration={this.focusTermConfiguration}
                 menuHandler={this.menuHandler} />
