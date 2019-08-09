@@ -196,16 +196,12 @@ export default class FocusTerm extends React.Component {
   }
 
   render () {
-    var buttonsToRender = (<span>
-      <i className="fa fa-arrow-left arrowsStyle"
-        onClick={() => {
-          window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[1], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[1].getName() );
-        }}/>
-      <i className="fa fa-arrow-right arrowsStyle"
-        onClick={() => {
-          window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[1], window.historyWidgetCapability.vfbterminfowidget[1].arguments[1].getName() );
-        }}/>
-    </span>);
+    var tooltipNext = "";
+    var tooltipPrevious = "";
+    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
+      tooltipPrevious = window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].label;
+      tooltipNext = window.historyWidgetCapability.vfbterminfowidget[1].label;
+    }
     return (
       <Rnd
         enableResizing={{
@@ -230,7 +226,7 @@ export default class FocusTerm extends React.Component {
               <Tabs>
                 <TabList>
                   <Tab>Adult Brain</Tab>
-                  <Tab>&nbsp; + &nbsp;</Tab>
+                  <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
               </Tabs>
             </div>
@@ -243,37 +239,56 @@ export default class FocusTerm extends React.Component {
 
           <div className="focusTermRight">
             <div className="focusTermDivR">
-              <i className="fa fa-search arrowsStyle"
+              <i className="fa fa-search arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("spotlightVisible");
-                }}/>
-              <i className="fa fa-quora arrowsStyle"
+                }}>
+                <span className="tooltipBox"> Open the spotlight </span>
+              </i>
+              <i className="fa fa-quora arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("queryBuilderVisible");
-                }}/>
-              <i className="fa fa-list arrowsStyle"
+                }}>
+                <span className="tooltipBox"> Open the query builder </span>
+              </i>
+              <i className="fa fa-list arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("controlPanelVisible");
-                }}/>
-              { this.state.currentInstance !== undefined
-                ? <span>
-                  <i className="fa fa-chevron-left arrowsStyle"
-                    onClick={() => {
-                      if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                        window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
-                      }
-                    }}/>
-                  <i className="fa fa-chevron-right arrowsStyle"
-                    onClick={() => {
-                      if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
-                        window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );
-                      }
-                    }}/>
-                  <Menu
-                    configuration={this.focusTermConfiguration}
-                    menuHandler={this.menuHandler} />
-                </span>
-                : undefined }
+                }}>
+                <span className="tooltipBox"> Open the control panel </span>
+              </i>
+              { (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1)
+                ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
+                  onClick={() => {
+                    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
+                      window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[window.historyWidgetCapability.vfbterminfowidget.length - 1].arguments[0].getName() );
+                    }
+                  }}>
+                  <span className="tooltipBox"> {tooltipPrevious} </span>
+                </i>
+                : <i className="fa fa-chevron-left arrowsStyle isDisabled"
+                  onClick={() => {
+                    console.log("Only 1 instance loaded.")
+                  }}>
+                </i>
+              }
+              { (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1)
+                ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
+                  onClick={() => {
+                    if (window.historyWidgetCapability !== undefined && window.historyWidgetCapability.vfbterminfowidget.length > 1) {
+                      window.setTermInfo( window.historyWidgetCapability.vfbterminfowidget[1].arguments[0], window.historyWidgetCapability.vfbterminfowidget[1].arguments[0].getName() );
+                    }
+                  }}>
+                  <span className="tooltipBox"> {tooltipNext} </span>
+                </i>
+                : <i className="fa fa-chevron-right arrowsStyle isDisabled"
+                  onClick={() => {
+                    console.log("Only 1 instance loaded.")
+                  }}>
+                </i> }
+              <Menu
+                configuration={this.focusTermConfiguration}
+                menuHandler={this.menuHandler} />
             </div>
           </div>
         </nav>

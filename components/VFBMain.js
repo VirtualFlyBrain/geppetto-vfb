@@ -41,13 +41,16 @@ export default class VFBMain extends React.Component {
       htmlFromToolbar: undefined,
       termInfoId: undefined,
       termInfoName: undefined,
-      historyModalOpen: false,
       UIUpdated: false
     };
 
     this.menuHandler = this.menuHandler.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
+    this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+    this.tutorialHandler = this.tutorialHandler.bind(this);
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
+    this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
+    this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
     this.coli = 1;
@@ -61,7 +64,6 @@ export default class VFBMain extends React.Component {
     this.focusTermReference = undefined;
     this.termInfoId = undefined;
     this.termInfoName = undefined;
-    this.termInfoHistory = undefined;
     this.modalX = undefined;
     this.modalY = undefined;
 
@@ -84,10 +86,10 @@ export default class VFBMain extends React.Component {
     this.tutorialsList = require('./configuration/tutorialsList.json');
     this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
-    this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
     this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
-    this.controlPanelControlConfigs = require('./configuration/controlPanelConfiguration').controlPanelControlConfigs;
+    this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
     this.controlPanelColumns = require('./configuration/controlPanelConfiguration').controlPanelColumns;
+    this.controlPanelControlConfigs = require('./configuration/controlPanelConfiguration').controlPanelControlConfigs;
     this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
@@ -532,10 +534,6 @@ export default class VFBMain extends React.Component {
     if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
       this.setState({ htmlFromToolbar: undefined });
     }
-
-    if (this.historyRef && !this.historyRef.contains(event.target) && !event.target.contains(document.getElementById("historyTrigger"))) {
-      this.setState({ historyModalOpen: !this.state.historyModalOpen });
-    }
   }
 
   closeHtmlViewer () {
@@ -806,7 +804,7 @@ export default class VFBMain extends React.Component {
     /**
      * Important, needed to let know the Three.js control's library the real size of
      * the canvas right after if finished rendering.Otherwise it thinks its width and
-     *height 0 *
+     * height 0 *
      */
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
@@ -831,7 +829,6 @@ export default class VFBMain extends React.Component {
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
-
 
     GEPPETTO.G.setIdleTimeOut(-1);
 
@@ -1031,42 +1028,6 @@ export default class VFBMain extends React.Component {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
     }
 
-    if (this.state.historyModalOpen == true && window.historyWidgetCapability !== undefined) {
-      var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function (item, index) {
-        return (
-          <div className="historyItemList" key={index} onClick={() => {
-            this.setState({ historyModalOpen: !this.state.historyModalOpen });
-            if (this.termInfoReference !== undefined) {
-              this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
-            }
-          }}>
-            {item.label}
-          </div>
-        )
-      }, this);
-      this.termInfoHistory = <Rnd
-        enableResizing={{
-          top: false, right: false, bottom: false,
-          left: false, topRight: false, bottomRight: false,
-          bottomLeft: false, topLeft: false
-        }}
-        default={{
-          x: this.modalX, y: this.modalY,
-          height: 150, width: 150
-        }}
-        className="historyModal"
-        disableDragging={true}
-        maxHeight={150} minHeight={150}
-        maxWidth={150} minWidth={150}
-        ref="rndHistoryModal">
-        <div id="anchorHistory" ref={this.setWrapperRef}>
-          {historyList}
-        </div>
-      </Rnd>
-    } else {
-      this.termInfoHistory = undefined;
-    }
-
     var key = 0;
     var onRenderTabSet = function (node:(TabSetNode), renderValues:any) {
       if (node.getType() === "tabset") {
@@ -1078,20 +1039,6 @@ export default class VFBMain extends React.Component {
     };
 
     key = 0;
-    var toggleModal = event => {
-      this.modalX = event.clientX;
-      this.modalY = event.clientY;
-      this.setState({ historyModalOpen: !this.state.historyModalOpen });
-      event.stopPropagation();
-    };
-
-    var onRenderTab = function (node:(TabNode), renderValues:any) {
-      if (node.getType() === "tab" && node.getComponent() == "termInfo") {
-        renderValues.buttons.push(<div key={key} id="historyTrigger"
-          className="fa fa-history customIconTab" onMouseDown={toggleModal.bind(this)} />);
-        key++;
-      }
-    };
 
     var clickOnBordersAction = function (node:(TabNode)) {
       let idChild = 0;
@@ -1174,7 +1121,6 @@ export default class VFBMain extends React.Component {
           ref="layout"
           model={this.model}
           factory={this.factory.bind(this)}
-          onRenderTab={onRenderTab}
           onRenderTabSet={onRenderTabSet}
           clickOnBordersAction={clickOnBordersAction}/>
 
@@ -1211,7 +1157,6 @@ export default class VFBMain extends React.Component {
         </div>
 
         {this.htmlToolbarRender}
-        {this.termInfoHistory}
       </div>
     );
   }
