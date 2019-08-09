@@ -242,7 +242,6 @@ class VFBTermInfo extends React.Component {
         "arguments": args,
       });
     }
-    this.props.updateWidgetHistory();
   }
 
 
