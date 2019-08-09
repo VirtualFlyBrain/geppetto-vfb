@@ -185,8 +185,8 @@ export default class FocusTerm extends React.Component {
   setInstance (instance) {
     this.focusTermConfiguration.buttons[0].label = instance.getName();
     this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
-    this.setState({ currentInstance: instance });
     this.updateHistory(instance);
+    this.setState({ currentInstance: instance });
   }
 
   componentDidMount () {
