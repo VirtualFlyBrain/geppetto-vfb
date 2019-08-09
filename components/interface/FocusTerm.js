@@ -334,30 +334,27 @@ export default class FocusTerm extends React.Component {
                 }}>
                 <span className="tooltipBox"> Open the control panel </span>
               </i>
-              { window.history.state !== null
-                ? { window.history.state.b !== undefined && window.history.state.b !== ""
-                    ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
-                      onClick={() => {
-                        if (window.vfbUpdatingHistory == false) {
-                          window.history.back();
-                        }
-                      }}>
-                      <span className="tooltipBox"> {tooltipPrevious} </span>
-                      </i>
-                    : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
-                  }
-                  { window.history.state.f !== undefined && window.history.state.f !== "" 
-                    ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
-                      onClick={() => {
-                        if (window.vfbUpdatingHistory == false) {
-                          window.history.forward();
-                        }
-                      }}>
-                      <span className="tooltipBox"> {tooltipNext} </span>
-                      </i>
-                    : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
-                  }
-                : undefined 
+              { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
+                ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
+                  onClick={() => {
+                    if (window.vfbUpdatingHistory == false) {
+                      window.history.back();
+                    }
+                  }}>
+                  <span className="tooltipBox"> {tooltipPrevious} </span>
+                </i>
+                : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
+              }
+              { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
+                ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
+                  onClick={() => {
+                    if (window.vfbUpdatingHistory == false) {
+                      window.history.forward();
+                    }
+                  }}>
+                  <span className="tooltipBox"> {tooltipNext} </span>
+                </i>
+                : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
               }
               <Menu
                 configuration={this.focusTermConfiguration}
