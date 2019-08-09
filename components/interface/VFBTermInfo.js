@@ -601,10 +601,10 @@ export default class VFBTermInfoWidget extends React.Component {
     if (n != undefined) {
       var metanode = Instances.getInstance(meta);
       if ((this.data.length > 0) && (this.data[0] == metanode)) {
-        window.resolve3D(path);
-        this.data.unshift(metanode);
-        this.setTermInfo(metanode,metanode.name);
+        this.data.unshift(metanode);      
       }
+      window.resolve3D(path);
+      this.setTermInfo(metanode,metanode.name);
     } else {
       // check for passed ID:
       if (path.indexOf(',') > -1) {
