@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
-import FocusTerm from './interface/FocusTerm';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo';
 import Logo from 'geppetto-client/js/components/interface/logo/Logo';
 import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
+import ButtonBar from 'geppetto-client/js/components/interface/buttonBar/ButtonBar';
 import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
@@ -19,6 +19,8 @@ require('../css/VFBMain.less');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
+var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
+
 var modelJson = require('../components/configuration/layoutModel').modelJson;
 
 export default class VFBMain extends React.Component {
@@ -41,17 +43,38 @@ export default class VFBMain extends React.Component {
       htmlFromToolbar: undefined,
       termInfoId: undefined,
       termInfoName: undefined,
+      historyModalOpen: false,
       UIUpdated: false
     };
 
+    this.clearQS = this.clearQS.bind(this);
+    this.addVfbId = this.addVfbId.bind(this);
+    this.resolve3D = this.resolve3D.bind(this);
+    this.setSepCol = this.setSepCol.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
-    this.setWrapperRef = this.setWrapperRef.bind(this);
-    this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+    this.UIDidUpdate = this.UIDidUpdate.bind(this);
+    this.customSorter = this.customSorter.bind(this);
+    this.UIUpdateItem = this.UIUpdateItem.bind(this);
+    this.hasVisualType = this.hasVisualType.bind(this);
+    this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
     this.tutorialHandler = this.tutorialHandler.bind(this);
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
-    this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
+    this.updateDimensions = this.updateDimensions.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+    this.reopenUIComponent = this.reopenUIComponent.bind(this);
+    this.addToQueryCallback = this.addToQueryCallback.bind(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this);
+    this.restoreUIComponent = this.restoreUIComponent.bind(this);
+    this.stackViewerRequest = this.stackViewerRequest.bind(this);
+    this.fetchVariableThenRun = this.fetchVariableThenRun.bind(this);
+    this.getButtonBarDefaultX = this.getButtonBarDefaultX.bind(this);
+    this.getButtonBarDefaultY = this.getButtonBarDefaultY.bind(this);
+    this.getStackViewerDefaultX = this.getStackViewerDefaultX.bind(this);
+    this.getStackViewerDefaultY = this.getStackViewerDefaultY.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
+
+    this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+    this.setWrapperRef = this.setWrapperRef.bind(this);
 
     this.coli = 1;
     this.vfbLoadBuffer = [];
@@ -61,9 +84,9 @@ export default class VFBMain extends React.Component {
     this.canvasReference = undefined;
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
-    this.focusTermReference = undefined;
     this.termInfoId = undefined;
     this.termInfoName = undefined;
+    this.termInfoHistory = undefined;
     this.modalX = undefined;
     this.modalY = undefined;
 
@@ -84,12 +107,13 @@ export default class VFBMain extends React.Component {
 
     this.colours = require('./configuration/colours.json');
     this.tutorialsList = require('./configuration/tutorialsList.json');
+    this.buttonBarConfig = require('../components/configuration/buttonBarConfiguration').buttonBarConfig;
     this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
-    this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
     this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
-    this.controlPanelColumns = require('./configuration/controlPanelConfiguration').controlPanelColumns;
+    this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
     this.controlPanelControlConfigs = require('./configuration/controlPanelConfiguration').controlPanelControlConfigs;
+    this.controlPanelColumns = require('./configuration/controlPanelConfiguration').controlPanelColumns;
     this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
@@ -102,6 +126,15 @@ export default class VFBMain extends React.Component {
     window.customAction = [];
   }
 
+  getButtonBarDefaultX () {
+    // return (Math.ceil(window.innerWidth / 2) - 55);
+    return ((window.innerWidth) - 237);
+  }
+
+  getButtonBarDefaultY () {
+    return 0;
+  }
+
   getStackViewerDefaultX () {
     return (Math.ceil(window.innerWidth / 1.826));
   }
@@ -110,7 +143,83 @@ export default class VFBMain extends React.Component {
     return (Math.ceil(window.innerHeight / 3.14));
   }
 
+  customSorter (a, b, InputString) {
+    // move exact matches to top
+    if (InputString == a.label) {
+      return -1;
+    }
+    if (InputString == b.label) {
+      return 1;
+    }
+    // close match without case matching
+    if (InputString.toLowerCase() == a.label.toLowerCase()) {
+      return -1;
+    }
+    if (InputString.toLowerCase() == b.label.toLowerCase()) {
+      return 1;
+    }
+    // match ignoring joinging nonwords
+    Bloodhound.tokenizers.nonword("test thing-here12 34f").join(' ');
+    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ')) {
+      return -1;
+    }
+    if (Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ') == Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ')) {
+      return 1;
+    }
+    // match against id
+    if (InputString.toLowerCase() == a.id.toLowerCase()) {
+      return -1;
+    }
+    if (InputString.toLowerCase() == b.id.toLowerCase()) {
+      return 1;
+    }
+    // pick up any match without nonword join character match
+    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+      return 1;
+    }
+    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ')) > -1) {
+      return -1;
+    }
+    // also with underscores ignored
+    if (Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+      return 1;
+    }
+    if (Bloodhound.tokenizers.nonword(b.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) < 0 && Bloodhound.tokenizers.nonword(a.label.toLowerCase()).join(' ').replace('_', ' ').indexOf(Bloodhound.tokenizers.nonword(InputString.toLowerCase()).join(' ').replace('_', ' ')) > -1) {
+      return -1;
+    }
+    // if not found in one then advance the other
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+      return 1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+      return -1;
+    }
+    // if the match is closer to start than the other move up
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+      return -1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+      return 1;
+    }
+    // if the match in the id is closer to start then move up
+    if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+      return -1;
+    }
+    if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
+      return 1;
+    }
+    // move the shorter synonyms to the top
+    if (a.label < b.label) {
+      return -1;
+    } else if (a.label > b.label) {
+      return 1;
+    } else {
+      return 0; // if nothing found then do nothing.
+    }
+  }
+
   // Logic to add VFB ids into the scene starts here
+
   setSepCol (entityPath) {
     if (entityPath.indexOf(window.templateID) < 0) {
       var c = this.coli;
@@ -128,7 +237,7 @@ export default class VFBMain extends React.Component {
       } catch (ignore) {
       }
       if (c == 0) {
-        Instances.getInstance(entityPath).setOpacity(0.4, true);
+        Instances.getInstance(entityPath).setOpacity(0.2, true);
       }
     } else {
       console.log('Issue setting colour for ' + entityPath);
@@ -243,7 +352,7 @@ export default class VFBMain extends React.Component {
       }
       if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
         var instance = Instances.getInstance(variableIds[singleId]);
-        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+        if (this.termInfoReference !== undefined) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
@@ -253,16 +362,15 @@ export default class VFBMain extends React.Component {
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
             instance.select();
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null && instance[instance.getId() + "_meta"] !== undefined) {
-              let meta = instance[instance.getId() + "_meta"];
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-              this.termInfoName = meta;
-              this.termInfoId = meta.getParent().getId();
             }
+            this.termInfoName = meta;
+            this.termInfoId = meta.getParent().getId();
           }
         }.bind(this));
       } else {
-        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+        if (this.termInfoReference !== undefined) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
@@ -438,6 +546,12 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  updateDimensions () {
+    if (this.refs.buttonBarRef !== undefined) {
+      this.refs.buttonBarRef.updatePosition({ x: this.getButtonBarDefaultX(), y: this.getButtonBarDefaultY() });
+    }
+  }
+
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
       this.setState({ [itemState]: !this.state[itemState] });
@@ -497,7 +611,7 @@ export default class VFBMain extends React.Component {
       }
       return historyList;
     case 'triggerSetTermInfo':
-      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+      if (this.termInfoReference !== undefined) {
         this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
       }
       break;
@@ -533,6 +647,10 @@ export default class VFBMain extends React.Component {
   handleClickOutside () {
     if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
       this.setState({ htmlFromToolbar: undefined });
+    }
+
+    if (this.historyRef && !this.historyRef.contains(event.target) && !event.target.contains(document.getElementById("historyTrigger"))) {
+      this.setState({ historyModalOpen: !this.state.historyModalOpen });
     }
   }
 
@@ -652,7 +770,6 @@ export default class VFBMain extends React.Component {
       this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
       this.refs.spotlightRef.open();
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
@@ -741,7 +858,6 @@ export default class VFBMain extends React.Component {
           showButtonBar={true}
           termInfoName={this.termInfoName}
           termInfoId={this.termInfoId}
-          focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
                   'Label',
@@ -804,11 +920,21 @@ export default class VFBMain extends React.Component {
     /**
      * Important, needed to let know the Three.js control's library the real size of
      * the canvas right after if finished rendering.Otherwise it thinks its width and
-     * height 0 *
+     *height 0 *
      */
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
     }
+    
+    /**
+     * Global reference to Stackviewer used in testing
+     */
+    if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null){
+    	if(window.StackViewer1 == undefined || window.StackViewer == null){
+            window.StackViewer1 = this.sliceViewerReference;
+    	}
+    }
+
   }
 
   componentWillMount () {
@@ -821,14 +947,20 @@ export default class VFBMain extends React.Component {
       }
       this.setState({ modelLoaded: true });
     }
+
+    if (this.state.htmlFromToolbar !== undefined) {
+    }
   }
 
   componentWillUnmount () {
+    window.removeEventListener("resize", this.updateDimensions);
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
+
+    window.addEventListener("resize", this.updateDimensions);
 
     GEPPETTO.G.setIdleTimeOut(-1);
 
@@ -840,13 +972,17 @@ export default class VFBMain extends React.Component {
     window.stackViewerRequest = function (idFromStack) {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
-
+    
     window.addVfbId = function (idFromOutside) {
       this.addVfbId(idFromOutside);
     }.bind(this);
 
+    window.customSorter = function (a, b, InputString) {
+      this.customSorter(a, b, InputString);
+    }.bind(this);
+
     window.setTermInfo = function (meta, id) {
-      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+      if (this.termInfoReference !== undefined) {
         this.termInfoReference.setTermInfo(meta, id);
       }
     }.bind(this);
@@ -962,21 +1098,11 @@ export default class VFBMain extends React.Component {
     // google analytics vfb specific tracker
     ga('create', 'UA-18509775-2', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
-    window.console.stderr = console.error.bind(console);
     window.console.logs = [];
     console.log = function () {
-      if (Array.from(arguments).join("\n").indexOf('Pixi.js') < 0 && Array.from(arguments).join("\n") != 'unmount') {
-        window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
-        window.console.logs.push('+ ' + Array.from(arguments).join('\n'));
-        window.console.stdlog.apply(console, arguments);
-      }
-    }
-    console.error = function () {
-      if (Array.from(arguments).join("\n").indexOf('www.pixijs.com') < 0) {
-        window.ga('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
-        window.console.logs.push('- ' + Array.from(arguments).join('\n'));
-        window.console.stderr.apply(console, arguments);
-      }
+      window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
+      window.console.logs.push(Array.from(arguments));
+      window.console.stdlog.apply(console, arguments);
     }
 
     // Selection listener
@@ -991,7 +1117,7 @@ export default class VFBMain extends React.Component {
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
           if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
             }
             this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
@@ -1002,7 +1128,7 @@ export default class VFBMain extends React.Component {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
           var parent = latestSelection.getParent();
           if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+            if (this.termInfoReference !== undefined) {
               this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
             }
             this.termInfoName = parent[parent.getId() + "_meta"];
@@ -1028,6 +1154,42 @@ export default class VFBMain extends React.Component {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
     }
 
+    if (this.state.historyModalOpen == true) {
+      var historyList = window.historyWidgetCapability.vfbterminfowidget.map(function (item, index) {
+        return (
+          <div className="historyItemList" key={index} onClick={() => {
+            this.setState({ historyModalOpen: !this.state.historyModalOpen });
+            if (this.termInfoReference !== undefined) {
+              this.termInfoReference.setTermInfo(item.arguments[0], item.arguments[0].getName());
+            }
+          }}>
+            {item.label}
+          </div>
+        )
+      }, this);
+      this.termInfoHistory = <Rnd
+        enableResizing={{
+          top: false, right: false, bottom: false,
+          left: false, topRight: false, bottomRight: false,
+          bottomLeft: false, topLeft: false
+        }}
+        default={{
+          x: this.modalX, y: this.modalY,
+          height: 150, width: 150
+        }}
+        className="historyModal"
+        disableDragging={true}
+        maxHeight={150} minHeight={150}
+        maxWidth={150} minWidth={150}
+        ref="rndHistoryModal">
+        <div id="anchorHistory" ref={this.setWrapperRef}>
+          {historyList}
+        </div>
+      </Rnd>
+    } else {
+      this.termInfoHistory = undefined;
+    }
+
     var key = 0;
     var onRenderTabSet = function (node:(TabSetNode), renderValues:any) {
       if (node.getType() === "tabset") {
@@ -1039,6 +1201,20 @@ export default class VFBMain extends React.Component {
     };
 
     key = 0;
+    var toggleModal = event => {
+      this.modalX = event.clientX;
+      this.modalY = event.clientY;
+      this.setState({ historyModalOpen: !this.state.historyModalOpen });
+      event.stopPropagation();
+    };
+
+    var onRenderTab = function (node:(TabNode), renderValues:any) {
+      if (node.getType() === "tab" && node.getComponent() == "termInfo") {
+        renderValues.buttons.push(<div key={key} id="historyTrigger"
+          className="fa fa-history customIconTab" onMouseDown={toggleModal.bind(this)} />);
+        key++;
+      }
+    };
 
     var clickOnBordersAction = function (node:(TabNode)) {
       let idChild = 0;
@@ -1108,10 +1284,26 @@ export default class VFBMain extends React.Component {
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
 
-        <FocusTerm
-          ref={ref => this.focusTermReference = ref}
-          UIUpdateManager={this.UIUpdateManager}
-          queryBuilder={this.refs.querybuilderRef}/>
+        <Rnd
+          enableResizing={{
+            top: false, right: false, bottom: false, left: false,
+            topRight: false, bottomRight: false, bottomLeft: false, topLeft: false
+          }}
+          default={{
+            x: this.getButtonBarDefaultX(),
+            y: this.getButtonBarDefaultY(),
+            height: 28, width: 340
+          }}
+          className="new-widget"
+          disableDragging={true}
+          maxHeight={35} minHeight={20}
+          maxWidth={350} minWidth={150}
+          ref="buttonBarRef" >
+          <ButtonBar
+            id="ButtonBarContainer"
+            configuration={this.buttonBarConfig}
+            buttonBarHandler={this.UIUpdateManager} />
+        </Rnd>
 
         <Logo
           logo='gpt-fly'
@@ -1121,6 +1313,7 @@ export default class VFBMain extends React.Component {
           ref="layout"
           model={this.model}
           factory={this.factory.bind(this)}
+          onRenderTab={onRenderTab}
           onRenderTabSet={onRenderTabSet}
           clickOnBordersAction={clickOnBordersAction}/>
 
@@ -1157,6 +1350,7 @@ export default class VFBMain extends React.Component {
         </div>
 
         {this.htmlToolbarRender}
+        {this.termInfoHistory}
       </div>
     );
   }

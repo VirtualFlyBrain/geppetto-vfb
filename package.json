@@ -5,6 +5,7 @@
   "repository": "http://git.geppetto.org",
   "license": "MIT",
   "scripts": {
+    "test": "jest --runInBand",
     "prebuild": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build": "webpack -p --progress",
     "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
