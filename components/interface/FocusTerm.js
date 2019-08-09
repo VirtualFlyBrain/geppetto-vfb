@@ -269,16 +269,16 @@ export default class FocusTerm extends React.Component {
   }
 
   render () {
-    var buttonsToRender = (<span>
-      <i className="fa fa-arrow-left arrowsStyle"
-        onClick={() => {
-          window.history.back();
-        }}/>
-      <i className="fa fa-arrow-right arrowsStyle"
-        onClick={() => {
-          window.history.forward();
-        }}/>
-    </span>);
+    var tooltipNext = "";
+    var tooltipPrevious = "";
+    if (window.history.state !== null){
+      if (window.history.state.b !== undefined && window.history.state.b !== ""){
+        tooltipPrevious = window.history.state.b
+      }
+      if (window.history.state.f !== undefined && window.history.state.f !== ""){
+        tooltipNext = window.history.state.f
+      }
+    }
     return (
       <Rnd
         enableResizing={{
@@ -303,7 +303,7 @@ export default class FocusTerm extends React.Component {
               <Tabs>
                 <TabList>
                   <Tab>Adult Brain</Tab>
-                  <Tab>&nbsp; + &nbsp;</Tab>
+                  <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
               </Tabs>
             </div>
@@ -316,41 +316,52 @@ export default class FocusTerm extends React.Component {
 
           <div className="focusTermRight">
             <div className="focusTermDivR">
-              <i className="fa fa-search arrowsStyle"
+              <i className="fa fa-search arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("spotlightVisible");
-                }}/>
-              <i className="fa fa-quora arrowsStyle"
+                }}>
+                <span className="tooltipBox"> Open the spotlight </span>
+              </i>
+              <i className="fa fa-quora arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("queryBuilderVisible");
-                }}/>
-              <i className="fa fa-list arrowsStyle"
+                }}>
+                <span className="tooltipBox"> Open the query builder </span>
+              </i>
+              <i className="fa fa-list arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("controlPanelVisible");
-                }}/>
-              { this.state.currentInstance !== undefined
-                ? <span>
-                  { window.history.state.b !== undefined && window.history.state.b !== ""
-                    ? <i className="fa fa-chevron-left arrowsStyle"
+                }}>
+                <span className="tooltipBox"> Open the control panel </span>
+              </i>
+              { window.history.state !== null
+                ? { window.history.state.b !== undefined && window.history.state.b !== ""
+                    ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
                       onClick={() => {
                         if (window.vfbUpdatingHistory == false) {
                           window.history.back();
                         }
-                      }} title={window.history.state.b} />
-                    : <i className="fa fa-chevron-left arrowsStyle arrow-disabled" /> }
+                      }}>
+                      <span className="tooltipBox"> {tooltipPrevious} </span>
+                      </i>
+                    : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
+                  }
                   { window.history.state.f !== undefined && window.history.state.f !== "" 
-                    ? <i className="fa fa-chevron-right arrowsStyle"
+                    ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
                       onClick={() => {
                         if (window.vfbUpdatingHistory == false) {
                           window.history.forward();
                         }
-                      }} title={window.history.state.f} />
-                    : <i className="fa fa-chevron-right arrowsStyle arrow-disabled" /> }
-                  <Menu
-                    configuration={this.focusTermConfiguration}
-                    menuHandler={this.menuHandler} />
-                </span>
-                : undefined }
+                      }}>
+                      <span className="tooltipBox"> {tooltipNext} </span>
+                      </i>
+                    : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
+                  }
+                : undefined 
+              }
+              <Menu
+                configuration={this.focusTermConfiguration}
+                menuHandler={this.menuHandler} />
             </div>
           </div>
         </nav>
