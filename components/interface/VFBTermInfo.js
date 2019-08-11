@@ -523,7 +523,7 @@ export default class VFBTermInfoWidget extends React.Component {
         "delete": {
           "showCondition": "$instance$.getId()!=window.templateID",
           "id": "delete",
-          "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+          "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId());"],
           "icon": "fa-trash-o",
           "label": "Delete",
           "tooltip": "Delete"
