@@ -244,11 +244,13 @@ export default class FocusTerm extends React.Component {
           var state = window.history.state.s;
           switch (state) {
           case 2:
+            // Call from history back/forward
             if (window.location.search.indexOf(items.split("&")[0]) > -1) {
               window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
             }
             break;
           case 0:
+            // Call from new item loaded
             window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.history.state.u);
             if (!(("?" + items) == window.location.search)) {
               window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);

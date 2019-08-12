@@ -937,6 +937,9 @@ export default class VFBMain extends React.Component {
       });
     }
 
+    // wipe the history state:
+    window.history.replaceState(null, window.location.pathname + window.location.search)
+
     // browser back/forward handling
     window.onpopstate = function () {
       var idList = window.location.search;
