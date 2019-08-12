@@ -8,6 +8,9 @@ import * as ST from './selectors';
 const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00000001";
 
+/**
+ * Tests control panel works in VFB
+ */
 describe('VFB Control Panel Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(120000); 
@@ -15,6 +18,7 @@ describe('VFB Control Panel Tests', () => {
 
 	});
 
+	//Tests components in landing page are present
 	describe('Test Landing Page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
@@ -42,7 +46,9 @@ describe('VFB Control Panel Tests', () => {
 		})
 	})
 
+	//Tests opening control panel and clicking on row buttons
 	describe('Test Control Panel', () => {
+		//Tests control panel opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
 			await click(page, "button#controlPanelVisible");
 			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
@@ -50,11 +56,13 @@ describe('VFB Control Panel Tests', () => {
 			expect(rows).toEqual(2);
 		})
 
+		//Tests clicking in select button for VFB_00017894 from control panel
 		it('Term info correctly populated  for JFRC2_template after control panel selection click', async () => {
 			await click(page, 'button[id=VFB_00017894_select_ctrlPanel_btn]');
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true })
 		})
 
+		//Tests term info metadata changed in response to previous test selection of VFB_00017894. 
 		it('Term info correctly populated  for JFRC2_template after control panel selection click', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
 		})

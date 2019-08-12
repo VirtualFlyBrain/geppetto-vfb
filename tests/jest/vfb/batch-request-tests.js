@@ -8,6 +8,9 @@ import * as ST from './selectors';
 const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
+/**
+ * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
+ */
 describe('VFB batch requests tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
@@ -15,6 +18,7 @@ describe('VFB batch requests tests', () => {
 
 	});
 
+	//5 VFB IDs requested
 	const batch_requests = ['VFB_00017894','VFB_00030849','VFB_00030838','VFB_00030856','VFB_00030880'];
 
 	describe('Test landing page', () => {
@@ -27,10 +31,12 @@ describe('VFB batch requests tests', () => {
 			expect(title).toBe("Virtual Fly Brain");
 		})
 
+		//Testing last of the requested VFB IDs finished loading and deselect button appeared in term info component
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 1800000 })
 		})
 
+		//Testing last of the requested VFB IDs finished loading and zoom button appeared in term info component
 		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 1800000 })
 		})
@@ -43,6 +49,7 @@ describe('VFB batch requests tests', () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("ventral complex on adult brain template JFRC2 (VFB_00030880)")');
 		})
 
+		//Tests canvas has 5 meshes rendered
 		it('Canvas container component has 5 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
@@ -50,6 +57,7 @@ describe('VFB batch requests tests', () => {
 		})
 	})
 
+	//Expects stack viewer component to have 5 meshes rendered and visible. 
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
@@ -68,6 +76,7 @@ describe('VFB batch requests tests', () => {
 		})
 	})
 
+	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
 	describe('Tests Batch Requests in Control Panel', () => {
 		it('The control panel opened with right amount of rows.', async () => {
 			await click(page, "button#controlPanelVisible");
