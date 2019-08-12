@@ -230,24 +230,27 @@ export default class FocusTerm extends React.Component {
           } 
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
-        var title = null;
-        try {
-          items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
-          title = instance.getName();
-          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
-        } catch (ignore) { }
         if (items != "i=") {
+          var title = null;
+          try {
+            items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
+            title = instance.getName();
+            window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
+          } catch (ignore) { }
+        
           if (window.history.state == null) {
             window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
           }
           var state = window.history.state.s;
           switch (state) {
           case 2:
+            // Call from history back/forward
             if (window.location.search.indexOf(items.split("&")[0]) > -1) {
               window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
             }
             break;
           case 0:
+            // Call from new item loaded
             window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.history.state.u);
             if (!(("?" + items) == window.location.search)) {
               window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);

@@ -120,7 +120,7 @@ export default class StackViewer extends React.Component {
     if (curr != this.data.instances.length){
       console.log('Passing ' + this.data.instances.length + ' instances');
       this.setState({ data: this.data }, () => {
-        this.updateStackWidget();
+        this.forceUpdate();
       });
     }
   }
@@ -132,14 +132,15 @@ export default class StackViewer extends React.Component {
       try {
         if (this.data.instances[i].parent.getId() == path.split('.')[0]){
           this.data.instances.splice(i,1);
+          break;
         }
       } catch (ignore){ // handling already deleted instance
-        this.data.instances.splice(i,1);
+        // this.data.instances.splice(i,1);
       }
     }
     console.log('Passing ' + this.data.instances.length + ' instances');
     this.setState({ data: this.data }, () => {
-      this.updateStackWidget();
+      this.forceUpdate();
     });
   }
 
