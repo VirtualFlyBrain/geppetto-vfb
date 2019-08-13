@@ -938,7 +938,7 @@ export default class VFBMain extends React.Component {
     }
 
     // wipe the history state:
-    window.history.replaceState(null, window.location.pathname + window.location.search)
+    window.history.replaceState({ s:2, n:"", b:"", f:"" }, "", window.location.pathname + window.location.search);
 
     // browser back/forward handling
     window.onpopstate = function () {
