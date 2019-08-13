@@ -256,6 +256,10 @@ export default class FocusTerm extends React.Component {
               window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
             }
             break;
+          case 4:
+            // Site reloaded
+            window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + window.location.search);
+            break;
           default:
             if (!(("?" + items) == window.location.search) && !(window.history.state.b == title)) {
               window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.location.search);
