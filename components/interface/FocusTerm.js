@@ -306,7 +306,7 @@ export default class FocusTerm extends React.Component {
             <div className="focusTermDivL">
               <Tabs>
                 <TabList>
-                  <Tab>Adult Brain</Tab>
+                  <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
                   <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
               </Tabs>

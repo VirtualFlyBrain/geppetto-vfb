@@ -642,7 +642,7 @@ export default class VFBToolBar extends React.Component {
 			+ "				<div class='row' style='margin-bottom: 0px !important;''>"
 			+ "					<div class='small-3 columns text-center content-image'>"
 			+ "						<a href='http://www.metacell.us/' target='_blank'>"
-			+ "							<img class='' src='https://v2.virtualflybrain.org/images/vfb/project/logos/MetaCellSymbol.png'"
+			+ "							<img class='' src='https://www.metacell.us/assets/images/_1200x600_crop_center-center_none/MetaCellLogoWebsite.png'"
 			+ "								border='0' />"
 			+ "						</a>"
 			+ "					</div>"
