@@ -83,7 +83,6 @@ export default class VFBMain extends React.Component {
     this.stackViewerData = { id: "StackViewerWidget_" };
 
     this.colours = require('./configuration/colours.json');
-    this.tutorialsList = require('./configuration/tutorialsList.json');
     this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
     this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
