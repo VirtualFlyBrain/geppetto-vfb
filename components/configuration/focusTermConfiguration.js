@@ -99,7 +99,7 @@ var focusTermConfiguration = {
   buttons: [
     {
       label: "",
-      icon: "",
+      icon: "fa fa-chevron-down",
       action: "",
       position: "bottom-start",
       dynamicListInjector: {
