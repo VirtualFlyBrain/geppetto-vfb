@@ -309,6 +309,8 @@ export default class FocusTerm extends React.Component {
                   <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
                   <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
+                <TabPanel style={{ display: "none" }}/>
+                <TabPanel style={{ display: "none" }}/>
               </Tabs>
             </div>
           </div>
