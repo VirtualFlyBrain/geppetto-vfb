@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 var feedback
   = "<div id='vfb-content-block' class='callout vfbcontent'> "
   + "<div id='vfb-content-titlebar'> "
