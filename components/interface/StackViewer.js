@@ -162,6 +162,10 @@ export default class StackViewer extends React.Component {
   }
 
   componentDidMount () {
+    if (GEPPETTO.MessageSocket.socket !== null) {
+      this.updateStackWidget();
+    }
+
     if (this.refs.StackViewerRef._isMounted === false && this.refs.StackViewerRef !== undefined) {
       this.refs.StackViewerRef._isMounted = true;
     }
