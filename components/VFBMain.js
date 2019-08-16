@@ -334,6 +334,7 @@ export default class VFBMain extends React.Component {
             var anchorElement = domObj.filter('a');
             // extract ID
             var templateID = anchorElement.attr('data-instancepath');
+            window.templateID = templateID;
             this.addVfbId([templateID, path]);
           }
         }
