@@ -91,35 +91,86 @@ export default class FocusTerm extends React.Component {
       }
       allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
       if (allQueries.length > 0) {
-        focusSubMenu.push(
-          {
-            label: "Search for",
-            icon: "",
-            action: "",
-            position: "left",
-            dynamicListInjector: {
-              handlerAction: "searchForHandler",
-              parameters: [variable, allQueries]
-            }
+        if (click.parameters[0].getType().classqueriesfrom !== undefined) {
+          var classId = click.parameters[0].getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+          if (window[classId] === undefined) {
+            window.fetchVariableThenRun(classId, () => {
+              var variable2 = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+              var allQueries2 = GEPPETTO.ModelFactory.getMatchingQueries(variable2.getType(), undefined);
+              if (allQueries2.length > 0) {
+                focusSubMenu.push(
+                  {
+                    label: "Search for",
+                    icon: "",
+                    action: "",
+                    position: "left",
+                    dynamicListInjector: {
+                      handlerAction: "searchForHandler",
+                      parameters: [{ variable: variable, allQueries: allQueries },
+                                   { variable: variable2, allQueries: allQueries2 }]
+                    }
+                  }
+                );
+              }
+            });
           }
-        );
+        } else {
+          focusSubMenu.push(
+            {
+              label: "Search for",
+              icon: "",
+              action: "",
+              position: "left",
+              dynamicListInjector: {
+                handlerAction: "searchForHandler",
+                parameters: [{ variable: variable, allQueries: allQueries }]
+              }
+            }
+          );
+        }
+      } else {
+        if (click.parameters[0].getType().classqueriesfrom !== undefined) {
+          var classId = click.parameters[0].getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+          if (window[classId] === undefined) {
+            window.fetchVariableThenRun(classId, () => {
+              var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+              var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+              if (allQueries.length > 0) {
+                focusSubMenu.push(
+                  {
+                    label: "Search for",
+                    icon: "",
+                    action: "",
+                    position: "left",
+                    dynamicListInjector: {
+                      handlerAction: "searchForHandler",
+                      parameters: [{ variable: variable, allQueries: allQueries }]
+                    }
+                  }
+                );
+              }
+            });
+          }
+        }
       }
       return focusSubMenu;
     case 'searchForHandler':
       var searchSubMenu = [];
-      var queries = click.parameters[1];
-      var instance = click.parameters[0]
-      for (let i = 0; i < queries.length; i++) {
-        searchSubMenu.push(
-          {
-            label: queries[i].getDescription().replace("$NAME", instance.getName()),
-            icon: "",
-            action: {
-              handlerAction: "runQueryHandler",
-              parameters: [instance, queries[i]]
-            }
-          },
-        );
+      for (let j = 0; j < click.parameters.length; j++) {
+        var queries = click.parameters[j].allQueries;
+        var instance = click.parameters[j].variable;
+        for (let i = 0; i < queries.length; i++) {
+          searchSubMenu.push(
+            {
+              label: queries[i].getDescription().replace("$NAME", instance.getName()),
+              icon: "",
+              action: {
+                handlerAction: "runQueryHandler",
+                parameters: [instance, queries[i]]
+              }
+            },
+          );
+        }
       }
       return searchSubMenu;
     case 'runQueryHandler':
@@ -310,9 +361,11 @@ export default class FocusTerm extends React.Component {
             <div className="focusTermDivL">
               <Tabs>
                 <TabList>
-                  <Tab>Adult Brain</Tab>
+                  <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
                   <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
+                <TabPanel style={{ display: "none" }}/>
+                <TabPanel style={{ display: "none" }}/>
               </Tabs>
             </div>
           </div>
