@@ -233,7 +233,7 @@ export default class StackViewer extends React.Component {
   render () {
     var sliceInstances = this.getSliceInstances();
 
-    if (sliceInstances.length > 0 && typeof sliceInstances[0] !== "undefined" && sliceInstances[0].getValue !== "undefined") {
+    if (sliceInstances.length > 0 && typeof sliceInstances[0] !== "undefined" && sliceInstances[0].getValue !== undefined) {
       this.config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
     }
     if (this.config == undefined) {
