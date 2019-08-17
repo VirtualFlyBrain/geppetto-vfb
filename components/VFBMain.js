@@ -335,6 +335,10 @@ export default class VFBMain extends React.Component {
             // extract ID
             var templateID = anchorElement.attr('data-instancepath');
             this.addVfbId(templateID);
+            setTimeout(function (){
+              window.resolve3D(path); 
+            }, 5000);
+            return; // Don't load until the template has
           }
         }
       }
@@ -895,7 +899,7 @@ export default class VFBMain extends React.Component {
     }
 
     // Loading ids passed through the browser's url
-    if ((this.props.location.search.indexOf("id=") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
+    if ((this.props.location.search.indexOf("id=VFB") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
       var that = this;
       console.log("Loading default Adult Brain VFB_00017894 template.");
       GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
