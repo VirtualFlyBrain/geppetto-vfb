@@ -8,14 +8,12 @@ import * as ST from './selectors';
 const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
-describe('VFB batch requests tests', () => {
+describe('Stack Viewer Component Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
 		await page.goto(PROJECT_URL);
 
 	});
-
-	const batch_requests = ['VFB_00017894'];
 
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
@@ -51,32 +49,26 @@ describe('VFB batch requests tests', () => {
 	})
 
 	describe('Test Query Panel', () => {
-		it('Query builder is visible', async () => {
+		it('Query builder button appeared', async () => {
 			await wait4selector(page, 'button[id=queryBuilderVisible]', { visible: true })
+		})
+
+		it('Query builder is visible', async () => {
 			await click(page, 'button[id=queryBuilderVisible]');
 			await wait4selector(page, 'button[id=queryBuilderVisible]', { visible: true })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
-			await page.focus('#query-typeahead');
+			await page.focus('input#query-typeahead');
 			await page.keyboard.type('medu');
 			await page.keyboard.press(String.fromCharCode(13))
-			await wait4selector(page, 'div.tt-suggestion', { visible: true , timeout : 60000})
+
+			await wait4selector(page, 'div.tt-suggestion', { visible: true , timeout : 10000})
 		})
 
 		it('Selecting first query for medulla', async () => {
 			await page.evaluate(async selector =>  $('div.tt-suggestion').first().click())
 			await wait4selector(page, 'select.query-item-option', { visible: true , timeout : 60000})
-		})
-
-		it('Verified we have 2 results', async () => {
-			await page.evaluate(async selector => {
-				var selectElement = $('select.query-item-option');
-				selectElement.val('0').change();
-				var event = new Event('change', { bubbles: true });
-				selectElement[0].dispatchEvent(event);
-			})
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("-->2<!-- /react-text --><!-- react-text:")');
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
@@ -92,7 +84,7 @@ describe('VFB batch requests tests', () => {
 	})
 
 
-	describe('Tests Batch Requests in Stack Viewer Component', () => {
+	describe('Test Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
 		})
@@ -103,10 +95,50 @@ describe('VFB batch requests tests', () => {
 			).toBe(1)
 		})
 
-		it.each(batch_requests)('Mesh from batch request id : %id present in stack viewer component', async id => {
+		it('Mesh from batch request id : %id present in stack viewer component', async () => {
 			expect(
-					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, id)
+					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, 'VFB_00017894')
 			).toBeTruthy()
+		})
+	})
+
+	describe('Test Stack Viewer Component', () => {
+		it('VFB_00017894.VFB_00017894_obj visibility correct', async () => {
+			await page.waitFor(10000);
+			expect(
+					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
+			).toBeTruthy();
+		});
+
+		it('3D Plane not visible', async () => {
+			expect(
+					await page.evaluate(async () => CanvasContainer.engine.scene.children[4].visible)
+			).toBeFalsy();
+		});
+
+		it('3D Plane not visible', async () => {
+			await page.evaluate(async selector => {
+				var stackViewerButtons = $("#NewStackViewerdisplayArea").find("button");
+				stackViewerButtons[stackViewerButtons.length - 1].click();
+			})
+
+			await page.waitFor(3000);
+
+			expect(
+					await page.evaluate(async () => CanvasContainer.engine.scene.children[4].visible)
+			).toBeTruthy();
+		});
+
+		it('Canvas container has 2 meshes rendered', async () => {
+			expect(
+					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
+			).toBe(1)
+		})
+
+		it('Slice viewer component has 2 meshes rendered', async () => {
+			expect(
+					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
+			).toBe(1)
 		})
 	})
 })

@@ -49,7 +49,7 @@ describe('VFB Query Component Tests', () => {
 
 		it('Query builder is visible', async () => {
 			await click(page, 'button[id=queryBuilderVisible]');
-			await wait4selector(page, 'button[id=queryBuilderVisible]', { visible: true })
+			await wait4selector(page, '#querybuilder', { visible: true })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
@@ -63,16 +63,6 @@ describe('VFB Query Component Tests', () => {
 		it('Selecting first query for medulla', async () => {
 			await page.evaluate(async selector =>  $('div.tt-suggestion').first().click())
 			await wait4selector(page, 'select.query-item-option', { visible: true , timeout : 60000})
-		})
-
-		it('Verified we have 2 results', async () => {
-			await page.evaluate(async selector => {
-				var selectElement = $('select.query-item-option');
-				selectElement.val('0').change();
-				var event = new Event('change', { bubbles: true });
-				selectElement[0].dispatchEvent(event);
-			})
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("-->2<!-- /react-text --><!-- react-text:")');
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {

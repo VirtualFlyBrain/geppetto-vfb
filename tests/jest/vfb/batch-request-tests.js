@@ -11,7 +11,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00030849,VFB_0003083
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
  */
-describe('VFB batch requests tests', () => {
+describe('VFB Batch Requests Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
 		await page.goto(PROJECT_URL);
@@ -45,6 +45,7 @@ describe('VFB batch requests tests', () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
 		})
 
+		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("ventral complex on adult brain template JFRC2 (VFB_00030880)")');
 		})
