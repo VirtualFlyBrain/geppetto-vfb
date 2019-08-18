@@ -929,10 +929,10 @@ export default class VFBMain extends React.Component {
     /**
      * Global reference to Stackviewer used in testing
      */
-    if(this.sliceViewerReference !== undefined && this.sliceViewerReference !== null){
-    	if(window.StackViewer1 == undefined || window.StackViewer == null){
-            window.StackViewer1 = this.sliceViewerReference;
-    	}
+    if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null){
+      if (window.StackViewer1 == undefined || window.StackViewer == null){
+        window.StackViewer1 = this.sliceViewerReference;
+      }
     }
 
   }
