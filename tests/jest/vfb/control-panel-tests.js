@@ -50,7 +50,7 @@ describe('VFB Control Panel Tests', () => {
 	describe('Test Control Panel', () => {
 		//Tests control panel opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
-			await click(page, "button#controlPanelVisible");
+			await click(page, "i.fa-list");
 			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(2);

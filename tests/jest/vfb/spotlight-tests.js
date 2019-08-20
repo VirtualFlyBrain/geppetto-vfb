@@ -55,12 +55,12 @@ describe('VFB Spotlight Tests', () => {
 	//Tests 'Add Scene' button in spotlight for VFB_00017894
 	describe('Spotlight, add scene button test', () => { 
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'button[id=spotlightVisible]', { visible: true })
+			await wait4selector(page, 'i.fa-search', { visible: true })
 		})
 
 		it('Opens and shows correct butttons.', async () => {
 			await page.waitFor(10000);
-			await click(page, 'button[id=spotlightVisible]')
+			await click(page, 'i.fa-search')
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
 		});
 
@@ -92,13 +92,13 @@ describe('VFB Spotlight Tests', () => {
 	});
 
 	//Tests query button shows in spotlight for VFB_00017894
-	describe('Spotlight, query button test', () => { 
+	describe('Spotlight, Add Query button presence test', () => { 
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'button[id=spotlightVisible]', { visible: true })
+			await wait4selector(page, 'i.fa-search', { visible: true })
 		})
 
 		it('Open spotlight', async () => {
-			await click(page, 'button[id=spotlightVisible]')
+			await click(page, 'i.fa-search')
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
 		});
 

@@ -49,11 +49,11 @@ describe('VFB Query Component Tests', () => {
 	//Tests running query 'medu' in the query panel
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'button[id=queryBuilderVisible]', { visible: true })
+			await wait4selector(page, 'i.fa-quora', { visible: true })
 		})
 
 		it('Query builder is visible', async () => {
-			await click(page, 'button[id=queryBuilderVisible]');
+			await click(page, 'i.fa-quora');
 			await wait4selector(page, '#querybuilder', { visible: true })
 		})
 
