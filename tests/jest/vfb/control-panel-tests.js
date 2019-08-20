@@ -56,7 +56,7 @@ describe('VFB Control Panel Tests', () => {
 			expect(rows).toEqual(2);
 		})
 
-		//Tests clicking in select button for VFB_00017894 from control panel
+		//Tests clicking in select button for VFB_00017894 from control panel works, term info should show deselect button for VFB_00017894
 		it('Term info correctly populated  for JFRC2_template after control panel selection click', async () => {
 			await click(page, 'button[id=VFB_00017894_select_ctrlPanel_btn]');
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true })

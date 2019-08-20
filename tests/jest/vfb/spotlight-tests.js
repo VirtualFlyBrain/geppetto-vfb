@@ -8,15 +8,17 @@ import * as ST from './selectors';
 const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
-describe('Spotlight Tests', () => {
+/**
+ * Test spotlight component works with VFB_00017894 and show correct buttons
+ */
+describe('VFB Spotlight Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
 		await page.goto(PROJECT_URL);
 
 	});
 
-	const batch_requests = ['VFB_00017894'];
-
+	//Test components on landing page are present
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
@@ -50,6 +52,7 @@ describe('Spotlight Tests', () => {
 		})
 	})
 
+	//Tests 'Add Scene' button in spotlight for VFB_00017894
 	describe('Spotlight, add scene button test', () => { 
 		it('Query builder button appeared', async () => {
 			await wait4selector(page, 'button[id=spotlightVisible]', { visible: true })
@@ -88,6 +91,7 @@ describe('Spotlight Tests', () => {
 		})
 	});
 
+	//Tests query button shows in spotlight for VFB_00017894
 	describe('Spotlight, query button test', () => { 
 		it('Query builder button appeared', async () => {
 			await wait4selector(page, 'button[id=spotlightVisible]', { visible: true })

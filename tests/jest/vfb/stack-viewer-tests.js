@@ -8,13 +8,17 @@ import * as ST from './selectors';
 const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
-describe('Stack Viewer Component Tests', () => {
+/**
+ * Tests stack viewer component. Tests the stack viewer loads, has meshes loaded, and that new meshes get rendered when added from query panel.
+ */
+describe('VFB Stack Viewer Component Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
 		await page.goto(PROJECT_URL);
 
 	});
 
+	//Tests expected components are present when VFB page loads
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
@@ -48,6 +52,7 @@ describe('Stack Viewer Component Tests', () => {
 		})
 	})
 
+	//Opens query panel and runs query for 'medu'. This will be used later to test stack viewer got a new mesh as a result of this query run
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
 			await wait4selector(page, 'button[id=queryBuilderVisible]', { visible: true })
@@ -66,43 +71,52 @@ describe('Stack Viewer Component Tests', () => {
 			await wait4selector(page, 'div.tt-suggestion', { visible: true , timeout : 10000})
 		})
 
-		it('Selecting first query for medulla', async () => {
+		it('Selecting medulla, first suggestion from suggestion box', async () => {
 			await page.evaluate(async selector =>  $('div.tt-suggestion').first().click())
-			await wait4selector(page, 'select.query-item-option', { visible: true , timeout : 60000})
+			await wait4selector(page, '#queryitem-medulla_0', { visible: true , timeout : 60000})
+		})
+
+		it('Selecting first query for medulla', async () => {
+			await page.evaluate(async selector =>  {
+				var selectElement = $('select.query-item-option');
+				selectElement.val('0').change();
+				var event = new Event('change', { bubbles: true });
+				selectElement[0].dispatchEvent(event);
+			})
+			//Test there are 2 results before running query
+			await page.waitForFunction('document.getElementById("query-results-label").innerText.startsWith("2 results")', {visible : true, timeout : 60000});
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
 			await click(page, 'button[id=run-query-btn]');
-			await wait4selector(page, 'div[id=VFB_00030624-image-container]', { visible: true })
+			await wait4selector(page, '#VFB_00030624-image-container', { visible: true, timeout : 10000 })
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
 			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true })
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)');
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
 		})
 	})
 
-
+	//Tests stack viewer component, tests there's 2 visible meshes rendered
 	describe('Test Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
 		})
 
-		it('Slice viewer component has 1 mesh rendered', async () => {
+		it('Slice viewer component has 2 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(1)
+			).toBe(2)
 		})
 
-		it('Mesh from batch request id : %id present in stack viewer component', async () => {
+		it('Mesh from batch request id : VFB_00017894.VFB_00017894_obj present in stack viewer component', async () => {
 			expect(
-					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, 'VFB_00017894')
+					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes["VFB_00017894.VFB_00017894_obj"].visible)
 			).toBeTruthy()
 		})
-	})
 
-	describe('Test Stack Viewer Component', () => {
 		it('VFB_00017894.VFB_00017894_obj visibility correct', async () => {
 			await page.waitFor(10000);
 			expect(
@@ -116,12 +130,14 @@ describe('Stack Viewer Component Tests', () => {
 			).toBeFalsy();
 		});
 
-		it('3D Plane not visible', async () => {
+		it('3D Plane visible', async () => {
+			//add 3d plane to stack viewer by clicking on stack viewer button
 			await page.evaluate(async selector => {
 				var stackViewerButtons = $("#NewStackViewerdisplayArea").find("button");
 				stackViewerButtons[stackViewerButtons.length - 1].click();
 			})
 
+			//give it some time before continue testing stack viewer
 			await page.waitFor(3000);
 
 			expect(
@@ -132,13 +148,13 @@ describe('Stack Viewer Component Tests', () => {
 		it('Canvas container has 2 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
-			).toBe(1)
+			).toBe(2)
 		})
 
 		it('Slice viewer component has 2 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(1)
+			).toBe(2)
 		})
 	})
 })

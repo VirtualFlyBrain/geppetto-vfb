@@ -70,7 +70,7 @@ describe('VFB Batch Requests Tests', () => {
 			).toBe(5)
 		})
 
-		it.each(batch_requests)('Mesh from batch request id : %id present in stack viewer component', async id => {
+		it.each(batch_requests)('Mesh from batch request id %s present in stack viewer component', async id => {
 			expect(
 					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, id)
 			).toBeTruthy()
@@ -86,7 +86,7 @@ describe('VFB Batch Requests Tests', () => {
 			expect(rows).toEqual(5);
 		})
 
-		it.each(batch_requests)('Row created for batch request with id : %id in control panel', async id => {
+		it.each(batch_requests)('Row created for batch request with id %s in control panel', async id => {
 			await wait4selector(page, 'button[id=' + id + '_info_ctrlPanel_btn]', { visible: true })
 		})
 	})
