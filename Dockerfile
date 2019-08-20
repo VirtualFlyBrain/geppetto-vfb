@@ -11,10 +11,11 @@ ARG build_type=production
 ARG googleAnalyticsSiteCode=UA-45841517-1
 
 ENV VFB_PDB_SERVER=http://pdb.virtualflybrain.org
-ENV VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/
+ENV VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/ß
 ENV VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ENV SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
 ENV googleAnalyticsSiteCode=UA-18509775-2
+ENV MAXSIZE=2G
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\

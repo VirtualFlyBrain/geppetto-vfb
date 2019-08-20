@@ -127,7 +127,7 @@ var controlPanelConfig = {
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
-      "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+      "actions": ["setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId());if($instance$.parent != null){$instance$.parent.delete();}else{$instance$.delete();};"],
       "icon": "fa-trash-o",
       "label": "Delete",
       "tooltip": "Delete"

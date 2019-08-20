@@ -29,7 +29,7 @@ cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.p
 
 # set java memory maximum 
 sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
-sed 's/Xmx512m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
+sed 's/Xmx1024m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
 
 # output log
 tail -F --retry $SERVER_HOME/serviceability/logs/log.log || true & 

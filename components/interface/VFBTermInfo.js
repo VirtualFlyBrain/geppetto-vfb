@@ -523,7 +523,7 @@ export default class VFBTermInfoWidget extends React.Component {
         "delete": {
           "showCondition": "$instance$.getId()!=window.templateID",
           "id": "delete",
-          "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID][window.templateID+'_meta'].getParent().getId());"],
+          "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId());"],
           "icon": "fa-trash-o",
           "label": "Delete",
           "tooltip": "Delete"
@@ -624,16 +624,21 @@ export default class VFBTermInfoWidget extends React.Component {
       var entity = Model[path];
       if (typeof (entity) != 'undefined' && entity instanceof Query) {
         // clear query builder unless ctrl pressed them add to compound.
-        this.props.queryBuilder.open();
-        if (!GEPPETTO.isKeyPressed("shift")) {
-          this.props.queryBuilder.switchView(false, false);
-          this.props.queryBuilder.clearAllQueryItems();
-        } else {
-          this.props.queryBuilder.switchView(false, false);
-        }
-
+        console.log('Query requested: ' + path + " " + otherName);
         GEPPETTO.trigger('spin_logo');
+        
+        this.props.queryBuilder.open();
+        this.props.queryBuilder.switchView(false, false);
+        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.")){
+          console.log('Query stacking requested.');
+        } else {
+          this.props.queryBuilder.clearAllQueryItems();
+          $('#add-new-query-container')[0].hidden = true;
+          $('#query-builder-items-container')[0].hidden = true;
+        }
         $("body").css("cursor", "progress");
+        
+       
         $('#add-new-query-container')[0].hidden = true;
         $('#query-builder-items-container')[0].hidden = true;
 

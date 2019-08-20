@@ -120,7 +120,7 @@ export default class StackViewer extends React.Component {
     if (curr != this.data.instances.length){
       console.log('Passing ' + this.data.instances.length + ' instances');
       this.setState({ data: this.data }, () => {
-        this.updateStackWidget();
+        this.forceUpdate();
       });
     }
   }
@@ -132,14 +132,15 @@ export default class StackViewer extends React.Component {
       try {
         if (this.data.instances[i].parent.getId() == path.split('.')[0]){
           this.data.instances.splice(i,1);
+          break;
         }
       } catch (ignore){ // handling already deleted instance
-        this.data.instances.splice(i,1);
+        // this.data.instances.splice(i,1);
       }
     }
     console.log('Passing ' + this.data.instances.length + ' instances');
     this.setState({ data: this.data }, () => {
-      this.updateStackWidget();
+      this.forceUpdate();
     });
   }
 
@@ -161,6 +162,10 @@ export default class StackViewer extends React.Component {
   }
 
   componentDidMount () {
+    if (GEPPETTO.MessageSocket.socket !== null) {
+      this.updateStackWidget();
+    }
+
     if (this.refs.StackViewerRef._isMounted === false && this.refs.StackViewerRef !== undefined) {
       this.refs.StackViewerRef._isMounted = true;
     }
@@ -228,7 +233,7 @@ export default class StackViewer extends React.Component {
   render () {
     var sliceInstances = this.getSliceInstances();
 
-    if (typeof sliceInstances[0] !== "undefined") {
+    if (sliceInstances.length > 0 && typeof sliceInstances[0] !== "undefined" && sliceInstances[0].getValue !== undefined) {
       this.config = JSON.parse(sliceInstances[0].getValue().wrappedObj.value.data);
     }
     if (this.config == undefined) {

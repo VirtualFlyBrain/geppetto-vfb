@@ -91,35 +91,86 @@ export default class FocusTerm extends React.Component {
       }
       allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
       if (allQueries.length > 0) {
-        focusSubMenu.push(
-          {
-            label: "Search for",
-            icon: "",
-            action: "",
-            position: "left",
-            dynamicListInjector: {
-              handlerAction: "searchForHandler",
-              parameters: [variable, allQueries]
-            }
+        if (click.parameters[0].getType().classqueriesfrom !== undefined) {
+          var classId = click.parameters[0].getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+          if (window[classId] === undefined) {
+            window.fetchVariableThenRun(classId, () => {
+              var variable2 = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+              var allQueries2 = GEPPETTO.ModelFactory.getMatchingQueries(variable2.getType(), undefined);
+              if (allQueries2.length > 0) {
+                focusSubMenu.push(
+                  {
+                    label: "Search for",
+                    icon: "",
+                    action: "",
+                    position: "left",
+                    dynamicListInjector: {
+                      handlerAction: "searchForHandler",
+                      parameters: [{ variable: variable, allQueries: allQueries },
+                                   { variable: variable2, allQueries: allQueries2 }]
+                    }
+                  }
+                );
+              }
+            });
           }
-        );
+        } else {
+          focusSubMenu.push(
+            {
+              label: "Search for",
+              icon: "",
+              action: "",
+              position: "left",
+              dynamicListInjector: {
+                handlerAction: "searchForHandler",
+                parameters: [{ variable: variable, allQueries: allQueries }]
+              }
+            }
+          );
+        }
+      } else {
+        if (click.parameters[0].getType().classqueriesfrom !== undefined) {
+          var classId = click.parameters[0].getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+          if (window[classId] === undefined) {
+            window.fetchVariableThenRun(classId, () => {
+              var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+              var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+              if (allQueries.length > 0) {
+                focusSubMenu.push(
+                  {
+                    label: "Search for",
+                    icon: "",
+                    action: "",
+                    position: "left",
+                    dynamicListInjector: {
+                      handlerAction: "searchForHandler",
+                      parameters: [{ variable: variable, allQueries: allQueries }]
+                    }
+                  }
+                );
+              }
+            });
+          }
+        }
       }
       return focusSubMenu;
     case 'searchForHandler':
       var searchSubMenu = [];
-      var queries = click.parameters[1];
-      var instance = click.parameters[0]
-      for (let i = 0; i < queries.length; i++) {
-        searchSubMenu.push(
-          {
-            label: queries[i].getDescription().replace("$NAME", instance.getName()),
-            icon: "",
-            action: {
-              handlerAction: "runQueryHandler",
-              parameters: [instance, queries[i]]
-            }
-          },
-        );
+      for (let j = 0; j < click.parameters.length; j++) {
+        var queries = click.parameters[j].allQueries;
+        var instance = click.parameters[j].variable;
+        for (let i = 0; i < queries.length; i++) {
+          searchSubMenu.push(
+            {
+              label: queries[i].getDescription().replace("$NAME", instance.getName()),
+              icon: "",
+              action: {
+                handlerAction: "runQueryHandler",
+                parameters: [instance, queries[i]]
+              }
+            },
+          );
+        }
       }
       return searchSubMenu;
     case 'runQueryHandler':
@@ -230,28 +281,35 @@ export default class FocusTerm extends React.Component {
           } 
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
-        var title = null;
-        try {
-          items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
-          title = instance.getName();
-          window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
-        } catch (ignore) { }
         if (items != "i=") {
+          var title = null;
+          try {
+            items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
+            title = instance.getName();
+            window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
+          } catch (ignore) { }
+        
           if (window.history.state == null) {
             window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
           }
           var state = window.history.state.s;
           switch (state) {
           case 2:
+            // Call from history back/forward
             if (window.location.search.indexOf(items.split("&")[0]) > -1) {
               window.history.replaceState({ s:1, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
             }
             break;
           case 0:
+            // Call from new item loaded
             window.history.replaceState({ s:1, n:window.history.state.n, b:window.history.state.b, f:title }, window.history.state.n, window.location.pathname + window.history.state.u);
             if (!(("?" + items) == window.location.search)) {
               window.history.pushState({ s:1, n:title, b:window.history.state.n, f:"" }, title, window.location.pathname + "?" + items);
             }
+            break;
+          case 4:
+            // Site reloaded
+            window.history.replaceState({ s:4, n:title, b:window.history.state.b, f:window.history.state.f }, title, window.location.pathname + "?" + items);
             break;
           default:
             if (!(("?" + items) == window.location.search) && !(window.history.state.b == title)) {
@@ -303,9 +361,11 @@ export default class FocusTerm extends React.Component {
             <div className="focusTermDivL">
               <Tabs>
                 <TabList>
-                  <Tab>Adult Brain</Tab>
+                  <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
                   <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
                 </TabList>
+                <TabPanel style={{ display: "none" }}/>
+                <TabPanel style={{ display: "none" }}/>
               </Tabs>
             </div>
           </div>

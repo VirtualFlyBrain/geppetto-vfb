@@ -10,6 +10,9 @@ export default class TutorialWidget extends React.Component {
   constructor (props) {
     super(props);
 
+    this.tutorialsList = require('../configuration/tutorialsList.json');
+
+
     this.closeHandler = this.closeHandler.bind(this);
   }
 
@@ -20,11 +23,6 @@ export default class TutorialWidget extends React.Component {
   render () {
     var TutorialWidget = WidgetCapability.createWidget(Tutorial);
 
-    var tutorialsList = [
-      "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/queryTutorial.json",
-      "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/spotlightTutorial.json",
-      "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/stackTutorial.json",
-      "/org.geppetto.frontend/geppetto/extensions/geppetto-vfb/tutorials/termTutorial.json"];
     return (
       <TutorialWidget
         id={'widgetTutorial'}
@@ -35,7 +33,7 @@ export default class TutorialWidget extends React.Component {
         size={{ height: 300, width: 350 }}
         tutorialMessageClass="tutorialMessage"
         showMemoryCheckbox={true}
-        tutorialsList={tutorialsList}
+        tutorialsList={this.tutorialsList}
         closeHandler={this.closeHandler}
         isStateLess={true}
         resizable={true}
