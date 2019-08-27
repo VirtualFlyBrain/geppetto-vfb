@@ -56,7 +56,7 @@ RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${targ
   
 RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
   /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g"
-  
+
 RUN cd uk.ac.vfb.geppetto &&\
   /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
   mvn -Dhttps.protocols=TLSv1.2 -DskipTests --quiet install &&\
@@ -73,6 +73,9 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.frontend.git "${targetBr
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   $HOME/copy.sh https://github.com/VirtualFlyBrain/geppetto-vfb.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   mv geppetto-vfb webapp
+
+RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
+  /bin/grep -rls "window.location.reload(true)" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs /bin/sed -i "s@window.location.reload(true);@window.location.reload($DEBUG);@g"
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
