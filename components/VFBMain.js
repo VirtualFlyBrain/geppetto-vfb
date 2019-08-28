@@ -988,7 +988,7 @@ export default class VFBMain extends React.Component {
       }
     }
     console.error = function () {
-      if (Array.from(arguments).join("\n").indexOf('www.pixijs.com') < 0) {
+      if (Array.from(arguments).join("\n").indexOf('www.pixijs.com') < 0 && Array.from(arguments).join("\n").indexOf("Warning: Failed prop type: There should be an equal number of 'Tab' and 'TabPanel' in `UncontrolledTabs`. Received 2 'Tab' and 0 'TabPanel'.") < 0 ) {
         window.ga('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
         window.console.logs.push('- ' + Array.from(arguments).join('\n'));
         window.console.stderr.apply(console, arguments);
