@@ -812,6 +812,16 @@ export default class VFBMain extends React.Component {
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
     }
+    
+    /**
+     * Global reference to Stackviewer used in testing
+     */
+    if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null){
+      if (window.StackViewer1 == undefined || window.StackViewer == null){
+        window.StackViewer1 = this.sliceViewerReference;
+      }
+    }
+
   }
 
   componentWillMount () {
