@@ -16,6 +16,7 @@ ENV VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ENV SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
 ENV googleAnalyticsSiteCode=UA-18509775-2
 ENV MAXSIZE=2G
+ENV USESSL=false
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
