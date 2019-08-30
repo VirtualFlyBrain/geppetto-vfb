@@ -14,6 +14,7 @@ export default class FocusTerm extends React.Component {
     this.state = { currentInstance: undefined };
 
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
+    this.labels = require('../configuration/focusTermConfiguration.js').subMenusGrouping;
 
     this.menuHandler = this.menuHandler.bind(this);
     this.updateHistory = this.updateHistory.bind(this);
@@ -155,15 +156,9 @@ export default class FocusTerm extends React.Component {
       }
       return focusSubMenu;
     case 'subMenuGrouping':
-      var labels = [{ "label": "Parts of ", "keys": ["Parts of"] },
-                    { "label": "Neurons with ", "keys": ["Neurons with"] },
-                    { "label": "Images of neurons with ", "keys": ["Images of neurons with"] },
-                    { "label": "Tract/Nerves innervating here ", "keys": ["Tracts/nerves innervating"] },
-                    { "label": "Lineage clones with ", "keys": ["Lineage clones found"] },
-                    { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] }];
       var subMenus = [];
       var globalQueries = [];
-      for (let i = 0; i < labels.length; i++) {
+      for (let i = 0; i < this.labels.length; i++) {
         var subMenu = [];
         for ( let j = 0; j < click.parameters.length; j++ ) {
           var instance = click.parameters[j].variable;
@@ -173,12 +168,12 @@ export default class FocusTerm extends React.Component {
             globalQueries[instanceId] = [...queries]
           }
           for (let y = globalQueries[instanceId].length; y--;) {
-            if (labels[i].label === "Other queries ") {
+            if (this.labels[i].label === "Other queries ") {
               subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
               globalQueries[instanceId].splice(y, 1);
             } else {
-              for (let z = 0; z < labels[i].keys.length; z++) {
-                if (globalQueries[instanceId][y].getDescription().includes(labels[i].keys[z])) {
+              for (let z = 0; z < this.labels[i].keys.length; z++) {
+                if (globalQueries[instanceId][y].getDescription().includes(this.labels[i].keys[z])) {
                   subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
                   globalQueries[instanceId].splice(y, 1);
                 }
@@ -189,7 +184,7 @@ export default class FocusTerm extends React.Component {
         if (subMenu.length > 0) {
           subMenus.push(
             {
-              label: labels[i].label,
+              label: this.labels[i].label,
               icon: "",
               action: "",
               position: "left",
