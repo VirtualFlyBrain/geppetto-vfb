@@ -105,7 +105,7 @@ export default class FocusTerm extends React.Component {
                     action: "",
                     position: "left",
                     dynamicListInjector: {
-                      handlerAction: "searchForHandler",
+                      handlerAction: "subMenuGrouping",
                       parameters: [{ variable: variable, allQueries: allQueries },
                                    { variable: variable2, allQueries: allQueries2 }]
                     }
@@ -122,7 +122,7 @@ export default class FocusTerm extends React.Component {
               action: "",
               position: "left",
               dynamicListInjector: {
-                handlerAction: "searchForHandler",
+                handlerAction: "subMenuGrouping",
                 parameters: [{ variable: variable, allQueries: allQueries }]
               }
             }
@@ -143,7 +143,7 @@ export default class FocusTerm extends React.Component {
                     action: "",
                     position: "left",
                     dynamicListInjector: {
-                      handlerAction: "searchForHandler",
+                      handlerAction: "subMenuGrouping",
                       parameters: [{ variable: variable, allQueries: allQueries }]
                     }
                   }
@@ -154,6 +154,54 @@ export default class FocusTerm extends React.Component {
         }
       }
       return focusSubMenu;
+    case 'subMenuGrouping':
+      var labels = [{ "label": "Parts of ", "keys": ["Parts of"] },
+                    { "label": "Neurons with ", "keys": ["Neurons with"] },
+                    { "label": "Images of neurons with ", "keys": ["Images of neurons with"] },
+                    { "label": "Tract/Nerves innervating here ", "keys": ["Tracts/nerves innervating"] },
+                    { "label": "Lineage clones with ", "keys": ["Lineage clones found"] },
+                    { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] },
+                    { "label": "Other queries ", "keys": [] }];
+      var subMenus = [];
+      var globalQueries = [];
+      for (let i = 0; i < labels.length; i++) {
+        var subMenu = [];
+        for ( let j = 0; j < click.parameters.length; j++ ) {
+          var instance = click.parameters[j].variable;
+          if (globalQueries[instance.getId()] === undefined) {
+            var queries = click.parameters[j].allQueries;
+            globalQueries[instance.getId()] = [...queries]
+          }
+          for (var y = globalQueries[instance.getId()].length; y--;) {
+            if (labels[i].label === "Other queries ") {
+              subMenu.push({ variable: instance, allQueries: [globalQueries[instance.getId()][y]] });
+              globalQueries[instance.getId()].splice(y, 1);
+            } else {
+              for (var z = 0; z < labels[i].keys.length; z++) {
+                if (globalQueries[instance.getId()][y].getDescription().includes(labels[i].keys[z])) {
+                  subMenu.push({ variable: instance, allQueries: [globalQueries[instance.getId()][y]] });
+                  globalQueries[instance.getId()].splice(y, 1);
+                }
+              }
+            }
+          }
+        }
+        if (subMenu.length > 0) {
+          subMenus.push(
+            {
+              label: labels[i].label,
+              icon: "",
+              action: "",
+              position: "left",
+              dynamicListInjector: {
+                handlerAction: "searchForHandler",
+                parameters: subMenu
+              }
+            },
+          );
+        }
+      }
+      return subMenus;
     case 'searchForHandler':
       var searchSubMenu = [];
       for (let j = 0; j < click.parameters.length; j++) {
