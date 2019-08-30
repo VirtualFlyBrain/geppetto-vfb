@@ -160,27 +160,27 @@ export default class FocusTerm extends React.Component {
                     { "label": "Images of neurons with ", "keys": ["Images of neurons with"] },
                     { "label": "Tract/Nerves innervating here ", "keys": ["Tracts/nerves innervating"] },
                     { "label": "Lineage clones with ", "keys": ["Lineage clones found"] },
-                    { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] },
-                    { "label": "Other queries ", "keys": [] }];
+                    { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] }];
       var subMenus = [];
       var globalQueries = [];
       for (let i = 0; i < labels.length; i++) {
         var subMenu = [];
         for ( let j = 0; j < click.parameters.length; j++ ) {
           var instance = click.parameters[j].variable;
-          if (globalQueries[instance.getId()] === undefined) {
+          var instanceId = instance.getId();
+          if (globalQueries[instanceId] === undefined) {
             var queries = click.parameters[j].allQueries;
-            globalQueries[instance.getId()] = [...queries]
+            globalQueries[instanceId] = [...queries]
           }
-          for (var y = globalQueries[instance.getId()].length; y--;) {
+          for (let y = globalQueries[instanceId].length; y--;) {
             if (labels[i].label === "Other queries ") {
-              subMenu.push({ variable: instance, allQueries: [globalQueries[instance.getId()][y]] });
-              globalQueries[instance.getId()].splice(y, 1);
+              subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
+              globalQueries[instanceId].splice(y, 1);
             } else {
-              for (var z = 0; z < labels[i].keys.length; z++) {
-                if (globalQueries[instance.getId()][y].getDescription().includes(labels[i].keys[z])) {
-                  subMenu.push({ variable: instance, allQueries: [globalQueries[instance.getId()][y]] });
-                  globalQueries[instance.getId()].splice(y, 1);
+              for (let z = 0; z < labels[i].keys.length; z++) {
+                if (globalQueries[instanceId][y].getDescription().includes(labels[i].keys[z])) {
+                  subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
+                  globalQueries[instanceId].splice(y, 1);
                 }
               }
             }
@@ -199,6 +199,25 @@ export default class FocusTerm extends React.Component {
               }
             },
           );
+        }
+      }
+      for (let i = 0; i < click.parameters.length; i++) {
+        var instance = click.parameters[i].variable;
+        var instanceId = instance.getId();
+        if (globalQueries[instanceId].length > 0) {
+          for (let j = globalQueries[instanceId].length; j--;) {
+            subMenus.push(
+              {
+                label: globalQueries[instanceId][j].getDescription().replace("$NAME", instance.getName()),
+                icon: "",
+                action: {
+                  handlerAction: "runQueryHandler",
+                  parameters: [instance, globalQueries[instanceId][j]]
+                }
+              },
+            );
+            globalQueries[instanceId].splice(j, 1);
+          }
         }
       }
       return subMenus;
@@ -242,12 +261,8 @@ export default class FocusTerm extends React.Component {
       var entity = Model[otherId];
       // clear query builder unless ctrl pressed them add to compound.
       this.props.queryBuilder.open();
-      if (!GEPPETTO.isKeyPressed("shift")) {
-        this.props.queryBuilder.switchView(false, false);
-        this.props.queryBuilder.clearAllQueryItems();
-      } else {
-        this.props.queryBuilder.switchView(false, false);
-      }
+      this.props.queryBuilder.switchView(false, false);
+      this.props.queryBuilder.clearAllQueryItems();
 
       GEPPETTO.trigger('spin_logo');
       $("body").css("cursor", "progress");
