@@ -26,6 +26,7 @@ before_script:
   - docker pull metacell/java-virgo-maven:development || true
 script:
   - echo -e "travis_fold:start:eslint" || true
+  - sed -ie 's~"@geppettoengine/geppetto-client": ".*"~"@geppettoengine/geppetto-client": "openworm/geppetto-client#'$BRANCH'"~g' package.json
   - eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color
   - echo -e "travis_fold:end:eslint" || true
   - echo -e "travis_fold:start:Docker_Build" || true
