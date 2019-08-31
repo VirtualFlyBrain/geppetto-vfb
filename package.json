@@ -5,12 +5,13 @@
   "repository": "http://git.geppetto.org",
   "license": "MIT",
   "scripts": {
-    "test": "jest --runInBand",
+    "prebuild": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build": "webpack -p --progress",
+    "prebuild-dev": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev": "webpack --devtool eval",
-    "prebuild-dev-noTest": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "prebuild-dev-noTest": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev-noTest": "webpack --devtool source-map --env.noTest=true",
-    "prebuild-dev-noTest:watch": "eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color && eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
+    "prebuild-dev-noTest:watch": "eslint --ignore-pattern 'node_modules/*' . --color ; eslint ./node_modules/@geppettoengine/geppetto-client/js/**/*.js --color",
     "build-dev-noTest:watch": "webpack --devtool source-map --env.noTest=true --progress --watch",
     "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
   },
