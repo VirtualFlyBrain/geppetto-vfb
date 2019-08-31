@@ -18,7 +18,9 @@ grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/src/main/webapp | xa
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend 
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
+cd $HOME/workspace/org.geppetto.frontend/src/main/webapp
 npm install eslint babel-eslint webpack webpack-cli
+cd $HOME/workspace/org.geppetto.frontend 
 mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install
 rm -rf src
 
