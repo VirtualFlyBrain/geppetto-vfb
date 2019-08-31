@@ -21,7 +21,7 @@ before_install:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
   - export TAG=`if [ "$BUILD_TYPE" == "development" ]; then echo "$TAG-development"; else echo "$TAG"; fi`
 install:
-  - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@3.9.0 babel-preset-env@1.6.0 url-join@4.0.0
+  - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@3.9.0 babel-preset-env@1.6.0 url-join@4.0.0 eslint babel-eslint
 before_script:
   - docker pull metacell/java-virgo-maven:development || true
 script:
