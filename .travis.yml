@@ -21,16 +21,10 @@ before_install:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
   - export TAG=`if [ "$BUILD_TYPE" == "development" ]; then echo "$TAG-development"; else echo "$TAG"; fi`
 install:
-  - sed -ie 's~"@geppettoengine/geppetto-client":\ ".*"~"@geppettoengine/geppetto-client":\ "openworm/geppetto-client#'$BRANCH'"~g' package.json
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@3.9.0 babel-preset-env@1.6.0 url-join@4.0.0 eslint babel-eslint
 before_script:
   - docker pull metacell/java-virgo-maven:development || true
 script:
-  - echo -e "travis_fold:start:eslint-setup" || true
-  - npm install
-  - echo -e "travis_fold:end:eslint-setup" || true
-  - eslint --ignore-pattern 'node_modules/*' --ignore-pattern 'geppetto-client/node_modules' . --color
-  - echo -e "travis_fold:end:eslint" || true
   - echo -e "travis_fold:start:Docker_Build" || true
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1 
