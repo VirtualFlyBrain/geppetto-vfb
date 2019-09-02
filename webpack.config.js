@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var MiniCssExtractPlugin = require("mini-css-extract-plugin");
 /*
  *var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
  * <%=htmlWebpackPlugin.options.GEPPETTO_CONFIGURATION._webapp_folder%>
@@ -31,6 +31,7 @@ availableExtensions.push({ from: 'model/*', to: './', flatten: true });
 console.log(availableExtensions);
 
 module.exports = function (env){
+  // geppettoConfig._webapp_folder
   if (env != undefined){
     console.log(env);
     if (env.contextPath){
@@ -52,7 +53,7 @@ module.exports = function (env){
 
   console.log('Geppetto configuration \n');
   console.log(JSON.stringify(geppettoConfig, null, 2), '\n');
-
+  
   var entries = {
     main: path.resolve(__dirname, "Main.js"),
     admin: path.resolve(__dirname, geppetto_client_path, "js/pages/admin/admin.js"),
@@ -64,6 +65,20 @@ module.exports = function (env){
   return {
     entry: entries,
 
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          commons: {
+            name: 'common',                   
+            minChunks: 2, // Minimum # of chunks which need to contain a module before it's moved into the commons chunk.
+            chunks: 'initial', // initial, async or all
+            reuseExistingChunk: true, // use existing chunk if available instead of creating new one
+            enforce: true // form this chunk irrespective of the size of the chunk
+          }
+        }
+      }
+    },
+    
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: '[name].bundle.js',
@@ -75,8 +90,7 @@ module.exports = function (env){
        *     analyzerMode: 'static'
        * }),
        */
-      new webpack.optimize.CommonsChunkPlugin(['common']),
-      new CopyWebpackPlugin(availableExtensions, { copyUnmodified: true }),
+      new CopyWebpackPlugin(availableExtensions),
       new HtmlWebpackPlugin({
         filename: 'geppetto.vm',
         template: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/geppetto.ejs'),
@@ -112,7 +126,7 @@ module.exports = function (env){
         chunks: []
       }),
       new webpack.DefinePlugin({ 'process.env': { 'NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'), } }),
-      new ExtractTextPlugin("[name].css"),
+      new MiniCssExtractPlugin({ filename: '[name].css' })
     ],
 
     resolve: {
@@ -122,14 +136,7 @@ module.exports = function (env){
         geppetto: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/GEPPETTO.js'),
         'geppetto-client-initialization': path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/main'),
         handlebars: 'handlebars/dist/handlebars.js'
-
       },
-      // symlinks: true,
-      modules: [
-        path.resolve(__dirname, 'geppetto-client', 'node_modules'),
-        path.resolve(__dirname, geppetto_client_path, 'node_modules'),
-        'node_modules'
-      ],
       extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx'],
     },
 
@@ -139,7 +146,7 @@ module.exports = function (env){
           test: /\.(js|jsx)$/,
           exclude: [/ami.min.js/, /node_modules\/(?!(@geppettoengine\/geppetto-client)\/).*/], 
           loader: 'babel-loader',
-          query: { presets: [['babel-preset-env', { "modules": false }], 'stage-2', 'react'] }
+          query: { presets: [['@babel/preset-env', { "modules": false }], '@babel/preset-react'] }
         },
         // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
         {
@@ -160,10 +167,10 @@ module.exports = function (env){
         },
         {
           test: /\.css$/,
-          use: ExtractTextPlugin.extract({
-            fallback: "style-loader",
-            use: "css-loader"
-          })
+          use: [
+            { loader: MiniCssExtractPlugin.loader },
+            { loader: "css-loader" }
+          ]
         },
         {
           test: /\.less$/,
