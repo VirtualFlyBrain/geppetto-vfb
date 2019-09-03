@@ -555,8 +555,7 @@ export default class VFBMain extends React.Component {
     let modelChildren = tempModel.getRoot().getChildren();
     // const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
     if (modelChildren.length <= 1) {
-      let tabSet: TabSetNode | undefined;
-      tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
+      let tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
       rootNode._addChild(tabSet);
       this.model.doAction(FlexLayout.Actions.addNode(json, tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
     } else {
@@ -585,8 +584,7 @@ export default class VFBMain extends React.Component {
     let modelChildren = tempModel.getRoot().getChildren();
     // const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
     if (modelChildren.length <= 1) {
-      let tabSet: TabSetNode | undefined;
-      tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
+      let tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset", weight: 50 });
       rootNode._addChild(tabSet);
       var borders = tempModel.getBorderSet().getBorders();
       for (var i = 0; i < borders.length; i++) {
@@ -1045,7 +1043,7 @@ export default class VFBMain extends React.Component {
     }
 
     var key = 0;
-    var onRenderTabSet = function (node:(TabSetNode), renderValues:any) {
+    var onRenderTabSet = function (node, renderValues) {
       if (node.getType() === "tabset") {
         renderValues.buttons.push(<div key={key} className="fa fa-window-minimize customIconFlexLayout" onClick={() => {
           this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_bottom", FlexLayout.DockLocation.CENTER, 0));
@@ -1056,7 +1054,7 @@ export default class VFBMain extends React.Component {
 
     key = 0;
 
-    var clickOnBordersAction = function (node:(TabNode)) {
+    var clickOnBordersAction = function (node) {
       let idChild = 0;
       let rightChild = 0;
       let tempModel = node.getModel();
@@ -1065,8 +1063,7 @@ export default class VFBMain extends React.Component {
       // const fromNode = this._idMap[action.data["fromNode"]] as (Node & IDraggable);
       if (node instanceof FlexLayout.TabNode || node instanceof FlexLayout.TabSetNode) {
         if (modelChildren.length <= 1) {
-          let tabSet: TabSetNode | undefined;
-          tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset" });
+          let tabSet = new FlexLayout.TabSetNode(tempModel, { type: "tabset" });
           rootNode._addChild(tabSet);
           this.model.doAction(FlexLayout.Actions.moveNode(node.getId(), tabSet.getId(), FlexLayout.DockLocation.BOTTOM, 0));
           // tabSet.drop(tabNode, DockLocation.BOTTOM, 0);

@@ -81,7 +81,9 @@ var focusTermConfiguration = {
         paddingTop: 0,
         paddingBottom: 0,
         fontSize: '15px',
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       },
       hover: {
         background: "#11bffe",
@@ -92,7 +94,9 @@ var focusTermConfiguration = {
         paddingTop: 0,
         paddingBottom: 0,
         fontSize: '15px',
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       }
     }
   },
