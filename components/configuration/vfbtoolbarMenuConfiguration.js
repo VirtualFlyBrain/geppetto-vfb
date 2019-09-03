@@ -61,12 +61,13 @@ var toolbarMenu = {
         fontSize: '12px',
         fontFamily: 'Khand, sans-serif',
         minWidth: '110px',
+        borderTop: '1px solid #585858',
         borderLeft: '1px solid #585858',
         borderRight: '1px solid #585858',
         borderBottom: '1px solid #585858',
         borderBottomLeftRadius: '2px',
         borderBottomRightRadius: '2px',
-        fontWeight: '300'
+        fontWeight: '300',
       }
     },
     labelsStyle: {
@@ -78,7 +79,9 @@ var toolbarMenu = {
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       },
       hover: {
         background: "#11bffe",
@@ -89,7 +92,9 @@ var toolbarMenu = {
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       }
     }
   },
