@@ -257,7 +257,9 @@ export default class FocusTerm extends React.Component {
       // clear query builder unless ctrl pressed them add to compound.
       this.props.queryBuilder.open();
       this.props.queryBuilder.switchView(false, false);
-      this.props.queryBuilder.clearAllQueryItems();
+      if (!GEPPETTO.isKeyPressed("shift")) {
+        this.props.queryBuilder.clearAllQueryItems();
+      }
 
       GEPPETTO.trigger('spin_logo');
       $("body").css("cursor", "progress");
