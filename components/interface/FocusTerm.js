@@ -14,6 +14,7 @@ export default class FocusTerm extends React.Component {
     this.state = { currentInstance: undefined };
 
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
+    this.labels = require('../configuration/focusTermConfiguration.js').subMenusGrouping;
 
     this.menuHandler = this.menuHandler.bind(this);
     this.updateHistory = this.updateHistory.bind(this);
@@ -105,7 +106,7 @@ export default class FocusTerm extends React.Component {
                     action: "",
                     position: "left",
                     dynamicListInjector: {
-                      handlerAction: "searchForHandler",
+                      handlerAction: "subMenuGrouping",
                       parameters: [{ variable: variable, allQueries: allQueries },
                                    { variable: variable2, allQueries: allQueries2 }]
                     }
@@ -122,7 +123,7 @@ export default class FocusTerm extends React.Component {
               action: "",
               position: "left",
               dynamicListInjector: {
-                handlerAction: "searchForHandler",
+                handlerAction: "subMenuGrouping",
                 parameters: [{ variable: variable, allQueries: allQueries }]
               }
             }
@@ -143,7 +144,7 @@ export default class FocusTerm extends React.Component {
                     action: "",
                     position: "left",
                     dynamicListInjector: {
-                      handlerAction: "searchForHandler",
+                      handlerAction: "subMenuGrouping",
                       parameters: [{ variable: variable, allQueries: allQueries }]
                     }
                   }
@@ -154,6 +155,67 @@ export default class FocusTerm extends React.Component {
         }
       }
       return focusSubMenu;
+    case 'subMenuGrouping':
+      var subMenus = [];
+      var globalQueries = [];
+      for (let i = 0; i < this.labels.length; i++) {
+        var subMenu = [];
+        for ( let j = 0; j < click.parameters.length; j++ ) {
+          var instance = click.parameters[j].variable;
+          var instanceId = instance.getId();
+          if (globalQueries[instanceId] === undefined) {
+            var queries = click.parameters[j].allQueries;
+            globalQueries[instanceId] = [...queries]
+          }
+          for (let y = globalQueries[instanceId].length; y--;) {
+            if (this.labels[i].label === "Other queries ") {
+              subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
+              globalQueries[instanceId].splice(y, 1);
+            } else {
+              for (let z = 0; z < this.labels[i].keys.length; z++) {
+                if (globalQueries[instanceId][y].getDescription().includes(this.labels[i].keys[z])) {
+                  subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
+                  globalQueries[instanceId].splice(y, 1);
+                }
+              }
+            }
+          }
+        }
+        if (subMenu.length > 0) {
+          subMenus.push(
+            {
+              label: this.labels[i].label,
+              icon: "",
+              action: "",
+              position: "left",
+              dynamicListInjector: {
+                handlerAction: "searchForHandler",
+                parameters: subMenu
+              }
+            },
+          );
+        }
+      }
+      for (let i = 0; i < click.parameters.length; i++) {
+        var instance = click.parameters[i].variable;
+        var instanceId = instance.getId();
+        if (globalQueries[instanceId].length > 0) {
+          for (let j = globalQueries[instanceId].length; j--;) {
+            subMenus.push(
+              {
+                label: globalQueries[instanceId][j].getDescription().replace("$NAME", instance.getName()),
+                icon: "",
+                action: {
+                  handlerAction: "runQueryHandler",
+                  parameters: [instance, globalQueries[instanceId][j]]
+                }
+              },
+            );
+            globalQueries[instanceId].splice(j, 1);
+          }
+        }
+      }
+      return subMenus;
     case 'searchForHandler':
       var searchSubMenu = [];
       for (let j = 0; j < click.parameters.length; j++) {
@@ -194,11 +256,9 @@ export default class FocusTerm extends React.Component {
       var entity = Model[otherId];
       // clear query builder unless ctrl pressed them add to compound.
       this.props.queryBuilder.open();
+      this.props.queryBuilder.switchView(false, false);
       if (!GEPPETTO.isKeyPressed("shift")) {
-        this.props.queryBuilder.switchView(false, false);
         this.props.queryBuilder.clearAllQueryItems();
-      } else {
-        this.props.queryBuilder.switchView(false, false);
       }
 
       GEPPETTO.trigger('spin_logo');
