@@ -81,7 +81,9 @@ var focusTermConfiguration = {
         paddingTop: 0,
         paddingBottom: 0,
         fontSize: '15px',
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       },
       hover: {
         background: "#11bffe",
@@ -92,7 +94,9 @@ var focusTermConfiguration = {
         paddingTop: 0,
         paddingBottom: 0,
         fontSize: '15px',
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       }
     }
   },
@@ -110,4 +114,11 @@ var focusTermConfiguration = {
   ]
 };
 
-module.exports = { focusTermConfiguration };
+var subMenusGrouping = [{ "label": "Parts of ", "keys": ["Parts of"] },
+                        { "label": "Neurons with ", "keys": ["Neurons with"] },
+                        { "label": "Images of neurons with ", "keys": ["Images of neurons with"] },
+                        { "label": "Tract/Nerves innervating here ", "keys": ["Tracts/nerves innervating"] },
+                        { "label": "Lineage clones with ", "keys": ["Lineage clones found"] },
+                        { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] }];
+
+module.exports = { focusTermConfiguration, subMenusGrouping };

@@ -5,4 +5,4 @@ META-INF/*
 **/tests/casperjs/**/*.js
 **/tests/jest/**/*.js
 **/*min.js
-!node_modules/*
+geppetto-client/node_modules/*
