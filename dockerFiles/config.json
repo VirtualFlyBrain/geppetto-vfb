@@ -1,0 +1,40 @@
+{
+  "sourcesdir": "..//..//..//",
+  "repos": [
+    {
+      "name": "org.geppetto.core",
+      "url": "",
+      "auto_install": "yes"
+    },
+    {
+      "name": "org.geppetto.datasources",
+      "url": "",
+      "auto_install": "yes"
+    },
+    {
+      "name": "org.geppetto.frontend",
+      "url": "",
+      "auto_install": "yes"
+    },
+    {
+      "name": "org.geppetto.model",
+      "url": "",
+      "auto_install": "yes"
+    },
+    {
+      "name": "org.geppetto.model.swc",
+      "url": "",
+      "auto_install": "yes"
+    },
+    {
+      "name": "org.geppetto.simulation",
+      "url": "",
+      "auto_install": "yes"
+    },
+    {
+      "name": "uk.ac.vfb.geppetto",
+      "url": "",
+      "auto_install": "yes"
+    }
+  ]
+}

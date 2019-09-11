@@ -1,0 +1,18 @@
+{
+  "_README" : "http://docs.geppetto.org/en/latest/build.html",
+  "contextPath": "org.geppetto.frontend",
+  "useSsl": true,
+  "embedded": false,
+  "embedderURL": ["/"],
+  "rootRedirect":"",
+  "noTest": false,
+  "themes": "css/colors",
+  "properties": {
+    "title" : "Virtual Fly Brain",
+    "description": "Virtual Fly Brain",
+    "type": "website",
+    "url": "http://v2.virtualflybrain.org",
+    "icon" :"https://v2.virtualflybrain.org/images/vfbbrain_icon.png",
+    "image": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png"
+  }
+}

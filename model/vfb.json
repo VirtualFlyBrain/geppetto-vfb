@@ -1,0 +1,20 @@
+{
+    "id": 1,
+    "name": "Virtual Fly Brain",
+    "activeExperimentId": 1,
+    "experiments": [
+        {
+            "id": 1,
+            "name": "Virtual Fly Brain",
+            "status": "COMPLETED",
+            "description": "Virtual Fly Brain",
+            "lastModified": "1492026520709",
+            "aspectConfigurations": []
+        }
+    ],
+    "geppettoModel": {
+        "id": 9,
+        "url": "/vfb.xmi",
+        "type": "GEPPETTO_PROJECT"
+    }
+}

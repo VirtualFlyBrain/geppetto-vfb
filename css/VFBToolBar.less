@@ -1,0 +1,280 @@
+.vfbToolBar {
+	overflow: hidden;
+    padding: 1em;
+	border-bottom: 0;
+	margin-top: -20px;
+
+	a {
+		color: #FFF;
+	}
+
+	a:visited {
+		color: #FFF;
+	}
+
+	.navWide {
+		display: none;
+		margin: 0 auto;
+
+		.wideDiv {
+			text-align: center;
+
+			a {
+				text-decoration: none;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 0 2em;
+			}
+		}
+    }
+
+    .toolBarLeft {
+		float: left;
+		left: -20px;
+		margin-left: -20px;
+        margin: 0 auto;
+        padding : 0 0 0 1em;
+
+
+		.toolBarDivL {
+			text-align: left;
+			left: -20px;
+			margin-left: -20px;
+			margin-top: 3px;
+
+			a {
+				color: whitesmoke !important;
+                text-decoration: none;
+                font-family: 'Khand', sans-serif;
+                font-size: 18px;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 0 2em;
+            }
+
+            b, strong {
+                font-weight: 700;
+            }
+
+            .uk-visible-large {
+                color: #0d96c7;
+                margin-left: 8px;
+                font-size: 13px;
+            }
+		}
+    }
+
+    .toolBarCenter {
+		margin: 0 auto;
+		width: 25%;
+		padding-top : 1em;
+
+		.toolBarDivC {
+			text-align: center;
+
+			a {
+				color: whitesmoke !important;
+                text-decoration: none;
+                font-family: 'Khand', sans-serif;
+                font-size: 18px;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 0 2em;
+            }
+
+            b, strong {
+                font-weight: 700;
+            }
+
+            .uk-visible-large {
+                color: #0d96c7;
+                margin-left: 8px;
+                font-size: 13px;
+            }
+		}
+    }
+
+    .toolBarRight {
+		margin-top: -40px;
+		float: right;
+		padding-top : 1em;
+
+		.toolBarDivR {
+			text-align: left;
+
+			a {
+				color: #0d96c7;
+				font-size: 15px;
+				text-decoration: none;
+				cursor: pointer;
+				font-family: 'Khand', sans-serif;
+				display: inline-block;
+				// Adjust padding to increase/decrease the space between links.
+				padding: 2px;
+			}
+
+			a:hover {
+				color: white;
+			}
+
+			.linkGroup {
+				padding: 10px;
+			}
+		}
+    }
+
+	// Navbar is set to default with the "hamburger" and links on the left
+	// side of the screen. To move to the right of the screen, simply
+	// change the three "float: Left;" references to read "float: right;".
+	.navNarrow {
+
+		i {
+			float: left;
+			cursor: pointer;
+			color: #FFF;
+		}
+
+		.narrowLinks {
+			display: none;
+
+			a {
+				text-decoration: none;
+				display: block;
+				float: left;
+				clear: left;
+				padding: 0.5em 0;
+			}
+		}
+	}
+}
+
+// Adjust breakpoint as desired to select when the "hamburger" menu is
+// replaced by just the links.
+@media (min-width: 480px) {
+	
+	nav {
+
+		.navWide {
+			display: block;
+		}
+
+		.navNarrow {
+			display: none;
+		}
+	}
+}
+
+#HTMLViewerContainer_component:focus {
+    outline: none;
+}
+
+#vfb-content-text {
+    height: 89%;
+    overflow-y: auto;
+    color: whitesmoke;
+    padding: 20px;
+}
+
+#vfb-content-text::-webkit-scrollbar{
+    width: -1px;
+    background:lightgrey; 
+}
+
+#vfb-content-text::-webkit-scrollbar-thumb {
+    background:grey; 
+}
+
+#vfb-content-text h2{
+    margin: 0 0 15px 0;
+    font-family: 'Khand', sans-serif;
+    color: #11bffe;
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 400;
+    text-transform: none;
+}
+
+.callout-fullscreen{
+    position: absolute;
+    padding: 3%;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+}
+.callout.vfbcontent {
+    background: rgba(100, 100, 100, 0.80);
+    position: absolute;
+    width: 100%;
+    z-index: 2000  !important;
+    height: 100%;
+}
+
+.callout.vfbcontent .close-button {
+    background: transparent;
+    float: right;
+    padding: 0px;
+}
+.callout.vfbcontent .close-button span {
+    font-size: xx-large;
+    color: #11bffe;
+    font-weight: bold;
+}
+
+.close-slider{
+    position: absolute; 
+    right:3px;
+    top:0px;
+    color:#11bffe;
+    font-size: 18px;
+    cursor: pointer;
+    background: transparent;
+    z-index : 9999 !important;
+}
+
+.close-slider:hover{
+    color:white;
+    background: transparent;
+}
+
+.vfbcontent div p {
+    font-size: 14px;
+    font-weight: 200;
+    color: whitesmoke;
+    margin : 15px 0 15px 0;
+}
+
+.vfbcontent div b {
+    font-weight: 700;
+    color: #fff;
+}
+
+::selection {
+    background: #39f;
+    color: #fff;
+    text-shadow: none;
+}
+
+.vfbcontent div .fa {
+    background: rgba(66, 59, 59, 0.8);
+    color: #11bffe;
+    box-sizing: border-box;
+    padding: 2px 6px 3px;
+    border-width: 2px;
+}
+.vfbcontent div h1, .vfbcontent div h2, .vfbcontent div h3, .vfbcontent div h4, .vfbcontent div h5, .vfbcontent div h6 {
+    color: #11bffe;
+}
+.vfbcontent div small{
+    color: #11bffe;
+}
+
+.htmlViewerVFB {
+	width : 94% !important;
+	height : 85% !important;
+	max-width : 94% !important;
+	max-height : 85% !important;
+	overflow-y: hidden !important;
+}

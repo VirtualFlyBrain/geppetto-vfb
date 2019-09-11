@@ -4,7 +4,7 @@ if (urlBase == null || urlBase == undefined) {
 }
 
 var DASHBOARD_URL = urlBase + "org.geppetto.frontend/";
-var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?load_project_from_url=http://v2.virtualflybrain.org/conf/vfb.json&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+var PROJECT_URL = urlBase + "org.geppetto.frontend/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 casper.test.begin('VFB Batch request tests', function suite(test) {
     casper.options.viewportSize = {
@@ -47,19 +47,20 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
                 this.wait(10000);
                 this.waitForSelector('#VFB_00030880_deselect_buttonBar_btn', function () {
                     this.echo("Element ventral complex on adult brain template JFRC2 appeared in popup");
-                    test.assertVisible('div[id=Popup1_VFB_00030880_metadata_el_1]', 'Term info correctly populated  for JFRC2_template after load VFB_00030880 as last in the list');
+                    test.assertExists('div#VFBTermInfo_el_1_component', 'Term info correctly populated on load');
+                    test.assertTextExists('ventral complex on adult brain template JFRC2 (VFB_00030880)', 'Term info correctly populated on load');
                     test.assertExists('button[id=VFB_00030880_zoom_buttonBar_btn]', 'Term info button bar button created 1');
-                }, null, 50000);
+                }, null, 100000);
             });
         });
     });
 
     casper.then(function () {
         var canvasMeshes = this.evaluate(function () {
-            return Object.keys(Canvas1.engine.meshes).length;
+            return Object.keys(CanvasContainer.engine.meshes).length;
         });
 
-        test.assertEquals(canvasMeshes, 5, "Canvas1 has 5 mesh");
+        test.assertEquals(canvasMeshes, 5, "CanvasContainer has 5 mesh");
 
         var stackViewerMeshes = this.evaluate(function () {
             return Object.keys(StackViewer1.canvasRef.engine.meshes).length;
@@ -74,7 +75,7 @@ casper.test.begin('VFB Batch request tests', function suite(test) {
 
     casper.then(function () {
         casper.echo("Opening controls panel");
-        buttonClick("#controlPanelBtn");
+        buttonClick("#controlPanelVisible");
     });
 
     casper.then(function () {
