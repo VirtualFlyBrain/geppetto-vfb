@@ -93,6 +93,7 @@ export default class VFBMain extends React.Component {
     this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
     this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
+    this.sorterColumn = require('./configuration/queryBuilderConfiguration').sorterColumn;
 
     this.idForTermInfo = undefined;
     this.model = FlexLayout.Model.fromJson(modelJson)

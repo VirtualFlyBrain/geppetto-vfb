@@ -10,7 +10,7 @@ var queryResultsColMeta = [
     "order": 1,
     "locked": false,
     "visible": true,
-    "displayName": "ID",
+    "displayName": "ID"
   },
   {
     "columnName": "name",
@@ -22,7 +22,7 @@ var queryResultsColMeta = [
     "entityIndex": 0,
     "entityDelimiter": "----",
     "displayName": "Name",
-    "cssClassName": "query-results-name-column",
+    "cssClassName": "query-results-name-column"
   },
   {
     "columnName": "expressed_in",
@@ -91,7 +91,8 @@ var queryResultsColMeta = [
     "customComponent": SlideshowImageComponent,
     "displayName": "Images",
     "actions": "window.addVfbId('$entity$');",
-    "cssClassName": "query-results-images-column"
+    "cssClassName": "query-results-images-column",
+    "sortable": false
   },
   {
     "columnName": "score",
@@ -267,9 +268,12 @@ var queryBuilderDatasourceConfig = {
   }
 };
 
+var sorterColumn = "name";
+
 module.exports = {
   queryResultsColMeta,
   queryResultsColumns,
   queryResultsControlConfig,
-  queryBuilderDatasourceConfig
+  queryBuilderDatasourceConfig,
+  sorterColumn
 };
