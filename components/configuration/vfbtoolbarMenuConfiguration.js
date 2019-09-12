@@ -317,14 +317,6 @@ var toolbarMenu = {
       position: "bottom-start",
       list: [
         {
-          label: "Start Tutorial",
-          icon: "",
-          action: {
-            handlerAction: "UIElementHandler",
-            parameters: ["tutorialWidgetVisible"]
-          }
-        },
-        {
           label: "F.A.Q.",
           icon: "",
           action: {
