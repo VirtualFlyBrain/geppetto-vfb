@@ -18,7 +18,7 @@ require('geppetto-client/js/components/widgets/popup/vendor/slick-theme.less');
 
 class VFBTermInfo extends React.Component {
 
-  constructor(props) {
+  constructor (props) {
     super(props);
 
     this.state = {
@@ -53,18 +53,18 @@ class VFBTermInfo extends React.Component {
   }
 
 
-  close() {
+  close () {
     this.hide();
     this.props.termInfoHandler();
   }
 
 
-  open() {
+  open () {
     this.show();
   }
 
 
-  setData(anyInstance) {
+  setData (anyInstance) {
     this.addToHistory(anyInstance.getName(), "setData", [anyInstance], this.props.id);
 
     this.getHTML(anyInstance, "vfbTermInfoWidgetInnerID");
@@ -79,12 +79,12 @@ class VFBTermInfo extends React.Component {
     }
   }
 
-  setName(input) {
+  setName (input) {
     this.name = input;
   }
 
 
-  getHTML(anyInstance, id, counter) {
+  getHTML (anyInstance, id, counter) {
     var anchorOptions = {
       "attributes": {
         "target": "_blank",
@@ -196,13 +196,13 @@ class VFBTermInfo extends React.Component {
    * Method to hookup the images into the slider, avoided to re-call this logic on all the term info due
    * to performances but also to the fact that the query were appended eachother.
    */
-  hookupImages(idKey) {
+  hookupImages (idKey) {
     this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
     this.hookupCustomHandler(this.innerHandler, $("#" + this.sliderId + idKey), undefined);
   }
 
 
-  addToHistory(label, method, args, id) {
+  addToHistory (label, method, args, id) {
     if (window.historyWidgetCapability == undefined) {
       window.historyWidgetCapability = [];
 
@@ -245,182 +245,183 @@ class VFBTermInfo extends React.Component {
   }
 
 
-  hookupCustomHandler(handler, popupDOM, popup) {
+  hookupCustomHandler (handler, popupDOM, popup) {
+    if (handler.hooked === false) {
     // set hooked to avoid double triggers
-    handler.hooked = true;
-    // Find and iterate <a> element with an instancepath attribute
-    popupDOM.find("a[data-instancepath]").each(function () {
-      var fun = handler.funct;
-      var ev = handler.event;
-      var metaType = handler.meta;
-      var path = $(this).attr("data-instancepath").replace(/\$/g, "");
-      var node;
+      handler.hooked = true;
+      // Find and iterate <a> element with an instancepath attribute
+      popupDOM.find("a[data-instancepath]").each(function () {
+        var fun = handler.funct;
+        var ev = handler.event;
+        var metaType = handler.meta;
+        var path = $(this).attr("data-instancepath").replace(/\$/g, "");
+        var node;
 
-      try {
-        node = eval(path);
-      } catch (ex) {
+        try {
+          node = eval(path);
+        } catch (ex) {
         // if instance path doesn't exist set path to undefined
-        node = undefined;
-      }
+          node = undefined;
+        }
 
-      // hookup IF domain type is undefined OR it's defined and it matches the node type
-      if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
+        // hookup IF domain type is undefined OR it's defined and it matches the node type
+        if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
         // hookup custom handler
-        var that = this;
-        $(that).off();
-        $(that).on(ev, function () {
+          var that = this;
+          $(that).off();
+          $(that).on(ev, function () {
           // invoke custom handler with instancepath as arg
-          fun(node, path, popup);
-          // stop default event handler of the anchor from doing anything
-          return false;
-        });
-      }
-    });
-  }
-}
-
-
-renderButtonBar(anyInstance) {
-  var that = this;
-  var buttonBarContainer = 'button-bar-container-' + this.props.id;
-  var barDiv = 'bar-div-' + this.props.id;
-  if (this.buttonBar != undefined) {
-    ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
-    $("#" + buttonBarContainer).remove();
-  }
-
-  $("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
-  $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
-
-  var instance = null;
-  var instancePath = '';
-
-  if (this.props.buttonBarConfiguration.filter != null && this.props.buttonBarConfiguration.filter != undefined) {
-    if (anyInstance != null && anyInstance != undefined) {
-      instance = this.props.buttonBarConfiguration.filter(anyInstance);
-      instancePath = instance.getPath();
+            fun(node, path, popup);
+            // stop default event handler of the anchor from doing anything
+            return false;
+          });
+        }
+      });
     }
   }
-  var originalZIndex = $("#" + this.id).parent().css("z-index");
-  this.buttonBar = ReactDOM.render(
-    React.createElement(ButtonBarComponent, {
-      buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
-      instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () {
+
+
+  renderButtonBar (anyInstance) {
+    var that = this;
+    var buttonBarContainer = 'button-bar-container-' + this.props.id;
+    var barDiv = 'bar-div-' + this.props.id;
+    if (this.buttonBar != undefined) {
+      ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
+      $("#" + buttonBarContainer).remove();
+    }
+
+    $("<div id='" + buttonBarContainer + "' class='button-bar-container'><div id='" + barDiv + "' class='button-bar-div'></div></div>").insertBefore(this.refs.termInfoInnerRef);
+    $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
+
+    var instance = null;
+    var instancePath = '';
+
+    if (this.props.buttonBarConfiguration.filter != null && this.props.buttonBarConfiguration.filter != undefined) {
+      if (anyInstance != null && anyInstance != undefined) {
+        instance = this.props.buttonBarConfiguration.filter(anyInstance);
+        instancePath = instance.getPath();
+      }
+    }
+    var originalZIndex = $("#" + this.id).parent().css("z-index");
+    this.buttonBar = ReactDOM.render(
+      React.createElement(ButtonBarComponent, {
+        buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
+        instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () {
         /*
          * that.setSize(that.size.height, that.size.width);
          * This was to handle the resize of the widget before, it's not required now since
          * FlexLayout will handle that.
          */
-      }
-    }),
-    document.getElementById(barDiv)
-  );
+        }
+      }),
+      document.getElementById(barDiv)
+    );
 
-  $("#" + this.props.id).parent().css('z-index', originalZIndex);
-}
-
-
-getVariable(node) {
-  if (node.getMetaType() == GEPPETTO.Resources.INSTANCE_NODE) {
-    return node.getVariable();
-  } else {
-    return node;
+    $("#" + this.props.id).parent().css('z-index', originalZIndex);
   }
-}
 
-componentDidMount() {
-  const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-  this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
-  this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
 
-  GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
-    console.log('Deleting ' + path.split('.')[0] + ' from the history');
-    if (path != undefined && path.length > 0) {
-      for (var i = 0; i < window.historyWidgetCapability.vfbterminfowidget.length; i++) {
-        if (path.indexOf(window.historyWidgetCapability.vfbterminfowidget[i].arguments[0].getId())) {
-          window.historyWidgetCapability.vfbterminfowidget.splice(i, 1);
+  getVariable (node) {
+    if (node.getMetaType() == GEPPETTO.Resources.INSTANCE_NODE) {
+      return node.getVariable();
+    } else {
+      return node;
+    }
+  }
+
+  componentDidMount () {
+    const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
+    this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
+    this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+
+    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
+      console.log('Deleting ' + path.split('.')[0] + ' from the history');
+      if (path != undefined && path.length > 0) {
+        for (var i = 0; i < window.historyWidgetCapability.vfbterminfowidget.length; i++) {
+          if (path.indexOf(window.historyWidgetCapability.vfbterminfowidget[i].arguments[0].getId())) {
+            window.historyWidgetCapability.vfbterminfowidget.splice(i, 1);
+          }
+        }
+      } else {
+        console.log('Removing instance issue: ' + path);
+      }
+    }.bind(this));
+  }
+
+
+  componentDidUpdate (prevProps, prevState) {
+    const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
+    if (this.state.termInfoId !== this.innerHandler.id) {
+      this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false };
+      this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+    }
+    if (document.getElementById('bar-div-vfbterminfowidget') !== null) {
+      $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
+    }
+  }
+
+  render () {
+    var toRender = undefined;
+    if (this.contentTermInfo.values === undefined || this.contentTermInfo.values.length == 0) {
+      this.contentTermInfo.keys = this.contentBackup.keys.slice();
+      this.contentTermInfo.values = this.contentBackup.values.slice();
+    }
+    if ((this.props.order !== undefined) && (this.props.order.length > 0)) {
+      this.contentBackup.keys = this.contentTermInfo.keys.slice();
+      this.contentBackup.values = this.contentTermInfo.values.slice();
+      var tempArray = [];
+      if ((this.props.exclude !== undefined) && (this.props.exclude.length > 0)) {
+        for (var x = 0; x < this.props.exclude.length; x++) {
+          var index = this.contentTermInfo.keys.indexOf(this.props.exclude[x]);
+          if (index > -1) {
+            this.contentTermInfo.keys.splice(index, 1);
+            this.contentTermInfo.values.splice(index, 1);
+          }
         }
       }
-    } else {
-      console.log('Removing instance issue: ' + path);
-    }
-  }.bind(this));
-}
-
-
-componentDidUpdate(prevProps, prevState) {
-  const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
-  if (this.state.termInfoId !== this.innerHandler.id) {
-    this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false };
-    this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
-  }
-  if (document.getElementById('bar-div-vfbterminfowidget') !== null) {
-    $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
-  }
-}
-
-render() {
-  var toRender = undefined;
-  if (this.contentTermInfo.values === undefined || this.contentTermInfo.values.length == 0) {
-    this.contentTermInfo.keys = this.contentBackup.keys.slice();
-    this.contentTermInfo.values = this.contentBackup.values.slice();
-  }
-  if ((this.props.order !== undefined) && (this.props.order.length > 0)) {
-    this.contentBackup.keys = this.contentTermInfo.keys.slice();
-    this.contentBackup.values = this.contentTermInfo.values.slice();
-    var tempArray = [];
-    if ((this.props.exclude !== undefined) && (this.props.exclude.length > 0)) {
-      for (var x = 0; x < this.props.exclude.length; x++) {
-        var index = this.contentTermInfo.keys.indexOf(this.props.exclude[x]);
+      for (var x = 0; x < this.props.order.length; x++) {
+        var index = this.contentTermInfo.keys.indexOf(this.props.order[x]);
         if (index > -1) {
+          tempArray.push(this.contentTermInfo.values[index]);
           this.contentTermInfo.keys.splice(index, 1);
           this.contentTermInfo.values.splice(index, 1);
         }
       }
-    }
-    for (var x = 0; x < this.props.order.length; x++) {
-      var index = this.contentTermInfo.keys.indexOf(this.props.order[x]);
-      if (index > -1) {
-        tempArray.push(this.contentTermInfo.values[index]);
-        this.contentTermInfo.keys.splice(index, 1);
-        this.contentTermInfo.values.splice(index, 1);
+      if (this.contentTermInfo.keys.length > 0) {
+        for (var j = 0; j < this.contentTermInfo.keys.length; j++) {
+          tempArray.push(this.contentTermInfo.values[j]);
+        }
       }
+      toRender = tempArray.map((item, key) => {
+        var Item = React.cloneElement(item);
+        return (
+          <div key={key}> {Item} </div>
+        );
+      });
+      this.contentTermInfo.keys = [];
+      this.contentTermInfo.values = [];
+    } else {
+      toRender = this.contentTermInfo.values.map((item, key) => {
+        var Item = React.cloneElement(item);
+        return (
+          <div key={key}> {Item} </div>
+        );
+      });
+      this.contentBackup.keys = this.contentTermInfo.keys;
+      this.contentTermInfo.keys = [];
+      this.contentBackup.values = this.contentTermInfo.values;
+      this.contentTermInfo.values = [];
     }
-    if (this.contentTermInfo.keys.length > 0) {
-      for (var j = 0; j < this.contentTermInfo.keys.length; j++) {
-        tempArray.push(this.contentTermInfo.values[j]);
-      }
-    }
-    toRender = tempArray.map((item, key) => {
-      var Item = React.cloneElement(item);
-      return (
-        <div key={key}> {Item} </div>
-      );
-    });
-    this.contentTermInfo.keys = [];
-    this.contentTermInfo.values = [];
-  } else {
-    toRender = this.contentTermInfo.values.map((item, key) => {
-      var Item = React.cloneElement(item);
-      return (
-        <div key={key}> {Item} </div>
-      );
-    });
-    this.contentBackup.keys = this.contentTermInfo.keys;
-    this.contentTermInfo.keys = [];
-    this.contentBackup.values = this.contentTermInfo.values;
-    this.contentTermInfo.values = [];
+    return (
+      <div id={this.props.id} ref="termInfoInnerRef">
+        {toRender}
+      </div>);
   }
-  return (
-    <div id={this.props.id} ref="termInfoInnerRef">
-      {toRender}
-    </div>);
-}
 }
 
 export default class VFBTermInfoWidget extends React.Component {
 
-  constructor(props) {
+  constructor (props) {
     super(props);
 
     this.state = {
@@ -441,7 +442,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
     this.buttonBarConfiguration = {
       "Events": ["color:set", "experiment:selection_changed", "experiment:visibility_changed"],
-      "filter": function filter(instancePath) {
+      "filter": function filter (instancePath) {
         if (typeof (instancePath) == "string") {
           return Instances.getInstance(instancePath).getParent();
         }
@@ -529,41 +530,41 @@ export default class VFBTermInfoWidget extends React.Component {
 
     this.buttonBarControls = {
       "VisualCapability": ['select',
-        'color',
-        'visibility_obj',
-        'visibility_swc',
-        'zoom',
-        'delete']
+                           'color',
+                           'visibility_obj',
+                           'visibility_swc',
+                           'zoom',
+                           'delete']
     };
 
     this.data = [];
     this.idWidget = "vfbterminfowidget";
   }
 
-  getTermInfoDefaultWidth() {
+  getTermInfoDefaultWidth () {
     return Math.ceil(window.innerWidth / 4);
   }
 
-  getTermInfoDefaultHeight() {
+  getTermInfoDefaultHeight () {
     return ((window.innerHeight - Math.ceil(window.innerHeight / 4)) - 65);
   }
 
-  getTermInfoDefaultX() {
+  getTermInfoDefaultX () {
     return (window.innerWidth - (Math.ceil(window.innerWidth / 4) + 10));
   }
 
-  getTermInfoDefaultY() {
+  getTermInfoDefaultY () {
     return 55;
   }
 
 
-  closeHandler() {
+  closeHandler () {
     console.log("close handler called");
     this.props.termInfoHandler();
   }
 
 
-  setTermInfo(data, name) {
+  setTermInfo (data, name) {
     // check if to level has been passed:
     if (data.parent == null) {
       if (data[data.getId() + '_meta'] != undefined) {
@@ -586,7 +587,7 @@ export default class VFBTermInfoWidget extends React.Component {
   }
 
 
-  customHandler(node, path, widget) {
+  customHandler (node, path, widget) {
     var Query = require('geppetto-client/js/geppettoModel/model/Query');
     var n = window[path];
     var otherId;
@@ -671,22 +672,22 @@ export default class VFBTermInfoWidget extends React.Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate () {
 
   }
 
-  componentDidMount() {
+  componentDidMount () {
     window.addEventListener("resize", this.updateDimensions);
     if ((this.props.termInfoName !== undefined) && (this.props.termInfoId !== undefined)) {
       this.setTermInfo(this.props.termInfoName, this.props.termInfoId);
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     window.removeEventListener("resize", this.updateDimensions);
   }
 
-  updateDimensions() {
+  updateDimensions () {
     if (this.refs.termInfoRef !== undefined) {
       /*
        * this.refs.termInfoRef.setPosition(this.getTermInfoDefaultX(), this.getTermInfoDefaultY());
@@ -702,7 +703,7 @@ export default class VFBTermInfoWidget extends React.Component {
     }
   }
 
-  render() {
+  render () {
     return (
       <VFBTermInfo
         id={this.idWidget}
