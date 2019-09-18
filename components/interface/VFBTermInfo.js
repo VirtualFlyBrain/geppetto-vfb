@@ -251,32 +251,34 @@ class VFBTermInfo extends React.Component {
       handler.hooked = true;
       // Find and iterate <a> element with an instancepath attribute
       popupDOM.find("a[data-instancepath]").each(function () {
-        var fun = handler.funct;
-        var ev = handler.event;
-        var metaType = handler.meta;
-        var path = $(this).attr("data-instancepath").replace(/\$/g, "");
-        var node;
+        if (this.listenerHooked !== true) {
+          var fun = handler.funct;
+          var ev = handler.event;
+          var metaType = handler.meta;
+          var path = $(this).attr("data-instancepath").replace(/\$/g, "");
+          var node;
 
-        try {
-          node = eval(path);
-        } catch (ex) {
+          try {
+            node = eval(path);
+          } catch (ex) {
           // if instance path doesn't exist set path to undefined
-          node = undefined;
-        }
+            node = undefined;
+          }
 
-        // hookup IF domain type is undefined OR it's defined and it matches the node type
-        if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
+          // hookup IF domain type is undefined OR it's defined and it matches the node type
+          if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
           // hookup custom handler
-          var that = this;
-          if (that.listenerHooked == undefined){
-            $(that).on(ev, function () {
-            // invoke custom handler with instancepath as arg
-              fun(node, path, popup);
+            var that = this;
+            if (that.listenerHooked == undefined){
+              $(that).on(ev, function () {
+                // invoke custom handler with instancepath as arg
+                fun(node, path, popup);
 
-              // stop default event handler of the anchor from doing anything
-              return false;
-            });
-            that.listenerHooked = true; // avoids adding the a listener to anchor element with one already
+                // stop default event handler of the anchor from doing anything
+                return false;
+              });
+              that.listenerHooked = true; // avoids adding the a listener to anchor element with one already
+            }
           }
         }
       });
