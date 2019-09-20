@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
 import FocusTerm from './interface/FocusTerm';
+import TreeWidget from './interface/TreeWidget';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo';
@@ -12,6 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -31,6 +33,7 @@ export default class VFBMain extends React.Component {
       modelLoaded: (window.Model != undefined),
       canvasVisible: true,
       termInfoVisible: true,
+      treeBrowserVisible: false,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
@@ -61,6 +64,7 @@ export default class VFBMain extends React.Component {
     this.canvasReference = undefined;
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
+    this.treeBrowserReference = undefined;
     this.focusTermReference = undefined;
     this.termInfoId = undefined;
     this.termInfoName = undefined;
@@ -476,6 +480,9 @@ export default class VFBMain extends React.Component {
     case 'tutorialWidgetVisible':
       this.setState({ [buttonState]: !this.state[buttonState] });
       break;
+    case 'treeBrowserVisible':
+      this.setState({ [buttonState]: !this.state[buttonState] });
+      break;
     }
   }
 
@@ -642,6 +649,14 @@ export default class VFBMain extends React.Component {
       });
       this.setState({ canvasAvailable: true });
     }
+    if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Tree Browser",
+        component: "treeBrowser"
+      });
+      this.setState({ treeBrowserVisible: true });
+    }
 
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
@@ -785,6 +800,19 @@ export default class VFBMain extends React.Component {
       } else {
         return (<div className="flexChildContainer"></div>);
       }
+    } else if (component === "treeBrowser") {
+      node.setEventListener("close", () => {
+        this.setState({ treeBrowserVisible: false });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer">
+        <TreeWidget
+          id="treeWidget"
+          size={{ height: _height, width: _width }}
+          ref={ref => this.treeBrowserReference = ref}/>
+      </div>);
     }
   }
 
@@ -1165,9 +1193,7 @@ export default class VFBMain extends React.Component {
           resultsControlConfig={this.queryResultsControlConfig}
           datasourceConfig={this.queryBuilderDatasourceConfig} />
 
-        <div id="tutorialDiv">
-          { // this.tutorialRender }
-        </div>
+        <div id="tutorialDiv"> </div>
 
         {this.htmlToolbarRender}
       </div>
