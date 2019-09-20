@@ -1193,8 +1193,6 @@ export default class VFBMain extends React.Component {
           resultsControlConfig={this.queryResultsControlConfig}
           datasourceConfig={this.queryBuilderDatasourceConfig} />
 
-        <div id="tutorialDiv"> </div>
-
         {this.htmlToolbarRender}
       </div>
     );
