@@ -151,6 +151,23 @@ export default class FocusTerm extends React.Component {
                 );
               }
             });
+          } else {
+            var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+            if (allQueries.length > 0) {
+              focusSubMenu.push(
+                {
+                  label: "Search for",
+                  icon: "",
+                  action: "",
+                  position: "left",
+                  dynamicListInjector: {
+                    handlerAction: "subMenuGrouping",
+                    parameters: [{ variable: variable, allQueries: allQueries }]
+                  }
+                }
+              );
+            }
           }
         }
       }
