@@ -22,7 +22,11 @@ export default class TreeWidget extends React.Component {
     this.updateTree = this.updateTree.bind(this);
     this.convertEdges = this.convertEdges.bind(this);
     this.convertNodes = this.convertNodes.bind(this);
+    this.findChildren = this.findChildren.bind(this);
+    this.searchChildren = this.searchChildren.bind(this);
+    this.insertChildren = this.insertChildren.bind(this);
     this.defaultComparator = this.defaultComparator.bind(this);
+    this.convertDataForTree = this.convertDataForTree.bind(this);
     this.parseGraphResultData = this.parseGraphResultData.bind(this);
 
     this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
