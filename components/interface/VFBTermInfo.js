@@ -149,7 +149,11 @@ class VFBTermInfo extends React.Component {
             var image = value.elements[j].initialValue;
             elements.push(<div className="slider_image_container">
               {image.name}
-              <a id={"slider_image_" + j} href="#" data-instancepath={image.reference}>
+              <a id={"slider_image_" + j} href="#" data-instancepath={image.reference} onClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                this.props.customHandler(undefined, image.reference, undefined) 
+              }}>
                 <img id={"image_" + j} src={image.data}></img>
               </a>
             </div>);
@@ -182,7 +186,11 @@ class VFBTermInfo extends React.Component {
           var image = value;
           this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
             <div className="popup-image">
-              <a href='#' data-instancepath={image.reference}>
+              <a href='#' data-instancepath={image.reference} onClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                this.props.customHandler(undefined, image.reference, undefined) 
+              }}>
                 <img src={image.data}></img>
               </a>
             </div>
