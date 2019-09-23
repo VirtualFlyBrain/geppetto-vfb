@@ -32,6 +32,7 @@ class VFBTermInfo extends React.Component {
     this.getVariable = this.getVariable.bind(this);
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
+    this.sliderHandler = this.sliderHandler.bind(this);
     this.renderButtonBar = this.renderButtonBar.bind(this);
     this.hookupCustomHandler = this.hookupCustomHandler.bind(this);
 
@@ -47,6 +48,11 @@ class VFBTermInfo extends React.Component {
     this.contentBackup = {
       keys: [],
       values: []
+    };
+
+    this.imagesData = {
+      index: 0,
+      list: []
     };
 
     this.innerHandler = { funct: undefined, event: 'click', meta: undefined, hooked: false, id: undefined };
@@ -145,14 +151,17 @@ class VFBTermInfo extends React.Component {
         if (value.eClass == GEPPETTO.Resources.ARRAY_VALUE) {
           // if it's an array we use slick to create a carousel
           var elements = [];
+          this.imagesData.index = 0;
+          this.imagesData.list = [];
           for (var j = 0; j < value.elements.length; j++) {
             var image = value.elements[j].initialValue;
+            this.imagesData.list.push(image.reference);
             elements.push(<div className="slider_image_container">
               {image.name}
-              <a id={"slider_image_" + j} href="#" data-instancepath={image.reference} onClick={event => {
+              <a id={"slider_image_" + j} href={location.protocol + '//' + location.host + location.pathname + "/" + image.reference} onClick={event => {
                 event.stopPropagation();
                 event.preventDefault();
-                this.props.customHandler(undefined, image.reference, undefined) 
+                this.sliderHandler();
               }}>
                 <img id={"image_" + j} src={image.data}></img>
               </a>
@@ -186,7 +195,7 @@ class VFBTermInfo extends React.Component {
           var image = value;
           this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
             <div className="popup-image">
-              <a href='#' data-instancepath={image.reference} onClick={event => {
+              <a href={location.protocol + '//' + location.host + location.pathname + "/" + image.reference} onClick={event => {
                 event.stopPropagation();
                 event.preventDefault();
                 this.props.customHandler(undefined, image.reference, undefined) 
@@ -205,8 +214,11 @@ class VFBTermInfo extends React.Component {
    * to performances but also to the fact that the query were appended eachother.
    */
   hookupImages (idKey) {
-    this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
-    this.hookupCustomHandler(this.innerHandler, $("#" + this.sliderId + idKey), undefined);
+    this.imagesData.index = idKey;
+  }
+
+  sliderHandler () {
+    this.props.customHandler(undefined, this.imagesData.list[this.imagesData.index], undefined);
   }
 
 
