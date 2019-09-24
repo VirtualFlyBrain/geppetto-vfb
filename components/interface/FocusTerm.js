@@ -16,8 +16,24 @@ export default class FocusTerm extends React.Component {
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
     this.labels = require('../configuration/focusTermConfiguration.js').subMenusGrouping;
 
+    this.clearAll = this.clearAll.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.updateHistory = this.updateHistory.bind(this);
+  }
+
+  clearAll () {
+    if (Instances !== undefined && Instances.length > 1) {
+      for (var i = 1; i < Instances.length; i++) {
+        if (Instances[i].getId() !== window.templateID) {
+          window.addVfbId(window[window.templateID].getId());
+          if (Instances[i].parent != null) {
+            Instances[i].parent.delete();
+          } else {
+            Instances[i].delete()
+          }
+        }
+      }
+    }
   }
 
   menuHandler (click) {
@@ -454,6 +470,12 @@ export default class FocusTerm extends React.Component {
 
           <div className="focusTermRight">
             <div className="focusTermDivR">
+              <i className="fa fa-eraser arrowsStyle tooltipLink"
+                onClick={() => {
+                  this.clearAll();
+                }}>
+                <span className="tooltipBox"> Clear all </span>
+              </i>
               <i className="fa fa-search arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("spotlightVisible");
