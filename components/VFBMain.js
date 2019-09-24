@@ -244,14 +244,16 @@ export default class VFBMain extends React.Component {
         this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
-      if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
+      if (this.hasVisualType(variableIds[singleId])) {
         var instance = Instances.getInstance(variableIds[singleId]);
         if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
         this.termInfoId = meta.getParent().getId();
-        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
+        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+          this.treeBrowserReference.updateTree(this.termInfoName);
+        }
         this.resolve3D(variableIds[singleId], function () {
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
@@ -261,6 +263,9 @@ export default class VFBMain extends React.Component {
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
               this.termInfoName = meta;
               this.termInfoId = meta.getParent().getId();
+              if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+                this.treeBrowserReference.updateTree(this.termInfoName);
+              }
             }
           }
         }.bind(this));
@@ -270,7 +275,9 @@ export default class VFBMain extends React.Component {
         }
         this.termInfoName = meta;
         this.termInfoId = meta.getParent().getId();
-        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
+        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+          this.treeBrowserReference.updateTree(this.termInfoName);
+        }
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
@@ -509,6 +516,9 @@ export default class VFBMain extends React.Component {
     case 'triggerSetTermInfo':
       if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
         this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
+      }
+      if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+        this.treeBrowserReference.updateTree(click.value[0]);
       }
       break;
     default:
@@ -810,6 +820,7 @@ export default class VFBMain extends React.Component {
       return (<div className="flexChildContainer">
         <TreeWidget
           id="treeWidget"
+          instance={this.termInfoName}
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}/>
       </div>);
@@ -872,10 +883,6 @@ export default class VFBMain extends React.Component {
     GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
-    window.resolve3D = function (globalID) {
-      this.resolve3D(globalID);
-    }.bind(this);
-
     window.stackViewerRequest = function (idFromStack) {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
@@ -887,6 +894,9 @@ export default class VFBMain extends React.Component {
     window.setTermInfo = function (meta, id) {
       if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
         this.termInfoReference.setTermInfo(meta, id);
+      }
+      if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+        this.treeBrowserReference.updateTree(meta);
       }
     }.bind(this);
 
@@ -1038,7 +1048,9 @@ export default class VFBMain extends React.Component {
             }
             this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
             this.termInfoId = latestSelection[latestSelection.getId() + "_meta"].getName();
-            // this.setState({termInfoName: latestSelection[latestSelection.getId() + "_meta"], termInfoId: latestSelection[latestSelection.getId() + "_meta"].getName()});
+            if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+              this.treeBrowserReference.updateTree(this.termInfoName);
+            }
           }
         } else {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
@@ -1049,7 +1061,9 @@ export default class VFBMain extends React.Component {
             }
             this.termInfoName = parent[parent.getId() + "_meta"];
             this.termInfoId = parent[parent.getId() + "_meta"].getName();
-            // this.setState({termInfoName: parent[parent.getId() + "_meta"], termInfoId: parent[parent.getId() + "_meta"].getName()});
+            if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+              this.treeBrowserReference.updateTree(this.termInfoName);
+            }
           }
         }
       }

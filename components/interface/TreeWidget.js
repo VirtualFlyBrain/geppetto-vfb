@@ -1,6 +1,10 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
 import Tree from 'geppetto-client/js/components/interface/tree/Tree';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Tooltip from '@material-ui/core/Tooltip';
+
+
 import 'react-sortable-tree/style.css';
 
 var $ = require('jquery');
@@ -14,12 +18,15 @@ export default class TreeWidget extends React.Component {
     this.state = {
       instance: undefined,
       dataTree: undefined,
-      root: undefined
+      root: undefined,
+      loading: false
     };
 
     this.sortData = this.sortData.bind(this);
     this.restPost = this.restPost.bind(this);
+    this.nodeClick = this.nodeClick.bind(this);
     this.updateTree = this.updateTree.bind(this);
+    this.getButtons = this.getButtons.bind(this);
     this.convertEdges = this.convertEdges.bind(this);
     this.convertNodes = this.convertNodes.bind(this);
     this.findChildren = this.findChildren.bind(this);
@@ -243,7 +250,9 @@ export default class TreeWidget extends React.Component {
       var node = nodes[this.findChildren({ id: edges[childrenList[j]].to }, "id", nodes)[0]];
       child.children.push({
         title: node.label,
-        subtitle: node.group + " - " + node.info,
+        subtitle: node.group,
+        description: "- " + node.group + " \n- " + node.info,
+        instanceId: node.group,
         id: node.id,
         children: []
       });
@@ -257,7 +266,9 @@ export default class TreeWidget extends React.Component {
       if (vertix === nodes[i].id) {
         refinedDataTree.push({
           title: nodes[i].label,
-          subtitle: nodes[i].group + " - " + nodes[i].info,
+          subtitle: nodes[i].group,
+          description: "- " + nodes[i].group + " \n- " + nodes[i].info,
+          instanceId: nodes[i].group,
           id: nodes[i].id,
           children: []
         });
@@ -279,6 +290,7 @@ export default class TreeWidget extends React.Component {
     if (this.state.instance !== undefined && innerInstance.id === this.state.instance.id) {
       return;
     }
+    this.setState({ loading: true });
     this.restPost({
       "statements": [
         {
@@ -303,76 +315,88 @@ export default class TreeWidget extends React.Component {
         this.setState({
           instance: innerInstance,
           dataTree: treeData,
-          root: vertix
+          root: vertix,
+          loading: false
         });
       } else {
         var treeData = [{
-          title: Instances[1].getId(),
-          subtitle: Instances[1].getName(),
-          children: [{
-            title: Instances[1].getId(),
-            subtitle: Instances[1].getName(),
-            children: []
-          }, {
-            title: Instances[1].getId(),
-            subtitle: Instances[1].getName(),
-            children: []
-          }]
+          title: "No Data",
+          subtitle: "No data retrieved for the instance highlighted.",
+          children: []
         }];
         this.setState({
           instance: innerInstance,
           dataTree: treeData,
-          root: undefined
+          root: undefined,
+          loading: false
         });
       }
     });
   }
 
-  componentDidMount () {
-    GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-      this.updateTree(instance);
-    }.bind(this));
+  componentWillMount () {
+    if (this.props.instance !== undefined) {
+      this.updateTree(this.props.instance);
+    }
+  }
+
+  nodeClick (event, rowInfo) {
+    console.log("clicked on the tree node");
+    console.log(rowInfo);
+    // window.addVfbId(rowInfo.node.instanceId);
+  }
+
+  getButtons (rowInfo) {
+    var buttons = [];
+    if (rowInfo.node.title !== "No Data") {
+      buttons.push(<Tooltip title={rowInfo.node.description}><i
+        className="fa fa-info-circle"
+        aria-hidden="true"
+        onClick={ () => {
+          window.addVfbId(rowInfo.node.instanceId);
+        }}></i></Tooltip>);
+    }
+    return buttons;
   }
 
   render () {
-    /*
-     * else {
-     *   var treeData = [{
-     *     title: this.state.instance.getId(),
-     *     subtitle: this.state.instance.getName(),
-     *     children: []
-     *   }]
-     * }
-     */
     if (this.state.dataTree === undefined) {
       var treeData = [{
-        title: Instances[1].getId(),
-        subtitle: Instances[1].getName(),
-        children: [{
-          title: Instances[1].getId(),
-          subtitle: Instances[1].getName(),
-          children: []
-        }, {
-          title: Instances[1].getId(),
-          subtitle: Instances[1].getName(),
-          children: []
-        }]
+        title: "No Data",
+        subtitle: "No data retrieved for the instance highlighted.",
+        children: []
       }];
     } else {
       var treeData = this.state.dataTree;
     }
     return (
       <div>
-        <Tree
-          id="VFBTree"
-          name={"Tree"}
-          componentType={'TREE'}
-          toggleMode={true}
-          treeData={treeData}
-          activateParentsNodeOnClick={true}
-          style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
-          rowHeight={this.styles.row_height}
-        />
+        {this.state.loading === true
+          ? <CircularProgress
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              top: 0,
+              margin: 'auto',
+              color: "#11bffe",
+              size: "55rem"
+            }}
+          />
+          : <Tree
+            id="VFBTree"
+            name={"Tree"}
+            componentType={'TREE'}
+            toggleMode={true}
+            treeData={treeData}
+            activateParentsNodeOnClick={true}
+            handleClick={this.nodeClick}
+            style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
+            rowHeight={this.styles.row_height}
+            getButtons={this.getButtons}
+          />
+        }
       </div>
 
     )
