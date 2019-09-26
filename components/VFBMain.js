@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
 import FocusTerm from './interface/FocusTerm';
+import TreeWidget from './interface/TreeWidget';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo';
@@ -12,6 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -31,6 +33,7 @@ export default class VFBMain extends React.Component {
       modelLoaded: (window.Model != undefined),
       canvasVisible: true,
       termInfoVisible: true,
+      treeBrowserVisible: false,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
@@ -61,6 +64,7 @@ export default class VFBMain extends React.Component {
     this.canvasReference = undefined;
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
+    this.treeBrowserReference = undefined;
     this.focusTermReference = undefined;
     this.termInfoId = undefined;
     this.termInfoName = undefined;
@@ -240,14 +244,16 @@ export default class VFBMain extends React.Component {
         this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
-      if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
+      if (this.hasVisualType(variableIds[singleId])) {
         var instance = Instances.getInstance(variableIds[singleId]);
         if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
           this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
         }
         this.termInfoName = meta;
         this.termInfoId = meta.getParent().getId();
-        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
+        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+          this.treeBrowserReference.updateTree(this.termInfoName);
+        }
         this.resolve3D(variableIds[singleId], function () {
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
@@ -257,6 +263,9 @@ export default class VFBMain extends React.Component {
               this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
               this.termInfoName = meta;
               this.termInfoId = meta.getParent().getId();
+              if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+                this.treeBrowserReference.updateTree(this.termInfoName);
+              }
             }
           }
         }.bind(this));
@@ -266,7 +275,9 @@ export default class VFBMain extends React.Component {
         }
         this.termInfoName = meta;
         this.termInfoId = meta.getParent().getId();
-        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
+        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+          this.treeBrowserReference.updateTree(this.termInfoName);
+        }
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
@@ -476,6 +487,9 @@ export default class VFBMain extends React.Component {
     case 'tutorialWidgetVisible':
       this.setState({ [buttonState]: !this.state[buttonState] });
       break;
+    case 'treeBrowserVisible':
+      this.setState({ [buttonState]: !this.state[buttonState] });
+      break;
     }
   }
 
@@ -502,6 +516,9 @@ export default class VFBMain extends React.Component {
     case 'triggerSetTermInfo':
       if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
         this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
+      }
+      if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+        this.treeBrowserReference.updateTree(click.value[0]);
       }
       break;
     default:
@@ -641,6 +658,14 @@ export default class VFBMain extends React.Component {
         component: "canvas"
       });
       this.setState({ canvasAvailable: true });
+    }
+    if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Tree Browser",
+        component: "treeBrowser"
+      });
+      this.setState({ treeBrowserVisible: true });
     }
 
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
@@ -785,6 +810,20 @@ export default class VFBMain extends React.Component {
       } else {
         return (<div className="flexChildContainer"></div>);
       }
+    } else if (component === "treeBrowser") {
+      node.setEventListener("close", () => {
+        this.setState({ treeBrowserVisible: false });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer">
+        <TreeWidget
+          id="treeWidget"
+          instance={this.termInfoName}
+          size={{ height: _height, width: _width }}
+          ref={ref => this.treeBrowserReference = ref}/>
+      </div>);
     }
   }
 
@@ -844,10 +883,6 @@ export default class VFBMain extends React.Component {
     GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
-    window.resolve3D = function (globalID) {
-      this.resolve3D(globalID);
-    }.bind(this);
-
     window.stackViewerRequest = function (idFromStack) {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
@@ -859,6 +894,9 @@ export default class VFBMain extends React.Component {
     window.setTermInfo = function (meta, id) {
       if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
         this.termInfoReference.setTermInfo(meta, id);
+      }
+      if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+        this.treeBrowserReference.updateTree(meta);
       }
     }.bind(this);
 
@@ -915,7 +953,6 @@ export default class VFBMain extends React.Component {
       });
     }
 
-    
     var idList = this.props.location.search;
     var idList = idList.replace("?","").split("&");
     var idsList = "";
@@ -1010,7 +1047,9 @@ export default class VFBMain extends React.Component {
             }
             this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
             this.termInfoId = latestSelection[latestSelection.getId() + "_meta"].getName();
-            // this.setState({termInfoName: latestSelection[latestSelection.getId() + "_meta"], termInfoId: latestSelection[latestSelection.getId() + "_meta"].getName()});
+            if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+              this.treeBrowserReference.updateTree(this.termInfoName);
+            }
           }
         } else {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
@@ -1021,7 +1060,9 @@ export default class VFBMain extends React.Component {
             }
             this.termInfoName = parent[parent.getId() + "_meta"];
             this.termInfoId = parent[parent.getId() + "_meta"].getName();
-            // this.setState({termInfoName: parent[parent.getId() + "_meta"], termInfoId: parent[parent.getId() + "_meta"].getName()});
+            if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+              this.treeBrowserReference.updateTree(this.termInfoName);
+            }
           }
         }
       }

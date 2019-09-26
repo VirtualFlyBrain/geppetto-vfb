@@ -593,7 +593,15 @@ export default class VFBTermInfoWidget extends React.Component {
       }
     }
     if (this.refs.termInfoRef != undefined) {
-      this.data.unshift(data);
+      for ( var i = 0, nodePresent = false; i < this.data.length; i++) {
+        if (this.data[i].getId() === data.getId()) {
+          nodePresent = true;
+          this.data.unshift(this.data.splice(i, 1)[0]);
+        }
+      }
+      if (nodePresent === false) {
+        this.data.unshift(data);
+      }
       this.refs.termInfoRef.setData(data);
       this.refs.termInfoRef.setName(data.name);
     }
@@ -618,7 +626,15 @@ export default class VFBTermInfoWidget extends React.Component {
     if (n != undefined) {
       var metanode = Instances.getInstance(meta);
       if ((this.data.length > 0) && (this.data[0] == metanode)) {
-        this.data.unshift(metanode);
+        for ( var i = 0, nodePresent = false; i < this.data.length; i++) {
+          if (this.data[i].getId() === metanode.getId()) {
+            nodePresent = true;
+            this.data.unshift(this.data.splice(i, 1)[0]);
+          }
+        }
+        if (nodePresent === false) {
+          this.data.unshift(metanode);
+        }
       }
       window.resolve3D(path);
       this.setTermInfo(metanode, metanode.name);
