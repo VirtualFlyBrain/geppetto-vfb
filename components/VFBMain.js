@@ -953,7 +953,6 @@ export default class VFBMain extends React.Component {
       });
     }
 
-    
     var idList = this.props.location.search;
     var idList = idList.replace("?","").split("&");
     var idsList = "";

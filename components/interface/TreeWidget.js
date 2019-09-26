@@ -4,7 +4,6 @@ import Tree from 'geppetto-client/js/components/interface/tree/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 
-
 import 'react-sortable-tree/style.css';
 
 var $ = require('jquery');
@@ -19,14 +18,18 @@ export default class TreeWidget extends React.Component {
       instance: undefined,
       dataTree: undefined,
       root: undefined,
-      loading: false
+      loading: false,
+      nodes: undefined,
+      nodeSelected: undefined,
     };
 
+    this.initTree = this.initTree.bind(this);
     this.sortData = this.sortData.bind(this);
     this.restPost = this.restPost.bind(this);
     this.nodeClick = this.nodeClick.bind(this);
     this.updateTree = this.updateTree.bind(this);
     this.getButtons = this.getButtons.bind(this);
+    this.selectNode = this.selectNode.bind(this);
     this.convertEdges = this.convertEdges.bind(this);
     this.convertNodes = this.convertNodes.bind(this);
     this.findChildren = this.findChildren.bind(this);
@@ -34,6 +37,7 @@ export default class TreeWidget extends React.Component {
     this.insertChildren = this.insertChildren.bind(this);
     this.defaultComparator = this.defaultComparator.bind(this);
     this.convertDataForTree = this.convertDataForTree.bind(this);
+    this.customSearchMethod = this.customSearchMethod.bind(this);
     this.parseGraphResultData = this.parseGraphResultData.bind(this);
 
     this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
@@ -41,13 +45,20 @@ export default class TreeWidget extends React.Component {
       left_second_column: 395,
       column_width_small: 385,
       column_width_viewer: "calc(100% - 385px)",
-      row_height: 60,
+      row_height: 40,
       top: 0,
       height: this.props.size.height,
       width: this.props.size.width
     };
   }
 
+  isNumber (variable) {
+    if (isNaN(variable)) {
+      return variable;
+    } else {
+      return parseFloat(variable);
+    }
+  }
   restPost (data) {
     var strData = JSON.stringify(data);
     return $.ajax({
@@ -64,10 +75,10 @@ export default class TreeWidget extends React.Component {
   }
 
   defaultComparator (a, b, key) {
-    if (parseFloat(a[key]) < parseFloat(b[key])) {
+    if (this.isNumber(a[key]) < this.isNumber(b[key])) {
       return -1;
     }
-    if (parseFloat(a[key]) > parseFloat(b[key])) {
+    if (this.isNumber(a[key]) > this.isNumber(b[key])) {
       return 1;
     }
     return 0;
@@ -162,10 +173,11 @@ export default class TreeWidget extends React.Component {
       var displayedLabel = node.properties['label'];
       var description = node.properties['description']
       convertedNodes.push({
+        title: displayedLabel,
+        subtitle: nodeLabel,
+        instanceId: nodeLabel,
+        info: description,
         id: node.id,
-        label: displayedLabel,
-        group: nodeLabel,
-        info: description
       })
     });
     return convertedNodes;
@@ -209,15 +221,15 @@ export default class TreeWidget extends React.Component {
       // Define Middle Index (This will change when comparing )
       let middleIndex = Math.floor((startIndex + endIndex) / 2);
       // Compare Middle Index with Target for match
-      if (parseFloat(array[middleIndex][key]) === parseFloat(target[key])) {
+      if (this.isNumber(array[middleIndex][key]) === this.isNumber(target[key])) {
         return middleIndex;
       }
       // Search Right Side Of Array
-      if (parseFloat(target[key]) > parseFloat(array[middleIndex][key])) {
+      if (this.isNumber(target[key]) > this.isNumber(array[middleIndex][key])) {
         startIndex = middleIndex + 1;
       }
       // Search Left Side Of Array
-      if (parseFloat(target[key]) < parseFloat(array[middleIndex][key])) {
+      if (this.isNumber(target[key]) < this.isNumber(array[middleIndex][key])) {
         endIndex = middleIndex - 1;
       }
     }
@@ -231,12 +243,12 @@ export default class TreeWidget extends React.Component {
     if (childKey !== undefined) {
       childrenList.push(childKey);
       var i = childKey - 1;
-      while (i > 0 && parseFloat(parent[key]) === parseFloat(familyList[i][key])) {
+      while (i > 0 && this.isNumber(parent[key]) === this.isNumber(familyList[i][key])) {
         childrenList.push(i);
         i--;
       }
       i = childKey + 1;
-      while (i < familyList.length && parseFloat(parent[key]) === parseFloat(familyList[i][key])) {
+      while (i < familyList.length && this.isNumber(parent[key]) === this.isNumber(familyList[i][key])) {
         childrenList.push(i);
         i++;
       }
@@ -246,13 +258,18 @@ export default class TreeWidget extends React.Component {
 
   insertChildren (nodes, edges, child) {
     var childrenList = this.findChildren({ from: child.id }, "from", edges);
-    for ( var j = 0; j < childrenList.length; j++) {
-      var node = nodes[this.findChildren({ id: edges[childrenList[j]].to }, "id", nodes)[0]];
+    var nodesList = [];
+    for ( var i = 0; i < childrenList.length; i++) {
+      nodesList.push(edges[childrenList[i]].to)
+    }
+    var uniqNodes = [...new Set(nodesList)];
+    for ( var j = 0; j < uniqNodes.length; j++) {
+      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
       child.children.push({
-        title: node.label,
-        subtitle: node.group,
-        description: "- " + node.group + " \n- " + node.info,
-        instanceId: node.group,
+        title: node.title,
+        subtitle: node.instanceId,
+        description: node.instanceId + " \n- " + node.info,
+        instanceId: node.instanceId,
         id: node.id,
         children: []
       });
@@ -265,11 +282,12 @@ export default class TreeWidget extends React.Component {
     for ( var i = 0; i < nodes.length; i++ ) {
       if (vertix === nodes[i].id) {
         refinedDataTree.push({
-          title: nodes[i].label,
-          subtitle: nodes[i].group,
-          description: "- " + nodes[i].group + " \n- " + nodes[i].info,
-          instanceId: nodes[i].group,
+          title: nodes[i].title,
+          subtitle: nodes[i].instanceId,
+          description: "- " + nodes[i].instanceId + " \n- " + nodes[i].info,
+          instanceId: nodes[i].instanceId,
           id: nodes[i].id,
+          isSelected: true,
           children: []
         });
         break;
@@ -280,6 +298,15 @@ export default class TreeWidget extends React.Component {
     return refinedDataTree;
   }
 
+  selectNode (instance) {
+    if (this.state.nodeSelected !== undefined && this.state.nodeSelected.instanceId !== instance.instanceId) {
+      let oldNode = this.state.nodeSelected;
+      oldNode.isSelected = false;
+      instance.isSelected = true;
+      this.setState({ nodeSelected: instance, dataTree: this.state.dataTree });
+    }
+  }
+
   updateTree (instance) {
     var innerInstance = undefined;
     if (instance.getParent() !== null) {
@@ -287,14 +314,34 @@ export default class TreeWidget extends React.Component {
     } else {
       innerInstance = instance;
     }
-    if (this.state.instance !== undefined && innerInstance.id === this.state.instance.id) {
-      return;
+
+    if (innerInstance.id !== this.state.instance.id) {
+      if (innerInstance.id === window.templateID) {
+        this.selectNode(this.state.dataTree[0])
+        return;
+      }
+      var node = [];
+      var i = 0;
+      while (this.state.nodes.length > i) {
+        var idToSearch = innerInstance.getId();
+        if (idToSearch === this.state.nodes[i]["instanceId"]) {
+          node.push(i);
+          break;
+        }
+        i++;
+      }
+      if (node.length > 0) {
+        this.selectNode(this.state.nodes[node[0]]);
+      }
     }
+  }
+
+  initTree (instance) {
     this.setState({ loading: true });
     this.restPost({
       "statements": [
         {
-          "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual { short_form : '" + innerInstance.getId() + "'})"
+          "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual { short_form : '" + instance + "'})"
                             + "<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->"
                             + "(image:Individual)-[:INSTANCEOF]->(ac:Class) WHERE has(ie.index) WITH root, COLLECT"
                             + " (ac.short_form) as tree_nodes, COLLECT (DISTINCT{ image: image.short_form, anat_ind:"
@@ -313,19 +360,21 @@ export default class TreeWidget extends React.Component {
         var edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
         var treeData = this.convertDataForTree(nodes, edges, vertix);
         this.setState({
-          instance: innerInstance,
+          instance: { id: instance },
           dataTree: treeData,
           root: vertix,
-          loading: false
+          loading: false,
+          nodes: nodes,
+          nodeSelected: treeData[0]
         });
       } else {
         var treeData = [{
-          title: "No Data",
-          subtitle: "No data retrieved for the instance highlighted.",
+          title: "No data available.",
+          subtitle: null,
           children: []
         }];
         this.setState({
-          instance: innerInstance,
+          instance: { id: instance },
           dataTree: treeData,
           root: undefined,
           loading: false
@@ -335,35 +384,57 @@ export default class TreeWidget extends React.Component {
   }
 
   componentWillMount () {
-    if (this.props.instance !== undefined) {
-      this.updateTree(this.props.instance);
+    if (window.templateID !== undefined) {
+      this.initTree(window.templateID);
     }
   }
 
   nodeClick (event, rowInfo) {
     console.log("clicked on the tree node");
     console.log(rowInfo);
-    // window.addVfbId(rowInfo.node.instanceId);
+    this.selectNode(rowInfo.node);
   }
 
   getButtons (rowInfo) {
     var buttons = [];
-    if (rowInfo.node.title !== "No Data") {
-      buttons.push(<Tooltip title={rowInfo.node.description}><i
-        className="fa fa-info-circle"
-        aria-hidden="true"
-        onClick={ () => {
-          window.addVfbId(rowInfo.node.instanceId);
-        }}></i></Tooltip>);
+    if (rowInfo.node.title !== "No data available.") {
+      buttons.push(<Tooltip 
+        title={rowInfo.node.description}
+        style={{ fontSize: "14px" }}>
+        <i className="fa fa-info-circle"
+          aria-hidden="true"
+          onClick={ () => {
+            window.addVfbId(rowInfo.node.instanceId);
+          }}></i></Tooltip>);
     }
     return buttons;
   }
 
+  getNodes (rowInfo) {
+    if (rowInfo.node.title !== "No data available.") {
+      var title = <div className={rowInfo.node.isSelected ? "nodeSelected" : "nodeUnselected"}>
+        {rowInfo.node.title}
+      </div>;
+    }
+    return title;
+  }
+
+  searchDone (matches) {
+    if (matches.length > 0) {
+      matches.map(item => {
+        item.isSelected = true;
+      })
+    }
+  }
+
+  customSearchMethod = ({ node, searchQuery }) =>
+    searchQuery && node.instanceId.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1;
+
   render () {
     if (this.state.dataTree === undefined) {
       var treeData = [{
-        title: "No Data",
-        subtitle: "No data retrieved for the instance highlighted.",
+        title: "No data available.",
+        subtitle: null,
         children: []
       }];
     } else {
@@ -395,6 +466,9 @@ export default class TreeWidget extends React.Component {
             style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
             rowHeight={this.styles.row_height}
             getButtons={this.getButtons}
+            getNodesProps={this.getNodes}
+            searchQuery={this.state.nodeSelected !== undefined ? this.state.nodeSelected.subtitle : null}
+            searchFinishCallback={this.searchDone}
           />
         }
       </div>
