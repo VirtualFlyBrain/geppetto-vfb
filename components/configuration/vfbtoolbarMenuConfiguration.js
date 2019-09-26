@@ -227,6 +227,14 @@ var toolbarMenu = {
             handlerAction: "UIElementHandler",
             parameters: ["sliceViewerVisible"]
           }
+        },
+        {
+          label: "Tree Browser",
+          icon: "fa fa-tree",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["treeBrowserVisible"]
+          }
         }
       ]
     },
