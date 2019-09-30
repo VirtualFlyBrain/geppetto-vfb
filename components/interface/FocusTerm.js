@@ -335,8 +335,9 @@ export default class FocusTerm extends React.Component {
 
   componentDidMount () {
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-      console.log('Selection of ' + instance.getName());
-      if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
+      if (this.state.currentInstance === undefined && instance[instance.getId() + "_meta"] !== undefined) {
+        this.setInstance(instance[instance.getId() + "_meta"]);
+      } else if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
     }.bind(this));
