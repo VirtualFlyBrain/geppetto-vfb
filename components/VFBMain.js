@@ -40,11 +40,11 @@ export default class VFBMain extends React.Component {
       controlPanelVisible: true,
       wireframeVisible: false,
       queryBuilderVisible: true,
-      idSelected: undefined,
+      UIUpdated: false,
       htmlFromToolbar: undefined,
-      termInfoId: undefined,
-      termInfoName: undefined,
-      UIUpdated: false
+      idOnFocus: undefined,
+      instanceOnFocus: undefined,
+      idSelected: undefined
     };
 
     this.menuHandler = this.menuHandler.bind(this);
@@ -54,6 +54,7 @@ export default class VFBMain extends React.Component {
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
     this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+    this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
     this.coli = 1;
@@ -66,25 +67,13 @@ export default class VFBMain extends React.Component {
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
     this.focusTermReference = undefined;
-    this.termInfoId = undefined;
-    this.termInfoName = undefined;
-    this.modalX = undefined;
-    this.modalY = undefined;
+    this.idOnFocus = undefined;
+    this.instanceOnFocus = undefined;
+    this.idFromURL = undefined;
+    this.firstLoad = true;
+    this.idsFromURL = [];
 
     this.UIElementsVisibility = {};
-
-    this.stackConfiguration = {
-      serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-      templateId: 'NOTSET'
-    };
-
-    this.voxel = {
-      x: 0.622,
-      y: 0.622,
-      z: 0.622
-    };
-
-    this.stackViewerData = { id: "StackViewerWidget_" };
 
     this.colours = require('./configuration/colours.json');
     this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
@@ -98,7 +87,6 @@ export default class VFBMain extends React.Component {
     this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
     this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
 
-    this.idForTermInfo = undefined;
     this.model = FlexLayout.Model.fromJson(modelJson)
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
@@ -205,8 +193,8 @@ export default class VFBMain extends React.Component {
       }
 
     } else {
-      console.log("model has not been loaded, in the old initialization here I was triggering a setTimeout to call recursively this same function addvfbid");
-      // setTimeout(function () { this.addVfbId(idsList); }, 1000);
+      console.log("model has not been loaded, in the old initialization here I was triggering a"
+                  + "setTimeout to call recursively this same function addvfbid");
     }
   }
 
@@ -246,38 +234,14 @@ export default class VFBMain extends React.Component {
       }
       if (this.hasVisualType(variableIds[singleId])) {
         var instance = Instances.getInstance(variableIds[singleId]);
-        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-          this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-        }
-        this.termInfoName = meta;
-        this.termInfoId = meta.getParent().getId();
-        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-          this.treeBrowserReference.updateTree(this.termInfoName);
-        }
         this.resolve3D(variableIds[singleId], function () {
           GEPPETTO.SceneController.deselectAll();
-          if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
+          if ((instance != undefined) && (typeof instance.select === "function")) {
             instance.select();
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null && instance[instance.getId() + "_meta"] !== undefined) {
-              let meta = instance[instance.getId() + "_meta"];
-              this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-              this.termInfoName = meta;
-              this.termInfoId = meta.getParent().getId();
-              if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-                this.treeBrowserReference.updateTree(this.termInfoName);
-              }
-            }
           }
         }.bind(this));
       } else {
-        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-          this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-        }
-        this.termInfoName = meta;
-        this.termInfoId = meta.getParent().getId();
-        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-          this.treeBrowserReference.updateTree(this.termInfoName);
-        }
+        this.handlerInstanceUpdate(meta);
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
@@ -347,7 +311,7 @@ export default class VFBMain extends React.Component {
             var templateID = anchorElement.attr('data-instancepath');
             this.addVfbId(templateID);
             setTimeout(function (){
-              window.resolve3D(path); 
+              window.resolve3D(path);
             }, 5000);
             return; // Don't load until the template has
           }
@@ -514,12 +478,7 @@ export default class VFBMain extends React.Component {
       }
       return historyList;
     case 'triggerSetTermInfo':
-      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-        this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
-      }
-      if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-        this.treeBrowserReference.updateTree(click.value[0]);
-      }
+      this.handlerInstanceUpdate(click.value[0]);
       break;
     default:
       console.log("Menu action not mapped, it is " + click);
@@ -765,8 +724,8 @@ export default class VFBMain extends React.Component {
           ref={ref => this.termInfoReference = ref}
           queryBuilder={this.refs.querybuilderRef}
           showButtonBar={true}
-          termInfoName={this.termInfoName}
-          termInfoId={this.termInfoId}
+          termInfoName={this.instanceOnFocus}
+          termInfoId={this.idOnFocus}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -820,7 +779,7 @@ export default class VFBMain extends React.Component {
       return (<div className="flexChildContainer">
         <TreeWidget
           id="treeWidget"
-          instance={this.termInfoName}
+          instance={this.instanceOnFocus}
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}/>
       </div>);
@@ -892,12 +851,7 @@ export default class VFBMain extends React.Component {
     }.bind(this);
 
     window.setTermInfo = function (meta, id) {
-      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-        this.termInfoReference.setTermInfo(meta, id);
-      }
-      if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-        this.treeBrowserReference.updateTree(meta);
-      }
+      this.handlerInstanceUpdate(meta);
     }.bind(this);
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
@@ -909,7 +863,13 @@ export default class VFBMain extends React.Component {
     }.bind(this);
 
     window.resolve3D = function (externalID) {
-      this.resolve3D(externalID);
+      this.resolve3D(externalID, function () {
+        var instance = Instances.getInstance(externalID);
+        if ((instance != undefined) && (typeof instance.select === "function")) {
+          GEPPETTO.SceneController.deselectAll();
+          instance.select();
+        }
+      }.bind(this));
     }.bind(this);
 
     this.canvasReference.flipCameraY();
@@ -946,43 +906,65 @@ export default class VFBMain extends React.Component {
 
     // Loading ids passed through the browser's url
     if ((this.props.location.search.indexOf("id=VFB") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
+      this.idFromURL = "VFB_00017894";
       var that = this;
       console.log("Loading default Adult Brain VFB_00017894 template.");
       GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId("VFB_00017894");
+        that.addVfbId(that.idFromURL);
       });
-    }
-
-    var idList = this.props.location.search;
-    var idList = idList.replace("?","").split("&");
-    var idsList = "";
-    var idsTermInfoSubstring = "";
-    var list;
-    for (list in idList) {
-      if (idList[list].indexOf("id=") > -1) {
-        idsTermInfoSubstring = idList[list].replace("id=","");
-        if (idsList.length > 0) {
-          idsList += ",";
+    } else {
+      var idsList = "";
+      var idList = this.props.location.search;
+      idList = idList.replace("?","").split("&");
+      for (let list in idList) {
+        if (idList[list].indexOf("id=") > -1) {
+          this.idFromURL = idList[list].replace("id=","");
+          if (idsList.length > 0) {
+            idsList += ",";
+          }
+          idsList += this.idFromURL;
+        } else if (idList[list].indexOf("i=") > -1) {
+          if (idsList.length > 0) {
+            idsList = "," + idsList;
+          }
+          idsList = idList[list].replace("i=","") + idsList;
         }
-        idsList += idsTermInfoSubstring;
-      } else if (idList[list].indexOf("i=") > -1) {
-        if (idsList.length > 0) {
-          idsList = "," + idsList;
-        }
-        idsList = idList[list].replace("i=","") + idsList;
       }
-    }
-    if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
-      this.urlIdsLoaded = true;
-      var idArray = idsList.split(",");
-      var that = this;
-      console.log("Loading IDS to add to the scene from url");
-      GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId(idArray);
-        if (idsTermInfoSubstring.length > 0) {
-          this.idForTermInfo = idsTermInfoSubstring;
+      if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+        this.urlIdsLoaded = true;
+        this.idsFromURL = idsList.split(",");
+        // remove duplicates
+        var counter = this.idsFromURL.length;
+        if (this.idFromURL === undefined) {
+          this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
         }
-      });
+        while (counter--) {
+          if (this.idsFromURL[counter] === this.idFromURL) {
+            this.idsFromURL.splice(counter, 1);
+          }
+        }
+        this.idsFromURL.push(this.idFromURL);
+        this.idsFromURL = [... new Set(this.idsFromURL)];
+        var that = this;
+        console.log("Loading IDS to add to the scene from url");
+        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+          that.addVfbId(that.idsFromURL);
+          /*
+           * var loadOnDelay = new Promise(function (resolve, reject) {
+           *   that.addVfbId(that.idsFromURL);
+           *   while (Instances[that.idFromURL] === undefined && window.templateID === undefined) {
+           *     setTimeout(null, 500);
+           *   }
+           *   resolve(true);
+           * });
+           * loadOnDelay.then(function (reason) {
+           *   if (reason) {
+           *     that.handlerInstanceUpdate(Instances[that.idFromURL]);
+           *   }
+           * });
+           */
+        });
+      }
     }
 
     // wipe the history state:
@@ -997,7 +979,7 @@ export default class VFBMain extends React.Component {
       for (list in idList) {
         if (idList[list].indexOf("id=") > -1) {
           idsTermInfoSubstring = idList[list].replace("id=","");
-        } 
+        }
       }
       if (idsTermInfoSubstring.length > 0) {
         console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
@@ -1042,27 +1024,13 @@ export default class VFBMain extends React.Component {
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
           if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-              this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
-            }
-            this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
-            this.termInfoId = latestSelection[latestSelection.getId() + "_meta"].getName();
-            if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-              this.treeBrowserReference.updateTree(this.termInfoName);
-            }
+            this.handlerInstanceUpdate(latestSelection[latestSelection.getId() + "_meta"]);
           }
         } else {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
           var parent = latestSelection.getParent();
           if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-              this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
-            }
-            this.termInfoName = parent[parent.getId() + "_meta"];
-            this.termInfoId = parent[parent.getId() + "_meta"].getName();
-            if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-              this.treeBrowserReference.updateTree(this.termInfoName);
-            }
+            this.handlerInstanceUpdate(parent);
           }
         }
       }
@@ -1076,6 +1044,50 @@ export default class VFBMain extends React.Component {
       console.log("Reloading websocket connection by reloading page");
       window.location.reload(true);
     });
+  }
+
+  handlerInstanceUpdate (instance) {
+    let metaInstance = undefined;
+    let parentInstance = undefined;
+    let initException = true;
+    if (instance === undefined || instance === null) {
+      console.log("Instance passed to handlerInstanceUpdate is undefined");
+      console.trace();
+      return;
+    }
+
+    if (instance.getId().indexOf("_meta") === -1 && instance.getParent() === null) {
+      parentInstance = instance;
+      metaInstance = parentInstance[parentInstance.getId() + "_meta"];
+    } else {
+      metaInstance = instance;
+      parentInstance = metaInstance.getParent();
+    }
+
+    this.instanceOnFocus = metaInstance;
+    this.idOnFocus = parentInstance.getId();
+
+    for (var counter = 0; counter < this.idsFromURL.length; counter++) {
+      if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL !== this.idOnFocus) {
+        this.idsFromURL.splice(counter, 1);
+        return;
+      }
+      if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL === this.idOnFocus) {
+        this.idsFromURL.splice(counter, 1);
+        break;
+      }
+    }
+
+    // Update the term info component
+    if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+      this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
+    }
+
+    // Update the tree browser
+    if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+      this.treeBrowserReference.updateTree(this.instanceOnFocus);
+    }
+
   }
 
   render () {
