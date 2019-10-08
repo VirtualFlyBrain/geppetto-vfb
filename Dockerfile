@@ -6,8 +6,7 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
-ARG build_type=production
-ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet"
+ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
 ARG googleAnalyticsSiteCode=UA-45841517-1
 
@@ -22,8 +21,6 @@ ENV USESSL=false
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
-
-RUN if [ "${build_type}" != "production" ]; then export mvnOpt="${mvnOpt} -Pmaster"; fi
 
 # get geppetto
 RUN mkdir -p workspace &&\
