@@ -847,8 +847,8 @@
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="targeting"
-      name="NBLAST GAL4 tragetting"
-      description="NBLAST potential GAL4's targetting $NAME"
+      name="NBLAST GAL4 targeting"
+      description="NBLAST potential GAL4's targeting $NAME"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.4/@queries.1 //@dataSources.4/@queries.2 //@dataSources.0/@queries.1">
     <matchingCriteria

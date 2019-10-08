@@ -227,6 +227,14 @@ var toolbarMenu = {
             handlerAction: "UIElementHandler",
             parameters: ["sliceViewerVisible"]
           }
+        },
+        {
+          label: "Tree Browser",
+          icon: "fa fa-tree",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["treeBrowserVisible"]
+          }
         }
       ]
     },
@@ -316,14 +324,6 @@ var toolbarMenu = {
       action: "",
       position: "bottom-start",
       list: [
-        {
-          label: "Start Tutorial",
-          icon: "",
-          action: {
-            handlerAction: "UIElementHandler",
-            parameters: ["tutorialWidgetVisible"]
-          }
-        },
         {
           label: "F.A.Q.",
           icon: "",

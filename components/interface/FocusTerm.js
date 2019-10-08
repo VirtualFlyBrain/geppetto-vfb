@@ -16,8 +16,24 @@ export default class FocusTerm extends React.Component {
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
     this.labels = require('../configuration/focusTermConfiguration.js').subMenusGrouping;
 
+    this.clearAll = this.clearAll.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.updateHistory = this.updateHistory.bind(this);
+  }
+
+  clearAll () {
+    if (Instances !== undefined && Instances.length > 1) {
+      for (var i = 1; i < Instances.length; i++) {
+        if (Instances[i].getId() !== window.templateID) {
+          window.addVfbId(window[window.templateID].getId());
+          if (Instances[i].parent != null) {
+            Instances[i].parent.delete();
+          } else {
+            Instances[i].delete()
+          }
+        }
+      }
+    }
   }
 
   menuHandler (click) {
@@ -151,6 +167,23 @@ export default class FocusTerm extends React.Component {
                 );
               }
             });
+          } else {
+            var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+            if (allQueries.length > 0) {
+              focusSubMenu.push(
+                {
+                  label: "Search for",
+                  icon: "",
+                  action: "",
+                  position: "left",
+                  dynamicListInjector: {
+                    handlerAction: "subMenuGrouping",
+                    parameters: [{ variable: variable, allQueries: allQueries }]
+                  }
+                }
+              );
+            }
           }
         }
       }
@@ -302,8 +335,9 @@ export default class FocusTerm extends React.Component {
 
   componentDidMount () {
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-      console.log('Selection of ' + instance.getName());
-      if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
+      if (this.state.currentInstance === undefined && instance[instance.getId() + "_meta"] !== undefined) {
+        this.setInstance(instance[instance.getId() + "_meta"]);
+      } else if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
     }.bind(this));
@@ -437,6 +471,12 @@ export default class FocusTerm extends React.Component {
 
           <div className="focusTermRight">
             <div className="focusTermDivR">
+              <i className="fa fa-eraser arrowsStyle tooltipLink"
+                onClick={() => {
+                  this.clearAll();
+                }}>
+                <span className="tooltipBox"> Clear all </span>
+              </i>
               <i className="fa fa-search arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("spotlightVisible");

@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import VFBToolBar from './interface/VFBToolBar';
 import FocusTerm from './interface/FocusTerm';
+import TreeWidget from './interface/TreeWidget';
 import StackViewer from './interface/StackViewer';
 import TutorialWidget from './interface/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo';
@@ -12,6 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -31,17 +33,18 @@ export default class VFBMain extends React.Component {
       modelLoaded: (window.Model != undefined),
       canvasVisible: true,
       termInfoVisible: true,
+      treeBrowserVisible: false,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
       controlPanelVisible: true,
       wireframeVisible: false,
       queryBuilderVisible: true,
-      idSelected: undefined,
+      UIUpdated: false,
       htmlFromToolbar: undefined,
-      termInfoId: undefined,
-      termInfoName: undefined,
-      UIUpdated: false
+      idOnFocus: undefined,
+      instanceOnFocus: undefined,
+      idSelected: undefined
     };
 
     this.menuHandler = this.menuHandler.bind(this);
@@ -51,6 +54,7 @@ export default class VFBMain extends React.Component {
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
     this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+    this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
     this.coli = 1;
@@ -61,26 +65,15 @@ export default class VFBMain extends React.Component {
     this.canvasReference = undefined;
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
+    this.treeBrowserReference = undefined;
     this.focusTermReference = undefined;
-    this.termInfoId = undefined;
-    this.termInfoName = undefined;
-    this.modalX = undefined;
-    this.modalY = undefined;
+    this.idOnFocus = undefined;
+    this.instanceOnFocus = undefined;
+    this.idFromURL = undefined;
+    this.firstLoad = true;
+    this.idsFromURL = [];
 
     this.UIElementsVisibility = {};
-
-    this.stackConfiguration = {
-      serverUrl: 'https://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
-      templateId: 'NOTSET'
-    };
-
-    this.voxel = {
-      x: 0.622,
-      y: 0.622,
-      z: 0.622
-    };
-
-    this.stackViewerData = { id: "StackViewerWidget_" };
 
     this.colours = require('./configuration/colours.json');
     this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
@@ -95,7 +88,6 @@ export default class VFBMain extends React.Component {
     this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
     this.sorterColumn = require('./configuration/queryBuilderConfiguration').sorterColumn;
 
-    this.idForTermInfo = undefined;
     this.model = FlexLayout.Model.fromJson(modelJson)
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
@@ -202,8 +194,8 @@ export default class VFBMain extends React.Component {
       }
 
     } else {
-      console.log("model has not been loaded, in the old initialization here I was triggering a setTimeout to call recursively this same function addvfbid");
-      // setTimeout(function () { this.addVfbId(idsList); }, 1000);
+      console.log("model has not been loaded, in the old initialization here I was triggering a"
+                  + "setTimeout to call recursively this same function addvfbid");
     }
   }
 
@@ -241,33 +233,20 @@ export default class VFBMain extends React.Component {
         this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
-      if ((this.hasVisualType(variableIds[singleId])) && (this.termInfoReference !== null)) {
-        var instance = Instances.getInstance(variableIds[singleId]);
-        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-          this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-        }
-        this.termInfoName = meta;
-        this.termInfoId = meta.getParent().getId();
-        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
-        this.resolve3D(variableIds[singleId], function () {
+      if (this.hasVisualType(variableIds[singleId])) {
+        this.resolve3D(variableIds[singleId], function (id) {
+          var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
-          if ((instance != undefined) && (typeof instance.select === "function") && (this.termInfoReference !== null)){
-            instance.select();
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null && instance[instance.getId() + "_meta"] !== undefined) {
-              let meta = instance[instance.getId() + "_meta"];
-              this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-              this.termInfoName = meta;
-              this.termInfoId = meta.getParent().getId();
+          if ((instance != undefined) && (typeof instance.select === "function")) {
+            if (this.idsFromURL.length > 0 && window.templateID !== undefined && Instances[window.templateID]) {
+              this.handlerInstanceUpdate(instance);
+            } else {
+              instance.select();
             }
           }
         }.bind(this));
       } else {
-        if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-          this.termInfoReference.setTermInfo(meta, meta.getParent().getId());
-        }
-        this.termInfoName = meta;
-        this.termInfoId = meta.getParent().getId();
-        // this.setState({termInfoName: meta, termInfoId: meta.getParent().getId()});
+        this.handlerInstanceUpdate(meta);
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
@@ -337,7 +316,7 @@ export default class VFBMain extends React.Component {
             var templateID = anchorElement.attr('data-instancepath');
             this.addVfbId(templateID);
             setTimeout(function (){
-              window.resolve3D(path); 
+              window.resolve3D(path);
             }, 5000);
             return; // Don't load until the template has
           }
@@ -416,7 +395,7 @@ export default class VFBMain extends React.Component {
       var postResolve = () => {
         this.setSepCol(path);
         if (callback != undefined) {
-          callback();
+          callback(path);
         }
       };
 
@@ -477,6 +456,9 @@ export default class VFBMain extends React.Component {
     case 'tutorialWidgetVisible':
       this.setState({ [buttonState]: !this.state[buttonState] });
       break;
+    case 'treeBrowserVisible':
+      this.setState({ [buttonState]: !this.state[buttonState] });
+      break;
     }
   }
 
@@ -501,9 +483,7 @@ export default class VFBMain extends React.Component {
       }
       return historyList;
     case 'triggerSetTermInfo':
-      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-        this.termInfoReference.setTermInfo(click.value[0], click.value[0].getName());
-      }
+      this.handlerInstanceUpdate(click.value[0]);
       break;
     default:
       console.log("Menu action not mapped, it is " + click);
@@ -643,6 +623,14 @@ export default class VFBMain extends React.Component {
       });
       this.setState({ canvasAvailable: true });
     }
+    if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Tree Browser",
+        component: "treeBrowser"
+      });
+      this.setState({ treeBrowserVisible: true });
+    }
 
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
@@ -741,8 +729,8 @@ export default class VFBMain extends React.Component {
           ref={ref => this.termInfoReference = ref}
           queryBuilder={this.refs.querybuilderRef}
           showButtonBar={true}
-          termInfoName={this.termInfoName}
-          termInfoId={this.termInfoId}
+          termInfoName={this.instanceOnFocus}
+          termInfoId={this.idOnFocus}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -786,6 +774,20 @@ export default class VFBMain extends React.Component {
       } else {
         return (<div className="flexChildContainer"></div>);
       }
+    } else if (component === "treeBrowser") {
+      node.setEventListener("close", () => {
+        this.setState({ treeBrowserVisible: false });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer">
+        <TreeWidget
+          id="treeWidget"
+          instance={this.instanceOnFocus}
+          size={{ height: _height, width: _width }}
+          ref={ref => this.treeBrowserReference = ref}/>
+      </div>);
     }
   }
 
@@ -845,10 +847,6 @@ export default class VFBMain extends React.Component {
     GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
-    window.resolve3D = function (globalID) {
-      this.resolve3D(globalID);
-    }.bind(this);
-
     window.stackViewerRequest = function (idFromStack) {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
@@ -858,9 +856,7 @@ export default class VFBMain extends React.Component {
     }.bind(this);
 
     window.setTermInfo = function (meta, id) {
-      if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-        this.termInfoReference.setTermInfo(meta, id);
-      }
+      this.handlerInstanceUpdate(meta);
     }.bind(this);
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
@@ -872,7 +868,13 @@ export default class VFBMain extends React.Component {
     }.bind(this);
 
     window.resolve3D = function (externalID) {
-      this.resolve3D(externalID);
+      this.resolve3D(externalID, function (id) {
+        var instance = Instances.getInstance(id);
+        if ((instance != undefined) && (typeof instance.select === "function")) {
+          GEPPETTO.SceneController.deselectAll();
+          instance.select();
+        }
+      }.bind(this));
     }.bind(this);
 
     this.canvasReference.flipCameraY();
@@ -909,44 +911,51 @@ export default class VFBMain extends React.Component {
 
     // Loading ids passed through the browser's url
     if ((this.props.location.search.indexOf("id=VFB") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
+      this.idFromURL = "VFB_00017894";
       var that = this;
       console.log("Loading default Adult Brain VFB_00017894 template.");
       GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId("VFB_00017894");
+        that.addVfbId(that.idFromURL);
       });
-    }
-
-    
-    var idList = this.props.location.search;
-    var idList = idList.replace("?","").split("&");
-    var idsList = "";
-    var idsTermInfoSubstring = "";
-    var list;
-    for (list in idList) {
-      if (idList[list].indexOf("id=") > -1) {
-        idsTermInfoSubstring = idList[list].replace("id=","");
-        if (idsList.length > 0) {
-          idsList += ",";
+    } else {
+      var idsList = "";
+      var idList = this.props.location.search;
+      idList = idList.replace("?","").split("&");
+      for (let list in idList) {
+        if (idList[list].indexOf("id=") > -1) {
+          this.idFromURL = idList[list].replace("id=","");
+          if (idsList.length > 0) {
+            idsList += ",";
+          }
+          idsList += this.idFromURL;
+        } else if (idList[list].indexOf("i=") > -1) {
+          if (idsList.length > 0) {
+            idsList = "," + idsList;
+          }
+          idsList = idList[list].replace("i=","") + idsList;
         }
-        idsList += idsTermInfoSubstring;
-      } else if (idList[list].indexOf("i=") > -1) {
-        if (idsList.length > 0) {
-          idsList = "," + idsList;
-        }
-        idsList = idList[list].replace("i=","") + idsList;
       }
-    }
-    if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
-      this.urlIdsLoaded = true;
-      var idArray = idsList.split(",");
-      var that = this;
-      console.log("Loading IDS to add to the scene from url");
-      GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId(idArray);
-        if (idsTermInfoSubstring.length > 0) {
-          this.idForTermInfo = idsTermInfoSubstring;
+      if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+        this.urlIdsLoaded = true;
+        this.idsFromURL = idsList.split(",");
+        // remove duplicates
+        var counter = this.idsFromURL.length;
+        if (this.idFromURL === undefined) {
+          this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
         }
-      });
+        while (counter--) {
+          if (this.idsFromURL[counter] === this.idFromURL) {
+            this.idsFromURL.splice(counter, 1);
+          }
+        }
+        this.idsFromURL.push(this.idFromURL);
+        this.idsFromURL = [... new Set(this.idsFromURL)];
+        var that = this;
+        console.log("Loading IDS to add to the scene from url");
+        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+          that.addVfbId(that.idsFromURL);
+        });
+      }
     }
 
     // wipe the history state:
@@ -961,7 +970,7 @@ export default class VFBMain extends React.Component {
       for (list in idList) {
         if (idList[list].indexOf("id=") > -1) {
           idsTermInfoSubstring = idList[list].replace("id=","");
-        } 
+        }
       }
       if (idsTermInfoSubstring.length > 0) {
         console.log("Browser History Call triggered termInfo: " + idsTermInfoSubstring);
@@ -1006,23 +1015,13 @@ export default class VFBMain extends React.Component {
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
           if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-              this.termInfoReference.setTermInfo(latestSelection[latestSelection.getId() + "_meta"], latestSelection[latestSelection.getId() + "_meta"].getName());
-            }
-            this.termInfoName = latestSelection[latestSelection.getId() + "_meta"];
-            this.termInfoId = latestSelection[latestSelection.getId() + "_meta"].getName();
-            // this.setState({termInfoName: latestSelection[latestSelection.getId() + "_meta"], termInfoId: latestSelection[latestSelection.getId() + "_meta"].getName()});
+            this.handlerInstanceUpdate(latestSelection[latestSelection.getId() + "_meta"]);
           }
         } else {
           // it's a leaf (no children) / grab parent if name is different from current selection set term info
           var parent = latestSelection.getParent();
           if ((parent != null && currentSelectionName != parent.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
-            if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-              this.termInfoReference.setTermInfo(parent[parent.getId() + "_meta"], parent[parent.getId() + "_meta"].getName());
-            }
-            this.termInfoName = parent[parent.getId() + "_meta"];
-            this.termInfoId = parent[parent.getId() + "_meta"].getName();
-            // this.setState({termInfoName: parent[parent.getId() + "_meta"], termInfoId: parent[parent.getId() + "_meta"].getName()});
+            this.handlerInstanceUpdate(parent);
           }
         }
       }
@@ -1036,6 +1035,63 @@ export default class VFBMain extends React.Component {
       console.log("Reloading websocket connection by reloading page");
       window.location.reload(true);
     });
+  }
+
+  // Handler created to manage all the update that relates to components of the UI
+  handlerInstanceUpdate (instance) {
+    let metaInstance = undefined;
+    let parentInstance = undefined;
+    let initException = true;
+    if (instance === undefined || instance === null) {
+      console.log("Instance passed to handlerInstanceUpdate is undefined");
+      console.trace();
+      return;
+    }
+
+    // Logic to determine the parent and the meta instance, used to get all the data needed
+    if (instance.getId().indexOf("_meta") === -1 && instance.getParent() === null) {
+      parentInstance = instance;
+      metaInstance = parentInstance[parentInstance.getId() + "_meta"];
+    } else {
+      metaInstance = instance;
+      parentInstance = metaInstance.getParent();
+    }
+
+    this.instanceOnFocus = metaInstance;
+    this.idOnFocus = parentInstance.getId();
+
+    /*
+     * this is the core of the logic id= that we use on startup of the application from the URL.
+     * All the ids in the url in i= and id= are placed in the idsFromURL array, where the only id in
+     * id= is placed in idFromURL. In this portion of code we loop through this list, if the id on focus
+     * at the moment is in the list but is different from the id= that should take over term info and
+     * tree browser we simply remove this id from the array and return, instead if the id on focus is the
+     * the same that we stored in idFromURL in that case we remove this id from the array, break the loop
+     * and go forward to place all this information.
+     * Keep in mind this loop is executed only once, on startup, since the array is emptied and never
+     * filled again, for that reason DO NOT REUSE idsFromURL differently this logic will be broken.
+     */
+    for (var counter = 0; counter < this.idsFromURL.length; counter++) {
+      if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL !== this.idOnFocus) {
+        this.idsFromURL.splice(counter, 1);
+        return;
+      }
+      if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL === this.idOnFocus) {
+        this.idsFromURL.splice(counter, 1);
+        break;
+      }
+    }
+
+    // Update the term info component
+    if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
+      this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
+    }
+
+    // Update the tree browser
+    if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+      this.treeBrowserReference.updateTree(this.instanceOnFocus);
+    }
+
   }
 
   render () {
@@ -1165,10 +1221,6 @@ export default class VFBMain extends React.Component {
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
           datasourceConfig={this.queryBuilderDatasourceConfig} />
-
-        <div id="tutorialDiv">
-          {this.tutorialRender}
-        </div>
 
         {this.htmlToolbarRender}
       </div>
