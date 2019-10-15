@@ -86,6 +86,7 @@ export default class VFBMain extends React.Component {
     this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
     this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
+    this.sorterColumns = require('./configuration/queryBuilderConfiguration').sorterColumns;
 
     this.model = FlexLayout.Model.fromJson(modelJson)
 
@@ -1013,7 +1014,7 @@ export default class VFBMain extends React.Component {
         }
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
-          if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
+          if ((currentSelectionName != latestSelection.getName())) {
             this.handlerInstanceUpdate(latestSelection[latestSelection.getId() + "_meta"]);
           }
         } else {
@@ -1219,7 +1220,8 @@ export default class VFBMain extends React.Component {
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig} />
+          datasourceConfig={this.queryBuilderDatasourceConfig} 
+          sorterColumns={this.sorterColumns} />
 
         {this.htmlToolbarRender}
       </div>

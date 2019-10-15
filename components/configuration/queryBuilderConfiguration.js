@@ -10,7 +10,7 @@ var queryResultsColMeta = [
     "order": 1,
     "locked": false,
     "visible": true,
-    "displayName": "ID",
+    "displayName": "ID"
   },
   {
     "columnName": "name",
@@ -23,6 +23,7 @@ var queryResultsColMeta = [
     "entityDelimiter": "----",
     "displayName": "Name",
     "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "expressed_in",
@@ -34,7 +35,8 @@ var queryResultsColMeta = [
     "entityIndex": 1,
     "entityDelimiter": "----",
     "displayName": "Expressed_in",
-    "cssClassName": "query-results-expressed_in-column"
+    "cssClassName": "query-results-expressed_in-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "description",
@@ -42,7 +44,8 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Definition",
-    "cssClassName": "query-results-description-column"
+    "cssClassName": "query-results-description-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "reference",
@@ -55,7 +58,8 @@ var queryResultsColMeta = [
     "entityDelimiter": "----",
     "stringDelimiter": ";",
     "displayName": "Reference",
-    "cssClassName": "query-results-reference-column"
+    "cssClassName": "query-results-reference-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "type",
@@ -63,7 +67,8 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Type",
-    "cssClassName": "query-results-type-column"
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "stage",
@@ -81,7 +86,8 @@ var queryResultsColMeta = [
     "customComponent": QueryResultsControlsComponent,
     "displayName": "Controls",
     "actions": "",
-    "cssClassName": "query-results-controls-column"
+    "cssClassName": "query-results-controls-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "images",
@@ -91,7 +97,8 @@ var queryResultsColMeta = [
     "customComponent": SlideshowImageComponent,
     "displayName": "Images",
     "actions": "window.addVfbId('$entity$');",
-    "cssClassName": "query-results-images-column"
+    "cssClassName": "query-results-images-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "score",
@@ -99,7 +106,8 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Score",
-    "cssClassName": "query-results-score-column"
+    "cssClassName": "query-results-score-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
   }
 ];
 
@@ -267,9 +275,25 @@ var queryBuilderDatasourceConfig = {
   }
 };
 
+var sorterColumns = [
+  {
+    column: "score",
+    order: "DESC"
+  },
+  {
+    column: "name",
+    order: "ASC"
+  },
+  {
+    column: "images",
+    order: "DESC"
+  },
+];
+
 module.exports = {
   queryResultsColMeta,
   queryResultsColumns,
   queryResultsControlConfig,
-  queryBuilderDatasourceConfig
+  queryBuilderDatasourceConfig,
+  sorterColumns
 };
