@@ -29,8 +29,8 @@ export default class FocusTerm extends React.Component {
           if (Instances[i].parent != null) {
             Instances[i].parent.delete();
             // Delete instance too after deleting parent
-            if(Instances[i] != null) {
-            	Instances[i].delete()
+            if (Instances[i] != null) {
+              Instances[i].delete()
             }
           } else {
             Instances[i].delete()
