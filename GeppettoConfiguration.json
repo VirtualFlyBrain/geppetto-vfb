@@ -17,11 +17,11 @@
     "errorDialog": {
       "message" : "I broke geppetto, ops!",
       "githubButton": {
-        "enabled" : false,
+        "enabled" : true,
         "url" : "https://github.com/VirtualFlyBrain/geppetto-vfb/issues"
       },
       "twitterButton": {
-        "enabled" : false,
+        "enabled" : true,
         "url" : "https://twitter.com/openworm",
         "message" : "I broke geppetto, ops!"
       }
