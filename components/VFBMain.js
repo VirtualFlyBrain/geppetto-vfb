@@ -86,6 +86,7 @@ export default class VFBMain extends React.Component {
     this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
     this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
+    this.sorterColumns = require('./configuration/queryBuilderConfiguration').sorterColumns;
 
     this.model = FlexLayout.Model.fromJson(modelJson)
 
@@ -233,11 +234,15 @@ export default class VFBMain extends React.Component {
         continue;
       }
       if (this.hasVisualType(variableIds[singleId])) {
-        var instance = Instances.getInstance(variableIds[singleId]);
-        this.resolve3D(variableIds[singleId], function () {
+        this.resolve3D(variableIds[singleId], function (id) {
+          var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function")) {
-            instance.select();
+            if (this.idsFromURL.length > 0 && window.templateID !== undefined && Instances[window.templateID]) {
+              this.handlerInstanceUpdate(instance);
+            } else {
+              instance.select();
+            }
           }
         }.bind(this));
       } else {
@@ -390,7 +395,7 @@ export default class VFBMain extends React.Component {
       var postResolve = () => {
         this.setSepCol(path);
         if (callback != undefined) {
-          callback();
+          callback(path);
         }
       };
 
@@ -863,8 +868,8 @@ export default class VFBMain extends React.Component {
     }.bind(this);
 
     window.resolve3D = function (externalID) {
-      this.resolve3D(externalID, function () {
-        var instance = Instances.getInstance(externalID);
+      this.resolve3D(externalID, function (id) {
+        var instance = Instances.getInstance(id);
         if ((instance != undefined) && (typeof instance.select === "function")) {
           GEPPETTO.SceneController.deselectAll();
           instance.select();
@@ -949,20 +954,6 @@ export default class VFBMain extends React.Component {
         console.log("Loading IDS to add to the scene from url");
         GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
           that.addVfbId(that.idsFromURL);
-          /*
-           * var loadOnDelay = new Promise(function (resolve, reject) {
-           *   that.addVfbId(that.idsFromURL);
-           *   while (Instances[that.idFromURL] === undefined && window.templateID === undefined) {
-           *     setTimeout(null, 500);
-           *   }
-           *   resolve(true);
-           * });
-           * loadOnDelay.then(function (reason) {
-           *   if (reason) {
-           *     that.handlerInstanceUpdate(Instances[that.idFromURL]);
-           *   }
-           * });
-           */
         });
       }
     }
@@ -1023,7 +1014,7 @@ export default class VFBMain extends React.Component {
         }
         if (latestSelection.getChildren().length > 0) {
           // it's a wrapper object - if name is different from current selection set term info
-          if ((currentSelectionName != latestSelection.getName()) && (this.termInfoReference !== null) && (this.termInfoReference !== null)) {
+          if ((currentSelectionName != latestSelection.getName())) {
             this.handlerInstanceUpdate(latestSelection[latestSelection.getId() + "_meta"]);
           }
         } else {
@@ -1046,6 +1037,7 @@ export default class VFBMain extends React.Component {
     });
   }
 
+  // Handler created to manage all the update that relates to components of the UI
   handlerInstanceUpdate (instance) {
     let metaInstance = undefined;
     let parentInstance = undefined;
@@ -1056,6 +1048,7 @@ export default class VFBMain extends React.Component {
       return;
     }
 
+    // Logic to determine the parent and the meta instance, used to get all the data needed
     if (instance.getId().indexOf("_meta") === -1 && instance.getParent() === null) {
       parentInstance = instance;
       metaInstance = parentInstance[parentInstance.getId() + "_meta"];
@@ -1067,6 +1060,17 @@ export default class VFBMain extends React.Component {
     this.instanceOnFocus = metaInstance;
     this.idOnFocus = parentInstance.getId();
 
+    /*
+     * this is the core of the logic id= that we use on startup of the application from the URL.
+     * All the ids in the url in i= and id= are placed in the idsFromURL array, where the only id in
+     * id= is placed in idFromURL. In this portion of code we loop through this list, if the id on focus
+     * at the moment is in the list but is different from the id= that should take over term info and
+     * tree browser we simply remove this id from the array and return, instead if the id on focus is the
+     * the same that we stored in idFromURL in that case we remove this id from the array, break the loop
+     * and go forward to place all this information.
+     * Keep in mind this loop is executed only once, on startup, since the array is emptied and never
+     * filled again, for that reason DO NOT REUSE idsFromURL differently this logic will be broken.
+     */
     for (var counter = 0; counter < this.idsFromURL.length; counter++) {
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL !== this.idOnFocus) {
         this.idsFromURL.splice(counter, 1);
@@ -1216,7 +1220,8 @@ export default class VFBMain extends React.Component {
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig} />
+          datasourceConfig={this.queryBuilderDatasourceConfig} 
+          sorterColumns={this.sorterColumns} />
 
         {this.htmlToolbarRender}
       </div>
