@@ -5,6 +5,7 @@
   "repository": "http://git.geppetto.org",
   "license": "MIT",
   "scripts": {
+    "test": "jest --verbose",
     "prebuild": "eslint . --color",
     "build": "webpack -p --progress",
     "prebuild-dev": "eslint . --color",
