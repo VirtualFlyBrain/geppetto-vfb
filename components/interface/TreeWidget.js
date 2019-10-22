@@ -341,13 +341,7 @@ export default class TreeWidget extends React.Component {
     this.restPost({
       "statements": [
         {
-          "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual { short_form : '" + instance + "'})"
-                            + "<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->"
-                            + "(image:Individual)-[:INSTANCEOF]->(ac:Class) WHERE has(ie.index) WITH root, COLLECT"
-                            + " (ac.short_form) as tree_nodes, COLLECT (DISTINCT{ image: image.short_form, anat_ind:"
-                            + " image.short_form, type: ac.short_form}) AS domain_map MATCH p=allShortestPaths((root)"
-                            + "<-[:SUBCLASSOF|part_of*..]-(anat:Class)) WHERE anat.short_form IN tree_nodes RETURN p,"
-                            + " domain_map",
+          "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual {short_form:'" + instance + "'})<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:Individual)-[r:INSTANCEOF]->(anat:Class) WHERE has(ie.index) WITH root, anat,r,image MATCH p=allShortestPaths((root)<-[:SUBCLASSOF|part_of*..]-(anat:Class)) RETURN p,r,image",
           "resultDataContents": ["graph"]
         }
       ]
