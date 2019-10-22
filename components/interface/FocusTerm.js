@@ -28,9 +28,14 @@ export default class FocusTerm extends React.Component {
           window.addVfbId(window[window.templateID].getId());
           if (Instances[i].parent != null) {
             Instances[i].parent.delete();
+            // Delete instance too after deleting parent
+            if (Instances[i] != null) {
+              Instances[i].delete()
+            }
           } else {
             Instances[i].delete()
           }
+          i = i - 1; // Since an array element has been deleted, index is updated too
         }
       }
     }
