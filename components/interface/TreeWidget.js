@@ -260,7 +260,7 @@ export default class TreeWidget extends React.Component {
 
   insertChildren (nodes, edges, child) {
     var childrenList = this.findChildren({ from: child.id }, "from", edges, "part of");
-    child.images = this.findChildren({ from: child.id }, "from", edges, "INSTANCEOF");
+    //child.images = this.findChildren({ from: child.id }, "from", edges, "INSTANCEOF");
     var nodesList = [];
     for ( var i = 0; i < childrenList.length; i++) {
       nodesList.push(edges[childrenList[i]].to)
