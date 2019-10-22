@@ -281,13 +281,13 @@ var sorterColumns = [
     order: "DESC"
   },
   {
-    column: "name",
-    order: "ASC"
-  },
-  {
     column: "images",
     order: "DESC"
   },
+  {
+    column: "name",
+    order: "ASC"
+  }
 ];
 
 module.exports = {
