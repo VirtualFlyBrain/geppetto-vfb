@@ -211,7 +211,7 @@ export default class TreeWidget extends React.Component {
     return { nodes: nodesArray, edges: edgesArray };
   }
 
-  searchChildren (array, key, target){
+  searchChildren (array, key, target, label){
     // Define Start and End Index
     let startIndex = 0;
     let endIndex = array.length - 1;
@@ -222,7 +222,9 @@ export default class TreeWidget extends React.Component {
       let middleIndex = Math.floor((startIndex + endIndex) / 2);
       // Compare Middle Index with Target for match
       if (this.isNumber(array[middleIndex][key]) === this.isNumber(target[key])) {
-        return middleIndex;
+        if (array[middleIndex].label === label){
+          return middleIndex;
+        }
       }
       // Search Right Side Of Array
       if (this.isNumber(target[key]) > this.isNumber(array[middleIndex][key])) {
@@ -237,9 +239,9 @@ export default class TreeWidget extends React.Component {
     return undefined;
   }
 
-  findChildren (parent, key, familyList) {
+  findChildren (parent, key, familyList, label) {
     var childrenList = [];
-    var childKey = this.searchChildren(familyList, key, parent);
+    var childKey = this.searchChildren(familyList, key, parent, label);
     if (childKey !== undefined) {
       childrenList.push(childKey);
       var i = childKey - 1;
@@ -257,18 +259,19 @@ export default class TreeWidget extends React.Component {
   }
 
   insertChildren (nodes, edges, child) {
-    var childrenList = this.findChildren({ from: child.id }, "from", edges);
+    var childrenList = this.findChildren({ from: child.id }, "from", edges, "part of");
+    child.images = this.findChildren({ from: child.id }, "from", edges, "INSTANCEOF");
     var nodesList = [];
     for ( var i = 0; i < childrenList.length; i++) {
       nodesList.push(edges[childrenList[i]].to)
     }
     var uniqNodes = [...new Set(nodesList)];
     for ( var j = 0; j < uniqNodes.length; j++) {
-      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
+      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes,  "part of")[0]];
       child.children.push({
         title: node.title,
         subtitle: node.instanceId,
-        description: node.instanceId + " \n- " + node.info,
+        description: node.info,
         instanceId: node.instanceId,
         id: node.id,
         children: []
@@ -284,11 +287,12 @@ export default class TreeWidget extends React.Component {
         refinedDataTree.push({
           title: nodes[i].title,
           subtitle: nodes[i].instanceId,
-          description: "- " + nodes[i].instanceId + " \n- " + nodes[i].info,
+          description: nodes[i].info,
           instanceId: nodes[i].instanceId,
           id: nodes[i].id,
           isSelected: true,
-          children: []
+          children: [],
+          images: []
         });
         break;
       }
