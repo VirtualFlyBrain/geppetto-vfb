@@ -267,7 +267,7 @@ export default class TreeWidget extends React.Component {
     }
     var uniqNodes = [...new Set(nodesList)];
     for ( var j = 0; j < uniqNodes.length; j++) {
-      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes,  "part of")[0]];
+      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes, "part of")[0]];
       child.children.push({
         title: node.title,
         subtitle: node.instanceId,
