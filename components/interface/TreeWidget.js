@@ -222,8 +222,12 @@ export default class TreeWidget extends React.Component {
       let middleIndex = Math.floor((startIndex + endIndex) / 2);
       // Compare Middle Index with Target for match
       if (this.isNumber(array[middleIndex][key]) === this.isNumber(target[key])) {
+        // check for target relationship (label)
         if (array[middleIndex].label === label){
           return middleIndex;
+        }else{
+          // move on if not matching target relationship (label)
+          startIndex = middleIndex + 1; 
         }
       }
       // Search Right Side Of Array
