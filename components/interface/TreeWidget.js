@@ -225,7 +225,7 @@ export default class TreeWidget extends React.Component {
         // check for target relationship (label)
         if (array[middleIndex].label === label){
           return middleIndex;
-        }else{
+        } else {
           // move on if not matching target relationship (label)
           startIndex = middleIndex + 1; 
         }
