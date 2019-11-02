@@ -55,7 +55,7 @@ export default class TreeWidget extends React.Component {
       left_second_column: 395,
       column_width_small: 385,
       column_width_viewer: "calc(100% - 385px)",
-      row_height: 30,
+      row_height: 25,
       top: 0,
       height: this.props.size.height,
       width: this.props.size.width
@@ -99,23 +99,23 @@ export default class TreeWidget extends React.Component {
   sortData (unsortedArray, key, comparator) {
     // Create a sortable array to return.
     const sortedArray = [ ...unsortedArray ];
-  
+
     // Recursively sort sub-arrays.
     const recursiveSort = (start, end) => {
-  
+
       // If this sub-array is empty, it's sorted.
       if (end - start < 1) {
         return;
       }
-  
+
       const pivotValue = sortedArray[end];
       let splitIndex = start;
       for (let i = start; i < end; i++) {
         const sort = comparator(sortedArray[i], pivotValue, key);
-  
+
         // This value is less than the pivot value.
         if (sort === -1) {
-  
+
           /*
            * If the element just to the right of the split index,
            *   isn't this element, swap them.
@@ -125,29 +125,29 @@ export default class TreeWidget extends React.Component {
             sortedArray[splitIndex] = sortedArray[i];
             sortedArray[i] = temp;
           }
-  
+
           /*
            * Move the split index to the right by one,
            *   denoting an increase in the less-than sub-array size.
            */
           splitIndex++;
         }
-  
+
         /*
          * Leave values that are greater than or equal to
          *   the pivot value where they are.
          */
       }
-  
+
       // Move the pivot value to between the split.
       sortedArray[end] = sortedArray[splitIndex];
       sortedArray[splitIndex] = pivotValue;
-  
+
       // Recursively sort the less-than and greater-than arrays.
       recursiveSort(start, splitIndex - 1);
       recursiveSort(splitIndex + 1, end);
     };
-  
+
     // Sort the entire array.
     recursiveSort(0, unsortedArray.length - 1);
     return sortedArray;
@@ -385,7 +385,7 @@ export default class TreeWidget extends React.Component {
   findRoot (nodes) {
     let min = nodes[0].id;
     for ( let i = 1; i < nodes.length; i++) {
-      if(nodes[i].id < min) {
+      if (nodes[i].id < min) {
         min = nodes[i].id;
       }
     }
@@ -426,10 +426,10 @@ export default class TreeWidget extends React.Component {
         onClick={ () => {
           this.setState({ displayColorPicker: true });
         }}>
-        { (this.state.displayColorPicker 
+        { (this.state.displayColorPicker
           && this.state.nodeSelected.subtitle === rowInfo.node.subtitle
-          && this.colorPickerNode === undefined) 
-          ? <CompactColor 
+          && this.colorPickerNode === undefined)
+          ? <CompactColor
             style={{ zIndex: 10 }}/>
           : null}
       </i>);
@@ -448,14 +448,14 @@ export default class TreeWidget extends React.Component {
               <img id="dario"
                 src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
             </div></div>}>
-          <div 
+          <div
             className={rowInfo.node.subtitle === this.state.nodeSelected.subtitle
-              ? "nodeFound nodeSelected" 
+              ? "nodeFound nodeSelected"
               : "nodeSelected"}
             onClick={ () => {
               this.colorPickerNode = undefined;
               this.props.selectionHandler(rowInfo.node.subtitle);
-              this.setState({ displayColorPicker: false }); 
+              this.setState({ displayColorPicker: false });
             }}>
             {rowInfo.node.title}
           </div>
