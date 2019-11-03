@@ -275,9 +275,20 @@ export default class TreeWidget extends React.Component {
       nodesList.push(edges[childrenList[i]].to)
     }
     var uniqNodes = [...new Set(nodesList)];
+
+    for (var j = uniqNodes.length - 1; j >= 0 ; j--) {
+      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
+      if (node.instanceId.indexOf("VFB_") > -1) {
+        child.instanceId = node.instanceId;
+        // child.subtitle = child.subtitle + " " + node.instanceId;
+        uniqNodes.splice(j, 1);
+      }
+    }
+
     for ( var j = 0; j < uniqNodes.length; j++) {
       var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
       if (node.instanceId.indexOf("VFB_") > -1) {
+        console.log("child.instanceId contains " + child.instanceId + "but I am overwriting it with " + node.instanceId);
         child.instanceId = node.instanceId;
       } else {
         child.children.push({
@@ -420,19 +431,58 @@ export default class TreeWidget extends React.Component {
 
   getButtons (rowInfo) {
     var buttons = [];
-    if (rowInfo.node.title !== "No data available.") {
-      buttons.push(<i className="fa fa-tint"
-        aria-hidden="true"
-        onClick={ () => {
-          this.setState({ displayColorPicker: true });
-        }}>
-        { (this.state.displayColorPicker
+    if (Instances[rowInfo.node.instanceId] !== undefined && typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") {
+      // rowInfo.node.subtitle = rowInfo.node.instanceId;
+      if (Instances[rowInfo.node.instanceId].isVisible()) {
+        var color = Instances[rowInfo.node.instanceId].getColor();
+        buttons.push(<i className="fa fa-eye-slash"
+          aria-hidden="true"
+          onClick={ () => {
+            Instances[rowInfo.node.instanceId].hide();
+            this.setState({ nodeSelected: rowInfo.node });
+          }} />);
+        buttons.push(<i className="fa fa-tint"
+          style={{
+            paddingLeft: "6px",
+            color: color
+          }}
+          aria-hidden="true"
+          onClick={ () => {
+            this.setState({ displayColorPicker: true });
+          }}>
+          { (this.state.displayColorPicker
           && this.state.nodeSelected.subtitle === rowInfo.node.subtitle
           && this.colorPickerNode === undefined)
-          ? <CompactColor
-            style={{ zIndex: 10 }}/>
-          : null}
-      </i>);
+            ? <CompactColor
+              ref={node => this.colorPickerNode = node}
+              color={Instances[rowInfo.node.instanceId].getColor()}
+              onChangeComplete={ color => {
+                Instances[rowInfo.node.instanceId].setColor(color.hex);
+                this.setState({ displayColorPicker: true });
+              }}
+              style={{ zIndex: 10 }}/>
+            : null}
+        </i>);
+      } else {
+        if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+          buttons.push(<i className="fa fa-eye"
+            aria-hidden="true"
+            onClick={ () => {
+              Instances[rowInfo.node.instanceId].show();
+              this.setState({ nodeSelected: rowInfo.node });
+            }} />);
+        }
+      }
+    } else {
+      if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+        buttons.push(<i className="fa fa-eye"
+          aria-hidden="true"
+          onClick={ () => {
+            // rowInfo.node.subtitle = rowInfo.node.instanceId;
+            this.props.selectionHandler(rowInfo.node.instanceId);
+            this.setState({ nodeSelected: rowInfo.node });
+          }} />);
+      }
     }
     return buttons;
   }
@@ -440,14 +490,17 @@ export default class TreeWidget extends React.Component {
   getNodes (rowInfo) {
     if (rowInfo.node.title !== "No data available.") {
       var title = <MuiThemeProvider theme={this.theme}>
-        <Tooltip
-          title={<div id="dario">
-            <div> {rowInfo.node.instanceId} </div>
-            <div> {rowInfo.node.description} </div>
-            <div>
-              <img id="dario"
-                src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
-            </div></div>}>
+        <Tooltip placement="right-start"
+          title={ (rowInfo.node.instanceId.indexOf("VFB_") > -1)
+            ? (<div>
+              <div> {rowInfo.node.description} </div>
+              <div>
+                <img style={{ textAlign: "center" }}
+                  src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
+              </div></div>)
+            : (<div>
+              <div> {rowInfo.node.description} </div>
+            </div>)}>
           <div
             className={rowInfo.node.subtitle === this.state.nodeSelected.subtitle
               ? "nodeFound nodeSelected"
