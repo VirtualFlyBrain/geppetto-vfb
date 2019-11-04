@@ -6,7 +6,7 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
-ARG mvnOpt="-X -Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
+ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
 ARG googleAnalyticsSiteCode=UA-45841517-1
 
