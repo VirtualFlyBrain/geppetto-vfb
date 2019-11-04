@@ -46,7 +46,6 @@ export default class TreeWidget extends React.Component {
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
     this.defaultComparator = this.defaultComparator.bind(this);
     this.convertDataForTree = this.convertDataForTree.bind(this);
-    this.customSearchMethod = this.customSearchMethod.bind(this);
     this.parseGraphResultData = this.parseGraphResultData.bind(this);
 
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
@@ -62,6 +61,7 @@ export default class TreeWidget extends React.Component {
     };
 
     this.colorPickerNode = undefined;
+    this.colorPickerContainer = undefined;
   }
 
   isNumber (variable) {
@@ -338,7 +338,7 @@ export default class TreeWidget extends React.Component {
       innerInstance = instance;
     }
 
-    if (innerInstance.id !== this.state.instance.id) {
+    if (this.state.instance !== undefined && innerInstance.id !== this.state.instance.id) {
       if (innerInstance.id === window.templateID) {
         this.selectNode(this.state.dataTree[0])
         return;
@@ -375,7 +375,11 @@ export default class TreeWidget extends React.Component {
           root: vertix,
           loading: false,
           nodes: nodes,
-          nodeSelected: treeData[0]
+          nodeSelected: (this.props.instance === undefined
+            ? treeData[0]
+            : (this.props.instance.getParent() === null
+              ? { subtitle: this.props.instance.getId() }
+              : { subtitle: this.props.instance.getParent().getId() }))
         });
       } else {
         var treeData = [{
@@ -406,25 +410,22 @@ export default class TreeWidget extends React.Component {
   componentWillMount () {
     if (window.templateID !== undefined) {
       this.initTree(window.templateID);
-      document.addEventListener('mousedown', this.monitorMouseClick, false);
     }
   }
 
-  componentWillReceiveProps () {
+  componentWillUnmount () {
     document.removeEventListener('mousedown', this.monitorMouseClick, false);
   }
 
   nodeClick (event, rowInfo) {
-    console.log("clicked on the tree node");
-    console.log(rowInfo);
     this.selectNode(rowInfo.node);
   }
 
   monitorMouseClick (e) {
-    if (this.colorPickerNode !== undefined && this.colorPickerNode.contains(e.target)) {
+    if (this.colorPickerContainer !== undefined && this.colorPickerContainer !== null && this.colorPickerContainer.contains(e.target)) {
       return;
     } else {
-      this.colorPickerNode = undefined;
+      this.colorPickerContainer = undefined;
       this.setState({ displayColorPicker: false });
     }
   }
@@ -432,7 +433,7 @@ export default class TreeWidget extends React.Component {
   getButtons (rowInfo) {
     var buttons = [];
     if (Instances[rowInfo.node.instanceId] !== undefined && typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") {
-      // rowInfo.node.subtitle = rowInfo.node.instanceId;
+      rowInfo.node.subtitle = rowInfo.node.instanceId;
       if (Instances[rowInfo.node.instanceId].isVisible()) {
         var color = Instances[rowInfo.node.instanceId].getColor();
         buttons.push(<i className="fa fa-eye-slash"
@@ -448,19 +449,20 @@ export default class TreeWidget extends React.Component {
           }}
           aria-hidden="true"
           onClick={ () => {
-            this.setState({ displayColorPicker: true });
+            this.setState({ displayColorPicker: !this.state.displayColorPicker });
           }}>
           { (this.state.displayColorPicker
           && this.state.nodeSelected.subtitle === rowInfo.node.subtitle
           && this.colorPickerNode === undefined)
-            ? <CompactColor
-              ref={node => this.colorPickerNode = node}
-              color={Instances[rowInfo.node.instanceId].getColor()}
-              onChangeComplete={ color => {
-                Instances[rowInfo.node.instanceId].setColor(color.hex);
-                this.setState({ displayColorPicker: true });
-              }}
-              style={{ zIndex: 10 }}/>
+            ? <div id= "dario" ref={ref => this.colorPickerContainer = ref}>
+              <CompactColor
+                color={Instances[rowInfo.node.instanceId].getColor()}
+                onChangeComplete={ color => {
+                  Instances[rowInfo.node.instanceId].setColor(color.hex);
+                  this.setState({ displayColorPicker: true });
+                }}
+                style={{ zIndex: 10 }}/>
+            </div>
             : null}
         </i>);
       } else {
@@ -478,7 +480,7 @@ export default class TreeWidget extends React.Component {
         buttons.push(<i className="fa fa-eye"
           aria-hidden="true"
           onClick={ () => {
-            // rowInfo.node.subtitle = rowInfo.node.instanceId;
+            rowInfo.node.subtitle = rowInfo.node.instanceId;
             this.props.selectionHandler(rowInfo.node.instanceId);
             this.setState({ nodeSelected: rowInfo.node });
           }} />);
@@ -518,19 +520,13 @@ export default class TreeWidget extends React.Component {
     return title;
   }
 
-  searchDone (matches) {
-    if (matches.length > 0) {
-      console.log('Found children in the tree');
-      /*
-       * matches.map(item => {
-       *   item.isSelected = true;
-       * })
-       */
-    }
+  componentDidMount () {
+    var that = this;
+    document.addEventListener('mousedown', this.monitorMouseClick, false);
+    GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
+      that.setState({ displayColorPicker: false });
+    });
   }
-
-  customSearchMethod = ({ node, searchQuery }) =>
-    searchQuery && node.instanceId.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1;
 
   render () {
     if (this.state.dataTree === undefined) {
@@ -569,8 +565,8 @@ export default class TreeWidget extends React.Component {
             rowHeight={this.styles.row_height}
             getButtons={this.getButtons}
             getNodesProps={this.getNodes}
-            searchQuery={this.state.nodeSelected !== undefined ? this.state.nodeSelected.subtitle : null}
-            searchFinishCallback={this.searchDone}
+            searchQuery={this.state.nodeSelected.subtitle}
+            onlyExpandSearchedNodes={false}
           />
         }
       </div>
