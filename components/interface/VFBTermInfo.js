@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
+import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
 var Type = require('geppetto-client/js/geppettoModel/model/Type');
-var ButtonBarComponent = require('geppetto-client/js/components/widgets/popup/ButtonBarComponent');
 
 require('../../css/VFBTermInfo.less');
 require('geppetto-client/js/components/widgets/popup/Popup.less');

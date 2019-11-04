@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+import Tooltip from '@material-ui/core/Tooltip';
+import {
+  createMuiTheme,
+  MuiThemeProvider
+} from "@material-ui/core/styles";
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -15,6 +20,7 @@ export default class FocusTerm extends React.Component {
 
     this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
     this.labels = require('../configuration/focusTermConfiguration.js').subMenusGrouping;
+    this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
 
     this.clearAll = this.clearAll.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
@@ -476,55 +482,63 @@ export default class FocusTerm extends React.Component {
 
           <div className="focusTermRight">
             <div className="focusTermDivR">
-              <i className="fa fa-eraser arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.clearAll();
-                }}>
-                <span className="tooltipBox"> Clear all </span>
-              </i>
-              <i className="fa fa-search arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.props.UIUpdateManager("spotlightVisible");
-                }}>
-                <span className="tooltipBox"> Open the spotlight </span>
-              </i>
-              <i className="fa fa-quora arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.props.UIUpdateManager("queryBuilderVisible");
-                }}>
-                <span className="tooltipBox"> Open the query builder </span>
-              </i>
-              <i className="fa fa-list arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.props.UIUpdateManager("controlPanelVisible");
-                }}>
-                <span className="tooltipBox"> Open the control panel </span>
-              </i>
-              { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
-                ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
-                  onClick={() => {
-                    if (window.vfbUpdatingHistory == false) {
-                      window.history.back();
-                    }
-                  }}>
-                  <span className="tooltipBox"> {tooltipPrevious} </span>
-                </i>
-                : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
-              }
-              { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
-                ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
-                  onClick={() => {
-                    if (window.vfbUpdatingHistory == false) {
-                      window.history.forward();
-                    }
-                  }}>
-                  <span className="tooltipBox"> {tooltipNext} </span>
-                </i>
-                : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
-              }
-              <Menu
-                configuration={this.focusTermConfiguration}
-                menuHandler={this.menuHandler} />
+              <MuiThemeProvider theme={this.theme}>
+                <Tooltip placement="top-end"
+                  title="Clear all">
+                  <i className="fa fa-eraser arrowsStyle"
+                    onClick={() => {
+                      this.clearAll();
+                    }} />
+                </Tooltip>
+                <Tooltip placement="top-end"
+                  title="Open the spotlight">
+                  <i className="fa fa-search arrowsStyle"
+                    onClick={() => {
+                      this.props.UIUpdateManager("spotlightVisible");
+                    }} />
+                </Tooltip>
+                <Tooltip placement="top-end"
+                  title="Open the query builder">
+                  <i className="fa fa-quora arrowsStyle"
+                    onClick={() => {
+                      this.props.UIUpdateManager("queryBuilderVisible");
+                    }} />
+                </Tooltip>
+                <Tooltip placement="top-end"
+                  title="Open the control panel">
+                  <i className="fa fa-list arrowsStyle"
+                    onClick={() => {
+                      this.props.UIUpdateManager("controlPanelVisible");
+                    }} />
+                </Tooltip>
+                { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
+                  ? <Tooltip placement="top-end"
+                    title={tooltipPrevious}>
+                    <i className="fa fa-chevron-left arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.back();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
+                }
+                { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
+                  ? <Tooltip placement="top-end"
+                    title={tooltipNext}> 
+                    <i className="fa fa-chevron-right arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.forward();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
+                }
+                <Menu
+                  configuration={this.focusTermConfiguration}
+                  menuHandler={this.menuHandler} />
+              </MuiThemeProvider>
             </div>
           </div>
         </nav>
