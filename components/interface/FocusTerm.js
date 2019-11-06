@@ -486,13 +486,13 @@ export default class FocusTerm extends React.Component {
                 onClick={() => {
                   this.props.UIUpdateManager("spotlightVisible");
                 }}>
-                <span className="tooltipBox"> Open the spotlight </span>
+                <span className="tooltipBox"> Search </span>
               </i>
               <i className="fa fa-quora arrowsStyle tooltipLink"
                 onClick={() => {
                   this.props.UIUpdateManager("queryBuilderVisible");
                 }}>
-                <span className="tooltipBox"> Open the query builder </span>
+                <span className="tooltipBox"> Open query results </span>
               </i>
               <i className="fa fa-list arrowsStyle tooltipLink"
                 onClick={() => {
