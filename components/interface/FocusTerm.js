@@ -122,7 +122,7 @@ export default class FocusTerm extends React.Component {
               if (allQueries2.length > 0) {
                 focusSubMenu.push(
                   {
-                    label: "Search for",
+                    label: "Query for",
                     icon: "",
                     action: "",
                     position: "left",
@@ -139,7 +139,7 @@ export default class FocusTerm extends React.Component {
         } else {
           focusSubMenu.push(
             {
-              label: "Search for",
+              label: "Query for",
               icon: "",
               action: "",
               position: "left",
@@ -160,7 +160,7 @@ export default class FocusTerm extends React.Component {
               if (allQueries.length > 0) {
                 focusSubMenu.push(
                   {
-                    label: "Search for",
+                    label: "Query for",
                     icon: "",
                     action: "",
                     position: "left",
@@ -178,7 +178,7 @@ export default class FocusTerm extends React.Component {
             if (allQueries.length > 0) {
               focusSubMenu.push(
                 {
-                  label: "Search for",
+                  label: "Query for",
                   icon: "",
                   action: "",
                   position: "left",
