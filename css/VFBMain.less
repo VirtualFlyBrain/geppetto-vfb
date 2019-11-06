@@ -1124,7 +1124,7 @@
    * Nodes matching the search conditions are highlighted
    */
   .rst__rowSearchMatch {
-    outline: solid 3px #0080ff;
+    //outline: solid 3px #0080ff;
   }
   
   /**
@@ -1341,8 +1341,8 @@
     position: absolute;
     border-radius: 100%;
     box-shadow: 0 0 0 1px #000;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     padding: 0;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -1355,7 +1355,7 @@
   .rst__collapseButton:focus,
   .rst__expandButton:focus {
     outline: none;
-    box-shadow: 0 0 0 1px #000, 0 0 1px 3px #83bef9;
+    box-shadow: none; //0 0 0 1px #000, 0 0 1px 3px #83bef9;
   }
   .rst__collapseButton:hover:not(:active),
   .rst__expandButton:hover:not(:active) {
@@ -1549,7 +1549,7 @@
 
 // Tree component styling
 .rst__rowContents {
-    background: rgb(25, 25, 25);
+    background: transparent;
     color: #ffffff;
     cursor: pointer;
     border-bottom: 1px solid rgb(25, 25, 25);
@@ -1603,17 +1603,24 @@
   }
 
 .nodeSelected {
-  color: #11bffe;
+  color: #ffffff;
   font-size: 14px;
   font-family: 'Khand', sans-serif;
   border: 0px solid;
-  background: #191919;
+  background: transparent;
 }
 
-.nodeUnselected {
-  color: #ffffff;
-  font-size: 12px;
-  font-family: 'Khand', sans-serif;
-  border: 0px solid;
-  background: #191919;
+.nodeSelected:hover {
+  color: #11bffe;
+}
+
+.nodeFound {
+  //outline: solid 3px #0080ff;
+  color: #0080ff;
+
+}
+
+.chrome-picker {
+  position: absolute;
+  z-index: 1;
 }

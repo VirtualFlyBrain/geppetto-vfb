@@ -1,13 +1,19 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
+import CompactColor from 'react-color';
 import Tree from 'geppetto-client/js/components/interface/tree/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
+import {
+  createMuiTheme,
+  MuiThemeProvider
+} from "@material-ui/core/styles";
 
 import 'react-sortable-tree/style.css';
 
 var $ = require('jquery');
-var GEPPETTO = require('geppetto');
+const restPostConfig = require('../configuration/treeWidgetConfiguration').restPostConfig;
+const treeCypherQuery = require('../configuration/treeWidgetConfiguration').treeCypherQuery;
 
 export default class TreeWidget extends React.Component {
 
@@ -21,9 +27,11 @@ export default class TreeWidget extends React.Component {
       loading: false,
       nodes: undefined,
       nodeSelected: undefined,
+      displayColorPicker: false
     };
 
     this.initTree = this.initTree.bind(this);
+    this.getNodes = this.getNodes.bind(this);
     this.sortData = this.sortData.bind(this);
     this.restPost = this.restPost.bind(this);
     this.nodeClick = this.nodeClick.bind(this);
@@ -35,21 +43,25 @@ export default class TreeWidget extends React.Component {
     this.findChildren = this.findChildren.bind(this);
     this.searchChildren = this.searchChildren.bind(this);
     this.insertChildren = this.insertChildren.bind(this);
+    this.monitorMouseClick = this.monitorMouseClick.bind(this);
     this.defaultComparator = this.defaultComparator.bind(this);
     this.convertDataForTree = this.convertDataForTree.bind(this);
-    this.customSearchMethod = this.customSearchMethod.bind(this);
     this.parseGraphResultData = this.parseGraphResultData.bind(this);
 
+    this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
     this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
     this.styles = {
       left_second_column: 395,
       column_width_small: 385,
       column_width_viewer: "calc(100% - 385px)",
-      row_height: 40,
+      row_height: 25,
       top: 0,
       height: this.props.size.height,
       width: this.props.size.width
     };
+
+    this.colorPickerNode = undefined;
+    this.colorPickerContainer = undefined;
   }
 
   isNumber (variable) {
@@ -68,8 +80,8 @@ export default class TreeWidget extends React.Component {
           request.setRequestHeader("Authorization", this.AUTHORIZATION);
         }
       },
-      url: "http://pdb.virtualflybrain.org/db/data/transaction/commit",
-      contentType: "application/json",
+      url: restPostConfig.url,
+      contentType: restPostConfig.contentType,
       data: strData
     });
   }
@@ -87,23 +99,23 @@ export default class TreeWidget extends React.Component {
   sortData (unsortedArray, key, comparator) {
     // Create a sortable array to return.
     const sortedArray = [ ...unsortedArray ];
-  
+
     // Recursively sort sub-arrays.
     const recursiveSort = (start, end) => {
-  
+
       // If this sub-array is empty, it's sorted.
       if (end - start < 1) {
         return;
       }
-  
+
       const pivotValue = sortedArray[end];
       let splitIndex = start;
       for (let i = start; i < end; i++) {
         const sort = comparator(sortedArray[i], pivotValue, key);
-  
+
         // This value is less than the pivot value.
         if (sort === -1) {
-  
+
           /*
            * If the element just to the right of the split index,
            *   isn't this element, swap them.
@@ -113,29 +125,29 @@ export default class TreeWidget extends React.Component {
             sortedArray[splitIndex] = sortedArray[i];
             sortedArray[i] = temp;
           }
-  
+
           /*
            * Move the split index to the right by one,
            *   denoting an increase in the less-than sub-array size.
            */
           splitIndex++;
         }
-  
+
         /*
          * Leave values that are greater than or equal to
          *   the pivot value where they are.
          */
       }
-  
+
       // Move the pivot value to between the split.
       sortedArray[end] = sortedArray[splitIndex];
       sortedArray[splitIndex] = pivotValue;
-  
+
       // Recursively sort the less-than and greater-than arrays.
       recursiveSort(start, splitIndex - 1);
       recursiveSort(splitIndex + 1, end);
     };
-  
+
     // Sort the entire array.
     recursiveSort(0, unsortedArray.length - 1);
     return sortedArray;
@@ -270,17 +282,32 @@ export default class TreeWidget extends React.Component {
       nodesList.push(edges[childrenList[i]].to)
     }
     var uniqNodes = [...new Set(nodesList)];
+
+    for (var j = uniqNodes.length - 1; j >= 0 ; j--) {
+      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
+      if (node.instanceId.indexOf("VFB_") > -1) {
+        child.instanceId = node.instanceId;
+        // child.subtitle = child.subtitle + " " + node.instanceId;
+        uniqNodes.splice(j, 1);
+      }
+    }
+
     for ( var j = 0; j < uniqNodes.length; j++) {
-      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes, "part of")[0]];
-      child.children.push({
-        title: node.title,
-        subtitle: node.instanceId,
-        description: node.info,
-        instanceId: node.instanceId,
-        id: node.id,
-        children: []
-      });
-      this.insertChildren(nodes, edges, child.children[j])
+      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
+      if (node.instanceId.indexOf("VFB_") > -1) {
+        console.log("child.instanceId contains " + child.instanceId + "but I am overwriting it with " + node.instanceId);
+        child.instanceId = node.instanceId;
+      } else {
+        child.children.push({
+          title: node.title,
+          subtitle: node.instanceId,
+          description: node.info,
+          instanceId: node.instanceId,
+          id: node.id,
+          children: []
+        });
+        this.insertChildren(nodes, edges, child.children[j])
+      }
     }
   }
 
@@ -294,9 +321,7 @@ export default class TreeWidget extends React.Component {
           description: nodes[i].info,
           instanceId: nodes[i].instanceId,
           id: nodes[i].id,
-          isSelected: true,
-          children: [],
-          images: []
+          children: []
         });
         break;
       }
@@ -308,9 +333,6 @@ export default class TreeWidget extends React.Component {
 
   selectNode (instance) {
     if (this.state.nodeSelected !== undefined && this.state.nodeSelected.instanceId !== instance.instanceId) {
-      let oldNode = this.state.nodeSelected;
-      oldNode.isSelected = false;
-      instance.isSelected = true;
       this.setState({ nodeSelected: instance, dataTree: this.state.dataTree });
     }
   }
@@ -323,7 +345,7 @@ export default class TreeWidget extends React.Component {
       innerInstance = instance;
     }
 
-    if (innerInstance.id !== this.state.instance.id) {
+    if (this.state.instance !== undefined && innerInstance.id !== this.state.instance.id) {
       if (innerInstance.id === window.templateID) {
         this.selectNode(this.state.dataTree[0])
         return;
@@ -346,18 +368,11 @@ export default class TreeWidget extends React.Component {
 
   initTree (instance) {
     this.setState({ loading: true });
-    this.restPost({
-      "statements": [
-        {
-          "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual {short_form:'" + instance + "'})<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:Individual)-[r:INSTANCEOF]->(anat:Class) WHERE has(ie.index) WITH root, anat,r,image MATCH p=allShortestPaths((root)<-[:SUBCLASSOF|part_of*..]-(anat:Class)) RETURN p,r,image",
-          "resultDataContents": ["graph"]
-        }
-      ]
-    }).done(data => {
+    this.restPost(treeCypherQuery(instance)).done(data => {
       // If I need to edit the data I can call this here and then assign it to this.state.dataTree
       if (data.results[0].data.length > 0) {
         var dataTree = this.parseGraphResultData(data);
-        var vertix = data.results[0].data[0].graph.nodes[0].id;
+        var vertix = this.findRoot(data.results[0].data[0].graph.nodes);
         var nodes = this.sortData(this.convertNodes(dataTree.nodes), "id", this.defaultComparator);
         var edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
         var treeData = this.convertDataForTree(nodes, edges, vertix);
@@ -367,7 +382,11 @@ export default class TreeWidget extends React.Component {
           root: vertix,
           loading: false,
           nodes: nodes,
-          nodeSelected: treeData[0]
+          nodeSelected: (this.props.instance === undefined
+            ? treeData[0]
+            : (this.props.instance.getParent() === null
+              ? { subtitle: this.props.instance.getId() }
+              : { subtitle: this.props.instance.getParent().getId() }))
         });
       } else {
         var treeData = [{
@@ -385,52 +404,136 @@ export default class TreeWidget extends React.Component {
     });
   }
 
+  findRoot (nodes) {
+    let min = nodes[0].id;
+    for ( let i = 1; i < nodes.length; i++) {
+      if (nodes[i].id < min) {
+        min = nodes[i].id;
+      }
+    }
+    return min;
+  }
+
   componentWillMount () {
     if (window.templateID !== undefined) {
       this.initTree(window.templateID);
     }
   }
 
+  componentWillUnmount () {
+    document.removeEventListener('mousedown', this.monitorMouseClick, false);
+  }
+
   nodeClick (event, rowInfo) {
-    console.log("clicked on the tree node");
-    console.log(rowInfo);
     this.selectNode(rowInfo.node);
+  }
+
+  monitorMouseClick (e) {
+    if (this.colorPickerContainer !== undefined && this.colorPickerContainer !== null && this.colorPickerContainer.contains(e.target)) {
+      return;
+    } else {
+      this.colorPickerContainer = undefined;
+      this.setState({ displayColorPicker: false });
+    }
   }
 
   getButtons (rowInfo) {
     var buttons = [];
-    if (rowInfo.node.title !== "No data available.") {
-      buttons.push(<Tooltip 
-        title={rowInfo.node.description}
-        style={{ fontSize: "14px" }}>
-        <i className="fa fa-info-circle"
+    if (Instances[rowInfo.node.instanceId] !== undefined && typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") {
+      rowInfo.node.subtitle = rowInfo.node.instanceId;
+      if (Instances[rowInfo.node.instanceId].isVisible()) {
+        var color = Instances[rowInfo.node.instanceId].getColor();
+        buttons.push(<i className="fa fa-eye-slash"
           aria-hidden="true"
           onClick={ () => {
-            window.addVfbId(rowInfo.node.instanceId);
-          }}></i></Tooltip>);
+            Instances[rowInfo.node.instanceId].hide();
+            this.setState({ nodeSelected: rowInfo.node });
+          }} />);
+        buttons.push(<i className="fa fa-tint"
+          style={{
+            paddingLeft: "6px",
+            color: color
+          }}
+          aria-hidden="true"
+          onClick={ () => {
+            this.setState({ displayColorPicker: !this.state.displayColorPicker });
+          }}>
+          { (this.state.displayColorPicker
+          && this.state.nodeSelected.subtitle === rowInfo.node.subtitle
+          && this.colorPickerNode === undefined)
+            ? <div id= "dario" ref={ref => this.colorPickerContainer = ref}>
+              <CompactColor
+                color={Instances[rowInfo.node.instanceId].getColor()}
+                onChangeComplete={ color => {
+                  Instances[rowInfo.node.instanceId].setColor(color.hex);
+                  this.setState({ displayColorPicker: true });
+                }}
+                style={{ zIndex: 10 }}/>
+            </div>
+            : null}
+        </i>);
+      } else {
+        if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+          buttons.push(<i className="fa fa-eye"
+            aria-hidden="true"
+            onClick={ () => {
+              Instances[rowInfo.node.instanceId].show();
+              this.setState({ nodeSelected: rowInfo.node });
+            }} />);
+        }
+      }
+    } else {
+      if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+        buttons.push(<i className="fa fa-eye"
+          aria-hidden="true"
+          onClick={ () => {
+            rowInfo.node.subtitle = rowInfo.node.instanceId;
+            this.props.selectionHandler(rowInfo.node.instanceId);
+            this.setState({ nodeSelected: rowInfo.node });
+          }} />);
+      }
     }
     return buttons;
   }
 
   getNodes (rowInfo) {
     if (rowInfo.node.title !== "No data available.") {
-      var title = <div className={rowInfo.node.isSelected ? "nodeSelected" : "nodeUnselected"}>
-        {rowInfo.node.title}
-      </div>;
+      var title = <MuiThemeProvider theme={this.theme}>
+        <Tooltip placement="right-start"
+          title={ (rowInfo.node.instanceId.indexOf("VFB_") > -1)
+            ? (<div>
+              <div> {rowInfo.node.description} </div>
+              <div>
+                <img style={{ textAlign: "center" }}
+                  src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
+              </div></div>)
+            : (<div>
+              <div> {rowInfo.node.description} </div>
+            </div>)}>
+          <div
+            className={rowInfo.node.subtitle === this.state.nodeSelected.subtitle
+              ? "nodeFound nodeSelected"
+              : "nodeSelected"}
+            onClick={ () => {
+              this.colorPickerNode = undefined;
+              this.props.selectionHandler(rowInfo.node.subtitle);
+              this.setState({ displayColorPicker: false });
+            }}>
+            {rowInfo.node.title}
+          </div>
+        </Tooltip>
+      </MuiThemeProvider>;
     }
     return title;
   }
 
-  searchDone (matches) {
-    if (matches.length > 0) {
-      matches.map(item => {
-        item.isSelected = true;
-      })
-    }
+  componentDidMount () {
+    var that = this;
+    document.addEventListener('mousedown', this.monitorMouseClick, false);
+    GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
+      that.setState({ displayColorPicker: false });
+    });
   }
-
-  customSearchMethod = ({ node, searchQuery }) =>
-    searchQuery && node.instanceId.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1;
 
   render () {
     if (this.state.dataTree === undefined) {
@@ -469,8 +572,8 @@ export default class TreeWidget extends React.Component {
             rowHeight={this.styles.row_height}
             getButtons={this.getButtons}
             getNodesProps={this.getNodes}
-            searchQuery={this.state.nodeSelected !== undefined ? this.state.nodeSelected.subtitle : null}
-            searchFinishCallback={this.searchDone}
+            searchQuery={this.state.nodeSelected.subtitle}
+            onlyExpandSearchedNodes={false}
           />
         }
       </div>
