@@ -47,6 +47,7 @@ export default class VFBMain extends React.Component {
       idSelected: undefined
     };
 
+    this.addVfbId = this.addVfbId.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
@@ -786,7 +787,8 @@ export default class VFBMain extends React.Component {
           id="treeWidget"
           instance={this.instanceOnFocus}
           size={{ height: _height, width: _width }}
-          ref={ref => this.treeBrowserReference = ref}/>
+          ref={ref => this.treeBrowserReference = ref}
+          selectionHandler={this.addVfbId}/>
       </div>);
     }
   }
