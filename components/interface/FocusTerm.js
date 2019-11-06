@@ -128,7 +128,7 @@ export default class FocusTerm extends React.Component {
               if (allQueries2.length > 0) {
                 focusSubMenu.push(
                   {
-                    label: "Search for",
+                    label: "Query for",
                     icon: "",
                     action: "",
                     position: "left",
@@ -145,7 +145,7 @@ export default class FocusTerm extends React.Component {
         } else {
           focusSubMenu.push(
             {
-              label: "Search for",
+              label: "Query for",
               icon: "",
               action: "",
               position: "left",
@@ -166,7 +166,7 @@ export default class FocusTerm extends React.Component {
               if (allQueries.length > 0) {
                 focusSubMenu.push(
                   {
-                    label: "Search for",
+                    label: "Query for",
                     icon: "",
                     action: "",
                     position: "left",
@@ -184,7 +184,7 @@ export default class FocusTerm extends React.Component {
             if (allQueries.length > 0) {
               focusSubMenu.push(
                 {
-                  label: "Search for",
+                  label: "Query for",
                   icon: "",
                   action: "",
                   position: "left",
@@ -491,14 +491,14 @@ export default class FocusTerm extends React.Component {
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Open the spotlight">
+                  title="Search">
                   <i className="fa fa-search arrowsStyle"
                     onClick={() => {
                       this.props.UIUpdateManager("spotlightVisible");
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Open the query builder">
+                  title="Open query results">
                   <i className="fa fa-quora arrowsStyle"
                     onClick={() => {
                       this.props.UIUpdateManager("queryBuilderVisible");
