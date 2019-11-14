@@ -1,11 +1,11 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getCommandLineArg, getUrlFromProjectId } from './cmdline.js';
+import {  getUrlFromProjectId } from './cmdline.js';
 import { wait4selector, click } from './utils';
 import * as ST from './selectors';
 
-const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
+const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
 /**
@@ -155,6 +155,33 @@ describe('VFB Stack Viewer Component Tests', () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
+		})
+		
+		it('Stack Viewer minimized', async () => {
+			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { hidden: true})
+		})
+		
+		it('Stack Viewer maximized', async () => {
+			await page.evaluate(async () => {
+				let dv = document.getElementsByClassName('flexlayout__border_button')[0]
+				let clickEvent = new MouseEvent('mousedown', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				dv.dispatchEvent(clickEvent);
+	
+				dv = document.getElementsByClassName('flexlayout__border_button')[0]
+				clickEvent = new MouseEvent('mouseup', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				dv.dispatchEvent(clickEvent);
+			});
+			
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true})
 		})
 	})
 })

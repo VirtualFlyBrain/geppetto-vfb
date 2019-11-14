@@ -1,12 +1,12 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getCommandLineArg, getUrlFromProjectId } from './cmdline.js';
+import { getUrlFromProjectId } from './cmdline.js';
 import { wait4selector, click } from './utils';
 import * as ST from './selectors';
 
-const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
-const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
+const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
+const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 
 /**
  * Tests term info component. Loads ID VFB_00017894 , and tests term info component to be correctly loaded with metadata for VFB_00017894. 
@@ -15,7 +15,7 @@ describe('VFB Term Info Component Tests', () => {
 	beforeAll(async () => {
 		//increases timeout to 2 minutes
 		jest.setTimeout(120000);
-		await page.goto(PROJECT_URL);
+		await page.goto(projectURL, {timeout : 120000 });
 
 	});
 
@@ -54,6 +54,33 @@ describe('VFB Term Info Component Tests', () => {
 		it('Term info correctly populated after term info interaction', async () => {
 			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("FlyLight - GMR GAL4 collection (Jenett2012) (Jenett2012)")');
+		})
+		
+		it('Term info minimized', async () => {
+			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { hidden: true})
+		})
+		
+		it('Term info maximized', async () => {
+			await page.evaluate(async () => {
+				let dv = document.getElementsByClassName('flexlayout__border_button')[0]
+				let clickEvent = new MouseEvent('mousedown', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				dv.dispatchEvent(clickEvent);
+	
+				dv = document.getElementsByClassName('flexlayout__border_button')[0]
+				clickEvent = new MouseEvent('mouseup', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				dv.dispatchEvent(clickEvent);
+			});
+			
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true})
 		})
 	})
 })
