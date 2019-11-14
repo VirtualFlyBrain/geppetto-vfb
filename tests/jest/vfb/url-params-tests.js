@@ -12,6 +12,7 @@ const projectURL3 = baseURL + "/geppetto?id=FBbt_00014013&i=VFB_00017894,VFB_000
 const projectURL4 = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001";
 const projectURL5 = baseURL + "/geppetto?i=VFB_00000001,VFB_00017894,VFB_00000001";
 
+// Initial components in landin page, tests spinner is gone and title are present
 const testLandingPage = function(){
 	it('Loading spinner goes away', async () => {
 		await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
@@ -23,6 +24,7 @@ const testLandingPage = function(){
 	})
 };
 
+// Tests loading project containing 'Medulla'
 const medullaTest = function(project) {
 	beforeAll(async () => {
 		//increases timeout to 2 minutes
@@ -34,8 +36,7 @@ const medullaTest = function(project) {
 		testLandingPage();
 	})
 
-	//Tests metadata in term info component and clicking on links
-	describe('Test Term Info Component', () => {
+	describe('Test Term Info Component Contains Metadata for Medulla', () => {
 		//Tests deselect button for VFB_00017894 is present in term info component, means is selected
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
@@ -68,9 +69,10 @@ const medullaTest = function(project) {
 	})
 };
 
+// Tests loading project containing fru-M-200266 (VFB_00000001
 const neuronTest = function(project){
 	beforeAll(async () => {
-		//increases timeout to 2 minutes
+		//increases default timeout to 2 minutes
 		jest.setTimeout(120000);
 		await page.goto(projectURL4);
 	});
@@ -115,21 +117,20 @@ const neuronTest = function(project){
 
 describe('VFB URL Parameters id= and i= Tests', () => {
 	// Test the item passed in id= takes the focus in the term info and it's selected 
-	describe('Test 1a, Loading "Medulla" as "id" in URL', () => {
+	describe('Test Loading "Medulla" as "id" in URL', () => {
 		medullaTest(projectURL1);
 	});
 	
 	// Test that the first id in the i= list takes the focus and it's selected
-	describe('Test 1c, Loading "Medulla" using parameter "i" in URL', () => {
+	describe('Test Loading "Medulla" using parameter "i" in URL', () => {
 		medullaTest(projectURL2);
 	});
 	
 	// Test the item passed in id= that does not have visual capability takes the focus in the term info
-	describe('Test 1b, No Visual Capability Loaded for "adult gnathal ganglion"', () => {
+	describe('Test No Visual Capability Loaded for "adult gnathal ganglion"', () => {
 		beforeAll(async () => {
 			//increases timeout to 2 minutes
 			jest.setTimeout(120000);
-			console.log("Loading URL : ", projectURL2)
 			await page.goto(projectURL3);
 		});
 		
@@ -157,13 +158,13 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 		})
 	});
 	
-	// Test that the first id in the i= list takes the focus and it's selected
-	describe('Test 1d, Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "id" in URL', () => {
+	// Test that the first id in the i= list takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
+	describe('Test Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "id" in URL', () => {
 		neuronTest(projectURL4);
 	});
 	
-	// Test that the first id in the i= list takes the focus and it's selected
-	describe('Test 1d, Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "i" in URL', () => {
+	// Test that the first id in the i= list takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
+	describe('Test Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "i" in URL', () => {
 		neuronTest(projectURL5);
 	});
 })
