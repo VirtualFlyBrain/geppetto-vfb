@@ -5,7 +5,7 @@ import { getCommandLineArg, getUrlFromProjectId } from './cmdline.js';
 import { wait4selector, click } from './utils';
 import * as ST from './selectors';
 
-const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
+const baseURL = process.env.url ||  'http://localhost:8081/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 
 /**
@@ -78,13 +78,4 @@ describe('VFB Menu Component Tests', () => {
 			expect(pagesOpened.length).toEqual(3);
 		})
 	})
-	
-		//Tests opening control panel and clicking on row buttons
-//	describe('Test Menu Components About and Help', () => {
-//		it('Term info minimized', async () => {
-//		})
-//		
-//		it('Term info maximized', async () => {
-//		})
-//	})
 })

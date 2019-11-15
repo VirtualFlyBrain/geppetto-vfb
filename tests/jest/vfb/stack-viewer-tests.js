@@ -181,7 +181,10 @@ describe('VFB Stack Viewer Component Tests', () => {
 				dv.dispatchEvent(clickEvent);
 			});
 			
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true})
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true,timeout : 10000 })
+			expect(
+					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
+			).toBe(2)
 		})
 	})
 })
