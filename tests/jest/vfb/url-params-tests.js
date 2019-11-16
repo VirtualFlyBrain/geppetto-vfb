@@ -12,7 +12,7 @@ const projectURL3 = baseURL + "/geppetto?id=FBbt_00014013&i=VFB_00017894,VFB_000
 const projectURL4 = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001";
 const projectURL5 = baseURL + "/geppetto?i=VFB_00000001,VFB_00017894,VFB_00000001";
 
-// Initial components in landin page, tests spinner is gone and title are present
+//Initial components in landin page, tests spinner is gone and title are present
 const testLandingPage = function(){
 	it('Loading spinner goes away', async () => {
 		await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
@@ -24,14 +24,14 @@ const testLandingPage = function(){
 	})
 };
 
-// Tests loading project containing 'Medulla'
+//Tests loading project containing 'Medulla'
 const medullaTest = function(project) {
 	beforeAll(async () => {
 		//increases timeout to 2 minutes
 		jest.setTimeout(120000);
 		await page.goto(project);
 	});
-	
+
 	describe('Test landing page', () => {
 		testLandingPage();
 	})
@@ -49,16 +49,16 @@ const medullaTest = function(project) {
 		it('Term info component correctly populated with "Medula" as Name', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2")');
 		})
-		
+
 		it('Term info component correctly populated with "Medula" as Classification Name', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_3_component").innerText.startsWith("medulla")');
 		})
-		
+
 		it('Term info component correctly populated with "Medula" Thumbnail', async () => {
 			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/thumbnailT.png"');
 		})
 	})
-	
+
 	describe('"Medula" Selected in Canvas Container', () => {
 		it('VFB_00030624.VFB_00030624_obj selected', async () => {
 			await page.waitFor(2000);
@@ -69,14 +69,14 @@ const medullaTest = function(project) {
 	})
 };
 
-// Tests loading project containing fru-M-200266 (VFB_00000001
+//Tests loading project containing fru-M-200266 (VFB_00000001
 const neuronTest = function(project){
 	beforeAll(async () => {
 		//increases default timeout to 2 minutes
 		jest.setTimeout(120000);
 		await page.goto(projectURL4);
 	});
-	
+
 	describe('Test landing page', () => {
 		testLandingPage();
 	})
@@ -95,16 +95,16 @@ const neuronTest = function(project){
 		it('Term info component correctly populated with "fru-M-200266 (VFB_00000001)" as Name', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266 (VFB_00000001)")');
 		})
-		
+
 		it('Term info component correctly populated with "fru-M-200266 (VFB_00000001)" as Classification Name', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_4_component").innerText.startsWith("adult DM6 lineage neuron")');
 		})
-		
+
 		it('Term info component correctly populated with "fru-M-200266 (VFB_00000001)" Thumbnail', async () => {
 			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0000/0001/thumbnailT.png"');
 		})
 	})
-	
+
 	describe('"Medula" Selected in Canvas Container', () => {
 		it('VFB_00000001.VFB_00000001_swc selected', async () => {
 			await page.waitFor(2000);
@@ -120,12 +120,12 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 	describe('Test Loading "Medulla" as "id" in URL', () => {
 		medullaTest(projectURL1);
 	});
-	
+
 	// Test that the first id in the i= list takes the focus and it's selected
 	describe('Test Loading "Medulla" using parameter "i" in URL', () => {
 		medullaTest(projectURL2);
 	});
-	
+
 	// Test the item passed in id= that does not have visual capability takes the focus in the term info
 	describe('Test No Visual Capability Loaded for "adult gnathal ganglion"', () => {
 		beforeAll(async () => {
@@ -133,7 +133,7 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 			jest.setTimeout(120000);
 			await page.goto(projectURL3);
 		});
-		
+
 		describe('Test landing page', () => {
 			testLandingPage();
 		})
@@ -147,22 +147,22 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 			it('Term info component correctly populated with "adult gnathal ganglion" as Name', async () => {
 				await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult gnathal ganglion (FBbt_00014013)")');
 			})
-			
+
 			it('Term info component correctly populated with "adult gnathal ganglion" as Classification Name', async () => {
 				await page.waitForFunction('document.getElementById("VFBTermInfo_el_3_component").innerText.startsWith("subesophageal ganglion")');
 			})
-			
+
 			it('Term info component correctly populated with "adult gnathal ganglion" Thumbnail', async () => {
 				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0840/thumbnailT.png"');
 			})
 		})
 	});
-	
+
 	// Test that the first id in the i= list takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
 	describe('Test Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "id" in URL', () => {
 		neuronTest(projectURL4);
 	});
-	
+
 	// Test that the first id in the i= list takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
 	describe('Test Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "i" in URL', () => {
 		neuronTest(projectURL5);

@@ -127,43 +127,49 @@ describe('VFB 3D Viewer Component Tests', () => {
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(2)
 		})
-		
+
 		it('3DViewer minimized', async () => {
+			// There are three flexlayout_tab components open with the same minimize icon, the second one belongs to the 3d viewer
 			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[1].click());
+			// Check 3d viewer is visible again by checking css property 'display : none'
 			expect(
 					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[1].style.getPropertyValue("display"))
 			).toBe("none");
 		})
-		
+
 		it('3DViewer maximized', async () => {
 			await page.evaluate(async () => {
-				let dv = document.getElementsByClassName('flexlayout__border_button')[1]
+				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[1]
 				let clickEvent = new MouseEvent('mousedown', {
 					view: window,
 					bubbles: true,
 					cancelable: true
 				});
-				dv.dispatchEvent(clickEvent);
-	
-				dv = document.getElementsByClassName('flexlayout__border_button')[1]
+				mouseUp.dispatchEvent(clickEvent);
+
+				let mouseDown = document.getElementsByClassName('flexlayout__border_button')[1]
 				clickEvent = new MouseEvent('mouseup', {
 					view: window,
 					bubbles: true,
 					cancelable: true
 				});
-				dv.dispatchEvent(clickEvent);
+				mouseDown.dispatchEvent(clickEvent);
 			});
-			
+
+			// Check 3d viewer is visible again by checking css property 'display : block'
 			expect(
+					// There are 3 div elements with class 'flexlayout_tab', the 3d viewer component is the first one
 					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[1].style.getPropertyValue("display"))
 			).toBe("block");
 
+			// Check 3d viewer opened up with correct amount of meshes
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
 		})
 
 		it('3DViewer closed', async () => {
+			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), the second one belongs to the 3d viewer
 			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[1].click());
 			expect(
 					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
@@ -172,6 +178,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 
 		it('3DViewer opened', async () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
+			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("3D Viewer").click());
 			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 5000});
