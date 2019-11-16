@@ -11,7 +11,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 /**
  * Tests stack viewer component. Tests the stack viewer loads, has meshes loaded, and that new meshes get rendered when added from query panel.
  */
-describe('VFB Stack Viewer Component Tests', () => {
+describe('VFB 3D Viewer Component Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
 		await page.goto(PROJECT_URL);
@@ -101,29 +101,6 @@ describe('VFB Stack Viewer Component Tests', () => {
 
 	//Tests stack viewer component, tests there's 2 visible meshes rendered
 	describe('Test Stack Viewer Component', () => {
-		it('SliceViewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
-		})
-
-		it('SliceViewer component has 2 meshes rendered', async () => {
-			expect(
-					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(2)
-		})
-
-		it('Mesh from batch request id : VFB_00017894.VFB_00017894_obj present in stack viewer component', async () => {
-			expect(
-					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes["VFB_00017894.VFB_00017894_obj"].visible)
-			).toBeTruthy()
-		})
-
-		it('VFB_00017894.VFB_00017894_obj visibility correct', async () => {
-			await page.waitFor(10000);
-			expect(
-					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
-			).toBeTruthy();
-		});
-
 		it('3D Plane not visible', async () => {
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.scene.children[4].visible)
@@ -150,14 +127,8 @@ describe('VFB Stack Viewer Component Tests', () => {
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(2)
 		})
-
-		it('SliceViewer component has 2 meshes rendered', async () => {
-			expect(
-					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(2)
-		})
 		
-		it('SliceViewer minimized', async () => {
+		it('3DViewer minimized', async () => {
 			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
 			expect(
 					await page.evaluate(async () => {
@@ -167,7 +138,7 @@ describe('VFB Stack Viewer Component Tests', () => {
 			await wait4selector(page, 'div.ErrorCatcher-rootTitle-1', { hidden: true})
 		})
 		
-		it('SliceViewer maximized', async () => {
+		it('3DViewer maximized', async () => {
 			await page.evaluate(async () => {
 				let dv = document.getElementsByClassName('flexlayout__border_button')[0]
 				let clickEvent = new MouseEvent('mousedown', {
@@ -198,17 +169,16 @@ describe('VFB Stack Viewer Component Tests', () => {
 		})
 	})
 	
-	it('SliceViewer closed', async () => {
-		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[0].click());
-		await wait4selector(page, 'div#NewStackViewerdisplayArea', { hidden: true, timeout : 5000})
+	it('3DViewer closed', async () => {
+		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[1].click());
+		await wait4selector(page, 'div#CanvasContainer_component', { hidden: true, timeout : 5000})
 	})
 
-	it('SliceViewer opened', async () => {
+	it('3DViewer opened', async () => {
 		await page.evaluate(async () => document.getElementById("Tools").click());
 		await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-		await page.evaluate(async () => document.getElementById("Slice Viewer").click());
-		await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true});
-		await wait4selector(page, 'div.stack-canvas-container', { visible: true});
+		await page.evaluate(async () => document.getElementById("3D Viewer").click());
+		await wait4selector(page, 'div#CanvasContainer_component', { visible: true});
 	})
   })
 })

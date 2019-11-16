@@ -60,7 +60,7 @@ describe('VFB Menu Component Tests', () => {
 		})
 		
 		it('About Modal Closed', async () => {
-			await click(page, 'i.close-slider')
+			await page.evaluate(async () => document.getElementsByClassName("close-slider")[0].click());
 			await wait4selector(page, '#vfb-content-block', {hidden: true, timeout : 5000});
 		})
 		
