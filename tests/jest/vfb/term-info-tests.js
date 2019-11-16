@@ -49,16 +49,12 @@ describe('VFB Term Info Component Tests', () => {
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
 		})
-
-		//Tests clicking on term info component link loads expected metadata.
-		it('Term info correctly populated after term info interaction', async () => {
-			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("FlyLight - GMR GAL4 collection (Jenett2012) (Jenett2012)")');
-		})
 		
-		it('Term info minimized', async () => {
+				it('Term info minimized', async () => {
 			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { hidden: true})
+			expect(
+					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
+			).toBe("none");
 		})
 		
 		it('Term info maximized', async () => {
@@ -80,7 +76,28 @@ describe('VFB Term Info Component Tests', () => {
 				dv.dispatchEvent(clickEvent);
 			});
 			
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true})
+			expect(
+					await page.evaluate(async () =>	document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
+			).toBe("block");
+			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+		})	
+		it('Term info closed', async () => {
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			await wait4selector(page, 'div#vfbterminfowidget', { hidden: true, timeout : 5000})
+		})
+
+		it('Term info opened', async () => {
+			await page.evaluate(async () => document.getElementById("Tools").click());
+			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+			await page.evaluate(async () => document.getElementById("Term Info").click());
+			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 5000});
+		})
+
+		//Tests clicking on term info component link loads expected metadata.
+		it('Term info correctly populated after term info interaction', async () => {
+			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("FlyLight - GMR GAL4 collection (Jenett2012) (Jenett2012)")');
 		})
 	})
 })

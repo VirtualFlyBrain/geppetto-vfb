@@ -101,11 +101,11 @@ describe('VFB Stack Viewer Component Tests', () => {
 
 	//Tests stack viewer component, tests there's 2 visible meshes rendered
 	describe('Test Stack Viewer Component', () => {
-		it('Slice viewer present', async () => {
+		it('SliceViewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
 		})
 
-		it('Slice viewer component has 2 meshes rendered', async () => {
+		it('SliceViewer component has 2 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
@@ -151,40 +151,64 @@ describe('VFB Stack Viewer Component Tests', () => {
 			).toBe(2)
 		})
 
-		it('Slice viewer component has 2 meshes rendered', async () => {
+		it('SliceViewer component has 2 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
 		})
 		
-		it('Stack Viewer minimized', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { hidden: true})
-		})
-		
-		it('Stack Viewer maximized', async () => {
-			await page.evaluate(async () => {
-				let dv = document.getElementsByClassName('flexlayout__border_button')[0]
-				let clickEvent = new MouseEvent('mousedown', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				dv.dispatchEvent(clickEvent);
+//		it('SliceViewer minimized', async () => {
+//			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
+//			expect(
+//					await page.evaluate(async () => {
+//						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
+//					}
+//			).toBe("none");
+//			await wait4selector(page, 'div.ErrorCatcher-rootTitle-1', { hidden: true})
+//		})
+//		
+//		it('SliceViewer maximized', async () => {
+//			await page.evaluate(async () => {
+//				let dv = document.getElementsByClassName('flexlayout__border_button')[0]
+//				let clickEvent = new MouseEvent('mousedown', {
+//					view: window,
+//					bubbles: true,
+//					cancelable: true
+//				});
+//				dv.dispatchEvent(clickEvent);
+//	
+//				dv = document.getElementsByClassName('flexlayout__border_button')[0]
+//				clickEvent = new MouseEvent('mouseup', {
+//					view: window,
+//					bubbles: true,
+//					cancelable: true
+//				});
+//				dv.dispatchEvent(clickEvent);
+//			});
+//			
+//			expect(
+//					await page.evaluate(async () => {
+//						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
+//					}
+//			).toBe("block");
+//					
+//			expect(
+//					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
+//			).toBe(2)
+//		})
+//	})
 	
-				dv = document.getElementsByClassName('flexlayout__border_button')[0]
-				clickEvent = new MouseEvent('mouseup', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				dv.dispatchEvent(clickEvent);
-			});
-			
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true,timeout : 10000 })
-			expect(
-					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(2)
-		})
+	it('SliceViewer closed', async () => {
+		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[0].click());
+		await wait4selector(page, 'div#NewStackViewerdisplayArea', { hidden: true, timeout : 5000})
 	})
+
+	it('SliceViewer opened', async () => {
+		await page.evaluate(async () => document.getElementById("Tools").click());
+		await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+		await page.evaluate(async () => document.getElementById("Slice Viewer").click());
+		await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true});
+		await wait4selector(page, 'div.stack-canvas-container', { visible: true});
+	})
+  })
 })
