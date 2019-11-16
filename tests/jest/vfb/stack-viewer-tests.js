@@ -161,8 +161,8 @@ describe('VFB Stack Viewer Component Tests', () => {
 			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
 			expect(
 					await page.evaluate(async () => {
-						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
-					}
+						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display")
+					})
 			).toBe("none");
 			await wait4selector(page, 'div.ErrorCatcher-rootTitle-1', { hidden: true})
 		})
@@ -185,30 +185,33 @@ describe('VFB Stack Viewer Component Tests', () => {
 				});
 				dv.dispatchEvent(clickEvent);
 			});
-			
+
 			expect(
 					await page.evaluate(async () => {
 						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
-					}
+					})
 			).toBe("block");
-					
+
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
 		})
-	})
-	
-	it('SliceViewer closed', async () => {
-		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[0].click());
-		await wait4selector(page, 'div#NewStackViewerdisplayArea', { hidden: true, timeout : 5000})
-	})
 
-	it('SliceViewer opened', async () => {
-		await page.evaluate(async () => document.getElementById("Tools").click());
-		await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-		await page.evaluate(async () => document.getElementById("Slice Viewer").click());
-		await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true});
-		await wait4selector(page, 'div.stack-canvas-container', { visible: true});
+		it('SliceViewer closed', async () => {
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[0].click());
+			expect(
+					await page.evaluate(async () => {
+						document.getElementById("NewStackViewerdisplayArea")
+					})
+			).toBe(undefined);
+		})
+
+		it('SliceViewer opened', async () => {
+			await page.evaluate(async () => document.getElementById("Tools").click());
+			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+			await page.evaluate(async () => document.getElementById("Slice Viewer").click());
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 5000});
+		})
 	})
-  })
 })

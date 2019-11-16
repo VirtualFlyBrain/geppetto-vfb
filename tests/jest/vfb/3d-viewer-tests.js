@@ -100,7 +100,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 	})
 
 	//Tests stack viewer component, tests there's 2 visible meshes rendered
-	describe('Test Stack Viewer Component', () => {
+	describe('Test 3D Viewer Component', () => {
 		it('3D Plane not visible', async () => {
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.scene.children[4].visible)
@@ -129,18 +129,15 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 		
 		it('3DViewer minimized', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
+			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[1].click());
 			expect(
-					await page.evaluate(async () => {
-						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
-					}
+					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[1].style.getPropertyValue("display"))
 			).toBe("none");
-			await wait4selector(page, 'div.ErrorCatcher-rootTitle-1', { hidden: true})
 		})
 		
 		it('3DViewer maximized', async () => {
 			await page.evaluate(async () => {
-				let dv = document.getElementsByClassName('flexlayout__border_button')[0]
+				let dv = document.getElementsByClassName('flexlayout__border_button')[1]
 				let clickEvent = new MouseEvent('mousedown', {
 					view: window,
 					bubbles: true,
@@ -148,7 +145,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 				});
 				dv.dispatchEvent(clickEvent);
 	
-				dv = document.getElementsByClassName('flexlayout__border_button')[0]
+				dv = document.getElementsByClassName('flexlayout__border_button')[1]
 				clickEvent = new MouseEvent('mouseup', {
 					view: window,
 					bubbles: true,
@@ -158,27 +155,26 @@ describe('VFB 3D Viewer Component Tests', () => {
 			});
 			
 			expect(
-					await page.evaluate(async () => {
-						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
-					}
+					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[1].style.getPropertyValue("display"))
 			).toBe("block");
-					
+
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
 		})
-	})
-	
-	it('3DViewer closed', async () => {
-		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[1].click());
-		await wait4selector(page, 'div#CanvasContainer_component', { hidden: true, timeout : 5000})
-	})
 
-	it('3DViewer opened', async () => {
-		await page.evaluate(async () => document.getElementById("Tools").click());
-		await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-		await page.evaluate(async () => document.getElementById("3D Viewer").click());
-		await wait4selector(page, 'div#CanvasContainer_component', { visible: true});
+		it('3DViewer closed', async () => {
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[1].click());
+			expect(
+					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
+			).toBe(undefined);
+		})
+
+		it('3DViewer opened', async () => {
+			await page.evaluate(async () => document.getElementById("Tools").click());
+			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+			await page.evaluate(async () => document.getElementById("3D Viewer").click());
+			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 5000});
+		})
 	})
-  })
 })
