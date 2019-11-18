@@ -228,17 +228,17 @@
 
 // query results header
 #querybuilder .griddle th{
-	text-align: left !important;	
+	text-align: left !important;
 }
 
-// query results rows 
+// query results rows
 .griddle-body {
 	font-size: 14px !important;
 }
 
 .query-results-slick-image img {
 	margin-left: auto;
-    	margin-right: auto;	
+  margin-right: auto;
 }
 
 #querybuilder .query-results-name-column {
@@ -258,7 +258,6 @@
 
 
 .flexlayout__splitter {
-    //background-color: linear-gradient(@background_color_body_0, #444);
     background: @background_color_body_0;
 }
 
@@ -476,20 +475,17 @@
 
 .flexlayout__tabset-selected
 {
-    //background-image: linear-gradient(#0d96c7, #034c66);
     background: @background_color_body_0;
 }
 
 .flexlayout__tabset-maximized
 {
-    //background-image: linear-gradient(#0d96c7, #034c66);
     background: @background_color_body_0;
 }
 
 .flexlayout__tab_toolbar {
     position:absolute;
     display:flex;
-    // flex-direction: row-reverse;
     align-items: center;
     top:0;
     bottom:0;
@@ -561,7 +557,6 @@
 }
 
 .flexlayout__border_top {
-    //background-image: linear-gradient(90deg, #0d96c7, #034c66);
     background-color: #cff2ff;
     border-bottom: 1px solid #ddd;
     box-sizing: border-box;
@@ -569,7 +564,6 @@
 }
 
 .flexlayout__border_bottom {
-    //background-image: linear-gradient(90deg, #0d96c7, #034c66);
     background-color: @background_color_body_0;
     border-top: 1px solid @background_color_body_0;
     box-sizing: border-box;
@@ -577,7 +571,6 @@
 }
 
 .flexlayout__border_left {
-    //background-image: linear-gradient(90deg, #0d96c7, #034c66);
     background-color: #cff2ff;
     border-right: 1px solid #333;
     box-sizing: border-box;
@@ -585,7 +578,6 @@
 }
 
 .flexlayout__border_right {
-    //background-image: linear-gradient(90deg, #0d96c7, #034c66);
     background-color: #cff2ff;
     border-left: 1px solid #333;
     box-sizing: border-box;
@@ -789,59 +781,59 @@
 /**
  * Extra class applied to VirtualScroll through className prop
  */
- .rst__virtualScrollOverride {
+  .rst__virtualScrollOverride {
     overflow: auto !important;
   }
+
   .rst__virtualScrollOverride * {
     box-sizing: border-box;
   }
-  
+
   .ReactVirtualized__Grid__innerScrollContainer {
     overflow: visible !important;
   }
-  
+
   .rst__rtl .ReactVirtualized__Grid__innerScrollContainer {
     direction: rtl;
   }
-  
+
   .ReactVirtualized__Grid {
     outline: none;
   }
-  
+
   .rst__node {
     min-width: 100%;
     white-space: nowrap;
     position: relative;
     text-align: left;
   }
-  
+
   .rst__node.rst__rtl {
     text-align: right;
   }
-  
+
   .rst__nodeContent {
     position: absolute;
     top: 0;
     bottom: 0;
   }
-  
+
   /* ==========================================================================
-     Scaffold
-  
-      Line-overlaid blocks used for showing the tree structure
-     ========================================================================== */
+    Scaffold
+    Line-overlaid blocks used for showing the tree structure
+    ========================================================================== */
   .rst__lineBlock,
   .rst__absoluteLineBlock {
     height: 100%;
     position: relative;
     display: inline-block;
   }
-  
+
   .rst__absoluteLineBlock {
     position: absolute;
     top: 0;
   }
-  
+
   .rst__lineHalfHorizontalRight::before,
   .rst__lineFullVertical::after,
   .rst__lineHalfVerticalTop::after,
@@ -850,7 +842,7 @@
     content: '';
     background-color: black;
   }
-  
+
   /**
    * +-----+
    * |     |
@@ -864,12 +856,12 @@
     right: 0;
     width: 50%;
   }
-  
+
   .rst__rtl.rst__lineHalfHorizontalRight::before {
     left: 0;
     right: initial;
   }
-  
+
   /**
    * +--+--+
    * |  |  |
@@ -885,7 +877,7 @@
     top: 0;
     height: 100%;
   }
-  
+
   /**
    * +--+--+
    * |  |  |
@@ -899,7 +891,7 @@
     right: 50%;
     left: initial;
   }
-  
+
   /**
    * +-----+
    * |  |  |
@@ -910,7 +902,7 @@
   .rst__lineHalfVerticalTop::after {
     height: 50%;
   }
-  
+
   /**
    * +-----+
    * |     |
@@ -923,7 +915,7 @@
     bottom: 0;
     height: 50%;
   }
-  
+
   /* Highlight line for pointing to dragged row destination
      ========================================================================== */
   /**
@@ -946,14 +938,14 @@
     top: 0;
     height: 100%;
   }
-  
+
   .rst__rtl.rst__highlightLineVertical::before {
     margin-left: initial;
     margin-right: -4px;
     left: initial;
     right: 50%;
   }
-  
+
   @keyframes arrow-pulse {
     0% {
       transform: translate(0, 0);
@@ -1124,7 +1116,6 @@
    * Nodes matching the search conditions are highlighted
    */
   .rst__rowSearchMatch {
-    //outline: solid 3px #0080ff;
   }
   
   /**
@@ -1146,7 +1137,6 @@
   .rst__rowContents {
     position: relative;
     height: 100%;
-    border: solid rgb(25, 25, 25) 1px;
     border-left: none;
     box-shadow: 0 2px 2px -2px;
     padding: 0 5px 0 10px;
@@ -1161,17 +1151,13 @@
   
   .rst__rtl.rst__rowContents {
     border-right: none;
-    border-left: solid rgb(25, 25, 25) 1px;
     padding: 0 10px 0 5px;
   }
   
   .rst__rowContentsDragDisabled {
-    border-left: solid rgb(25, 25, 25) 1px;
   }
   
   .rst__rtl.rst__rowContentsDragDisabled {
-    border-right: solid rgb(25, 25, 25) 1px;
-    border-left: solid rgb(25, 25, 25) 1px;
   }
   
   .rst__rowLabel {
@@ -1355,7 +1341,7 @@
   .rst__collapseButton:focus,
   .rst__expandButton:focus {
     outline: none;
-    box-shadow: none; //0 0 0 1px #000, 0 0 1px 3px #83bef9;
+    box-shadow: none;
   }
   .rst__collapseButton:hover:not(:active),
   .rst__expandButton:hover:not(:active) {
@@ -1552,7 +1538,6 @@
     background: transparent;
     color: #ffffff;
     cursor: pointer;
-    border-bottom: 1px solid rgb(25, 25, 25);
     border-radius: 0;
     box-shadow:none;
 }
@@ -1615,7 +1600,6 @@
 }
 
 .nodeFound {
-  //outline: solid 3px #0080ff;
   color: #0080ff;
 
 }
@@ -1623,4 +1607,15 @@
 .chrome-picker {
   position: absolute;
   z-index: 1;
+}
+
+#tree-color-picker {
+  position: absolute;
+  z-index: 1;
+  width: 80px;
+  margin-left: 15px;
+  margin-top: -12px;
+  background-color: #252323;
+  padding: 3px;
+  border-radius: 2px;
 }
