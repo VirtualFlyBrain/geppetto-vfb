@@ -132,14 +132,16 @@ describe('VFB 3D Viewer Component Tests', () => {
 			// There are three flexlayout_tab components open with the same minimize icon, the second one belongs to the 3d viewer
 			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[1].click());
 			// Check 3d viewer is visible again by checking css property 'display : none'
-			expect(
-					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[1].style.getPropertyValue("display"))
-			).toBe("none");
+			let minimized = await page.evaluate(async () => {
+				return document.getElementById("CanvasContainer_component").parentElement.style.getPropertyValue("display")
+			})
+			expect(minimized).toBe("none");
 		})
 
 		it('3DViewer maximized', async () => {
+			// Using 'click()' function on minimized element doesn't work, needs to dispatch 'mouseup' and 'mousedown' events instead
 			await page.evaluate(async () => {
-				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[1]
+				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[0]
 				let clickEvent = new MouseEvent('mousedown', {
 					view: window,
 					bubbles: true,
@@ -147,7 +149,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 				});
 				mouseUp.dispatchEvent(clickEvent);
 
-				let mouseDown = document.getElementsByClassName('flexlayout__border_button')[1]
+				let mouseDown = document.getElementsByClassName('flexlayout__border_button')[0]
 				clickEvent = new MouseEvent('mouseup', {
 					view: window,
 					bubbles: true,
@@ -157,10 +159,10 @@ describe('VFB 3D Viewer Component Tests', () => {
 			});
 
 			// Check 3d viewer is visible again by checking css property 'display : block'
-			expect(
-					// There are 3 div elements with class 'flexlayout_tab', the 3d viewer component is the first one
-					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[1].style.getPropertyValue("display"))
-			).toBe("block");
+			let maximized = await page.evaluate(async () => {
+				return document.getElementById("CanvasContainer_component").parentElement.style.getPropertyValue("display")
+			})
+			expect(maximized).toBe("block");
 
 			// Check 3d viewer opened up with correct amount of meshes
 			expect(
@@ -169,11 +171,12 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 
 		it('3DViewer closed', async () => {
-			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), the second one belongs to the 3d viewer
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[1].click());
+			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the 3D Viewer
+			// was previously minimized and maximized it should now occupy the third position
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
 			expect(
 					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
-			).toBe(undefined);
+			).toBe(null);
 		})
 
 		it('3DViewer opened', async () => {

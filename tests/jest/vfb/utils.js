@@ -29,3 +29,10 @@ export const click = async (page, selector) => {
   }
   expect(success).toBeDefined()
 }
+
+export const closeModalWindow = async (page) => {
+	await page.evaluate(async () => {
+		var evt = new KeyboardEvent('keydown', {'keyCode':27, 'which':27});
+		document.dispatchEvent (evt);
+	});
+}

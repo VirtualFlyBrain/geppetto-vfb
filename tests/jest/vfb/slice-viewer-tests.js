@@ -160,18 +160,17 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 	describe('Test Stack Viewer Component Maximizes/Minimizes/Opens/Closes', () => {
 		it('SliceViewer minimized', async () => {
-			// There are three flexlayout_tab components open with the same minimize icon, the first one belongs to the slice viewer
 			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
-			// Check 3d viewer is visible again by checking css property 'display : none'
-			expect(
-					await page.evaluate(async () => {
-						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display")
-					})
-			).toBe("none");
-			await wait4selector(page, 'div.ErrorCatcher-rootTitle-1', { hidden: true})
+			await page.waitFor(1000);
+			// Check slice viewer is visible again by checking css property 'display : none'
+			let minimized = await page.evaluate(async () => {
+				return document.getElementById("NewStackViewerdisplayArea").parentElement.parentElement.style.getPropertyValue("display")
+			})
+			expect(minimized).toBe("none");
 		})
 
 		it('SliceViewer maximized', async () => {
+			// Using 'click()' function on minimized element doesn't work, needs to dispatch 'mouseup' and 'mousedown' events instead
 			await page.evaluate(async () => {
 				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[0]
 				let clickEvent = new MouseEvent('mousedown', {
@@ -191,12 +190,10 @@ describe('VFB Slice Viewer Component Tests', () => {
 			});
 
 			// Check slice viewer is visible again by checking css property 'display : block'
-			expect(
-					// There are 3 div elements with class 'flexlayout_tab', the slice viewer component is the first one
-					await page.evaluate(async () => {
-						document.getElementsByClassName("flexlayout__tab")[0].style.getPropertyValue("display");
-					})
-			).toBe("block");
+			let maximized = await page.evaluate(async () => {
+				return document.getElementById("NewStackViewerdisplayArea").parentElement.parentElement.style.getPropertyValue("display")
+			})
+			expect(maximized).toBe("block");
 
 			// Check slice viewer opened up with correct amount of meshes
 			expect(
@@ -204,23 +201,24 @@ describe('VFB Slice Viewer Component Tests', () => {
 			).toBe(2)
 		})
 
-	it('SliceViewer closed', async () => {
-		// There's 3 div elements with same class (slice viewer, 3d viewer and term info), the first one belongs to the slice viewer
-		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[0].click());
-		expect(
-				await page.evaluate(async () => {
-					document.getElementById("NewStackViewerdisplayArea")
-				})
-		).toBe(undefined);
-	})
+		it('SliceViewer closed', async () => {
+			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
+			// was previously minimized and maximized it should now occupy the third position
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			expect(
+					await page.evaluate(async () => {
+						document.getElementById("NewStackViewerdisplayArea")
+					})
+			).toBe(undefined);
+		})
 
-	it('SliceViewer opened', async () => {
-		await page.evaluate(async () => document.getElementById("Tools").click());
-		// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
-		await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-		await page.evaluate(async () => document.getElementById("Slice Viewer").click());
-		await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 5000});
-		await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 5000});
+		it('SliceViewer opened', async () => {
+			await page.evaluate(async () => document.getElementById("Tools").click());
+			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
+			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+			await page.evaluate(async () => document.getElementById("Slice Viewer").click());
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 5000});
+		})
 	})
-})
 })
