@@ -342,8 +342,8 @@
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
-        name="Test Query for anatomy from expression "
-        description="">
+        name="Query for anatomy from expression "
+        description="Get JSON for anat_2_ep query">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Test Query for Anatomy from Exp"
