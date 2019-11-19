@@ -70,10 +70,12 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult cerebral ganglion (FBbt_00110636)")', {timeout : 60000});
 		})
 
-		it('Mesh for "adult cerebral ganglion" rendered in canvas after clicking on eye icon next to node', async () => {
+		it('Click on "eye" icon to render "adult cerebral ganglion" mesh', async () => {
 			await click(page, 'i.fa-eye');
-			await page.waitFor(240000);
-			// Test Canvas Container has mesh for "adult cerebral ganglion" visible
+			await wait4selector(page, 'i.fa-tint', { visible: true, timeout : 240000 })
+		})
+		
+		it('Mesh for "adult cerebral ganglion" rendered in canvas after clicking on eye icon next to node', async () => {
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].visible)
 			).toBeTruthy();
@@ -82,6 +84,26 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Color Picker Appears for "adult cerebral ganglion"', async () => {
 			await click(page, 'i.fa-tint');
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 5000 })
+		})
+		
+		it('Use color picker to change color of "adult cerebral ganglion"', async () => {
+			// Retrieve old color in mesh
+			let adultCerebralGanglionColor = await page.evaluate(async () => {
+				return CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].children[0].material.color;
+			});
+			// Select color in color picker box, index 17 belongs to last available color in picker
+			await page.evaluate(async () => document.querySelectorAll("#tree-color-picker div")[17].click());
+			// Wait couple of seconds for mesh to reflect new color
+			await page.waitFor(2000);
+			// Retrieve new color in mesh
+			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
+				return CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].children[0].material.color;
+			});
+			
+			// Compare RGB's of original color and new color
+			expect(adultCerebralGanglionColor.r).not.toEqual(adultCerebralGanglionNewColor.r);
+			expect(adultCerebralGanglionColor.g).not.toEqual(adultCerebralGanglionNewColor.g);
+			expect(adultCerebralGanglionColor.b).not.toEqual(adultCerebralGanglionNewColor.b);
 		})
 	})
 })
