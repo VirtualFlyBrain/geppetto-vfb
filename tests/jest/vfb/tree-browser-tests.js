@@ -9,7 +9,7 @@ const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend
 const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 
 /**
- * Tests Menu Components
+ * Tests Tree Browser Component
  */
 describe('VFB Tree Browser Component Tests', () => {
 	beforeAll(async () => {
@@ -28,11 +28,13 @@ describe('VFB Tree Browser Component Tests', () => {
 			const title = await page.title();
 			expect(title).toBe("Virtual Fly Brain");
 		})
-		
+
+		// Waits for Term info to populate, this is done to make sure project finishes loading before continuing
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000})
 		})
 
+		// Waits for Term info to populate, this is done to make sure project finishes loading before continuing
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")', {timeout : 120000});
 		})
@@ -49,6 +51,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('First node in Tree Browser is correctly named', async () => {
+			// Retrieve text from first node in Tree Browser
 			let firstNode = await page.evaluate(async () => {
 				return document.querySelectorAll(".rst__rowContents.rst__rowContentsDragDisabled span")[0].innerText;
 			});
@@ -56,8 +59,11 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('First node (adult brain) correctly expanded', async () => {
+			// Click on first node of tree browser, 'adult brain'
 			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[0].click());
+			// Wait for 'fa-eye' icon, means Tree Browser nodes were expanded
 			await wait4selector(page, 'i.fa-eye', {visible: true, timeout : 5000});
+			// Retrieve text of expanded node for 'adult cerebral
 			let adultCerebralGanglionNode = await page.evaluate(async () => {
 				return document.querySelectorAll(".rst__rowContents.rst__rowContentsDragDisabled span")[4].innerText;
 			});
@@ -72,20 +78,23 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Click on "eye" icon to render "adult cerebral ganglion" mesh', async () => {
 			await click(page, 'i.fa-eye');
+			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, 'i.fa-tint', { visible: true, timeout : 240000 })
 		})
-		
+
 		it('Mesh for "adult cerebral ganglion" rendered in canvas after clicking on eye icon next to node', async () => {
+			// Check 'adult cerebral ganglion' mesh was rendered
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].visible)
 			).toBeTruthy();
 		})
-		
+
 		it('Color Picker Appears for "adult cerebral ganglion"', async () => {
 			await click(page, 'i.fa-tint');
+			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 5000 })
 		})
-		
+
 		it('Use color picker to change color of "adult cerebral ganglion"', async () => {
 			// Retrieve old color in mesh
 			let adultCerebralGanglionColor = await page.evaluate(async () => {
@@ -99,7 +108,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].children[0].material.color;
 			});
-			
+
 			// Compare RGB's of original color and new color
 			expect(adultCerebralGanglionColor.r).not.toEqual(adultCerebralGanglionNewColor.r);
 			expect(adultCerebralGanglionColor.g).not.toEqual(adultCerebralGanglionNewColor.g);

@@ -53,6 +53,7 @@ describe('VFB Menu Component Tests', () => {
 
 		it('About Modal Appears', async () => {
 			await page.evaluate(async () => document.getElementById("About").click());
+			// Wait for selector to appear, this means About modal was opened
 			await wait4selector(page, '#vfb-content-block', { visible: true })
 		})
 
@@ -90,7 +91,8 @@ describe('VFB Menu Component Tests', () => {
 			// Checks a new page was opened as a result of clicking on the F.A.Q. menu option
 			let pagesOpened = await browser.pages();
 			await page.evaluate(async () => document.getElementById("F.A.Q.").click());
-			await page.waitFor(2000); // await for a while
+			await page.waitFor(2000); // wait for a while
+			// New amount of opened pages should be one more than 'pagesOpened'
 			let newPagesOpened = await browser.pages();
 			expect(newPagesOpened.length).toEqual(pagesOpened.length+1);
 		})

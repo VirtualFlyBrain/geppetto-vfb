@@ -38,7 +38,7 @@ const medullaTest = function(project) {
 
 	describe('Test Term Info Component Contains Metadata for Medulla', () => {
 		//Tests deselect button for VFB_00017894 is present in term info component, means is selected
-		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
+		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
 		})
 
@@ -116,16 +116,19 @@ const neuronTest = function(project){
 }
 
 describe('VFB URL Parameters id= and i= Tests', () => {
+	// Load project ?id=VFB_00030624&i=VFB_00017894,VFB_00030624,VFB_00030611,VFB_00030623"
 	// Test the item passed in id= takes the focus in the term info and it's selected 
 	describe('Test Loading "Medulla" as "id" in URL', () => {
 		medullaTest(projectURL1);
 	});
 
+	// Load project ?i=VFB_00030624,VFB_00017894,VFB_00030611,VFB_00030623"
 	// Test that the first id in the i= list takes the focus and it's selected
 	describe('Test Loading "Medulla" using parameter "i" in URL', () => {
 		medullaTest(projectURL2);
 	});
 
+	// Load project ?id=FBbt_00014013&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624"
 	// Test the item passed in id= that does not have visual capability takes the focus in the term info
 	describe('Test No Visual Capability Loaded for "adult gnathal ganglion"', () => {
 		beforeAll(async () => {
@@ -158,11 +161,13 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 		})
 	});
 
-	// Test that the first id in the i= list takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
+	// ?id=VFB_00000001&i=VFB_00017894,VFB_00000001";
+	// Test that the id takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
 	describe('Test Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "id" in URL', () => {
 		neuronTest(projectURL4);
 	});
 
+	// Loads project with ?i=VFB_00000001,VFB_00017894,VFB_00000001"
 	// Test that the first id in the i= list takes the focus and it's selected for neuron "fru-M-200266 (VFB_00000001)"
 	describe('Test Loading Neuron "fru-M-200266 (VFB_00000001)" using parameter "i" in URL', () => {
 		neuronTest(projectURL5);
