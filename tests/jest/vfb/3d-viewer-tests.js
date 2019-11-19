@@ -95,7 +95,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 			// Check 3d viewer opened up with correct amount of meshes
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(2)
+			).toBe(1)
 		})
 
 		it('3DViewer closed', async () => {
