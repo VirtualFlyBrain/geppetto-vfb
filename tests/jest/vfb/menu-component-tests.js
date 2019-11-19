@@ -31,12 +31,12 @@ describe('VFB Menu Component Tests', () => {
 
 		// Wait for this component to load on term info, means page has finished loading
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000})
 		})
 
 		// Wait for this component to load on term info, means page has finished loading
 		it('Term info component correctly populated at startup', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")', {timeout : 120000});
 		})
 	})
 

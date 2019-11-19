@@ -13,7 +13,7 @@ const projectURL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Tree Browser Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(120000); 
+		jest.setTimeout(240000); 
 		await page.goto(projectURL);
 
 	});
@@ -72,7 +72,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Mesh for "adult cerebral ganglion" rendered in canvas after clicking on eye icon next to node', async () => {
 			await click(page, 'i.fa-eye');
-			await page.waitFor(150000);
+			await page.waitFor(240000);
 			// Test Canvas Container has mesh for "adult cerebral ganglion" visible
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].visible)
