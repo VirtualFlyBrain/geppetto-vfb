@@ -1,6 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
-import CompactColor from 'react-color';
+import { SliderPicker } from 'react-color';
 import Tree from 'geppetto-client/js/components/interface/tree/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -27,7 +27,8 @@ export default class TreeWidget extends React.Component {
       loading: false,
       nodes: undefined,
       nodeSelected: undefined,
-      displayColorPicker: false
+      displayColorPicker: false,
+      pickerAnchor: undefined
     };
 
     this.initTree = this.initTree.bind(this);
@@ -60,8 +61,8 @@ export default class TreeWidget extends React.Component {
       width: this.props.size.width
     };
 
-    this.colorPickerNode = undefined;
     this.colorPickerContainer = undefined;
+    this.nodeWithColorPicker = undefined;
   }
 
   isNumber (variable) {
@@ -239,7 +240,7 @@ export default class TreeWidget extends React.Component {
           return middleIndex;
         } else {
           // move on if not matching target relationship (label)
-          startIndex = middleIndex + 1; 
+          startIndex = middleIndex + 1;
         }
       }
       // Search Right Side Of Array
@@ -287,6 +288,7 @@ export default class TreeWidget extends React.Component {
       var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
       if (node.instanceId.indexOf("VFB_") > -1) {
         child.instanceId = node.instanceId;
+        node.subtitle = child.subtitle;
         // child.subtitle = child.subtitle + " " + node.instanceId;
         uniqNodes.splice(j, 1);
       }
@@ -295,8 +297,8 @@ export default class TreeWidget extends React.Component {
     for ( var j = 0; j < uniqNodes.length; j++) {
       var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
       if (node.instanceId.indexOf("VFB_") > -1) {
-        console.log("child.instanceId contains " + child.instanceId + "but I am overwriting it with " + node.instanceId);
         child.instanceId = node.instanceId;
+        node.subtitle = child.subtitle;
       } else {
         child.children.push({
           title: node.title,
@@ -304,6 +306,7 @@ export default class TreeWidget extends React.Component {
           description: node.info,
           instanceId: node.instanceId,
           id: node.id,
+          showColorPicker: false,
           children: []
         });
         this.insertChildren(nodes, edges, child.children[j])
@@ -312,6 +315,7 @@ export default class TreeWidget extends React.Component {
   }
 
   convertDataForTree (nodes, edges, vertix) {
+    // This will create the data structure for the react-sortable-tree library, starting from the vertix node.
     var refinedDataTree = [];
     for ( var i = 0; i < nodes.length; i++ ) {
       if (vertix === nodes[i].id) {
@@ -321,23 +325,29 @@ export default class TreeWidget extends React.Component {
           description: nodes[i].info,
           instanceId: nodes[i].instanceId,
           id: nodes[i].id,
+          showColorPicker: false,
           children: []
         });
         break;
       }
     }
     var child = refinedDataTree[0];
+    // Once the vertix has been established we call insertChildren recursively on each child.
     this.insertChildren(nodes, edges, child);
     return refinedDataTree;
   }
 
   selectNode (instance) {
     if (this.state.nodeSelected !== undefined && this.state.nodeSelected.instanceId !== instance.instanceId) {
-      this.setState({ nodeSelected: instance, dataTree: this.state.dataTree });
+      this.setState({ nodeSelected: instance });
     }
   }
 
   updateTree (instance) {
+    /*
+     * function handler called by the VFBMain whenever there is an update of the instance on focus,
+     * this will reflect and move to the node (if it exists) that we have on focus.
+     */
     var innerInstance = undefined;
     if (instance.getParent() !== null) {
       innerInstance = instance.getParent();
@@ -352,6 +362,10 @@ export default class TreeWidget extends React.Component {
       }
       var node = [];
       var i = 0;
+      /*
+       * check the instance's id with the nodes, if this match we will use its subtitle
+       * in the searchQuery in the render to move the tree focus on this node
+       */
       while (this.state.nodes.length > i) {
         var idToSearch = innerInstance.getId();
         if (idToSearch === this.state.nodes[i]["instanceId"]) {
@@ -367,9 +381,13 @@ export default class TreeWidget extends React.Component {
   }
 
   initTree (instance) {
+    // This function is the core and starting point of the component itself
     this.setState({ loading: true });
     this.restPost(treeCypherQuery(instance)).done(data => {
-      // If I need to edit the data I can call this here and then assign it to this.state.dataTree
+      /*
+       * we take the data provided by the cypher query and consume the until we obtain the treeData that can be given
+       * to the react-sortable-tree since it understands this data structure
+       */
       if (data.results[0].data.length > 0) {
         var dataTree = this.parseGraphResultData(data);
         var vertix = this.findRoot(data.results[0].data[0].graph.nodes);
@@ -414,89 +432,120 @@ export default class TreeWidget extends React.Component {
     return min;
   }
 
-  componentWillMount () {
-    if (window.templateID !== undefined) {
-      this.initTree(window.templateID);
-    }
-  }
-
-  componentWillUnmount () {
-    document.removeEventListener('mousedown', this.monitorMouseClick, false);
-  }
-
   nodeClick (event, rowInfo) {
     this.selectNode(rowInfo.node);
   }
 
   monitorMouseClick (e) {
-    if (this.colorPickerContainer !== undefined && this.colorPickerContainer !== null && this.colorPickerContainer.contains(e.target)) {
-      return;
-    } else {
+    // event handler to monitor when we click outside the color picker and close it.
+    if (!(this.colorPickerContainer !== undefined && this.colorPickerContainer !== null && this.colorPickerContainer.contains(e.target))) {
+      if (this.nodeWithColorPicker !== undefined) {
+        this.nodeWithColorPicker.showColorPicker = false;
+        this.nodeWithColorPicker = undefined;
+      }
       this.colorPickerContainer = undefined;
       this.setState({ displayColorPicker: false });
     }
   }
 
   getButtons (rowInfo) {
+    // As per name, provided by the react-sortable-tree api, we use this to attach to each node custom buttons
     var buttons = [];
-    if (Instances[rowInfo.node.instanceId] !== undefined && typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") {
-      rowInfo.node.subtitle = rowInfo.node.instanceId;
-      if (Instances[rowInfo.node.instanceId].isVisible()) {
-        var color = Instances[rowInfo.node.instanceId].getColor();
-        buttons.push(<i className="fa fa-eye-slash"
-          aria-hidden="true"
-          onClick={ () => {
+    var fillCondition = "unknown";
+    if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+      fillCondition = "3dAvailable";
+      if (Instances[rowInfo.node.instanceId] === undefined) {
+        fillCondition = "3dToLoad";
+      } else {
+        if ((typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") && (Instances[rowInfo.node.instanceId].isVisible())) {
+          fillCondition = "3dVisible";
+        } else {
+          fillCondition = "3dHidden";
+        }
+      }
+    }
+
+    switch (fillCondition) {
+    case "3dToLoad":
+      buttons.push(<i className="fa fa-eye"
+        aria-hidden="true"
+        onClick={ e => {
+          e.stopPropagation();
+          rowInfo.node.subtitle = rowInfo.node.instanceId;
+          this.props.selectionHandler(rowInfo.node.instanceId);
+          this.setState({ nodeSelected: rowInfo.node });
+        }} />);
+      break;
+    case "3dHidden":
+      buttons.push(<i className="fa fa-eye"
+        aria-hidden="true"
+        onClick={ e => {
+          e.stopPropagation();
+          if (Instances[rowInfo.node.instanceId].getParent() !== null) {
+            Instances[rowInfo.node.instanceId].getParent().show();
+          } else {
+            Instances[rowInfo.node.instanceId].show();
+          }
+          this.setState({ nodeSelected: rowInfo.node });
+        }} />);
+      break;
+    case "3dVisible":
+      var color = Instances[rowInfo.node.instanceId].getColor();
+      buttons.push(<i className="fa fa-eye-slash"
+        aria-hidden="true"
+        onClick={ e => {
+          e.stopPropagation();
+          if (Instances[rowInfo.node.instanceId].getParent() !== null) {
+            Instances[rowInfo.node.instanceId].getParent().hide();
+          } else {
             Instances[rowInfo.node.instanceId].hide();
-            this.setState({ nodeSelected: rowInfo.node });
-          }} />);
-        buttons.push(<i className="fa fa-tint"
+          }
+          this.setState({ nodeSelected: rowInfo.node });
+        }} />);
+      buttons.push(<span
+        onClick={ e => {
+          e.stopPropagation();
+        }}>
+        <i className="fa fa-tint"
           style={{
             paddingLeft: "6px",
             color: color
           }}
           aria-hidden="true"
-          onClick={ () => {
-            this.setState({ displayColorPicker: !this.state.displayColorPicker });
-          }}>
-          { (this.state.displayColorPicker
-          && this.state.nodeSelected.subtitle === rowInfo.node.subtitle
-          && this.colorPickerNode === undefined)
-            ? <div id= "dario" ref={ref => this.colorPickerContainer = ref}>
-              <CompactColor
-                color={Instances[rowInfo.node.instanceId].getColor()}
-                onChangeComplete={ color => {
-                  Instances[rowInfo.node.instanceId].setColor(color.hex);
-                  this.setState({ displayColorPicker: true });
-                }}
-                style={{ zIndex: 10 }}/>
-            </div>
-            : null}
-        </i>);
-      } else {
-        if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
-          buttons.push(<i className="fa fa-eye"
-            aria-hidden="true"
-            onClick={ () => {
-              Instances[rowInfo.node.instanceId].show();
-              this.setState({ nodeSelected: rowInfo.node });
-            }} />);
-        }
-      }
-    } else {
-      if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
-        buttons.push(<i className="fa fa-eye"
-          aria-hidden="true"
-          onClick={ () => {
-            rowInfo.node.subtitle = rowInfo.node.instanceId;
-            this.props.selectionHandler(rowInfo.node.instanceId);
-            this.setState({ nodeSelected: rowInfo.node });
-          }} />);
-      }
+          onClick={ e => {
+            e.stopPropagation();
+            this.nodeWithColorPicker = rowInfo.node;
+            rowInfo.node.showColorPicker = !rowInfo.node.showColorPicker;
+            this.setState({
+              displayColorPicker: !this.state.displayColorPicker,
+              pickerAnchor: (!this.state.displayColorPicker ? undefined : e)
+            });
+          }} />
+        { (this.state.displayColorPicker
+          && rowInfo.node.showColorPicker)
+          ? <div
+            id="tree-color-picker"
+            ref={ref => this.colorPickerContainer = ref}>
+            <SliderPicker
+              color={Instances[rowInfo.node.instanceId].getColor()}
+              onChangeComplete={ (color, event) => {
+                Instances[rowInfo.node.instanceId].setColor(color.hex);
+                this.setState({ displayColorPicker: true });
+              }}
+              style={{ zIndex: 10 }}/>
+          </div>
+          : null}
+      </span>);
+      break;
     }
     return buttons;
   }
 
   getNodes (rowInfo) {
+    /*
+     * In the getNodes, provided by the API of react-sortable-tree, if the node has visual capability
+     * we attach the tooltip with the image, differently only tooltip.
+     */
     if (rowInfo.node.title !== "No data available.") {
       var title = <MuiThemeProvider theme={this.theme}>
         <Tooltip placement="right-start"
@@ -504,7 +553,7 @@ export default class TreeWidget extends React.Component {
             ? (<div>
               <div> {rowInfo.node.description} </div>
               <div>
-                <img style={{ textAlign: "center" }}
+                <img style={{ display: "block", textAlign: "center" }}
                   src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
               </div></div>)
             : (<div>
@@ -514,10 +563,11 @@ export default class TreeWidget extends React.Component {
             className={rowInfo.node.subtitle === this.state.nodeSelected.subtitle
               ? "nodeFound nodeSelected"
               : "nodeSelected"}
-            onClick={ () => {
-              this.colorPickerNode = undefined;
+            onClick={ e => {
+              e.stopPropagation();
+              this.colorPickerContainer = undefined;
               this.props.selectionHandler(rowInfo.node.subtitle);
-              this.setState({ displayColorPicker: false });
+              this.setState({ nodeSelected: rowInfo.node });
             }}>
             {rowInfo.node.title}
           </div>
@@ -525,6 +575,16 @@ export default class TreeWidget extends React.Component {
       </MuiThemeProvider>;
     }
     return title;
+  }
+
+  componentWillMount () {
+    if (window.templateID !== undefined) {
+      this.initTree(window.templateID);
+    }
+  }
+
+  componentWillUnmount () {
+    document.removeEventListener('mousedown', this.monitorMouseClick, false);
   }
 
   componentDidMount () {
@@ -545,6 +605,7 @@ export default class TreeWidget extends React.Component {
     } else {
       var treeData = this.state.dataTree;
     }
+    // In the return we show the circular progress if the data are still being processed, differently the Tree
     return (
       <div>
         {this.state.loading === true
@@ -572,12 +633,11 @@ export default class TreeWidget extends React.Component {
             rowHeight={this.styles.row_height}
             getButtons={this.getButtons}
             getNodesProps={this.getNodes}
-            searchQuery={this.state.nodeSelected.subtitle}
+            searchQuery={this.state.nodeSelected === undefined ? this.props.instance.getParent().getId() : this.state.nodeSelected.subtitle}
             onlyExpandSearchedNodes={false}
           />
         }
       </div>
-
     )
   }
 }
