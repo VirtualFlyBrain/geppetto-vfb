@@ -498,14 +498,14 @@ export default class FocusTerm extends React.Component {
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Open query results">
+                  title="Query results">
                   <i className="fa fa-quora arrowsStyle"
                     onClick={() => {
                       this.props.UIUpdateManager("queryBuilderVisible");
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Open the control panel">
+                  title="Layers">
                   <i className="fa fa-list arrowsStyle"
                     onClick={() => {
                       this.props.UIUpdateManager("controlPanelVisible");
