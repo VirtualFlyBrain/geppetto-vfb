@@ -380,6 +380,26 @@
           returnType="//@libraries.3/@types.1"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        name="Datasaets available for Template"
+        description="Get JSON for template_2_datasets query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="template_2_datasets_query"
+          description="Get JSON for template_2_datasets query"
+          returnType="//@libraries.3/@types.24"
+          query="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [{ID}] WITH distinct ds OPTIONAL MATCH (ds)-[rp:has_reference]->(p:pub) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p) } , PubMed: coalesce(p.PMID, ''), FlyBase: coalesce(p.FlyBase, ''), DOI: coalesce(p.DOI, '') } ) END AS pubs,ds OPTIONAL MATCH (ds)-[:has_license]->(l:License) WITH collect ({ icon : coalesce(l.license_logo, ''), link : coalesce(l.license_url, ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l) }  }) as license,ds,pubs OPTIONAL MATCH (ds)&lt;-[:has_source]-(i:Individual) WITH  i, ds, pubs, license OPTIONAL MATCH (i)-[:INSTANCEOF]-(c:Class) WITH DISTINCT { images: count(distinct i),types: count(distinct c) } as dataset_counts,ds,pubs,license RETURN { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds) }  as dataset, 'ed2cbd0' AS version , pubs, license, dataset_counts&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [{ID}] WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="vfb_query schema processor"
+          description="vfb_query schema processor"
+          runForCount="false"
+          returnType="//@libraries.3/@types.1"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -880,5 +900,14 @@
       queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="alignedDatasets"
+      name="Show all datasets aligned to template"
+      description="List all datasets aligned to $NAME"
+      returnType="//@libraries.3/@types.24"
+      queryChain="//@queries.22">
+    <matchingCriteria
+        type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
 </gep:GeppettoModel>
