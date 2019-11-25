@@ -85,7 +85,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "License",
-    "cssClassName": "query-results-stage-column",
+    "cssClassName": "query-results-license-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
@@ -125,7 +125,7 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Image_count",
-    "cssClassName": "query-results-score-column",
+    "cssClassName": "query-results-image_count-column",
     "sortDirectionCycle": ['desc', 'asc', null]
   }
 ];
@@ -297,10 +297,6 @@ var queryBuilderDatasourceConfig = {
 var sorterColumns = [
   {
     column: "score",
-    order: "DESC"
-  },
-  {
-    column: "image_count",
     order: "DESC"
   },
   {
