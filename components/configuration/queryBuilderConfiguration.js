@@ -300,6 +300,10 @@ var sorterColumns = [
     order: "DESC"
   },
   {
+    column: "image_count",
+    order: "DESC"
+  },
+  {
     column: "images",
     order: "DESC"
   },
