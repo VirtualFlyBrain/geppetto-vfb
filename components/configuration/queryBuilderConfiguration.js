@@ -76,11 +76,21 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Stage",
-    "cssClassName": "query-results-stage-column"
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "license",
+    "order": 8,
+    "locked": false,
+    "visible": true,
+    "displayName": "License",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "controls",
-    "order": 8,
+    "order": 9,
     "locked": false,
     "visible": false,
     "customComponent": QueryResultsControlsComponent,
@@ -91,7 +101,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "images",
-    "order": 9,
+    "order": 10,
     "locked": false,
     "visible": true,
     "customComponent": SlideshowImageComponent,
@@ -102,17 +112,26 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "score",
-    "order": 10,
+    "order": 11,
     "locked": false,
     "visible": true,
     "displayName": "Score",
+    "cssClassName": "query-results-score-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "image_count",
+    "order": 12,
+    "locked": false,
+    "visible": true,
+    "displayName": "Image_count",
     "cssClassName": "query-results-score-column",
     "sortDirectionCycle": ['desc', 'asc', null]
   }
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'expressed_in', 'description', 'reference', 'type', 'stage', 'images', 'score'];
+var queryResultsColumns = ['name', 'expressed_in', 'description', 'reference', 'type', 'stage', 'license', 'images', 'score','image_count'];
 
 var queryResultsControlConfig = {
   "Common": {
@@ -140,7 +159,7 @@ var queryResultsControlConfig = {
 
 var queryBuilderDatasourceConfig = {
   VFB: {
-    url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&fq=shortform_autosuggest:VFB*%20OR%20shortform_autosuggest:FB*%20OR%20is_defining_ontology:true&rows=100&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E110.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=$SEARCH_TERM$%20OR%20$SEARCH_TERM$*%20OR%20*$SEARCH_TERM$*&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true", 
+    url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=ontology_name:(vfb)&fq=shortform_autosuggest:VFB*%20OR%20shortform_autosuggest:FB*%20OR%20is_defining_ontology:true&rows=100&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E110.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=$SEARCH_TERM$%20OR%20$SEARCH_TERM$*%20OR%20*$SEARCH_TERM$*&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
     crossDomain: true,
     id: "short_form",
     label: { field: "label", formatting: "$VALUE$" },
