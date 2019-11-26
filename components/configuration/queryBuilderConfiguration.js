@@ -84,6 +84,10 @@ var queryResultsColMeta = [
     "order": 8,
     "locked": false,
     "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
     "displayName": "License",
     "cssClassName": "query-results-license-column",
     "sortDirectionCycle": ['asc', 'desc', null]
