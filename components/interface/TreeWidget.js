@@ -25,6 +25,7 @@ export default class TreeWidget extends React.Component {
       dataTree: undefined,
       root: undefined,
       loading: false,
+      edges: undefined,
       nodes: undefined,
       nodeSelected: undefined,
       displayColorPicker: false,
@@ -44,6 +45,7 @@ export default class TreeWidget extends React.Component {
     this.findChildren = this.findChildren.bind(this);
     this.searchChildren = this.searchChildren.bind(this);
     this.insertChildren = this.insertChildren.bind(this);
+    this.updateSubtitle = this.updateSubtitle.bind(this);
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
     this.defaultComparator = this.defaultComparator.bind(this);
     this.convertDataForTree = this.convertDataForTree.bind(this);
@@ -288,8 +290,6 @@ export default class TreeWidget extends React.Component {
       var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
       if (node.instanceId.indexOf("VFB_") > -1) {
         child.instanceId = node.instanceId;
-        node.subtitle = child.subtitle;
-        // child.subtitle = child.subtitle + " " + node.instanceId;
         uniqNodes.splice(j, 1);
       }
     }
@@ -298,13 +298,13 @@ export default class TreeWidget extends React.Component {
       var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
       if (node.instanceId.indexOf("VFB_") > -1) {
         child.instanceId = node.instanceId;
-        node.subtitle = child.subtitle;
       } else {
         child.children.push({
           title: node.title,
           subtitle: node.instanceId,
           description: node.info,
           instanceId: node.instanceId,
+          classId: node.instanceId,
           id: node.id,
           showColorPicker: false,
           children: []
@@ -324,6 +324,7 @@ export default class TreeWidget extends React.Component {
           subtitle: nodes[i].instanceId,
           description: nodes[i].info,
           instanceId: nodes[i].instanceId,
+          classId: nodes[i].instanceId,
           id: nodes[i].id,
           showColorPicker: false,
           children: []
@@ -395,10 +396,11 @@ export default class TreeWidget extends React.Component {
         var edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
         var treeData = this.convertDataForTree(nodes, edges, vertix);
         this.setState({
+          loading: false,
           instance: { id: instance },
           dataTree: treeData,
           root: vertix,
-          loading: false,
+          edges: edges,
           nodes: nodes,
           nodeSelected: (this.props.instance === undefined
             ? treeData[0]
@@ -437,24 +439,65 @@ export default class TreeWidget extends React.Component {
   }
 
   monitorMouseClick (e) {
-    // event handler to monitor when we click outside the color picker and close it.
-    if (!(this.colorPickerContainer !== undefined && this.colorPickerContainer !== null && this.colorPickerContainer.contains(e.target))) {
+    const clickCoord = {
+      INSIDE: 'inside',
+      OUTSIDE: 'outside',
+      PICKER_PRESENT: 'picker_present',
+      NODE_PRESENT: 'node_present'
+    };
+
+    let clickCondition = undefined;
+    if (this.colorPickerContainer !== undefined && this.colorPickerContainer !== null) {
+      clickCondition = clickCoord.PICKER_PRESENT;
+      if (!this.colorPickerContainer.contains(e.target)) {
+        clickCondition = clickCoord.OUTSIDE;
+      }
+    }
+
+    switch (clickCondition) {
+    case clickCoord.OUTSIDE:
       if (this.nodeWithColorPicker !== undefined) {
         this.nodeWithColorPicker.showColorPicker = false;
         this.nodeWithColorPicker = undefined;
       }
       this.colorPickerContainer = undefined;
       this.setState({ displayColorPicker: false });
+      break;
+    default:
+      console.log('mouse click function in the tree, just clicked this if you need');
+      console.log(clickCondition);
     }
+
+    /*
+     * event handler to monitor when we click outside the color picker and close it.
+     * if (!(this.colorPickerContainer !== undefined && this.colorPickerContainer !== null && this.colorPickerContainer.contains(e.target))) {
+     *   if (this.nodeWithColorPicker !== undefined) {
+     *     this.nodeWithColorPicker.showColorPicker = false;
+     *     this.nodeWithColorPicker = undefined;
+     *   }
+     */
+
+    /*
+     *   this.colorPickerContainer = undefined;
+     *   this.setState({ displayColorPicker: false });
+     * }
+     */
   }
 
   getButtons (rowInfo) {
     // As per name, provided by the react-sortable-tree api, we use this to attach to each node custom buttons
     var buttons = [];
     var fillCondition = "unknown";
+    var instanceLoaded = false;
     if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
       fillCondition = "3dAvailable";
-      if (Instances[rowInfo.node.instanceId] === undefined) {
+      for (var i = 1; i < Instances.length; i++) {
+        if (Instances[i].id !== undefined && Instances[i].id === rowInfo.node.instanceId) {
+          instanceLoaded = true;
+          break;
+        }
+      }
+      if (!instanceLoaded) {
         fillCondition = "3dToLoad";
       } else {
         if ((typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") && (Instances[rowInfo.node.instanceId].isVisible())) {
@@ -471,7 +514,7 @@ export default class TreeWidget extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          rowInfo.node.subtitle = rowInfo.node.instanceId;
+          // rowInfo.node.subtitle = rowInfo.node.instanceId;
           this.props.selectionHandler(rowInfo.node.instanceId);
           this.setState({ nodeSelected: rowInfo.node });
         }} />);
@@ -560,13 +603,24 @@ export default class TreeWidget extends React.Component {
               <div> {rowInfo.node.description} </div>
             </div>)}>
           <div
-            className={rowInfo.node.subtitle === this.state.nodeSelected.subtitle
+            className={(rowInfo.node.instanceId === this.state.nodeSelected.subtitle || rowInfo.node.classId === this.state.nodeSelected.subtitle)
               ? "nodeFound nodeSelected"
               : "nodeSelected"}
             onClick={ e => {
               e.stopPropagation();
               this.colorPickerContainer = undefined;
-              this.props.selectionHandler(rowInfo.node.subtitle);
+              let instanceFound = false;
+              for (let i = 0; i < Instances.length; i++) {
+                if (Instances[i].getId() === rowInfo.node.instanceId) {
+                  instanceFound = true;
+                  break;
+                }
+              }
+              if (instanceFound && typeof Instances[rowInfo.node.instanceId].isVisible === "function") {
+                this.props.selectionHandler(rowInfo.node.instanceId);
+              } else {
+                this.props.selectionHandler(rowInfo.node.classId);
+              }
               this.setState({ nodeSelected: rowInfo.node });
             }}>
             {rowInfo.node.title}
@@ -575,6 +629,21 @@ export default class TreeWidget extends React.Component {
       </MuiThemeProvider>;
     }
     return title;
+  }
+
+  updateSubtitle (tree, idSelected) {
+    var node = undefined;
+    if (tree.length !== undefined) {
+      node = tree[0];
+    } else {
+      node = tree;
+    }
+    if (node.instanceId === idSelected || node.classId === idSelected) {
+      node.subtitle = idSelected;
+    }
+    for (let i = 0; i < node.children.length; i++) {
+      this.updateSubtitle(node.children[i], idSelected);
+    }
   }
 
   componentWillMount () {
@@ -591,7 +660,33 @@ export default class TreeWidget extends React.Component {
     var that = this;
     document.addEventListener('mousedown', this.monitorMouseClick, false);
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-      that.setState({ displayColorPicker: false });
+      var innerInstance = undefined;
+      if (instance.getParent() !== null) {
+        innerInstance = instance.getParent();
+      } else {
+        innerInstance = instance;
+      }
+      var newId = innerInstance.getId();
+      var newInstance = {
+        instanceId: { newId },
+        subtitle: { newId },
+        classId: { newId }
+      };
+      var treeData = that.state.dataTree;
+      that.updateSubtitle(treeData, newId);
+      that.setState({
+        dataTree: treeData,
+        displayColorPicker: false,
+        instance: { newInstance }
+      });
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (parameters) {
+      console.log('paramerters are:');
+      console.log(parameters);
+      if (Instances[parameters] !== undefined ) {
+        that.setState({ instance: undefined });
+      }
     });
   }
 

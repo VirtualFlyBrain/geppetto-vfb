@@ -788,7 +788,7 @@ export default class VFBMain extends React.Component {
           instance={this.instanceOnFocus}
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}
-          selectionHandler={this.addVfbId}/>
+          selectionHandler={this.addVfbId} />
       </div>);
     }
   }
