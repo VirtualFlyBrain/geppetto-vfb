@@ -149,8 +149,8 @@ export default class VFBToolBar extends React.Component {
       majorVersion = parseInt(navigator.appVersion,10);
     }
     // return as much of the log up to the last 10 events < 1000 characters:
-    logLength = -10;
-    limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+    var logLength = -10;
+    var limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
       /\&/g,escape('&')
     ).replace(
       /\#/g,escape('#')
