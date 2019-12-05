@@ -1,11 +1,11 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getCommandLineArg, getUrlFromProjectId } from './cmdline.js';
+import { getUrlFromProjectId } from './cmdline.js';
 import { wait4selector, click } from './utils';
 import * as ST from './selectors';
 
-const baseURL = getCommandLineArg('--url', 'http://localhost:8080/org.geppetto.frontend');
+const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
 /**
@@ -55,7 +55,7 @@ describe('VFB Spotlight Tests', () => {
 	//Tests 'Add Scene' button in spotlight for VFB_00017894
 	describe('Spotlight, add scene button test', () => { 
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-search', { visible: true })
+			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 1000 })
 		})
 
 		it('Opens and shows correct butttons.', async () => {
@@ -71,7 +71,7 @@ describe('VFB Spotlight Tests', () => {
 			await page.keyboard.press('Enter')
 		});;
 
-		it('Spotlight Add Scene butotn exists', async () => {
+		it('Spotlight Add Scene button exists', async () => {
 			await page.waitForSelector('button[id=buttonOne]', {visible: true, timeout : 10000});			
 		});
 
