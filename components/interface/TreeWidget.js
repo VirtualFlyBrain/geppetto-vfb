@@ -421,7 +421,7 @@ export default class TreeWidget extends React.Component {
               <div> {rowInfo.node.description} </div>
             </div>)}>
           <div
-            className={(rowInfo.node.instanceId === this.state.nodeSelected.instanceId)
+            className={(this.state.nodeSelected !== undefined && rowInfo.node.instanceId === this.state.nodeSelected.instanceId)
               ? "nodeFound nodeSelected"
               : "nodeSelected"}
             onClick={ e => {
@@ -462,6 +462,7 @@ export default class TreeWidget extends React.Component {
   componentDidMount () {
     var that = this;
     document.addEventListener('mousedown', this.monitorMouseClick, false);
+
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
       that.updateTree(instance);
     });
@@ -470,6 +471,10 @@ export default class TreeWidget extends React.Component {
       if (Instances[parameters] !== undefined ) {
         that.setState({ nodeSelected: undefined });
       }
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Instances_created, function () {
+      that.setState({ displayColorPicker: false });
     });
   }
 
