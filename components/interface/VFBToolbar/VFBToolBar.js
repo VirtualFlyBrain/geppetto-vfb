@@ -3,7 +3,7 @@ import React from 'react';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
 var Rnd = require('react-rnd').default;
 
-require('../../css/VFBToolBar.less');
+require('../../../css/VFBToolBar.less');
 
 const popperStyles = {
   root: {
@@ -68,10 +68,10 @@ export default class VFBToolBar extends React.Component {
       htmlChild: undefined
     }
 
-    this.menuConfiguration = require('../configuration/vfbtoolbarMenuConfiguration.js').toolbarMenu;
-    this.aboutHTML = require('../configuration/vfbtoolbarHTML.js').about;
-    this.feedbackHTML = require('../configuration/vfbtoolbarHTML.js').feedback;
-    this.contributeHTML = require('../configuration/vfbtoolbarHTML.js').contribute;
+    this.menuConfiguration = require('../../configuration/VFBToolbar/vfbtoolbarMenuConfiguration').toolbarMenu;
+    this.aboutHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').about;
+    this.feedbackHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').feedback;
+    this.contributeHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').contribute;
 
 
     this.clickAbout = this.clickAbout.bind(this);
