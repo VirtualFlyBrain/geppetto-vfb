@@ -240,7 +240,7 @@ var toolbarMenu = {
           label: "NBLAST",
           icon: "",
           action: "",
-          position: "bottom-start",
+          position: "right-start",
           list: [
             {
               label: "What is NBLAST?",
@@ -264,7 +264,7 @@ var toolbarMenu = {
           label: "CATMAID",
           icon: "",
           action: "",
-          position: "bottom-start",
+          position: "right-start",
           list: [
             {
               label: "What is CATMAID?",
