@@ -235,6 +235,116 @@ var toolbarMenu = {
             handlerAction: "UIElementHandler",
             parameters: ["treeBrowserVisible"]
           }
+        },
+        {
+          label: "NBLAST",
+          icon: "",
+          action: "",
+          position: "bottom-start",
+          list: [
+            {
+              label: "What is NBLAST?",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://flybrain.mrc-lmb.cam.ac.uk/si/nblast/www/"]
+              }
+            },
+            {
+              label: "NBLAST against your own data",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://nblast.virtualflybrain.org:8080/NBLAST_on-the-fly/?gal4_n=10&all_use_mean=F&all_query=&tab=One%20against%20all&gal4_query="]
+              }
+            }
+          ]
+        },
+        {
+          label: "CATMAID",
+          icon: "",
+          action: "",
+          position: "bottom-start",
+          list: [
+            {
+              label: "What is CATMAID?",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://catmaid.readthedocs.io/"]
+              }
+            },
+            {
+              label: "Hosted EM Data",
+              icon: "",
+              position: "right-start",
+              action: {
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult Brain (FAFB)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://fafb.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true"]
+                  }
+                },
+                {
+                  label: "Adult VNC (VNC1)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true"]
+                  }
+                },
+                {
+                  label: "Larval (L1EM)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://l1em.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true"]
+                  }
+                }
+              ]
+            },
+            {
+              label: "APIs",
+              icon: "",
+              position: "right-start",
+              action: {
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult Brain (FAFB)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://fafb.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Adult VNC (VNC1)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Larval (L1EM)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://l1em.catmaid.virtualflybrain.org/apis/"]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },
