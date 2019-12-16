@@ -72,12 +72,15 @@ export default class VFBToolBar extends React.Component {
     this.aboutHTML = require('../configuration/vfbtoolbarHTML.js').about;
     this.feedbackHTML = require('../configuration/vfbtoolbarHTML.js').feedback;
     this.contributeHTML = require('../configuration/vfbtoolbarHTML.js').contribute;
-
+    this.tutorialHTML = require('../configuration/vfbtoolbarHTML.js').tutorial;
+    
+    console.log("tutorial html ", this.tutorialHTML);
 
     this.clickAbout = this.clickAbout.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.clickFeedback = this.clickFeedback.bind(this);
     this.clickContribute = this.clickContribute.bind(this);
+    this.clickTutorial = this.clickTutorial.bind(this);
   }
 
   componentWillMount () {
@@ -213,6 +216,13 @@ export default class VFBToolBar extends React.Component {
     this.props.htmlOutputHandler(htmlContent);
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
   }
+  
+  clickTutorial () {
+    var htmlContent = this.tutorialHTML;
+    console.log("tutorial")
+    this.props.htmlOutputHandler(htmlContent);
+    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Tutorial'));
+  }
 
   menuHandler (click) {
     switch (click.handlerAction) {
@@ -233,6 +243,9 @@ export default class VFBToolBar extends React.Component {
       break;
     case 'clickContribute':
       this.clickContribute();
+      break;
+    case 'clickTutorial':
+      this.clickTutorial();
       break;
     default:
       return this.props.menuHandler(click);

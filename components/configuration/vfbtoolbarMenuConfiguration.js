@@ -347,6 +347,14 @@ var toolbarMenu = {
             handlerAction: "clickFeedback",
             parameters: []
           }
+        },
+        {
+          label: "Tutorial",
+          icon: "fa fa-book",
+          action: {
+            handlerAction: "clickTutorial",
+            parameters: []
+          }
         }
       ]
     }

@@ -355,4 +355,15 @@ var contribute
   + "   </div>"
   + "   </div>";
 
-module.exports = { about, feedback, contribute };
+var tutorial
+= "<div id='vfb-content-block' class='callout vfbcontent'> "
+  + "<div id='vfb-content-titlebar'> "
+  + "	<div id='vfb-content-title'>Tutorial <span style='color:white;'> Virtual Fly Brain</span></div> "
+  + "<div id='loadingText' style='text-align:center; font-family: consolas; margin-top: 50px;} '>"
+  + "<img src='geppetto/build/loadingSpinner.gif' alt='' onerror='document.getElementById('loadingMessage').style.display='block'' >"
+  + "<span id='loadingMessage' style='display : none' >LOADING... [~3MB]</span>"
+  + "</div>"
+  + "</div>"
+  + "</div>";
+
+module.exports = { about, feedback, contribute, tutorial };

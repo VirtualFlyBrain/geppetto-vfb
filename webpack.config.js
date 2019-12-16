@@ -3,6 +3,8 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var MiniCssExtractPlugin = require("mini-css-extract-plugin");
+var fs = require('fs');
+
 /*
  *var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
  * <%=htmlWebpackPlugin.options.GEPPETTO_CONFIGURATION._webapp_folder%>
@@ -28,6 +30,17 @@ var availableExtensions = [];
 availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
 availableExtensions.push({ from: 'tutorials/*', to: './', flatten: true });
 availableExtensions.push({ from: 'model/*', to: './', flatten: true });
+
+const loadingSpinnerPath = 'images/loadingSpinner.gif';
+
+try {
+  if (fs.existsSync(loadingSpinnerPath)) {
+    availableExtensions.push({ from: loadingSpinnerPath, to: './', flatten: true });
+  }
+} catch (err) {
+  console.error(err)
+}
+
 console.log(availableExtensions);
 
 module.exports = function (env){
