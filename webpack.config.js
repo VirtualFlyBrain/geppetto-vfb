@@ -31,11 +31,11 @@ availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "
 availableExtensions.push({ from: 'tutorials/*', to: './', flatten: true });
 availableExtensions.push({ from: 'model/*', to: './', flatten: true });
 
-const loadingSpinnerPath = 'images/loadingSpinner.gif';
+const splashLoadingImage = 'images/splash.png';
 
 try {
-  if (fs.existsSync(loadingSpinnerPath)) {
-    availableExtensions.push({ from: loadingSpinnerPath, to: './', flatten: true });
+  if (fs.existsSync(splashLoadingImage)) {
+    availableExtensions.push({ from: splashLoadingImage, to: './', flatten: true });
   }
 } catch (err) {
   console.error(err)
