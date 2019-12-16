@@ -82,9 +82,9 @@ describe('VFB Menu Component Tests', () => {
 			await page.evaluate(async () => document.getElementById("Help").click());
 			// Wait for drop down menu of 'Help' to show 
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
-			// Check there's three elements in the drop down menu of 'Help'
+			// Check there's four elements in the drop down menu of 'Help'
 			const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
-			expect(dropDownMenuItems).toEqual(3);
+			expect(dropDownMenuItems).toEqual(4);
 		})
 
 		it('Help Modal FAQ Tab Opened', async () => {
