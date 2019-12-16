@@ -922,37 +922,8 @@ export default class VFBMain extends React.Component {
           this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
         }
       }
-      var that = this;
       console.log("Loading default Adult Brain VFB_00017894 template.");
-      GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId(that.idFromURL);
-
-        var callback = function () {
-          // check if any results with count flag
-          if (that.refs.querybuilderRef.props.model.count > 0) {
-            // runQuery if any results
-            that.refs.querybuilderRef.runQuery();
-          } else {
-            that.refs.querybuilderRef.switchView(false);
-          }
-          // show query component
-          that.refs.querybuilderRef.open();
-          $("body").css("cursor", "default");
-          GEPPETTO.trigger('stop_spin_logo');
-        };
-
-        if (that.urlQueryLoader !== undefined) {
-          if (window[that.urlQueryLoader[0]] == undefined) {
-            window.fetchVariableThenRun(that.urlQueryLoader[0], function () {
-              that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback)
-            });
-          } else {
-            setTimeout(function () {
-              that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback);
-            }, 100);
-          }
-        }
-      });
+      this.idsFinalList = this.idFromURL;
     } else {
       var idsList = "";
       var idList = this.props.location.search;
@@ -988,38 +959,41 @@ export default class VFBMain extends React.Component {
         }
         this.idsFromURL.push(this.idFromURL);
         this.idsFromURL = [... new Set(this.idsFromURL)];
-        var that = this;
+        this.idsFinalList = this.idsFromURL;
         console.log("Loading IDS to add to the scene from url");
-        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-          that.addVfbId(that.idsFromURL);
-
-          var callback = function () {
-            // check if any results with count flag
-            if (that.refs.querybuilderRef.props.model.count > 0) {
-              // runQuery if any results
-              that.refs.querybuilderRef.runQuery();
-            } else {
-              that.refs.querybuilderRef.switchView(false);
-            }
-            // show query component
-            that.refs.querybuilderRef.open();
-            $("body").css("cursor", "default");
-            GEPPETTO.trigger('stop_spin_logo');
-          };
-          if (that.urlQueryLoader !== undefined) {
-            if (window[that.urlQueryLoader[0]] == undefined) {
-              window.fetchVariableThenRun(that.urlQueryLoader[0], function () {
-                that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback)
-              });
-            } else {
-              setTimeout(function () {
-                that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback);
-              }, 100);
-            }
-          }
-        });
       }
     }
+
+    var that = this;
+    GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+      that.addVfbId(that.idsFinalList);
+
+      var callback = function () {
+        // check if any results with count flag
+        if (that.refs.querybuilderRef.props.model.count > 0) {
+          // runQuery if any results
+          that.refs.querybuilderRef.runQuery();
+        } else {
+          that.refs.querybuilderRef.switchView(false);
+        }
+        // show query component
+        that.refs.querybuilderRef.open();
+        $("body").css("cursor", "default");
+        GEPPETTO.trigger('stop_spin_logo');
+      };
+
+      if (that.urlQueryLoader !== undefined) {
+        if (window[that.urlQueryLoader[0]] == undefined) {
+          window.fetchVariableThenRun(that.urlQueryLoader[0], function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback)
+          });
+        } else {
+          setTimeout(function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback);
+          }, 100);
+        }
+      }
+    });
 
     // wipe the history state:
     window.history.replaceState({ s:4, n:"", b:"", f:"" }, "", window.location.pathname + window.location.search);
