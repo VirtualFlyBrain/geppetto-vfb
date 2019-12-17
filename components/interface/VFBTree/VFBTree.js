@@ -476,6 +476,10 @@ export default class VFBTree extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instances_created, function () {
       that.setState({ displayColorPicker: false });
     });
+
+    GEPPETTO.on(GEPPETTO.Events.Color_set, function (instance) {
+      that.forceUpdate();
+    });
   }
 
   render () {
