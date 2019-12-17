@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
 import React, { Component } from 'react';
-import VFBToolBar from './interface/VFBToolBar';
-import FocusTerm from './interface/FocusTerm';
-import TreeWidget from './interface/TreeWidget';
-import StackViewer from './interface/StackViewer';
-import TutorialWidget from './interface/TutorialWidget';
-import VFBTermInfoWidget from './interface/VFBTermInfo';
+import VFBToolBar from './interface/VFBToolbar/VFBToolBar';
+import VFBFocusTerm from './interface/VFBFocusTerm/VFBFocusTerm';
+import VFBTree from './interface/VFBTree/VFBTree';
+import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
+import TutorialWidget from './interface/VFBOverview/TutorialWidget';
+import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from 'geppetto-client/js/components/interface/logo/Logo';
 import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
@@ -21,7 +21,7 @@ require('../css/VFBMain.less');
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
-var modelJson = require('../components/configuration/layoutModel').modelJson;
+var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
 export default class VFBMain extends React.Component {
 
@@ -73,21 +73,22 @@ export default class VFBMain extends React.Component {
     this.idFromURL = undefined;
     this.firstLoad = true;
     this.idsFromURL = [];
+    this.urlQueryLoader = undefined;
 
     this.UIElementsVisibility = {};
 
-    this.colours = require('./configuration/colours.json');
-    this.spotlightConfig = require('./configuration/spotlightConfiguration').spotlightConfig;
-    this.spotlightDataSourceConfig = require('./configuration/spotlightConfiguration').spotlightDataSourceConfig;
-    this.controlPanelConfig = require('./configuration/controlPanelConfiguration').controlPanelConfig;
-    this.controlPanelColMeta = require('./configuration/controlPanelConfiguration').controlPanelColMeta;
-    this.controlPanelColumns = require('./configuration/controlPanelConfiguration').controlPanelColumns;
-    this.controlPanelControlConfigs = require('./configuration/controlPanelConfiguration').controlPanelControlConfigs;
-    this.queryResultsColMeta = require('./configuration/queryBuilderConfiguration').queryResultsColMeta;
-    this.queryResultsColumns = require('./configuration/queryBuilderConfiguration').queryResultsColumns;
-    this.queryResultsControlConfig = require('./configuration/queryBuilderConfiguration').queryResultsControlConfig;
-    this.queryBuilderDatasourceConfig = require('./configuration/queryBuilderConfiguration').queryBuilderDatasourceConfig;
-    this.sorterColumns = require('./configuration/queryBuilderConfiguration').sorterColumns;
+    this.colours = require('./configuration/VFBMain/colours.json');
+    this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
+    this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
+    this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
+    this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
+    this.controlPanelColumns = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColumns;
+    this.controlPanelControlConfigs = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelControlConfigs;
+    this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
+    this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
+    this.queryResultsControlConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsControlConfig;
+    this.queryBuilderDatasourceConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryBuilderDatasourceConfig;
+    this.sorterColumns = require('./configuration/VFBMain/queryBuilderConfiguration').sorterColumns;
 
     this.model = FlexLayout.Model.fromJson(modelJson)
 
@@ -764,7 +765,7 @@ export default class VFBMain extends React.Component {
       let _width = node.getRect().width;
       if (_height > 0 || _width > 0) {
         return (<div className="flexChildContainer">
-          <StackViewer
+          <VFBStackViewer
             id="NewStackViewer"
             defHeight={_height}
             defWidth={_width}
@@ -783,7 +784,7 @@ export default class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer">
-        <TreeWidget
+        <VFBTree
           id="treeWidget"
           instance={this.instanceOnFocus}
           size={{ height: _height, width: _width }}
@@ -914,11 +915,15 @@ export default class VFBMain extends React.Component {
     // Loading ids passed through the browser's url
     if ((this.props.location.search.indexOf("id=VFB") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
       this.idFromURL = "VFB_00017894";
-      var that = this;
+      var idList = this.props.location.search;
+      idList = idList.replace("?","").split("&");
+      for (let list in idList) {
+        if (idList[list].indexOf("q=") > -1) {
+          this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+        }
+      }
       console.log("Loading default Adult Brain VFB_00017894 template.");
-      GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId(that.idFromURL);
-      });
+      this.idsFinalList = this.idFromURL;
     } else {
       var idsList = "";
       var idList = this.props.location.search;
@@ -935,6 +940,8 @@ export default class VFBMain extends React.Component {
             idsList = "," + idsList;
           }
           idsList = idList[list].replace("i=","") + idsList;
+        } else if (idList[list].indexOf("q=") > -1) {
+          this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
         }
       }
       if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
@@ -952,13 +959,41 @@ export default class VFBMain extends React.Component {
         }
         this.idsFromURL.push(this.idFromURL);
         this.idsFromURL = [... new Set(this.idsFromURL)];
-        var that = this;
+        this.idsFinalList = this.idsFromURL;
         console.log("Loading IDS to add to the scene from url");
-        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-          that.addVfbId(that.idsFromURL);
-        });
       }
     }
+
+    var that = this;
+    GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+      that.addVfbId(that.idsFinalList);
+
+      var callback = function () {
+        // check if any results with count flag
+        if (that.refs.querybuilderRef.props.model.count > 0) {
+          // runQuery if any results
+          that.refs.querybuilderRef.runQuery();
+        } else {
+          that.refs.querybuilderRef.switchView(false);
+        }
+        // show query component
+        that.refs.querybuilderRef.open();
+        $("body").css("cursor", "default");
+        GEPPETTO.trigger('stop_spin_logo');
+      };
+
+      if (that.urlQueryLoader !== undefined) {
+        if (window[that.urlQueryLoader[0]] == undefined) {
+          window.fetchVariableThenRun(that.urlQueryLoader[0], function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback)
+          });
+        } else {
+          setTimeout(function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback);
+          }, 100);
+        }
+      }
+    });
 
     // wipe the history state:
     window.history.replaceState({ s:4, n:"", b:"", f:"" }, "", window.location.pathname + window.location.search);
@@ -1093,7 +1128,6 @@ export default class VFBMain extends React.Component {
     if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
       this.treeBrowserReference.updateTree(this.instanceOnFocus);
     }
-
   }
 
   render () {
@@ -1180,7 +1214,7 @@ export default class VFBMain extends React.Component {
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
 
-        <FocusTerm
+        <VFBFocusTerm
           ref={ref => this.focusTermReference = ref}
           UIUpdateManager={this.UIUpdateManager}
           queryBuilder={this.refs.querybuilderRef}/>

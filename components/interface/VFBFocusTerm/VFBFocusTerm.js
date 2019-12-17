@@ -10,16 +10,16 @@ import {
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 
-require('../../css/FocusTerm.less');
+require('../../../css/VFBFocusTerm.less');
 
-export default class FocusTerm extends React.Component {
+export default class VFBFocusTerm extends React.Component {
 
   constructor (props) {
     super(props);
     this.state = { currentInstance: undefined };
 
-    this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
-    this.labels = require('../configuration/focusTermConfiguration.js').subMenusGrouping;
+    this.focusTermConfiguration = require('../../configuration/VFBFocusTerm/focusTermConfiguration').focusTermConfiguration;
+    this.labels = require('../../configuration/VFBFocusTerm/focusTermConfiguration').subMenusGrouping;
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
 
     this.clearAll = this.clearAll.bind(this);
