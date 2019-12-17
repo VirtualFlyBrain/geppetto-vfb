@@ -73,6 +73,7 @@ export default class VFBMain extends React.Component {
     this.idFromURL = undefined;
     this.firstLoad = true;
     this.idsFromURL = [];
+    this.urlQueryLoader = undefined;
 
     this.UIElementsVisibility = {};
 
@@ -914,11 +915,15 @@ export default class VFBMain extends React.Component {
     // Loading ids passed through the browser's url
     if ((this.props.location.search.indexOf("id=VFB") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
       this.idFromURL = "VFB_00017894";
-      var that = this;
+      var idList = this.props.location.search;
+      idList = idList.replace("?","").split("&");
+      for (let list in idList) {
+        if (idList[list].indexOf("q=") > -1) {
+          this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+        }
+      }
       console.log("Loading default Adult Brain VFB_00017894 template.");
-      GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-        that.addVfbId(that.idFromURL);
-      });
+      this.idsFinalList = this.idFromURL;
     } else {
       var idsList = "";
       var idList = this.props.location.search;
@@ -935,6 +940,8 @@ export default class VFBMain extends React.Component {
             idsList = "," + idsList;
           }
           idsList = idList[list].replace("i=","") + idsList;
+        } else if (idList[list].indexOf("q=") > -1) {
+          this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
         }
       }
       if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
@@ -952,13 +959,41 @@ export default class VFBMain extends React.Component {
         }
         this.idsFromURL.push(this.idFromURL);
         this.idsFromURL = [... new Set(this.idsFromURL)];
-        var that = this;
+        this.idsFinalList = this.idsFromURL;
         console.log("Loading IDS to add to the scene from url");
-        GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
-          that.addVfbId(that.idsFromURL);
-        });
       }
     }
+
+    var that = this;
+    GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+      that.addVfbId(that.idsFinalList);
+
+      var callback = function () {
+        // check if any results with count flag
+        if (that.refs.querybuilderRef.props.model.count > 0) {
+          // runQuery if any results
+          that.refs.querybuilderRef.runQuery();
+        } else {
+          that.refs.querybuilderRef.switchView(false);
+        }
+        // show query component
+        that.refs.querybuilderRef.open();
+        $("body").css("cursor", "default");
+        GEPPETTO.trigger('stop_spin_logo');
+      };
+
+      if (that.urlQueryLoader !== undefined) {
+        if (window[that.urlQueryLoader[0]] == undefined) {
+          window.fetchVariableThenRun(that.urlQueryLoader[0], function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback)
+          });
+        } else {
+          setTimeout(function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback);
+          }, 100);
+        }
+      }
+    });
 
     // wipe the history state:
     window.history.replaceState({ s:4, n:"", b:"", f:"" }, "", window.location.pathname + window.location.search);
@@ -1093,7 +1128,6 @@ export default class VFBMain extends React.Component {
     if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
       this.treeBrowserReference.updateTree(this.instanceOnFocus);
     }
-
   }
 
   render () {
