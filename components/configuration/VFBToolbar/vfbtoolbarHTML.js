@@ -360,7 +360,7 @@ var quickHelp
   + "<div id='vfb-content-titlebar'> "
   + "	<div id='vfb-content-title'>Quick Help for : <span style='color:white;'>Virtual Fly Brain</span></div> "
   + "<div id='' style='text-align:center; font-family: consolas; margin-top: 50px'>"
-  + "<img src='geppetto/build/splash.png' style='width : 70%' alt='' / >"
+  + "<img src='geppetto/build/splash.png' alt='' / >"
   + "</div>"
   + "</div>"
   + "</div>";
