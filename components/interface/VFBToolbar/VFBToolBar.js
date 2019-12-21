@@ -243,7 +243,7 @@ export default class VFBToolBar extends React.Component {
       this.clickContribute();
       break;
     case 'clickQuickHelp':
-      this.clickTutorial();
+      this.clickQuickHelp();
       break;
     default:
       return this.props.menuHandler(click);
