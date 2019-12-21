@@ -359,11 +359,10 @@ var quickHelp
 = "<div id='vfb-content-block' class='callout vfbcontent'> "
   + "<div id='vfb-content-titlebar'> "
   + "	<div id='vfb-content-title'>Quick Help for : <span style='color:white;'>Virtual Fly Brain</span></div> "
-  + "<div id='loadingText' style='text-align:center; font-family: consolas; margin-top: 50px;} '>"
-  + "<img src='geppetto/build/splash.png' alt='' onerror='document.getElementById('loadingMessage').style.display='block'' >"
-  + "<span id='loadingMessage' style='display : none' >LOADING... [~3MB]</span>"
+  + "<div id='' style='text-align:center; font-family: consolas; margin-top: 50px'>"
+  + "<img src='geppetto/build/splash.png' style='width : 70%' alt='' / >"
   + "</div>"
   + "</div>"
   + "</div>";
 
-module.exports = { about, feedback, contribute, quickHelp};
+module.exports = { about, feedback, contribute, quickHelp };

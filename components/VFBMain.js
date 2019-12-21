@@ -13,7 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
-
+import QuickHelp from './interface/VFBOverview/QuickHelp';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -879,6 +879,35 @@ export default class VFBMain extends React.Component {
         }
       }.bind(this));
     }.bind(this);
+    
+    window.setCookie = function ( name, value, days ) {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+   	    expires = "; expires=" + date.toUTCString();
+   	  }
+   	  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    };
+
+    window.getCookie = function ( name ) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) == 0) {
+            var result = c.substring(nameEQ.length, c.length);
+            return result;
+          }
+       }
+   	   return null;
+    };
+    
+    var cookie = getCookie("quickHelp");
+    if( cookie != 1) {
+      GEPPETTO.trigger('show_quick_help', true);
+    }
 
     this.canvasReference.flipCameraY();
     this.canvasReference.flipCameraZ();
@@ -1210,6 +1239,7 @@ export default class VFBMain extends React.Component {
 
     return (
       <div style={{ height: '100%', width: '100%' }}>
+        <QuickHelp id="quickHelp" />  
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
