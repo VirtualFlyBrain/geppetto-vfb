@@ -3,7 +3,7 @@ import React from 'react';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
 var Rnd = require('react-rnd').default;
 
-require('../../css/VFBToolBar.less');
+require('../../../css/VFBToolBar.less');
 
 const popperStyles = {
   root: {
@@ -68,17 +68,18 @@ export default class VFBToolBar extends React.Component {
       htmlChild: undefined
     }
 
-    this.menuConfiguration = require('../configuration/vfbtoolbarMenuConfiguration.js').toolbarMenu;
-    this.aboutHTML = require('../configuration/vfbtoolbarHTML.js').about;
-    this.feedbackHTML = require('../configuration/vfbtoolbarHTML.js').feedback;
-    this.contributeHTML = require('../configuration/vfbtoolbarHTML.js').contribute;
-    this.tutorialHTML = require('../configuration/vfbtoolbarHTML.js').tutorial;
-    
+    this.menuConfiguration = require('../../configuration/VFBToolbar/vfbtoolbarMenuConfiguration').toolbarMenu;
+    this.aboutHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').about;
+    this.feedbackHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').feedback;
+    this.contributeHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').contribute;
+    this.quickHelpHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').quickHelp;
+
+
     this.clickAbout = this.clickAbout.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.clickFeedback = this.clickFeedback.bind(this);
     this.clickContribute = this.clickContribute.bind(this);
-    this.clickTutorial = this.clickTutorial.bind(this);
+    this.clickQuickHelp = this.clickQuickHelp.bind(this);
   }
 
   componentWillMount () {
@@ -215,8 +216,8 @@ export default class VFBToolBar extends React.Component {
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
   }
   
-  clickTutorial () {
-    var htmlContent = this.tutorialHTML;
+  clickQuickHelp () {
+    var htmlContent = this.quickHelpHTML;
     this.props.htmlOutputHandler(htmlContent);
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Tutorial'));
   }
@@ -241,7 +242,7 @@ export default class VFBToolBar extends React.Component {
     case 'clickContribute':
       this.clickContribute();
       break;
-    case 'clickTutorial':
+    case 'clickQuickHelp':
       this.clickTutorial();
       break;
     default:

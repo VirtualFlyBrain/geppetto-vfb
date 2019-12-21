@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Tutorial from 'geppetto-client/js/components/interface/tutorial/Tutorial';
 import WidgetCapability from 'geppetto-client/js/components/widgets/WidgetCapability';
 
-var vfbDefaultTutorial = require('../../tutorials/stackTutorial.json');
+var vfbDefaultTutorial = require('../../../tutorials/stackTutorial.json');
 var GEPPETTO = require('geppetto');
 
 export default class TutorialWidget extends React.Component {
@@ -10,7 +10,7 @@ export default class TutorialWidget extends React.Component {
   constructor (props) {
     super(props);
 
-    this.tutorialsList = require('../configuration/tutorialsList.json');
+    this.tutorialsList = require('../../configuration/VFBOverview/tutorialsList.json');
 
 
     this.closeHandler = this.closeHandler.bind(this);

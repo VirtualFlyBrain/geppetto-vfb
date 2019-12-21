@@ -12,10 +12,10 @@ import {
 import 'react-sortable-tree/style.css';
 
 var $ = require('jquery');
-const restPostConfig = require('../configuration/treeWidgetConfiguration').restPostConfig;
-const treeCypherQuery = require('../configuration/treeWidgetConfiguration').treeCypherQuery;
+const restPostConfig = require('../../configuration/VFBTree/VFBTreeConfiguration').restPostConfig;
+const treeCypherQuery = require('../../configuration/VFBTree/VFBTreeConfiguration').treeCypherQuery;
 
-export default class TreeWidget extends React.Component {
+export default class VFBTree extends React.Component {
 
   constructor (props) {
     super(props);
@@ -45,15 +45,15 @@ export default class TreeWidget extends React.Component {
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
     this.convertDataForTree = this.convertDataForTree.bind(this);
 
-    this.isNumber = require('./VFBTree/helper').isNumber;
-    this.sortData = require('./VFBTree/helper').sortData;
-    this.findRoot = require('./VFBTree/helper').findRoot;
-    this.convertEdges = require('./VFBTree/helper').convertEdges;
-    this.convertNodes = require('./VFBTree/helper').convertNodes;
-    this.searchChildren = require('./VFBTree/helper').searchChildren;
-    this.defaultComparator = require('./VFBTree/helper').defaultComparator;
-    this.parseGraphResultData = require('./VFBTree/helper').parseGraphResultData;
-    this.buildDictClassToIndividual = require('./VFBTree/helper').buildDictClassToIndividual;
+    this.isNumber = require('./helper').isNumber;
+    this.sortData = require('./helper').sortData;
+    this.findRoot = require('./helper').findRoot;
+    this.convertEdges = require('./helper').convertEdges;
+    this.convertNodes = require('./helper').convertNodes;
+    this.searchChildren = require('./helper').searchChildren;
+    this.defaultComparator = require('./helper').defaultComparator;
+    this.parseGraphResultData = require('./helper').parseGraphResultData;
+    this.buildDictClassToIndividual = require('./helper').buildDictClassToIndividual;
 
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
     this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
@@ -475,6 +475,10 @@ export default class TreeWidget extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Instances_created, function () {
       that.setState({ displayColorPicker: false });
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Color_set, function (instance) {
+      that.forceUpdate();
     });
   }
 
