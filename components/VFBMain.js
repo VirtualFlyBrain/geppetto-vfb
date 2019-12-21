@@ -885,9 +885,9 @@ export default class VFBMain extends React.Component {
       if (days) {
         var date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-   	    expires = "; expires=" + date.toUTCString();
-   	  }
-   	  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "") + expires + "; path=/";
     };
 
     window.getCookie = function ( name ) {
@@ -895,17 +895,19 @@ export default class VFBMain extends React.Component {
       var ca = document.cookie.split(';');
       for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-          if (c.indexOf(nameEQ) == 0) {
-            var result = c.substring(nameEQ.length, c.length);
-            return result;
-          }
-       }
-   	   return null;
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1, c.length);
+        }
+        if ( c.indexOf(nameEQ) == 0 ) {
+          var result = c.substring(nameEQ.length, c.length);
+          return result;
+        }
+      }
+      return null;
     };
     
     var cookie = getCookie("quickHelp");
-    if( cookie != 1) {
+    if ( cookie != 1) {
       GEPPETTO.trigger('show_quick_help', true);
     }
 
