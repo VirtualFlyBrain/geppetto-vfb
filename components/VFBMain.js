@@ -906,9 +906,9 @@ export default class VFBMain extends React.Component {
       return null;
     };
     
-    var cookie = getCookie("quickHelp");
+    var cookie = getCookie("quick_help");
     if ( cookie != 1) {
-      GEPPETTO.trigger('show_quick_help', true);
+      // GEPPETTO.trigger('show_quick_help');
     }
 
     this.canvasReference.flipCameraY();
@@ -1241,7 +1241,6 @@ export default class VFBMain extends React.Component {
 
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        <QuickHelp id="quickHelp" />  
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>

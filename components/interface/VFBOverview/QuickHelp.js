@@ -16,11 +16,12 @@ define(function (require) {
     },
     
     componentDidMount: function () {
-      GEPPETTO.on('show_quick_help', function (show) {
-        var display_checkbox_style = "none";
-        if ( show ) {
-          $("#quickHelpModal").show();
-        }
+      GEPPETTO.on('show_quick_help', function () {
+        $("#quickHelpModal").show();
+      }.bind(this));
+      
+      GEPPETTO.on('hide_quick_help', function () {
+        this.hide();
       }.bind(this));
       
       document.addEventListener("keydown", this.escFunction, false);
@@ -38,7 +39,7 @@ define(function (require) {
     
     handleChange : function ( e ){
       // set 30 days expiration
-      window.setCookie('quickHelp', document.getElementById('quickHelpDialog').checked ? 1 : 0, 30);
+      window.setCookie('quick_help', document.getElementById('quickHelpDialog').checked ? 1 : 0, 30);
     },
 
     render: function () {
