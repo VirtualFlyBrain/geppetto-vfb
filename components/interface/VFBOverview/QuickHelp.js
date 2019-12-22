@@ -37,6 +37,7 @@ define(function (require) {
     },
     
     handleChange : function ( e ){
+      // set 30 days expiration
       window.setCookie('quickHelp', document.getElementById('quickHelpDialog').checked ? 1 : 0, 30);
     },
 
