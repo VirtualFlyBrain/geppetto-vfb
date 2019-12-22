@@ -87,7 +87,7 @@ describe('VFB Query Component Tests', () => {
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
 			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 10000 })
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
 		})
 	})

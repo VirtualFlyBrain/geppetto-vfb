@@ -13,7 +13,6 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
-import QuickHelp from './interface/VFBOverview/QuickHelp';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
