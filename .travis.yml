@@ -38,6 +38,8 @@ script:
   - echo -e "travis_fold:end:Startup_Server1" || true
   - docker logs --tail 1000 $CONTAINER_NAME || true
   - echo "$(curl -s -I $1 $LANDING_PAGE)"
+  - echo =$(wget $LANDING_PAGE -q -O -)
+  - echo =$(wget http://localhost:8080/org.geppetto.frontend/geppetto?id=VFB_00017894 -q -O -)
   - sleep 60
   - echo -e "travis_fold:start:Startup_Server2" || true
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
