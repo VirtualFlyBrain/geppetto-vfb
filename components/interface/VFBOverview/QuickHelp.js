@@ -39,7 +39,7 @@ define(function (require) {
     
     handleChange : function ( e ){
       // set 30 days expiration
-      window.setCookie('quick_help', document.getElementById('quickHelpDialog').checked ? 1 : 0, 30);
+      window.setCookie('show_quick_help', document.getElementById('quickHelpDialog').checked ? 1 : 0, 30);
     },
 
     render: function () {
@@ -60,7 +60,7 @@ define(function (require) {
                 <div>
                   <div>
                     <input type="checkbox" id="quickHelpDialog" onChange={e => this.handleChange(e)} ref={ input => this.myinput = input} name="helpDialog" / >
-                    <label for="helpDialog"><h3>Dont show up the quick help on startup screen.</h3></label>
+                    <label htmlFor="helpDialog"><h3>Dont show up the quick help on startup screen.</h3></label>
                   </div>
                 </div>
               </div>

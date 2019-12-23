@@ -13,6 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+import QuickHelp from './interface/VFBOverview/QuickHelp';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -905,9 +906,11 @@ export default class VFBMain extends React.Component {
       return null;
     };
     
-    var cookie = getCookie("quick_help");
+    // Retrieve cookie for 'quick_help' modal
+    var cookie = getCookie("show_quick_help");
+    // Show 'Quick Help' modal if cookie to hide it is not set to True
     if ( cookie != 1) {
-      // GEPPETTO.trigger('show_quick_help');
+      GEPPETTO.trigger('show_quick_help');
     }
 
     this.canvasReference.flipCameraY();
@@ -1240,6 +1243,7 @@ export default class VFBMain extends React.Component {
 
     return (
       <div style={{ height: '100%', width: '100%' }}>
+        <QuickHelp id="quickHelp" />  
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
