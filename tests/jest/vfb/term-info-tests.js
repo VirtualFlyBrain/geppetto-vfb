@@ -34,11 +34,13 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Component Opens on Load with Components', () => {
 		//Tests deselect button for VFB_00030624 is present in term info component
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
+			await page.evaluate(async () => console.log("Inner text in term info " , getElementById("VFBTermInfo_el_0_component").innerText));
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
 		})
 
 		//Tests zoom button for VFB_00030624 is present in term info component
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
+			await page.evaluate(async () => console.log("Inner text in term info " , getElementById("VFBTermInfo_el_0_component").innerText));
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})
 
