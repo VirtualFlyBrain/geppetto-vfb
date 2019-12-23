@@ -11,24 +11,29 @@ define(function (require) {
       }
     },
 
+    show : function () {
+      $("#quick_help_modal").show();
+    },
+      
     hide : function () {
-      $("#quickHelpModal").hide();
+      $("#quick_help_modal").hide();
     },
     
     componentDidMount: function () {
+      var self = this;
       GEPPETTO.on('show_quick_help', function () {
-        $("#quickHelpModal").show();
+        self.show();
       }.bind(this));
       
       GEPPETTO.on('hide_quick_help', function () {
-        this.hide();
+        self.hide();
       }.bind(this));
       
       document.addEventListener("keydown", this.escFunction, false);
       
       var self = this;
       $(document).mouseup( function (e) {
-        var container = $("#quickHelpContent");
+        var container = $("#quick_help_content");
         
         // if the target of the click isn't the container nor a descendant of the container
         if (!container.is(e.target) && container.has(e.target).length === 0) {
@@ -39,14 +44,14 @@ define(function (require) {
     
     handleChange : function ( e ){
       // set 30 days expiration
-      window.setCookie('show_quick_help', document.getElementById('quickHelpDialog').checked ? 1 : 0, 30);
+      window.setCookie('show_quick_help', document.getElementById('quick_help_dialog').checked ? 1 : 0, 30);
     },
 
     render: function () {
       return (
-        <div id="quickHelpModal" className="modal callout" style={ { display : "none", width : "auto" , height : "auto", position : "relative" , zIndex: "2000 !important" } }>
+        <div id="quick_help_modal" className="modal callout" style={ { display : "none", width : "auto" , height : "auto", position : "relative" , zIndex: "2000 !important" } }>
           <div id="vfb-content-block" style={ { display : "block", width : "60%" , height : "60%" , textAlign : "center" , margin : "0 auto" } } >
-            <div id="quickHelpContent" className="modal-content">
+            <div id="quick_help_content" className="modal-content">
               <div className="modal-header">
                 <button id = "x" style = { { float : "right" } } onClick = {e => this.hide()} >
                   X
@@ -59,8 +64,8 @@ define(function (require) {
                 <img src={"geppetto/build/splash.png"} alt="" / >
                 <div>
                   <div>
-                    <input type="checkbox" id="quickHelpDialog" onChange={e => this.handleChange(e)} ref={ input => this.myinput = input} name="helpDialog" / >
-                    <label htmlFor="helpDialog"><h3>Dont show up the quick help on startup screen.</h3></label>
+                    <input type="checkbox" id="quick_help_dialog" onChange={e => this.handleChange(e)} ref={ input => this.myinput = input} name="help_dialog" / >
+                    <label htmlFor="help_dialog"><h3>Dont show up the quick help on startup screen.</h3></label>
                   </div>
                 </div>
               </div>

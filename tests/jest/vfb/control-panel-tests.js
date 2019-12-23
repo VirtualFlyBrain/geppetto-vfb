@@ -41,6 +41,11 @@ describe('VFB Control Panel Tests', () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_2_component', { visible: true })
 		})		
 
+		it('Hide Quick Help Modal Window', async () => {
+			GEPPETTO.trigger('hide_quick_help');
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+		})
+		
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266 (VFB_00000001)")');
 		})

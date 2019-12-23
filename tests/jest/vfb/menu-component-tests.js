@@ -33,6 +33,11 @@ describe('VFB Menu Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000})
 		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			GEPPETTO.trigger('hide_quick_help');
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+		})
 
 		// Wait for this component to load on term info, means page has finished loading
 		it('Term info component correctly populated at startup', async () => {

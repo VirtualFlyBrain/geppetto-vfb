@@ -40,6 +40,11 @@ describe('VFB Spotlight Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
 		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			GEPPETTO.trigger('hide_quick_help');
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+		})
 
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');

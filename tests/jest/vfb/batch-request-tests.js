@@ -44,6 +44,11 @@ describe('VFB Batch Requests Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
 		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			GEPPETTO.trigger('hide_quick_help');
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+		})
 
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {

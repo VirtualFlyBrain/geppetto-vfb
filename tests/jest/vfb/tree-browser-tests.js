@@ -33,6 +33,11 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000})
 		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			GEPPETTO.trigger('hide_quick_help');
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+		})
 
 		// Waits for Term info to populate, this is done to make sure project finishes loading before continuing
 		it('Term info component correctly populated at startup', async () => {

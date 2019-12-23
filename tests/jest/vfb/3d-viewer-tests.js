@@ -15,7 +15,6 @@ describe('VFB 3D Viewer Component Tests', () => {
 	beforeAll(async () => {
 		jest.setTimeout(1800000); 
 		await page.goto(PROJECT_URL);
-
 	});
 
 	// Tests that expected components are present when VFB page loads
@@ -39,6 +38,11 @@ describe('VFB 3D Viewer Component Tests', () => {
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			GEPPETTO.trigger('hide_quick_help');
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
 
 		it('Term info component correctly populated at startup', async () => {
