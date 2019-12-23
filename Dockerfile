@@ -6,7 +6,7 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
-ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
+ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests -Pmaster"
 
 ARG googleAnalyticsSiteCode=UA-45841517-1
 
@@ -32,25 +32,25 @@ WORKDIR $HOME/workspace
 RUN ../copy.sh https://github.com/openworm/org.geppetto.model.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   cd org.geppetto.model &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 RUN ../copy.sh https://github.com/openworm/org.geppetto.core.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   cd org.geppetto.core &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.core\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 RUN ../copy.sh https://github.com/openworm/org.geppetto.simulation.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   cd org.geppetto.simulation &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.simulation\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 RUN ../copy.sh https://github.com/openworm/org.geppetto.datasources.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   cd org.geppetto.datasources &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.datasources\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
@@ -60,13 +60,13 @@ RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBU
 
 RUN cd uk.ac.vfb.geppetto &&\
   /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 RUN ../copy.sh https://github.com/openworm/org.geppetto.model.swc.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   cd org.geppetto.model.swc &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model.swc\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 RUN ../copy.sh https://github.com/openworm/org.geppetto.frontend.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
@@ -80,6 +80,11 @@ RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBU
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
+
+RUN cd $HOME/workspace/org.geppetto.frontend &&\
+  /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
+  mvn ${mvnOpt} clean install &&\
+  rm -rf src
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
