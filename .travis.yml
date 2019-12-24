@@ -33,13 +33,10 @@ script:
   - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Startup_Server1" || true
-  - sleep 300;
+  - sleep 60;
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
   - echo -e "travis_fold:end:Startup_Server1" || true
-  - docker logs --tail 1000 $CONTAINER_NAME || true
-  - echo "$(curl -s -I $1 $LANDING_PAGE)"
-  - echo =$(wget $LANDING_PAGE -q -O -)
-  - echo =$(wget http://localhost:8080/org.geppetto.frontend/geppetto?id=VFB_00017894 -q -O -)
+  - docker logs $CONTAINER_NAME || true
   - sleep 60
   - echo -e "travis_fold:start:Startup_Server2" || true
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
@@ -61,10 +58,10 @@ script:
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting $http_status";
     done;
-  - npm test -- --verbose --colors
+  - travis_retry npm test -- --verbose --colors
   - docker ps -a;
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-  - tail /etc/log.log -n 500
+  - tail /etc/log.log -n 200
   - docker stop $(docker ps -a -q)
   - docker rm $(docker ps -a -q)
 after_success:

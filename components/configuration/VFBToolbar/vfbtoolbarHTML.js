@@ -355,14 +355,4 @@ var contribute
   + "   </div>"
   + "   </div>";
 
-var quickHelp
-= "<div id='vfb-content-block' class='callout vfbcontent'> "
-  + "<div id='vfb-content-titlebar'> "
-  + "	<div id='vfb-content-title'>Quick Help for : <span style='color:white;'>Virtual Fly Brain</span></div> "
-  + "<div id='' style='text-align:center; font-family: consolas; margin-top: 50px'>"
-  + "<img src='geppetto/build/splash.png' alt='' / >"
-  + "</div>"
-  + "</div>"
-  + "</div>";
-
-module.exports = { about, feedback, contribute, quickHelp };
+module.exports = { about, feedback, contribute };
