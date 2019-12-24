@@ -81,6 +81,11 @@ RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBU
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${targetBranch}" "${originBranch}" "${defaultBranch}"
 
+RUN cd $HOME/workspace/org.geppetto.frontend &&\
+  /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
+  mvn ${mvnOpt} install &&\
+  rm -rf src
+
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
