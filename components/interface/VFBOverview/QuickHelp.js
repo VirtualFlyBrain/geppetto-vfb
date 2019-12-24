@@ -53,9 +53,7 @@ define(function (require) {
           <div id="vfb-content-block" style={ { display : "block", width : "60%" , height : "60%" , textAlign : "center" , margin : "0 auto" } } >
             <div id="quick_help_content" className="modal-content">
               <div className="modal-header">
-                <button id = "x" style = { { float : "right" } } onClick = {e => this.hide()} >
-                  X
-                </button>  
+                <button className="close-slider fa fa-times" id = "x" style = { { float : "right" } } onClick = {e => this.hide()} / >
                 <h3 className="text-center"> Quick Help 
                   <span style= { { color : "white" } } > Virtual Fly Brain</span>
                 </h3>

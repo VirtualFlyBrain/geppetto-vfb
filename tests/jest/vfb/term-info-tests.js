@@ -47,7 +47,7 @@ describe('VFB Term Info Component Tests', () => {
 		})
 		
 		it('Hide Quick Help Modal Window', async () => {
-			GEPPETTO.trigger('hide_quick_help');
+			closeModalWindow(page);
 			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
 

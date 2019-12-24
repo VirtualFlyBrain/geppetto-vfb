@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click } from './utils';
+import { wait4selector, click, closeModalWindow } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -35,7 +35,7 @@ describe('VFB Menu Component Tests', () => {
 		})
 		
 		it('Hide Quick Help Modal Window', async () => {
-			GEPPETTO.trigger('hide_quick_help');
+			closeModalWindow(page);
 			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
 
