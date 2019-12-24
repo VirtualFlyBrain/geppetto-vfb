@@ -83,7 +83,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
 
 RUN cd $HOME/workspace/org.geppetto.frontend &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" &&\
-  mvn ${mvnOpt} install &&\
+  mvn ${mvnOpt} clean install &&\
   rm -rf src
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
