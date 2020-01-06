@@ -52,7 +52,7 @@ script:
       sleep 10;
       docker rm $(docker ps -a -q);
       sleep 10;
-      travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
+      travis_wait 50 docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
       bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
       sleep 60;
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
