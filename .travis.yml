@@ -58,7 +58,7 @@ script:
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting $http_status";
     done;
-  - travis_retry npm test -- --verbose --colors
+  - npm test -- --verbose --colors
   - docker ps -a;
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
   - tail /etc/log.log -n 200
