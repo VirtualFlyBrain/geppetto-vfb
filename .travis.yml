@@ -70,3 +70,8 @@ after_success:
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
      fi;
+after_failure:
+  cd $TRAVIS_BUILD_DIR;
+  docker login -u $DOCKER_USER -p $DOCKER_PASS;
+  docker push $REPO:$TAG-failing;
+
