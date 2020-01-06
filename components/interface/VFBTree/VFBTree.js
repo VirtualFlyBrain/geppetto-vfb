@@ -234,7 +234,7 @@ export default class VFBTree extends React.Component {
         this.setState({ errors: "Error retrieving the data - check the console for additional information" });
       }
 
-      if (data.results[0].data.length > 0) {
+      if (data.results.length > 0 && data.results[0].data.length > 0) {
         var dataTree = this.parseGraphResultData(data);
         var vertix = this.findRoot(data);
         var imagesMap = this.buildDictClassToIndividual(data);
