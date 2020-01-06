@@ -52,13 +52,13 @@ script:
       sleep 10;
       docker rm $(docker ps -a -q);
       sleep 10;
-      travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
+      travis_wait 50 docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
       bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
       sleep 60;
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting $http_status";
     done;
-  - travis_retry npm test -- --verbose --colors
+  - npm test -- --verbose --colors
   - docker ps -a;
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
   - tail /etc/log.log -n 200
@@ -70,3 +70,8 @@ after_success:
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
      fi;
+after_failure:
+  cd $TRAVIS_BUILD_DIR;
+  docker login -u $DOCKER_USER -p $DOCKER_PASS;
+  docker push $REPO:$TAG-failing;
+
