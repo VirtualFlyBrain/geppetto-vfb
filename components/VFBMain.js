@@ -747,13 +747,15 @@ export default class VFBMain extends React.Component {
                   'Examples',
                   'Source',
                   'License',
+                  'Targeting Splits',
+                  'Targeting Neurons',
                   'Related Individuals',
                   'Relationships',
                   'Query for',
                   'Query For',
                   'Description',
                   'Cross References',
-                  'References',
+                  'Attribution',
                   'Aligned To',
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
