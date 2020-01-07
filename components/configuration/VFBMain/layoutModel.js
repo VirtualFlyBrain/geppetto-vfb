@@ -56,6 +56,11 @@ var modelJson = {
             "type": "tab",
             "name": "Term Info",
             "component": "termInfo"
+          },
+          {
+            "type": "tab",
+            "name": "Tree Browser",
+            "component": "treeBrowser"
           }
         ]
       },
