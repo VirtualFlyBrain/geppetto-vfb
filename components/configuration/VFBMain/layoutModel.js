@@ -60,7 +60,7 @@ var modelJson = {
           {
             "type": "tab",
             "name": "Tree Browser",
-            "component": "treeViewer"
+            "component": "treeBrowser"
           }
         ]
       },
