@@ -33,7 +33,7 @@ export default class VFBMain extends React.Component {
       modelLoaded: (window.Model != undefined),
       canvasVisible: true,
       termInfoVisible: true,
-      treeBrowserVisible: true,
+      treeBrowserVisible: false,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
