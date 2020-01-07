@@ -489,6 +489,7 @@ export default class VFBMain extends React.Component {
       break;
     case 'triggerRunQuery':
       GEPPETTO.trigger('spin_logo');
+      var that = this;
       var otherId = click.parameters[0].split(',')[1];
       var otherName = click.parameters[0].split(',')[2];
       var path = click.parameters[0].split(',')[0];
