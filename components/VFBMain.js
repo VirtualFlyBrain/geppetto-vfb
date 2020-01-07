@@ -33,7 +33,7 @@ export default class VFBMain extends React.Component {
       modelLoaded: (window.Model != undefined),
       canvasVisible: true,
       termInfoVisible: true,
-      treeBrowserVisible: false,
+      treeBrowserVisible: true,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
@@ -486,6 +486,43 @@ export default class VFBMain extends React.Component {
       return historyList;
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
+      break;
+    case 'triggerRunQuery':
+      GEPPETTO.trigger('spin_logo');
+      otherId = click.parameters[0].split(',')[1];
+      otherName = click.parameters[0].split(',')[2];
+      path = click.parameters[0].split(',')[0];
+      var entity = Model[path];
+      this.props.queryBuilder.open();
+      this.props.queryBuilder.switchView(false, false);
+      this.props.queryBuilder.clearAllQueryItems();
+      $('#add-new-query-container')[0].hidden = true;
+      $('#query-builder-items-container')[0].hidden = true;
+      $("body").css("cursor", "progress");
+      
+      var callback = function () {
+        // check if any results with count flag
+        if (that.props.queryBuilder.props.model.count > 0) {
+          // runQuery if any results
+          that.props.queryBuilder.runQuery();
+        } else {
+          that.props.queryBuilder.switchView(false);
+        }
+        // show query component
+        that.props.queryBuilder.open();
+        $("body").css("cursor", "default");
+        GEPPETTO.trigger('stop_spin_logo');
+      };
+      // add query item + selection
+      if (window[otherId] == undefined) {
+        window.fetchVariableThenRun(otherId, function () {
+          that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
+        });
+      } else {
+        setTimeout(function () {
+          that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
+        }, 100);
+      }
       break;
     default:
       console.log("Menu action not mapped, it is " + click);
