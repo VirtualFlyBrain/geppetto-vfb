@@ -500,15 +500,14 @@ export default class VFBMain extends React.Component {
       
       var callback = function () {
         // check if any results with count flag
-        if (this.refs.querybuilderRef.props.model.count > 0) {
+        if (that.refs.querybuilderRef.props.model.count > 0) {
           // runQuery if any results
-          this.refs.querybuilderRef.runQuery();
+          that.refs.querybuilderRef.runQuery();
         } else {
-          this.refs.querybuilderRef.switchView(false);
+          that.refs.querybuilderRef.switchView(false);
         }
         // show query component
-        this.refs.querybuilderRef.open();
-        $("body").css("cursor", "default");
+        that.refs.querybuilderRef.open();
         GEPPETTO.trigger('stop_spin_logo');
       };
       // add query item + selection
