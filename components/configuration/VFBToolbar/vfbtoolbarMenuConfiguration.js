@@ -455,7 +455,7 @@ var toolbarMenu = {
               label: "Adult Brain (JFRC2)",
               icon: "",
               action: {
-                handlerAction: "openNewTab",
+                handlerAction: "triggerRunQuery",
                 parameters: ["alignedDatasets,VFB_00017894,adult brain template JFRC2"]
               }
             },
@@ -463,7 +463,7 @@ var toolbarMenu = {
               label: "Adult VNS",
               icon: "",
               action: {
-                handlerAction: "openNewTab",
+                handlerAction: "triggerRunQuery",
                 parameters: ["alignedDatasets,VFB_00100000,adult VNS template"]
               }
             },
@@ -471,7 +471,7 @@ var toolbarMenu = {
               label: "Ito Half Brain",
               icon: "",
               action: {
-                handlerAction: "openNewTab",
+                handlerAction: "triggerRunQuery",
                 parameters: ["alignedDatasets,VFB_00030786,Ito Half Brain"]
               }
             }
@@ -490,7 +490,7 @@ var toolbarMenu = {
               label: "L1 CNS (ssTEM)",
               icon: "",
               action: {
-                handlerAction: "openNewTab",
+                handlerAction: "triggerRunQuery",
                 parameters: ["alignedDatasets,VFB_00050000,L1 CNS"]
               }
             },
@@ -498,7 +498,7 @@ var toolbarMenu = {
               label: "L3 CNS (Wood2018)",
               icon: "",
               action: {
-                handlerAction: "openNewTab",
+                handlerAction: "triggerRunQuery",
                 parameters: ["alignedDatasets,VFB_00049000,L3 CNS"]
               }
             }
