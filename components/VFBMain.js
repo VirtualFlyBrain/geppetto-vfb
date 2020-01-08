@@ -514,11 +514,11 @@ export default class VFBMain extends React.Component {
       // add query item + selection
       if (window[otherId] == undefined) {
         window.fetchVariableThenRun(otherId, function () {
-          this.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
+          that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
         });
       } else {
         setTimeout(function () {
-          this.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
+          that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
         }, 100);
       }
       break;
