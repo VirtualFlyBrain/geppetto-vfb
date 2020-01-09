@@ -34,16 +34,21 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Component Opens on Load with Components', () => {
 		//Tests deselect button for VFB_00030624 is present in term info component
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 400000 })
 		})
 
 		//Tests zoom button for VFB_00030624 is present in term info component
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 400000 })
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true})
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 400000})
+		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
 
 		it('Term info component name correctly populated at startup', async () => {

@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click } from './utils';
+import { wait4selector, click, closeModalWindow } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -39,6 +39,11 @@ describe('VFB Query Component Tests', () => {
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
 
 		it('Term info component correctly populated at startup', async () => {
@@ -87,7 +92,7 @@ describe('VFB Query Component Tests', () => {
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
 			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 10000 })
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
 		})
 	})
