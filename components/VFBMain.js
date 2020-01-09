@@ -487,6 +487,40 @@ export default class VFBMain extends React.Component {
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
       break;
+    case 'triggerRunQuery':
+      GEPPETTO.trigger('spin_logo');
+      var that = this;
+      var otherId = click.parameters[0].split(',')[1];
+      var otherName = click.parameters[0].split(',')[2];
+      var path = click.parameters[0].split(',')[0];
+      var entity = Model[path];
+      this.refs.querybuilderRef.open();
+      this.refs.querybuilderRef.switchView(false, false);
+      this.refs.querybuilderRef.clearAllQueryItems();
+      
+      var callback = function () {
+        // check if any results with count flag
+        if (that.refs.querybuilderRef.props.model.count > 0) {
+          // runQuery if any results
+          that.refs.querybuilderRef.runQuery();
+        } else {
+          that.refs.querybuilderRef.switchView(false);
+        }
+        // show query component
+        that.refs.querybuilderRef.open();
+        GEPPETTO.trigger('stop_spin_logo');
+      };
+      // add query item + selection
+      if (window[otherId] == undefined) {
+        window.fetchVariableThenRun(otherId, function () {
+          that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
+        });
+      } else {
+        setTimeout(function () {
+          that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
+        }, 100);
+      }
+      break;
     default:
       console.log("Menu action not mapped, it is " + click);
     }
@@ -747,13 +781,15 @@ export default class VFBMain extends React.Component {
                   'Examples',
                   'Source',
                   'License',
+                  'Targeting Splits',
+                  'Targeting Neurons',
                   'Related Individuals',
                   'Relationships',
                   'Query for',
                   'Query For',
                   'Description',
                   'Cross References',
-                  'References',
+                  'Attribution',
                   'Aligned To',
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {

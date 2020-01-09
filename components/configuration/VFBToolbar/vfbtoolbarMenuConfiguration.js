@@ -429,6 +429,84 @@ var toolbarMenu = {
       ]
     },
     {
+      label: "Datasets",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      list: [
+        {
+          label: "All Available Datasets",
+          icon: "",
+          action: {
+            handlerAction: "triggerRunQuery",
+            parameters: ["allDatasets,VFB_00017894,adult brain template JFRC2"]
+          }
+        },
+        {
+          label: "Adult",
+          icon: "",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "Adult Brain (JFRC2)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00017894,adult brain template JFRC2"]
+              }
+            },
+            {
+              label: "Adult VNS",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00100000,adult VNS template"]
+              }
+            },
+            {
+              label: "Ito Half Brain",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00030786,Ito Half Brain"]
+              }
+            }
+          ]
+        },
+        {
+          label: "Larval",
+          icon: "",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "L1 CNS (ssTEM)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00050000,L1 CNS"]
+              }
+            },
+            {
+              label: "L3 CNS (Wood2018)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00049000,L3 CNS"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       label: "Help",
       icon: "",
       action: "",

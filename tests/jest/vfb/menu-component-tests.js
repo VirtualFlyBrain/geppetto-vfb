@@ -97,4 +97,30 @@ describe('VFB Menu Component Tests', () => {
 			expect(newPagesOpened.length).toEqual(pagesOpened.length+1);
 		})
 	})
+
+	//Tests Menu Components for Dataset Queries
+	describe('Test Menu Dataset Queries', () => {
+		it('Open Datasets Menu', async () => {
+		await page.evaluate(async () => document.getElementById("Datasets").click());
+		// Wait for the Drop Down Menu Option to show for 'Datasets'
+		await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
+		const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
+		// Test there's 4 elements as part of the drop down menu for 'Datasets'
+		expect(dropDownMenuItems).toEqual(3);
+	})
+
+	it('All Available Datasets Opens', async () => {
+		await page.evaluate(async () => document.getElementById("All Available Datasets").click());
+		// Wait for results to appear, this means datasets were returned
+		await wait4selector(page, 'tbody > .standard-row:nth-child(1) > .query-results-name-column > div > a', { visible: true , timeout : 10000});
+	})
+
+	it('Term info correctly populated with dataset after query results clicked', async () => {
+		await page.click('tbody > .standard-row:nth-child(1) > .query-results-name-column > div > a');
+		await wait4selector(page, '.label-DataSet', { visible: true, timeout : 10000 });
+		await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("Dickson lab VT line collection - VDRC images (Dickson_VT)")');
+	})
+})
+
+
 })
