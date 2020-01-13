@@ -517,7 +517,7 @@ var toolbarMenu = {
           icon: "",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["http://www.virtualflybrain.org/site/vfb_site/faq.htm"]
+            parameters: ["https://groups.google.com/forum/embed/?place=forum/vfb-suport#!forum/vfb-suport"]
           }
         },
         {
