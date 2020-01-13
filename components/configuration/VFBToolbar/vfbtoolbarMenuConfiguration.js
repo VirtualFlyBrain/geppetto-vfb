@@ -304,7 +304,7 @@ var toolbarMenu = {
                   icon: "",
                   action: {
                     handlerAction: "openNewTab",
-                    parameters: ["https://l1em.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true"]
+                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/?pid=1&zp=55260&yp=512482.5999999994&xp=173092.19999999998&tool=tracingtool&sid0=1&s0=9&help=true"]
                   }
                 }
               ]
