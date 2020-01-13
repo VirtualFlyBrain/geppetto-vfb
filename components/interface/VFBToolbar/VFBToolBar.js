@@ -73,11 +73,11 @@ export default class VFBToolBar extends React.Component {
     this.feedbackHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').feedback;
     this.contributeHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').contribute;
 
-
     this.clickAbout = this.clickAbout.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.clickFeedback = this.clickFeedback.bind(this);
     this.clickContribute = this.clickContribute.bind(this);
+    this.clickQuickHelp = this.clickQuickHelp.bind(this);
   }
 
   componentWillMount () {
@@ -213,6 +213,10 @@ export default class VFBToolBar extends React.Component {
     this.props.htmlOutputHandler(htmlContent);
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
   }
+  
+  clickQuickHelp () {
+    GEPPETTO.trigger('show_quick_help');
+  }
 
   menuHandler (click) {
     switch (click.handlerAction) {
@@ -233,6 +237,9 @@ export default class VFBToolBar extends React.Component {
       break;
     case 'clickContribute':
       this.clickContribute();
+      break;
+    case 'clickQuickHelp':
+      this.clickQuickHelp();
       break;
     default:
       return this.props.menuHandler(click);

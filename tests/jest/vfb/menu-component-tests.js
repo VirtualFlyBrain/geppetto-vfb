@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click } from './utils';
+import { wait4selector, click, closeModalWindow } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -38,6 +38,11 @@ describe('VFB Menu Component Tests', () => {
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")', {timeout : 120000});
 		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+		})
 	})
 
 	//Tests Menu Components for About and Help Work
@@ -51,14 +56,9 @@ describe('VFB Menu Component Tests', () => {
 			expect(dropDownMenuItems).toEqual(4);
 		})
 
-		it('About Modal Appears', async () => {
-			await page.evaluate(async () => document.getElementById("About").click());
-			// Wait for selector to appear, this means About modal was opened
-			await wait4selector(page, '#vfb-content-block', { visible: true })
-		})
-
 		// Tests modal title bar is populated with expected title for About modal
 		it('About Modal Title Correct', async () => {
+			await page.evaluate(async () => document.getElementById("About").click());
 			await page.waitForFunction('document.getElementById("vfb-content-titlebar").innerText.startsWith("About Virtual Fly Brain")');
 		})
 
@@ -82,9 +82,9 @@ describe('VFB Menu Component Tests', () => {
 			await page.evaluate(async () => document.getElementById("Help").click());
 			// Wait for drop down menu of 'Help' to show 
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
-			// Check there's three elements in the drop down menu of 'Help'
+			// Check there's four elements in the drop down menu of 'Help'
 			const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
-			expect(dropDownMenuItems).toEqual(3);
+			expect(dropDownMenuItems).toEqual(4);
 		})
 
 		it('Help Modal FAQ Tab Opened', async () => {

@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click } from './utils';
+import { wait4selector, click, closeModalWindow } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -43,6 +43,11 @@ describe('VFB Batch Requests Tests', () => {
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+		})
+		
+		it('Hide Quick Help Modal Window', async () => {
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
 
 		//Function used for testing existance of text inside term info component
