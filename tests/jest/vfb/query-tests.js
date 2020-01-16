@@ -81,7 +81,7 @@ describe('VFB Query Component Tests', () => {
 		})
 
 		it('Checking enough results returned', async () => {
-			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0])>3000', {visible : true, timeout : 1000});
+			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0])>3000', {valueOf : true, timeout : 1000});
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
