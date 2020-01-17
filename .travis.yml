@@ -35,9 +35,9 @@ script:
   - echo -e "travis_fold:start:Startup_Server1" || true
   - sleep 60;
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
+  - echo -e "travis_fold:end:Startup_Server1" || true
   - docker logs $CONTAINER_NAME || true
   - sleep 60
-  - echo -e "travis_fold:end:Startup_Server1" || true
   - echo -e "travis_fold:start:Startup_Server2" || true
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
   - sleep 30
