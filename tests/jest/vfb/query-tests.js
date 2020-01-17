@@ -81,7 +81,7 @@ describe('VFB Query Component Tests', () => {
 		})
 
 		it('Checking enough results returned', async () => {
-			await expect(Number(page.$eval(document.getElementById("query-results-label").innerText.split(" ")[0]))).toBeGreaterThan(3000);
+			await expect(Number(page.$eval('document.getElementById("query-results-label").innerText.split(" ")[0]'))).toBeGreaterThan(3000);
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
