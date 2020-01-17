@@ -77,7 +77,7 @@ describe('VFB Query Component Tests', () => {
 				var event = new Event('change', { bubbles: true });
 				selectElement[0].dispatchEvent(event);
 			})
-			await page.waitForFunction('document.getElementById("query-results-label").innerText.split(" ")[1].startsWith("results")', {visible : true, timeout : 60000});
+			await page.waitForFunction('document.getElementById("query-results-label").innerText.split(" ")[0].startsWith("3")', {visible : true, timeout : 60000});
 		})
 
 		// TODO Fix query results check:
