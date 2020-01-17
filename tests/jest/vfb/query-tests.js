@@ -70,6 +70,16 @@ describe('VFB Query Component Tests', () => {
 			await wait4selector(page, '#queryitem-medulla_0', { visible: true , timeout : 60000})
 		})
 
+		it('Selecting second query for medulla', async () => {
+			await page.evaluate(async selector =>  {
+				var selectElement = $('select.query-item-option');
+				selectElement.val('1').change();
+				var event = new Event('change', { bubbles: true });
+				selectElement[1].dispatchEvent(event);
+			})
+			await page.waitForFunction('document.getElementById("query-results-label").innerText.split(" ")[1].startsWith("results")', {visible : true, timeout : 60000});
+		})
+
 		it('Checking enough results returned', async () => {
 			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0])>3000', {valueOf : true, timeout : 1000});
 		})
