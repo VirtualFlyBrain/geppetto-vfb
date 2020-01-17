@@ -77,6 +77,7 @@ describe('VFB Query Component Tests', () => {
 				var event = new Event('change', { bubbles: true });
 				selectElement[0].dispatchEvent(event);
 			})
+			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
 		})
 
 		// TODO Fix query results check:
