@@ -75,7 +75,7 @@ describe('VFB Query Component Tests', () => {
 				var selectElement = $('select.query-item-option');
 				selectElement.val('1').change();
 				var event = new Event('change', { bubbles: true });
-				selectElement[1].dispatchEvent(event);
+				selectElement[0].dispatchEvent(event);
 			})
 			await page.waitForFunction('document.getElementById("query-results-label").innerText.split(" ")[1].startsWith("results")', {visible : true, timeout : 60000});
 		})
