@@ -77,13 +77,12 @@ describe('VFB Query Component Tests', () => {
 				var event = new Event('change', { bubbles: true });
 				selectElement[0].dispatchEvent(event);
 			})
-			await page.waitForFunction('document.getElementById("query-results-label").innerText.split(" ")[0].startsWith("3")', {visible : true, timeout : 60000});
 		})
 
 		// TODO Fix query results check:
 		it('Checking enough results returned', async () => {
 			expect(
-				await page.evaluate(async () => Number(document.getElementById("query-results-label").innerText.split(" ")[0]))
+				await page.evaluate(() => Number(document.getElementById("query-results-label").innerText.split(" ")[0]))
 			).toBeGreaterThan(3000)
 		})
 
