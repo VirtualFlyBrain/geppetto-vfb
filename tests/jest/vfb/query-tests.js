@@ -90,7 +90,6 @@ describe('VFB Query Component Tests', () => {
 		
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
-			await wait4selector(page, 'button[id=run-query-btn]', { visible: true , timeout : 90000})
 			await click(page, 'button[id=run-query-btn]');
 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: true , timeout : 90000})
 		})
