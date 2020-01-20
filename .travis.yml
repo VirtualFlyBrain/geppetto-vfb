@@ -35,13 +35,14 @@ script:
   - echo -e "travis_fold:start:Startup_Server1" || true
   - sleep 60;
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
-  - echo -e "travis_fold:end:Startup_Server1" || true
   - docker logs $CONTAINER_NAME || true
   - sleep 60
+  - echo -e "travis_fold:end:Startup_Server1" || true
   - echo -e "travis_fold:start:Startup_Server2" || true
   - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
   - sleep 30
   - echo -e "travis_fold:end:Startup_Server2" || true
+  - echo -e "travis_fold:start:Startup_Server3" || true
   - http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'})
   - echo "$http_status"
   - while [ "$http_status" == "404" ]; do
@@ -58,12 +59,15 @@ script:
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting $http_status";
     done;
+  - echo -e "travis_fold:end:Startup_Server3" || true
   - npm test -- --verbose --colors
+  - echo -e "travis_fold:start:Deploy" || true
   - docker ps -a;
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
   - tail /etc/log.log -n 200
   - docker stop $(docker ps -a -q)
   - docker rm $(docker ps -a -q)
+  - echo -e "travis_fold:end:Deploy" || true
 after_success:
   - if [ $TRAVIS_PULL_REQUEST == false ]; then
       cd $TRAVIS_BUILD_DIR;
