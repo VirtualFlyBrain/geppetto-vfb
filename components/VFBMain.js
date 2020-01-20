@@ -797,6 +797,7 @@ export default class VFBMain extends React.Component {
                   'License',
                   'Targeting Splits',
                   'Targeting Neurons',
+                  'Targeted Neurons',
                   'Related Individuals',
                   'Relationships',
                   'Query for',
