@@ -519,7 +519,7 @@
           name="Get JSON for License"
           description="Get JSON for License"
           runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (primary:License) WHERE primary.short_form in [{ID}] WITH primary RETURN { icon : coalesce(primary.license_logo, ''), link : coalesce(primary.license_url, ''), core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary) } , description : coalesce(primary.description, []), comment : coalesce(primary.`annotation - comment`, []) } AS term, 'Get JSON for License' AS query, '6293078' AS version&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (primary:License) WHERE primary.short_form in [{ID}] WITH primary RETURN { icon : coalesce(primary.license_logo, ''), link : coalesce(primary.license_url, ''), core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary) } , description : coalesce(primary.description, []), comment : coalesce(primary.`annotation - comment`, []) } AS term, 'Get JSON for License' AS query, '2e501bd' AS version&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (primary:License {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
         <matchingCriteria
             type="//@libraries.3/@types.30"/>
