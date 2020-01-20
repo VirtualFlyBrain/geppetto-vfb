@@ -68,7 +68,7 @@ var about
   + "						<i>Ontology editing, FlyBase support and data annotation:</i><br />"
   + "						<b>Department of Genetics, University of Cambridge</b><br />"
   + "						<a href='http://www.neuroscience.cam.ac.uk/directory/profile.php?cokane' target='_blank'>Cahir O'Kane (current project PI)</a><br />"
-  + "						Former contributors: Michael Ashburner (original PI and grant holder), Simon Reeve (2009 - 2011), Nicole Staudt (2015-2016), Alex Holmes (2017 - 2019)<br />"
+  + "						Former contributors: Michael Ashburner (original PI and grant holder), Simon Reeve (2009-2011), Nicole Staudt (2015-2016), Alex Holmes (2017-2019)<br />"
   + "						<b>Department of Physiology, Development and Neuroscience</b><br />"
   + "						<a href='https://www.pdn.cam.ac.uk/research/groups/flybase/flybase-group-members' target='_blank'>Clare Pilgrim</a> (Ontology editor/Curator)<br />"
   + "						<a href='https://www.pdn.cam.ac.uk/research/groups/flybase/flybase-group-members' target='_blank'>Aoife Larkin</a> (Curator)<br />"
