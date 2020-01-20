@@ -13,7 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
-import QuickHelp from './interface/VFBOverview/QuickHelp';
+import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -40,11 +40,12 @@ export default class VFBMain extends React.Component {
       controlPanelVisible: true,
       wireframeVisible: false,
       queryBuilderVisible: true,
+      quickHelpVisible: undefined,
       UIUpdated: false,
       htmlFromToolbar: undefined,
       idOnFocus: undefined,
       instanceOnFocus: undefined,
-      idSelected: undefined
+      idSelected: undefined,
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -54,6 +55,7 @@ export default class VFBMain extends React.Component {
     this.tutorialHandler = this.tutorialHandler.bind(this);
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
     this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
+    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
     this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
@@ -74,6 +76,7 @@ export default class VFBMain extends React.Component {
     this.firstLoad = true;
     this.idsFromURL = [];
     this.urlQueryLoader = undefined;
+    this.quickHelpRender = undefined;
 
     this.UIElementsVisibility = {};
 
@@ -461,6 +464,13 @@ export default class VFBMain extends React.Component {
     case 'treeBrowserVisible':
       this.setState({ [buttonState]: !this.state[buttonState] });
       break;
+    case 'quickHelpVisible':
+      if (this.state[buttonState] === undefined) {
+        this.setState({ [buttonState]: true });
+      } else {
+        this.setState({ [buttonState]: !this.state[buttonState] });
+      }
+      break;
     }
   }
 
@@ -558,6 +568,10 @@ export default class VFBMain extends React.Component {
 
   closeHtmlViewer () {
     this.setState({ htmlFromToolbar: undefined });
+  }
+
+  closeQuickHelp () {
+    this.setState({ quickHelpVisible: false });
   }
 
   /*
@@ -875,6 +889,39 @@ export default class VFBMain extends React.Component {
       }
       this.setState({ modelLoaded: true });
     }
+
+    window.setCookie = function ( name, value, days ) {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    };
+
+    window.getCookie = function ( name ) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1, c.length);
+        }
+        if ( c.indexOf(nameEQ) == 0 ) {
+          var result = c.substring(nameEQ.length, c.length);
+          return result;
+        }
+      }
+      return null;
+    };
+    
+    // Retrieve cookie for 'quick_help' modal
+    var cookie = getCookie("show_quick_help");
+    // Show 'Quick Help' modal if cookie to hide it is not set to True
+    if ( cookie !== "1") {
+      this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+    }
   }
 
   componentWillUnmount () {
@@ -916,39 +963,6 @@ export default class VFBMain extends React.Component {
         }
       }.bind(this));
     }.bind(this);
-    
-    window.setCookie = function ( name, value, days ) {
-      var expires = "";
-      if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-      }
-      document.cookie = name + "=" + (value || "") + expires + "; path=/";
-    };
-
-    window.getCookie = function ( name ) {
-      var nameEQ = name + "=";
-      var ca = document.cookie.split(';');
-      for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-          c = c.substring(1, c.length);
-        }
-        if ( c.indexOf(nameEQ) == 0 ) {
-          var result = c.substring(nameEQ.length, c.length);
-          return result;
-        }
-      }
-      return null;
-    };
-    
-    // Retrieve cookie for 'quick_help' modal
-    var cookie = getCookie("show_quick_help");
-    // Show 'Quick Help' modal if cookie to hide it is not set to True
-    if ( cookie != 1) {
-      GEPPETTO.trigger('show_quick_help');
-    }
 
     this.canvasReference.flipCameraY();
     this.canvasReference.flipCameraZ();
@@ -1278,9 +1292,15 @@ export default class VFBMain extends React.Component {
         </div>
       </Rnd> : undefined;
 
+    if (this.state.quickHelpVisible !== undefined) {
+      this.quickHelpRender = (this.state.quickHelpVisible === false)
+        ? undefined
+        : <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+    }
+
     return (
       <div style={{ height: '100%', width: '100%' }}>
-        <QuickHelp id="quickHelp" />  
+        { this.quickHelpRender }
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
           menuHandler={this.menuHandler}/>
