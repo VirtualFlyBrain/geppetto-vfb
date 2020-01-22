@@ -535,6 +535,14 @@ var toolbarMenu = {
             handlerAction: "clickFeedback",
             parameters: []
           }
+        },
+        {
+          label: "Click Help",
+          icon: "fa fa-book",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["quickHelpVisible"]
+          }
         }
       ]
     }
