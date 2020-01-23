@@ -13,10 +13,17 @@ export default class VFBQuickHelp extends React.Component {
       isChecked: (window.getCookie("show_quick_help") === "1" ? true : false),
     }
 
+    this.escFunction = this.escFunction.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.closeQuickHelp = this.closeQuickHelp.bind(this);
 
     this.htmlContent = "<img style=\"height: " + eval(window.outerHeight) + "px; width: 98%; margin: auto; display: block; padding-top: 25px\" src=\"geppetto/build/splash.png\" />"
+  }
+
+  escFunction (event) {
+    if (event.keyCode === 27) {
+      this.closeQuickHelp();
+    }
   }
 
   handleChange (e) {
@@ -27,6 +34,14 @@ export default class VFBQuickHelp extends React.Component {
 
   closeQuickHelp () {
     this.props.closeQuickHelp();
+  }
+
+  componentDidMount () {
+    document.addEventListener("keydown", this.escFunction, false);
+  }
+
+  componentWillUnmount () {
+    document.removeEventListener("keydown", this.escFunction, false);
   }
 
   render () {
