@@ -997,55 +997,49 @@ export default class VFBMain extends React.Component {
     }
 
     // Loading ids passed through the browser's url
-    if ((this.props.location.search.indexOf("id=VFB") == -1) && (this.props.location.search.indexOf("i=VFB") == -1)) {
-      this.idFromURL = "VFB_00017894";
-      var idList = this.props.location.search;
-      idList = idList.replace("?","").split("&");
-      for (let list in idList) {
-        if (idList[list].indexOf("q=") > -1) {
-          this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+    var idsList = "";
+    var idList = this.props.location.search;
+    idList = idList.replace("?","").split("&");
+    for (let list in idList) {
+      if (idList[list].indexOf("id=") > -1) {
+        this.idFromURL = idList[list].replace("id=","");
+        if (idsList.length > 0) {
+          idsList += ",";
+        }
+        idsList += this.idFromURL;
+      } else if (idList[list].indexOf("i=") > -1) {
+        if (idsList.length > 0) {
+          idsList = "," + idsList;
+        }
+        idsList = idList[list].replace("i=","") + idsList;
+      } else if (idList[list].indexOf("q=") > -1) {
+        this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+      }
+    }
+
+    if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
+      this.urlIdsLoaded = true;
+      if (!idsList.includes("VFB_")) {
+        idsList = "VFB_00017894," + idsList;
+      }
+      this.idsFromURL = idsList.split(",");
+      // remove duplicates
+      var counter = this.idsFromURL.length;
+      if (this.idFromURL === undefined) {
+        this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
+      }
+      while (counter--) {
+        if (this.idsFromURL[counter] === this.idFromURL) {
+          this.idsFromURL.splice(counter, 1);
         }
       }
-      console.log("Loading default Adult Brain VFB_00017894 template.");
-      this.idsFinalList = this.idFromURL;
+      this.idsFromURL.push(this.idFromURL);
+      this.idsFromURL = [... new Set(this.idsFromURL)];
+      this.idsFinalList = this.idsFromURL;
+      console.log("Loading IDS to add to the scene from url");
     } else {
-      var idsList = "";
-      var idList = this.props.location.search;
-      idList = idList.replace("?","").split("&");
-      for (let list in idList) {
-        if (idList[list].indexOf("id=") > -1) {
-          this.idFromURL = idList[list].replace("id=","");
-          if (idsList.length > 0) {
-            idsList += ",";
-          }
-          idsList += this.idFromURL;
-        } else if (idList[list].indexOf("i=") > -1) {
-          if (idsList.length > 0) {
-            idsList = "," + idsList;
-          }
-          idsList = idList[list].replace("i=","") + idsList;
-        } else if (idList[list].indexOf("q=") > -1) {
-          this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
-        }
-      }
-      if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
-        this.urlIdsLoaded = true;
-        this.idsFromURL = idsList.split(",");
-        // remove duplicates
-        var counter = this.idsFromURL.length;
-        if (this.idFromURL === undefined) {
-          this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
-        }
-        while (counter--) {
-          if (this.idsFromURL[counter] === this.idFromURL) {
-            this.idsFromURL.splice(counter, 1);
-          }
-        }
-        this.idsFromURL.push(this.idFromURL);
-        this.idsFromURL = [... new Set(this.idsFromURL)];
-        this.idsFinalList = this.idsFromURL;
-        console.log("Loading IDS to add to the scene from url");
-      }
+      this.urlIdsLoaded = true;
+      this.idsFinalList = ["VFB_00017894"];
     }
 
     var that = this;
