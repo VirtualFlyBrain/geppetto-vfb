@@ -39,6 +39,7 @@ export default class VFBTree extends React.Component {
     this.updateTree = this.updateTree.bind(this);
     this.getButtons = this.getButtons.bind(this);
     this.selectNode = this.selectNode.bind(this);
+    this.reloadData = this.reloadData.bind(this);
     this.findChildren = this.findChildren.bind(this);
     this.insertChildren = this.insertChildren.bind(this);
     this.updateSubtitle = this.updateSubtitle.bind(this);
@@ -222,7 +223,10 @@ export default class VFBTree extends React.Component {
   initTree (instance) {
     // This function is the core and starting point of the component itself
     var that = this;
-    this.setState({ loading: true });
+    this.setState({
+      loading: true,
+      errors: undefined,
+    });
     this.restPost(treeCypherQuery(instance)).done(data => {
       /*
        * we take the data provided by the cypher query and consume the until we obtain the treeData that can be given
@@ -243,6 +247,7 @@ export default class VFBTree extends React.Component {
         var treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
         this.setState({
           loading: false,
+          errors: undefined,
           dataTree: treeData,
           root: vertix,
           edges: edges,
@@ -262,7 +267,8 @@ export default class VFBTree extends React.Component {
         this.setState({
           dataTree: treeData,
           root: undefined,
-          loading: false
+          loading: false,
+          errors: undefined,
         });
       }
     });
@@ -449,9 +455,19 @@ export default class VFBTree extends React.Component {
     return title;
   }
 
+  reloadData () {
+    if (window.templateID !== undefined) {
+      this.initTree(window.templateID);
+    } else {
+      this.setState({ errors: "Template not loaded yet." });
+    }
+  }
+
   componentWillMount () {
     if (window.templateID !== undefined) {
       this.initTree(window.templateID);
+    } else {
+      this.setState({ errors: "Template not loaded yet." });
     }
   }
 
@@ -475,6 +491,9 @@ export default class VFBTree extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Instances_created, function () {
       that.setState({ displayColorPicker: false });
+      if (that.state.errors !== undefined) {
+        that.reloadData();
+      }
     });
 
     GEPPETTO.on(GEPPETTO.Events.Color_set, function (instance) {
@@ -492,39 +511,48 @@ export default class VFBTree extends React.Component {
     } else {
       var treeData = this.state.dataTree;
     }
-    // In the return we show the circular progress if the data are still being processed, differently the Tree
-    return (
-      <div>
-        {this.state.loading === true
-          ? <CircularProgress
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 0,
-              margin: 'auto',
-              color: "#11bffe",
-              size: "55rem"
-            }}
-          />
-          : <Tree
-            id="VFBTree"
-            name={"Tree"}
-            componentType={'TREE'}
-            toggleMode={true}
-            treeData={treeData}
-            activateParentsNodeOnClick={true}
-            handleClick={this.nodeClick}
-            style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
-            rowHeight={this.styles.row_height}
-            getButtons={this.getButtons}
-            getNodesProps={this.getNodes}
-            searchQuery={this.state.nodeSelected === undefined ? this.props.instance.getParent().getId() : this.state.nodeSelected.subtitle}
-            onlyExpandSearchedNodes={false}
-          />
-        }
-      </div>
-    )
+
+    if (this.state.errors !== undefined) {
+      return (
+        <div id="treeError">
+          {this.state.errors}
+        </div>
+      )
+    } else {
+      // In the return we show the circular progress if the data are still being processed, differently the Tree
+      return (
+        <div>
+          {this.state.loading === true
+            ? <CircularProgress
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0,
+                margin: 'auto',
+                color: "#11bffe",
+                size: "55rem"
+              }}
+            />
+            : <Tree
+              id="VFBTree"
+              name={"Tree"}
+              componentType={'TREE'}
+              toggleMode={true}
+              treeData={treeData}
+              activateParentsNodeOnClick={true}
+              handleClick={this.nodeClick}
+              style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
+              rowHeight={this.styles.row_height}
+              getButtons={this.getButtons}
+              getNodesProps={this.getNodes}
+              searchQuery={this.state.nodeSelected === undefined ? this.props.instance.getParent().getId() : this.state.nodeSelected.subtitle}
+              onlyExpandSearchedNodes={false}
+            />
+          }
+        </div>
+      )
+    }
   }
 }

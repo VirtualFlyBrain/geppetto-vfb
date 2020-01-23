@@ -140,6 +140,28 @@
 	box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
 }
 
+.quickHelpViewer {
+	animation: fadeIn 1s;
+	-webkit-animation: fadeIn 1s;
+	transition: opacity 1s ease-out;
+	background-color: @background_color_widget;
+	background: @background_color_widget;
+	color: white;
+	z-index: 999999;
+	overflow-y: scroll;
+  box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
+  overflow-y: hidden;
+}
+
+#quickHelpCheckbox {
+  position: absolute;
+  bottom: 15px;
+  left: 20px;
+  font-family: 'Khand', sans-serif;
+  color: #11bffe;
+  font-size: 18px;
+}
+
 .closeHTMLViewer {
 	float: right;
 	height: 5px;
@@ -1618,4 +1640,10 @@
   background-color: #252323;
   padding: 3px;
   border-radius: 2px;
+}
+
+#treeError {
+  color: #ffffff;
+  font-size: 17px;
+  font-family: 'Khand', sans-serif;
 }

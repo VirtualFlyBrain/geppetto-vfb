@@ -1,78 +1,76 @@
-define(function (require) {
+import React from 'react';
+import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 
-  var React = require('react');
-  var CreateClass = require('create-react-class');
-  var GEPPETTO = require('geppetto');
+var Rnd = require('react-rnd').default;
 
-  var logoDiv = CreateClass({
-    escFunction : function (event) {
-      if ( event.keyCode === 27 ) {
-        this.hide()
-      }
-    },
+export default class VFBQuickHelp extends React.Component {
 
-    show : function () {
-      $("#quick_help_modal").show();
-    },
-      
-    hide : function () {
-      $("#quick_help_modal").hide();
-    },
-    
-    componentDidMount: function () {
-      var self = this;
-      GEPPETTO.on('show_quick_help', function () {
-        self.show();
-      }.bind(this));
-      
-      GEPPETTO.on('hide_quick_help', function () {
-        self.hide();
-      }.bind(this));
-      
-      document.addEventListener("keydown", this.escFunction, false);
-      
-      var self = this;
-      $(document).mouseup( function (e) {
-        var container = $("#quick_help_content");
-        
-        // if the target of the click isn't the container nor a descendant of the container
-        if (!container.is(e.target) && container.has(e.target).length === 0) {
-          self.hide();
-        }
-      });
-    },
-    
-    handleChange : function ( e ){
-      // set 30 days expiration
-      window.setCookie('show_quick_help', document.getElementById('quick_help_dialog').checked ? 1 : 0, 30);
-    },
+  constructor (props) {
+    super(props);
 
-    render: function () {
-      return (
-        <div id="quick_help_modal" className="modal callout" style={ { display : "none", width : "auto" , height : "auto", position : "relative" , zIndex: "2000 !important" } }>
-          <div id="vfb-content-block" style={ { display : "block", width : "60%" , height : "60%" , textAlign : "center" , margin : "0 auto" } } >
-            <div id="quick_help_content" className="modal-content">
-              <div className="modal-header">
-                <button className="close-slider fa fa-times" id = "x" style = { { float : "right" } } onClick = {e => this.hide()} / >
-                <h3 className="text-center"> Quick Help 
-                  <span style= { { color : "white" } } > Virtual Fly Brain</span>
-                </h3>
-              </div>
-              <div className="modal-body">  
-                <img src={"geppetto/build/splash.png"} alt="" / >
-                <div>
-                  <div>
-                    <input type="checkbox" id="quick_help_dialog" onChange={e => this.handleChange(e)} ref={ input => this.myinput = input} name="help_dialog" / >
-                    <label htmlFor="help_dialog"><h3>Dont show up the quick help on startup screen.</h3></label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+    this.state = {
+      // eslint-disable-next-line no-unneeded-ternary
+      isChecked: (window.getCookie("show_quick_help") === "1" ? true : false),
     }
-  });
 
-  return logoDiv;
-});
+    this.handleChange = this.handleChange.bind(this);
+    this.closeQuickHelp = this.closeQuickHelp.bind(this);
+
+    this.htmlContent = "<img style=\"height: " + eval(window.outerHeight) + "px; width: 98%; margin: auto; display: block; padding-top: 25px\" src=\"geppetto/build/splash.png\" />"
+  }
+
+  handleChange (e) {
+    // set 30 days expiration
+    window.setCookie('show_quick_help', !this.state.isChecked ? 1 : 0, 30);
+    this.setState({ isChecked: !this.state.isChecked });
+  }
+
+  closeQuickHelp () {
+    this.props.closeQuickHelp();
+  }
+
+  render () {
+    var cookie = window.getCookie("show_quick_help");
+    var boxChecked = false;
+    // Show 'Quick Help' modal if cookie to hide it is not set to True
+    if ( cookie != 1) {
+      boxChecked = true;
+    }
+    return (
+      <Rnd enableResizing={{
+        top: false, right: false, bottom: false, left: false,
+        topRight: false, bottomRight: false, bottomLeft: false, topLeft: false
+      }}
+      default={{
+        x: 50, y: 25,
+        height: window.innerHeight - 50,
+        width: window.innerWidth - 100
+      }} className="quickHelpViewer"
+      disableDragging={true}
+      maxHeight={window.innerHeight - 50} minHeight={100}
+      maxWidth={window.innerWidth - 100} minWidth={100}
+      ref={d => {
+        this.rnd2 = d;
+      }} >
+        <div><i onClick={this.closeQuickHelp} className='close-quickHelp fa fa-times'/></div>
+        <div ref={this.htmlToolbarRef}>
+          <HTMLViewer
+            id="ButtonBarComponentViewerContainer"
+            name={"HTMLViewer"}
+            componentType={'HTMLViewer'}
+            content={this.htmlContent}
+            style={{
+              width: '100%',
+              height: '100%',
+              float: 'center'
+            }}
+            ref="htmlViewer" />
+        </div>
+        <div id="quickHelpCheckbox">
+          <input type="checkbox" id="quick_help_dialog" onChange={e => this.handleChange(e)} ref={ input => this.myinput = input} name="help_dialog" checked={this.state.isChecked} />
+          <label htmlFor="help_dialog">&nbsp;&nbsp;Dont show up the quick help on startup screen.</label>
+        </div>
+      </Rnd>
+    )
+  }
+}

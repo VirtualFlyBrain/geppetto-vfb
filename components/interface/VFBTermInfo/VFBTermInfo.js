@@ -29,6 +29,7 @@ class VFBTermInfo extends React.Component {
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
     this.sliderHandler = this.sliderHandler.bind(this);
+    this.cleanButtonBar = this.cleanButtonBar.bind(this);
     this.renderButtonBar = this.renderButtonBar.bind(this);
     this.hookupCustomHandler = this.hookupCustomHandler.bind(this);
 
@@ -76,8 +77,17 @@ class VFBTermInfo extends React.Component {
       termInfoName: anyInstance.name
     });
 
-    if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined) {
+    let instanceId = undefined;
+    if (anyInstance.getId().indexOf("_meta") === -1 && anyInstance.getParent() === null) {
+      instanceId = anyInstance.getId();
+    } else {
+      instanceId = anyInstance.getParent().getId();
+    }
+
+    if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined && window[instanceId] !== undefined) {
       this.renderButtonBar(anyInstance);
+    } else {
+      this.cleanButtonBar();
     }
   }
 
@@ -296,12 +306,21 @@ class VFBTermInfo extends React.Component {
     }
   }
 
+  cleanButtonBar () {
+    var buttonBarContainer = 'button-bar-container-' + this.props.id;
+    var barDiv = 'bar-div-' + this.props.id;
+    if (this.buttonBar !== undefined || this.buttonBar === null) {
+      ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
+      $("#" + buttonBarContainer).remove();
+      this.buttonBar = undefined;
+    }
+  }
 
   renderButtonBar (anyInstance) {
     var that = this;
     var buttonBarContainer = 'button-bar-container-' + this.props.id;
     var barDiv = 'bar-div-' + this.props.id;
-    if (this.buttonBar != undefined) {
+    if (this.buttonBar !== undefined) {
       ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
       $("#" + buttonBarContainer).remove();
     }
@@ -349,19 +368,6 @@ class VFBTermInfo extends React.Component {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
     this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
-
-    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
-      console.log('Deleting ' + path.split('.')[0] + ' from the history');
-      if (path != undefined && path.length > 0) {
-        for (var i = 0; i < window.historyWidgetCapability.vfbterminfowidget.length; i++) {
-          if (path.indexOf(window.historyWidgetCapability.vfbterminfowidget[i].arguments[0].getId())) {
-            window.historyWidgetCapability.vfbterminfowidget.splice(i, 1);
-          }
-        }
-      } else {
-        console.log('Removing instance issue: ' + path);
-      }
-    }.bind(this));
   }
 
 

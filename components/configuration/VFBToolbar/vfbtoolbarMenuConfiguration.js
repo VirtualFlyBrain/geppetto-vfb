@@ -540,8 +540,8 @@ var toolbarMenu = {
           label: "Click Help",
           icon: "fa fa-book",
           action: {
-            handlerAction: "clickQuickHelp",
-            parameters: []
+            handlerAction: "UIElementHandler",
+            parameters: ["quickHelpVisible"]
           }
         }
       ]
