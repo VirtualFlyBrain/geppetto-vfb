@@ -8,13 +8,11 @@ ARG defaultBranch=development
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
-ARG googleAnalyticsSiteCode=UA-45841517-1
-
 ENV VFB_PDB_SERVER=http://pdb-dev.virtualflybrain.org
 ENV VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/ß
 ENV VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ENV SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
-ENV googleAnalyticsSiteCode=UA-18509775-2
+ARG googleAnalyticsSiteCode=UA-18509775-2
 ENV MAXSIZE=2G
 ENV USESSL=false
 
