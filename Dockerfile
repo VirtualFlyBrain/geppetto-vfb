@@ -6,6 +6,7 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
+#SET TAG/BRANCH to use:
 ARG geppettoRelease=VFBv2.1.0.1
 ARG geppettoModelRelease=VFBv2.1.0.1
 ARG geppettoCoreRelease=VFBv2.1.0.1
