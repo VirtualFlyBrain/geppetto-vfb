@@ -103,9 +103,9 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 
 		it('3DViewer closed', async () => {
-			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the 3D Viewer
-			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			// There's 4 div elements with same class (slice viewer, 3d viewer, term info, tree browser), since the 3D Viewer
+			// was previously minimized and maximized it should now occupy the forth position
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
 			expect(
 					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
 			).toBe(null);
