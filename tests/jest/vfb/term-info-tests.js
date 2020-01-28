@@ -95,7 +95,7 @@ describe('VFB Term Info Component Tests', () => {
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})	
 		it('Term info closed', async () => {
-			// There's 3 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
+			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
 			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
 			await wait4selector(page, 'div#vfbterminfowidget', { hidden: true, timeout : 5000})
 		})
