@@ -90,6 +90,7 @@ describe('VFB Query Component Tests', () => {
 		//await page.waitForFunction(expect(await page.evaluate(() => Number(document.getElementById("query-results-label").innerText.split(" ")[0]))).toBeGreaterThan(3000))
 		it('Checking enough results returned', async () => {
 			await page.waitForFunction('$(".query-item-option")[0].selectedOptions[0].label.startsWith("Transgenes expressed in the medulla")')
+			await page.waitForFunction(expect(await page.evaluate(() => Number(document.getElementById("query-results-label").innerText.split(" ")[0]))).toBeGreaterThan(3000))
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {

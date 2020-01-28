@@ -178,7 +178,7 @@ describe('VFB Term Info Component Tests', () => {
 		it('Close Query Results Window', async () => {
 			closeModalWindow(page);
 			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 5000});
-		});
+		})
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
 			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");

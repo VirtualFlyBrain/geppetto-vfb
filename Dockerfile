@@ -99,9 +99,7 @@ COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
-#Fully build frontend if master or versioned release
-RUN if [ "${targetBranch}" == "master" ]; then /startup.sh; fi
-RUN if [[ "${targetBranch}" == "v*" ]]; then /startup.sh; fi
+RUN if [[ ( "${targetBranch}" == "v*" ) && ("${USESSL}" == "true") ]]; then /startup.sh || true; fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
