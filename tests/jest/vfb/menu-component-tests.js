@@ -24,11 +24,6 @@ describe('VFB Menu Component Tests', () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
 		})
 
-		it('Overview Help Appears', async () => {
-			await page.waitForSelector('#quick_help_modal > #vfb-content-block > #quick_help_content #x');
-			await page.click('#quick_help_modal > #vfb-content-block > #quick_help_content #x');
-		})
-
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toBe("Virtual Fly Brain");
