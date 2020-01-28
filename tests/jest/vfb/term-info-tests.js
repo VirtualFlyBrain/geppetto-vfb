@@ -95,8 +95,8 @@ describe('VFB Term Info Component Tests', () => {
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})	
 		it('Term info closed', async () => {
-			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), the third one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			// There's 3 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
 			await wait4selector(page, 'div#vfbterminfowidget', { hidden: true, timeout : 5000})
 		})
 
@@ -178,7 +178,7 @@ describe('VFB Term Info Component Tests', () => {
 		it('Close Query Results Window', async () => {
 			closeModalWindow(page);
 			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 5000});
-		});
+		})
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
 			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");
