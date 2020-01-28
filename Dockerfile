@@ -99,7 +99,7 @@ COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
-RUN if [[ ( "${targetBranch}" == "v*" ) && ("${USESSL}" == "true") ]]; then /startup.sh || true; fi
+RUN if [[ ( "${targetBranch}" == "v*" ) && ( "${USESSL}" == "true" ) ]]; then /startup.sh || true; fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
