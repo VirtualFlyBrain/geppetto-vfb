@@ -14,7 +14,7 @@ function arrayUnique (array) {
   return a;
 }
 
-export default class StackViewer extends React.Component {
+export default class VFBStackViewer extends React.Component {
 
   constructor (props) {
     super(props);

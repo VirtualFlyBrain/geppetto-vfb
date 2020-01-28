@@ -1,22 +1,50 @@
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+import Tooltip from '@material-ui/core/Tooltip';
+import {
+  createMuiTheme,
+  MuiThemeProvider
+} from "@material-ui/core/styles";
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 
-require('../../css/FocusTerm.less');
+require('../../../css/VFBFocusTerm.less');
 
-export default class FocusTerm extends React.Component {
+export default class VFBFocusTerm extends React.Component {
 
   constructor (props) {
     super(props);
     this.state = { currentInstance: undefined };
 
-    this.focusTermConfiguration = require('../configuration/focusTermConfiguration.js').focusTermConfiguration;
+    this.focusTermConfiguration = require('../../configuration/VFBFocusTerm/focusTermConfiguration').focusTermConfiguration;
+    this.labels = require('../../configuration/VFBFocusTerm/focusTermConfiguration').subMenusGrouping;
+    this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
 
+    this.clearAll = this.clearAll.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.updateHistory = this.updateHistory.bind(this);
+  }
+
+  clearAll () {
+    if (Instances !== undefined && Instances.length > 1) {
+      for (var i = 1; i < Instances.length; i++) {
+        if (Instances[i].getId() !== window.templateID) {
+          window.addVfbId(window[window.templateID].getId());
+          if (Instances[i].parent != null) {
+            Instances[i].parent.delete();
+            // Delete instance too after deleting parent
+            if (Instances[i] != null) {
+              Instances[i].delete()
+            }
+          } else {
+            Instances[i].delete()
+          }
+          i = i - 1; // Since an array element has been deleted, index is updated too
+        }
+      }
+    }
   }
 
   menuHandler (click) {
@@ -100,12 +128,12 @@ export default class FocusTerm extends React.Component {
               if (allQueries2.length > 0) {
                 focusSubMenu.push(
                   {
-                    label: "Search for",
+                    label: "Query for",
                     icon: "",
                     action: "",
                     position: "left",
                     dynamicListInjector: {
-                      handlerAction: "searchForHandler",
+                      handlerAction: "subMenuGrouping",
                       parameters: [{ variable: variable, allQueries: allQueries },
                                    { variable: variable2, allQueries: allQueries2 }]
                     }
@@ -117,12 +145,12 @@ export default class FocusTerm extends React.Component {
         } else {
           focusSubMenu.push(
             {
-              label: "Search for",
+              label: "Query for",
               icon: "",
               action: "",
               position: "left",
               dynamicListInjector: {
-                handlerAction: "searchForHandler",
+                handlerAction: "subMenuGrouping",
                 parameters: [{ variable: variable, allQueries: allQueries }]
               }
             }
@@ -138,22 +166,100 @@ export default class FocusTerm extends React.Component {
               if (allQueries.length > 0) {
                 focusSubMenu.push(
                   {
-                    label: "Search for",
+                    label: "Query for",
                     icon: "",
                     action: "",
                     position: "left",
                     dynamicListInjector: {
-                      handlerAction: "searchForHandler",
+                      handlerAction: "subMenuGrouping",
                       parameters: [{ variable: variable, allQueries: allQueries }]
                     }
                   }
                 );
               }
             });
+          } else {
+            var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+            if (allQueries.length > 0) {
+              focusSubMenu.push(
+                {
+                  label: "Query for",
+                  icon: "",
+                  action: "",
+                  position: "left",
+                  dynamicListInjector: {
+                    handlerAction: "subMenuGrouping",
+                    parameters: [{ variable: variable, allQueries: allQueries }]
+                  }
+                }
+              );
+            }
           }
         }
       }
       return focusSubMenu;
+    case 'subMenuGrouping':
+      var subMenus = [];
+      var globalQueries = [];
+      for (let i = 0; i < this.labels.length; i++) {
+        var subMenu = [];
+        for ( let j = 0; j < click.parameters.length; j++ ) {
+          var instance = click.parameters[j].variable;
+          var instanceId = instance.getId();
+          if (globalQueries[instanceId] === undefined) {
+            var queries = click.parameters[j].allQueries;
+            globalQueries[instanceId] = [...queries]
+          }
+          for (let y = globalQueries[instanceId].length; y--;) {
+            if (this.labels[i].label === "Other queries ") {
+              subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
+              globalQueries[instanceId].splice(y, 1);
+            } else {
+              for (let z = 0; z < this.labels[i].keys.length; z++) {
+                if (globalQueries[instanceId][y].getDescription().includes(this.labels[i].keys[z])) {
+                  subMenu.push({ variable: instance, allQueries: [globalQueries[instanceId][y]] });
+                  globalQueries[instanceId].splice(y, 1);
+                }
+              }
+            }
+          }
+        }
+        if (subMenu.length > 0) {
+          subMenus.push(
+            {
+              label: this.labels[i].label,
+              icon: "",
+              action: "",
+              position: "left",
+              dynamicListInjector: {
+                handlerAction: "searchForHandler",
+                parameters: subMenu
+              }
+            },
+          );
+        }
+      }
+      for (let i = 0; i < click.parameters.length; i++) {
+        var instance = click.parameters[i].variable;
+        var instanceId = instance.getId();
+        if (globalQueries[instanceId].length > 0) {
+          for (let j = globalQueries[instanceId].length; j--;) {
+            subMenus.push(
+              {
+                label: globalQueries[instanceId][j].getDescription().replace("$NAME", instance.getName()),
+                icon: "",
+                action: {
+                  handlerAction: "runQueryHandler",
+                  parameters: [instance, globalQueries[instanceId][j]]
+                }
+              },
+            );
+            globalQueries[instanceId].splice(j, 1);
+          }
+        }
+      }
+      return subMenus;
     case 'searchForHandler':
       var searchSubMenu = [];
       for (let j = 0; j < click.parameters.length; j++) {
@@ -194,11 +300,9 @@ export default class FocusTerm extends React.Component {
       var entity = Model[otherId];
       // clear query builder unless ctrl pressed them add to compound.
       this.props.queryBuilder.open();
+      this.props.queryBuilder.switchView(false, false);
       if (!GEPPETTO.isKeyPressed("shift")) {
-        this.props.queryBuilder.switchView(false, false);
         this.props.queryBuilder.clearAllQueryItems();
-      } else {
-        this.props.queryBuilder.switchView(false, false);
       }
 
       GEPPETTO.trigger('spin_logo');
@@ -242,8 +346,9 @@ export default class FocusTerm extends React.Component {
 
   componentDidMount () {
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-      console.log('Selection of ' + instance.getName());
-      if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
+      if (this.state.currentInstance === undefined && instance[instance.getId() + "_meta"] !== undefined) {
+        this.setInstance(instance[instance.getId() + "_meta"]);
+      } else if (instance[instance.getId() + "_meta"] !== undefined && instance.getName() !== this.state.currentInstance.getName()) {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
     }.bind(this));
@@ -377,49 +482,63 @@ export default class FocusTerm extends React.Component {
 
           <div className="focusTermRight">
             <div className="focusTermDivR">
-              <i className="fa fa-search arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.props.UIUpdateManager("spotlightVisible");
-                }}>
-                <span className="tooltipBox"> Open the spotlight </span>
-              </i>
-              <i className="fa fa-quora arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.props.UIUpdateManager("queryBuilderVisible");
-                }}>
-                <span className="tooltipBox"> Open the query builder </span>
-              </i>
-              <i className="fa fa-list arrowsStyle tooltipLink"
-                onClick={() => {
-                  this.props.UIUpdateManager("controlPanelVisible");
-                }}>
-                <span className="tooltipBox"> Open the control panel </span>
-              </i>
-              { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
-                ? <i className="fa fa-chevron-left arrowsStyle tooltipLink"
-                  onClick={() => {
-                    if (window.vfbUpdatingHistory == false) {
-                      window.history.back();
-                    }
-                  }}>
-                  <span className="tooltipBox"> {tooltipPrevious} </span>
-                </i>
-                : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
-              }
-              { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
-                ? <i className="fa fa-chevron-right arrowsStyle tooltipLink"
-                  onClick={() => {
-                    if (window.vfbUpdatingHistory == false) {
-                      window.history.forward();
-                    }
-                  }}>
-                  <span className="tooltipBox"> {tooltipNext} </span>
-                </i>
-                : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
-              }
-              <Menu
-                configuration={this.focusTermConfiguration}
-                menuHandler={this.menuHandler} />
+              <MuiThemeProvider theme={this.theme}>
+                <Tooltip placement="top-end"
+                  title="Clear all">
+                  <i className="fa fa-eraser arrowsStyle"
+                    onClick={() => {
+                      this.clearAll();
+                    }} />
+                </Tooltip>
+                <Tooltip placement="top-end"
+                  title="Search">
+                  <i className="fa fa-search arrowsStyle"
+                    onClick={() => {
+                      this.props.UIUpdateManager("spotlightVisible");
+                    }} />
+                </Tooltip>
+                <Tooltip placement="top-end"
+                  title="Query results">
+                  <i className="fa fa-quora arrowsStyle"
+                    onClick={() => {
+                      this.props.UIUpdateManager("queryBuilderVisible");
+                    }} />
+                </Tooltip>
+                <Tooltip placement="top-end"
+                  title="Layers">
+                  <i className="fa fa-list arrowsStyle"
+                    onClick={() => {
+                      this.props.UIUpdateManager("controlPanelVisible");
+                    }} />
+                </Tooltip>
+                { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
+                  ? <Tooltip placement="top-end"
+                    title={tooltipPrevious}>
+                    <i className="fa fa-chevron-left arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.back();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
+                }
+                { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
+                  ? <Tooltip placement="top-end"
+                    title={tooltipNext}> 
+                    <i className="fa fa-chevron-right arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.forward();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
+                }
+                <Menu
+                  configuration={this.focusTermConfiguration}
+                  menuHandler={this.menuHandler} />
+              </MuiThemeProvider>
             </div>
           </div>
         </nav>

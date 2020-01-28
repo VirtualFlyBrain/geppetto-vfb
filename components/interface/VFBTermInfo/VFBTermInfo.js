@@ -3,18 +3,14 @@ import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
+import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
 var Type = require('geppetto-client/js/geppettoModel/model/Type');
-var ButtonBarComponent = require('geppetto-client/js/components/widgets/popup/ButtonBarComponent');
 
-require('../../css/VFBTermInfo.less');
-require('geppetto-client/js/components/widgets/popup/Popup.less');
-require('geppetto-client/js/components/widgets/popup/vendor/slick.less');
-require('geppetto-client/js/components/widgets/popup/vendor/slick-theme.less');
-
+require('../../../css/VFBTermInfo.less');
 
 class VFBTermInfo extends React.Component {
 
@@ -32,6 +28,8 @@ class VFBTermInfo extends React.Component {
     this.getVariable = this.getVariable.bind(this);
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
+    this.sliderHandler = this.sliderHandler.bind(this);
+    this.cleanButtonBar = this.cleanButtonBar.bind(this);
     this.renderButtonBar = this.renderButtonBar.bind(this);
     this.hookupCustomHandler = this.hookupCustomHandler.bind(this);
 
@@ -41,12 +39,17 @@ class VFBTermInfo extends React.Component {
     this.buttonBar = undefined;
     this.sliderId = "termInfoSlider";
     this.contentTermInfo = {
-      keys : [],
-      values : []
+      keys: [],
+      values: []
     };
     this.contentBackup = {
-      keys : [],
-      values : []
+      keys: [],
+      values: []
+    };
+
+    this.imagesData = {
+      index: 0,
+      list: []
     };
 
     this.innerHandler = { funct: undefined, event: 'click', meta: undefined, hooked: false, id: undefined };
@@ -74,8 +77,17 @@ class VFBTermInfo extends React.Component {
       termInfoName: anyInstance.name
     });
 
-    if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined) {
+    let instanceId = undefined;
+    if (anyInstance.getId().indexOf("_meta") === -1 && anyInstance.getParent() === null) {
+      instanceId = anyInstance.getId();
+    } else {
+      instanceId = anyInstance.getParent().getId();
+    }
+
+    if (this.props.buttonBarConfiguration != null && this.props.buttonBarConfiguration != undefined && window[instanceId] !== undefined) {
       this.renderButtonBar(anyInstance);
+    } else {
+      this.cleanButtonBar();
     }
   }
 
@@ -145,11 +157,18 @@ class VFBTermInfo extends React.Component {
         if (value.eClass == GEPPETTO.Resources.ARRAY_VALUE) {
           // if it's an array we use slick to create a carousel
           var elements = [];
+          this.imagesData.index = 0;
+          this.imagesData.list = [];
           for (var j = 0; j < value.elements.length; j++) {
             var image = value.elements[j].initialValue;
+            this.imagesData.list.push(image.reference);
             elements.push(<div className="slider_image_container">
               {image.name}
-              <a id={"slider_image_" + j} href="#" data-instancepath={image.reference}>
+              <a id={"slider_image_" + j} href={location.protocol + '//' + location.host + location.pathname + "/" + image.reference} onClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                this.sliderHandler();
+              }}>
                 <img id={"image_" + j} src={image.data}></img>
               </a>
             </div>);
@@ -182,7 +201,11 @@ class VFBTermInfo extends React.Component {
           var image = value;
           this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
             <div className="popup-image">
-              <a href='#' data-instancepath={image.reference}>
+              <a href={location.protocol + '//' + location.host + location.pathname + "/" + image.reference} onClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                this.props.customHandler(undefined, image.reference, undefined) 
+              }}>
                 <img src={image.data}></img>
               </a>
             </div>
@@ -197,8 +220,11 @@ class VFBTermInfo extends React.Component {
    * to performances but also to the fact that the query were appended eachother.
    */
   hookupImages (idKey) {
-    this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
-    this.hookupCustomHandler(this.innerHandler, $("#" + this.sliderId + idKey), undefined);
+    this.imagesData.index = idKey;
+  }
+
+  sliderHandler () {
+    this.props.customHandler(undefined, this.imagesData.list[this.imagesData.index], undefined);
   }
 
 
@@ -247,7 +273,7 @@ class VFBTermInfo extends React.Component {
 
   hookupCustomHandler (handler, popupDOM, popup) {
     if (handler.hooked === false) {
-      // set hooked to avoid double triggers
+    // set hooked to avoid double triggers
       handler.hooked = true;
       // Find and iterate <a> element with an instancepath attribute
       popupDOM.find("a[data-instancepath]").each(function () {
@@ -260,35 +286,41 @@ class VFBTermInfo extends React.Component {
         try {
           node = eval(path);
         } catch (ex) {
-          // if instance path doesn't exist set path to undefined
+        // if instance path doesn't exist set path to undefined
           node = undefined;
         }
 
         // hookup IF domain type is undefined OR it's defined and it matches the node type
         if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
-          // hookup custom handler
+        // hookup custom handler
           var that = this;
-          if (that.listenerHooked == undefined){
-            $(that).on(ev, function () {
-            // invoke custom handler with instancepath as arg
-              fun(node, path, popup);
-
-              // stop default event handler of the anchor from doing anything
-              return false;
-            });
-            that.listenerHooked = true; // avoids adding the a listener to anchor element with one already
-          }
+          $(that).off();
+          $(that).on(ev, function () {
+          // invoke custom handler with instancepath as arg
+            fun(node, path, popup);
+            // stop default event handler of the anchor from doing anything
+            return false;
+          });
         }
       });
     }
   }
 
+  cleanButtonBar () {
+    var buttonBarContainer = 'button-bar-container-' + this.props.id;
+    var barDiv = 'bar-div-' + this.props.id;
+    if (this.buttonBar !== undefined || this.buttonBar === null) {
+      ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
+      $("#" + buttonBarContainer).remove();
+      this.buttonBar = undefined;
+    }
+  }
 
   renderButtonBar (anyInstance) {
     var that = this;
     var buttonBarContainer = 'button-bar-container-' + this.props.id;
     var barDiv = 'bar-div-' + this.props.id;
-    if (this.buttonBar != undefined) {
+    if (this.buttonBar !== undefined) {
       ReactDOM.unmountComponentAtNode(document.getElementById(barDiv));
       $("#" + buttonBarContainer).remove();
     }
@@ -309,12 +341,12 @@ class VFBTermInfo extends React.Component {
     this.buttonBar = ReactDOM.render(
       React.createElement(ButtonBarComponent, {
         buttonBarConfig: this.props.buttonBarConfiguration, showControls: this.props.buttonBarControls,
-        instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () { 
-          /*
-           * that.setSize(that.size.height, that.size.width);
-           * This was to handle the resize of the widget before, it's not required now since
-           * FlexLayout will handle that.
-           */
+        instancePath: instancePath, instance: instance, geppetto: GEPPETTO, resize: function () {
+        /*
+         * that.setSize(that.size.height, that.size.width);
+         * This was to handle the resize of the widget before, it's not required now since
+         * FlexLayout will handle that.
+         */
         }
       }),
       document.getElementById(barDiv)
@@ -336,19 +368,6 @@ class VFBTermInfo extends React.Component {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
     this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
-
-    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
-      console.log('Deleting ' + path.split('.')[0] + ' from the history');
-      if (path != undefined && path.length > 0) {
-        for (var i = 0; i < window.historyWidgetCapability.vfbterminfowidget.length; i++) {
-          if (path.indexOf(window.historyWidgetCapability.vfbterminfowidget[i].arguments[0].getId())) {
-            window.historyWidgetCapability.vfbterminfowidget.splice(i, 1);
-          }
-        }
-      } else {
-        console.log('Removing instance issue: ' + path);
-      }
-    }.bind(this));
   }
 
 
@@ -365,15 +384,15 @@ class VFBTermInfo extends React.Component {
 
   render () {
     var toRender = undefined;
-    if (this.contentTermInfo.values === undefined || this.contentTermInfo.values.length == 0){
+    if (this.contentTermInfo.values === undefined || this.contentTermInfo.values.length == 0) {
       this.contentTermInfo.keys = this.contentBackup.keys.slice();
       this.contentTermInfo.values = this.contentBackup.values.slice();
     }
-    if ((this.props.order !== undefined ) && (this.props.order.length > 0)) {
+    if ((this.props.order !== undefined) && (this.props.order.length > 0)) {
       this.contentBackup.keys = this.contentTermInfo.keys.slice();
       this.contentBackup.values = this.contentTermInfo.values.slice();
       var tempArray = [];
-      if ((this.props.exclude !== undefined ) && (this.props.exclude.length > 0)) {
+      if ((this.props.exclude !== undefined) && (this.props.exclude.length > 0)) {
         for (var x = 0; x < this.props.exclude.length; x++) {
           var index = this.contentTermInfo.keys.indexOf(this.props.exclude[x]);
           if (index > -1) {
@@ -443,102 +462,8 @@ export default class VFBTermInfoWidget extends React.Component {
     this.getTermInfoDefaultWidth = this.getTermInfoDefaultWidth.bind(this);
     this.getTermInfoDefaultHeight = this.getTermInfoDefaultHeight.bind(this);
 
-    this.buttonBarConfiguration = {
-      "Events": ["color:set", "experiment:selection_changed", "experiment:visibility_changed"],
-      "filter": function filter (instancePath) {
-        if (typeof (instancePath) == "string") {
-          return Instances.getInstance(instancePath).getParent();
-        }
-        return instancePath.getParent();
-      },
-      "VisualCapability": {
-        "select": {
-          "id": "select",
-          "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
-          "false": {
-            "actions": ["$instance$.select()"],
-            "icon": "fa-hand-stop-o",
-            "label": "Unselected",
-            "tooltip": "Select",
-            "id": "select",
-          },
-          "true": {
-            "actions": ["$instance$.deselect()"],
-            "icon": "fa-hand-rock-o",
-            "label": "Selected",
-            "tooltip": "Deselect",
-            "id": "deselect",
-          }
-        },
-        "color": {
-          "id": "color",
-          "actions": ["$instance$.setColor('$param$');"],
-          "icon": "fa-tint",
-          "label": "Color",
-          "tooltip": "Color"
-        },
-        "zoom": {
-          "id": "zoom",
-          "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
-          "icon": "fa-search-plus",
-          "label": "Zoom",
-          "tooltip": "Zoom"
-        },
-        "visibility_obj": {
-          "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
-          "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
-          "false": {
-            "id": "visibility_obj",
-            "actions": ["(function(){var color = $instance$.getColor(); var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { if(GEPPETTO.SceneController.isInstancePresent(instance)) { GEPPETTO.SceneController.show([instance]); } else { GEPPETTO.SceneController.display(instance); instance.setColor(color);}}})()"],
-            "icon": "gpt-shapehide",
-            "label": "Hidden",
-            "tooltip": "Show 3D Volume"
-          },
-          "true": {
-            "id": "visibility_obj",
-            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
-            "icon": "gpt-shapeshow",
-            "label": "Visible",
-            "tooltip": "Hide 3D Volume"
-          }
-        },
-        "visibility_swc": {
-          "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
-          "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_swc != undefined && $instance$.getType().$instance$_swc.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_swc != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_swc]); } return visible; })()",
-          "false": {
-            "id": "visibility_swc",
-            "actions": ["(function(){var color = $instance$.getColor(); var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { if(GEPPETTO.SceneController.isInstancePresent(instance)) { GEPPETTO.SceneController.show([instance]); } else { GEPPETTO.SceneController.display(instance); instance.setColor(color);}}})()"],
-            "icon": "gpt-3dhide",
-            "label": "Hidden",
-            "tooltip": "Show 3D Skeleton"
-          },
-          "true": {
-            "id": "visibility_swc",
-            "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
-            "icon": "gpt-3dshow",
-            "label": "Visible",
-            "tooltip": "Hide 3D Skeleton"
-          }
-        },
-        "delete": {
-          "showCondition": "$instance$.getId()!=window.templateID",
-          "id": "delete",
-          "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId());"],
-          "icon": "fa-trash-o",
-          "label": "Delete",
-          "tooltip": "Delete"
-        }
-      }
-    };
-
-    this.buttonBarControls = {
-      "VisualCapability": ['select',
-                           'color',
-                           'visibility_obj',
-                           'visibility_swc',
-                           'zoom',
-                           'delete']
-    };
+    this.buttonBarConfiguration = require('../../configuration/VFBTermInfo/VFBTermInfoConfiguration').buttonBarConfiguration;
+    this.buttonBarControls = require('../../configuration/VFBTermInfo/VFBTermInfoConfiguration').buttonBarControls;
 
     this.data = [];
     this.idWidget = "vfbterminfowidget";
@@ -576,7 +501,15 @@ export default class VFBTermInfoWidget extends React.Component {
       }
     }
     if (this.refs.termInfoRef != undefined) {
-      this.data.unshift(data);
+      for ( var i = 0, nodePresent = false; i < this.data.length; i++) {
+        if (this.data[i].getId() === data.getId()) {
+          nodePresent = true;
+          this.data.unshift(this.data.splice(i, 1)[0]);
+        }
+      }
+      if (nodePresent === false) {
+        this.data.unshift(data);
+      }
       this.refs.termInfoRef.setData(data);
       this.refs.termInfoRef.setName(data.name);
     }
@@ -601,10 +534,18 @@ export default class VFBTermInfoWidget extends React.Component {
     if (n != undefined) {
       var metanode = Instances.getInstance(meta);
       if ((this.data.length > 0) && (this.data[0] == metanode)) {
-        this.data.unshift(metanode);      
+        for ( var i = 0, nodePresent = false; i < this.data.length; i++) {
+          if (this.data[i].getId() === metanode.getId()) {
+            nodePresent = true;
+            this.data.unshift(this.data.splice(i, 1)[0]);
+          }
+        }
+        if (nodePresent === false) {
+          this.data.unshift(metanode);
+        }
       }
       window.resolve3D(path);
-      this.setTermInfo(metanode,metanode.name);
+      this.setTermInfo(metanode, metanode.name);
     } else {
       // check for passed ID:
       if (path.indexOf(',') > -1) {
@@ -626,10 +567,10 @@ export default class VFBTermInfoWidget extends React.Component {
         // clear query builder unless ctrl pressed them add to compound.
         console.log('Query requested: ' + path + " " + otherName);
         GEPPETTO.trigger('spin_logo');
-        
+
         this.props.queryBuilder.open();
         this.props.queryBuilder.switchView(false, false);
-        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.")){
+        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.")) {
           console.log('Query stacking requested.');
         } else {
           this.props.queryBuilder.clearAllQueryItems();
@@ -637,8 +578,8 @@ export default class VFBTermInfoWidget extends React.Component {
           $('#query-builder-items-container')[0].hidden = true;
         }
         $("body").css("cursor", "progress");
-        
-       
+
+
         $('#add-new-query-container')[0].hidden = true;
         $('#query-builder-items-container')[0].hidden = true;
 
@@ -658,17 +599,17 @@ export default class VFBTermInfoWidget extends React.Component {
         // add query item + selection
         if (window[otherId] == undefined) {
           window.fetchVariableThenRun(otherId, function () {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback) 
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
           });
         } else {
           setTimeout(function () {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback); 
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
           }, 100);
         }
       } else {
         Model.getDatasources()[0].fetchVariable(path, function () {
           var m = Instances.getInstance(meta);
-          this.setTermInfo(m,m.name);
+          this.setTermInfo(m, m.name);
           window.resolve3D(path);
         }.bind(this));
       }
@@ -718,7 +659,7 @@ export default class VFBTermInfoWidget extends React.Component {
         showButtonBar={this.props.showButtonBar}
         buttonBarControls={this.buttonBarControls}
         termInfoHandler={this.props.termInfoHandler}
-        buttonBarConfiguration={this.buttonBarConfiguration}/>
+        buttonBarConfiguration={this.buttonBarConfiguration} />
     );
   }
 }

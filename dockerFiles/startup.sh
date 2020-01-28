@@ -12,11 +12,13 @@ echo $SOLR_SERVER
 grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
 echo "Google Analytics code: ${googleAnalyticsSiteCode}"
 grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" 
+echo "useSSL:${USESSL}"
+grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g" 
 
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend 
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-mvn -Dhttps.protocols=TLSv1.2 -DcontextPath=org.geppetto.frontend -DuseSsl=false -DskipTests install
+mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install
 rm -rf src
 
 # Start a logfile

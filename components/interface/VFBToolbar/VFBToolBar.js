@@ -3,7 +3,7 @@ import React from 'react';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
 var Rnd = require('react-rnd').default;
 
-require('../../css/VFBToolBar.less');
+require('../../../css/VFBToolBar.less');
 
 const popperStyles = {
   root: {
@@ -68,16 +68,16 @@ export default class VFBToolBar extends React.Component {
       htmlChild: undefined
     }
 
-    this.menuConfiguration = require('../configuration/vfbtoolbarMenuConfiguration.js').toolbarMenu;
-    this.aboutHTML = require('../configuration/vfbtoolbarHTML.js').about;
-    this.feedbackHTML = require('../configuration/vfbtoolbarHTML.js').feedback;
-    this.contributeHTML = require('../configuration/vfbtoolbarHTML.js').contribute;
-
+    this.menuConfiguration = require('../../configuration/VFBToolbar/vfbtoolbarMenuConfiguration').toolbarMenu;
+    this.aboutHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').about;
+    this.feedbackHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').feedback;
+    this.contributeHTML = require('../../configuration/VFBToolbar/vfbtoolbarHTML').contribute;
 
     this.clickAbout = this.clickAbout.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.clickFeedback = this.clickFeedback.bind(this);
     this.clickContribute = this.clickContribute.bind(this);
+    this.clickQuickHelp = this.clickQuickHelp.bind(this);
   }
 
   componentWillMount () {
@@ -117,19 +117,19 @@ export default class VFBToolBar extends React.Component {
     } else if ((verOffset = nAgt.indexOf("MSIE")) != -1) { // In MSIE, the true version is after "MSIE" in userAgent
       browserName = "Microsoft Internet Explorer";
       fullVersion = nAgt.substring(verOffset + 5);
-    } else if ((verOffset = nAgt.indexOf("Chrome")) != -1) { // In Chrome, the true version is after "Chrome" 
+    } else if ((verOffset = nAgt.indexOf("Chrome")) != -1) { // In Chrome, the true version is after "Chrome"
       browserName = "Chrome";
       fullVersion = nAgt.substring(verOffset + 7);
-    } else if ((verOffset = nAgt.indexOf("Safari")) != -1) { // In Safari, the true version is after "Safari" or after "Version" 
+    } else if ((verOffset = nAgt.indexOf("Safari")) != -1) { // In Safari, the true version is after "Safari" or after "Version"
       browserName = "Safari";
       fullVersion = nAgt.substring(verOffset + 7);
       if ((verOffset = nAgt.indexOf("Version")) != -1) {
         fullVersion = nAgt.substring(verOffset + 8);
       }
-    } else if ((verOffset = nAgt.indexOf("Firefox")) != -1) { // In Firefox, the true version is after "Firefox" 
+    } else if ((verOffset = nAgt.indexOf("Firefox")) != -1) { // In Firefox, the true version is after "Firefox"
       browserName = "Firefox";
       fullVersion = nAgt.substring(verOffset + 8);
-    } else if ( (nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/')) ) { // In most other browsers, "name/version" is at the end of userAgent 
+    } else if ( (nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/')) ) { // In most other browsers, "name/version" is at the end of userAgent
       browserName = nAgt.substring(nameOffset,verOffset);
       fullVersion = nAgt.substring(verOffset + 1);
       if (browserName.toLowerCase() == browserName.toUpperCase()) {
@@ -145,10 +145,32 @@ export default class VFBToolBar extends React.Component {
     }
     majorVersion = parseInt('' + fullVersion,10);
     if (isNaN(majorVersion)) {
-      fullVersion = '' + parseFloat(navigator.appVersion); 
+      fullVersion = '' + parseFloat(navigator.appVersion);
       majorVersion = parseInt(navigator.appVersion,10);
     }
-
+    // return as much of the log up to the last 10 events < 1000 characters:
+    var logLength = -10;
+    var limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+      /\&/g,escape('&')
+    ).replace(
+      /\#/g,escape('#')
+    ).replace(
+      /\-/g,'%2D'
+    ).replace(
+      /\+/g,'%2B'
+    );
+    while (limitedLog.length > 1000 && logLength < 0) {
+      logLength += 1;
+      limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+        /\&/g,escape('&')
+      ).replace(
+        /\#/g,escape('#')
+      ).replace(
+        /\-/g,'%2D'
+      ).replace(
+        /\+/g,'%2B'
+      );
+    }
     this.props.htmlOutputHandler(
       htmlContent.replace(
         /\$URL\$/g,window.location.href.replace(
@@ -165,15 +187,7 @@ export default class VFBToolBar extends React.Component {
       ).replace(
         /\$SCREEN\$/g, window.innerWidth + ',' + window.innerHeight
       ).replace(
-        /\$LOG\$/g, window.console.logs.slice(-10).join('%0A').replace(
-          /\&/g,escape('&')
-        ).replace(
-          /\#/g,escape('#')
-        ).replace(
-          /\-/g,'%2D'
-        ).replace(
-          /\+/g,'%2B'
-        )
+        /\$LOG\$/g, limitedLog
       ).replace(
         /\$COLOURLOG\$/g, window.console.logs.join('</span><br />').replace(
           /\&/g,escape('&')
@@ -199,6 +213,10 @@ export default class VFBToolBar extends React.Component {
     this.props.htmlOutputHandler(htmlContent);
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
   }
+  
+  clickQuickHelp () {
+    GEPPETTO.trigger('show_quick_help');
+  }
 
   menuHandler (click) {
     switch (click.handlerAction) {
@@ -219,6 +237,9 @@ export default class VFBToolBar extends React.Component {
       break;
     case 'clickContribute':
       this.clickContribute();
+      break;
+    case 'clickQuickHelp':
+      this.clickQuickHelp();
       break;
     default:
       return this.props.menuHandler(click);

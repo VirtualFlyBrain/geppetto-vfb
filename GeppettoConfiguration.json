@@ -1,7 +1,7 @@
 {
   "_README" : "http://docs.geppetto.org/en/latest/build.html",
   "contextPath": "org.geppetto.frontend",
-  "useSsl": true,
+  "useSsl": false,
   "embedded": false,
   "embedderURL": ["/"],
   "rootRedirect":"",
@@ -13,6 +13,18 @@
     "type": "website",
     "url": "http://v2.virtualflybrain.org",
     "icon" :"https://v2.virtualflybrain.org/images/vfbbrain_icon.png",
-    "image": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png"
+    "image": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png",
+    "errorDialog": {
+      "message" : "I broke geppetto, ops!",
+      "githubButton": {
+        "enabled" : true,
+        "url" : "https://github.com/VirtualFlyBrain/geppetto-vfb/issues"
+      },
+      "twitterButton": {
+        "enabled" : true,
+        "url" : "https://twitter.com/openworm",
+        "message" : "I broke geppetto, ops!"
+      }
+    }
   }
 }

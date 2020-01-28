@@ -7,7 +7,7 @@ var buttonBarConfig = {
   "queryBuilderVisible": {
     "icon": "fa fa-quora",
     "label": "",
-    "tooltip": "Open Query"
+    "tooltip": "Query Results"
   },
   "controlPanelVisible": {
     "icon": "fa fa-list",

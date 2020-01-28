@@ -61,12 +61,13 @@ var toolbarMenu = {
         fontSize: '12px',
         fontFamily: 'Khand, sans-serif',
         minWidth: '110px',
+        borderTop: '1px solid #585858',
         borderLeft: '1px solid #585858',
         borderRight: '1px solid #585858',
         borderBottom: '1px solid #585858',
         borderBottomLeftRadius: '2px',
         borderBottomRightRadius: '2px',
-        fontWeight: '300'
+        fontWeight: '300',
       }
     },
     labelsStyle: {
@@ -78,7 +79,9 @@ var toolbarMenu = {
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       },
       hover: {
         background: "#11bffe",
@@ -89,7 +92,9 @@ var toolbarMenu = {
         fontFamily: 'Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
-        fontWeight: '300'
+        fontWeight: '300',
+        minHeight: '30px',
+        height: '30px'
       }
     }
   },
@@ -222,6 +227,124 @@ var toolbarMenu = {
             handlerAction: "UIElementHandler",
             parameters: ["sliceViewerVisible"]
           }
+        },
+        {
+          label: "Tree Browser",
+          icon: "fa fa-tree",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["treeBrowserVisible"]
+          }
+        },
+        {
+          label: "NBLAST",
+          icon: "",
+          action: "",
+          position: "right-start",
+          list: [
+            {
+              label: "What is NBLAST?",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://flybrain.mrc-lmb.cam.ac.uk/si/nblast/www/"]
+              }
+            },
+            {
+              label: "NBLAST against your own data",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://nblast.virtualflybrain.org:8080/NBLAST_on-the-fly/?gal4_n=10&all_use_mean=F&all_query=&tab=One%20against%20all&gal4_query="]
+              }
+            }
+          ]
+        },
+        {
+          label: "CATMAID",
+          icon: "",
+          action: "",
+          position: "right-start",
+          list: [
+            {
+              label: "What is CATMAID?",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["http://catmaid.readthedocs.io/"]
+              }
+            },
+            {
+              label: "Hosted EM Data",
+              icon: "",
+              position: "right-start",
+              action: {
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult Brain (FAFB)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://fafb.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true"]
+                  }
+                },
+                {
+                  label: "Adult VNC (VNC1)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true"]
+                  }
+                },
+                {
+                  label: "Larval (L1EM)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/?pid=1&zp=55260&yp=512482.5999999994&xp=173092.19999999998&tool=tracingtool&sid0=1&s0=9&help=true"]
+                  }
+                }
+              ]
+            },
+            {
+              label: "APIs",
+              icon: "",
+              position: "right-start",
+              action: {
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult Brain (FAFB)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://fafb.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Adult VNC (VNC1)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Larval (L1EM)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://l1em.catmaid.virtualflybrain.org/apis/"]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -306,25 +429,95 @@ var toolbarMenu = {
       ]
     },
     {
+      label: "Datasets",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      list: [
+        {
+          label: "All Available Datasets",
+          icon: "",
+          action: {
+            handlerAction: "triggerRunQuery",
+            parameters: ["allDatasets,VFB_00017894,adult brain template JFRC2"]
+          }
+        },
+        {
+          label: "Adult",
+          icon: "",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "Adult Brain (JFRC2)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00017894,adult brain template JFRC2"]
+              }
+            },
+            {
+              label: "Adult VNS",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00100000,adult VNS template"]
+              }
+            },
+            {
+              label: "Ito Half Brain",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00030786,Ito Half Brain"]
+              }
+            }
+          ]
+        },
+        {
+          label: "Larval",
+          icon: "",
+          position: "right-start",
+          action: {
+            handlerAction: "submenu",
+            parameters: ["undefinedAction"]
+          },
+          list: [
+            {
+              label: "L1 CNS (ssTEM)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00050000,L1 CNS"]
+              }
+            },
+            {
+              label: "L3 CNS (Wood2018)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00049000,L3 CNS"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       label: "Help",
       icon: "",
       action: "",
       position: "bottom-start",
       list: [
         {
-          label: "Start Tutorial",
-          icon: "",
-          action: {
-            handlerAction: "UIElementHandler",
-            parameters: ["tutorialWidgetVisible"]
-          }
-        },
-        {
           label: "F.A.Q.",
           icon: "",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["http://www.virtualflybrain.org/site/vfb_site/faq.htm"]
+            parameters: ["https://groups.google.com/forum/embed/?place=forum/vfb-suport#!forum/vfb-suport"]
           }
         },
         {
@@ -341,6 +534,14 @@ var toolbarMenu = {
           action: {
             handlerAction: "clickFeedback",
             parameters: []
+          }
+        },
+        {
+          label: "Quick Help",
+          icon: "fa fa-question",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["quickHelpVisible"]
           }
         }
       ]
