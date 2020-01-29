@@ -11,7 +11,7 @@ Then navigate to folder 'geppetto-vfb/tests/jest/vfb' and run:
 This will run the tests against the local server 'localhost:8080'.
 If you want to run tests against a VFB version deployed somewhere else, run the same command but with parameter 'url', as in:
 
-``url=http://v2-dev2.virtualflybrain.org/org.geppetto.frontend npm test``
+``url=http://v2-dev.virtualflybrain.org/org.geppetto.frontend npm test``
 
 or 
 
