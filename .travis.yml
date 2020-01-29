@@ -68,17 +68,18 @@ script:
   - docker stop $(docker ps -a -q)
   - docker rm $(docker ps -a -q)
   - echo -e "travis_fold:end:Deploy" || true
-  - if [ "$BUILD_TYPE" == "v*" ]; then
-      echo -e "travis_fold:start:FinalBuild" || true;
-      travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg build_type=$BUILD_TYPE targetBranch=$TRAVIS_BRANCH originBranch=$BRANCH defaultBranch=$DEFAULT_BRANCH finalBuild=true $DOCKER_FOLDER || travis_terminate 1 ;
-      echo -e "travis_fold:end:FinalBuild" || true;
-      fi;
 after_success:
   - if [ $TRAVIS_PULL_REQUEST == false ]; then
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
      fi;
+  - if [ "$BUILD_TYPE" == "v*" ]; then
+      echo -e "travis_fold:start:WSSbuild" || true;
+      travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE targetBranch=$TRAVIS_BRANCH originBranch=$BRANCH defaultBranch=$DEFAULT_BRANCH finalBuild=true $DOCKER_FOLDER || travis_terminate 1 ;
+      echo -e "travis_fold:end:WSSbuild" || true;
+      docker push $REPO:$TAG.wss;
+      fi;
 after_failure:
   - if [ "$BUILD_TYPE" == "development" ]; then
       cd $TRAVIS_BUILD_DIR;
