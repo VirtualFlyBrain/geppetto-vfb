@@ -30,7 +30,7 @@ script:
   - travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1 
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Docker_Run" || true
-  - travis_retry docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
+  - travis_wait 50 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Startup_Server1" || true
   - sleep 60;
@@ -54,15 +54,15 @@ script:
       docker rm $(docker ps -a -q);
       sleep 10;
       travis_wait 50 docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
-      bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
+      travis_wait 50 bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
       sleep 60;
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting $http_status";
     done;
   - echo -e "travis_fold:end:Startup_Server3" || true
-  - npm test -- --verbose --colors
+  - travis_wait 50 npm test -- --verbose --colors
   - echo -e "travis_fold:start:Deploy" || true
-  - docker ps -a;
+  - docker ps -a
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
   - tail /etc/log.log -n 200
   - docker stop $(docker ps -a -q)
@@ -73,11 +73,12 @@ after_success:
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
-     fi;
+      docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
+    fi;
 after_failure:
   - if [ "$BUILD_TYPE" == "development" ]; then
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
-      fi;
+    fi;
 
