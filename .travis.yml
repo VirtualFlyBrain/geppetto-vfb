@@ -62,7 +62,7 @@ script:
   - echo -e "travis_fold:end:Startup_Server3" || true
   - travis_wait 50 npm test -- --verbose --colors
   - echo -e "travis_fold:start:Deploy" || true
-  - docker ps -a;
+  - docker ps -a
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
   - tail /etc/log.log -n 200
   - docker stop $(docker ps -a -q)
@@ -73,15 +73,12 @@ after_success:
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
-      echo -e "travis_fold:start:WSSbuild" || true;
-      travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER || travis_terminate 1 ;
-      echo -e "travis_fold:end:WSSbuild" || true;
-      docker push $REPO:$TAG.wss;
-     fi;
+      docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
+    fi;
 after_failure:
   - if [ "$BUILD_TYPE" == "development" ]; then
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
-      fi;
+    fi;
 
