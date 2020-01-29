@@ -74,7 +74,7 @@ after_success:
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
       echo -e "travis_fold:start:WSSbuild" || true;
-      travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE targetBranch=$TRAVIS_BRANCH originBranch=$BRANCH defaultBranch=$DEFAULT_BRANCH finalBuild=true $DOCKER_FOLDER || travis_terminate 1 ;
+      travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER || travis_terminate 1 ;
       echo -e "travis_fold:end:WSSbuild" || true;
       docker push $REPO:$TAG.wss;
      fi;
