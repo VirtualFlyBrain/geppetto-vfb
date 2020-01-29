@@ -54,13 +54,13 @@ script:
       docker rm $(docker ps -a -q);
       sleep 10;
       travis_wait 50 docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
-      bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
+      travis_wait 50 bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
       sleep 60;
       http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
       echo "Done restarting $http_status";
     done;
   - echo -e "travis_fold:end:Startup_Server3" || true
-  - npm test -- --verbose --colors
+  - travis_wait 50 npm test -- --verbose --colors
   - echo -e "travis_fold:start:Deploy" || true
   - docker ps -a;
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
