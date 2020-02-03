@@ -8,7 +8,7 @@ import * as ST from './selectors';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL1 = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030624,VFB_00030611,VFB_00030623";
 const projectURL2 = baseURL + "/geppetto?i=VFB_00030624,VFB_00017894,VFB_00030611,VFB_00030623";
-const projectURL3 = baseURL + "/geppetto?id=FBbt_00014013&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624";
+const projectURL3 = baseURL + "/geppetto?id=FBbt_00014013&i=VFB_00030611,VFB_00030623,VFB_00030624";
 const projectURL4 = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001";
 const projectURL5 = baseURL + "/geppetto?i=VFB_00000001,VFB_00017894,VFB_00000001";
 
@@ -45,7 +45,7 @@ const medullaTest = function(project) {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true})
 		})
-		
+
 		it('Hide Quick Help Modal Window', async () => {
 			closeModalWindow(page);
 			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -122,7 +122,7 @@ const neuronTest = function(project){
 
 describe('VFB URL Parameters id= and i= Tests', () => {
 	// Load project ?id=VFB_00030624&i=VFB_00017894,VFB_00030624,VFB_00030611,VFB_00030623"
-	// Test the item passed in id= takes the focus in the term info and it's selected 
+	// Test the item passed in id= takes the focus in the term info and it's selected
 	describe('Test Loading "Medulla" as "id" in URL', () => {
 		medullaTest(projectURL1);
 	});
