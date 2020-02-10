@@ -1321,7 +1321,8 @@ export default class VFBMain extends React.Component {
             spotlightConfig={this.spotlightConfig}
             spotlightDataSourceConfig={this.spotlightDataSourceConfig}
             icon={"styles.Modal"}
-            useBuiltInFilter={false} />
+            useBuiltInFilter={false}
+            showClose={true} />
         </div>
 
         <div id="controlpanel" style={{ top: 0 }}>
@@ -1332,7 +1333,8 @@ export default class VFBMain extends React.Component {
             controlPanelColMeta={this.controlPanelColMeta}
             controlPanelConfig={this.controlPanelConfig}
             columns={this.controlPanelColumns}
-            controlPanelControlConfigs={this.controlPanelControlConfigs}/>
+            controlPanelControlConfigs={this.controlPanelControlConfigs}
+            showClose={true} />
         </div>
 
         <QueryBuilder ref="querybuilderRef"
@@ -1341,8 +1343,9 @@ export default class VFBMain extends React.Component {
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig} 
-          sorterColumns={this.sorterColumns} />
+          datasourceConfig={this.queryBuilderDatasourceConfig}
+          sorterColumns={this.sorterColumns}
+          showClose={true} />
 
         {this.htmlToolbarRender}
       </div>
