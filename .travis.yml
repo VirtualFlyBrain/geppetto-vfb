@@ -20,6 +20,11 @@ before_install:
   - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
   - export TAG=`if [ "$BUILD_TYPE" == "development" ]; then echo "$TAG-development"; else echo "$TAG"; fi`
+  - export DEV=`if [ "$BUILD_TYPE" == "development" ]; then echo "-dev"; else echo ""; fi`
+  - export VFB_PDB_SERVER=http://pdb${DEV}.virtualflybrain.org
+  - export VFB_OWL_SERVER=http://owl{DEV}.virtualflybrain.org/kbs/vfb/
+  - export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
+  - export SOLR_SERVER=https://solr{DEV}.virtualflybrain.org/solr/ontology/select
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
 before_script:
@@ -27,7 +32,7 @@ before_script:
 script:
   - echo -e "travis_fold:start:Docker_Build" || true
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-  - travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1 
+  - travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1 
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Docker_Run" || true
   - travis_wait 50 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1 
@@ -73,7 +78,7 @@ after_success:
       cd $TRAVIS_BUILD_DIR;
       docker login -u $DOCKER_USER -p $DOCKER_PASS;
       docker push $REPO:$TAG;
-      docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
+      docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
     fi;
 after_failure:
   - if [ "$BUILD_TYPE" == "development" ]; then
