@@ -22,9 +22,9 @@ before_install:
   - export TAG=`if [ "$BUILD_TYPE" == "development" ]; then echo "$TAG-development"; else echo "$TAG"; fi`
   - export DEV=`if [ "$BUILD_TYPE" == "development" ]; then echo "-dev"; else echo ""; fi`
   - export VFB_PDB_SERVER=http://pdb${DEV}.virtualflybrain.org
-  - export VFB_OWL_SERVER=http://owl{DEV}.virtualflybrain.org/kbs/vfb/
+  - export VFB_OWL_SERVER=http://owl${DEV}.virtualflybrain.org/kbs/vfb/
   - export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
-  - export SOLR_SERVER=https://solr{DEV}.virtualflybrain.org/solr/ontology/select
+  - export SOLR_SERVER=https://solr${DEV}.virtualflybrain.org/solr/ontology/select
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
 before_script:
