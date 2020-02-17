@@ -14,15 +14,15 @@ ARG geppettoSimulationRelease=VFBv2.1.0.1
 ARG geppettoDatasourceRelease=VFBv2.1.0.1
 ARG geppettoModelSwcRelease=VFBv2.1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.1
-ARG geppettoClientRelease=VFBv2.1.0.2
+ARG geppettoClientRelease=vfb_geppetto_application
 ARG ukAcVfbGeppettoRelease=v2.1.0.0
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
-ENV VFB_PDB_SERVER=http://pdb.virtualflybrain.org
-ENV VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/
-ENV VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
-ENV SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
+ARG VFB_PDB_SERVER=http://pdb.virtualflybrain.org
+ARG VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/
+ARG VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
+ARG SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
 ARG googleAnalyticsSiteCode=UA-18509775-2
 ENV MAXSIZE=2G
 ARG finalBuild=false
@@ -67,7 +67,9 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.datasources.git "${geppe
 RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}"
   
 RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
-  /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g"
+  echo "DEBUG=$DEBUG" && \
+  /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g" &&\
+  /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs cat | grep 'Boolean debug'
 
 RUN cd uk.ac.vfb.geppetto &&\
   /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
