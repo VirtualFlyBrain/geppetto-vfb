@@ -27,6 +27,7 @@ ARG googleAnalyticsSiteCode=UA-18509775-2
 ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
+ARG build_type=production
 
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
