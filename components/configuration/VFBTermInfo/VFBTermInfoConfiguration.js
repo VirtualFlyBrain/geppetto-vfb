@@ -41,7 +41,7 @@ const buttonBarConfiguration = {
     },
     "visibility": {
       "showCondition": "$instance$.isVisible!=undefined",
-      "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); }; return visible;)()",
+      "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); } return visible; })()",
       "false": {
         "id": "visibility",
         "actions": ["$instance$.show()"],
