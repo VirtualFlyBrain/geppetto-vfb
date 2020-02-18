@@ -40,7 +40,7 @@ const buttonBarConfiguration = {
       "tooltip": "Zoom"
     },
     "visibility": {
-      "showCondition": "$instance$.isVisible != undefined",
+      "showCondition": "$instance$.isVisible!=undefined",
       "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); }; return visible;)()",
       "false": {
         "id": "visibility",
