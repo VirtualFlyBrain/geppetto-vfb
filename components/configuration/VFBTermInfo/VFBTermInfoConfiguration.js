@@ -39,6 +39,24 @@ const buttonBarConfiguration = {
       "label": "Zoom",
       "tooltip": "Zoom"
     },
+    "visibility": {
+      "showCondition": "$instance$.isVisible != undefined",
+      "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); }; return visible;)()",
+      "false": {
+        "id": "visibility",
+        "actions": ["$instance$.show()"],
+        "icon": "fa-eye",
+        "label": "Hidden",
+        "tooltip": "Show"
+      },
+      "true": {
+        "id": "visibility",
+        "actions": ["$instance$.hide()"],
+        "icon": "fa-eye-slash",
+        "label": "Visible",
+        "tooltip": "Hide"
+      }
+    },
     "visibility_obj": {
       "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
       "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
@@ -47,14 +65,14 @@ const buttonBarConfiguration = {
         "actions": ["(function(){var color = $instance$.getColor(); var instance = Instances.getInstance('$instance$.$instance$_obj'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { if(GEPPETTO.SceneController.isInstancePresent(instance)) { GEPPETTO.SceneController.show([instance]); } else { GEPPETTO.SceneController.display(instance); instance.setColor(color);}}})()"],
         "icon": "gpt-shapehide",
         "label": "Hidden",
-        "tooltip": "Show 3D Volume"
+        "tooltip": "Enable 3D Volume"
       },
       "true": {
         "id": "visibility_obj",
         "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_obj])"],
         "icon": "gpt-shapeshow",
         "label": "Visible",
-        "tooltip": "Hide 3D Volume"
+        "tooltip": "Disable 3D Volume"
       }
     },
     "visibility_swc": {
@@ -65,14 +83,14 @@ const buttonBarConfiguration = {
         "actions": ["(function(){var color = $instance$.getColor(); var instance = Instances.getInstance('$instance$.$instance$_swc'); if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = instance.getParent().getColor(); instance.getType().resolve(function() { instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { if(GEPPETTO.SceneController.isInstancePresent(instance)) { GEPPETTO.SceneController.show([instance]); } else { GEPPETTO.SceneController.display(instance); instance.setColor(color);}}})()"],
         "icon": "gpt-3dhide",
         "label": "Hidden",
-        "tooltip": "Show 3D Skeleton"
+        "tooltip": "Enable 3D Skeleton"
       },
       "true": {
         "id": "visibility_swc",
         "actions": ["GEPPETTO.SceneController.hide([$instance$.$instance$_swc])"],
         "icon": "gpt-3dshow",
         "label": "Visible",
-        "tooltip": "Hide 3D Skeleton"
+        "tooltip": "Disable 3D Skeleton"
       }
     },
     "delete": {
