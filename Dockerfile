@@ -89,9 +89,6 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   $HOME/copy.sh https://github.com/VirtualFlyBrain/geppetto-vfb.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   mv geppetto-vfb webapp
 
-RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
-  /bin/grep -rls "window.location.reload(true)" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs /bin/sed -i "s@window.location.reload(true);@window.location.reload($DEBUG);@g"
-
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
   
