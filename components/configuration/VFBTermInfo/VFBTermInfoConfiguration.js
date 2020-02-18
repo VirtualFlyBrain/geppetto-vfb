@@ -107,6 +107,7 @@ const buttonBarConfiguration = {
 const buttonBarControls = {
   "VisualCapability": ['select',
                        'color',
+                       'visibility',
                        'visibility_obj',
                        'visibility_swc',
                        'zoom',
