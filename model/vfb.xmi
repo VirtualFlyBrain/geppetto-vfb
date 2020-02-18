@@ -776,7 +776,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="TransgeneExpInX"
       name="Expression overlapping selected anatomy"
-      description="Transgenes expressed in the $NAME"
+      description="Reports of transgene expression in $NAME"
       returnType="//@libraries.3/@types.1"
       queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.14 //@dataSources.0/@queries.9 //@dataSources.2/@queries.16 //@dataSources.2/@queries.12 //@dataSources.0/@queries.11 //@dataSources.2/@queries.0 //@dataSources.2/@queries.13 //@dataSources.0/@queries.14">
     <matchingCriteria
