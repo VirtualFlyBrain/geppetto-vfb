@@ -51,14 +51,14 @@ var controlPanelConfig = {
       "id": "select",
       "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
       "false": {
-        "actions": ["$instance$.select(); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
+        "actions": ["$instance$.select(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
         "icon": "fa-hand-stop-o",
         "label": "Unselected",
         "tooltip": "Select",
         "id": "select",
       },
       "true": {
-        "actions": ["$instance$.deselect(); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
+        "actions": ["$instance$.deselect(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
         "icon": "fa-hand-rock-o",
         "label": "Selected",
         "tooltip": "Deselect",
@@ -67,7 +67,7 @@ var controlPanelConfig = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
+      "actions": ["$instance$.setColor('$param$'); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
@@ -84,14 +84,14 @@ var controlPanelConfig = {
       "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); } return visible; })()",
       "false": {
         "id": "visibility",
-        "actions": ["$instance$.show(); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
+        "actions": ["$instance$.show(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
         "icon": "fa-eye-slash",
         "label": "Hidden",
         "tooltip": "Show"
       },
       "true": {
         "id": "visibility",
-        "actions": ["$instance$.hide(); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
+        "actions": ["$instance$.hide(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
         "icon": "fa-eye",
         "label": "Visible",
         "tooltip": "Hide"
@@ -145,7 +145,7 @@ var controlPanelConfig = {
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
-      "actions": ["setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId());if($instance$.parent != null){$instance$.parent.delete();}else{$instance$.delete();}; if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
+      "actions": ["setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId());if($instance$.parent != null){$instance$.parent.delete();}else{$instance$.delete();}; if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
       "icon": "fa-trash-o",
       "label": "Delete",
       "tooltip": "Delete"
