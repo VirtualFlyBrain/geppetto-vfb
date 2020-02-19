@@ -45,14 +45,14 @@ const buttonBarConfiguration = {
       "false": {
         "id": "visibility",
         "actions": ["$instance$.show(); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
-        "icon": "fa-eye",
+        "icon": "fa-eye-slash",
         "label": "Hidden",
         "tooltip": "Show"
       },
       "true": {
         "id": "visibility",
         "actions": ["$instance$.hide(); if (StackViewer1!=undefined && StackViewer1.forceUpdate!=undefined) { StackViewer1.forceUpdate(); }"],
-        "icon": "fa-eye-slash",
+        "icon": "fa-eye",
         "label": "Visible",
         "tooltip": "Hide"
       }
