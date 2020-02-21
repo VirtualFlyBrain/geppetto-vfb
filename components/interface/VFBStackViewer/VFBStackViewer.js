@@ -57,6 +57,9 @@ export default class VFBStackViewer extends React.Component {
             if (a[i].parent.getColor() != b[i].parent.getColor()) {
               return true;
             }
+            if (a[i].parent.isVisible() != b[i].parent.isVisible()) {
+              return true;
+            }
           } catch (ignore) { }
         }
         return false;
