@@ -517,7 +517,7 @@ var toolbarMenu = {
           icon: "",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://groups.google.com/forum/embed/?place=forum/vfb-support#!forum/vfb-support"]
+            parameters: ["https://groups.google.com/forum/embed/?place=forum/vfb-suport#!forum/vfb-suport"]
           }
         },
         {
@@ -525,7 +525,7 @@ var toolbarMenu = {
           icon: "",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://groups.google.com/forum/#!forum/vfb-support"]
+            parameters: ["https://groups.google.com/forum/#!forum/vfb-suport"]
           }
         },
         {
