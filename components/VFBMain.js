@@ -1146,9 +1146,13 @@ export default class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
-      console.log("Reloading websocket connection by reloading page");
-      window.location.reload(true);
+      if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
+        window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
+        console.log("Reloading websocket connection by reloading page");
+        window.location.reload(true);
+      } else {
+        console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
+      }
     });
   }
 
@@ -1321,7 +1325,8 @@ export default class VFBMain extends React.Component {
             spotlightConfig={this.spotlightConfig}
             spotlightDataSourceConfig={this.spotlightDataSourceConfig}
             icon={"styles.Modal"}
-            useBuiltInFilter={false} />
+            useBuiltInFilter={false}
+            showClose={true} />
         </div>
 
         <div id="controlpanel" style={{ top: 0 }}>
@@ -1332,7 +1337,8 @@ export default class VFBMain extends React.Component {
             controlPanelColMeta={this.controlPanelColMeta}
             controlPanelConfig={this.controlPanelConfig}
             columns={this.controlPanelColumns}
-            controlPanelControlConfigs={this.controlPanelControlConfigs}/>
+            controlPanelControlConfigs={this.controlPanelControlConfigs}
+            showClose={true} />
         </div>
 
         <QueryBuilder ref="querybuilderRef"
@@ -1342,7 +1348,8 @@ export default class VFBMain extends React.Component {
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
           datasourceConfig={this.queryBuilderDatasourceConfig} 
-          sorterColumns={this.sorterColumns} />
+          sorterColumns={this.sorterColumns}
+          showClose={true} />
 
         {this.htmlToolbarRender}
       </div>
