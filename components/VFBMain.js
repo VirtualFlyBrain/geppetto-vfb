@@ -194,7 +194,6 @@ export default class VFBMain extends React.Component {
         }
         if (idsList.length > 0) {
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({ idSelected: idsList[idsList.length - 1] });
         }
       }
 
