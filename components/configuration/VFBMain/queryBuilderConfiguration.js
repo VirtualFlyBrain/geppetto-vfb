@@ -110,7 +110,7 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": SlideshowImageComponent,
     "displayName": "Images",
-    "actions": "window.addVfbId('$entity$');",
+    "actions": { addInstance : "window.addVfbId('$entity$');" , deleteInstance : '$entity$.delete()' },
     "cssClassName": "query-results-images-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
