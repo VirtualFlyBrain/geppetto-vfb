@@ -14,8 +14,8 @@ ARG geppettoSimulationRelease=VFBv2.1.0.1
 ARG geppettoDatasourceRelease=VFBv2.1.0.1
 ARG geppettoModelSwcRelease=VFBv2.1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.1
-ARG geppettoClientRelease=feature/489
-ARG ukAcVfbGeppettoRelease=v2.1.0.0
+ARG geppettoClientRelease=VFBv2.1.0.4
+ARG ukAcVfbGeppettoRelease=v2.1.0.2
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
@@ -27,6 +27,7 @@ ARG googleAnalyticsSiteCode=UA-18509775-2
 ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
+ARG build_type=production
 
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
@@ -87,9 +88,6 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.frontend.git "${geppetto
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   $HOME/copy.sh https://github.com/VirtualFlyBrain/geppetto-vfb.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   mv geppetto-vfb webapp
-
-RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
-  /bin/grep -rls "window.location.reload(true)" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs /bin/sed -i "s@window.location.reload(true);@window.location.reload($DEBUG);@g"
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
