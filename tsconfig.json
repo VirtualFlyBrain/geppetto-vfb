@@ -2,20 +2,24 @@
     "compilerOptions": {
         "outDir": "./dist/",
         "sourceMap": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "module": "commonjs",
         "target": "es6",
+        "allowSyntheticDefaultImports": true,
         "stripInternal":true,
         "skipLibCheck": true,
-        "alwaysStrict":true,
+        "alwaysStrict":false,
         "forceConsistentCasingInFileNames": true,
-        "noImplicitReturns": true,
-        "strict": true,
-        "noUnusedLocals": true,
+        "noImplicitReturns": false,
+        "strict": false,
+        "noUnusedLocals": false,
         "jsx": "react",
         "types": []
       },
       "include": [
-        "./node_modules/@geppettoengine/geppetto-client/js/components/interface/flexLayout2/src/**/*", "./@geppettoengine/geppetto-client/js/components/interface/flexLayout2/examples/demo/*"
+        "./node_modules/@geppettoengine/geppetto-client/js/components/interface/flexLayout2/src/**/*",
+        "./@geppettoengine/geppetto-client/js/components/interface/flexLayout2/examples/demo/*",
+        "./node_modules/@geppettoengine/geppetto-client/js/components/interface/Search/**/*",
+        "./@geppettoengine/geppetto-client/js/components/interface/Search/*"
         ]
 }
