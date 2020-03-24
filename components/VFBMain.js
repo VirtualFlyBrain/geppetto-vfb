@@ -1351,10 +1351,7 @@ export default class VFBMain extends React.Component {
         <Search ref="searchRef"
           datasource="SOLR"
           searchConfiguration={this.searchConfiguration}
-          datasourceConfiguration={this.datasourceConfiguration}
-          clickHandler={id => {
-            this.addVfbId(id)
-          }} />
+          datasourceConfiguration={this.datasourceConfiguration} />
 
         {this.htmlToolbarRender}
       </div>
