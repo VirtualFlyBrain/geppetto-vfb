@@ -14,6 +14,7 @@ import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLV
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
+import VFBGraph from './interface/VFBGraph/VFBGraph';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -840,6 +841,12 @@ export default class VFBMain extends React.Component {
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}
           selectionHandler={this.addVfbId} />
+      </div>);
+    } else if (component === "vfbGraph") {
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ height: _height, width: _width }}>
+        <VFBGraph />
       </div>);
     }
   }
