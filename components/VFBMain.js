@@ -1145,9 +1145,13 @@ export default class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
-      console.log("Reloading websocket connection by reloading page");
-      window.location.reload(true);
+      if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
+        window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
+        console.log("Reloading websocket connection by reloading page");
+        window.location.reload(true);
+      } else {
+        console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
+      }
     });
   }
 
@@ -1342,7 +1346,7 @@ export default class VFBMain extends React.Component {
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig}
+          datasourceConfig={this.queryBuilderDatasourceConfig} 
           sorterColumns={this.sorterColumns}
           showClose={true} />
 
