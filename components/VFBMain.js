@@ -13,6 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+import Search from 'geppetto-client/js/components/interface/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 
 require('../css/base.less');
@@ -81,12 +82,18 @@ export default class VFBMain extends React.Component {
     this.UIElementsVisibility = {};
 
     this.colours = require('./configuration/VFBMain/colours.json');
+
     this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
+
+    this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
+
     this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
     this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
     this.controlPanelColumns = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColumns;
     this.controlPanelControlConfigs = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelControlConfigs;
+
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsControlConfig;
@@ -133,10 +140,6 @@ export default class VFBMain extends React.Component {
   }
 
   clearQS () {
-    if (this.refs.spotlightRef) {
-      $("#spotlight").hide();
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-    }
     if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
     }
@@ -691,8 +694,7 @@ export default class VFBMain extends React.Component {
       this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-      this.refs.spotlightRef.open();
+      this.refs.searchRef.openSearch(true);
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
       this.refs.querybuilderRef.open();
@@ -866,7 +868,7 @@ export default class VFBMain extends React.Component {
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
     }
-    
+
     /**
      * Global reference to Stackviewer used in testing
      */
@@ -914,7 +916,7 @@ export default class VFBMain extends React.Component {
       }
       return null;
     };
-    
+
     // Retrieve cookie for 'quick_help' modal
     var cookie = getCookie("show_quick_help");
     // Show 'Quick Help' modal if cookie to hide it is not set to True
@@ -1349,6 +1351,11 @@ export default class VFBMain extends React.Component {
           datasourceConfig={this.queryBuilderDatasourceConfig} 
           sorterColumns={this.sorterColumns}
           showClose={true} />
+
+        <Search ref="searchRef"
+          datasource="SOLR"
+          searchConfiguration={this.searchConfiguration}
+          datasourceConfiguration={this.datasourceConfiguration} />
 
         {this.htmlToolbarRender}
       </div>

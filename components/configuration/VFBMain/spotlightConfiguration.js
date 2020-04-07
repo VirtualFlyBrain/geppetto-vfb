@@ -210,7 +210,25 @@ var spotlightDataSourceConfig = {
   }
 };
 
+var SpotlightFilters = {
+  labels: [
+    {
+      nameDisplayed: "IDs",
+      filterName: "filterShortForm",
+      fieldToFilter: "short_form",
+      checkedDefault: false
+    },
+    {
+      nameDisplayed: "Label",
+      filterName: "filterLabel",
+      fieldToFilter: "label",
+      checkedDefault: true
+    }
+  ]
+}
+
 module.exports = {
   spotlightConfig,
-  spotlightDataSourceConfig
+  spotlightDataSourceConfig,
+  SpotlightFilters
 };
