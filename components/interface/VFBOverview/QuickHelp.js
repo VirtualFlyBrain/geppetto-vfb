@@ -1,7 +1,7 @@
 import React from 'react';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 
-var Rnd = require('react-rnd');
+var Rnd = require('react-rnd').default;
 
 export default class VFBQuickHelp extends React.Component {
 
