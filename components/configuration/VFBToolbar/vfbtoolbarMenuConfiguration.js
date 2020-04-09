@@ -390,6 +390,14 @@ var toolbarMenu = {
               }
             },
             {
+              label: "Janelia FlyEM HemiBrain",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00101384"]
+              }
+            },
+            {
               label: "Ito Half Brain",
               icon: "",
               action: {
