@@ -53,15 +53,17 @@ export default class VFBMain extends React.Component {
     this.menuHandler = this.menuHandler.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.tutorialHandler = this.tutorialHandler.bind(this);
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
     this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
-    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+    this.TermInfoIdLoaded = this.TermInfoIdLoaded.bind(this);
+    this.StackViewerIdLoaded = this.StackViewerIdLoaded.bind(this);
+    this.ThreeDViewerIdLoaded = this.ThreeDViewerIdLoaded.bind(this);
     this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
-    this.coli = 1;
     this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
     this.htmlToolbarRender = undefined;
@@ -100,43 +102,15 @@ export default class VFBMain extends React.Component {
     this.queryBuilderDatasourceConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryBuilderDatasourceConfig;
     this.sorterColumns = require('./configuration/VFBMain/queryBuilderConfiguration').sorterColumns;
 
+    this.setSepCol = require('./interface/utils/utils').setSepCol;
+    this.hasVisualType = require('./interface/utils/utils').hasVisualType;
+    this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
+    this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
+
     this.model = FlexLayout.Model.fromJson(modelJson)
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
-  }
-
-  getStackViewerDefaultX () {
-    return (Math.ceil(window.innerWidth / 1.826));
-  }
-
-  getStackViewerDefaultY () {
-    return (Math.ceil(window.innerHeight / 3.14));
-  }
-
-  // Logic to add VFB ids into the scene starts here
-  setSepCol (entityPath) {
-    if (entityPath.indexOf(window.templateID) < 0) {
-      var c = this.coli;
-      this.coli++;
-      if (this.coli > 199) {
-        this.coli = 1;
-      }
-    } else {
-      c = 0;
-    }
-    if (Instances.getInstance(entityPath).setColor != undefined) {
-      Instances.getInstance(entityPath).setColor(this.colours[c], true).setOpacity(0.3, true);
-      try {
-        Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
-      } catch (ignore) {
-      }
-      if (c == 0) {
-        Instances.getInstance(entityPath).setOpacity(0.4, true);
-      }
-    } else {
-      console.log('Issue setting colour for ' + entityPath);
-    }
   }
 
   clearQS () {
@@ -196,7 +170,9 @@ export default class VFBMain extends React.Component {
           }
         }
         if (idsList.length > 0) {
+          this.props.vfbLoadId(idsList);
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
+          this.setState({ idSelected: idsList[idsList.length - 1] });
         }
       }
 
@@ -222,6 +198,18 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  ThreeDViewerIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "ThreeDViewer");
+  }
+
+  StackViewerIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "StackViewer");
+  }
+
+  TermInfoIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "TermInfo");
+  }
+
   handleSceneAndTermInfoCallback (variableIds) {
     if (typeof(variableIds) == "undefined") {
       console.log('Blank Term Info Callback ');
@@ -241,6 +229,13 @@ export default class VFBMain extends React.Component {
         continue;
       }
       if (this.hasVisualType(variableIds[singleId])) {
+        this.handlerInstanceUpdate(Instances[variableIds[singleId]]);
+        /*
+         * FIXME: the handlerInstanceUpdate above has been placed there to provide the meta data earlier
+         * and avoid to wait for the 3d viewer and slice to be loaded before to display the data
+         * we need to edit the callback passed to resolve3d here below to avoid the double switching
+         * with the metadata.
+         */
         this.resolve3D(variableIds[singleId], function (id) {
           var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
@@ -264,27 +259,6 @@ export default class VFBMain extends React.Component {
       GEPPETTO.trigger('spin_logo');
     } else {
       GEPPETTO.trigger('stop_spin_logo');
-    }
-  }
-
-  hasVisualType (variableId) {
-    var counter = 0;
-    var instance = undefined;
-    var extEnum = {
-      0 : { extension: "_swc" },
-      1 : { extension: "_obj" },
-      2 : { extension: "_slice" }
-    };
-    while ((instance == undefined) && (counter < 3)) {
-      try {
-        instance = Instances.getInstance(variableId + "." + variableId + extEnum[counter].extension);
-      } catch (ignore) { }
-      counter++;
-    }
-    if (instance != undefined) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -509,7 +483,7 @@ export default class VFBMain extends React.Component {
       this.refs.querybuilderRef.open();
       this.refs.querybuilderRef.switchView(false, false);
       this.refs.querybuilderRef.clearAllQueryItems();
-      
+
       var callback = function () {
         // check if any results with count flag
         if (that.refs.querybuilderRef.props.model.count > 0) {
@@ -768,6 +742,7 @@ export default class VFBMain extends React.Component {
         name={"Canvas"}
         baseZoom="1.2"
         wireframeEnabled={true}
+        onLoad={this.ThreeDViewerIdLoaded}
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
@@ -780,6 +755,7 @@ export default class VFBMain extends React.Component {
           ref={ref => this.termInfoReference = ref}
           queryBuilder={this.refs.querybuilderRef}
           showButtonBar={true}
+          onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
           focusTermRef={this.focusTermReference}
@@ -824,6 +800,7 @@ export default class VFBMain extends React.Component {
             layout={this.refs.layout}
             ref={ref => this.sliceViewerReference = ref}
             canvasRef={this.canvasReference}
+            onLoad={this.StackViewerIdLoaded}
             stackViewerHandler={this.stackViewerHandler} /></div>);
       } else {
         return (<div className="flexChildContainer"></div>);
@@ -1161,7 +1138,6 @@ export default class VFBMain extends React.Component {
   handlerInstanceUpdate (instance) {
     let metaInstance = undefined;
     let parentInstance = undefined;
-    let initException = true;
     if (instance === undefined || instance === null) {
       console.log("Instance passed to handlerInstanceUpdate is undefined");
       console.trace();

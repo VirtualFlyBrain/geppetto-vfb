@@ -1,7 +1,7 @@
 /* eslint-disable no-tabs */
 import React from 'react';
 import Menu from 'geppetto-client/js/components/interface/menu/Menu';
-import VFBLoader from '../VFBLoader/VFBLoader';
+var VFBLoader = require('../VFBLoader/VFBLoaderContainer').default;
 var Rnd = require('react-rnd').default;
 
 require('../../../css/VFBToolBar.less');

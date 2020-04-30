@@ -1,6 +1,10 @@
 global.jQuery = require("jquery");
 global.GEPPETTO_CONFIGURATION = require('./GeppettoConfiguration.json');
 
+const Provider = require("react-redux").Provider;
+const configureStore = require('./store').default;
+const store = configureStore();
+
 jQuery(function () {
   require('geppetto-client-initialization');
   var React = require('react');
@@ -9,17 +13,19 @@ jQuery(function () {
   var Switch = require('react-router-dom').Switch;
   var Redirect = require('react-router-dom').Redirect;
   var Router = require('react-router-dom').BrowserRouter;
-  var VFBMain = require('./components/VFBMain').default;
+  var VFBMain = require('./containers/VFBMainContainer').default;
   var ErrorCatcher = require('./components/interface/ErrorCatcher').default;
 
   ReactDOM.render(
     <ErrorCatcher>
-      <Router basename={GEPPETTO_CONFIGURATION.contextPath}>
-        <Switch>
-          <Route path="/geppetto" component={VFBMain} />
-          <Redirect from="/" to="/geppetto" />
-        </Switch>
-      </Router>
+      <Provider store={store}>
+        <Router basename={GEPPETTO_CONFIGURATION.contextPath}>
+          <Switch>
+            <Route path="/geppetto" component={props => <VFBMain {...props} />} />
+            <Redirect from="/" to="/geppetto" />
+          </Switch>
+        </Router>
+      </Provider>
     </ErrorCatcher>
     , document.getElementById('mainContainer'));
 });
