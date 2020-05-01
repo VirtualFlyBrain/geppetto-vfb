@@ -50,9 +50,9 @@ export default class VFBGraph extends Component {
     }
     var idToSearch = innerInstance.id;
 
-    if(this.__isMounted){
-	  this.setState({ loading : true, currentQuery : idToSearch });
-	  this.queryResults(cypherQuery(idToSearch))
+    if (this.__isMounted){
+      this.setState({ loading : true, currentQuery : idToSearch });
+      this.queryResults(cypherQuery(idToSearch))
     }
   }
   
@@ -74,7 +74,7 @@ export default class VFBGraph extends Component {
       data: request,
     }).then(function(response){
       console.log(response);
-      self.setState( { graph : self.refineGraphData(response.data) , loading : false} );
+      self.setState( { graph : self.refineGraphData(response.data) , loading : false } );
     })
       .catch(function(error) {
         console.log(error);
@@ -82,7 +82,7 @@ export default class VFBGraph extends Component {
   }
   
   refineGraphData(graphData) {
-	let data = graphData.results[0].data;
+    let data = graphData.results[0].data;
     let nodes = [], links = [];
     let level = 1;
     let parent = null;
@@ -90,18 +90,18 @@ export default class VFBGraph extends Component {
     let nodesMap = new Map();
     
     data.forEach(({ graph }) => {
-        graph.relationships.forEach(({ startNode, endNode }) => {
-          let node = linksMap.get(endNode);
-          if (node === undefined) {
-            linksMap.set(endNode, new Array());
-            node = linksMap.get(endNode);
-          }
-           
-          if (!linksMap.get(endNode).includes(startNode)) {
-            linksMap.get(endNode).push(startNode);
-          }
-        });
-      }); 
+      graph.relationships.forEach(({ startNode, endNode }) => {
+        let node = linksMap.get(endNode);
+        if (node === undefined) {
+          linksMap.set(endNode, new Array());
+          node = linksMap.get(endNode);
+        }
+         
+        if (!linksMap.get(endNode).includes(startNode)) {
+          linksMap.get(endNode).push(startNode);
+        }
+      });
+    }); 
     
     data.forEach(({ graph }) => {
       graph.nodes.forEach(({ id, properties }) => {
@@ -177,40 +177,38 @@ export default class VFBGraph extends Component {
   
   render () {
     return (
-      this.state.loading ? 
-        <CircularProgress />  
-        :
-          this.state.graph.nodes.length == 0 ? 
-          <p>No Graph Available for {this.state.currentQuery}</p>
-          :
-          <GeppettoGraphVisualization
-          data={this.state.graph}
-          d2={true}
-          nodeLabel={node => node.short_form}
-          backgroundColor="black"
-          linkColor="white"
-          nodeCanvasObject={(node, ctx, globalScale) => {
-            let cardWidth = 60;
-            let cardHeight = 40;
-            let thickness = 1;
-            ctx.fillStyle = "black";
-            ctx.fillRect(node.x - cardWidth / 2 - (thickness), node.y - cardHeight / 2 - (thickness), cardWidth + (thickness * 2), cardHeight + (thickness * 2));
+      this.state.loading
+        ? <CircularProgress />  
+        : this.state.graph.nodes.length == 0
+          ? <p>No Graph Available for {this.state.currentQuery}</p>
+          : <GeppettoGraphVisualization
+            data={this.state.graph}
+            d2={true}
+            nodeLabel={node => node.short_form}
+            backgroundColor="black"
+            linkColor="white"
+            nodeCanvasObject={(node, ctx, globalScale) => {
+              let cardWidth = 60;
+              let cardHeight = 40;
+              let thickness = 1;
+              ctx.fillStyle = "black";
+              ctx.fillRect(node.x - cardWidth / 2 - (thickness), node.y - cardHeight / 2 - (thickness), cardWidth + (thickness * 2), cardHeight + (thickness * 2));
           
-            ctx.fillStyle = "white";
-            ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight);
-            ctx.fillStyle = "#ADD8E6";
-            ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight / 3);
+              ctx.fillStyle = "white";
+              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight);
+              ctx.fillStyle = "#ADD8E6";
+              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight / 3);
             
-            // draw font in red
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            ctx.font = "5px sans-serif";
-            ctx.textBaseline = 'middle';
-            ctx.fillText(node.id, node.x, node.y - 10);
-            this.wrapText(ctx, node.path, node.x, node.y, cardWidth, 5);
-          }}
-          nodeCanvasObjectMode={node => 'replace'}
-        />
+              // draw font in red
+              ctx.textAlign = "center";
+              ctx.fillStyle = "black";
+              ctx.font = "5px sans-serif";
+              ctx.textBaseline = 'middle';
+              ctx.fillText(node.id, node.x, node.y - 10);
+              this.wrapText(ctx, node.path, node.x, node.y, cardWidth, 5);
+            }}
+            nodeCanvasObjectMode={node => 'replace'}
+          />
     )
   }
 }

@@ -23,7 +23,6 @@ var cypherQuery = instance => ({
 });
 
 module.exports = { 
-  data,
   configuration,
   restPostConfig,
   cypherQuery
