@@ -35,6 +35,7 @@ export default class VFBMain extends React.Component {
       canvasVisible: true,
       termInfoVisible: true,
       treeBrowserVisible: false,
+      graphVisible : false,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
@@ -70,6 +71,7 @@ export default class VFBMain extends React.Component {
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
+    this.graphReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
@@ -464,6 +466,9 @@ export default class VFBMain extends React.Component {
     case 'treeBrowserVisible':
       this.setState({ [buttonState]: !this.state[buttonState] });
       break;
+    case 'graphVisible':
+      this.setState({ [buttonState]: !this.state[buttonState] });
+      break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
         this.setState({ [buttonState]: true });
@@ -681,6 +686,14 @@ export default class VFBMain extends React.Component {
       });
       this.setState({ treeBrowserVisible: true });
     }
+    if ((this.state.graphVisible !== prevState.graphVisible) && (this.state.graphVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Graph",
+        component: "vfbGraph"
+      });
+      this.setState({ graphVisible: true });
+    }
 
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
@@ -715,6 +728,12 @@ export default class VFBMain extends React.Component {
       case 'sliceViewerVisible':
         if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
           this.restoreUIComponent("sliceViewer");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'graphVisible':
+        if (this.graphReference !== undefined && this.graphReference !== null) {
+          this.restoreUIComponent("vfbGraph");
         }
         this.setState({ UIUpdated: false });
         break;
@@ -843,10 +862,14 @@ export default class VFBMain extends React.Component {
           selectionHandler={this.addVfbId} />
       </div>);
     } else if (component === "vfbGraph") {
+      node.setEventListener("close", () => {
+        this.setState({ graphVisible: false });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ height: _height, width: _width }}>
-        <VFBGraph />
+        <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} />
       </div>);
     }
   }
@@ -1207,9 +1230,14 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    // Update the graph component
+    if (this.graphReference !== undefined && this.graphReference !== null) {
+      this.graphReference.updateGraph(this.instanceOnFocus, this.idOnFocus);
+    }
+    
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-      this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
+      this.termInfoReference.setTermInfo(this.instanceOnFocus);
     }
 
     // Update the tree browser

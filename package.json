@@ -24,6 +24,7 @@
     "@babel/preset-react": "^7.0.0",
     "@geppettoengine/geppetto-client": "file:./geppetto-client",
     "@material-ui/icons": "3.0.1",
+    "axios": "^0.19.2",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^3.0.0",
