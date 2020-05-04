@@ -627,6 +627,15 @@ export default class VFBMain extends React.Component {
   }
 
   UIDidUpdate (prevState) {
+    // REDUX action to update the ui state
+    if ((prevState.canvasVisible !== this.state.canvasVisible) || (prevState.sliceViewerVisible !== this.state.sliceViewerVisible) || (prevState.termInfoVisible !== this.state.termInfoVisible)) {
+      this.props.vfbUIUpdated({
+        "ThreeDViewer": this.state.canvasVisible,
+        "StackViewer": this.state.sliceViewerVisible,
+        "TermInfo": this.state.termInfoVisible
+      });
+    }
+
     if ((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
       this.reopenUIComponent({
         type: "tab",

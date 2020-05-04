@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+require('./VFBLoader.less');
 
 export default class VFBLoader extends Component {
   constructor (props) {
@@ -8,96 +9,166 @@ export default class VFBLoader extends Component {
       loading: false,
       percentage: 0,
       loadedCounter: 0,
-      totalUIItems: 3,
       idsLoaded: [],
       queuedItems: [],
       idsMap: {},
+      layout: undefined,
+      stepstoLoad: 0,
+      stepsLoaded: 0,
+      instancesToLoad: 0,
+      instancesLoaded: 0
     };
 
     this.nextStep = this.nextStep.bind(this);
 
-    this.componentsMap = require('../../configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
-    require('./VFBLoader.less');
+    this.componentsMap = props.componentsMap;
   }
 
   static getDerivedStateFromProps (nextProps, prevState) {
-    var componentsMap = require('../../configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
+    // Variables from props and state
     var idsMap = prevState.idsMap;
     var queuedItems = prevState.queuedItems;
+    var stepstoLoad = 0;
+    var stepsLoaded = 0;
+    var instancesToLoad = 0;
+    var instancesLoaded = 0;
+    var layout = nextProps.generals.layout;
 
     // function to add new instances to the map that keep tracks of each component loaded
-    var addIdToMap = function (componentsMap, idsMap, singleId) {
+    var addIdToMap = function (singleId) {
+      stepstoLoad = 0;
+      stepsLoaded = 0;
+      instancesToLoad = 0;
+      instancesLoaded = 0;
       // If this id is not listed in idsMap the we add it
       if (idsMap.singleId === undefined) {
-        if (Instances[singleId] !== undefined && Instances[singleId].children > 0 ) {
-          idsMap[singleId] = {
-            loaded: false,
-            components: {}
-          }
-          Instances[singleId].children.map(child => {
-            var childId = child.getId();
-            for (let key in componentsMap) {
-              checkSuffixChildren(componentsMap, idsMap, singleId, childId, key);
-            }
-          });
-        } else {
-          idsMap[singleId] = {
-            loaded: false,
-            components: {}
-          }
-        }
+        idsMap[singleId] = {
+          loaded: false,
+          components: {}
+        };
+        checkSuffixChildren(singleId);
         return true;
       }
       return false;
     };
 
-    // function that create the inner map per instance to track each component
-    var checkSuffixChildren = function (componentsMap, idsMap, id, childId, key) {
-      if (typeof componentsMap[key].geppettoSuffix === "string") {
-        if (childId.includes(componentsMap[key].geppettoSuffix) && idsMap[id].components[componentsMap[key].matchingString] === undefined) {
-          idsMap[id].components[componentsMap[key].matchingString] = { loaded: false }
-        }
-      } else if (componentsMap[key].geppettoSuffix.length > 1) {
-        componentsMap[key].geppettoSuffix.map(suffix => {
-          if (childId.includes(suffix) && idsMap[id].components[componentsMap[key].matchingString] === undefined) {
-            idsMap[id].components[componentsMap[key].matchingString] = { loaded: false }
-          }
-        });
+    // function to update the instances map
+    var updateIdsMap = function () {
+      stepstoLoad = 0;
+      stepsLoaded = 0;
+      instancesToLoad = 0;
+      instancesLoaded = 0;
+      for (let singleId in idsMap) {
+        checkSuffixChildren(singleId);
       }
     };
 
-    // function to update the instances map
-    var updateIdsMap = function (componentsMap, idsMap) {
-      for (let singleId in idsMap) {
-        if (Instances[singleId] !== undefined && Instances[singleId].children.length > 0) {
-          if (idsMap[singleId] === undefined && addIdToMap(componentsMap, idsMap, singleId)) {
-            queuedItems.push(singleId);
-          } else {
-            Instances[singleId].children.map(child => {
-              var childId = child.getId();
-              for (let key in componentsMap) {
-                checkSuffixChildren(componentsMap, idsMap, singleId, childId, key);
+    // function that create the inner map per instance to track each component
+    var checkSuffixChildren = function (id) {
+      if (Instances[id] !== undefined && Instances[id].children.length > 0) {
+        var loaded = true;
+        Instances[id].children.map(child => {
+          var childId = child.getId();
+          for (let key in nextProps.componentsMap) {
+            if (typeof nextProps.componentsMap[key].geppettoSuffix === "string") {
+              if (childId.includes(nextProps.componentsMap[key].geppettoSuffix)) {
+                if (idsMap[id].components[nextProps.componentsMap[key].matchingString] !== undefined) {
+                  if (layout[nextProps.componentsMap[key].matchingString] == false
+                      && idsMap[id].components[nextProps.componentsMap[key].matchingString].available) {
+                    idsMap[id].components[nextProps.componentsMap[key].matchingString].available = false;
+                  }
+                  if (idsMap[id].components[nextProps.componentsMap[key].matchingString].loaded
+                      && idsMap[id].components[nextProps.componentsMap[key].matchingString].available) {
+                    stepstoLoad++;
+                    stepsLoaded++;
+                  }
+                  if (idsMap[id].components[nextProps.componentsMap[key].matchingString].available
+                      && idsMap[id].components[nextProps.componentsMap[key].matchingString].loaded == false) {
+                    stepstoLoad++;
+                    loaded = false;
+                  }
+                } else {
+                  if (layout[nextProps.componentsMap[key].matchingString]) {
+                    idsMap[id].components[nextProps.componentsMap[key].matchingString] = {
+                      loaded: false,
+                      available: true,
+                    };
+                    stepstoLoad++;
+                    loaded = false;
+                  } else {
+                    idsMap[id].components[nextProps.componentsMap[key].matchingString] = {
+                      loaded: false,
+                      available: false,
+                    };
+                  }
+                }
               }
-            });
+            } else if (nextProps.componentsMap[key].geppettoSuffix.length > 1) {
+              nextProps.componentsMap[key].geppettoSuffix.map(suffix => {
+                if (childId.includes(suffix)) {
+                  if (idsMap[id].components[nextProps.componentsMap[key].matchingString] !== undefined) {
+                    if (layout[nextProps.componentsMap[key].matchingString] == false
+                        && idsMap[id].components[nextProps.componentsMap[key].matchingString].available) {
+                      idsMap[id].components[nextProps.componentsMap[key].matchingString].available = false;
+                    }
+                    if (layout[nextProps.componentsMap[key].matchingString]
+                        && idsMap[id].components[nextProps.componentsMap[key].matchingString].loaded) {
+                      stepstoLoad++;
+                      stepsLoaded++;
+                    }
+                    if (layout[nextProps.componentsMap[key].matchingString]
+                        && idsMap[id].components[nextProps.componentsMap[key].matchingString].loaded == false) {
+                      stepstoLoad++;
+                      loaded = false;
+                    }
+                  } else {
+                    if (layout[nextProps.componentsMap[key].matchingString]) {
+                      idsMap[id].components[nextProps.componentsMap[key].matchingString] = {
+                        loaded: false,
+                        available: true,
+                      };
+                      loaded = false;
+                      stepstoLoad++;
+                    } else {
+                      idsMap[id].components[nextProps.componentsMap[key].matchingString] = {
+                        loaded: false,
+                        available: false,
+                      };
+                    }
+                  }
+                }
+              });
+            }
           }
+        });
+        if (loaded) {
+          delete idsMap[id];
         }
+      } else {
+        stepstoLoad++;
       }
-    }
+    };
 
     // If there are new instances to load add them to the map and to the queueItems array
     if (nextProps.generals.idsToLoad !== undefined && nextProps.generals.idsToLoad.length > 0) {
       nextProps.generals.idsToLoad.map(singleId => {
-        if (addIdToMap(componentsMap, idsMap, singleId)) {
+        if (addIdToMap(singleId)) {
           queuedItems.push(singleId);
         }
       });
+
+      var instancesToLoad = queuedItems.length;
+      var instancesLoaded = instancesToLoad - Object.keys(idsMap).length;
 
       return {
         ...prevState,
         loading: true,
         idsMap: idsMap,
-        percentage: 0,
-        queuedItems: queuedItems
+        queuedItems: queuedItems,
+        stepstoLoad: stepstoLoad,
+        stepsLoaded: stepsLoaded,
+        instancesToLoad: instancesToLoad,
+        instancesLoaded: instancesLoaded,
       };
     }
 
@@ -106,22 +177,24 @@ export default class VFBLoader extends Component {
       if (idsMap[nextProps.generals.idLoaded.id] === undefined) {
         return null;
       }
-      updateIdsMap(componentsMap, idsMap);
-      idsMap[nextProps.generals.idLoaded.id].components[nextProps.generals.idLoaded.component].loaded = true;
-      let newPercentage = prevState.percentage;
-
-      if ( newPercentage >= 0 && newPercentage < prevState.totalUIItems) {
-        newPercentage++;
-      } else {
-        newPercentage = 0;
+      checkSuffixChildren(nextProps.generals.idLoaded.id);
+      if (idsMap[nextProps.generals.idLoaded.id].components[nextProps.generals.idLoaded.component] !== undefined) {
+        idsMap[nextProps.generals.idLoaded.id].components[nextProps.generals.idLoaded.component].loaded = true;
       }
+      updateIdsMap();
+
+      var instancesToLoad = queuedItems.length;
+      var instancesLoaded = instancesToLoad - Object.keys(idsMap).length;
 
       return {
         ...prevState,
         loading: true,
         idsMap: idsMap,
-        percentage: newPercentage,
-        queuedItems: queuedItems
+        queuedItems: queuedItems,
+        stepstoLoad: stepstoLoad,
+        stepsLoaded: stepsLoaded,
+        instancesToLoad: instancesToLoad,
+        instancesLoaded: instancesLoaded,
       };
     }
 
@@ -135,54 +208,8 @@ export default class VFBLoader extends Component {
     }
   }
 
-  checkIdsMap (idLoadedBool) {
-    var idsMap = JSON.parse(JSON.stringify(this.state.idsMap));
-    var idsLoaded = [];
-    var loadedCounter = 0;
-    for (let singleId in idsMap) {
-      let instanceLoaded = true;
-      if (Object.keys(idsMap[singleId].components).length === 0) {
-        instanceLoaded = false;
-      } else {
-        for (let component in idsMap[singleId].components) {
-          if (idsMap[singleId].components[component].loaded === false) {
-            instanceLoaded = false;
-          }
-        }
-      }
-      if (instanceLoaded === true) {
-        loadedCounter++;
-        idsLoaded.push(singleId);
-        delete idsMap[singleId];
-      }
-    }
-
-    if (Object.keys(idsMap).length !== Object.keys(this.state.idsMap).length) {
-      if (idLoadedBool) {
-        this.setState({
-          percentage: 0,
-          idsMap: idsMap,
-          idsLoaded: idsLoaded,
-          loadedCounter: loadedCounter
-        });
-      } else {
-        this.setState({
-          idsMap: idsMap,
-          idsLoaded: idsLoaded,
-          loadedCounter: loadedCounter
-        });
-      }
-    }
-  }
-
   componentDidUpdate (prevProps, prevState) {
-    if (this.state.percentage === this.state.totalUIItems) {
-      this.checkIdsMap(true);
-    } else {
-      this.checkIdsMap(false);
-    }
-
-    if ((this.state.loadedCounter !== 0 && this.state.loadedCounter === this.state.queuedItems.length) || (Object.keys(this.state.idsMap).length === 0 && this.state.loading === true)) {
+    if ((Object.keys(this.state.idsMap).length === 0 && this.state.loading === true)) {
       this.setState({
         loading: false,
         percentage: 0,
@@ -190,6 +217,11 @@ export default class VFBLoader extends Component {
         idsLoaded: [],
         queuedItems: [],
         idsMap: {},
+        layout: undefined,
+        stepstoLoad: 0,
+        stepsLoaded: 0,
+        instancesToLoad: 0,
+        instancesLoaded: 0
       }, () => {
         GEPPETTO.trigger('stop_spin_logo');
       });
@@ -201,6 +233,67 @@ export default class VFBLoader extends Component {
     GEPPETTO.on('stop_spin_logo', function () {
       if (that.state.loading) {
         GEPPETTO.trigger('spin_logo');
+      }
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
+      var idsMap = JSON.parse(JSON.stringify(that.state.idsMap));
+      var requireUpdate = false;
+
+      for (let id in idsMap) {
+        if (Instances[id] !== undefined && Instances[id].children.length > 0) {
+          var loaded = true;
+          Instances[id].children.map(child => {
+            var childId = child.getId();
+            for (let key in that.componentsMap) {
+              if (typeof that.componentsMap[key].geppettoSuffix === "string") {
+                if (childId.includes(that.componentsMap[key].geppettoSuffix)) {
+                  if (idsMap[id].components[that.componentsMap[key].matchingString] !== undefined) {
+                    if (that.props.generals.layout[that.componentsMap[key].matchingString]
+                        && idsMap[id].components[that.componentsMap[key].matchingString].loaded == false) {
+                      loaded = false;
+                    }
+                  } else {
+                    if (that.props.generals.layout[that.componentsMap[key].matchingString]) {
+                      idsMap[id].components[that.componentsMap[key].matchingString] = {
+                        loaded: false,
+                        available: true,
+                      };
+                      loaded = false;
+                    }
+                  }
+                }
+              } else if (that.componentsMap[key].geppettoSuffix.length > 1) {
+                that.componentsMap[key].geppettoSuffix.map(suffix => {
+                  if (childId.includes(suffix)) {
+                    if (idsMap[id].components[that.componentsMap[key].matchingString] !== undefined) {
+                      if (that.props.generals.layout[that.componentsMap[key].matchingString]
+                          && idsMap[id].components[that.componentsMap[key].matchingString].loaded == false) {
+                        loaded = false;
+                      }
+                    } else {
+                      if (that.props.generals.layout[that.componentsMap[key].matchingString]) {
+                        idsMap[id].components[that.componentsMap[key].matchingString] = {
+                          loaded: false,
+                          available: true,
+                        };
+                        loaded = false;
+                      }
+                    }
+                  }
+                });
+              }
+            }
+          });
+          if (loaded) {
+            delete idsMap[id];
+            requireUpdate = true;
+          }
+        }
+      }
+
+      if (requireUpdate) {
+        that.setState({ idsMap: idsMap });
       }
     });
   }
@@ -218,15 +311,15 @@ export default class VFBLoader extends Component {
 }
 
 const ProgressBar = props => {
-  let loadedCounter = props.params.loadedCounter + 1;
-  let queuedItems = props.params.queuedItems;
+  let instancesToLoad = props.params.instancesToLoad;
+  let instancesLoaded = props.params.instancesLoaded + 1;
   return (
-    <div className="progress-bar" datalabel={"Loading " + String(loadedCounter) + "/" + String(queuedItems.length) + " ..."}>
-      <Filler percentage={props.params.percentage} totalUIItems={props.params.totalUIItems} />
+    <div className="progress-bar" datalabel={"Loading " + String(instancesLoaded) + "/" + String(instancesToLoad) + " ..."}>
+      <Filler stepsLoaded={props.params.stepsLoaded} stepstoLoad={props.params.stepstoLoad} />
     </div>
   )
 };
 
 const Filler = props => (
-  <div className="filler" style={{ width: `${props.percentage * (100 / props.totalUIItems)}%` }}></div>
+  <div className="filler" style={{ width: `${props.stepsLoaded * (100 / props.stepstoLoad)}%` }}></div>
 );

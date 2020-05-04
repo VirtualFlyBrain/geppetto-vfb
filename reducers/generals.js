@@ -1,14 +1,20 @@
 import {
   VFB_ERROR,
   VFB_ID_LOADED,
-  VFB_LOAD_ID
+  VFB_LOAD_ID,
+  VFB_UI_UPDATED
 } from '../actions/generals';
 
 export const GENERAL_DEFAULT_STATE = {
   error: undefined,
   idsList: [],
   idsToLoad: undefined,
-  idLoaded: undefined
+  idLoaded: undefined,
+  layout: {
+    "ThreeDViewer": true,
+    "StackViewer": true,
+    "TermInfo": true
+  }
 }
 
 export default ( state = {}, action ) => ({
@@ -61,5 +67,12 @@ function generalReducer (state, action) {
       idsToLoad: undefined,
       idLoaded: action.data
     };
+  case VFB_UI_UPDATED:
+    return {
+      ...state,
+      idsToLoad: undefined,
+      idLoaded: undefined,
+      layout: action.data
+    }
   }
 }

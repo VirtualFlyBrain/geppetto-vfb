@@ -1,12 +1,11 @@
 import { connect } from "react-redux";
-import VFBLoader from './VFBLoader';
-import { vfbLoadId, vfbIdLoaded } from '../../../actions/generals';
+import VFBLoader from "./VFBLoader";
 
-const mapStateToProps = state => ({ ...state });
+const componentsMap = require('../../configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
 
-const mapDispatchToProps = dispatch => ({
-  vfbLoadId: id => dispatch(vfbLoadId(id)),
-  vfbIdLoaded: id => dispatch(vfbIdLoaded(id)),
+const mapStateToProps = state => ({
+  componentsMap: componentsMap,
+  ...state,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(VFBLoader);
+export default connect(mapStateToProps)(VFBLoader);
