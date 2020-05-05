@@ -520,6 +520,15 @@ export default class VFBTermInfoWidget extends React.Component {
     if (typeof data.getParent().select === "function") {
       data.getParent().select(); // Select if visual type loaded.
     }
+
+    if (this.props.onLoad !== undefined) {
+      let parent = data.getParent();
+      if (parent !== null) {
+        this.props.onLoad(parent.getId());
+      } else {
+        this.props.onLoad(data.getId());
+      }
+    }
   }
 
 
@@ -544,8 +553,8 @@ export default class VFBTermInfoWidget extends React.Component {
           this.data.unshift(metanode);
         }
       }
-      window.resolve3D(path);
       this.setTermInfo(metanode, metanode.name);
+      window.resolve3D(path);
     } else {
       // check for passed ID:
       if (path.indexOf(',') > -1) {
