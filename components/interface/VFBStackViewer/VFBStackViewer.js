@@ -108,8 +108,10 @@ export default class VFBStackViewer extends React.Component {
   }
 
   addSlices (instances) {
+    var added = undefined;
     var curr = this.data.instances.length;
     if (instances.length == undefined) {
+      added = [instances];
       if (instances.parent) {
         console.log('Adding ' + instances.parent.getName() + ' to ' + this.data.instances.length);
       } else {
@@ -117,6 +119,7 @@ export default class VFBStackViewer extends React.Component {
         window.test = instances;
       }
     } else {
+      added = instances;
       console.log('Adding ' + instances.length + ' instances to ' + this.data.instances.length);
     }
     this.data.instances = arrayUnique(this.data.instances.concat(instances));
@@ -124,6 +127,16 @@ export default class VFBStackViewer extends React.Component {
       console.log('Passing ' + this.data.instances.length + ' instances');
       this.setState({ data: this.data }, () => {
         this.forceUpdate();
+        if (this.props.onLoad !== undefined) {
+          added.map(instance => {
+            let parent = instance.getParent();
+            if (parent !== null) {
+              this.props.onLoad(parent.getId());
+            } else {
+              this.props.onLoad(instance.getId());
+            }
+          });
+        }
       });
     }
   }
