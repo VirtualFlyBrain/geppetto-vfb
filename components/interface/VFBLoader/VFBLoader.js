@@ -28,6 +28,7 @@ export default class VFBLoader extends Component {
     // Variables from props and state
     var idsMap = prevState.idsMap;
     var queuedItems = prevState.queuedItems;
+    var idsLoaded = prevState.idsLoaded;
     var stepstoLoad = 0;
     var stepsLoaded = 0;
     var instancesToLoad = 0;
@@ -151,8 +152,12 @@ export default class VFBLoader extends Component {
 
     // If there are new instances to load add them to the map and to the queueItems array
     if (nextProps.generals.idsToLoad !== undefined && nextProps.generals.idsToLoad.length > 0) {
-      nextProps.generals.idsToLoad.map(singleId => {
-        if (addIdToMap(singleId)) {
+      var idsToLoad = nextProps.generals.idsToLoad;
+      var updated = false;
+      idsToLoad.map(singleId => {
+        if (!idsLoaded.includes(singleId) && addIdToMap(singleId)) {
+          updated = true;
+          idsLoaded.push(singleId);
           queuedItems.push(singleId);
         }
       });
@@ -160,16 +165,20 @@ export default class VFBLoader extends Component {
       var instancesToLoad = queuedItems.length;
       var instancesLoaded = instancesToLoad - Object.keys(idsMap).length;
 
-      return {
-        ...prevState,
-        loading: true,
-        idsMap: idsMap,
-        queuedItems: queuedItems,
-        stepstoLoad: stepstoLoad,
-        stepsLoaded: stepsLoaded,
-        instancesToLoad: instancesToLoad,
-        instancesLoaded: instancesLoaded,
-      };
+      if (updated) {
+        return {
+          ...prevState,
+          loading: true,
+          idsMap: idsMap,
+          queuedItems: queuedItems,
+          stepstoLoad: stepstoLoad,
+          stepsLoaded: stepsLoaded,
+          instancesToLoad: instancesToLoad,
+          instancesLoaded: instancesLoaded,
+        };
+      } else {
+        return null;
+      }
     }
 
     // If an instances has been partially or totally loaded update the map
@@ -214,7 +223,6 @@ export default class VFBLoader extends Component {
         loading: false,
         percentage: 0,
         loadedCounter: 0,
-        idsLoaded: [],
         queuedItems: [],
         idsMap: {},
         layout: undefined,
@@ -236,7 +244,7 @@ export default class VFBLoader extends Component {
       }
     });
 
-    GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
+    GEPPETTO.on(GEPPETTO.Events.Instances_added, function (instances) {
       var idsMap = JSON.parse(JSON.stringify(that.state.idsMap));
       var requireUpdate = false;
 
