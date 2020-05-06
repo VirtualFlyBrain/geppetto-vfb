@@ -129,8 +129,8 @@ export default class VFBStackViewer extends React.Component {
         this.forceUpdate();
         if (this.props.onLoad !== undefined) {
           added.map(instance => {
-            let parent = instance.getParent();
-            if (parent !== null) {
+            if (instances.parent) {
+              let parent = instance.getParent();
               this.props.onLoad(parent.getId());
             } else {
               this.props.onLoad(instance.getId());
