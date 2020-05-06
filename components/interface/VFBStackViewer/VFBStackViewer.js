@@ -114,6 +114,9 @@ export default class VFBStackViewer extends React.Component {
       added = [instances];
       if (instances.parent) {
         console.log('Adding ' + instances.parent.getName() + ' to ' + this.data.instances.length);
+        if (this.props.onLoad !== undefined) {
+          this.props.onLoad(instances.parent.getId());
+        }
       } else {
         console.log('Adding ' + instances.toString() + ' to ' + this.data.instances.length);
         window.test = instances;
@@ -127,15 +130,6 @@ export default class VFBStackViewer extends React.Component {
       console.log('Passing ' + this.data.instances.length + ' instances');
       this.setState({ data: this.data }, () => {
         this.forceUpdate();
-        if (this.props.onLoad !== undefined) {
-          added.map(instance => {
-            if (instance.parent) {
-              this.props.onLoad(instance.parent.getId());
-            } else {
-              this.props.onLoad(instance.getId());
-            }
-          });
-        }
       });
     }
   }
