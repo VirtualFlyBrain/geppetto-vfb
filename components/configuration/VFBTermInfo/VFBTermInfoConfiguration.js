@@ -100,7 +100,7 @@ const buttonBarConfiguration = {
       "icon": "fa-plus-circle",
       "label": "Cylinder",
       "tooltip": "Cylinder 3D Skeleton"
-    }
+    },
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
