@@ -93,6 +93,14 @@ const buttonBarConfiguration = {
         "tooltip": "Disable 3D Skeleton"
       }
     },
+    "geometryType_swc": {
+      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
+      "id": "cylynders_swc",
+      "actions": ["(function(){$instance$.$instance$_swc.setGeometryType('cylinders'); })"],
+      "icon": "fa-plus-circle",
+      "label": "Cylinder",
+      "tooltip": "Cylinder 3D Skeleton"
+    }
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
