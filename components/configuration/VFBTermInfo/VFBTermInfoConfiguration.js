@@ -118,6 +118,7 @@ const buttonBarControls = {
                        'visibility',
                        'visibility_obj',
                        'visibility_swc',
+                       'geometryType_swc',
                        'zoom',
                        'delete']
 };
