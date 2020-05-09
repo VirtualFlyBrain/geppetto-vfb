@@ -321,7 +321,7 @@ export default class VFBGraph extends Component {
               ctx.fillRect(node.x - cardWidth / 2 - (thickness), node.y - cardHeight / 2 - (thickness), cardWidth , cardHeight );
           
               // Assign color to Description Area background in Node
-              ctx.fillStyle = node == self.hoverNode ? "orange" : stylingConfiguration.nodeDescriptionBackgroundColor;
+              ctx.fillStyle = stylingConfiguration.nodeDescriptionBackgroundColor;
               // Create Description Area in Node
               ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight);
               // Assign color to Title Bar background in Node
@@ -377,7 +377,7 @@ export default class VFBGraph extends Component {
                 self.highlightLinks.add(link);
                 self.highlightNodes.add(link.source);
                 self.highlightNodes.add(link.target);
-              }
+              }              
             }
             }
           />
