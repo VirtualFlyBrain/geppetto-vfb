@@ -1,9 +1,17 @@
 var configuration = {
   resultsMapping:
-    {
-      "name": "label",
-      "id": "short_form"
+  {
+    "node": { 
+      "title" : "short_form",
+      "label" : "label",
+      "tooltip" : "id"
+    },
+    "link" : {
+      "label" : "label",
+      "visible" : true,
+      "tooltip" : "label"
     }
+  }
 }
 
 var restPostConfig = {
@@ -14,9 +22,9 @@ var restPostConfig = {
 var cypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Class)-[:SUBCLASSOF*..]->(x)"
-      + "WHERE (('Cell' IN  labels(x)) or ('synaptic neuropil' IN labels(x)))"
-      + "AND n.short_form = '" + instance + "' return  p, ID(n) as root",
+      "statement": "MATCH p=(n:Entity)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in"
+      + "has_postsynaptic_terminal_in|overlaps*..]->(x)"
+      + "WHERE n.short_form = '" + instance + "' return distinct n,r,x,n.short_form as root",
       "resultDataContents": ["graph"]
     }
   ]
