@@ -44,7 +44,6 @@ export default class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: false,
       htmlFromToolbar: undefined,
-      idOnFocus: undefined,
       instanceOnFocus: undefined,
       idSelected: undefined,
     };
@@ -164,7 +163,6 @@ export default class VFBMain extends React.Component {
             this.vfbLoadBuffer.push(idsList[singleId]);
           }
           if (window[idsList[singleId]] != undefined) {
-            this.props.vfbLoadId(idsList[singleId]);
             this.handleSceneAndTermInfoCallback(idsList[singleId]);
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
             this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
@@ -748,6 +746,7 @@ export default class VFBMain extends React.Component {
         name={"Canvas"}
         baseZoom="1.2"
         wireframeEnabled={true}
+        minimiseAnimation={false}
         onLoad={this.ThreeDViewerIdLoaded}
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
