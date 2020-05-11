@@ -44,7 +44,6 @@ export default class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: false,
       htmlFromToolbar: undefined,
-      idOnFocus: undefined,
       instanceOnFocus: undefined,
       idSelected: undefined,
     };
@@ -76,10 +75,10 @@ export default class VFBMain extends React.Component {
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
     this.idFromURL = undefined;
-    this.firstLoad = true;
     this.idsFromURL = [];
     this.urlQueryLoader = undefined;
     this.quickHelpRender = undefined;
+    this.firstLoad = true;
 
     this.UIElementsVisibility = {};
 
@@ -229,13 +228,9 @@ export default class VFBMain extends React.Component {
         continue;
       }
       if (this.hasVisualType(variableIds[singleId])) {
-        this.handlerInstanceUpdate(Instances[variableIds[singleId]]);
-        /*
-         * FIXME: the handlerInstanceUpdate above has been placed there to provide the meta data earlier
-         * and avoid to wait for the 3d viewer and slice to be loaded before to display the data
-         * we need to edit the callback passed to resolve3d here below to avoid the double switching
-         * with the metadata.
-         */
+        if (!this.firstLoad) {
+          this.handlerInstanceUpdate(meta);
+        }
         this.resolve3D(variableIds[singleId], function (id) {
           var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
@@ -751,6 +746,7 @@ export default class VFBMain extends React.Component {
         name={"Canvas"}
         baseZoom="1.2"
         wireframeEnabled={true}
+        minimiseAnimation={false}
         onLoad={this.ThreeDViewerIdLoaded}
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
@@ -1030,6 +1026,11 @@ export default class VFBMain extends React.Component {
     }
 
     var that = this;
+
+    GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
+      that.props.instanceAdded(instance);
+    });
+
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
       that.addVfbId(that.idsFinalList);
 
@@ -1178,11 +1179,13 @@ export default class VFBMain extends React.Component {
      */
     for (var counter = 0; counter < this.idsFromURL.length; counter++) {
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL !== this.idOnFocus) {
+        this.TermInfoIdLoaded(this.idOnFocus);
         this.idsFromURL.splice(counter, 1);
         return;
       }
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL === this.idOnFocus) {
         this.idsFromURL.splice(counter, 1);
+        this.firstLoad = false;
         break;
       }
     }
@@ -1190,6 +1193,8 @@ export default class VFBMain extends React.Component {
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
+    } else {
+      this.TermInfoIdLoaded(this.idOnFocus);
     }
 
     // Update the tree browser
