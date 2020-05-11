@@ -619,7 +619,7 @@ export default class VFBTermInfoWidget extends React.Component {
         Model.getDatasources()[0].fetchVariable(path, function () {
           var m = Instances.getInstance(meta);
           this.setTermInfo(m, m.name);
-          window.resolve3D(path);
+          window.addVfbId(path);
         }.bind(this));
       }
     }
