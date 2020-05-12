@@ -56,8 +56,8 @@ var searchConfiguration = {
           "enabled": false,
         },
         {
-          "key": "Nervous System",
-          "filter_name": "Nervous_system",
+          "key": "Nervous_system",
+          "filter_name": "Nervous System",
           "enabled": false,
         },
         {
@@ -66,18 +66,18 @@ var searchConfiguration = {
           "enabled": false,
         },
         {
-          "key": "Expression Pattern",
-          "filter_name": "Expression_pattern",
+          "key": "Expression_pattern",
+          "filter_name": "Expression Pattern",
           "enabled": false,
         },
         {
-          "key": "Image",
-          "filter_name": "Individual",
+          "key": "Individual",
+          "filter_name": "Image",
           "enabled": false,
         },
         {
-          "key": "Synaptic Neuropil",
-          "filter_name": "Synaptic_neuropil_domain",
+          "key": "Synaptic_neuropil_domain",
+          "filter_name": "Synaptic Neuropil",
           "enabled": false,
         },
         {
