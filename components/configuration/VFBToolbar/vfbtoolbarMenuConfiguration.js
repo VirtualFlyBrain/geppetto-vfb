@@ -374,7 +374,15 @@ var toolbarMenu = {
           },
           list: [
             {
-              label: "Adult Brain (JFRC2)",
+              label: "Adult Brain Unisex (JRC2018U)",
+              icon: "",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00101567"]
+              }
+            },
+            {
+              label: "Adult Brain (JFRC2/2010)",
               icon: "",
               action: {
                 handlerAction: "openNewTab",
@@ -460,7 +468,15 @@ var toolbarMenu = {
           },
           list: [
             {
-              label: "Adult Brain (JFRC2)",
+              label: "Adult Brain Unisex (JRC2018U)",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00101567,adult brain unisex JFRC2018"]
+              }
+            },
+            {
+              label: "Adult Brain (JFRC2/2010)",
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
@@ -473,6 +489,14 @@ var toolbarMenu = {
               action: {
                 handlerAction: "triggerRunQuery",
                 parameters: ["alignedDatasets,VFB_00100000,adult VNS template"]
+              }
+            }, 
+            {
+              label: "Janelia FlyEM HemiBrain",
+              icon: "",
+              action: {
+                handlerAction: "triggerRunQuery",
+                parameters: ["alignedDatasets,VFB_00101384,Janelia FlyEM HemiBrain"]
               }
             },
             {
