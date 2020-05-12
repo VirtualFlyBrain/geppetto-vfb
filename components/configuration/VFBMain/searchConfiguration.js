@@ -42,7 +42,7 @@ var searchConfiguration = {
     },
     {
       "key": "facets_annotation",
-      "filter_name": "Stage",
+      "filter_name": "Type",
       "type": "array",
       "values": [
         {
@@ -54,14 +54,7 @@ var searchConfiguration = {
           "key": "Larval",
           "filter_name": "Larval",
           "enabled": false,
-        }
-      ]
-    },
-    {
-      "key": "facets_annotation",
-      "filter_name": "Type",
-      "type": "array",
-      "values": [
+        },
         {
           "key": "Nervous System",
           "filter_name": "Nervous_system",
