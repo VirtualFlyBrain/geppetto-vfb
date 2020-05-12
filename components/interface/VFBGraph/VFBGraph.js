@@ -19,6 +19,8 @@ const defaultHTTPConfiguration = {
   contentType: "application/json"
 }
 
+const COMPONENT_ID = "VFBGraph";
+
 /**
  * Converts graph data received from cypher query into a readable format for react-force-graph-2d
  */
@@ -53,7 +55,7 @@ function refineData (e) {
       }
     });
   });
-  
+    
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
     graph.nodes.forEach(({ id, properties }) => {
@@ -99,7 +101,7 @@ function refineData (e) {
       }
     }
   });
-   
+  
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
 }
@@ -114,6 +116,9 @@ export default class VFBGraph extends Component {
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.handleNodeRightClick = this.handleNodeRightClick.bind(this);
     this.queryNewInstance = this.queryNewInstance.bind(this);
+    this.resetCamera = this.resetCamera.bind(this);
+    this.zoomIn = this.zoomIn.bind(this);
+    this.zoomOut = this.zoomOut.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -122,6 +127,7 @@ export default class VFBGraph extends Component {
     this.graphRef = React.createRef();    
     this.__isMounted = false;
     this.shiftOn = false;
+    this.objectsLoaded = 0;
   }
   
   componentDidMount () {
@@ -141,17 +147,34 @@ export default class VFBGraph extends Component {
   }
   
   componentDidUpdate () {
-    let self = this;
-    // Reset camera to fit canvas after component update, happens after toggling between flex components
-    setTimeout( function () {
-      if ( self.graphRef.current !== null ) {
-        self.graphRef.current.ggv.current.zoomToFit();
-      }
-    } );
   }
   
   componentWillUnmount () {
     this.__isMounted = false;
+  }
+  
+  resetCamera () {
+    if ( this.graphRef.current !== null ) {
+      this.graphRef.current.ggv.current.zoomToFit();  
+    } 
+  }
+  
+  zoomIn () {
+    let zoom = this.graphRef.current.ggv.current.zoom();
+    let inValue = 1;
+    if (zoom < 2 ){
+      inValue = .2;
+    }
+    this.graphRef.current.ggv.current.zoom(zoom + inValue , 100);
+  }
+  
+  zoomOut () {
+    let zoom = this.graphRef.current.ggv.current.zoom();
+    let out = 1;
+    if (zoom < 2 ){
+      out = .2;
+    }
+    this.graphRef.current.ggv.current.zoom(zoom - out , 100);
   }
   
   /**
@@ -241,12 +264,11 @@ export default class VFBGraph extends Component {
       worker.onmessage = function (e) {
         switch (e.data.resultMessage) {
         case "OK":
-          self.setState( { graph : e.data.params.results , loading : false } );
+          self.setState( { graph : e.data.params.results , loading : false });
+          self.objectsLoaded = e.data.params.results.nodes.length + e.data.params.results.links.length;
           setTimeout( function () { 
-            if ( self.graphRef !== null ) {
-              self.graphRef.current.ggv.current.zoomToFit();
-            }
-          } );
+            self.resetCamera();
+          }, (self.objectsLoaded * 15));
           break;
         }
       };
@@ -302,6 +324,8 @@ export default class VFBGraph extends Component {
         : this.state.graph.nodes.length == 0
           ? <p>No Graph Available for {this.state.currentQuery}</p>
           : <GeppettoGraphVisualization
+            id= { COMPONENT_ID }
+            containerStyle={ { position: 'fixed' } }
             // Graph data with Nodes and Links to populate
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
@@ -356,7 +380,7 @@ export default class VFBGraph extends Component {
             // Overwrite Node Canvas Object
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
-            dagMode="bu"
+            dagMode="radialin"
             dagLevelDistance = {100}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
@@ -369,6 +393,14 @@ export default class VFBGraph extends Component {
             enableZoomPanInteraction={true}
             // Width of links
             linkWidth={1.25}
+            controls = {
+              <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
+                <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className="fa fa-home" onClick={self.resetCamera }></i>
+                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className="fa fa-search-plus" onClick={self.zoomIn }></i>
+                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className="fa fa-search-minus" onClick={self.zoomOut }></i>
+              </div>
+            }
+            click={() => self.graphRef.current.ggv.current.zoomToFit()}
             // Function triggered when hovering over a node
             onNodeHover={node => {
               // Reset maps of hover nodes and links
@@ -385,7 +417,7 @@ export default class VFBGraph extends Component {
 
               // Keep track of hover node
               self.hoverNode = node || null;
-              document.querySelector("body").style.cursor = node ? '-webkit-grab' : null;
+              document.getElementById(COMPONENT_ID).style.cursor = node ? '-webkit-grab' : null;
             }
             }
             // Function triggered when hovering over a link

@@ -31,9 +31,9 @@ var styling = {
   nodeBorderColor : "black",
   // When hovering over a node, the node's border color changes to create a halo effect
   nodeHoverBoderColor : "red", 
-  // Title bar background color
+  // Title bar (in node) background color
   nodeTitleBackgroundColor : "#11bffe",
-  // Description area background color
+  // Description area (in node) background color
   nodeDescriptionBackgroundColor : "white"
 }
 
