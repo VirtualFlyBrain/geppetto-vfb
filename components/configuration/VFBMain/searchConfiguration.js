@@ -32,7 +32,7 @@ var searchConfiguration = {
       "key": "label",
       "filter_name": "Label",
       "type": "string",
-      "enabled": true,
+      "enabled": false,
     },
     {
       "key": "short_form",
@@ -42,43 +42,55 @@ var searchConfiguration = {
     },
     {
       "key": "facets_annotation",
-      "filter_name": "Classes",
+      "filter_name": "Stage",
       "type": "array",
       "values": [
         {
+          "key": "Adult",
+          "filter_name": "Adult",
+          "enabled": false,
+        },
+        {
+          "key": "Larval",
+          "filter_name": "Larval",
+          "enabled": false,
+        }
+      ]
+    },
+    {
+      "key": "facets_annotation",
+      "filter_name": "Type",
+      "type": "array",
+      "values": [
+        {
+          "key": "Nervous System",
+          "filter_name": "Nervous_system",
+          "enabled": false,
+        },
+        {
           "key": "Anatomy",
           "filter_name": "Anatomy",
-          "enabled": true,
+          "enabled": false,
         },
         {
-          "key": "Class",
-          "filter_name": "Class",
-          "enabled": true,
+          "key": "Expression Pattern",
+          "filter_name": "Expression_pattern",
+          "enabled": false,
         },
         {
-          "key": "Entity",
-          "filter_name": "Entity",
-          "enabled": true,
+          "key": "Anatomy",
+          "filter_name": "Anatomy",
+          "enabled": false,
         },
         {
-          "key": "Expression_pattern",
-          "filter_name": "Expression pattern",
-          "enabled": true,
-        },
-        {
-          "key": "Synaptic_neuropil",
-          "filter_name": "Synaptic Neuropil",
-          "enabled": true,
-        },
-        {
-          "key": "Synaptic_neuropil_domain",
+          "key": "Synaptic Neuropil",
           "filter_name": "Synaptic_neuropil_domain",
-          "enabled": true,
+          "enabled": false,
         },
         {
-          "key": "VFB",
-          "filter_name": "VFB",
-          "enabled": true,
+          "key": "Neuron",
+          "filter_name": "Neuron",
+          "enabled": false,
         }
       ]
     },
