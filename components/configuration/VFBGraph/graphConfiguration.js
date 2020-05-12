@@ -14,6 +14,29 @@ var configuration = {
   }
 }
 
+var styling = {
+  // Background color for canvas
+  canvasColor : "black",
+  // Color for links between nodes
+  linkColor : "white",
+  // Color apply to links while hovering over them 
+  linkHoverColor : "#11bffe",
+  // Color apply to target and source nodes when hovering over a link or a node.
+  neighborNodesHoverColor : "orange",
+  // Font used for text in nodes
+  nodeFont : "5px sans-serif",
+  // Color of font in node's text
+  nodeFontColor : "black",
+  // Node border color
+  nodeBorderColor : "black",
+  // When hovering over a node, the node's border color changes to create a halo effect
+  nodeHoverBoderColor : "red", 
+  // Title bar background color
+  nodeTitleBackgroundColor : "#11bffe",
+  // Description area background color
+  nodeDescriptionBackgroundColor : "white"
+}
+
 var restPostConfig = {
   url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
@@ -32,6 +55,7 @@ var cypherQuery = instance => ({
 
 module.exports = { 
   configuration,
+  styling,
   restPostConfig,
   cypherQuery
 };

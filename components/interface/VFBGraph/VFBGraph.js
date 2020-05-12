@@ -3,37 +3,35 @@ import axios from 'axios';
 import GeppettoGraphVisualization from 'geppetto-client/js/components/interface/graph-visualization/Graph'
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const https = require('https');
+/**
+ * Read configuration from graphConfiguration.js
+ */
 const configuration = require('../../configuration/VFBGraph/graphConfiguration').configuration;
 const restPostConfig = require('../../configuration/VFBGraph/graphConfiguration').restPostConfig;
 const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').cypherQuery;
+const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 
+/**
+ * If no configuration is given for queries in graphConfiguration.js, we use this configuration.
+ */
 const defaultHTTPConfiguration = {
   url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
 }
 
-const stylingConfiguration = {
-  canvasColor : "black",
-  linkColor : "white",
-  linkHoverColor : "#11bffe",
-  nodeFont : "5px sans-serif",
-  nodeFontColor : "black",
-  nodeBorderColor : "black",
-  nodeTitleBackgroundColor : "#11bffe",
-  nodeDescriptionBackgroundColor : "white"
-}
-
+/**
+ * Converts graph data received from cypher query into a readable format for react-force-graph-2d
+ */
 function refineData (e) { 
   let graphData = e.data.params.results;
   let data = graphData.results[0].data;
   let nodes = [], links = [];
-  let level = 1;
+  let level = 0;
   let parent = null;
   let linksMap = new Map();
   let nodesMap = new Map();
   
-  // Creates links map from Relationships
+  // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph }) => {
     graph.relationships.forEach(({ startNode, endNode, properties }) => {
       if (linksMap.get(startNode) === undefined) {
@@ -49,37 +47,25 @@ function refineData (e) {
         }
       }); 
       
+      // Only keep track of new links, avoid duplicates
       if ( newLink ) {
         linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
       }
     });
   });
   
-  console.log("Links Map " , linksMap);
-
+  // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
     graph.nodes.forEach(({ id, properties }) => {
       let label = properties[e.data.params.configuration.resultsMapping.node.label];
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
       let n = null;
       if (nodesMap.get(id) === undefined) {
-        if (properties.is_root) { 
-          parent = n;
-          level = 0;
-          console.log("Parent", label)
-        }
         n = {
           path :  label,
-          leaf : label,
           id : id,
-          level : level,
           title : title,
-          parent : ""
         };
-        if ( e.data.params.value === title ){
-          parent = n;
-        }
-        level = level + 1;
         nodesMap.set(id, n);
         nodes.push(n);
       } 
@@ -94,13 +80,17 @@ function refineData (e) {
         let targetNode = nodesMap.get(n[i].target);
           
         if (targetNode !== undefined) {
+          // Create new link for graph 
           let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
           links.push( link );
+          
+          // Assign neighbors to nodes and links
           !sourceNode.neighbors && (sourceNode.neighbors = []);
           !targetNode.neighbors && (targetNode.neighbors = []);
           sourceNode.neighbors.push(targetNode);
           targetNode.neighbors.push(sourceNode);
 
+          // Assign links to nodes
           !sourceNode.links && (sourceNode.links = []);
           !targetNode.links && (targetNode.links = []);
           sourceNode.links.push(link);
@@ -108,11 +98,9 @@ function refineData (e) {
         }
       }
     }
-    if (sourceNode.title !== e.data.params.value){
-      sourceNode.parent = parent;
-    }
   });
    
+  // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
 }
 
@@ -125,6 +113,7 @@ export default class VFBGraph extends Component {
     this.queryResults = this.queryResults.bind(this);
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.handleNodeRightClick = this.handleNodeRightClick.bind(this);
+    this.queryNewInstance = this.queryNewInstance.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -132,23 +121,33 @@ export default class VFBGraph extends Component {
     
     this.graphRef = React.createRef();    
     this.__isMounted = false;
+    this.shiftOn = false;
   }
   
-  componentDidMount () { 
+  componentDidMount () {
+    let self = this;
     this.__isMounted = true;
     
     if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
       this.updateGraph(this.props.instance);
     }
+    
+    // Keyboard listener, detect when shift is pressed down
+    document.addEventListener("keydown", event => {
+      if (event.isComposing || event.keyCode === 16) {
+        self.shiftOn = true;
+      }
+    });
   }
   
-  componenDidUpdate () {
+  componentDidUpdate () {
     let self = this;
-    if (this.__isMounted) {
-      setTimeout( function () { 
+    // Reset camera to fit canvas after component update, happens after toggling between flex components
+    setTimeout( function () {
+      if ( self.graphRef.current !== null ) {
         self.graphRef.current.ggv.current.zoomToFit();
-      } );
-    }
+      }
+    } );
   }
   
   componentWillUnmount () {
@@ -159,16 +158,28 @@ export default class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
-    this.graphRef.current.ggv.current.zoom(4, 2000);
+    if ( this.shiftOn ){
+      this.queryNewInstance(node.title);
+      this.shiftOn = false;
+    } else {
+      this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
+      this.graphRef.current.ggv.current.zoom(2, 1000);
+    }
   }
   
   /**
-   * Handle Right click on Nodes
+   * Handle Right click on Nodes, creates a new graph using the clicked node's ID as instance for cypher query
    */
   handleNodeRightClick (node, event) {
+    this.queryNewInstance(node.title);
+  }
+  
+  /**
+   * Query new instance by using 'addVfbId' functionality
+   */
+  queryNewInstance (id) {
     this.setState( { loading : true } );
-    window.addVfbId(node.title);
+    window.addVfbId(id);
   }
   
   /**
@@ -297,6 +308,7 @@ export default class VFBGraph extends Component {
             d2={true}
             // Node label, used in tooltip when hovering over Node
             nodeLabel={node => node.path}
+            nodeRelSize={20}
             // Relationship label, placed in Link
             linkLabel={link => link.name}
             // Assign background color to Canvas
@@ -313,21 +325,21 @@ export default class VFBGraph extends Component {
             nodeCanvasObject={(node, ctx, globalScale) => {
               let cardWidth = 55;
               let cardHeight = 40;
-              let thickness = 1;
+              let borderThickness = self.highlightNodes.has(node) ? 2 : 1;
               
               // Node border color
-              ctx.fillStyle = stylingConfiguration.nodeBorderColor;
+              ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.nodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.neighborNodesHoverColor : stylingConfiguration.nodeBorderColor) ;
               // Create Border
-              ctx.fillRect(node.x - cardWidth / 2 - (thickness), node.y - cardHeight / 2 - (thickness), cardWidth , cardHeight );
+              ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
           
               // Assign color to Description Area background in Node
               ctx.fillStyle = stylingConfiguration.nodeDescriptionBackgroundColor;
               // Create Description Area in Node
-              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight);
+              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
               // Assign color to Title Bar background in Node
               ctx.fillStyle = stylingConfiguration.nodeTitleBackgroundColor;
               // Create Title Bar in Node
-              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth, cardHeight / 3);
+              ctx.fillRect(node.x - cardWidth / 2 ,node.y - cardHeight / 2, cardWidth - ( borderThickness * 2 ), cardHeight / 3);
             
               // Assign font to text in Node
               ctx.font = stylingConfiguration.nodeFont;
@@ -339,13 +351,13 @@ export default class VFBGraph extends Component {
               // Create Title in Node
               ctx.fillText(node.title, node.x, node.y - 15);
               // Add Description text to Node
-              this.wrapText(ctx, node.path, node.x, node.y, cardWidth, 5);
+              this.wrapText(ctx, node.path, node.x, node.y, cardWidth - (borderThickness * 2) , 5);
             }}
             // Overwrite Node Canvas Object
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="bu"
-            dagLevelDistance = {150}
+            dagLevelDistance = {100}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
             // Handles clicking event on an individual node
@@ -355,25 +367,36 @@ export default class VFBGraph extends Component {
             enableNodeDrag={false}
             // Allow camera pan and zoom with mouse
             enableZoomPanInteraction={true}
+            // Width of links
             linkWidth={1.25}
+            // Function triggered when hovering over a node
             onNodeHover={node => {
+              // Reset maps of hover nodes and links
               self.highlightNodes.clear();
               self.highlightLinks.clear();
+              
+              // We found the node that we are hovering over
               if (node) {
+                // Keep track of hover node, its neighbors and links
                 self.highlightNodes.add(node);
                 node.neighbors.forEach(neighbor => self.highlightNodes.add(neighbor));
                 node.links.forEach(link => self.highlightLinks.add(link));
               }
 
+              // Keep track of hover node
               self.hoverNode = node || null;
-              // elem.style.cursor = node ? '-webkit-grab' : null;
+              document.querySelector("body").style.cursor = node ? '-webkit-grab' : null;
             }
             }
+            // Function triggered when hovering over a link
             onLinkHover={link => {
+              // Reset maps of hover nodes and links
               self.highlightNodes.clear();
               self.highlightLinks.clear();
 
+              // We found link being hovered
               if (link) {
+                // Keep track of hovered link, and it's source/target node
                 self.highlightLinks.add(link);
                 self.highlightNodes.add(link.source);
                 self.highlightNodes.add(link.target);
