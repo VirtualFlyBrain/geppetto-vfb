@@ -71,8 +71,8 @@ var searchConfiguration = {
           "enabled": false,
         },
         {
-          "key": "Anatomy",
-          "filter_name": "Anatomy",
+          "key": "Image",
+          "filter_name": "Individual",
           "enabled": false,
         },
         {
