@@ -536,7 +536,7 @@ export default class VFBTermInfoWidget extends React.Component {
     // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
     if (path.indexOf("[") == 0) {
       var templateID = path.split(',')[0].replace('[','');
-      var rootInstance = path.split(',')[1].replace(']','');
+      var instanceID = path.split(',')[1].replace(']','');
       if (templateID != window.templateID) {
         // open new window with the new template and the instance ID
         window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
@@ -549,17 +549,17 @@ export default class VFBTermInfoWidget extends React.Component {
             var curProto = document.location.protocol;
           }
           var targetWindow = '_blank';
-          var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);  
+          var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, instanceID).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);  
           window.ga('vfb.send', 'event', 'opening', 'newtemplate', path);
           window.open(newUrl, targetWindow);
         } else {
           window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', path);
         }
         // passing only the instance ID for processing 
-        path = rootInstance;
+        path = instanceID;
       } else {
         // as same template pass only the instance ID for processing 
-        path = rootInstance;
+        path = instanceID;
       }
     }
     var Query = require('geppetto-client/js/geppettoModel/model/Query');
