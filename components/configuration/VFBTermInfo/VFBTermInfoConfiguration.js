@@ -96,7 +96,7 @@ const buttonBarConfiguration = {
     "geometryType_swc": {
       "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
       "id": "cylynders_swc",
-      "actions": ["(function(){$instance$.setGeometryType('cylinders'); })"],
+      "actions": ["$instance$.setGeometryType('cylinders')"],
       "icon": "fa-plus-circle",
       "label": "Cylinder",
       "tooltip": "Cylinder 3D Skeleton"
