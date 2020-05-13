@@ -333,8 +333,8 @@ export default class VFBMain extends React.Component {
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
             if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              window.open(newUrl, targetWindow);
               window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
+              window.open(newUrl, targetWindow);
             } else {
               window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
             }
