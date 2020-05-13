@@ -32,7 +32,7 @@ var searchConfiguration = {
       "key": "label",
       "filter_name": "Label",
       "type": "string",
-      "enabled": true,
+      "enabled": false,
     },
     {
       "key": "short_form",
@@ -42,43 +42,48 @@ var searchConfiguration = {
     },
     {
       "key": "facets_annotation",
-      "filter_name": "Classes",
+      "filter_name": "Type",
       "type": "array",
       "values": [
         {
+          "key": "Adult",
+          "filter_name": "Adult",
+          "enabled": false,
+        },
+        {
+          "key": "Larval",
+          "filter_name": "Larval",
+          "enabled": false,
+        },
+        {
+          "key": "Nervous_system",
+          "filter_name": "Nervous System",
+          "enabled": false,
+        },
+        {
           "key": "Anatomy",
           "filter_name": "Anatomy",
-          "enabled": true,
-        },
-        {
-          "key": "Class",
-          "filter_name": "Class",
-          "enabled": true,
-        },
-        {
-          "key": "Entity",
-          "filter_name": "Entity",
-          "enabled": true,
+          "enabled": false,
         },
         {
           "key": "Expression_pattern",
-          "filter_name": "Expression pattern",
-          "enabled": true,
+          "filter_name": "Expression Pattern",
+          "enabled": false,
         },
         {
-          "key": "Synaptic_neuropil",
-          "filter_name": "Synaptic Neuropil",
-          "enabled": true,
+          "key": "Individual",
+          "filter_name": "Image",
+          "enabled": false,
         },
         {
           "key": "Synaptic_neuropil_domain",
-          "filter_name": "Synaptic_neuropil_domain",
-          "enabled": true,
+          "filter_name": "Synaptic Neuropil",
+          "enabled": false,
         },
         {
-          "key": "VFB",
-          "filter_name": "VFB",
-          "enabled": true,
+          "key": "Neuron",
+          "filter_name": "Neuron",
+          "enabled": false,
         }
       ]
     },
