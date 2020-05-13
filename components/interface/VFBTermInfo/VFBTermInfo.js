@@ -534,7 +534,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
   customHandler (node, path, widget) {
     // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
-    if (path.indexOf("[")==0) {
+    if (path.indexOf("[") == 0) {
       var templateID = path.split(',')[0].replace('[','');
       var rootInstance = path.split(',')[1].replace(']','');
       if (templateID != window.templateID) {
