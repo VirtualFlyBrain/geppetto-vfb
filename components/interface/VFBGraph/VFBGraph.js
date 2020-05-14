@@ -325,7 +325,9 @@ export default class VFBGraph extends Component {
     let self = this;
     
     const props = { 
+      // Render graph as 2 Dimensional
       d2 : true, 
+      // Node label, used in tooltip when hovering over Node
       nodeLabel : node => node.path,
       nodeRelSize : 20,
       nodeSize : 30,
@@ -444,10 +446,6 @@ export default class VFBGraph extends Component {
             containerStyle={ { position: 'fixed' } }
             // Graph data with Nodes and Links to populate
             data={this.state.graph}
-            // Create the Graph as 2 Dimensional
-            d2={true}
-            // Node label, used in tooltip when hovering over Node
-            nodeLabel={node => node.path}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
                 <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className="fa fa-home" onClick={self.resetCamera }></i>
