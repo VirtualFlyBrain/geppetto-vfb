@@ -862,6 +862,7 @@ export default class VFBMain extends React.Component {
           selectionHandler={this.addVfbId} />
       </div>);
     } else if (component === "vfbGraph") {
+      let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
         this.setState({ graphVisible: false });
       });
@@ -869,7 +870,7 @@ export default class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ height: _height, width: _width }}>
-        <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} />
+        <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     }
   }

@@ -20,6 +20,9 @@ const defaultHTTPConfiguration = {
 }
 
 const COMPONENT_ID = "VFBGraph";
+const NODE_WIDTH = 55;
+const NODE_HEIGHT = 40;
+const NODE_BORDER_THICKNESS = 2;
 
 /**
  * Converts graph data received from cypher query into a readable format for react-force-graph-2d
@@ -28,8 +31,6 @@ function refineData (e) {
   let graphData = e.data.params.results;
   let data = graphData.results[0].data;
   let nodes = [], links = [];
-  let level = 0;
-  let parent = null;
   let linksMap = new Map();
   let nodesMap = new Map();
   
@@ -67,6 +68,8 @@ function refineData (e) {
           path :  label,
           id : id,
           title : title,
+          width : e.data.params.NODE_WIDTH,
+          height : e.data.params.NODE_HEIGHT
         };
         nodesMap.set(id, n);
         nodes.push(n);
@@ -128,6 +131,7 @@ export default class VFBGraph extends Component {
     this.__isMounted = false;
     this.shiftOn = false;
     this.objectsLoaded = 0;
+    this.focused = false;
   }
   
   componentDidMount () {
@@ -147,6 +151,15 @@ export default class VFBGraph extends Component {
   }
   
   componentDidUpdate () {
+    let self = this;
+    if ( this.props.visible && !this.focused ) {
+      setTimeout( function () { 
+        self.resetCamera();
+        self.focused = true;
+      }, (self.objectsLoaded * 20));
+    } else if ( !this.props.visible ) {
+      this.focused = false;
+    }
   }
   
   componentWillUnmount () {
@@ -155,7 +168,8 @@ export default class VFBGraph extends Component {
   
   resetCamera () {
     if ( this.graphRef.current !== null ) {
-      this.graphRef.current.ggv.current.zoomToFit();  
+      this.graphRef.current.ggv.current.zoomToFit();
+      this.focused = true;
     } 
   }
   
@@ -265,16 +279,19 @@ export default class VFBGraph extends Component {
         switch (e.data.resultMessage) {
         case "OK":
           self.setState( { graph : e.data.params.results , loading : false });
-          self.objectsLoaded = e.data.params.results.nodes.length + e.data.params.results.links.length;
+          self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () { 
             self.resetCamera();
-          }, (self.objectsLoaded * 15));
+            if ( self.graphRef.current !== null ) {
+              self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
+            } 
+          }, (self.objectsLoaded * 20));
           break;
         }
       };
       
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration } });
+      worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
         console.log(error);
@@ -333,6 +350,7 @@ export default class VFBGraph extends Component {
             // Node label, used in tooltip when hovering over Node
             nodeLabel={node => node.path}
             nodeRelSize={20}
+            nodeSize={30}
             // Relationship label, placed in Link
             linkLabel={link => link.name}
             // Assign background color to Canvas
@@ -347,9 +365,9 @@ export default class VFBGraph extends Component {
               return color;
             }}
             nodeCanvasObject={(node, ctx, globalScale) => {
-              let cardWidth = 55;
-              let cardHeight = 40;
-              let borderThickness = self.highlightNodes.has(node) ? 2 : 1;
+              let cardWidth = NODE_WIDTH;
+              let cardHeight = NODE_HEIGHT;
+              let borderThickness = self.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
               
               // Node border color
               ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.nodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.neighborNodesHoverColor : stylingConfiguration.nodeBorderColor) ;
@@ -380,7 +398,7 @@ export default class VFBGraph extends Component {
             // Overwrite Node Canvas Object
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
-            dagMode="radialin"
+            dagMode="bu"
             dagLevelDistance = {100}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
