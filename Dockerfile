@@ -7,15 +7,15 @@ ARG originBranch=development
 ARG defaultBranch=development
 
 #SET TAG/BRANCH to use:
-ARG geppettoRelease=VFBv2.1.0.1
-ARG geppettoModelRelease=VFBv2.1.0.1
-ARG geppettoCoreRelease=VFBv2.1.0.1
-ARG geppettoSimulationRelease=VFBv2.1.0.1
-ARG geppettoDatasourceRelease=VFBv2.1.0.1
-ARG geppettoModelSwcRelease=VFBv2.1.0.1
-ARG geppettoFrontendRelease=VFBv2.1.0.2
-ARG geppettoClientRelease=VFBv2.1.0.4
-ARG ukAcVfbGeppettoRelease=v2.1.0.2.1
+ARG geppettoRelease=development
+ARG geppettoModelRelease=development
+ARG geppettoCoreRelease=development
+ARG geppettoSimulationRelease=development
+ARG geppettoDatasourceRelease=development
+ARG geppettoModelSwcRelease=development
+ARG geppettoFrontendRelease=development
+ARG geppettoClientRelease=VFBv2.1.0.5
+ARG ukAcVfbGeppettoRelease=development
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 

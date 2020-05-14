@@ -108,15 +108,21 @@ export default class VFBStackViewer extends React.Component {
   }
 
   addSlices (instances) {
+    var added = undefined;
     var curr = this.data.instances.length;
     if (instances.length == undefined) {
+      added = [instances];
       if (instances.parent) {
         console.log('Adding ' + instances.parent.getName() + ' to ' + this.data.instances.length);
+        if (this.props.onLoad !== undefined) {
+          this.props.onLoad(instances.parent.getId());
+        }
       } else {
         console.log('Adding ' + instances.toString() + ' to ' + this.data.instances.length);
         window.test = instances;
       }
     } else {
+      added = instances;
       console.log('Adding ' + instances.length + ' instances to ' + this.data.instances.length);
     }
     this.data.instances = arrayUnique(this.data.instances.concat(instances));

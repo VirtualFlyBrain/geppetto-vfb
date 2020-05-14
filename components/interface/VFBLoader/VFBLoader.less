@@ -1,0 +1,45 @@
+.progress-bar {
+  position: absolute;
+  top: 0px;
+  right: 8px ;
+  margin-top: 3px;
+  border: 1px solid #000;
+  width: 10%;
+  height: 80%;
+  font-size: 12px;
+  font-family: 'Khand', sans-serif;
+  line-height: 20px;
+  color: #000;
+  text-align: left;
+  background-color: white;
+}
+
+.progress-bar:before {
+  content: attr(datalabel);
+  position: absolute;
+  text-align: center;
+  top: 2px;
+  left: 0;
+  right: 0;
+  font-size: 14px;
+}
+
+.progress-bar .filler {
+  text-align: left;
+  background: #11bffe;
+  height: 100%;
+  display: inline-block;
+  border-radius: inherit;
+  transition: width .5s ease-in;
+}
+
+#vids {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#vids a:first-of-type {
+  margin-bottom: 5px;
+}

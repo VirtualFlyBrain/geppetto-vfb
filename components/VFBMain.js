@@ -13,6 +13,7 @@ import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlig
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+import Search from 'geppetto-client/js/components/interface/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 
@@ -45,7 +46,6 @@ export default class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: false,
       htmlFromToolbar: undefined,
-      idOnFocus: undefined,
       instanceOnFocus: undefined,
       idSelected: undefined,
     };
@@ -54,15 +54,17 @@ export default class VFBMain extends React.Component {
     this.menuHandler = this.menuHandler.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.tutorialHandler = this.tutorialHandler.bind(this);
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
     this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
-    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+    this.TermInfoIdLoaded = this.TermInfoIdLoaded.bind(this);
+    this.StackViewerIdLoaded = this.StackViewerIdLoaded.bind(this);
+    this.ThreeDViewerIdLoaded = this.ThreeDViewerIdLoaded.bind(this);
     this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
 
-    this.coli = 1;
     this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
     this.htmlToolbarRender = undefined;
@@ -76,25 +78,36 @@ export default class VFBMain extends React.Component {
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
     this.idFromURL = undefined;
-    this.firstLoad = true;
     this.idsFromURL = [];
     this.urlQueryLoader = undefined;
     this.quickHelpRender = undefined;
+    this.firstLoad = true;
 
     this.UIElementsVisibility = {};
 
     this.colours = require('./configuration/VFBMain/colours.json');
+
     this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
+
+    this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
+
     this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
     this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
     this.controlPanelColumns = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColumns;
     this.controlPanelControlConfigs = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelControlConfigs;
+
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsControlConfig;
     this.queryBuilderDatasourceConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryBuilderDatasourceConfig;
     this.sorterColumns = require('./configuration/VFBMain/queryBuilderConfiguration').sorterColumns;
+
+    this.setSepCol = require('./interface/utils/utils').setSepCol;
+    this.hasVisualType = require('./interface/utils/utils').hasVisualType;
+    this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
+    this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
     this.model = FlexLayout.Model.fromJson(modelJson)
 
@@ -102,44 +115,7 @@ export default class VFBMain extends React.Component {
     window.customAction = [];
   }
 
-  getStackViewerDefaultX () {
-    return (Math.ceil(window.innerWidth / 1.826));
-  }
-
-  getStackViewerDefaultY () {
-    return (Math.ceil(window.innerHeight / 3.14));
-  }
-
-  // Logic to add VFB ids into the scene starts here
-  setSepCol (entityPath) {
-    if (entityPath.indexOf(window.templateID) < 0) {
-      var c = this.coli;
-      this.coli++;
-      if (this.coli > 199) {
-        this.coli = 1;
-      }
-    } else {
-      c = 0;
-    }
-    if (Instances.getInstance(entityPath).setColor != undefined) {
-      Instances.getInstance(entityPath).setColor(this.colours[c], true).setOpacity(0.3, true);
-      try {
-        Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
-      } catch (ignore) {
-      }
-      if (c == 0) {
-        Instances.getInstance(entityPath).setOpacity(0.4, true);
-      }
-    } else {
-      console.log('Issue setting colour for ' + entityPath);
-    }
-  }
-
   clearQS () {
-    if (this.refs.spotlightRef) {
-      $("#spotlight").hide();
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-    }
     if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
     }
@@ -196,7 +172,9 @@ export default class VFBMain extends React.Component {
           }
         }
         if (idsList.length > 0) {
+          this.props.vfbLoadId(idsList);
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
+          this.setState({ idSelected: idsList[idsList.length - 1] });
         }
       }
 
@@ -222,6 +200,18 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  ThreeDViewerIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "ThreeDViewer");
+  }
+
+  StackViewerIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "StackViewer");
+  }
+
+  TermInfoIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "TermInfo");
+  }
+
   handleSceneAndTermInfoCallback (variableIds) {
     if (typeof(variableIds) == "undefined") {
       console.log('Blank Term Info Callback ');
@@ -241,6 +231,9 @@ export default class VFBMain extends React.Component {
         continue;
       }
       if (this.hasVisualType(variableIds[singleId])) {
+        if (!this.firstLoad) {
+          this.handlerInstanceUpdate(meta);
+        }
         this.resolve3D(variableIds[singleId], function (id) {
           var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
@@ -264,27 +257,6 @@ export default class VFBMain extends React.Component {
       GEPPETTO.trigger('spin_logo');
     } else {
       GEPPETTO.trigger('stop_spin_logo');
-    }
-  }
-
-  hasVisualType (variableId) {
-    var counter = 0;
-    var instance = undefined;
-    var extEnum = {
-      0 : { extension: "_swc" },
-      1 : { extension: "_obj" },
-      2 : { extension: "_slice" }
-    };
-    while ((instance == undefined) && (counter < 3)) {
-      try {
-        instance = Instances.getInstance(variableId + "." + variableId + extEnum[counter].extension);
-      } catch (ignore) { }
-      counter++;
-    }
-    if (instance != undefined) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -364,8 +336,8 @@ export default class VFBMain extends React.Component {
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
             if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              window.open(newUrl, targetWindow);
               window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
+              window.open(newUrl, targetWindow);
             } else {
               window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
             }
@@ -512,7 +484,7 @@ export default class VFBMain extends React.Component {
       this.refs.querybuilderRef.open();
       this.refs.querybuilderRef.switchView(false, false);
       this.refs.querybuilderRef.clearAllQueryItems();
-      
+
       var callback = function () {
         // check if any results with count flag
         if (that.refs.querybuilderRef.props.model.count > 0) {
@@ -656,6 +628,15 @@ export default class VFBMain extends React.Component {
   }
 
   UIDidUpdate (prevState) {
+    // REDUX action to update the ui state
+    if ((prevState.canvasVisible !== this.state.canvasVisible) || (prevState.sliceViewerVisible !== this.state.sliceViewerVisible) || (prevState.termInfoVisible !== this.state.termInfoVisible)) {
+      this.props.vfbUIUpdated({
+        "ThreeDViewer": this.state.canvasVisible,
+        "StackViewer": this.state.sliceViewerVisible,
+        "TermInfo": this.state.termInfoVisible
+      });
+    }
+
     if ((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
@@ -705,8 +686,7 @@ export default class VFBMain extends React.Component {
       this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-      this.refs.spotlightRef.open();
+      this.refs.searchRef.openSearch(true);
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
       this.refs.querybuilderRef.open();
@@ -786,6 +766,8 @@ export default class VFBMain extends React.Component {
         name={"Canvas"}
         baseZoom="1.2"
         wireframeEnabled={true}
+        minimiseAnimation={false}
+        onLoad={this.ThreeDViewerIdLoaded}
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
@@ -798,6 +780,7 @@ export default class VFBMain extends React.Component {
           ref={ref => this.termInfoReference = ref}
           queryBuilder={this.refs.querybuilderRef}
           showButtonBar={true}
+          onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
           focusTermRef={this.focusTermReference}
@@ -842,6 +825,7 @@ export default class VFBMain extends React.Component {
             layout={this.refs.layout}
             ref={ref => this.sliceViewerReference = ref}
             canvasRef={this.canvasReference}
+            onLoad={this.StackViewerIdLoaded}
             stackViewerHandler={this.stackViewerHandler} /></div>);
       } else {
         return (<div className="flexChildContainer"></div>);
@@ -897,7 +881,7 @@ export default class VFBMain extends React.Component {
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
     }
-    
+
     /**
      * Global reference to Stackviewer used in testing
      */
@@ -945,7 +929,7 @@ export default class VFBMain extends React.Component {
       }
       return null;
     };
-    
+
     // Retrieve cookie for 'quick_help' modal
     var cookie = getCookie("show_quick_help");
     // Show 'Quick Help' modal if cookie to hide it is not set to True
@@ -1073,6 +1057,11 @@ export default class VFBMain extends React.Component {
     }
 
     var that = this;
+
+    GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
+      that.props.instanceAdded(instance);
+    });
+
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
       that.addVfbId(that.idsFinalList);
 
@@ -1190,7 +1179,6 @@ export default class VFBMain extends React.Component {
   handlerInstanceUpdate (instance) {
     let metaInstance = undefined;
     let parentInstance = undefined;
-    let initException = true;
     if (instance === undefined || instance === null) {
       console.log("Instance passed to handlerInstanceUpdate is undefined");
       console.trace();
@@ -1222,11 +1210,13 @@ export default class VFBMain extends React.Component {
      */
     for (var counter = 0; counter < this.idsFromURL.length; counter++) {
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL !== this.idOnFocus) {
+        this.TermInfoIdLoaded(this.idOnFocus);
         this.idsFromURL.splice(counter, 1);
         return;
       }
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL === this.idOnFocus) {
         this.idsFromURL.splice(counter, 1);
+        this.firstLoad = false;
         break;
       }
     }
@@ -1238,7 +1228,9 @@ export default class VFBMain extends React.Component {
     
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
-      this.termInfoReference.setTermInfo(this.instanceOnFocus);
+      this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
+    } else {
+      this.TermInfoIdLoaded(this.idOnFocus);
     }
 
     // Update the tree browser
@@ -1385,6 +1377,11 @@ export default class VFBMain extends React.Component {
           datasourceConfig={this.queryBuilderDatasourceConfig} 
           sorterColumns={this.sorterColumns}
           showClose={true} />
+
+        <Search ref="searchRef"
+          datasource="SOLR"
+          searchConfiguration={this.searchConfiguration}
+          datasourceConfiguration={this.datasourceConfiguration} />
 
         {this.htmlToolbarRender}
       </div>
