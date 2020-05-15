@@ -74,7 +74,7 @@ describe('VFB Spotlight Tests', () => {
 		it('Spotlight visible, perform Instance search', async () => {
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('fru-M-200266');
-			await page.waitFor(10000);
+			await page.waitFor(15000);
 			await page.evaluate(async () => document.querySelector("#paperResults").querySelectorAll(".MuiListItem-button")[0].click())
 		});;
 
