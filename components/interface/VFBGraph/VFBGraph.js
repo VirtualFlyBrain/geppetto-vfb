@@ -344,6 +344,8 @@ export default class VFBGraph extends Component {
         
         return color;
       },
+      linkDirectionalParticles : 4, 
+      linkDirectionalParticleWidth : link => self.highlightLinks.has(link) ? 4 : 0, 
       nodeCanvasObject:(node, ctx, globalScale) => {
         let cardWidth = NODE_WIDTH;
         let cardHeight = NODE_HEIGHT;
