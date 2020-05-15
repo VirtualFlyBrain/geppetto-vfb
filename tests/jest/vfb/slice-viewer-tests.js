@@ -22,6 +22,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -94,12 +96,13 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
 			await click(page, 'button[id=run-query-btn]');
-			await wait4selector(page, '#VFB_00030624-image-container', { visible: true, timeout : 10000 })
+			await wait4selector(page, '#VFB_00030624-image-container', { visible: true, timeout : 60000 })
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
-			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
+			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click());
+			closeModalWindow(page);
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
 		})
 	})
@@ -107,7 +110,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
 	describe('Test Slice Viewer Component', () => {
 		it('SliceViewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 5000})
 		})
 
 		it('SliceViewer component has 2 meshes rendered', async () => {
@@ -209,7 +212,10 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('SliceViewer closed', async () => {
 			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			await page.evaluate(async () =>{
+				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			});
 			expect(
 					await page.evaluate(async () => {
 						document.getElementById("NewStackViewerdisplayArea")

@@ -21,6 +21,8 @@ describe('VFB 3D Viewer Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -105,7 +107,10 @@ describe('VFB 3D Viewer Component Tests', () => {
 		it('3DViewer closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), since the 3D Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
+			await page.evaluate(async () => {
+				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			});
 			expect(
 					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
 			).toBe(null);
