@@ -24,6 +24,8 @@ describe('VFB Query Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
