@@ -32,13 +32,13 @@ var searchConfiguration = {
       "key": "label",
       "filter_name": "Label",
       "type": "string",
-      "enabled": false,
+      "enabled": true,
     },
     {
       "key": "short_form",
       "filter_name": "ID",
       "type": "string",
-      "enabled": false,
+      "enabled": true,
     },
     {
       "key": "facets_annotation",
