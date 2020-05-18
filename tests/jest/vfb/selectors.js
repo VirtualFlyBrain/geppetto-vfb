@@ -7,7 +7,7 @@ export const CONTROLS_MESSAGE = 'Geppetto loads the initial camera controls';
 export const FOREGROUND_TOOLBAR_SELECTOR = 'div[id="foreground-toolbar"]';
 export const FOREGROUND_MESSAGE = "Geppetto loads the initial foreground controls";
 
-export const SPOT_LIGHT_SELECTOR = 'div[id="spotlight"]';
+export const SPOT_LIGHT_SELECTOR = 'input#searchInput';
 export const SPOT_LIGHT_MESSAGE = "Spotlight is visible.";
 
 export const PLOT_BUTTON_SELECTOR = 'button#plot';

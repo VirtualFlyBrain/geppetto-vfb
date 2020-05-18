@@ -22,6 +22,8 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -96,8 +98,8 @@ describe('VFB Term Info Component Tests', () => {
 		})	
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
-			await wait4selector(page, 'div#vfbterminfowidget', { hidden: true, timeout : 5000})
+			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			await wait4selector(page, '#vfbterminfowidget', { visible: false, timeout : 5000})
 		})
 
 		it('Term info opened', async () => {
@@ -137,9 +139,12 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info closed', async () => {
-			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
-			await wait4selector(page, 'div#vfbterminfowidget', { hidden: true, timeout : 5000})
+			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the third one belongs to the term info
+			await page.evaluate(async () =>{
+				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			});			
+			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 5000})
 		})
 
 		it('Term info , open using "Show Info" menu option', async () => {
@@ -189,15 +194,15 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Icon Buttons Work', () => {
 		it('Term info, "Spotlight" Button Works', async () => {
 			await click(page, 'i.fa-search')
-			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
+			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true, timeout : 5000});
 			// Close Spotlight
-			closeModalWindow(page);
+			await click(page, '#closeIcon')
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 5000});
 		})
 
 		it('Term info, "Control Panel" Button Works', async () => {
 			await click(page, "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
+			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true , timeout : 5000 })
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(4);
 			// Close Control Panel
@@ -207,7 +212,7 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Query Button" Works', async () => {
 			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true });
+			await wait4selector(page, '#querybuilder', { visible: true ,timeout : 5000 });
 			// Close Query Panel
 			closeModalWindow(page);
 			await wait4selector(page, '#querybuilder', { hidden: true, timeout : 5000});
