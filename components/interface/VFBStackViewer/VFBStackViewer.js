@@ -21,7 +21,8 @@ export default class VFBStackViewer extends React.Component {
 
     this.state = {
       data: { id: this.props.id, height: this.props.defHeight, width: this.props.defWidth, instances: [], selected: [] },
-      canvasRef: this.props.canvasRef
+      canvasRef: this.props.canvasRef,
+      orthLabel: ['Frontal','Transverse','Sagittal']
     }
 
     this.addSlices = this.addSlices.bind(this);
@@ -91,6 +92,10 @@ export default class VFBStackViewer extends React.Component {
 
   updateCanvasRef (newRef) {
     this.setState({ canvasRef: newRef });
+  }
+
+  updateOrthLabels (newOrthLabels) {
+    this.setState({ orthLabel: newOrthLabel });
   }
 
   // stack widget helper methods
@@ -257,6 +262,7 @@ export default class VFBStackViewer extends React.Component {
         data={this.state.data}
         config={this.config}
         voxel={this.voxelSize}
+        orthLabel={this.orthLabel}
         canvasRef={this.props.canvasRef}
         ref="StackViewerRef"
         layout={this.props.layout}/>
