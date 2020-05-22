@@ -32,13 +32,13 @@ var searchConfiguration = {
       "key": "label",
       "filter_name": "Label",
       "type": "string",
-      "enabled": false,
+      "enabled": true,
     },
     {
       "key": "short_form",
       "filter_name": "ID",
       "type": "string",
-      "enabled": false,
+      "enabled": true,
     },
     {
       "key": "facets_annotation",
@@ -90,6 +90,13 @@ var searchConfiguration = {
   ],
   "sorter": function (a, b) {
     var InputString = window.spotlightString;
+    // move down results with no label
+    if (a.label == undefined) {
+      return 1;
+    }
+    if (b.label == undefined) {
+      return -1;
+    }
     // move exact matches to top
     if (InputString == a.label) {
       return -1;

@@ -133,6 +133,13 @@ var spotlightDataSourceConfig = {
       },
       sorter: function (a, b) {
         var InputString = $('#typeahead').val();
+        // move down results with no label
+        if (a.label == undefined) {
+          return 1;
+        }
+        if (b.label == undefined) {
+          return -1;
+        }
         // move exact matches to top
         if (InputString == a.label) {
           return -1;
