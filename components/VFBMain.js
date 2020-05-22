@@ -281,7 +281,7 @@ export default class VFBMain extends React.Component {
             break;
           case "VFB_00101384":
             this.canvasReference.setWireframe(false);
-            this.sliceViewerReference.updateOrthLabels(['Transverse','Frontal','Sagittal']);
+            // TOOD: Fix Orientaion
             break;
           default:
             this.canvasReference.setWireframe(false);
