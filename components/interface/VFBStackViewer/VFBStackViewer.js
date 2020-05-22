@@ -31,7 +31,6 @@ export default class VFBStackViewer extends React.Component {
     this.checkConnection = this.checkConnection.bind(this);
     this.updateStackWidget = this.updateStackWidget.bind(this);
     this.getSliceInstances = this.getSliceInstances.bind(this);
-    this.updateOrthLabels = this.updateOrthLabels.bind(this);
 
     this.variable = null;
     this.options = null;
