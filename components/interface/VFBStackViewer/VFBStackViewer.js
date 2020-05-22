@@ -95,7 +95,7 @@ export default class VFBStackViewer extends React.Component {
   }
 
   updateOrthLabels (newOrthLabels) {
-    this.setState({ orthLabel: newOrthLabel });
+    this.setState({ orthLabel: newOrthLabels });
   }
 
   // stack widget helper methods
