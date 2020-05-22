@@ -279,8 +279,13 @@ export default class VFBMain extends React.Component {
           case "VFB_00050000":
             this.canvasReference.setWireframe(true);
             break;
+          case "VFB_00101384":
+            this.canvasReference.setWireframe(false);
+            this.sliceViewerReference.updateOrthLabels(['Transverse','Frontal','Sagittal']);
+            break;
           default:
             this.canvasReference.setWireframe(false);
+            break;
           }
         }
       }
