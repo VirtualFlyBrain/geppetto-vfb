@@ -19,10 +19,10 @@ ARG ukAcVfbGeppettoRelease=2.1.0.3
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
-ARG VFB_PDB_SERVER=http://pdb.virtualflybrain.org
-ARG VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/
+ARG VFB_PDB_SERVER=http://pdb-dev.virtualflybrain.org
+ARG VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/
 ARG VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
-ARG SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
+ARG SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select
 ARG googleAnalyticsSiteCode=UA-18509775-2
 ENV MAXSIZE=2G
 ARG finalBuild=false
