@@ -113,9 +113,9 @@ export default class VFBMain extends React.Component {
   }
 
   clearQS () {
-    if (this.refs.spotlightRef) {	
-      $("#spotlight").hide();	
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";	
+    if (this.refs.spotlightRef) {
+      $("#spotlight").hide();
+      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
     }
     if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
