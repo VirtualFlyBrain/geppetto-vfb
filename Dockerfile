@@ -12,8 +12,8 @@ ARG geppettoModelRelease=development
 ARG geppettoCoreRelease=development
 ARG geppettoSimulationRelease=development
 ARG geppettoDatasourceRelease=development
-ARG geppettoModelSwcRelease=development
-ARG geppettoFrontendRelease=development
+ARG geppettoModelSwcRelease=v1.0.1
+ARG geppettoFrontendRelease=v1.0.1
 ARG geppettoClientRelease=VFBv2.1.0.5
 ARG ukAcVfbGeppettoRelease=v2.1.0.3-rc1
 
