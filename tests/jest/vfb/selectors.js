@@ -7,7 +7,7 @@ export const CONTROLS_MESSAGE = 'Geppetto loads the initial camera controls';
 export const FOREGROUND_TOOLBAR_SELECTOR = 'div[id="foreground-toolbar"]';
 export const FOREGROUND_MESSAGE = "Geppetto loads the initial foreground controls";
 
-export const SPOT_LIGHT_SELECTOR = 'input#searchInput';
+export const SPOT_LIGHT_SELECTOR = 'input#typeahead'; // search:input#searchInput spotlight:div#spotlight input#typeahead
 export const SPOT_LIGHT_MESSAGE = "Spotlight is visible.";
 
 export const PLOT_BUTTON_SELECTOR = 'button#plot';
@@ -29,7 +29,7 @@ export const WATCH_BUTTON_VISIBLE_MESSAGE = 'Watch button correctly hidden';
 export const PAN_HOME_BUTTON_SELECTOR = '#panHomeBtn';
 export const SPOT_LIGHT_BUTTON_SELECTOR = '#spotlightBtn';
 export const SPOT_LIGHT_SEARCH_INPUT_SELECTOR = 'input#typeahead';
-export const SPOT_LIGHT_DIV= 'div#spotlight';
+export const SPOT_LIGHT_DIV = 'div#spotlight';
 
 export const CONTROL_PANEL_SELECTOR = 'div#controlpanel';
 export const CONTROL_PANEL_MESSAGE = "The control panel is correctly open.";
