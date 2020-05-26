@@ -39,7 +39,6 @@ export const CONTROL_PANEL_CONTAINER_SELECTOR = '#controlpanel';
 export const SEARCH_ICON_SELECTOR = 'i.fa.search';
 export const SEARCH_ICON_MESSAGE = 'Attempting to open spotlight';
 
-
 export const CONSOLE_SELECTOR = 'div.fa.fa-terminal';
 export const CONSOLE_OUTPUT_SELECTOR = '#undefined_console';
 
@@ -93,9 +92,6 @@ export const C302_V_SELECTOR = 'c302.ADAL[0].v';
 
 export const CA1_V_SELECTOR = 'ca1.CA1_CG[0].Seg0_apical_dendrite_22_1158.v';
 
-
-
-
 export const STATE_VARIABLE_FILTER_BUTTON_SELECTOR = '#stateVariablesFilterBtn';
 
 export const PROJECT_FILTER_BUTTON_SELECTOR = '#anyProjectFilterBtn';
@@ -123,7 +119,7 @@ export const ELEMENTS_IN_LANDING_PAGE = [
 ];
 
 export const GEPPETTO_LOGO = 'div#logo';
-	
+
 export const EXPERIMENT_TABLE_CONTAINER = 'div#experimentsOutput';
 export const EXPERIMENT_TABLE_SELECTOR = 'div.fa.fa-flask';
 export const EXPERIMENT_TABLE_COLUMN_1_SELECTOR = 'tr.experimentsTableColumn:nth-child(1)';
@@ -135,20 +131,20 @@ export const EXPERIMENT_TABLE_DOWNLOAD_MODELS_ICON_SELECTOR = 'a.downloadModelsI
 export const EXPERIMENT_TABLE_CLONE_ICON_SELECTOR = 'a.cloneIcon'
 export const EXPERIMENT_TABLE_DELETE_ICON_SELECTOR = 'a.deleteIcon'
 
-	
+
 export const PERSIST_BUTTON = 'button.btn.SaveButton';
 export const PERSIST_BUTTON_DISABLED = 'button.btn.SaveButton[disabled]';
 export const PERSIST_BUTTON_ACTIVE = 'button.btn.SaveButton > i.fa-spin'
-	
+
 export const SPOTLIGHT_PARAMETER_INPUT = 'input.spotlight-input'
 
 export const CONNECTIVITY_1_DIV_SELECTOR = 'div[id="Connectivity1"]'
-	
+
 export const DASHBOAD_PROJECT_PREVIEW_SELECTOR = 'div.project-preview'
 export const DASHBOARD_DELETE_PROJECT_SELECTOR = 'i.fa.fa-trash-o'
 export const DASHBOARD_DELETE_ICON_SELECTOR = 'i.fa-trash-o'
 export const DASHBOARD_OPEN_PROJECT = 'i.fa-folder-open'
-	
+
 export const DIALOG_MODAL_SELECTOR = '#infomodal'
 export const DIALOG_MODAL_BUTTON_SELECTOR = '#infomodal-btn'
 export const DIALOG_MODAL_HEADER = 'div#infomodal-header'
