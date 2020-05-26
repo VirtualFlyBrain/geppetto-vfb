@@ -71,16 +71,26 @@ describe('VFB Spotlight Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
 		});
 
-		it('Spotlight visible, perform Instance search', async () => {
-			await page.keyboard.type('fru-M-200266');
-			await page.waitFor(15000);
-			await page.evaluate(async () => document.querySelector("#paperResults").querySelectorAll(".MuiListItem-button")[0].click());
+		it('Spotlight button exists', async () => {
+			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
+			await page.keyboard.type('VFB_00000001 (fru-M-200266)');
+			await page.waitFor(3000);
+			await page.keyboard.press('Enter')
+		});;
+
+		it('Spotlight Add Scene button exists', async () => {
+			await page.waitForSelector('button[id=buttonOne]', {visible: true, timeout : 10000});			
 		});
 
-		it('New Instance Added to Scene, Term Info Updated', async () => {
-			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 180000});
+		it('Add scene button visible', async () => {
+			await click(page, 'button[id=buttonOne]');
+			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 10000})
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
 		});
+
+		it('Close spotlight', async () => {
+			await page.evaluate(async selector => $(selector).hide(), ST.SPOT_LIGHT_SELECTOR);
+		})
 
 		it('VFB_00017894.VFB_00017894_obj visibility correct after adding it through spotlight', async () => {
 			expect(
