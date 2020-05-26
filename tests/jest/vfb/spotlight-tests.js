@@ -67,19 +67,18 @@ describe('VFB Spotlight Tests', () => {
 
 		it('Opens and shows correct butttons.', async () => {
 			await page.waitFor(10000);
-			await click(page, 'i.fa-search')
+			await click(page, 'i.fa-search');
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
 		});
 
 		it('Spotlight visible, perform Instance search', async () => {
-			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('fru-M-200266');
 			await page.waitFor(15000);
-			await page.evaluate(async () => document.querySelector("#paperResults").querySelectorAll(".MuiListItem-button")[0].click())
-		});;
+			await page.evaluate(async () => document.querySelector("#paperResults").querySelectorAll(".MuiListItem-button")[0].click());
+		});
 
 		it('New Instance Added to Scene, Term Info Updated', async () => {
-			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 180000})
+			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 180000});
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
 		});
 
