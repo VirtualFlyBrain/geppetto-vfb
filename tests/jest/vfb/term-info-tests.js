@@ -201,7 +201,7 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info, "Control Panel" Button Works', async () => {
-			await click(page, "i.fa-list");
+			await page.evaluate(async variableName => $(variableName).click(), "i.fa-list");
 			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true , timeout : 5000 });
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(4);
@@ -211,7 +211,7 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info, "Query Button" Works', async () => {
-			await click(page, 'i.fa-quora');
+			await page.evaluate(async variableName => $(variableName).click(), "i.fa-quora");
 			await wait4selector(page, '#query-results-container', { visible: true ,timeout : 5000 });
 			// Close Query Panel
 			closeModalWindow(page);
@@ -219,7 +219,7 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info, "Clear All" Button Works', async () => {
-			await click(page, 'i.fa-eraser');
+			await page.evaluate(async variableName => $(variableName).click(), "i.fa-eraser");
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
 		})
 	})
