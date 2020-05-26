@@ -196,7 +196,7 @@ describe('VFB Term Info Component Tests', () => {
 			await click(page, 'i.fa-search')
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true, timeout : 5000});
 			// Close Spotlight
-			await click(page, '#closeIcon')
+			await click(page, 'div.fa-times')
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 5000});
 		})
 
