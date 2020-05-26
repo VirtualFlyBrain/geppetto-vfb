@@ -90,8 +90,9 @@ describe('VFB Slice Viewer Component Tests', () => {
 				var event = new Event('change', { bubbles: true });
 				selectElement[0].dispatchEvent(event);
 			})
-			//Test there are 2 results before running query
-			await page.waitForFunction('document.getElementById("query-results-label").innerText.startsWith("2 results")', {visible : true, timeout : 60000});
+			//Test there are 2+ results before running query
+			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
+			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
