@@ -120,7 +120,7 @@ describe('VFB Menu Component Tests', () => {
 	it('Term info correctly populated with dataset after query results clicked', async () => {
 		await page.click('tbody > .standard-row:nth-child(1) > .query-results-name-column > div > a');
 		await wait4selector(page, '.label-DataSet', { visible: true, timeout : 10000 });
-		await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("Dickson lab VT line collection - VDRC images (Dickson_VT)")');
+		await page.waitForFunction('document.getElementsByClassName("label-DataSet")[0].innerText.startsWith("DataSet")');
 	})
 })
 

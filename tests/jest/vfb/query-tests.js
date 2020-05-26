@@ -79,7 +79,7 @@ describe('VFB Query Component Tests', () => {
 			await wait4selector(page, '#queryitem-medulla_0', { visible: true , timeout : 60000})
 		})
 
-		it('Selecting second query for medulla', async () => {
+		it('Selecting Transgene query for medulla', async () => {
 			await page.evaluate(async selector =>  {
 				var selectElement = $('select.query-item-option');
 				selectElement.val('1').change();
@@ -87,38 +87,25 @@ describe('VFB Query Component Tests', () => {
 				selectElement[0].dispatchEvent(event);
 			})
 			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
+			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
 		})
-
-		// TODO Fix query results check for new Transgene query:
-		//await page.waitForFunction('document.getElementById("query-results-label").innerText.split(" ")[0].startsWith("3")',{timeout : 120000});
-		//await page.waitForFunction(expect(await page.evaluate(() => Number(document.getElementById("query-results-label").innerText.split(" ")[0]))).toBeGreaterThan(3000))
-		it('Checking enough results returned', async () => {
-			await page.waitForFunction('$(".query-item-option")[0].selectedOptions[0].label.startsWith("Reports of transgene expression in medulla")')
-		})
-
-		// it('Term info correctly populated for example of Medulla after query results info button click', async () => {
-		// 	await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click())
-		// 	await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
-		// 	await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
-		// })
 		
+ 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
+ 			await click(page, 'button[id=run-query-btn]');
+ 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: true , timeout : 90000})
+ 		})
 
-// 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
-// 			await click(page, 'button[id=run-query-btn]');
-// 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: true , timeout : 90000})
-// 		})
+ 		it('Typing medulla in the query filter', async () => {
+		 	await click(page, '#querybuilder input.form-control');
+ 			await page.keyboard.type('medulla')
+ 			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000})
+ 		})
 
-// 		it('Typing medulla in the query filter', async () => {
-// 			await page.waitForFunction('document.getElementsByClassName("form-control")[1].focus()', {visible : undefined, timeout : 10000});
-// 			await page.keyboard.type('medulla')
-// 			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000})
-// 		})
-
-		// it('Term info correctly populated for transgene expressed in medulla after query results info button click', async () => {
-		// 	await page.evaluate(async selector =>   $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container").find("img").click())
-		// 	await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
-		// 	await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2 (VFB_00048552)")');
-		// })
+		it('Term info correctly populated for transgene expressed in medulla after query results info button click', async () => {
+			await page.evaluate(async selector =>   $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container").find("img").click())
+			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2 (VFB_00048552)")');
+		})
 	})
 })
 
@@ -131,14 +118,14 @@ describe('Test URL Trigger Query Builder', () => {
 	});
 
 	describe('Test landing page', () => {
-		it('Quick Help Tutorial Present', async () => {
-			await wait4selector(page, 'i.close-quickHelp', { visible: true , timeout : 120000 })
-		})
+//		it('Quick Help Tutorial Present', async () => {
+//			await wait4selector(page, 'i.close-quickHelp', { visible: true , timeout : 120000 })
+//		})
 
-		it('Close Quick Help Tutorial', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
-			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
-		})
+//		it('Close Quick Help Tutorial', async () => {
+//			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
+//			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
+//		})
 		
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000 })

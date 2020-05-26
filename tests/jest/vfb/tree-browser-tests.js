@@ -97,9 +97,9 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Color Picker Appears for "adult cerebral ganglion"', async () => {
-			await click(page, 'i.fa-tint');
+			await page.evaluate(async variableName => $(variableName).click(), "#VFBTree_component i.fa-tint");
 			// Wait for color picker to show
-			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 5000 })
+			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 50000 })
 		})
 
 		it('Use color picker to change color of "adult cerebral ganglion"', async () => {
@@ -110,7 +110,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Select color in color picker box, index 17 belongs to last available color in picker
 			await page.evaluate(async () => document.querySelectorAll("#tree-color-picker div")[17].click());
 			// Wait couple of seconds for mesh to reflect new color
-			await page.waitFor(2000);
+			await page.waitFor(20000);
 			// Retrieve new color in mesh
 			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].children[0].material.color;
