@@ -53,8 +53,8 @@ const medullaTest = function(project) {
 //			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 //		})
 
-		it('Term info component correctly populated with "Medula" as Name', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2")');
+		it('Term info component correctly populated with "Medulla" as Name', async () => {
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla")', {visible : true, timeout : 60000});
 		})
 
 		it('Term info component correctly populated with "Medula" as Classification Name', async () => {
