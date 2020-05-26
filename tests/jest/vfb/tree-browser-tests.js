@@ -99,7 +99,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Color Picker Appears for "adult cerebral ganglion"', async () => {
 			await click(page, 'i.fa-tint');
 			// Wait for color picker to show
-			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 5000 })
+			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 50000 })
 		})
 
 		it('Use color picker to change color of "adult cerebral ganglion"', async () => {
