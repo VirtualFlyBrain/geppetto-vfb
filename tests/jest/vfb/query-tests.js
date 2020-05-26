@@ -118,14 +118,14 @@ describe('Test URL Trigger Query Builder', () => {
 	});
 
 	describe('Test landing page', () => {
-		it('Quick Help Tutorial Present', async () => {
-			await wait4selector(page, 'i.close-quickHelp', { visible: true , timeout : 120000 })
-		})
+//		it('Quick Help Tutorial Present', async () => {
+//			await wait4selector(page, 'i.close-quickHelp', { visible: true , timeout : 120000 })
+//		})
 
-		it('Close Quick Help Tutorial', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
-			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
-		})
+//		it('Close Quick Help Tutorial', async () => {
+//			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
+//			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
+//		})
 		
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000 })
