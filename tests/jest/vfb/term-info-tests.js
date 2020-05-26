@@ -212,10 +212,10 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Query Button" Works', async () => {
 			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true ,timeout : 5000 });
+			await wait4selector(page, '#query-results-container', { visible: true ,timeout : 5000 });
 			// Close Query Panel
 			closeModalWindow(page);
-			await wait4selector(page, '#querybuilder', { hidden: true, timeout : 5000});
+			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 5000});
 		})
 
 		it('Term info, "Clear All" Button Works', async () => {
