@@ -96,7 +96,7 @@ describe('VFB Query Component Tests', () => {
  		})
 
  		it('Typing medulla in the query filter', async () => {
- 			await page.waitForFunction('document.getElementsByClassName("form-control")[1].focus()', {visible : undefined, timeout : 10000});
+		 	await click(page, '#querybuilder input.form-control');
  			await page.keyboard.type('medulla')
  			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000})
  		})
