@@ -56,8 +56,8 @@ script:
   - echo -e "travis_fold:end:Startup_Server1" || true
   - echo -e "travis_fold:start:Startup_Server3" || true
   - echo "$http_status"
-  - while [ "$http_status" == "404" ]; do
-      echo "Restart run. Printing logs for debugging purposes";
+  - while [ "$http_status" != "200" ]; do
+      echo "Printing logs for debugging purposes";
       sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
       tail /etc/log.log;
       docker stop $(docker ps -a -q);
