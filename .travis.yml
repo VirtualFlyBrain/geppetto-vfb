@@ -51,7 +51,7 @@ script:
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Startup_Server1" || true
   - export iterations=1
-  - Test () { request_cmd=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); export http_status=$(echo "$request_cmd" | grep HTTP | awk '{print $2}'); echo "Returned status \"$http_status\""; echo "$request_cmd"; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" == "15" ]; then exit 0; fi; sleep 1; Test; else echo "$(date) - connected successfully"; fi; }
+  - Test () { request_cmd=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); export http_status=$(echo "$request_cmd" | grep HTTP | awk '{print $2}'); echo "Returned status \"$http_status\""; echo "$request_cmd"; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "15" ]; then sleep 1; Test; fi; else echo "$(date) - connected successfully"; fi; }
   - Test
   - echo -e "travis_fold:end:Startup_Server1" || true
   - echo -e "travis_fold:start:Startup_Server3" || true
