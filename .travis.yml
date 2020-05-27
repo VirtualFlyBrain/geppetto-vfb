@@ -77,7 +77,7 @@ script:
       echo "Done restarting $http_status";
     done;
   - echo -e "travis_fold:end:Startup_Server3" || true
-  - travis_wait 45 npm test -- --verbose --colors --runInBand
+  - travis_wait 45 npm test -- --verbose --colors --runInBand --logHeapUsage
   - echo -e "travis_fold:start:Deploy" || true
   - docker ps -a
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
