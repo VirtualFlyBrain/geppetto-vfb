@@ -7,13 +7,17 @@ Test () {
 		if [ "$http_status" == "302" ]; then
 			echo "$(date) - connected successfully!"
 		else
-			if [ "$iterations" == "100" ]; then
-				exit 0
+			if [ "$http_status" == "200" ]; then
+				echo "$(date) - connected successfully!"
 			else
-				echo "Waiting for docker to finish building.";
-				iterations=$((iterations+1))
-  				sleep 1
-  				Test
+				if [ "$iterations" == "100" ]; then
+					exit 0
+				else
+					echo "Waiting for docker to finish building.";
+					iterations=$((iterations+1))
+					sleep 1
+					Test
+				fi
 			fi
 		fi
 }
