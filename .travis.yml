@@ -37,7 +37,7 @@ before_install:
       export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
       export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
     fi;
-  - Test () { request_cmd=$(curl -s -I $1 http://localhost:8080/org.geppetto.frontend/geppetto | grep HTTP/1.1 | awk {'print $2'}); http_status=$(echo "$request_cmd" | grep HTTP | awk '{print $2}'); echo $http_status; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); sleep 1; Test; else echo "$(date) - connected successfully"; fi; }
+  - Test () { request_cmd=$(curl -s -I $1 http://localhost:8080/org.geppetto.frontend/geppetto | grep HTTP/1.1 | awk {'print $2'}); export http_status=$(echo "$request_cmd" | grep HTTP | awk '{print $2}'); echo $http_status; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); sleep 1; Test; else echo "$(date) - connected successfully"; fi; }
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
 before_script:
