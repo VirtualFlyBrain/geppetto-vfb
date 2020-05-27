@@ -19,7 +19,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
 
 
 export const click = async (page, selector) => {
-  await wait4selector(page, selector, { visible: true });
+  await wait4selector(page, selector, { visible: true, timeout: 1000});
   let success = undefined;
   try {
     await page.click(selector);
