@@ -37,6 +37,7 @@ before_install:
       export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
       export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
     fi;
+  - Test () { request_cmd=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); http_status=$(echo "$request_cmd" | grep HTTP | awk '{print $2}'); echo $http_status; if [ "$http_status" == "404" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); sleep 3; Test; else echo "$(date) - connected successfully"; fi; }
 install:
   - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
 before_script:
@@ -50,29 +51,19 @@ script:
   - travis_wait 50 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Startup_Server1" || true
-  - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
+  - iterations=1
+  - test
   - docker logs $CONTAINER_NAME || true
   - echo -e "travis_fold:end:Startup_Server1" || true
-  - echo -e "travis_fold:start:Startup_Server2" || true
-  - bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh
-  - sleep 30
-  - echo -e "travis_fold:end:Startup_Server2" || true
   - echo -e "travis_fold:start:Startup_Server3" || true
-  - http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'})
   - echo "$http_status"
   - while [ "$http_status" == "404" ]; do
       echo "Restart run. Printing logs for debugging purposes";
       sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-      tail -n 200 /etc/log.log;
+      tail /etc/log.log;
       docker stop $(docker ps -a -q);
-      sleep 10;
-      docker rm $(docker ps -a -q);
-      sleep 10;
-      travis_wait 50 docker run  -t -dit --name=$CONTAINER_NAME -p 8080:8080 $IMAGE_NAME;
-      travis_wait 50 bash $TRAVIS_BUILD_DIR/tests/casperjs/utilities/test_geppetto_server.sh;
-      sleep 60;
-      http_status=$(curl -s -I $1 $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'});
-      echo "Done restarting $http_status";
+      echo "Docker container failed to start!";
+      travis_terminate 1;
     done;
   - echo -e "travis_fold:end:Startup_Server3" || true
   - travis_wait 45 npm test -- --verbose --colors --runInBand --logHeapUsage --maxConcurrency=2 --forceExit
