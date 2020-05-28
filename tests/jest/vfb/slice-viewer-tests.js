@@ -40,7 +40,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true })
 		})
 		
 //		it('Hide Quick Help Modal Window', async () => {
