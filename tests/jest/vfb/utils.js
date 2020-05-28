@@ -42,7 +42,7 @@ export const flexWindowClick = async (title, selector) => {
     var i;
     for (i = 0; i < document.getElementsByClassName("flexlayout__tab_button_content").length; i++) {
       if (document.getElementsByClassName("flexlayout__tab_button_content")[i].innerText == title) {
-        document.getElementsByClassName(selector)[i].click());
+        document.getElementsByClassName(selector)[i].click();
         break;
       }
     }
