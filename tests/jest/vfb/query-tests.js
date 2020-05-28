@@ -63,7 +63,7 @@ describe('VFB Query Component Tests', () => {
 
 		it('Query builder is visible', async () => {
 			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
