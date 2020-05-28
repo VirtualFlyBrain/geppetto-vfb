@@ -42,7 +42,7 @@ describe('VFB Query Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true })
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
 		})
 		
 //		it('Hide Quick Help Modal Window', async () => {
@@ -58,7 +58,7 @@ describe('VFB Query Component Tests', () => {
 	//Tests running query 'medu' in the query panel
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-quora', { visible: true })
+			await wait4selector(page, 'i.fa-quora', { visible: true, timeout : 120000 })
 		})
 
 		it('Query builder is visible', async () => {
