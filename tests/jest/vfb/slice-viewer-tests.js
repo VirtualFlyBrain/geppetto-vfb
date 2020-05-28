@@ -231,8 +231,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("Slice Viewer").click());
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 5000});
-			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 50000});
+			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 50000});
 		})
 	})
 })
