@@ -96,7 +96,7 @@ const neuronTest = function(project){
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true})
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000})
 		})
 
 		it('Term info component correctly populated with "fru-M-200266 (VFB_00000001)" as Name', async () => {
@@ -151,7 +151,7 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 		//Tests metadata in term info component and clicking on links
 		describe('Test Term Info Component', () => {
 			it('Term info component created after load', async () => {
-				await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true , timeout : 120000 })
+				await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true , timeout : 240000 })
 			})
 
 			it('Term info component correctly populated with "adult gnathal ganglion" as Name', async () => {

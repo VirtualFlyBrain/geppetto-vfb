@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click , closeModalWindow} from './utils';
+import { wait4selector, click , closeModalWindow, flexWindowClick} from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -96,7 +96,7 @@ describe('VFB Term Info Component Tests', () => {
 		})	
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
 			await wait4selector(page, '#vfbterminfowidget', { visible: false, timeout : 5000})
 		})
 

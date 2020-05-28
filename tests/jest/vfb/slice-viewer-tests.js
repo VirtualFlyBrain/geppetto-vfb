@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -40,7 +40,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true , timeout : 120000 })
 		})
 		
 //		it('Hide Quick Help Modal Window', async () => {
@@ -62,12 +62,12 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Opens query panel and runs query for 'medu'. This will be used later to test stack viewer got a new mesh as a result of this query run
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-quora', { visible: true })
+			await wait4selector(page, 'div.focusTermDivR i.fa-quora', { visible: true, timeout : 120000 })
 		})
 
 		it('Query builder is visible', async () => {
-			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await click(page, 'div.focusTermDivR i.fa-quora');
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
@@ -214,8 +214,9 @@ describe('VFB Slice Viewer Component Tests', () => {
 			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
 			// was previously minimized and maximized it should now occupy the third position
 			await page.evaluate(async () =>{
-				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
-				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+				flexWindowClick("Slice Viewer", "flexlayout__tab_button_trailing");
+				//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+				//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
 			});
 			expect(
 					await page.evaluate(async () => {

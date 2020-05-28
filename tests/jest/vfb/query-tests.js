@@ -8,7 +8,7 @@ import * as ST from './selectors';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
-const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894&q=FBbt_00003678,neuronspostsynaptic"
+const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001&q=FBbt_00003678,neuronspostsynaptic"
 
 /**
  * Tests query panel component by searching for 'medu' and running query on it
@@ -42,7 +42,7 @@ describe('VFB Query Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true })
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
 		})
 		
 //		it('Hide Quick Help Modal Window', async () => {
@@ -58,12 +58,12 @@ describe('VFB Query Component Tests', () => {
 	//Tests running query 'medu' in the query panel
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-quora', { visible: true })
+			await wait4selector(page, 'i.fa-quora', { visible: true, timeout : 120000 })
 		})
 
 		it('Query builder is visible', async () => {
 			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
@@ -146,7 +146,7 @@ describe('Test URL Trigger Query Builder', () => {
 	describe('Query Results Component Trigger by URL', () => {
 		it('Query builder is visible', async () => {
 			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 		
 		it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
