@@ -146,7 +146,7 @@ describe('Test URL Trigger Query Builder', () => {
 	describe('Query Results Component Trigger by URL', () => {
 		it('Query builder is visible', async () => {
 			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 		
 		it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
