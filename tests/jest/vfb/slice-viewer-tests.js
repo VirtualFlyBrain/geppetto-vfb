@@ -62,11 +62,11 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Opens query panel and runs query for 'medu'. This will be used later to test stack viewer got a new mesh as a result of this query run
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-quora', { visible: true })
+			await wait4selector(page, 'div.focusTermDivR i.fa-quora', { visible: true })
 		})
 
 		it('Query builder is visible', async () => {
-			await click(page, 'i.fa-quora');
+			await click(page, 'div.focusTermDivR i.fa-quora');
 			await wait4selector(page, '#querybuilder', { visible: true })
 		})
 
