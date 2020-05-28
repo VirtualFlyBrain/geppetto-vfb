@@ -122,7 +122,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("3D Viewer").click());
-			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 50000});
 		})
 	})
 })
