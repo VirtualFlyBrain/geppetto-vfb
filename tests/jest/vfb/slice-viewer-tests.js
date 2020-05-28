@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -214,8 +214,9 @@ describe('VFB Slice Viewer Component Tests', () => {
 			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
 			// was previously minimized and maximized it should now occupy the third position
 			await page.evaluate(async () =>{
-				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
-				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+				flexWindowClick("Slice Viewer", "flexlayout__tab_button_trailing");
+				//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+				//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
 			});
 			expect(
 					await page.evaluate(async () => {
