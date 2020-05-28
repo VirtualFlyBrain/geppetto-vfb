@@ -213,11 +213,12 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('SliceViewer closed', async () => {
 			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () =>{
-				flexWindowClick("Slice Viewer", "flexlayout__tab_button_trailing");
-				//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
-				//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
-			});
+			await flexWindowClick("Stack Viewer","flexlayout__tab_button_trailing");
+			//await page.evaluate(async () =>{
+			//	flexWindowClick("Slice Viewer", "flexlayout__tab_button_trailing");
+			//	//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+			//	//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			//});
 			expect(
 					await page.evaluate(async () => {
 						document.getElementById("NewStackViewerdisplayArea")
