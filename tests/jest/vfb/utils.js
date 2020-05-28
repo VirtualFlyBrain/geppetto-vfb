@@ -22,7 +22,7 @@ export const click = async (page, selector) => {
   await wait4selector(page, selector, { visible: true, timeout: 1000});
   let success = undefined;
   try {
-    await page.click(selector);
+    await page.evaluate((selector) => document.querySelector(selector).click(), selector);
     success = true
   } catch (error){
     // console.log(`ERROR clicking on selector   --->   ${selector} failed.`)
