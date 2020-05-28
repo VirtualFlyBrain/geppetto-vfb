@@ -38,13 +38,11 @@ export const closeModalWindow = async (page) => {
 }
 
 export const flexWindowClick = async (title, selector) => {
-  await page.evaluate(async () => {
-    var i;
-    for (i = 0; i < document.getElementsByClassName("flexlayout__tab_button_content").length; i++) {
-      if (document.getElementsByClassName("flexlayout__tab_button_content")[i].innerText == title) {
-        document.getElementsByClassName(selector)[i].click();
-        break;
-      }
+  var i;
+  for (i = 0; i < document.getElementsByClassName("flexlayout__tab_button_content").length; i++) {
+    if (document.getElementsByClassName("flexlayout__tab_button_content")[i].innerText == title) {
+      document.getElementsByClassName(selector)[i].click();
+      break;
     }
-  });
+  }
 }
