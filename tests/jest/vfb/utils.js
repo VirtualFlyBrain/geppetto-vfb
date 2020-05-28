@@ -38,11 +38,19 @@ export const closeModalWindow = async (page) => {
 }
 
 export const flexWindowClick = async (title, selector) => {
-  var i;
-  for (i = 0; i < document.getElementsByClassName("flexlayout__tab_button_content").length; i++) {
-    if (document.getElementsByClassName("flexlayout__tab_button_content")[i].innerText == title) {
-      document.getElementsByClassName(selector)[i].click();
-      break;
-    }
+  if (document.getElementsByClassName("flexlayout__tab_button_content")[0].innerText == title) {
+    await document.getElementsByClassName(selector)[0].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[1].innerText == title) {
+    await document.getElementsByClassName(selector)[1].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[2].innerText == title) {
+    await document.getElementsByClassName(selector)[2].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[3].innerText == title) {
+    await document.getElementsByClassName(selector)[3].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[4].innerText == title) {
+    await document.getElementsByClassName(selector)[4].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[5].innerText == title) {
+    await document.getElementsByClassName(selector)[5].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[6].innerText == title) {
+    await document.getElementsByClassName(selector)[6].click();
   }
 }
