@@ -59,11 +59,13 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Component Minimizes/Maximizes/Opens/Closes', () => {
 		it('Term info minimized', async () => {
 			// There are three flexlayout_tab components open with the same minimize icon, the third one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
+			await flexWindowClick("Term Info","fa-window-minimize");
+			//await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
 			// Check 3d viewer is visible again by checking css property 'display : none'
-			expect(
-					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
-			).toBe("none");
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: false , timeout : 400000})
+			//expect(
+			//		await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
+			//).toBe("none");
 		})
 
 		it('Term info maximized', async () => {
