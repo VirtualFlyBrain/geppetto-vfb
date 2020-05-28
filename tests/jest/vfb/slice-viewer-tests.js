@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick } from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -40,13 +40,13 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true , timeout : 120000 })
 		})
 		
-		it('Hide Quick Help Modal Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-		})
+//		it('Hide Quick Help Modal Window', async () => {
+//			closeModalWindow(page);
+//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+//		})
 
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
@@ -62,12 +62,12 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Opens query panel and runs query for 'medu'. This will be used later to test stack viewer got a new mesh as a result of this query run
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-quora', { visible: true })
+			await wait4selector(page, 'div.focusTermDivR i.fa-quora', { visible: true, timeout : 120000 })
 		})
 
 		it('Query builder is visible', async () => {
-			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await click(page, 'div.focusTermDivR i.fa-quora');
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
@@ -111,7 +111,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
 	describe('Test Slice Viewer Component', () => {
 		it('SliceViewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 5000})
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 500000})
 		})
 
 		it('SliceViewer component has 2 meshes rendered', async () => {
@@ -213,10 +213,12 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('SliceViewer closed', async () => {
 			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () =>{
-				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
-				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
-			});
+			await flexWindowClick("Stack Viewer","flexlayout__tab_button_trailing");
+			//await page.evaluate(async () =>{
+			//	flexWindowClick("Slice Viewer", "flexlayout__tab_button_trailing");
+			//	//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+			//	//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			//});
 			expect(
 					await page.evaluate(async () => {
 						document.getElementById("NewStackViewerdisplayArea")
@@ -229,8 +231,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("Slice Viewer").click());
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 5000});
-			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 50000});
+			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 50000});
 		})
 	})
 })

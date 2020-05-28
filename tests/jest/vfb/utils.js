@@ -19,10 +19,10 @@ export const wait4selector = async (page, selector, settings = {}) => {
 
 
 export const click = async (page, selector) => {
-  await wait4selector(page, selector, { visible: true });
+  await wait4selector(page, selector, { visible: true, timeout: 100000});
   let success = undefined;
   try {
-    await page.click(selector);
+    await page.evaluate((selector) => document.querySelector(selector).click(), selector);
     success = true
   } catch (error){
     // console.log(`ERROR clicking on selector   --->   ${selector} failed.`)
@@ -35,4 +35,22 @@ export const closeModalWindow = async (page) => {
 		var evt = new KeyboardEvent('keydown', {'keyCode':27, 'which':27});
 		document.dispatchEvent (evt);
 	});
+}
+
+export const flexWindowClick = async (title, selector) => {
+  if (document.getElementsByClassName("flexlayout__tab_button_content")[0].innerText == title) {
+    await document.getElementsByClassName(selector)[0].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[1].innerText == title) {
+    await document.getElementsByClassName(selector)[1].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[2].innerText == title) {
+    await document.getElementsByClassName(selector)[2].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[3].innerText == title) {
+    await document.getElementsByClassName(selector)[3].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[4].innerText == title) {
+    await document.getElementsByClassName(selector)[4].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[5].innerText == title) {
+    await document.getElementsByClassName(selector)[5].click();
+  }else if (document.getElementsByClassName("flexlayout__tab_button_content")[6].innerText == title) {
+    await document.getElementsByClassName(selector)[6].click();
+  }
 }

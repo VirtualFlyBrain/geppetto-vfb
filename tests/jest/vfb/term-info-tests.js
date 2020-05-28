@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click , closeModalWindow} from './utils';
+import { wait4selector, click , closeModalWindow, flexWindowClick} from './utils';
 import * as ST from './selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -22,8 +22,6 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
-			// Close tutorial window
-			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -48,10 +46,10 @@ describe('VFB Term Info Component Tests', () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 400000})
 		})
 		
-		it('Hide Quick Help Modal Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-		})
+//		it('Hide Quick Help Modal Window', async () => {
+//			closeModalWindow(page);
+//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+//		})
 
 		it('Term info component name correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
@@ -61,8 +59,10 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Component Minimizes/Maximizes/Opens/Closes', () => {
 		it('Term info minimized', async () => {
 			// There are three flexlayout_tab components open with the same minimize icon, the third one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
+			flexWindowClick("Term Info","fa-window-minimize");
+			//await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
 			// Check 3d viewer is visible again by checking css property 'display : none'
+			//await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: false , timeout : 400000})
 			expect(
 					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
 			).toBe("none");
@@ -98,7 +98,7 @@ describe('VFB Term Info Component Tests', () => {
 		})	
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
 			await wait4selector(page, '#vfbterminfowidget', { visible: false, timeout : 5000})
 		})
 
