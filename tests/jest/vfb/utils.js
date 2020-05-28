@@ -46,5 +46,5 @@ export const flexWindowClick = async (title, selector) => {
         break;
       }
     }
-  }
+  });
 }
