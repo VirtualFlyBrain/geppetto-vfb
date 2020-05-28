@@ -111,7 +111,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
 	describe('Test Slice Viewer Component', () => {
 		it('SliceViewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 5000})
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 500000})
 		})
 
 		it('SliceViewer component has 2 meshes rendered', async () => {
