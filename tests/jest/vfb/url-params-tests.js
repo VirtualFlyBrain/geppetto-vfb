@@ -58,11 +58,11 @@ const medullaTest = function(project) {
 		})
 
 		it('Term info component correctly populated with "Medula" as Classification Name', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_3_component").innerText.startsWith("medulla")');
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_3_component").innerText.startsWith("medulla")', {visible : true, timeout : 60000});
 		})
 
 		it('Term info component correctly populated with "Medula" Thumbnail', async () => {
-			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/thumbnailT.png"');
+			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/thumbnailT.png"', {visible : true, timeout : 60000});
 		})
 	})
 
