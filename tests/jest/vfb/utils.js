@@ -37,7 +37,7 @@ export const closeModalWindow = async (page) => {
 	});
 }
 
-export const flexWindowClick = async (document, title, selector) => {
+export const flexWindowClick = async (title, selector) => {
   if (document.getElementsByClassName("flexlayout__tab_button_content")[0].innerText == title) {
     await document.getElementsByClassName(selector)[0].click();
   }else if (document.getElementsByClassName("flexlayout__tab_button_content")[1].innerText == title) {
