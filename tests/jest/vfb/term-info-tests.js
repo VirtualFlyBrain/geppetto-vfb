@@ -68,7 +68,7 @@ describe('VFB Term Info Component Tests', () => {
 			).toBe("none");
 		})
 
-		it('Term info maximized', async () => {
+		it('Term info restored', async () => {
 			await page.evaluate(async () => {
 				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[0]
 				let clickEvent = new MouseEvent('mousedown', {
@@ -87,20 +87,17 @@ describe('VFB Term Info Component Tests', () => {
 				mouseDown.dispatchEvent(clickEvent);
 			});
 
-			// Check term info component is visible again by checking css property 'display : block'
-			expect(
-					// There are 3 div elements with class 'flexlayout_tab', the term info component is the third one
-					await page.evaluate(async () =>	document.getElementsByClassName("flexlayout__tab")[document.getElementsByClassName("flexlayout__tab").length - 1].style.getPropertyValue("display"))
-			).toBe("block");
+			// Check term info component is visible again'
+			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})	
-		
+
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
 			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: false , timeout : 120000 })
+			await wait4selector(page, 'div#vfbterminfowidget', { visible: false, timeout : 500000});
 		})
 
 		it('Term info opened', async () => {
