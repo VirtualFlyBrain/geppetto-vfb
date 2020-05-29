@@ -103,8 +103,8 @@ describe('VFB Query Component Tests', () => {
 
 		it('Term info correctly populated for transgene expressed in medulla after query results info button click', async () => {
 			await page.evaluate(async selector =>   $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2 (VFB_00048552)")');
+			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 500000 })
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2 (VFB_00048552)")', {visible : true, timeout : 60000});
 		})
 	})
 })
