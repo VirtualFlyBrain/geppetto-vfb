@@ -107,8 +107,8 @@ describe('VFB Term Info Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("Term Info").click());
-			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 5000});
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 500000});
 		})
 	})
 
