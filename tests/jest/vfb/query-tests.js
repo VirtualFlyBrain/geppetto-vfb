@@ -97,15 +97,20 @@ describe('VFB Query Component Tests', () => {
 
  		it('Typing medulla in the query filter', async () => {
 		 	await click(page, '#querybuilder input.form-control');
- 			await page.keyboard.type('medulla')
- 			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000})
+ 			await page.keyboard.type('medulla');
+			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000});
  		})
 
-		it('Term info correctly populated for transgene expressed in medulla after query results info button click', async () => {
+		it('Query results image selected and query results closed', async () => {
+			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000});
 			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").click());
 			closeModalWindow(page);
-			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 500000 });
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2 (VFB_00048552)")', {visible : true, timeout : 600000});
+			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: false , timeout : 900000})
+		})
+
+		it('Term info correctly populated for transgene expressed in medulla after image of VDRC_VT945397_GAL4_attP2_2 opened', async () => {	
+			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 900000 });
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2")', {visible : true, timeout : 600000});
 		})
 	})
 })
