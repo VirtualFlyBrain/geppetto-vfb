@@ -102,7 +102,6 @@ describe('VFB Query Component Tests', () => {
  		})
 
 		it('Query results image selected and query results closed', async () => {
-			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000});
 			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").click());
 			closeModalWindow(page);
 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: false , timeout : 900000})
