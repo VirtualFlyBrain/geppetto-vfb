@@ -90,7 +90,7 @@ describe('VFB Term Info Component Tests', () => {
 			// Check term info component is visible again by checking css property 'display : block'
 			expect(
 					// There are 3 div elements with class 'flexlayout_tab', the term info component is the third one
-					await page.evaluate(async () =>	document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
+					await page.evaluate(async () =>	document.getElementsByClassName("flexlayout__tab")[document.getElementsByClassName("flexlayout__tab").length - 1].style.getPropertyValue("display"))
 			).toBe("block");
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
