@@ -54,7 +54,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("Tree Browser").click());
-			await wait4selector(page, '#VFBTree_component', { visible: true, timeout : 60000 })
+			await wait4selector(page, '#VFBTree_component', { visible: true, timeout : 500000 })
 		})
 
 		it('First node in Tree Browser is correctly named', async () => {
