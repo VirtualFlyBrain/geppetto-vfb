@@ -153,7 +153,7 @@ describe('VFB Term Info Component Tests', () => {
 			await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
 			// Click on 'Show Info' menu selection option
 			await page.evaluate(async () => document.getElementById("Show Info").click());
-			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 50000});
+			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 50000});
 		})
 
