@@ -154,7 +154,7 @@ describe('VFB Term Info Component Tests', () => {
 			// Click on 'Show Info' menu selection option
 			await page.evaluate(async () => document.getElementById("Show Info").click());
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 50000});
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 50000});
 		})
 
 		it('Term info , run "Query For" from menu option', async () => {
