@@ -104,7 +104,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Click on "eye" icon to render "adult cerebral ganglion" mesh', async () => {
-			await click(page, '#VFBTree_component i.fa-eye');
+			await page.evaluate((selector) => document.querySelector(selector).click(), '#VFBTree_component i.fa-eye');
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 })
 		})
