@@ -202,7 +202,7 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Control Panel" Button Works', async () => {
 			await page.evaluate(async variableName => $(variableName).click(), "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true , timeout : 5000 });
+			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true , timeout : 50000 });
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(4);
 			// Close Control Panel
