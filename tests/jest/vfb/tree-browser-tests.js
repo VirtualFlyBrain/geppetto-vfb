@@ -54,7 +54,26 @@ describe('VFB Tree Browser Component Tests', () => {
 			//// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			//await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			//await page.evaluate(async () => document.getElementById("Tree Browser").click());
-			await flexWindowClick("Tree Browser","flexlayout__tab_button_content");
+			//await flexWindowClick("Tree Browser","flexlayout__tab_button_content");
+			await page.evaluate(async () => {
+				let mouseUp = document.getElementsByClassName('flexlayout__tab_button_content')[3]
+				let clickEvent = new MouseEvent('mousedown', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				mouseUp.dispatchEvent(clickEvent);
+
+				let mouseDown = document.getElementsByClassName('flexlayout__tab_button_content')[3]
+				clickEvent = new MouseEvent('mouseup', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				mouseDown.dispatchEvent(clickEvent);
+			});
+
+			// Check that the Tree Browser is visible
 			await wait4selector(page, '#VFBTree_component', { visible: true, timeout : 500000 });
 		})
 
