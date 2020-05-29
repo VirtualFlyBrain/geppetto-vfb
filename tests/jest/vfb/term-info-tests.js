@@ -140,10 +140,11 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the third one belongs to the term info
-			await page.evaluate(async () =>{
-				let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
-				document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
-			});			
+			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
+			//await page.evaluate(async () =>{
+			//	let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+			//	document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			//});			
 			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 50000})
 		})
 
