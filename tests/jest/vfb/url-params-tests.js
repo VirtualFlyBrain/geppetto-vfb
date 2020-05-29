@@ -41,7 +41,7 @@ const medullaTest = function(project) {
 	describe('Test Term Info Component Contains Metadata for Medulla', () => {
 		//Tests deselect button for VFB_00017894 is present in term info component, means is selected
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 500000 })
 		})
 
 		it('Term info component created after load', async () => {
