@@ -105,7 +105,7 @@ describe('VFB Query Component Tests', () => {
 		it('Query results image selected and query results closed', async () => {
 			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").click());
 			closeModalWindow(page);
-			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: false , timeout : 900000})
+			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { hidden: true , timeout : 900000})
 		})
 
 		it('Term info correctly populated for transgene expressed in medulla after image of VDRC_VT945397_GAL4_attP2_2 opened', async () => {	
