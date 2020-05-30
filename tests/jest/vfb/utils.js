@@ -12,7 +12,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
     if (options.visible || options.hidden) {
       behaviour = options.visible ? "to be visible." : "to disappear."
     }
-    // console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}`)
+    console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}`)
   }
   expect(success).toBeDefined()
 }
@@ -25,7 +25,7 @@ export const click = async (page, selector) => {
     await page.evaluate((selector) => document.querySelector(selector).click(), selector);
     success = true
   } catch (error){
-    // console.log(`ERROR clicking on selector   --->   ${selector} failed.`)
+    console.log(`ERROR clicking on selector   --->   ${selector} failed.`)
   }
   expect(success).toBeDefined()
 }
@@ -54,6 +54,8 @@ export const flexWindowClick = async (title, selector) => {
         document.getElementsByClassName(selector)[5].click();
       }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 6 && document.getElementsByClassName("flexlayout__tab_button_content")[6].innerText == title) {
         document.getElementsByClassName(selector)[6].click();
+      }else{
+        console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
       }
     }
   }
