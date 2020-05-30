@@ -13,7 +13,8 @@ const projectURL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Tree Browser Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(240000); 
+		//increases timeout to ~8 minutes
+		jest.setTimeout(500000);
 		await page.goto(projectURL);
 
 	});

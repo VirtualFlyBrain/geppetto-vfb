@@ -13,10 +13,9 @@ const projectURL = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030
  */
 describe('VFB Term Info Component Tests', () => {
 	beforeAll(async () => {
-		//increases timeout to 2 minutes
-		jest.setTimeout(120000);
+		//increases timeout to ~8 minutes
+		jest.setTimeout(500000);
 		await page.goto(projectURL, {timeout : 120000 });
-
 	});
 
 	describe('Test landing page', () => {

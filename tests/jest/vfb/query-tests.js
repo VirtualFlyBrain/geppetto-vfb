@@ -15,7 +15,8 @@ const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VF
  */
 describe('VFB Query Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(120000); 
+		//increases timeout to ~8 minutes
+		jest.setTimeout(500000);
 		await page.goto(PROJECT_URL);
 
 	});
