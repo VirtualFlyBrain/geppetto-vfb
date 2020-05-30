@@ -65,7 +65,7 @@ script:
       travis_terminate 1;
     done;
   - echo -e "travis_fold:end:Startup_Server3" || true
-  - travis_wait 40 npm test -- --verbose --colors
+  - travis_wait 40 npm test -- --verbose=false --colors
   - echo -e "travis_fold:start:Deploy" || true
   - docker ps -a
   - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
