@@ -100,7 +100,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Expand node "adult cerebral ganglion"', async () => {
 			// Click on third node of tree browser, 'adult cerebral ganglion'
-			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[2].click();
+			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[2].click());
 			// Check tree now expanded with adult cerebral ganglion name
 			let thirdNode = await page.evaluate(async () => {
 				return document.getElementsByClassName("nodeSelected")[6].innerText;
