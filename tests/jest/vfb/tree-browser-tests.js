@@ -98,35 +98,46 @@ describe('VFB Tree Browser Component Tests', () => {
 			expect(adultCerebralGanglionNode).toEqual("adult cerebral ganglion");
 		})
 
-		it('Click on Node "adult cerebral ganglion"', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[2].click());
-			// Check Term Info is now populated with adult cerebral ganglion name
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult cerebral ganglion (FBbt_00110636)")', {timeout : 60000});
+		it('Expand node "adult cerebral ganglion"', async () => {
+			// Click on third node of tree browser, 'adult cerebral ganglion'
+			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[2].click()
+			// Check tree now expanded with adult cerebral ganglion name
+			let firstNode = await page.evaluate(async () => {
+				return document.getElementsByClassName("nodeSelected")[6].innerText;
+			});
+			expect(firstNode).toEqual("adult optic lobe");
 		})
 
-		it('Click on "eye" icon to render "adult cerebral ganglion" mesh', async () => {
-			await page.evaluate((selector) => document.querySelector(selector).click(), '#VFBTree_component i.fa-eye');
+
+		it('Click on Node "adult optic lobe"', async () => {
+			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[6].click());
+			// Check Term Info is now populated with adult cerebral ganglion name
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult optic lobe")', {timeout : 60000});
+		})
+
+		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
+			await page.evaluate((selector) => document.querySelectorAll(selector)[2].click(), '#VFBTree_component i.fa-eye');
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 })
 		})
 
-		it('Mesh for "adult cerebral ganglion" rendered in canvas after clicking on eye icon next to node', async () => {
-			// Check 'adult cerebral ganglion' mesh was rendered
+		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
+			// Check 'adult optic lobe' mesh was rendered
 			expect(
-					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].visible)
+					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].visible)
 			).toBeTruthy();
 		})
 
-		it('Color Picker Appears for "adult cerebral ganglion"', async () => {
+		it('Color Picker Appears for "adult optic lobe"', async () => {
 			await page.evaluate(async variableName => $(variableName).click(), "#VFBTree_component i.fa-tint");
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 50000 })
 		})
 
-		it('Use color picker to change color of "adult cerebral ganglion"', async () => {
+		it('Use color picker to change color of "adult optic lobe"', async () => {
 			// Retrieve old color in mesh
 			let adultCerebralGanglionColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].children[0].material.color;
+				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color;
 			});
 			// Select color in color picker box, index 17 belongs to last available color in picker
 			await page.evaluate(async () => document.querySelectorAll("#tree-color-picker div")[17].click());
@@ -134,13 +145,11 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.waitFor(20000);
 			// Retrieve new color in mesh
 			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030849.VFB_00030849_obj"].children[0].material.color;
+				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color;
 			});
 
 			// Compare RGB's of original color and new color
-			expect(adultCerebralGanglionColor.r).not.toEqual(adultCerebralGanglionNewColor.r);
-			expect(adultCerebralGanglionColor.g).not.toEqual(adultCerebralGanglionNewColor.g);
-			expect(adultCerebralGanglionColor.b).not.toEqual(adultCerebralGanglionNewColor.b);
+			expect(adultCerebralGanglionColor.r.toString() + adultCerebralGanglionColor.g.toString() + adultCerebralGanglionColor.b.toString()).not.toEqual(adultCerebralGanglionNewColor.r.toSting() + adultCerebralGanglionNewColor.g.toSting() + adultCerebralGanglionNewColor.b.toSting());
 		})
 	})
 })
