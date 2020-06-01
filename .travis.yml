@@ -3,6 +3,11 @@ os: linux
 dist: xenial
 node_js:
   - "9"
+cache:
+  directories:
+  - docker_images
+before_cache:
+- docker save -o docker_images/images.tar $(docker images -a -q)
 env:
   global:
     - DOCKER_FOLDER: "$TRAVIS_BUILD_DIR/"
@@ -16,6 +21,7 @@ env:
 services:
   - docker
 before_install:
+  - docker load -i docker_images/images.tar || true
   - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
   - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
   - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
