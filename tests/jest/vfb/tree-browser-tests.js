@@ -89,8 +89,8 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('First node (adult brain) correctly expanded', async () => {
 			// Click on first node of tree browser, 'adult brain'
 			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[0].click());
-			// Wait for 'fa-eye' icon, means Tree Browser nodes were expanded
-			await wait4selector(page, 'i.fa-eye', {visible: true, timeout : 5000});
+			// Wait for 'fa-eye-slashh' icon, means Tree Browser nodes were expanded
+			await wait4selector(page, 'i.fa-eye-slash', {visible: true, timeout : 5000});
 			// Retrieve text of expanded node for 'adult cerebral
 			let adultCerebralGanglionNode = await page.evaluate(async () => {
 				return document.querySelectorAll(".rst__rowContents.rst__rowContentsDragDisabled span")[4].innerText;
@@ -116,7 +116,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
-			await page.evaluate((selector) => document.querySelectorAll(selector)[2].click(), '#VFBTree_component i.fa-eye');
+			await page.evaluate((selector) => document.querySelectorAll(selector)[2].click(), '#VFBTree_component i.fa-eye-slash');
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 })
 		})
