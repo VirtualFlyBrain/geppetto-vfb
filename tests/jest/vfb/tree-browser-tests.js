@@ -121,8 +121,11 @@ describe('VFB Tree Browser Component Tests', () => {
 			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 });
 		})
 
-		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
+		it('Mesh for "adult optic lobe" icon changed after clicking on eye icon next to node', async () => {
 			await wait4selector(page, '#VFBTree_component i.fa-eye', { visible: true, timeout : 500000 });
+		})
+
+		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
 			// Check 'adult optic lobe' mesh was rendered
 			await page.waitForFunction('CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"]!=undefined', {timeout : 600000});
 			expect(
