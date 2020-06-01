@@ -122,7 +122,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
-			await page.waitFor(10000);
+			await wait4selector(page, '#VFB_00030870_deselect_buttonBar_btn', { visible: true , timeout : 500000 });
 			// Check 'adult optic lobe' mesh was rendered
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].visible)
