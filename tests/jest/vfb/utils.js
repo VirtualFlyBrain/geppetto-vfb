@@ -4,7 +4,7 @@ const { TimeoutError } = require('puppeteer/Errors');
 export const wait4selector = async (page, selector, settings = {}) => {
   let success = undefined;
   let options = settings;
-  if (!("timeout" in settinga)) {
+  if (!("timeout" in settings)) {
     options = { timeout: 5000, ...settings };
   }
   try {
