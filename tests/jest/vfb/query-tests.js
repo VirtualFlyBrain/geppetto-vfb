@@ -15,7 +15,8 @@ const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VF
  */
 describe('VFB Query Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(120000); 
+		//increases timeout to ~8 minutes
+		jest.setTimeout(500000);
 		await page.goto(PROJECT_URL);
 
 	});
@@ -92,19 +93,24 @@ describe('VFB Query Component Tests', () => {
 		
  		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
  			await click(page, 'button[id=run-query-btn]');
- 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: true , timeout : 90000})
+ 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: true , timeout : 900000})
  		})
 
  		it('Typing medulla in the query filter', async () => {
 		 	await click(page, '#querybuilder input.form-control');
- 			await page.keyboard.type('medulla')
- 			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000})
+ 			await page.keyboard.type('medulla');
+			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000});
  		})
 
-		it('Term info correctly populated for transgene expressed in medulla after query results info button click', async () => {
-			await page.evaluate(async selector =>   $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2 (VFB_00048552)")');
+		it('Query results image selected and query results closed', async () => {
+			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").click());
+			closeModalWindow(page);
+			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { hidden: true , timeout : 900000})
+		})
+
+		it('Term info correctly populated for transgene expressed in medulla after image of VDRC_VT945397_GAL4_attP2_2 opened', async () => {	
+			await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 900000 });
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2")', {visible : true, timeout : 600000});
 		})
 	})
 })

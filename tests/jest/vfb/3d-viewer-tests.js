@@ -107,11 +107,11 @@ describe('VFB 3D Viewer Component Tests', () => {
 		it('3DViewer closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), since the 3D Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () => {
-				flexWindowClick("3D Viewer","flexlayout__tab_button_trailing");
+			await flexWindowClick("3D Viewer","flexlayout__tab_button_trailing");
+			//await page.evaluate(async () => {	
 				//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
 				//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
-			});
+			//});
 			expect(
 					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
 			).toBe(null);
@@ -122,7 +122,7 @@ describe('VFB 3D Viewer Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("3D Viewer").click());
-			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 50000});
 		})
 	})
 })

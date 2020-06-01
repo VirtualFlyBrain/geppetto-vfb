@@ -313,7 +313,7 @@ export default class VFBTree extends React.Component {
     var buttons = [];
     var fillCondition = "unknown";
     var instanceLoaded = false;
-    if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+    if (rowInfo.node.instanceId != undefined && rowInfo.node.instanceId.indexOf("VFB_") > -1) {
       fillCondition = "3dAvailable";
       for (var i = 1; i < Instances.length; i++) {
         if (Instances[i].id !== undefined && Instances[i].id === rowInfo.node.instanceId) {

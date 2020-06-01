@@ -41,7 +41,7 @@ const medullaTest = function(project) {
 	describe('Test Term Info Component Contains Metadata for Medulla', () => {
 		//Tests deselect button for VFB_00017894 is present in term info component, means is selected
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 500000 })
 		})
 
 		it('Term info component created after load', async () => {
@@ -58,11 +58,11 @@ const medullaTest = function(project) {
 		})
 
 		it('Term info component correctly populated with "Medula" as Classification Name', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_3_component").innerText.startsWith("medulla")');
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_3_component").innerText.startsWith("medulla")', {visible : true, timeout : 60000});
 		})
 
 		it('Term info component correctly populated with "Medula" Thumbnail', async () => {
-			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/thumbnailT.png"');
+			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/thumbnailT.png"', {visible : true, timeout : 60000});
 		})
 	})
 
