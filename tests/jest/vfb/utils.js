@@ -3,7 +3,9 @@ const { TimeoutError } = require('puppeteer/Errors');
 
 export const wait4selector = async (page, selector, settings = {}) => {
   let success = undefined;
-  const options = { timeout: 5000, ...settings }
+  if (!("timeout" in settinga)) {
+    const options = { timeout: 5000, ...settings }
+  }
   try {
     await page.waitForSelector(selector, options);
     success = true
