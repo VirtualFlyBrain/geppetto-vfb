@@ -50,7 +50,7 @@ before_script:
 script:
   - echo -e "travis_fold:start:Docker_Build" || true
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-  - travis_retry docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type="test" --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1
+  - travis_retry docker build -t=$REPO:$TAG --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type="test" --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1
   - echo -e "travis_fold:end:Docker_Build" || true
   - echo -e "travis_fold:start:Docker_Run" || true
   - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
