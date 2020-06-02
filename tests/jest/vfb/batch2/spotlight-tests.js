@@ -83,7 +83,7 @@ describe('VFB Spotlight Tests', () => {
 		});
 
 		it('Add scene button visible', async () => {
-			await click(page, 'button[id=buttonOne]');
+			await click(page, '#buttonOne');
 			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 10000})
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
 		});
