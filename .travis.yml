@@ -19,7 +19,7 @@ services:
 stages:
   - build
   - name: debug
-    if: branch = development #vfb_geppetto_application
+    if: branch = vfb_geppetto_application
   - test
   - deploy
 
