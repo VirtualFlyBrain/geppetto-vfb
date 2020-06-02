@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00000001";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00017894&i=VFB_00017894,VFB_00000001";
 
 /**
  * Tests control panel works in VFB
