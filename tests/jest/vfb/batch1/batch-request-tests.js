@@ -46,7 +46,7 @@ describe('VFB Batch Requests Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout: 1800000})
 		})
-		
+
 //		it('Hide Quick Help Modal Window', async () => {
 //			closeModalWindow(page);
 //			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -65,7 +65,7 @@ describe('VFB Batch Requests Tests', () => {
 		})
 	})
 
-	//Expects stack viewer component to have 5 meshes rendered and visible. 
+	//Expects stack viewer component to have 5 meshes rendered and visible.
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 1800000 })
@@ -88,7 +88,7 @@ describe('VFB Batch Requests Tests', () => {
 	describe('Tests Batch Requests in Control Panel', () => {
 		it('The control panel opened with right amount of rows.', async () => {
 			await click(page, "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
+			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true, timeout: 1800000 })
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
 		})
