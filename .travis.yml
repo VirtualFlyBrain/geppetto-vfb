@@ -22,7 +22,8 @@ stages:
     if: branch = vfb_geppetto_application
   - test
   - deploy
-
+  - name: review
+    if: branch = vfb_geppetto_application || branch = development || branch =~ ^(fix|feature).*
 jobs:
   include:
     - stage: build
@@ -169,6 +170,47 @@ jobs:
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch3/.*js'
+      after_failure:
+        - docker ps -a
+        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
+        - tail /etc/log.log -n 500
+        - echo -e "travis_fold:start:Cleanup" || true
+        - docker stop $(docker ps -a -q)
+        - docker rm $(docker ps -a -q)
+        - echo -e "travis_fold:end:Cleanup" || true
+
+    - stage: review
+      if: 
+      before_install:
+        - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
+        - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
+        - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
+        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - export TAG="$TAG-TEST"
+      install:
+        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+      before_script:
+        - echo -e "travis_fold:start:Docker_Run" || true
+        - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
+        - echo -e "travis_fold:end:Docker_Run" || true
+        - echo -e "travis_fold:start:Startup_Server1" || true
+        - export iterations=1
+        - Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 1; Test; fi; else echo "$(date) - connected successfully"; fi; }
+        - Test
+        - echo -e "travis_fold:end:Startup_Server1" || true
+        - echo -e "travis_fold:start:Startup_Server3" || true
+        - echo "$http_status"
+        - while [ "$http_status" != "200" ]; do
+            echo "Printing logs for debugging purposes";
+            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
+            tail /etc/log.log;
+            docker stop $(docker ps -a -q);
+            echo "Docker container failed to start!";
+            travis_terminate 1;
+          done;
+        - echo -e "travis_fold:end:Startup_Server3" || true
+      script:
+        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
