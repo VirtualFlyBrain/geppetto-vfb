@@ -61,11 +61,6 @@ var modelJson = {
             "type": "tab",
             "name": "Tree Browser",
             "component": "treeBrowser"
-          },
-          {
-            "type": "tab",
-            "name": "Graph",
-            "component": "vfbGraph"
           }
         ]
       },

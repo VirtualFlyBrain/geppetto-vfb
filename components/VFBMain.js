@@ -14,7 +14,7 @@ import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLV
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
-import VFBGraph from './interface/VFBGraph/VFBGraph';
+// import VFBGraph from './interface/VFBGraph/VFBGraph';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -35,7 +35,7 @@ export default class VFBMain extends React.Component {
       canvasVisible: true,
       termInfoVisible: true,
       treeBrowserVisible: true,
-      graphVisible : true,
+      graphVisible : false,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,

@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
-import * as ST from './selectors';
+import { getUrlFromProjectId } from '../cmdline.js';
+import { wait4selector, click, closeModalWindow } from '../utils';
+import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00000001";
@@ -41,13 +41,13 @@ describe('VFB Control Panel Tests', () => {
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_2_component', { visible: true })
-		})		
-
-		it('Hide Quick Help Modal Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
 		})
-		
+
+//		it('Hide Quick Help Modal Window', async () => {
+//			closeModalWindow(page);
+//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
+//		})
+
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266 (VFB_00000001)")');
 		})
