@@ -88,13 +88,13 @@ describe('VFB Spotlight Tests', () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
 		});
 
-		it('Close spotlight', async () => {
-			await page.evaluate(async selector => $(selector).hide(), ST.SPOT_LIGHT_SELECTOR);
+		it('Spotlight has closed', async () => {
+			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true});
 		})
 
-		it('VFB_00017894.VFB_00017894_obj visibility correct after adding it through spotlight', async () => {
+		it('VFB_00000001.VFB_00000001_swc loaded after adding it through spotlight', async () => {
 			expect(
-					await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00017894.VFB_00017894_obj')[0].visible)
+					await page.evaluate(async () => window['VFB_00000001.VFB_00000001_swc'] != undefined)
 			).toBeTruthy()
 		})
 	});
