@@ -79,7 +79,7 @@ describe('VFB Spotlight Tests', () => {
 		});;
 
 		it('Spotlight Add Scene button created', async () => {
-			await click(page, '#buttonOne');
+			await click(page, '#buttonOne', { visible: true , timeout : 500000});
 		});
 
 		it('Add scene button worked', async () => {
