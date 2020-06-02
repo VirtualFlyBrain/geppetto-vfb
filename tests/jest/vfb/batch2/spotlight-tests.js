@@ -61,7 +61,7 @@ describe('VFB Spotlight Tests', () => {
 
 	//Tests 'Add Scene' button in spotlight for VFB_00017894
 	describe('Spotlight, add scene button test', () => {
-		it('Query builder button appeared', async () => {
+		it('Search builder button appeared', async () => {
 			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 10000 })
 		})
 
