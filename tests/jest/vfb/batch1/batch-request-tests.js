@@ -87,8 +87,8 @@ describe('VFB Batch Requests Tests', () => {
 	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
 	describe('Tests Batch Requests in Control Panel', () => {
 		it('The control panel opened with right amount of rows.', async () => {
-			await click(page, "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true, timeout: 1800000 })
+			await click(page, "i.fa.fa-list.arrowsStyle");
+			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true, timeout: 500000 })
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
 		})
