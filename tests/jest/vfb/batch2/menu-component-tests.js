@@ -89,15 +89,15 @@ describe('VFB Menu Component Tests', () => {
 			expect(dropDownMenuItems).toEqual(4);
 		})
 
-//		it('Help Modal FAQ Tab Opened', async () => {
-//			// Checks a new page was opened as a result of clicking on the F.A.Q. menu option
-//			let pagesOpened = await browser.pages();
-//			await page.evaluate(async () => document.getElementById("F.A.Q.").click());
-//			await page.waitFor(2000); // wait for a while
-//			// New amount of opened pages should be one more than 'pagesOpened'
-//			let newPagesOpened = await browser.pages();
-//			expect(newPagesOpened.length).toEqual(pagesOpened.length+1);
-//		})
+		it('Help Modal FAQ Tab Opened', async () => {
+			// Checks a new page was opened as a result of clicking on the F.A.Q. menu option
+			let pagesOpened = await browser.pages();
+			await page.evaluate(async () => document.getElementById("F.A.Q.").click());
+			await page.waitFor(2000); // wait for a while
+			// New amount of opened pages should be one more than 'pagesOpened'
+			let newPagesOpened = await browser.pages();
+			expect(newPagesOpened.length).toEqual(pagesOpened.length+1);
+		})
 	})
 
 	//Tests Menu Components for Dataset Queries
