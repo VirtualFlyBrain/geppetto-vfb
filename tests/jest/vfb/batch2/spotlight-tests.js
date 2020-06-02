@@ -78,13 +78,12 @@ describe('VFB Spotlight Tests', () => {
 			await page.keyboard.press('Enter')
 		});;
 
-		it('Spotlight Add Scene button exists', async () => {
-			await page.waitForSelector('#buttonOne', {visible: true, timeout : 10000});
+		it('Spotlight Add Scene button created', async () => {
+			await click(page, '#buttonOne');
 		});
 
-		it('Add scene button visible', async () => {
-			await click(page, '#buttonOne');
-			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 10000})
+		it('Add scene button worked', async () => {
+			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 500000})
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
 		});
 
