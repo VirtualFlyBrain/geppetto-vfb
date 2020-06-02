@@ -13,7 +13,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Spotlight Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(1800000); 
+		jest.setTimeout(1800000);
 		await page.goto(PROJECT_URL);
 
 	});
@@ -42,7 +42,7 @@ describe('VFB Spotlight Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
 		})
-		
+
 		it('Hide Quick Help Modal Window', async () => {
 			closeModalWindow(page);
 			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -60,9 +60,9 @@ describe('VFB Spotlight Tests', () => {
 	})
 
 	//Tests 'Add Scene' button in spotlight for VFB_00017894
-	describe('Spotlight, add scene button test', () => { 
+	describe('Spotlight, add scene button test', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 1000 })
+			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 10000 })
 		})
 
 		it('Opens and shows correct butttons.', async () => {
@@ -79,7 +79,7 @@ describe('VFB Spotlight Tests', () => {
 		});;
 
 		it('Spotlight Add Scene button exists', async () => {
-			await page.waitForSelector('button[id=buttonOne]', {visible: true, timeout : 10000});			
+			await page.waitForSelector('button[id=buttonOne]', {visible: true, timeout : 10000});
 		});
 
 		it('Add scene button visible', async () => {
