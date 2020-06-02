@@ -18,8 +18,8 @@ services:
 
 stages:
   - build
-  - name: developmentDeploy
-    if: branch = vfb_geppetto_application
+  - name: debug
+    if: branch = develpment #vfb_geppetto_application
   - test
   - deploy
 
@@ -203,3 +203,34 @@ jobs:
             fi;
             docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
           fi;
+
+    - stage: debug
+      install:
+        - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
+        - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
+        - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
+        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - if [ "$BUILD_TYPE" == "development" ]; then
+            export VFB_PDB_SERVER=http://pdb-dev.virtualflybrain.org;
+            export VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/;
+            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
+            export TAG=$TAG-development;
+          elif [ "$BUILD_TYPE" == "staging" ]; then
+            export VFB_PDB_SERVER=http://pdb-alpha.virtualflybrain.org;
+            export VFB_OWL_SERVER=http://owl-alpha.virtualflybrain.org/kbs/vfb/;
+            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export SOLR_SERVER=https://solr-alpha.virtualflybrain.org/solr/ontology/select;
+          else
+            export VFB_PDB_SERVER=http://pdb.virtualflybrain.org;
+            export VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/;
+            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
+          fi;
+      before_script:
+        - cd $TRAVIS_BUILD_DIR;
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
+        - docker pull $REPO:$TAG-TEST;
+        - TAG="$TAG-DEBUG"
+      script:
+        - docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
