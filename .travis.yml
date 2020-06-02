@@ -95,6 +95,7 @@ jobs:
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
         - echo -e "travis_fold:end:Log" || true
+    - stage: test
       script:
         - echo -e "travis_fold:start:Install" || true
         - docker load -i docker_images/images.tar || true
