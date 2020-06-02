@@ -172,17 +172,14 @@ jobs:
       install:
         - docker load -i docker_images/images.tar || true
       before_script:
-        - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
-        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - export TAG=DEBUG
       script:
-        - if [ "$BUILD_TYPE" == "development" ]; then
-            cd $TRAVIS_BUILD_DIR;
-            export VFB_PDB_SERVER=http://pdb:7474;
-            export VFB_OWL_SERVER=http://owl:8080/kbs/vfb/;
-            export VFB_R_SERVER=http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast;
-            export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
-            docker login -u $DOCKER_USER -p $DOCKER_PASS;
-            docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
-          fi;
+        - cd $TRAVIS_BUILD_DIR;
+        - export VFB_PDB_SERVER=http://pdb:7474;
+        - export VFB_OWL_SERVER=http://owl:8080/kbs/vfb/;
+        - export VFB_R_SERVER=http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast;
+        - export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
+        - docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
