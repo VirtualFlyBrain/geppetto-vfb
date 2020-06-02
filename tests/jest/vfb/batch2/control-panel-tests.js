@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?id=VFB_00017894&i=VFB_00017894,VFB_00000001";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001";
 
 /**
  * Tests control panel works in VFB
@@ -57,8 +57,8 @@ describe('VFB Control Panel Tests', () => {
 	describe('Test Control Panel', () => {
 		//Tests control panel opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
-			await click(page, "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
+			await click(page, "i.fa.fa-list.arrowsStyle");
+			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true , timeout : 120000})
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(2);
 		})
