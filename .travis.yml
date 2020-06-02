@@ -29,9 +29,8 @@ stages:
 jobs:
   include:
     - stage: build
-    - before_cache:
-      - docker save -o docker_images/images.tar $(docker images -a -q)
-    - before_install:
+    - script:
+      - echo -e "travis_fold:start:Install" || true
       - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
       - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
       - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
@@ -53,27 +52,25 @@ jobs:
           export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
           export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
         fi;
-    - before_script:
+      - echo -e "travis_fold:end:Install" || true
       - docker pull metacell/java-virgo-maven:development || true
-    - script:
-      - echo -e "travis_fold:start:Docker_Build" || true
       - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
       - travis_retry docker build -t=$REPO:$TAG --build-arg SOLR_SERVER=$SOLR_SERVER --build-arg VFB_R_SERVER=$VFB_R_SERVER --build-arg VFB_OWL_SERVER=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER=$VFB_PDB_SERVER --build-arg build_type="test" --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH $DOCKER_FOLDER || travis_terminate 1
-      - echo -e "travis_fold:end:Docker_Build" || true
+      - docker save -o docker_images/images.tar $(docker images -a -q)
 
     - stage: test
-    - before_install:
+    - script:
+      - echo -e "travis_fold:start:Install" || true
       - docker load -i docker_images/images.tar || true
       - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
       - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
       - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
       - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-    - install:
       - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
-    - script:
+      - echo -e "travis_fold:end:Install" || true
       - echo -e "travis_fold:start:Docker_Run" || true
       - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
-      - echo -e "travis_fold:end:Docker_Build" || true
+      - echo -e "travis_fold:end:Docker_Run" || true
       - echo -e "travis_fold:start:Startup_Server1" || true
       - export iterations=1
       - Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 1; Test; fi; else echo "$(date) - connected successfully"; fi; }
@@ -91,26 +88,25 @@ jobs:
         done;
       - echo -e "travis_fold:end:Startup_Server3" || true
       - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
-    - after_failure:
+      - echo -e "travis_fold:start:Log" || true
       - docker ps -a
       - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
       - tail /etc/log.log -n 500
       - docker stop $(docker ps -a -q)
       - docker rm $(docker ps -a -q)
-
-    - stage: test
-    - before_install:
+      - echo -e "travis_fold:end:Log" || true
+    - script:
+      - echo -e "travis_fold:start:Install" || true
       - docker load -i docker_images/images.tar || true
       - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
       - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
       - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
       - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-    - install:
       - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
-    - script:
+      - echo -e "travis_fold:end:Install" || true
       - echo -e "travis_fold:start:Docker_Run" || true
       - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
-      - echo -e "travis_fold:end:Docker_Build" || true
+      - echo -e "travis_fold:end:Docker_Run" || true
       - echo -e "travis_fold:start:Startup_Server1" || true
       - export iterations=1
       - Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 1; Test; fi; else echo "$(date) - connected successfully"; fi; }
@@ -128,21 +124,23 @@ jobs:
         done;
       - echo -e "travis_fold:end:Startup_Server3" || true
       - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
-    - after_failure:
+      - echo -e "travis_fold:start:Log" || true
       - docker ps -a
       - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
       - tail /etc/log.log -n 500
       - docker stop $(docker ps -a -q)
       - docker rm $(docker ps -a -q)
+      - echo -e "travis_fold:end:Log" || true
 
     - stage: deploy
-    - install:
+    - script:
+      - echo -e "travis_fold:start:Install" || true
       - docker load -i docker_images/images.tar || true
       - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
       - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
       - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
       - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-    - script:
+      - echo -e "travis_fold:end:Install" || true
        - if [ $TRAVIS_PULL_REQUEST == false ]; then
           cd $TRAVIS_BUILD_DIR;
           docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -161,13 +159,12 @@ jobs:
         fi;
 
     - stage: developmentDeploy
-    - before_install:
+    - script:
       - docker load -i docker_images/images.tar || true
       - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
       - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
       - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
       - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-    - script:
       - if [ "$BUILD_TYPE" == "development" ]; then
           cd $TRAVIS_BUILD_DIR;
           export VFB_PDB_SERVER=http://pdb:7474;
