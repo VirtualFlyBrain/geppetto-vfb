@@ -16,7 +16,6 @@ env:
 services:
   - docker
 
-
 stages:
   - build
   - name: developmentDeploy
