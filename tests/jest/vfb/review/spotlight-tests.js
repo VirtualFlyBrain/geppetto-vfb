@@ -78,8 +78,9 @@ describe('VFB Spotlight Tests', () => {
 			await page.keyboard.press(String.fromCharCode(13))
 		})
 
-		it('Spotlight Add Scene button created', async () => {
-			await click(page, '#buttonOne');
+		it('Spotlight Add Scene button created and return works', async () => {
+			await wait4selector(page, '#buttonOne', {visible: true, timeout: 500000});
+			await page.keyboard.press(String.fromCharCode(13));
 		})
 
 		it('Add scene button worked', async () => {
