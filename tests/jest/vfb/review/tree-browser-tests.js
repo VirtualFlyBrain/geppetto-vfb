@@ -36,7 +36,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000})
 		})
-		
+
 //		it('Hide Quick Help Modal Window', async () => {
 //			closeModalWindow(page);
 //			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -127,6 +127,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
 			// Check 'adult optic lobe' mesh was rendered
+			await page.evaluate(async () => console.log(CanvasContainer.engine.meshes));
 			await page.waitForFunction('CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"]!=undefined', {timeout : 600000});
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].visible)
