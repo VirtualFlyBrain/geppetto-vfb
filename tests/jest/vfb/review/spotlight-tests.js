@@ -71,10 +71,10 @@ describe('VFB Spotlight Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
 		});
 
-		it('Spotlight button exists', async () => {
+		it('Spotlight type term for search', async () => {
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('VFB_00000001 (fru-M-200266)');
-			await page.waitFor(3000);
+			await page.waitFor(10000);
 			await page.keyboard.press(String.fromCharCode(13))
 		})
 
