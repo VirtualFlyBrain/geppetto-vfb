@@ -27,8 +27,8 @@ stages:
 jobs:
   fast_finish: true
   allow_failures:
-    - name: review
-      if: branch = vfb_geppetto_application || branch = development
+    - if: branch = vfb_geppetto_application || branch = development
+      name: review
   include:
     - stage: build
       install:
