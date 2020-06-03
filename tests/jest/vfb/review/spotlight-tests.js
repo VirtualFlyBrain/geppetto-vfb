@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
-import * as ST from './selectors';
+import { getUrlFromProjectId } from '../cmdline.js';
+import { wait4selector, click, closeModalWindow } from '../utils';
+import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
@@ -13,7 +13,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Spotlight Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(1800000); 
+		jest.setTimeout(1800000);
 		await page.goto(PROJECT_URL);
 
 	});
@@ -42,7 +42,7 @@ describe('VFB Spotlight Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
 		})
-		
+
 		it('Hide Quick Help Modal Window', async () => {
 			closeModalWindow(page);
 			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -60,9 +60,9 @@ describe('VFB Spotlight Tests', () => {
 	})
 
 	//Tests 'Add Scene' button in spotlight for VFB_00017894
-	describe('Spotlight, add scene button test', () => { 
-		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 1000 })
+	describe('Spotlight, add scene button test', () => {
+		it('Search builder button appeared', async () => {
+			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 10000 })
 		})
 
 		it('Opens and shows correct butttons.', async () => {
@@ -75,27 +75,26 @@ describe('VFB Spotlight Tests', () => {
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('VFB_00000001 (fru-M-200266)');
 			await page.waitFor(3000);
-			await page.keyboard.press('Enter')
-		});;
-
-		it('Spotlight Add Scene button exists', async () => {
-			await page.waitForSelector('button[id=buttonOne]', {visible: true, timeout : 10000});			
-		});
-
-		it('Add scene button visible', async () => {
-			await click(page, 'button[id=buttonOne]');
-			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 10000})
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
-		});
-
-		it('Close spotlight', async () => {
-			await page.evaluate(async selector => $(selector).hide(), ST.SPOT_LIGHT_SELECTOR);
+			await page.keyboard.press(String.fromCharCode(13))
 		})
 
-		it('VFB_00017894.VFB_00017894_obj visibility correct after adding it through spotlight', async () => {
+		it('Spotlight Add Scene button created', async () => {
+			await click(page, '#buttonOne');
+		})
+
+		it('Add scene button worked', async () => {
+			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 500000})
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
+		})
+
+		it('Spotlight has closed', async () => {
+			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true});
+		})
+
+		it('VFB_00000001.VFB_00000001_swc loaded after adding it through spotlight', async () => {
 			expect(
-					await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00017894.VFB_00017894_obj')[0].visible)
+					await page.evaluate(async () => window['VFB_00000001.VFB_00000001_swc'] != undefined)
 			).toBeTruthy()
 		})
-	});
+	})
 })

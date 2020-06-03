@@ -22,7 +22,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
 
 
 export const click = async (page, selector) => {
-  await wait4selector(page, selector, { visible: true, timeout: 5000});
+  await wait4selector(page, selector, { visible: true, timeout: 500000});
   let success = undefined;
   try {
     await page.evaluate((selector) => document.querySelector(selector).click(), selector);

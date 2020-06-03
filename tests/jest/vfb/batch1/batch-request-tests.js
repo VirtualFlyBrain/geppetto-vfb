@@ -1,12 +1,12 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
-import * as ST from './selectors';
+import { getUrlFromProjectId } from '../cmdline.js';
+import { wait4selector, click, closeModalWindow } from '../utils';
+import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880&id=VFB_00030880";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
@@ -46,7 +46,7 @@ describe('VFB Batch Requests Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout: 1800000})
 		})
-		
+
 //		it('Hide Quick Help Modal Window', async () => {
 //			closeModalWindow(page);
 //			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -65,7 +65,7 @@ describe('VFB Batch Requests Tests', () => {
 		})
 	})
 
-	//Expects stack viewer component to have 5 meshes rendered and visible. 
+	//Expects stack viewer component to have 5 meshes rendered and visible.
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 1800000 })
@@ -87,8 +87,8 @@ describe('VFB Batch Requests Tests', () => {
 	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
 	describe('Tests Batch Requests in Control Panel', () => {
 		it('The control panel opened with right amount of rows.', async () => {
-			await click(page, "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
+			await click(page, "i.fa.fa-list.arrowsStyle");
+			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true, timeout: 500000 })
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
 		})

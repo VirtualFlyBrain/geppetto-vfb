@@ -66,7 +66,7 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.datasources.git "${geppe
   rm -rf src
 
 RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}"
-  
+
 RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
   echo "DEBUG=$DEBUG" && \
   /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g" &&\
@@ -91,7 +91,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
-  
+
 RUN echo "package.json" && cat $HOME/workspace/org.geppetto.frontend/src/main/webapp/package.json
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
