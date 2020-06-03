@@ -36,7 +36,6 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-        - export TAG="$TAG-TEST"
         - if [ "$BUILD_TYPE" == "development" ]; then
             export VFB_PDB_SERVER=http://pdb-dev.virtualflybrain.org;
             export VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/;
@@ -54,6 +53,7 @@ jobs:
             export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
             export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
           fi;
+        - export TAG="$TAG-TEST"
       before_script:
         - docker pull metacell/java-virgo-maven:development || true
         - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
