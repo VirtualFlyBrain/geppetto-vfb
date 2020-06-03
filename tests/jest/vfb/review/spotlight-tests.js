@@ -75,17 +75,17 @@ describe('VFB Spotlight Tests', () => {
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('VFB_00000001 (fru-M-200266)');
 			await page.waitFor(3000);
-			await page.keyboard.press('Enter')
-		});;
+			await page.keyboard.press(String.fromCharCode(13))
+		})
 
 		it('Spotlight Add Scene button created', async () => {
 			await click(page, '#buttonOne');
-		});
+		})
 
 		it('Add scene button worked', async () => {
 			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 500000})
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
-		});
+		})
 
 		it('Spotlight has closed', async () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true});
@@ -96,5 +96,5 @@ describe('VFB Spotlight Tests', () => {
 					await page.evaluate(async () => window['VFB_00000001.VFB_00000001_swc'] != undefined)
 			).toBeTruthy()
 		})
-	});
+	})
 })
