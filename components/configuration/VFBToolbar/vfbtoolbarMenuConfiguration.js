@@ -229,8 +229,8 @@ var toolbarMenu = {
           }
         },
         {
-          label: "Tree Browser",
-          icon: "fa fa-tree",
+          label: "Template ROI Browser",
+          icon: "fa fa-indent",
           action: {
             handlerAction: "UIElementHandler",
             parameters: ["treeBrowserVisible"]

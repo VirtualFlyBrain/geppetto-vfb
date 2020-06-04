@@ -116,7 +116,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
-			await page.evaluate((selector) => document.querySelectorAll(selector)[2].click(), '#VFBTree_component i.fa-eye-slash');
+			await page.evaluate((selector) => document.querySelectorAll(selector)[3].click(), '#VFBTree_component i.fa-eye-slash');
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 });
 		})
@@ -127,23 +127,22 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
 			// Check 'adult optic lobe' mesh was rendered
-			await page.evaluate(async () => console.log(CanvasContainer.engine.meshes));
-			await page.waitForFunction('CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"]!=undefined', {timeout : 600000});
+			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 })
 			expect(
-					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].visible)
-			).toBeTruthy();
+					await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00030870.VFB_00030870_obj').length)
+			).toEqual(1);
 		})
 
 		it('Color Picker Appears for "adult optic lobe"', async () => {
 			await page.evaluate(async variableName => $(variableName).click(), "#VFBTree_component i.fa-tint");
 			// Wait for color picker to show
-			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 50000 })
+			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
 		})
 
 		it('Use color picker to change color of "adult optic lobe"', async () => {
 			// Retrieve old color in mesh
 			let adultCerebralGanglionColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color;
+				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color.getHexString();
 			});
 			// Select color in color picker box, index 17 belongs to last available color in picker
 			await page.evaluate(async () => document.querySelectorAll("#tree-color-picker div")[17].click());
@@ -151,11 +150,11 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.waitFor(20000);
 			// Retrieve new color in mesh
 			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color;
+				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color.getHexString();
 			});
 
 			// Compare RGB's of original color and new color
-			expect(adultCerebralGanglionColor.r.toString() + adultCerebralGanglionColor.g.toString() + adultCerebralGanglionColor.b.toString()).not.toEqual(adultCerebralGanglionNewColor.r.toSting() + adultCerebralGanglionNewColor.g.toSting() + adultCerebralGanglionNewColor.b.toSting());
+			expect(adultCerebralGanglionColor).not.toEqual(adultCerebralGanglionNewColor);
 		})
 	})
 })

@@ -35,9 +35,9 @@ const buttonBarConfiguration = {
     "zoom": {
       "id": "zoom",
       "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
-      "icon": "fa-search-plus",
+      "icon": "fa-crosshairs",
       "label": "Zoom",
-      "tooltip": "Zoom"
+      "tooltip": "Centre On"
     },
     "visibility": {
       "showCondition": "$instance$.isVisible!=undefined",

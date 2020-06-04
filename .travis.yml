@@ -36,7 +36,6 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-        - export TAG="$TAG-TEST"
         - if [ "$BUILD_TYPE" == "development" ]; then
             export VFB_PDB_SERVER=http://pdb-dev.virtualflybrain.org;
             export VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/;
@@ -54,6 +53,7 @@ jobs:
             export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
             export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
           fi;
+        - export TAG="$TAG-TEST"
       before_script:
         - docker pull metacell/java-virgo-maven:development || true
         - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
@@ -70,6 +70,7 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
@@ -103,12 +104,14 @@ jobs:
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
         - echo -e "travis_fold:end:Cleanup" || true
+
     - stage: test
       before_install:
         - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
@@ -149,6 +152,7 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
@@ -242,10 +246,12 @@ jobs:
 
     - stage: review
       before_install:
+        - if [ $(ls tests/jest/vfb/review/.*js | wc -l) -lt 1 ]; then travis_terminate 0; fi
         - export BUILD_TYPE=`if [ "$TRAVIS_BRANCH" == "vfb_geppetto_application" ]; then echo "development"; elif [ "$TRAVIS_BRANCH" == "development" ]; then echo "staging"; else echo "release"; fi`
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5

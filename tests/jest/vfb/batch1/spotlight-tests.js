@@ -71,15 +71,13 @@ describe('VFB Spotlight Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
 		});
 
-		it('Spotlight button exists', async () => {
+		it('Spotlight type term for search', async () => {
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('VFB_00000001 (fru-M-200266)');
-			await page.waitFor(3000);
+			await page.waitFor(10000);
 			await page.keyboard.press(String.fromCharCode(13))
-		})
-
-		it('Spotlight Add Scene button created', async () => {
-			await click(page, '#buttonOne');
+			await page.waitFor(10000);
+			await page.keyboard.press(String.fromCharCode(13))
 		})
 
 		it('Add scene button worked', async () => {
@@ -88,13 +86,11 @@ describe('VFB Spotlight Tests', () => {
 		})
 
 		it('Spotlight has closed', async () => {
-			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true});
+			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true, timeout : 500000});
 		})
 
 		it('VFB_00000001.VFB_00000001_swc loaded after adding it through spotlight', async () => {
-			expect(
-					await page.evaluate(async () => window['VFB_00000001.VFB_00000001_swc'] != undefined)
-			).toBeTruthy()
+			await wait4selector(page, '#VFB_00000001_visibility_swc_buttonBar_btn', { visible: true , timeout : 500000});
 		})
 	})
 })

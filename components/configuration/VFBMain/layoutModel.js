@@ -59,7 +59,7 @@ var modelJson = {
           },
           {
             "type": "tab",
-            "name": "Tree Browser",
+            "name": "Template ROI Browser",
             "component": "treeBrowser"
           }
         ]
