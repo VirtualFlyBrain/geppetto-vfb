@@ -5,9 +5,9 @@ then
     # Swap servers
     echo "Using Servers:"
     echo $VFB_PDB_SERVER
-    grep -rls http://pdb-dev.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb-dev.virtualflybrain.org@$VFB_PDB_SERVER@g" 
+    grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb-dev.virtualflybrain.org@$VFB_PDB_SERVER@g" 
     echo $VFB_OWL_SERVER
-    grep -rls http://owl-dev.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
+    grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
     echo $VFB_R_SERVER
     grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" 
     echo $SOLR_SERVER
