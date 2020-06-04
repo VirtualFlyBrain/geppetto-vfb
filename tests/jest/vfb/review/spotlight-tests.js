@@ -91,9 +91,6 @@ describe('VFB Spotlight Tests', () => {
 
 		it('VFB_00000001.VFB_00000001_swc loaded after adding it through spotlight', async () => {
 			await wait4selector(page, '#VFB_00000001_visibility_swc_buttonBar_btn', { visible: true , timeout : 500000});
-			expect(
-					await page.evaluate(async () => window['VFB_00000001.VFB_00000001_swc'] != undefined)
-			).toBeTruthy()
 		})
 	})
 })
