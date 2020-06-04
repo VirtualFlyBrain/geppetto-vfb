@@ -142,7 +142,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Use color picker to change color of "adult optic lobe"', async () => {
 			// Retrieve old color in mesh
 			let adultCerebralGanglionColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color;
+				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color.getHexString();
 			});
 			// Select color in color picker box, index 17 belongs to last available color in picker
 			await page.evaluate(async () => document.querySelectorAll("#tree-color-picker div")[17].click());
@@ -150,11 +150,11 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.waitFor(20000);
 			// Retrieve new color in mesh
 			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color;
+				return CanvasContainer.engine.meshes["VFB_00030870.VFB_00030870_obj"].children[0].material.color.getHexString();
 			});
 
 			// Compare RGB's of original color and new color
-			expect(adultCerebralGanglionColor.r.toString() + adultCerebralGanglionColor.g.toString() + adultCerebralGanglionColor.b.toString()).not.toEqual(adultCerebralGanglionNewColor.r.toSting() + adultCerebralGanglionNewColor.g.toSting() + adultCerebralGanglionNewColor.b.toSting());
+			expect(adultCerebralGanglionColor).not.toEqual(adultCerebralGanglionNewColor);
 		})
 	})
 })
