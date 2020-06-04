@@ -1178,7 +1178,10 @@ export default class VFBMain extends React.Component {
       if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
         window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
         console.log("Reloading websocket connection by reloading page");
-        window.location.reload(true);
+
+        setTimeout(() => {
+          window.location.reload(true);
+        }, 5000);
       } else {
         console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
       }
