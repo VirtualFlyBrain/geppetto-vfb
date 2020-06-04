@@ -86,10 +86,11 @@ describe('VFB Spotlight Tests', () => {
 		})
 
 		it('Spotlight has closed', async () => {
-			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true});
+			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {hidden: true, timeout : 500000});
 		})
 
 		it('VFB_00000001.VFB_00000001_swc loaded after adding it through spotlight', async () => {
+			await wait4selector(page, '#VFB_00000001_visibility_swc_buttonBar_btn', { visible: true , timeout : 500000});
 			expect(
 					await page.evaluate(async () => window['VFB_00000001.VFB_00000001_swc'] != undefined)
 			).toBeTruthy()
