@@ -274,13 +274,14 @@ export default class VFBMain extends React.Component {
           // Set wireframe by template:
           switch (window.templateID) {
           case "VFB_00030786":
-            this.canvasReference.setWireframe(true);
+            this.canvasReference.setWireframe(false);
             break;
           case "VFB_00050000":
-            this.canvasReference.setWireframe(true);
+            this.canvasReference.setWireframe(false);
             break;
           case "VFB_00101384":
             this.canvasReference.setWireframe(false);
+            this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
             // TOOD: Fix Orientaion
             break;
           default:
