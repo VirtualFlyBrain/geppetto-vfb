@@ -38,7 +38,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb-alpha.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
 };
 
