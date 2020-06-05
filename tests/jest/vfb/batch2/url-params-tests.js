@@ -29,8 +29,8 @@ const testLandingPage = function(){
 //Tests loading project containing 'Medulla'
 const medullaTest = function(project) {
 	beforeAll(async () => {
-		//increases timeout to 2 minutes
-		jest.setTimeout(120000);
+		//increases timeout to 9 minutes
+		jest.setTimeout(600000);
 		await page.goto(project);
 	});
 
