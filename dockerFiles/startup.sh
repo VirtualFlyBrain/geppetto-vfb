@@ -2,10 +2,15 @@
 
 if [[ -d "$HOME/workspace/org.geppetto.frontend/src" ]]
 then
+    # Note dev/alpha servers in code:
+    echo "Any non-standard servers in use:"
+    grep -rls dev.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/
+    grep -rls alpha.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/
+
     # Swap servers
     echo "Using Servers:"
     echo $VFB_PDB_SERVER
-     grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
+    grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
     grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" 
     echo $VFB_OWL_SERVER
     grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
