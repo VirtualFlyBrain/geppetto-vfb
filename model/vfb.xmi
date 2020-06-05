@@ -140,7 +140,7 @@
       id="neo4JDataSourceService"
       name="neo4j Data Source"
       dataSourceService="neo4jDataSource"
-      url="http://pdb-dev.virtualflybrain.org/db/data/transaction"
+      url="http://pdb.virtualflybrain.org/db/data/transaction"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <libraryConfigurations
@@ -566,14 +566,14 @@
       id="aberOWLDataSource"
       name="Aber OWL Data Source"
       dataSourceService="aberOWLDataSource"
-      url="http://owl-dev.virtualflybrain.org/api/runQuery.groovy"
+      url="http://owl.virtualflybrain.org/api/runQuery.groovy"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4"/>
   <dataSources
       id="owleryDataSourceSubclass"
       name="owlery Data Source (subclasses)"
       dataSourceService="owleryDataSource"
-      url="http://owl-dev.virtualflybrain.org/kbs/vfb/subclasses"
+      url="http://owl.virtualflybrain.org/kbs/vfb/subclasses"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <queries
@@ -694,7 +694,7 @@
       id="owleryDataSourceRealise"
       name="owlery Data Source (instances)"
       dataSourceService="owleryDataSource"
-      url="http://owl-dev.virtualflybrain.org/kbs/vfb/instances"
+      url="http://owl.virtualflybrain.org/kbs/vfb/instances"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <queries

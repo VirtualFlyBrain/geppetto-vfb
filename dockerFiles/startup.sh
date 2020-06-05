@@ -5,23 +5,23 @@ then
     # Swap servers
     echo "Using Servers:"
     echo $VFB_PDB_SERVER
-     grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend 
-    grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://pdb-dev.virtualflybrain.org@$VFB_PDB_SERVER@g" 
+     grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
+    grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g" 
     echo $VFB_OWL_SERVER
-    grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend
-    grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://owl-dev.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
+    grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
+    grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://owl.virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" 
     echo $VFB_R_SERVER
-    grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend
-    grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" 
+    grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
+    grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" 
     echo $SOLR_SERVER
-    grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend
-    grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
+    grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBMain/
+    grep -rls https://solr.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBMain/ | xargs sed -i "s@https://solr.virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" 
     echo "Google Analytics code: ${googleAnalyticsSiteCode}"
-    grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/src/main/webapp
-    grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" 
+    grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/src/main/webapp/src/main/webapp/components/VFBMain.js
+    grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/src/main/webapp/src/main/webapp/components/VFBMain.js | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" 
     echo "useSSL:${USESSL}"
-    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/src/main/webapp
-    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g" 
+    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/src/main/webapp/src/main/webapp/GeppettoConfiguration.json
+    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/src/main/webapp/src/main/webapp/GeppettoConfiguration.json | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g" 
 
     # Frontend final build
     cd $HOME/workspace/org.geppetto.frontend 
