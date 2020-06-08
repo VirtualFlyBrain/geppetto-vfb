@@ -578,7 +578,6 @@ export default class VFBTree extends React.Component {
               // Controls for the Tree
               controls = {
                 <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                  <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.sync} onClick={self.reloadData }></i>
                   <i 
                     style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } 
                     className={stylingConfiguration.icons.dropdown}
