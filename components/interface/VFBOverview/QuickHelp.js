@@ -83,7 +83,7 @@ export default class VFBQuickHelp extends React.Component {
         </div>
         <div id="quickHelpCheckbox">
           <input type="checkbox" id="quick_help_dialog" onChange={e => this.handleChange(e)} ref={ input => this.myinput = input} name="help_dialog" checked={this.state.isChecked} />
-          <label htmlFor="help_dialog">&nbsp;&nbsp;Dont show up the quick help on startup screen.</label>
+          <label htmlFor="help_dialog">&nbsp;&nbsp;Don&apos;t show Quick Help on startup (accessible from Help menu).</label>
         </div>
       </Rnd>
     )
