@@ -861,7 +861,7 @@ export default class VFBMain extends React.Component {
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
-      return (<div className="flexChildContainer" style={{ height: _height, width: _width }}>
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     }
