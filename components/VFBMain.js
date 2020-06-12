@@ -35,7 +35,7 @@ export default class VFBMain extends React.Component {
       canvasVisible: true,
       termInfoVisible: true,
       treeBrowserVisible: true,
-      graphVisible : false,
+      graphVisible : true,
       sliceViewerVisible: true,
       tutorialWidgetVisible: false,
       spotlightVisible: true,
@@ -1237,7 +1237,7 @@ export default class VFBMain extends React.Component {
 
     // Update the graph component
     if (this.graphReference !== undefined && this.graphReference !== null) {
-      this.graphReference.updateGraph(this.instanceOnFocus, this.idOnFocus);
+      this.graphReference.instanceFocusChange(this.instanceOnFocus);
     }
     
     // Update the term info component
