@@ -250,6 +250,10 @@ export default class VFBStackViewer extends React.Component {
         serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
         templateId: 'NOTSET'
       };
+    } else if (this.config.subDomains != undefined && this.config.subDomains[0] != undefined && this.config.subDomains[0].length > 2) {
+      this.voxel.x = Number(this.config.subDomains[0][0] || 0.622088);
+      this.voxel.y = Number(this.config.subDomains[0][1] || 0.622088);
+      this.voxel.z = Number(this.config.subDomains[0][2] || 0.622088);
     }
 
     return (
