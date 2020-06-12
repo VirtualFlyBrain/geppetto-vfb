@@ -121,7 +121,8 @@ export default class VFBGraph extends Component {
       loading : true, 
       currentQuery : this.props.instance,
       dropDownAnchorEl : null,
-      optionsIconColor : stylingConfiguration.defaultRefreshIconColor 
+      optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
+      nodeSelected : { title : "", id : "" }
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
@@ -133,6 +134,7 @@ export default class VFBGraph extends Component {
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -214,7 +216,7 @@ export default class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    this.queryNewInstance(node.title);
+    this.queryNewInstance(node);
   }
 
   /**
@@ -240,9 +242,24 @@ export default class VFBGraph extends Component {
   /**
    * Query new instance by using 'addVfbId' functionality
    */
-  queryNewInstance (id) {
-    this.setState( { loading : true } );
-    window.addVfbId(id);
+  queryNewInstance (node) {
+    this.setState( { loading : true, nodeSelected : node } );
+    window.addVfbId(node.title);
+  }
+  
+  selectedNodeLoaded (instance) {
+    var loadedId = null;
+    if (instance.getParent() !== null) {
+    	loadedId = instance.getParent().id;
+    } else {
+    	loadedId = instance.id;
+    } 
+    
+    if ( this.state.nodeSelected.title === loadedId ) {
+      return true;
+    }
+    
+    return false;
   }
   
   /**
@@ -254,6 +271,8 @@ export default class VFBGraph extends Component {
     
     // Force an update on the graph only if there's no previous graph rendered.
     if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
+      this.updateGraph();
+    } else if ( this.selectedNodeLoaded(instance) ) {
       this.updateGraph();
     } else {
       this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
