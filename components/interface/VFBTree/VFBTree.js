@@ -4,8 +4,6 @@ import { SliderPicker } from 'react-color';
 import Tree from 'geppetto-client/js/components/interface/tree/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import {
   createMuiTheme,
   MuiThemeProvider
@@ -16,7 +14,6 @@ import 'react-sortable-tree/style.css';
 var $ = require('jquery');
 const restPostConfig = require('../../configuration/VFBTree/VFBTreeConfiguration').restPostConfig;
 const treeCypherQuery = require('../../configuration/VFBTree/VFBTreeConfiguration').treeCypherQuery;
-const stylingConfiguration = require('../../configuration/VFBTree/VFBTreeConfiguration').styling;
 
 export default class VFBTree extends React.Component {
 
@@ -32,8 +29,7 @@ export default class VFBTree extends React.Component {
       nodes: undefined,
       nodeSelected: undefined,
       displayColorPicker: false,
-      pickerAnchor: undefined,
-      dropDownAnchorEl : null
+      pickerAnchor: undefined
     };
 
     this.initTree = this.initTree.bind(this);
@@ -49,9 +45,7 @@ export default class VFBTree extends React.Component {
     this.updateSubtitle = this.updateSubtitle.bind(this);
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
     this.convertDataForTree = this.convertDataForTree.bind(this);
-    this.handleMenuClick = this.handleMenuClick.bind(this);
-    this.refineData = this.refineData.bind(this);
-    
+
     this.isNumber = require('./helper').isNumber;
     this.sortData = require('./helper').sortData;
     this.findRoot = require('./helper').findRoot;
@@ -234,7 +228,49 @@ export default class VFBTree extends React.Component {
       errors: undefined,
     });
     this.restPost(treeCypherQuery(instance)).done(data => {
-      that.refineData(data);
+      /*
+       * we take the data provided by the cypher query and consume the until we obtain the treeData that can be given
+       * to the react-sortable-tree since it understands this data structure
+       */
+      if (data.errors.length > 0) {
+        console.log("-- ERROR TREE COMPONENT --");
+        console.log(data.errors);
+        this.setState({ errors: "Error retrieving the data - check the console for additional information" });
+      }
+
+      if (data.results.length > 0 && data.results[0].data.length > 0) {
+        var dataTree = this.parseGraphResultData(data);
+        var vertix = this.findRoot(data);
+        var imagesMap = this.buildDictClassToIndividual(data);
+        var nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
+        var edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
+        var treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
+        this.setState({
+          loading: false,
+          errors: undefined,
+          dataTree: treeData,
+          root: vertix,
+          edges: edges,
+          nodes: nodes,
+          nodeSelected: (this.props.instance === undefined
+            ? treeData[0]
+            : (this.props.instance.getParent() === null
+              ? { subtitle: this.props.instance.getId() }
+              : { subtitle: this.props.instance.getParent().getId() }))
+        });
+      } else {
+        var treeData = [{
+          title: "No data available.",
+          subtitle: null,
+          children: []
+        }];
+        this.setState({
+          dataTree: treeData,
+          root: undefined,
+          loading: false,
+          errors: undefined,
+        });
+      }
     });
   }
 
@@ -243,65 +279,6 @@ export default class VFBTree extends React.Component {
       this.selectNode(rowInfo.node);
     }
   }
-  
-  refineData (data) {
-    /*
-     * we take the data provided by the cypher query and consume the until we obtain the treeData that can be given
-     * to the react-sortable-tree since it understands this data structure
-     */
-    if (data.errors.length > 0) {
-      console.log("-- ERROR TREE COMPONENT --");
-      console.log(data.errors);
-      this.setState({ errors: "Error retrieving the data - check the console for additional information" });
-    }
-
-    if (data.results.length > 0 && data.results[0].data.length > 0) {
-      var dataTree = this.parseGraphResultData(data);
-      var vertix = this.findRoot(data);
-      var imagesMap = this.buildDictClassToIndividual(data);
-      var nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-      var edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-      var treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-      this.setState({
-        loading: false,
-        errors: undefined,
-        dataTree: treeData,
-        root: vertix,
-        edges: edges,
-        nodes: nodes,
-        nodeSelected: (this.props.instance === undefined
-          ? treeData[0]
-          : (this.props.instance.getParent() === null
-            ? { subtitle: this.props.instance.getId() }
-            : { subtitle: this.props.instance.getParent().getId() }))
-      });
-    } else {
-      var treeData = [{
-        title: "No data available.",
-        subtitle: null,
-        children: []
-      }];
-      this.setState({
-        dataTree: treeData,
-        root: undefined,
-        loading: false,
-        errors: undefined,
-      });
-    }
-  }
-  
-  /**
-   * Handle Menu drop down selections
-   */
-  handleMenuClick (query) {
-    let self = this;
-    // Show loading spinner while cypher query search occurs
-    this.setState({ loading : true , dropDownAnchorEl : null , errors: undefined });
-    // Perform cypher query
-    this.restPost(query()).done(data => {
-      self.refineData(data);
-    })
-  }  
 
   monitorMouseClick (e) {
     const clickCoord = {
@@ -336,23 +313,21 @@ export default class VFBTree extends React.Component {
     var buttons = [];
     var fillCondition = "unknown";
     var instanceLoaded = false;
-    if (rowInfo.node.instanceId !== undefined) {
-      if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
-        fillCondition = "3dAvailable";
-        for (var i = 1; i < Instances.length; i++) {
-          if (Instances[i].id !== undefined && Instances[i].id === rowInfo.node.instanceId) {
-            instanceLoaded = true;
-            break;
-          }
+    if (rowInfo.node.instanceId != undefined && rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+      fillCondition = "3dAvailable";
+      for (var i = 1; i < Instances.length; i++) {
+        if (Instances[i].id !== undefined && Instances[i].id === rowInfo.node.instanceId) {
+          instanceLoaded = true;
+          break;
         }
-        if (!instanceLoaded) {
-          fillCondition = "3dToLoad";
+      }
+      if (!instanceLoaded) {
+        fillCondition = "3dToLoad";
+      } else {
+        if ((typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") && (Instances[rowInfo.node.instanceId].isVisible())) {
+          fillCondition = "3dVisible";
         } else {
-          if ((typeof Instances[rowInfo.node.instanceId].isVisible !== "undefined") && (Instances[rowInfo.node.instanceId].isVisible())) {
-            fillCondition = "3dVisible";
-          } else {
-            fillCondition = "3dHidden";
-          }
+          fillCondition = "3dHidden";
         }
       }
     }
@@ -527,7 +502,6 @@ export default class VFBTree extends React.Component {
   }
 
   render () {
-    let self = this;
     if (this.state.dataTree === undefined) {
       var treeData = [{
         title: "No data available.",
@@ -569,59 +543,12 @@ export default class VFBTree extends React.Component {
               treeData={treeData}
               activateParentsNodeOnClick={true}
               handleClick={this.nodeClick}
-              style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both', left : "3rem" }}
+              style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
               rowHeight={this.styles.row_height}
               getButtons={this.getButtons}
               getNodesProps={this.getNodes}
               searchQuery={this.state.nodeSelected === undefined ? this.props.instance.getParent().getId() : this.state.nodeSelected.subtitle}
               onlyExpandSearchedNodes={false}
-              // Controls for the Tree
-              controls = {
-                <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                  <i 
-                    style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } 
-                    className={stylingConfiguration.icons.dropdown}
-                    aria-label="more"
-                    aria-controls="dropdown-menu"
-                    aria-haspopup="true"
-                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-                  />
-                  <Menu
-                    id="dropdown-menu"
-                    anchorEl={self.state.dropDownAnchorEl}
-                    keepMounted
-                    open={Boolean(self.state.dropDownAnchorEl)}
-                    onClose={ event => self.setState( { dropDownAnchorEl : null } )}
-                    PaperProps={{
-                      style: {
-                        backgroundColor: stylingConfiguration.dropDownBackgroundColor,
-                        marginTop: '30px',
-                        color : stylingConfiguration.dropDownTextColor
-                      }
-                    }}
-                  >
-                    {stylingConfiguration.dropDownQueries.map(item => (
-                      <MenuItem 
-                        key={item.label} 
-                        onClick={() => self.handleMenuClick(item.query)}
-                        style={{ fontSize : "12px" }}
-                        onMouseEnter={e => { 
-                          e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
-                          e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor; 
-                        }
-                        }
-                        onMouseLeave={e => {
-                          e.target.style.color = stylingConfiguration.dropDownTextColor;  
-                          e.target.style.backgroundColor = stylingConfiguration.dropDownBackgroundColor; 
-                        }
-                        }
-                      >
-                        {item.label}
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </div>
-              }
             />
           }
         </div>
