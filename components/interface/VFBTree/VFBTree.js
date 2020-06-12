@@ -334,7 +334,7 @@ export default class VFBTree extends React.Component {
 
     switch (fillCondition) {
     case "3dToLoad":
-      buttons.push(<i className="fa fa-eye-slash"
+      buttons.push(<i className="fa fa-eye"
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
@@ -344,7 +344,7 @@ export default class VFBTree extends React.Component {
         }} />);
       break;
     case "3dHidden":
-      buttons.push(<i className="fa fa-eye-slash"
+      buttons.push(<i className="fa fa-eye"
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
@@ -358,7 +358,7 @@ export default class VFBTree extends React.Component {
       break;
     case "3dVisible":
       var color = Instances[rowInfo.node.instanceId].getColor();
-      buttons.push(<i className="fa fa-eye"
+      buttons.push(<i className="fa fa-eye-slash"
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
