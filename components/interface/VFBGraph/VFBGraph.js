@@ -4,13 +4,14 @@ import GeppettoGraphVisualization from 'geppetto-client/js/components/interface/
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 
 /**
  * Read configuration from graphConfiguration.js
  */
 const configuration = require('../../configuration/VFBGraph/graphConfiguration').configuration;
 const restPostConfig = require('../../configuration/VFBGraph/graphConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').cypherQuery;
+const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 
 /**
@@ -115,7 +116,13 @@ export default class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
-    this.state = { graph : { nodes : [], links : [] } , loading : true, currentQuery : this.props.instance , dropDownAnchorEl : null };
+    this.state = { 
+      graph : { nodes : [], links : [] }, 
+      loading : true, 
+      currentQuery : this.props.instance,
+      dropDownAnchorEl : null,
+      optionsIconColor : stylingConfiguration.defaultRefreshIconColor 
+    }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
     this.queryResults = this.queryResults.bind(this);
@@ -207,20 +214,15 @@ export default class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    if ( this.shiftOn ){
-      this.queryNewInstance(node.title);
-      this.shiftOn = false;
-    } else {
-      this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
-      this.graphRef.current.ggv.current.zoom(2, 1000);
-    }
+    this.queryNewInstance(node.title);
   }
-  
+
   /**
-   * Handle Right click on Nodes, creates a new graph using the clicked node's ID as instance for cypher query
+   * Handle Right click on Nodes
    */
   handleNodeRightClick (node, event) {
-    this.queryNewInstance(node.title);
+    this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
+    this.graphRef.current.ggv.current.zoom(2, 1000);
   }
   
   /**
@@ -231,7 +233,7 @@ export default class VFBGraph extends Component {
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true , dropDownAnchorEl : null });
       // Perform cypher query
-      this.queryResults(query())
+      this.queryResults(query(this.state.currentQuery))
     }
   }
   
@@ -253,6 +255,8 @@ export default class VFBGraph extends Component {
     // Force an update on the graph only if there's no previous graph rendered.
     if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
       this.updateGraph();
+    } else {
+      this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
     }
   }
   
@@ -273,7 +277,7 @@ export default class VFBGraph extends Component {
 
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true, currentQuery : idToSearch });
+      this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
       this.queryResults(cypherQuery(idToSearch), idToSearch)
     }
@@ -302,9 +306,7 @@ export default class VFBGraph extends Component {
       url: url,
       headers: { 'content-type': contentType },
       data: request,
-    }).then( function (response) {
-      console.log(response);
-      
+    }).then( function (response) {      
       var blob = new Blob(["onmessage = " + refineData ]);
       var blobUrl = window.URL.createObjectURL(blob);
       
@@ -328,7 +330,7 @@ export default class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log(error);
+        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -376,7 +378,6 @@ export default class VFBGraph extends Component {
           ? <p>No Graph Available for {this.state.currentQuery}</p>
           : <GeppettoGraphVisualization
             id= { COMPONENT_ID }
-            containerStyle={ { position: 'fixed' } }
             // Graph data with Nodes and Links to populate
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
@@ -450,15 +451,38 @@ export default class VFBGraph extends Component {
                 <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.icons.home} onClick={self.resetCamera }></i>
                 <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.zoomIn }></i>
                 <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.zoomOut }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.sync} onClick={self.updateGraph }></i>
-                <i 
-                  style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } 
-                  className={stylingConfiguration.icons.dropdown}
-                  aria-label="more"
-                  aria-controls="dropdown-menu"
-                  aria-haspopup="true"
-                  onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-                />
+                <Tooltip title={<h6>Refresh</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px",
+                        color : self.state.optionsIconColor
+                      }
+                    }
+                    className={stylingConfiguration.icons.sync}
+                    onClick={self.updateGraph }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Options</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000" ,
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.dropdown}
+                    aria-label="more"
+                    aria-controls="dropdown-menu"
+                    aria-haspopup="true"
+                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
+                  />
+                </Tooltip>
                 <Menu
                   id="dropdown-menu"
                   anchorEl={self.state.dropDownAnchorEl}
@@ -475,7 +499,7 @@ export default class VFBGraph extends Component {
                 >
                   {stylingConfiguration.dropDownQueries.map(item => (
                     <MenuItem 
-                      key={item.label} 
+                      key={item.label(self.state.currentQuery)} 
                       onClick={() => self.handleMenuClick(item.query)}
                       style={{ fontSize : "12px" }}
                       onMouseEnter={e => { 
@@ -489,7 +513,7 @@ export default class VFBGraph extends Component {
                       }
                       }
                     >
-                      {item.label}
+                      {item.label(self.state.currentQuery)}
                     </MenuItem>
                   ))}
                 </Menu>
