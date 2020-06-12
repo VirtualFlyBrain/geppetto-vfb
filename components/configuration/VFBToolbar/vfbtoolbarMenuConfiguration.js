@@ -237,6 +237,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "Term Context Browser",
+          icon: "fa fa-indent",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["graphVisible"]
+          }
+        },
+        {
           label: "NBLAST",
           icon: "",
           action: "",

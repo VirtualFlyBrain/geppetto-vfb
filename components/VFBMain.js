@@ -14,7 +14,7 @@ import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLV
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
-// import VFBGraph from './interface/VFBGraph/VFBGraph';
+import VFBGraph from './interface/VFBGraph/VFBGraph';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -669,7 +669,7 @@ export default class VFBMain extends React.Component {
     if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
-        name: "Tree Browser",
+        name: "Template ROI",
         component: "treeBrowser"
       });
       this.setState({ treeBrowserVisible: true });
@@ -677,7 +677,7 @@ export default class VFBMain extends React.Component {
     if ((this.state.graphVisible !== prevState.graphVisible) && (this.state.graphVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
-        name: "Graph",
+        name: "Term Context",
         component: "vfbGraph"
       });
       this.setState({ graphVisible: true });

@@ -61,6 +61,11 @@ var modelJson = {
             "type": "tab",
             "name": "Template ROI Browser",
             "component": "treeBrowser"
+          },
+          {
+            "type": "tab",
+            "name": "Graph",
+            "component": "vfbGraph"
           }
         ]
       },
