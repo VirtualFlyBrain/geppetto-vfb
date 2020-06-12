@@ -250,9 +250,9 @@ export default class VFBGraph extends Component {
   selectedNodeLoaded (instance) {
     var loadedId = null;
     if (instance.getParent() !== null) {
-    	loadedId = instance.getParent().id;
+      loadedId = instance.getParent().id;
     } else {
-    	loadedId = instance.id;
+      loadedId = instance.id;
     } 
     
     if ( this.state.nodeSelected.title === loadedId ) {
