@@ -11,14 +11,14 @@ const buttonBarConfiguration = {
       "id": "select",
       "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
       "false": {
-        "actions": ["$instance$.select(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$.when($instance$.select()).then(if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); })"],
         "icon": "fa-hand-stop-o",
         "label": "Unselected",
         "tooltip": "Select",
         "id": "select",
       },
       "true": {
-        "actions": ["$instance$.deselect(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$.when($instance$.deselect()).then(if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); })"],
         "icon": "fa-hand-rock-o",
         "label": "Selected",
         "tooltip": "Deselect",
