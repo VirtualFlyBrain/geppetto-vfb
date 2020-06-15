@@ -82,11 +82,7 @@ export default class VFBStackViewer extends React.Component {
   }
 
   updateStackWidget () {
-    this.checkConnection();
-    if (this.changedStacks()) {
-      this.addSlices(this.getSliceInstances());
-    }
-    this.forceUpdate();
+    this.addSlices(this.getSliceInstances());
   }
 
   updateCanvasRef (newRef) {
