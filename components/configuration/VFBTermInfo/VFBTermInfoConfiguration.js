@@ -44,14 +44,14 @@ const buttonBarConfiguration = {
       "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); } return visible; })()",
       "false": {
         "id": "visibility",
-        "actions": ["$instance$.show(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
+        "actions": ["$instance$.show(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 1000)"],
         "icon": "fa-eye-slash",
         "label": "Hidden",
         "tooltip": "Show"
       },
       "true": {
         "id": "visibility",
-        "actions": ["$instance$.hide(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
+        "actions": ["$instance$.hide(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 1000)"],
         "icon": "fa-eye",
         "label": "Visible",
         "tooltip": "Hide"
