@@ -11,7 +11,7 @@ const buttonBarConfiguration = {
       "id": "select",
       "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
       "false": {
-        "actions": ["$instance$.select(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.select(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
         "icon": "fa-hand-stop-o",
         "label": "Unselected",
         "tooltip": "Select",
@@ -27,7 +27,7 @@ const buttonBarConfiguration = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
+      "actions": ["$instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
