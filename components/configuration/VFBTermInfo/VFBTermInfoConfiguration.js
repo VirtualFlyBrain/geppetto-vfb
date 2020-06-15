@@ -44,14 +44,14 @@ const buttonBarConfiguration = {
       "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); } return visible; })()",
       "false": {
         "id": "visibility",
-        "actions": ["$instance$.show(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.show(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
         "icon": "fa-eye-slash",
         "label": "Hidden",
         "tooltip": "Show"
       },
       "true": {
         "id": "visibility",
-        "actions": ["$instance$.hide(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.hide(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
         "icon": "fa-eye",
         "label": "Visible",
         "tooltip": "Hide"
@@ -104,7 +104,7 @@ const buttonBarConfiguration = {
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
-      "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId()); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+      "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId()); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
       "icon": "fa-trash-o",
       "label": "Delete",
       "tooltip": "Delete"
