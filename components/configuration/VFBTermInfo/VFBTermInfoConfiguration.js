@@ -18,7 +18,7 @@ const buttonBarConfiguration = {
         "id": "select",
       },
       "true": {
-        "actions": ["$instance$.deselect(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.deselect(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
         "icon": "fa-hand-rock-o",
         "label": "Selected",
         "tooltip": "Deselect",
@@ -27,7 +27,7 @@ const buttonBarConfiguration = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+      "actions": ["$instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
