@@ -83,7 +83,6 @@ export default class VFBStackViewer extends React.Component {
 
   updateStackWidget () {
     this.addSlices(this.getSliceInstances());
-    this.forceUpdate();
   }
 
   updateCanvasRef (newRef) {
@@ -123,12 +122,10 @@ export default class VFBStackViewer extends React.Component {
       console.log('Adding ' + instances.length + ' instances to ' + this.data.instances.length);
     }
     this.data.instances = arrayUnique(this.data.instances.concat(instances));
-    if (curr != this.data.instances.length){
-      console.log('Passing ' + this.data.instances.length + ' instances');
-      this.setState({ data: this.data }, () => {
-        this.forceUpdate();
-      });
-    }
+    console.log('Passing ' + this.data.instances.length + ' instances');
+    this.setState({ data: this.data }, () => {
+      this.forceUpdate();
+    });
   }
 
   removeSlice (path) {
