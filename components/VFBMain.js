@@ -669,7 +669,7 @@ export default class VFBMain extends React.Component {
     if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
-        name: "Tree Browser",
+        name: "Template ROI Browser",
         component: "treeBrowser"
       });
       this.setState({ treeBrowserVisible: true });

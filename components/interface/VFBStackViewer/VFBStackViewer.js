@@ -82,11 +82,7 @@ export default class VFBStackViewer extends React.Component {
   }
 
   updateStackWidget () {
-    this.checkConnection();
-    if (this.changedStacks()) {
-      this.addSlices(this.getSliceInstances());
-    }
-    this.forceUpdate();
+    this.addSlices(this.getSliceInstances());
   }
 
   updateCanvasRef (newRef) {
@@ -117,21 +113,20 @@ export default class VFBStackViewer extends React.Component {
         if (this.props.onLoad !== undefined) {
           this.props.onLoad(instances.parent.getId());
         }
+        this.data.instances[this.data.instances.length] = instances;
       } else {
         console.log('Adding ' + instances.toString() + ' to ' + this.data.instances.length);
         window.test = instances;
       }
     } else {
       added = instances;
-      console.log('Adding ' + instances.length + ' instances to ' + this.data.instances.length);
+      console.log('Updating ' + instances.length + ' instances...');
+      this.data.instances = instances;
     }
-    this.data.instances = arrayUnique(this.data.instances.concat(instances));
-    if (curr != this.data.instances.length){
-      console.log('Passing ' + this.data.instances.length + ' instances');
-      this.setState({ data: this.data }, () => {
-        this.forceUpdate();
-      });
-    }
+    // console.log('Passing ' + this.data.instances.length + ' instances');
+    this.setState({ data: this.data }, () => {
+      this.forceUpdate();
+    });
   }
 
   removeSlice (path) {
@@ -250,6 +245,10 @@ export default class VFBStackViewer extends React.Component {
         serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
         templateId: 'NOTSET'
       };
+    } else if (this.config.subDomains != undefined && this.config.subDomains[0] != undefined && this.config.subDomains[0].length > 2) {
+      this.voxelSize.x = Number(this.config.subDomains[0][0] || 0.622088);
+      this.voxelSize.y = Number(this.config.subDomains[0][1] || 0.622088);
+      this.voxelSize.z = Number(this.config.subDomains[0][2] || 0.622088);
     }
 
     return (

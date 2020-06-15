@@ -28,10 +28,12 @@ then
     grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/
     grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g"
 
+    set -e
+
     # Frontend final build
     cd $HOME/workspace/org.geppetto.frontend
     /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install
+    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install 
     rm -rf src
 fi
 
