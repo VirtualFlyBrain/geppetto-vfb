@@ -822,8 +822,8 @@ export default class VFBMain extends React.Component {
         this.setState({ sliceViewerVisible: false });
       });
       this.UIElementsVisibility[component] = node.isVisible();
-      let _height = node.getRect().height;
-      let _width = node.getRect().width;
+      let _height = node.getRect().height - 3;
+      let _width = node.getRect().width - 3;
       if (_height > 0 || _width > 0) {
         return (<div className="flexChildContainer">
           <VFBStackViewer
