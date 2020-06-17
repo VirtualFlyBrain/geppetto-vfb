@@ -803,8 +803,6 @@ export default class VFBMain extends React.Component {
                   'Link',
                   'Thumbnail',
                   'Examples',
-                  'Source',
-                  'License',
                   'Targeting Splits',
                   'Targeting Neurons',
                   'Targeted Neurons',
@@ -815,6 +813,8 @@ export default class VFBMain extends React.Component {
                   'Description',
                   'Cross References',
                   'Attribution',
+                  'Source',
+                  'License',
                   'Aligned To',
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
