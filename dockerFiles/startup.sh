@@ -42,6 +42,16 @@ fi
 
 if [[ -d "$SERVER_HOME/./repository/usr" ]]
 then
+
+    echo "Using Servers:"
+    echo "Client Tree Browser Server: $VFB_TREE_PDB_SERVER"
+    echo "Server PDB: $VFB_PDB_SERVER"
+    echo "Server OWL: $VFB_OWL_SERVER"
+    echo "Server OCPU R server: $VFB_R_SERVER"
+    echo "Client SOLR Server: $SOLR_SERVER"
+    echo "Google Analytics code: ${googleAnalyticsSiteCode}"
+    echo "useSSL:${USESSL}"
+    
     # Start a logfile
     mkdir -p $SERVER_HOME/serviceability/logs
     echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
