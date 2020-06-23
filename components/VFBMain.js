@@ -45,7 +45,7 @@ export default class VFBMain extends React.Component {
       treeBrowserVisible: true,
       tutorialWidgetVisible: false,
       quickHelpVisible: undefined,
-      UIUpdated: false,
+      UIUpdated: true,
       wireframeVisible: false,
     };
 
@@ -1464,7 +1464,7 @@ export default class VFBMain extends React.Component {
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig} 
+          datasourceConfig={this.queryBuilderDatasourceConfig}
           sorterColumns={this.sorterColumns}
           showClose={true} />
 
