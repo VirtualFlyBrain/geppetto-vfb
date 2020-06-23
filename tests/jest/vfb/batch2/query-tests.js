@@ -99,11 +99,11 @@ describe('VFB Query Component Tests', () => {
  		it('Typing VDRC_VT945397_GAL4_attP2_2 in the query filter', async () => {
 		 	await click(page, '#querybuilder input.form-control');
  			await page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
-			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 100000});
+			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 900000});
  		})
 
 		it('Query results image selected and query results closed', async () => {
-			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").click());
+			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").first().click());
 			closeModalWindow(page);
 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { hidden: true , timeout : 900000})
 		})
