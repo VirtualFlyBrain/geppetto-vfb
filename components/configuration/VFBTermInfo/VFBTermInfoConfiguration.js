@@ -11,14 +11,14 @@ const buttonBarConfiguration = {
       "id": "select",
       "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
       "false": {
-        "actions": ["$instance$.select(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.select(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
         "icon": "fa-hand-stop-o",
         "label": "Unselected",
         "tooltip": "Select",
         "id": "select",
       },
       "true": {
-        "actions": ["$instance$.deselect(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.deselect(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
         "icon": "fa-hand-rock-o",
         "label": "Selected",
         "tooltip": "Deselect",
@@ -27,7 +27,7 @@ const buttonBarConfiguration = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+      "actions": ["$instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
@@ -37,21 +37,21 @@ const buttonBarConfiguration = {
       "actions": ["GEPPETTO.SceneController.zoomTo($instances$)"],
       "icon": "fa-crosshairs",
       "label": "Zoom",
-      "tooltip": "Centre On"
+      "tooltip": "Target in 3D"
     },
     "visibility": {
       "showCondition": "$instance$.isVisible!=undefined",
       "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); } return visible; })()",
       "false": {
         "id": "visibility",
-        "actions": ["$instance$.show(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.show(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 1000)"],
         "icon": "fa-eye-slash",
         "label": "Hidden",
         "tooltip": "Show"
       },
       "true": {
         "id": "visibility",
-        "actions": ["$instance$.hide(); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+        "actions": ["$instance$.hide(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 1000)"],
         "icon": "fa-eye",
         "label": "Visible",
         "tooltip": "Hide"
@@ -104,7 +104,7 @@ const buttonBarConfiguration = {
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
-      "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId()); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+      "actions": ["if($instance$.parent != null){$instance$.parent.deselect();$instance$.parent.delete();}else{$instance$.deselect();$instance$.delete();};setTermInfo(window[window.templateID][window.templateID+'_meta'], window[window.templateID].getId()); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
       "icon": "fa-trash-o",
       "label": "Delete",
       "tooltip": "Delete"

@@ -14,12 +14,13 @@ ARG geppettoSimulationRelease=vfb_20200604_a
 ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=vfb_20200604_a
-ARG geppettoClientRelease=vfb_20200604_a
-ARG ukAcVfbGeppettoRelease=vfb_20200604_a
+ARG geppettoClientRelease=vfb_20200619_a
+ARG ukAcVfbGeppettoRelease=v2.1.1.0
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
 ARG VFB_PDB_SERVER=http://pdb.virtualflybrain.org
+ARG VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org
 ARG VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/
 ARG VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ARG SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
@@ -28,7 +29,6 @@ ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
 ARG build_type=production
-
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\

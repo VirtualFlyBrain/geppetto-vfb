@@ -719,7 +719,11 @@ export default class VFBMain extends React.Component {
     if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
+<<<<<<< HEAD
         name: "Template ROI",
+=======
+        name: "Template ROI Browser",
+>>>>>>> 58c6a187e8ace46ab76e4ba90bcf43285e6530e6
         component: "treeBrowser"
       });
       this.setState({
@@ -870,8 +874,6 @@ export default class VFBMain extends React.Component {
                   'Link',
                   'Thumbnail',
                   'Examples',
-                  'Source',
-                  'License',
                   'Targeting Splits',
                   'Targeting Neurons',
                   'Targeted Neurons',
@@ -882,6 +884,8 @@ export default class VFBMain extends React.Component {
                   'Description',
                   'Cross References',
                   'Attribution',
+                  'Source',
+                  'License',
                   'Aligned To',
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
@@ -892,8 +896,8 @@ export default class VFBMain extends React.Component {
         });
       });
       this.UIElementsVisibility[component] = node.isVisible();
-      let _height = node.getRect().height;
-      let _width = node.getRect().width;
+      let _height = node.getRect().height - 3;
+      let _width = node.getRect().width - 3;
       if (_height > 0 || _width > 0) {
         return (<div className="flexChildContainer">
           <VFBStackViewer
