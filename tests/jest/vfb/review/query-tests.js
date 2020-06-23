@@ -132,7 +132,7 @@ describe('Test URL Trigger Query Builder', () => {
 //			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
 //			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
 //		})
-		
+
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000 })
 		})
@@ -154,15 +154,15 @@ describe('Test URL Trigger Query Builder', () => {
 			await click(page, 'i.fa-quora');
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
-		
+
 		it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111420-image-container', { visible: true , timeout : 10000})
 		})
-		
+
 		it('Result "EB-IDFP DSB-PB 2 glomeruli neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111413-image-container', { visible: true , timeout : 10000})
 		})
-		
+
 		it('Result "EB-IDFP DSB-PB slice 7 neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111417-image-container', { visible: true , timeout : 10000})
 		})
