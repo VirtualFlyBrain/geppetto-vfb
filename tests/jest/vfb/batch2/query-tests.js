@@ -90,17 +90,16 @@ describe('VFB Query Component Tests', () => {
 			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
 			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
 		})
-		
-		
+
  		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
  			await click(page, 'button[id=run-query-btn]');
  			await wait4selector(page, '.query-results-name-column', { visible: true , timeout : 900000})
  		})
 
- 		it('Typing medulla in the query filter', async () => {
+ 		it('Typing VDRC_VT945397_GAL4_attP2_2 in the query filter', async () => {
 		 	await click(page, '#querybuilder input.form-control');
  			await page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
-			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000});
+			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 100000});
  		})
 
 		it('Query results image selected and query results closed', async () => {
