@@ -14,7 +14,7 @@ ARG geppettoSimulationRelease=vfb_20200604_a
 ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=vfb_20200604_a
-ARG geppettoClientRelease=vfb_20200619_a
+ARG geppettoClientRelease=vfb_20200619b
 ARG ukAcVfbGeppettoRelease=v2.1.1.0
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
