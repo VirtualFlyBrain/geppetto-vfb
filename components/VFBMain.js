@@ -31,22 +31,22 @@ export default class VFBMain extends React.Component {
 
     this.state = {
       canvasAvailable: false,
-      modelLoaded: (window.Model != undefined),
       canvasVisible: true,
+      controlPanelVisible: true,
+      graphVisible : true,
+      htmlFromToolbar: undefined,
+      idSelected: undefined,
+      instanceOnFocus: undefined,
+      modelLoaded: (window.Model != undefined),
+      queryBuilderVisible: true,
+      sliceViewerVisible: true,
+      spotlightVisible: true,
       termInfoVisible: true,
       treeBrowserVisible: true,
-      graphVisible : false,
-      sliceViewerVisible: true,
       tutorialWidgetVisible: false,
-      spotlightVisible: true,
-      controlPanelVisible: true,
-      wireframeVisible: false,
-      queryBuilderVisible: true,
       quickHelpVisible: undefined,
-      UIUpdated: false,
-      htmlFromToolbar: undefined,
-      instanceOnFocus: undefined,
-      idSelected: undefined,
+      UIUpdated: true,
+      wireframeVisible: false,
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -175,7 +175,10 @@ export default class VFBMain extends React.Component {
         if (idsList.length > 0) {
           this.props.vfbLoadId(idsList);
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({ idSelected: idsList[idsList.length - 1] });
+          this.setState({
+            UIUpdated: false,
+            idSelected: idsList[idsList.length - 1]
+          });
         }
       }
 
@@ -409,7 +412,10 @@ export default class VFBMain extends React.Component {
 
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
-      this.setState({ [itemState]: !this.state[itemState] });
+      this.setState({
+        UIUpdated: true,
+        [itemState]: !this.state[itemState]
+      });
     } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
       this.setState({ UIUpdated: itemState });
     }
@@ -427,32 +433,53 @@ export default class VFBMain extends React.Component {
     case 'sliceViewerVisible':
       this.UIUpdateItem(buttonState, "sliceViewer");
       break;
-    case 'spotlightVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
-      break;
-    case 'queryBuilderVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
-      break;
-    case 'controlPanelVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
-      break;
-    case 'wireframeVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
-      break;
-    case 'tutorialWidgetVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
-      break;
     case 'treeBrowserVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+      this.UIUpdateItem(buttonState, "treeBrowserVisible");
       break;
     case 'graphVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+      this.UIUpdateItem(buttonState, "graphVisible");
+      break;
+    case 'spotlightVisible':
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
+      break;
+    case 'queryBuilderVisible':
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
+      break;
+    case 'controlPanelVisible':
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
+      break;
+    case 'wireframeVisible':
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
+      break;
+    case 'tutorialWidgetVisible':
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
       break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
-        this.setState({ [buttonState]: true });
+        this.setState({
+          UIUpdated: true,
+          [buttonState]: true
+        });
       } else {
-        this.setState({ [buttonState]: !this.state[buttonState] });
+        this.setState({
+          UIUpdated: true,
+          [buttonState]: !this.state[buttonState]
+        });
       }
       break;
     }
@@ -532,7 +559,10 @@ export default class VFBMain extends React.Component {
 
   renderHTMLViewer (htmlChild) {
     if (htmlChild !== undefined) {
-      this.setState({ htmlFromToolbar: htmlChild });
+      this.setState({
+        UIUpdated: true,
+        htmlFromToolbar: htmlChild
+      });
     }
   }
 
@@ -546,16 +576,25 @@ export default class VFBMain extends React.Component {
 
   handleClickOutside () {
     if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
-      this.setState({ htmlFromToolbar: undefined });
+      this.setState({
+        UIUpdated: true,
+        htmlFromToolbar: undefined
+      });
     }
   }
 
   closeHtmlViewer () {
-    this.setState({ htmlFromToolbar: undefined });
+    this.setState({
+      UIUpdated: true,
+      htmlFromToolbar: undefined
+    });
   }
 
   closeQuickHelp () {
-    this.setState({ quickHelpVisible: false });
+    this.setState({
+      UIUpdated: true,
+      quickHelpVisible: false
+    });
   }
 
   /*
@@ -650,12 +689,20 @@ export default class VFBMain extends React.Component {
         name: "Term Info",
         component: "termInfo"
       });
+      this.setState({
+        UIUpdated: true,
+        termInfoVisible: true
+      });
     }
     if ((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
         name: "Slice Viewer",
         component: "sliceViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        sliceViewerVisible: true
       });
     }
     if ((this.state.canvasVisible !== prevState.canvasVisible) && (this.state.canvasVisible === true)) {
@@ -664,7 +711,10 @@ export default class VFBMain extends React.Component {
         name: "3D Viewer",
         component: "canvas"
       });
-      this.setState({ canvasAvailable: true });
+      this.setState({
+        UIUpdated: true,
+        canvasAvailable: true
+      });
     }
     if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
       this.reopenUIComponent({
@@ -672,15 +722,21 @@ export default class VFBMain extends React.Component {
         name: "Template ROI Browser",
         component: "treeBrowser"
       });
-      this.setState({ treeBrowserVisible: true });
+      this.setState({
+        UIUpdated: true,
+        treeBrowserVisible: true
+      });
     }
     if ((this.state.graphVisible !== prevState.graphVisible) && (this.state.graphVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
-        name: "Graph",
+        name: "Term Context",
         component: "vfbGraph"
       });
-      this.setState({ graphVisible: true });
+      this.setState({
+        UIUpdated: true,
+        graphVisible: true
+      });
     }
 
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
@@ -725,6 +781,12 @@ export default class VFBMain extends React.Component {
         }
         this.setState({ UIUpdated: false });
         break;
+      case 'treeBrowserVisible':
+        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+          this.restoreUIComponent("treeBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;
       }
     }
 
@@ -764,6 +826,7 @@ export default class VFBMain extends React.Component {
       this.UIElementsVisibility;
       node.setEventListener("close", () => {
         this.setState({
+          UIUpdated: false,
           canvasVisible: false,
           canvasAvailable: false
         });
@@ -773,13 +836,17 @@ export default class VFBMain extends React.Component {
         id="CanvasContainer"
         name={"Canvas"}
         baseZoom="1.2"
+        movieFilter={false}
         wireframeEnabled={true}
-        minimiseAnimation={false}
+        minimiseAnimation={true}
         onLoad={this.ThreeDViewerIdLoaded}
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
-        this.setState({ termInfoVisible: false });
+        this.setState({
+          UIUpdated: false,
+          termInfoVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       return (<div className="flexChildContainer">
@@ -819,7 +886,10 @@ export default class VFBMain extends React.Component {
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
       node.setEventListener("close", () => {
-        this.setState({ sliceViewerVisible: false });
+        this.setState({
+          UIUpdated: false,
+          sliceViewerVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height - 3;
@@ -840,7 +910,10 @@ export default class VFBMain extends React.Component {
       }
     } else if (component === "treeBrowser") {
       node.setEventListener("close", () => {
-        this.setState({ treeBrowserVisible: false });
+        this.setState({
+          UIUpdated: false,
+          treeBrowserVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
@@ -856,12 +929,15 @@ export default class VFBMain extends React.Component {
     } else if (component === "vfbGraph") {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
-        this.setState({ graphVisible: false });
+        this.setState({
+          UIUpdated: false,
+          graphVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
-      return (<div className="flexChildContainer" style={{ height: _height, width: _width }}>
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     }
@@ -869,7 +945,7 @@ export default class VFBMain extends React.Component {
 
   /* React functions */
   shouldComponentUpdate (nextProps, nextState) {
-    if ((nextState.UIUpdated === false) && (this.state.UIUpdated !== nextState.UIUpdated)) {
+    if (nextState.UIUpdated === false) {
       return false;
     } else {
       return true;
@@ -1237,7 +1313,7 @@ export default class VFBMain extends React.Component {
 
     // Update the graph component
     if (this.graphReference !== undefined && this.graphReference !== null) {
-      this.graphReference.updateGraph(this.instanceOnFocus, this.idOnFocus);
+      this.graphReference.instanceFocusChange(this.instanceOnFocus);
     }
     
     // Update the term info component
@@ -1388,7 +1464,7 @@ export default class VFBMain extends React.Component {
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig} 
+          datasourceConfig={this.queryBuilderDatasourceConfig}
           sorterColumns={this.sorterColumns}
           showClose={true} />
 
