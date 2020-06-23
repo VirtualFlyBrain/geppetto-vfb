@@ -80,48 +80,15 @@ var spotlightDataSourceConfig = {
     type: {
       property: {
         icon: "fa-file-text-o",
-        buttons: {
-          buttonOne: {
-            actions: ["window.addVfbId('$ID$');"],
-            icon: "fa-info-circle",
-            label: "Show info",
-            tooltip: "Show info"
-          }
-        }
+        actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
       },
       class: {
         icon: "fa-file-text-o",
-        buttons: {
-          buttonOne: {
-            actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
-            icon: "fa-info-circle",
-            label: "Show info",
-            tooltip: "Show info"
-          },
-          buttonTwo: {
-            actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-            icon: "fa-quora",
-            label: "Add to query",
-            tooltip: "Add to query"
-          }
-        }
+        actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
       },
       individual: {
         icon: "fa-file-image-o",
-        buttons: {
-          buttonOne: {
-            actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
-            icon: "fa-file-image-o",
-            label: "Add to scene",
-            tooltip: "Add to scene"
-          },
-          buttonTwo: {
-            actions: ["window.fetchVariableThenRun('$ID$', window.addToQueryCallback, '$LABEL$');"],
-            icon: "fa-quora",
-            label: "Add to query",
-            tooltip: "Add to query"
-          }
-        }
+        actions: ["window.addVfbId('$ID$');$(\"#spotlight\").hide();"],
       }
     },
     bloodhoundConfig: {
