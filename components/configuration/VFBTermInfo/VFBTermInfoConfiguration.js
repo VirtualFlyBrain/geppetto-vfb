@@ -95,11 +95,21 @@ const buttonBarConfiguration = {
     },
     "geometryType_swc": {
       "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
-      "id": "cylynders_swc",
-      "actions": ["$instance$.setGeometryType('cylinders')"],
-      "icon": "fa-plus-circle",
-      "label": "Cylinder",
-      "tooltip": "Cylinder 3D Skeleton"
+      "condition": "(function() { if ($instance$.getType().$instance$_swc != undefined && $instance$.geometryType === \"CYLINDERS\" ) { return true; } else { return false; } })()",
+      "false": {
+        "id": "cylynders_swc",
+        "actions": ["$instance$.setGeometryType('cylinders'); $instance$.geometryType = \"CYLINDERS\" "],
+        "icon": "fa-plus-circle",
+        "label": "Cylinder",
+        "tooltip": "Cylinder 3D Skeleton"
+      },
+      "true": {
+        "id": "cylynders_swc",
+        "actions": ["$instance$.setGeometryType('lines'); $instance$.geometryType = \"LINES\" "],
+        "icon": "fa-minus-circle",
+        "label": "Lines",
+        "tooltip": "Lines 3D Skeleton"
+      }
     },
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
