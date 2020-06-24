@@ -11,7 +11,7 @@ then
     echo "Using Servers:"
     echo "Client Tree Browser Server: $VFB_TREE_PDB_SERVER"
     grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBTree/VFBTreeConfiguration.js
-    grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBTree/VFBTreeConfiguration.js | xargs sed -i "s@https://pd.*VirtualFlyBrain.org@$VFB_TREE_PDB_SERVER@g"
+    grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBTree/VFBTreeConfiguration.js | xargs sed -i "s@https://pdb.virtualflybrain.org@$VFB_TREE_PDB_SERVER@g"
     echo "Server PDB: $VFB_PDB_SERVER"
     grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
     grep -rls http://pdb.virtualflybrain.org $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://pdb.virtualflybrain.org@$VFB_PDB_SERVER@g"

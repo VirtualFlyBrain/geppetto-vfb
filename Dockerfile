@@ -15,20 +15,27 @@ ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=vfb_20200604_a
 ARG geppettoClientRelease=vfb_20200624_b
-ARG ukAcVfbGeppettoRelease=vfb_20200624_a
+ARG ukAcVfbGeppettoRelease=vfb_20200624_c
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
-ARG VFB_PDB_SERVER=http://pdb.virtualflybrain.org
-ARG VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org
-ARG VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/
-ARG VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
-ARG SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
-ARG googleAnalyticsSiteCode=UA-18509775-2
+ARG VFB_PDB_SERVER_ARG=http://pdb.virtualflybrain.org
+ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.virtualflybrain.org
+ARG VFB_OWL_SERVER_ARG=http://owl.virtualflybrain.org/kbs/vfb/
+ARG VFB_R_SERVER_ARG=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
+ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select
+ARG googleAnalyticsSiteCode_ARG=UA-18509775-2
 ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
 ARG build_type=production
+
+ENV VFB_PDB_SERVER=${VFB_PDB_SERVER_ARG}
+ENV VFB_TREE_PDB_SERVER=${VFB_TREE_PDB_SERVER_ARG}
+ENV VFB_OWL_SERVER=${VFB_OWL_SERVER_ARG}
+ENV VFB_R_SERVER=${VFB_R_SERVER_ARG}
+ENV SOLR_SERVER=${SOLR_SERVER_ARG}
+ENV googleAnalyticsSiteCode=${googleAnalyticsSiteCode_ARG}
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
