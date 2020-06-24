@@ -30,6 +30,13 @@ ARG finalBuild=false
 ENV USESSL=${finalBuild}
 ARG build_type=production
 
+ENV VFB_PDB_SERVER=${VFB_PDB_SERVER}
+ENV VFB_TREE_PDB_SERVER=${VFB_TREE_PDB_SERVER}
+ENV VFB_OWL_SERVER=${VFB_OWL_SERVER}
+ENV VFB_R_SERVER=${VFB_R_SERVER}
+ENV SOLR_SERVER=$SOLR_SERVER
+ENV googleAnalyticsSiteCode=${googleAnalyticsSiteCode}
+
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
