@@ -3,7 +3,9 @@ import {
   VFB_ID_LOADED,
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
-  INSTANCE_ADDED
+  INSTANCE_ADDED,
+  SHOW_GRAPH,
+  UPDATE_GRAPH
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -17,6 +19,9 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
+  graphTabSelected : false,
+  graphQueryIndex : {},
+  instanceOnFocus : {},
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -182,6 +187,13 @@ function generalReducer (state, action) {
       ...state,
       layout: action.data
     };
+  case SHOW_GRAPH:
+    return { 
+      ...state, 
+      graphTabSelected : true,
+      graphQueryIndex : action.data.queryIndex,
+      instanceOnFocus : action.data.instance
+    };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
     var newInstance = action.data.split(".");
@@ -206,7 +218,7 @@ function generalReducer (state, action) {
     }
     return {
       ...state,
-      idsMap: newMap,
+      idsMap: newMap
     };
   }
 }

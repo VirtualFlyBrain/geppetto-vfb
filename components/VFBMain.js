@@ -72,7 +72,6 @@ export default class VFBMain extends React.Component {
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
-    this.graphReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
@@ -110,6 +109,7 @@ export default class VFBMain extends React.Component {
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
+    this.graphReference = React.createRef();
   }
 
   clearQS () {
@@ -791,6 +791,7 @@ export default class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
+          callbackHandler={this.props.vfbGraph}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -811,7 +812,7 @@ export default class VFBMain extends React.Component {
                   'Related Individuals',
                   'Relationships',
                   'Query for',
-                  'Query For',
+                  'Graph for',
                   'Description',
                   'Cross References',
                   'Attribution',
@@ -862,7 +863,7 @@ export default class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     }
   }
@@ -1235,11 +1236,6 @@ export default class VFBMain extends React.Component {
       }
     }
 
-    // Update the graph component
-    if (this.graphReference !== undefined && this.graphReference !== null) {
-      this.graphReference.instanceFocusChange(this.instanceOnFocus);
-    }
-    
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
@@ -1254,6 +1250,20 @@ export default class VFBMain extends React.Component {
   }
 
   render () {
+    console.log("VFB Main Props ", this.props);
+    let layoutChildren = this.model.toJson().layout.children;
+    for ( var i = 0; i < layoutChildren.length; i++){
+      if ( layoutChildren[i].type === "tabset"){
+        for ( var j = 0; j < layoutChildren[i].children.length ; j++){
+          if (layoutChildren[i].children[j].name === "Graph"){
+            break;
+          }
+        }
+        if ( this.model._activeTabSet !== undefined ) {
+          this.model._activeTabSet._model._activeTabSet._attributes.selected = j;
+        }
+      }
+    }
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
     }

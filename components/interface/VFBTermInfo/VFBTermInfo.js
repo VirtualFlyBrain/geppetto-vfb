@@ -4,11 +4,16 @@ import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
+import { connect } from 'react-redux';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
 var Type = require('geppetto-client/js/geppettoModel/model/Type');
+var Variable = require('geppetto-client/js/geppettoModel/model/Variable').default;
+
+const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
+const GRAPHS = "GRAPHS";
 
 require('../../../css/VFBTermInfo.less');
 
@@ -25,6 +30,7 @@ class VFBTermInfo extends React.Component {
     this.getHTML = this.getHTML.bind(this);
     this.setData = this.setData.bind(this);
     this.setName = this.setName.bind(this);
+    this.setGraphsLinks = this.setGraphsLinks.bind(this);
     this.getVariable = this.getVariable.bind(this);
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
@@ -90,6 +96,28 @@ class VFBTermInfo extends React.Component {
       this.cleanButtonBar();
     }
   }
+  
+  setGraphsLinks (anyInstance) {    
+    let graphsHTML = ""
+    {stylingConfiguration.dropDownQueries.map( (item, index) => (
+      graphsHTML += '<i class="popup-icon-link fa fa-cogs" ></i><a href="#" data-instancepath='
+      + GRAPHS + "," + anyInstance.parent.id + "," + index + '">' + item.label(anyInstance.parent.id) + "</a><br/>"
+    ))}
+        
+    var type = anyInstance;
+    if (!(type instanceof Type)) {
+      type = anyInstance.getType();
+    }
+    
+    if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+      var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
+      
+      var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphsHTML });
+      graphsVariable.setTypes([graphType]);
+      
+      type.getVariables().push(graphsVariable);
+    }
+  }
 
   setName (input) {
     this.name = input;
@@ -114,8 +142,11 @@ class VFBTermInfo extends React.Component {
     if (!(type instanceof Type)) {
       type = anyInstance.getType();
     }
+    
+    let metaType = type.getMetaType();
+    console.log("Term info getHTML type ", metaType);
 
-    if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+    if (metaType == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
       for (var i = 0; i < type.getVariables().length; i++) {
         var v = type.getVariables()[i];
 
@@ -123,20 +154,24 @@ class VFBTermInfo extends React.Component {
         var nameKey = v.getName();
         this.contentTermInfo.keys[i] = nameKey;
         var id = "VFBTermInfo_el_" + i;
+        console.log("Variable : ", v);
         this.getHTML(v, id, i);
       }
-    } else if (type.getMetaType() == GEPPETTO.Resources.HTML_TYPE) {
+    } else if (metaType === GEPPETTO.Resources.HTML_TYPE) {
       var value = this.getVariable(anyInstance).getInitialValues()[0].value;
       var prevCounter = this.contentTermInfo.keys.length;
       if (counter !== undefined) {
         prevCounter = counter;
       }
+      console.log("HTML Value : ", value);
+      console.log("HTML ID : ", id);
+      console.log("HTLM Variable: ", value);
       this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
         <div>
           <HTMLViewer id={id} content={value.html} />
         </div>
       </Collapsible>);
-    } else if (type.getMetaType() == GEPPETTO.Resources.TEXT_TYPE) {
+    } else if (metaType == GEPPETTO.Resources.TEXT_TYPE) {
       var value = this.getVariable(anyInstance).getInitialValues()[0].value;
       var prevCounter = this.contentTermInfo.keys.length;
       if (counter !== undefined) {
@@ -147,7 +182,7 @@ class VFBTermInfo extends React.Component {
           <HTMLViewer id={id} content={anchorme(value.text, anchorOptions)} />
         </div>
       </Collapsible>);
-    } else if (type.getMetaType() == GEPPETTO.Resources.IMAGE_TYPE) {
+    } else if (metaType == GEPPETTO.Resources.IMAGE_TYPE) {
       if (this.getVariable(anyInstance).getInitialValues()[0] != undefined) {
         var value = this.getVariable(anyInstance).getInitialValues()[0].value;
         var prevCounter = this.contentTermInfo.keys.length;
@@ -212,6 +247,16 @@ class VFBTermInfo extends React.Component {
           </Collapsible>);
         }
       }
+    } else if ( metaType === GRAPHS ) {
+      var prevCounter = this.contentTermInfo.keys.length;
+      if (counter !== undefined) {
+        prevCounter = counter;
+      }
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+        <div>
+          <HTMLViewer id={id} content={anyInstance.values} />
+        </div>
+      </Collapsible>);
     }
   }
 
@@ -510,6 +555,7 @@ export default class VFBTermInfoWidget extends React.Component {
       if (nodePresent === false) {
         this.data.unshift(data);
       }
+      this.refs.termInfoRef.setGraphsLinks(data);
       this.refs.termInfoRef.setData(data);
       this.refs.termInfoRef.setName(data.name);
     }
@@ -561,6 +607,10 @@ export default class VFBTermInfoWidget extends React.Component {
         // as same template pass only the instance ID for processing 
         path = instanceID;
       }
+    }
+    if (path.indexOf(GRAPHS) === 0 ) {
+      this.props.callbackHandler('SHOW_GRAPH', path.split(',')[1], path.split(',')[2]);
+      return;
     }
     var Query = require('geppetto-client/js/geppettoModel/model/Query');
     var n = window[path];
@@ -686,6 +736,7 @@ export default class VFBTermInfoWidget extends React.Component {
   }
 
   render () {
+    console.log("Props, ", this.props);
     return (
       <VFBTermInfo
         id={this.idWidget}

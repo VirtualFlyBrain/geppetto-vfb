@@ -5,6 +5,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
+import { connect } from "react-redux";
 
 /**
  * Read configuration from graphConfiguration.js
@@ -112,7 +113,7 @@ function refineData (e) {
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
 }
 
-export default class VFBGraph extends Component {
+class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
@@ -153,6 +154,12 @@ export default class VFBGraph extends Component {
     this.__isMounted = true;
     
     if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
+      const { graphQueryIndex } = this.props;
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( parseInt(graphQueryIndex) === index ) {
+          self.handleMenuClick(item.query)
+        }
+      })
       this.focusedInstance = this.props.instance;
       this.updateGraph();
     }
@@ -181,6 +188,8 @@ export default class VFBGraph extends Component {
     } else if ( !this.props.visible ) {
       this.focused = false;
     }
+    
+    console.log("Graph Props ", this.props)
   }
   
   componentWillUnmount () {
@@ -378,7 +387,6 @@ export default class VFBGraph extends Component {
   
   render () {
     let self = this;
-    
     return (
       this.state.loading
         ? <CircularProgress 
@@ -577,3 +585,9 @@ export default class VFBGraph extends Component {
     )
   }
 }
+
+function mapStateToProps (state) {
+  return { graphQueryIndex: state.generals.graphQueryIndex }
+}
+
+export default connect(mapStateToProps)(VFBGraph);
