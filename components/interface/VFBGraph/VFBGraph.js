@@ -467,9 +467,48 @@ export default class VFBGraph extends Component {
             linkWidth={1.25}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.icons.home} onClick={self.resetCamera }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.zoomIn }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.zoomOut }></i>
+                <Tooltip title={<h6>Reset View</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        top : "10px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.home}
+                    onClick={self.resetCamera }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom In</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomIn}
+                    onClick={self.zoomIn }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom Out</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomOut}
+                    onClick={self.zoomOut }>
+                  </i>
+                </Tooltip>
                 <Tooltip title={<h6>Refresh</h6>}>
                   <i 
                     style={ 
