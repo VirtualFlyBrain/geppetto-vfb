@@ -14,12 +14,13 @@ ARG geppettoSimulationRelease=vfb_20200604_a
 ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=vfb_20200604_a
-ARG geppettoClientRelease=VFBv2.2.0.3
-ARG ukAcVfbGeppettoRelease=development
+ARG geppettoClientRelease=vfb_20200619b
+ARG ukAcVfbGeppettoRelease=vfb_20200624_a
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
 ARG VFB_PDB_SERVER=http://pdb.virtualflybrain.org
+ARG VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org
 ARG VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/
 ARG VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ARG SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select

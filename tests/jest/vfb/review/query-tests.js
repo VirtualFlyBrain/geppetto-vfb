@@ -45,7 +45,7 @@ describe('VFB Query Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
 		})
-		
+
 //		it('Hide Quick Help Modal Window', async () => {
 //			closeModalWindow(page);
 //			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
@@ -90,20 +90,20 @@ describe('VFB Query Component Tests', () => {
 			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
 			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
 		})
-		
+
  		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
  			await click(page, 'button[id=run-query-btn]');
- 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { visible: true , timeout : 900000})
+ 			await wait4selector(page, '.query-results-name-column', { visible: true , timeout : 900000})
  		})
 
- 		it('Typing medulla in the query filter', async () => {
+ 		it('Typing VDRC_VT945397_GAL4_attP2_2 in the query filter', async () => {
 		 	await click(page, '#querybuilder input.form-control');
- 			await page.keyboard.type('medulla');
-			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 10000});
+ 			await page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
+			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 900000});
  		})
 
 		it('Query results image selected and query results closed', async () => {
-			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").click());
+			await page.evaluate(async selector => $("#VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container img").first().click());
 			closeModalWindow(page);
 			await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { hidden: true , timeout : 900000})
 		})
@@ -132,7 +132,7 @@ describe('Test URL Trigger Query Builder', () => {
 //			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
 //			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
 //		})
-		
+
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000 })
 		})
@@ -154,15 +154,15 @@ describe('Test URL Trigger Query Builder', () => {
 			await click(page, 'i.fa-quora');
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
-		
+
 		it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111420-image-container', { visible: true , timeout : 10000})
 		})
-		
+
 		it('Result "EB-IDFP DSB-PB 2 glomeruli neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111413-image-container', { visible: true , timeout : 10000})
 		})
-		
+
 		it('Result "EB-IDFP DSB-PB slice 7 neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111417-image-container', { visible: true , timeout : 10000})
 		})
