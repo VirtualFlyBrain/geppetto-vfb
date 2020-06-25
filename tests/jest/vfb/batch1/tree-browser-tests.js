@@ -57,21 +57,21 @@ describe('VFB Tree Browser Component Tests', () => {
 			//await page.evaluate(async () => document.getElementById("Tree Browser").click());
 			//await flexWindowClick("Tree Browser","flexlayout__tab_button_content");
 			await page.evaluate(async () => {
-				let mouseUp = document.getElementsByClassName('flexlayout__tab_button_content')[3]
+				let unselectedTab = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
 				let clickEvent = new MouseEvent('mousedown', {
 					view: window,
 					bubbles: true,
 					cancelable: true
 				});
-				mouseUp.dispatchEvent(clickEvent);
+				unselectedTab.dispatchEvent(clickEvent);
 
-				let mouseDown = document.getElementsByClassName('flexlayout__tab_button_content')[3]
+				let mouseDown = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
 				clickEvent = new MouseEvent('mouseup', {
 					view: window,
 					bubbles: true,
 					cancelable: true
 				});
-				mouseDown.dispatchEvent(clickEvent);
+				unselectedTab.dispatchEvent(clickEvent);
 			});
 
 			// Check that the Tree Browser is visible
