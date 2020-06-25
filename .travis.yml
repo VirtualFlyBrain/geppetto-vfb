@@ -232,6 +232,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then
             export VFB_TREE_PDB_SERVER=https://pdb-dev.virtualflybrain.org;
             export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
+            export TAG=$TAG-development;
           elif [ "$BUILD_TYPE" == "staging" ]; then
             export VFB_TREE_PDB_SERVER=https://pdb-alpha.virtualflybrain.org;
             export SOLR_SERVER=https://solr-alpha.virtualflybrain.org/solr/ontology/select;
