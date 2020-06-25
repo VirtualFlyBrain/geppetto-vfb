@@ -732,12 +732,20 @@
     right:0;
 }
 
+#controlpanel .griddle table {
+  background: rgba(66, 59, 59, 1);
+}
+
 #controlpanel .griddle button:not(.color-picker-button) {
 	color: white !important;
 }
 
 #controlpanel .griddle a {
 	color: white !important;
+}
+
+#controlpanel .griddle th {
+  text-align: left !important;
 }
 
 .tooltipLink {
@@ -1168,7 +1176,7 @@
   
   .rst__rowLabel {
     flex: 0 1 auto;
-    padding-right: 20px;
+    padding-right: 10px;
   }
   .rst__rtl.rst__rowLabel {
     padding-left: 20px;
@@ -1552,9 +1560,6 @@
     background-color: transparent;
 }
 
-.rst__virtualScrollOverride {
-  overflow-x: hidden!important;
-}
 .rst__rowSubtitle {
     display: block;
     white-space: pre-wrap;
@@ -1606,7 +1611,7 @@
 }
 
 .nodeFound {
-  color: #0080ff;
+  color: #11bffe;
 
 }
 
@@ -1636,4 +1641,12 @@
   #querybuilder .griddle-body>div {
     padding-right: 10px;
   }
+}
+
+.unselectable {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
