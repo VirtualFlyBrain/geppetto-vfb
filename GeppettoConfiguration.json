@@ -6,6 +6,8 @@
   "embedderURL": ["/"],
   "rootRedirect":"",
   "noTest": false,
+  "customCss": "geppetto/build/static/custom.css",
+  "customSplash": "geppetto/build/static/splash.gif",
   "themes": "css/colors",
   "properties": {
     "title" : "Virtual Fly Brain",

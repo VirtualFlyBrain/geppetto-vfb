@@ -46,6 +46,7 @@ var toolbarMenu = {
         fontSize: '12px',
         fontFamily: 'Khand, sans-serif',
         minWidth: '110px',
+        borderTop: '1px solid #585858',
         borderLeft: '1px solid #585858',
         borderRight: '1px solid #585858',
         borderBottom: '1px solid #585858',
