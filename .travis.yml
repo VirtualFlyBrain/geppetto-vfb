@@ -226,23 +226,18 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - export VFB_PDB_SERVER=http://pdb:7474;
+        - export VFB_OWL_SERVER=http://owl:8080/kbs/vfb/;
+        - export VFB_R_SERVER=http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast;
         - if [ "$BUILD_TYPE" == "development" ]; then
-            export VFB_PDB_SERVER=http://pdb-dev.virtualflybrain.org;
-            export VFB_OWL_SERVER=http://owl-dev.virtualflybrain.org/kbs/vfb/;
-            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export VFB_TREE_PDB_SERVER=https://pdb-dev.virtualflybrain.org;
             export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
-            export TAG=$TAG-development;
           elif [ "$BUILD_TYPE" == "staging" ]; then
-            export VFB_PDB_SERVER=http://pdb-alpha.virtualflybrain.org;
-            export VFB_OWL_SERVER=http://owl-alpha.virtualflybrain.org/kbs/vfb/;
-            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export VFB_TREE_PDB_SERVER=https://pdb-alpha.virtualflybrain.org;
             export SOLR_SERVER=https://solr-alpha.virtualflybrain.org/solr/ontology/select;
           else
-            export VFB_PDB_SERVER=http://pdb.virtualflybrain.org;
-            export VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/;
-            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
             export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
-          fi;
       before_script:
         - cd $TRAVIS_BUILD_DIR;
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
