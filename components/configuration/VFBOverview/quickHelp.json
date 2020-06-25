@@ -1,0 +1,36 @@
+{
+	"title": "VFB Tutorial",
+	"height": "400",
+    "width": "700",
+	"steps": [{
+		"title": "Here is the Slice Viewer",
+		"image" : "./slice-viewer.png",
+		"instructions": [{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click to select/explore neuropils and tracts"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Scroll through the slices"
+		}]
+	},{
+		"title": "Here is the 3D Viewer",
+		"image" : "./3d-viewer.png",
+		"instructions": [{
+			"icon" : "fa fa-repeat",
+			"label" : "Drag to rotate"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Point and click to select layers"
+		}]
+	},{
+		"title": "Here is the Term Info",
+		"image" : "./term-info.png",
+		"instructions": [{
+			"icon" : "fa fa-bars",
+			"label" : "Run term related queries"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Click to add image to the viewer"
+		}]
+	}]
+}

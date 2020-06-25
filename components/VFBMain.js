@@ -1017,9 +1017,6 @@ export default class VFBMain extends React.Component {
     // Retrieve cookie for 'quick_help' modal
     var cookie = getCookie("show_quick_help");
     // Show 'Quick Help' modal if cookie to hide it is not set to True
-    if ((this.props.location.search.indexOf("id=") > -1) || (this.props.location.search.indexOf("i=") > -1) || (this.props.location.search.indexOf("q=") > -1)) {
-      this.quickHelpOpen = false;
-    }
     if (( cookie !== "1") && (this.quickHelpOpen)) {
       this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
     }
