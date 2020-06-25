@@ -91,7 +91,7 @@ describe('VFB Term Info Component Tests', () => {
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})	
+		})
 
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
@@ -141,7 +141,7 @@ describe('VFB Term Info Component Tests', () => {
 			//await page.evaluate(async () =>{
 			//	let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
 			//	document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
-			//});			
+			//});
 			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 50000})
 		})
 
@@ -173,7 +173,7 @@ describe('VFB Term Info Component Tests', () => {
 			});
 			await page.waitFor(1000);
 			// Click on item from query drop down menu and expect the query modal window to open
-			await page.evaluate(async () => document.getElementById("List all example images of medulla").click());
+			await page.evaluate(async () => document.getElementById("List all available images of medulla").click());
 			await wait4selector(page, '#query-results-container', { visible: true, timeout : 50000});
 		})
 
