@@ -66,7 +66,6 @@ describe('VFB Tree Browser Component Tests', () => {
 				});
 				unselectedTab.dispatchEvent(clickEvent);
 
-				let mouseDown = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
 				clickEvent = new MouseEvent('mouseup', {
 					view: window,
 					bubbles: true,
