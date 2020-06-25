@@ -4,7 +4,7 @@
     "width": "700",
 	"steps": [{
 		"title": "Here is the Slice Viewer",
-		"image" : "./slice-viewer.png",
+		"image" : "https://github.com/VirtualFlyBrain/geppetto-vfb/blob/feature/600/images/slice-viewer.png?raw=true",
 		"instructions": [{
 			"icon" : "fa fa-hand-pointer-o",
 			"label" : "Click to select/explore neuropils and tracts"
@@ -14,7 +14,7 @@
 		}]
 	},{
 		"title": "Here is the 3D Viewer",
-		"image" : "./3d-viewer.png",
+		"image" : "geppetto/build/3d-viewer.png",
 		"instructions": [{
 			"icon" : "fa fa-repeat",
 			"label" : "Drag to rotate"
@@ -24,7 +24,7 @@
 		}]
 	},{
 		"title": "Here is the Term Info",
-		"image" : "./term-info.png",
+		"image" : "geppetto/build/term-info.png",
 		"instructions": [{
 			"icon" : "fa fa-bars",
 			"label" : "Run term related queries"
