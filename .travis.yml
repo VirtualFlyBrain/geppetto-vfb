@@ -238,6 +238,7 @@ jobs:
           else
             export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
             export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
+          fi;
       before_script:
         - cd $TRAVIS_BUILD_DIR;
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
