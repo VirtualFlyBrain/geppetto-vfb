@@ -1,7 +1,7 @@
 {
 	"title": "VFB Tutorial",
-	"height": "400",
-    "width": "700",
+	"height": "500",
+    "width": "800",
 	"steps": [{
 		"title": "Here is the Slice Viewer",
 		"image" : "https://github.com/VirtualFlyBrain/geppetto-vfb/blob/feature/600/images/slice-viewer.png?raw=true",

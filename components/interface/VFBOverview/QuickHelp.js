@@ -26,9 +26,7 @@ const styles = theme => ({
     boxShadow: "0 0 0 1600px rgba(0,0,0,0.65)",
   },
   
-  main : {
-    height : "85%",
-  },
+  main : { height : "85%" },
   
   font : {
     fontFamily: "Barlow",
@@ -70,9 +68,7 @@ const styles = theme => ({
     float : "left"
   },
   
-  listItem: {
-    padding: 0
-  },
+  listItem: { padding: 0 },
   
   listHeader : {
     fontFamily: "Barlow Condensed",
@@ -89,7 +85,7 @@ const styles = theme => ({
   },
   
   footer : {
-    margin : "10px 0 0 10px",
+    margin : "3% 0 0 3%",
     height : "15%"
   },
   
@@ -156,7 +152,7 @@ class VFBQuickHelp extends React.Component {
     }
     
     if ( configuration.steps.length <= step ) {
-      this.closeQuickHelp();	
+      this.closeQuickHelp();
     } else {
       this.setState( { currentStep : step } );
     } 
@@ -199,13 +195,13 @@ class VFBQuickHelp extends React.Component {
       maxHeight= {configuration.height}
       maxWidth= {configuration.width}
       ref={d => {
-        this.rnd2 = d;
+        self.rnd2 = d;
       }} >
-        <div ref={this.htmlToolbarRef} className={ classes.main }>
+        <div ref={self.htmlToolbarRef} className={ classes.main }>
           <div className={ classes.mainLeftSide }>
             <img
               className={ classes.image }
-              src={configuration.steps[this.state.currentStep].image}
+              src={configuration.steps[self.state.currentStep].image}
             />
           </div>
           <div className = { classes.mainRightSide }>
@@ -217,12 +213,12 @@ class VFBQuickHelp extends React.Component {
                     id="nested-list-subheader"
                     classes={{ root: classes.listHeader }}
                   >  
-                    {configuration.steps[this.state.currentStep].title}
+                    {configuration.steps[self.state.currentStep].title}
                   </ListSubheader>
                 }
                 classes={{ root: classes.list }}
               >
-                {configuration.steps[this.state.currentStep].instructions.map(function( instruction, index ) {
+                {configuration.steps[self.state.currentStep].instructions.map( function ( instruction, index ) {
                   return (<ListItem key={index} classes={{ root: classes.list }} >
                     <ListItemIcon>
                       <Icon className={instruction.icon} />
@@ -237,16 +233,15 @@ class VFBQuickHelp extends React.Component {
             </div>
             <div className={ classes.navigationBar }>
               <List>
-                {configuration.steps.map( (instruction, index) => {
+                {configuration.steps.map( function (instruction, index) {
                   return (<ListItem key={index} classes={{ root: classes.listItem }}>
                     <ListItemIcon onClick={ () => self.nextStep(index) } >
                       <Icon
                         className="fa fa-circle"
                         style={ 
-                          this.state.currentStep === index ?
-                          { color : "rgba(24, 24, 24, 0.6)" }
-                          :
-                          { color : "rgba(30, 30, 30, 0.2)" }
+                          self.state.currentStep === index
+                            ? { color : "rgba(24, 24, 24, 0.6)" }
+                            : { color : "rgba(30, 30, 30, 0.2)" }
                         }
                       />
                     </ListItemIcon>
@@ -262,10 +257,10 @@ class VFBQuickHelp extends React.Component {
             <input
               type="checkbox"
               id="quick_help_dialog"
-              onChange={e => this.handleCheckBoxClick(e)}
-              ref={ input => this.myinput = input}
+              onChange={e => self.handleCheckBoxClick(e)}
+              ref={ input => self.myinput = input}
               name="help_dialog"
-              checked={this.state.isChecked}
+              checked={self.state.isChecked}
             />
             <label className={classes.checkboxLabel}>
               &nbsp;&nbsp;Don&apos;t show Quick Help on startup (accessible from Help menu).
@@ -273,24 +268,23 @@ class VFBQuickHelp extends React.Component {
           </div>
           <div className={[classes.buttonBar, classes.font].join(' ')}>
             <Button
-              onClick={this.closeQuickHelp}
+              onClick={self.closeQuickHelp}
               classes={{ label : classes.font }}
             >
               Skip intro
             </Button>
-            { configuration.steps.length -1 === this.state.currentStep ?
-              <Button
+            { configuration.steps.length - 1 === self.state.currentStep
+              ? <Button
                 variant="contained"
                 classes={{ root: classes.nextButton, label : classes.font }}
                 onClick={this.closeQuickHelp}
               >
                 Finish
               </Button>
-              :
-              <Button
+              : <Button
                 variant="contained"
                 classes={{ root: classes.nextButton, label : classes.font }}
-                onClick={ () => this.nextStep() }
+                onClick={ () => self.nextStep() }
               >
                 Next   <i style={{ marginLeft : "1rem" }} className="fa fa-arrow-right"/>
               </Button>
@@ -302,8 +296,6 @@ class VFBQuickHelp extends React.Component {
   }
 }
 
-VFBQuickHelp.propTypes = {
-  classes: PropTypes.object.isRequired
-};
+VFBQuickHelp.propTypes = { classes: PropTypes.object.isRequired };
 
 export default withStyles(styles)(VFBQuickHelp);
