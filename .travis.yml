@@ -103,7 +103,7 @@ jobs:
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - tail /etc/log.log
+        - cat /etc/log.log
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
@@ -144,7 +144,7 @@ jobs:
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - tail /etc/log.log
+        - cat /etc/log.log
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
@@ -185,7 +185,7 @@ jobs:
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - tail /etc/log.log
+        - cat /etc/log.log
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
@@ -284,7 +284,7 @@ jobs:
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - tail /etc/log.log
+        - cat /etc/log.log
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
