@@ -916,9 +916,9 @@ export default class VFBMain extends React.Component {
         });
       });
       this.UIElementsVisibility[component] = node.isVisible();
-      let _height = node.getRect().height;
-      let _width = node.getRect().width;
-      return (<div className="flexChildContainer">
+      let _height = node.getRect().height - 15;
+      let _width = node.getRect().width - 15;
+      return (<div className="flexChildContainer" style={{ position : "fixed", height: _height, width: _width }}>
         <VFBTree
           id="treeWidget"
           instance={this.instanceOnFocus}
@@ -1414,7 +1414,7 @@ export default class VFBMain extends React.Component {
     }
 
     return (
-      <div style={{ height: '100%', width: '100%' }}>
+      <div className="unselectable" style={{ height: '100%', width: '100%' }}>
         { this.quickHelpRender }
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}

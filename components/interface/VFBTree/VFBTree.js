@@ -543,7 +543,7 @@ export default class VFBTree extends React.Component {
               treeData={treeData}
               activateParentsNodeOnClick={true}
               handleClick={this.nodeClick}
-              style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
+              style={{ width: this.props.size.width - 10, height: this.props.size.height, float: 'left', clear: 'both' }}
               rowHeight={this.styles.row_height}
               getButtons={this.getButtons}
               getNodesProps={this.getNodes}
