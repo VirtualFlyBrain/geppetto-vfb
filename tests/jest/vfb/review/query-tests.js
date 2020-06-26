@@ -100,9 +100,8 @@ describe('VFB Query Component Tests', () => {
 			await page.evaluate(async selector =>  {
 				var selectElement = $('#querybuilder input.form-control');
 				selectElement.focus();
-				page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
+				page.keyboard.type('VT945397');
 			});
- 			await page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
 			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 900000});
  		})
 
