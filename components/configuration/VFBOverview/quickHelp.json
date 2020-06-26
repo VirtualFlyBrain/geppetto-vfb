@@ -1,0 +1,36 @@
+{
+	"title": "VFB Tutorial",
+	"height": "500",
+    "width": "800",
+	"steps": [{
+		"title": "Here is the Slice Viewer",
+		"image" : "https://github.com/VirtualFlyBrain/geppetto-vfb/blob/feature/600/images/slice-viewer.png?raw=true",
+		"instructions": [{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click to select/explore neuropils and tracts"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Scroll through the slices"
+		}]
+	},{
+		"title": "Here is the 3D Viewer",
+		"image" : "geppetto/build/3d-viewer.png",
+		"instructions": [{
+			"icon" : "fa fa-repeat",
+			"label" : "Drag to rotate"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Point and click to select layers"
+		}]
+	},{
+		"title": "Here is the Term Info",
+		"image" : "geppetto/build/term-info.png",
+		"instructions": [{
+			"icon" : "fa fa-bars",
+			"label" : "Run term related queries"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Click to add image to the viewer"
+		}]
+	}]
+}
