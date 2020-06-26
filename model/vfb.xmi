@@ -766,8 +766,8 @@
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllExamples"
-      name="List all example images for class with examples"
-      description="List all example images of $NAME"
+      name="List all available images for class with examples"
+      description="List all available images of $NAME"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.3">
     <matchingCriteria
