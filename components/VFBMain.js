@@ -870,6 +870,7 @@ export default class VFBMain extends React.Component {
                   'Link',
                   'Thumbnail',
                   'Examples',
+                  'Available Images',
                   'Targeting Splits',
                   'Targeting Neurons',
                   'Targeted Neurons',
