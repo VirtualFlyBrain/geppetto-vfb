@@ -93,16 +93,16 @@ describe('VFB Query Component Tests', () => {
 
  		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
  			await click(page, 'button[id=run-query-btn]');
- 			await wait4selector(page, '.query-results-name-column', { visible: true , timeout : 900000})
+			await wait4selector(page, '.query-results-name-column', { visible: true , timeout : 900000})
+			await wait4selector(page, '#querybuilder input.form-control', { visible: true , timeout : 900000})
  		})
 
  		it('Typing VDRC_VT945397_GAL4_attP2_2 in the query filter', async () => {
 			await page.evaluate(async selector =>  {
 				var selectElement = $('#querybuilder input.form-control');
 				selectElement.focus();
-				page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
+				page.keyboard.type('VT945397');
 			});
- 			await page.keyboard.type('VDRC_VT945397_GAL4_attP2_2');
 			await wait4selector(page, 'div[id=VFBexp_FBtp0104942----FBbt_00003748----FBrf0232433-image-container]', { visible: true , timeout : 900000});
  		})
 
