@@ -17,7 +17,7 @@ export default class VFBQuickHelp extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.closeQuickHelp = this.closeQuickHelp.bind(this);
 
-    this.htmlContent = "<img style=\"height : 90vh; object-fit : cover; width: 100%; padding : 1rem; display: block; padding-top : 3rem; \" src=\"geppetto/build/static/splash.png\" />"
+    this.htmlContent = "<img style=\"height : 90vh; object-fit : cover; width: 100%; padding : 1rem; display: block; padding-top : 3rem; \" src=\"geppetto/build/splash.png\" />"
   }
 
   escFunction (event) {
