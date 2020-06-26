@@ -41,6 +41,15 @@ try {
   console.error(err)
 }
 
+const quickHelpImage = 'images/splash.png';
+
+try {
+  if (fs.existsSync(quickHelpImage)) {
+    availableExtensions.push({ from: quickHelpImage, to: './', flatten: true });
+  }
+} catch (err) {
+  console.error(err)
+}
 
 console.log(availableExtensions);
 
