@@ -7,7 +7,7 @@
 		"image" : "geppetto/build/slice-viewer.png",
 		"instructions": [{
 			"icon" : "fa fa-hand-pointer-o",
-			"label" : "Hover, Click or Click with shift to explore/list/add painted anatomy"
+			"label" : "Hover, click or click + shift to explore/list/add painted anatomy"
 		},{
 			"icon" : "fa fa-arrows-v",
 			"label" : "Either Scroll with the mouse or use icons to move through the stack"
@@ -50,7 +50,7 @@
 		"title": "Here is the Term Info",
 		"image" : "geppetto/build/term-info.png",
 		"instructions": [{
-			"icon" : "fa fa-bars",
+			"icon" : "fa ",
 			"label" : "Run term related queries"
 		},{
 			"icon" : "fa fa-arrows-v",
