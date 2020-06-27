@@ -134,7 +134,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Color Picker Appears for "adult optic lobe"', async () => {
-			await page.evaluate(async variableName => $(variableName).click(), "#VFBTree_component i.fa-tint");
+			await page.evaluate(async variableName => $(variableName).first().click(), "#VFBTree_component i.fa-tint");
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
 		})
