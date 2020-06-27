@@ -67,7 +67,7 @@ var controlPanelConfig = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
+      "actions": ["$instance$.deselect(); $instance$.setColor('$param$'); if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
