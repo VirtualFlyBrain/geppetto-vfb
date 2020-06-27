@@ -50,11 +50,11 @@
 		"title": "Here is the Term Info",
 		"image" : "geppetto/build/term-info.png",
 		"instructions": [{
-			"icon" : "fa ",
-			"label" : "Run term related queries"
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click on thumbnails to add that image to the viewer"
 		},{
-			"icon" : "fa fa-arrows-v",
-			"label" : "Click to add image to the viewer"
+			"icon" : "fa fa-quora",
+			"label" : "Run term related queries"
 		}]
 	}]
 }

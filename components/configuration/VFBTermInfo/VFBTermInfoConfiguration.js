@@ -12,14 +12,14 @@ const buttonBarConfiguration = {
       "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
       "false": {
         "actions": ["$instance$.select(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
-        "icon": "fa-hand-stop-o",
+        "icon": "fa-check-circle-o",
         "label": "Unselected",
         "tooltip": "Select",
         "id": "select",
       },
       "true": {
         "actions": ["$instance$.deselect(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
-        "icon": "fa-hand-rock-o",
+        "icon": "fa-check-circle",
         "label": "Selected",
         "tooltip": "Deselect",
         "id": "deselect",
