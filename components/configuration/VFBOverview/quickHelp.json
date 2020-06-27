@@ -7,10 +7,22 @@
 		"image" : "geppetto/build/slice-viewer.png",
 		"instructions": [{
 			"icon" : "fa fa-hand-pointer-o",
-			"label" : "Click to select/explore neuropils and tracts"
+			"label" : "Hover, Click or Click with shift to explore/list/add painted anatomy"
 		},{
 			"icon" : "fa fa-arrows-v",
-			"label" : "Scroll through the slices"
+			"label" : "Either Scroll with the mouse or use icons to move through the stack"
+		},{
+			"icon" : "fa fa-home",
+			"label" : "Home resets your view"
+		},{
+			"icon" : "fa fa-search-plus",
+			"label" : "Use the pinch gesture or icons to zoom in/out"
+		},{
+			"icon" : "fa fa-refresh",
+			"label" : "Toggles through orthoginal views"
+		},{
+			"icon" : "fa gpt-showplane",
+			"label" : "Toggles on/off the slice position on the 3D Viewer"
 		}]
 	},{
 		"title": "Here is the 3D Viewer",
