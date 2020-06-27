@@ -27,7 +27,7 @@ const buttonBarConfiguration = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
+      "actions": ["$instance$.deselect(); $instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
