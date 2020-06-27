@@ -46,10 +46,21 @@ class ErrorCatcher extends React.Component {
   }
     
     handleClose = () => {
+      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new";
       var customMessage = "Steps to reproduce the problem: \n\nPlease fill the below with the necessary steps to reproduce the problem\n\n\n\nError Information:\n\n"
-      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?body=" + customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n```diff\n" + window.console.logs.slice(-8).join('\n').replace("#",escape("#")) + "\n```\n";
-      var win = window.open(encodeURI(url), '_blank');
-      win.focus();
+      var body = customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n```diff\n" + window.console.logs.slice(-50).join('\n').replace("#",escape("#")) + "\n```\n";
+      var form = document.createElement("form");
+      form.setAttribute("method", "get");
+      form.setAttribute("action", url);
+      form.setAttribute("target", "view");
+      var hiddenField = document.createElement("input"); 
+      hiddenField.setAttribute("type", "hidden");
+      hiddenField.setAttribute("name", "body");
+      hiddenField.setAttribute("value", body);
+      form.appendChild(hiddenField);
+      document.body.appendChild(form);
+      window.open('', 'view');
+      form.submit();
     };
   
     componentDidCatch (error, info) {
