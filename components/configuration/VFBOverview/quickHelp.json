@@ -31,7 +31,7 @@
 			"icon" : "fa fa-mouse-pointer",
 			"label" : "Point and click to select neurons/expression"
 		},{
-			"icon" : "fa-compass",
+			"icon" : "fa fa-compass",
 			"label" : "Drag with mouse or click directional icons to rotate/move"
 		},{
 			"icon" : "fa fa-search-plus",
