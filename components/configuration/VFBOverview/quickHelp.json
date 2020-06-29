@@ -7,10 +7,22 @@
 		"image" : "geppetto/build/slice-viewer.png",
 		"instructions": [{
 			"icon" : "fa fa-hand-pointer-o",
-			"label" : "Click to select/explore neuropils and tracts"
+			"label" : "Hover, click or click + shift to explore/list/add painted anatomy"
 		},{
 			"icon" : "fa fa-arrows-v",
-			"label" : "Scroll through the slices"
+			"label" : "Either Scroll with the mouse or use icons to move through the stack"
+		},{
+			"icon" : "fa fa-home",
+			"label" : "Home resets your view"
+		},{
+			"icon" : "fa fa-search-plus",
+			"label" : "Use the pinch gesture or icons to zoom in/out"
+		},{
+			"icon" : "fa fa-refresh",
+			"label" : "Toggles through orthoginal views"
+		},{
+			"icon" : "fa gpt-showplane",
+			"label" : "Toggles on/off the slice position on the 3D Viewer"
 		}]
 	},{
 		"title": "Here is the 3D Viewer",
@@ -19,11 +31,8 @@
 			"icon" : "fa fa-mouse-pointer",
 			"label" : "Point and click to select neurons/expression"
 		},{
-			"icon" : "fa fa-repeat",
-			"label" : "Drag or click directional rotation icons to rotate"
-		},{
-			"icon" : "fa fa-chevron-up",
-			"label" : "Click directional icons to move camera position"
+			"icon" : "fa fa-compass",
+			"label" : "Drag with mouse or click directional icons to rotate/move"
 		},{
 			"icon" : "fa fa-search-plus",
 			"label" : "Use the mouse scroll or icons to zoom in/out"
@@ -41,11 +50,11 @@
 		"title": "Here is the Term Info",
 		"image" : "geppetto/build/term-info.png",
 		"instructions": [{
-			"icon" : "fa fa-bars",
-			"label" : "Run term related queries"
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click on thumbnails to add that image to the viewer"
 		},{
-			"icon" : "fa fa-arrows-v",
-			"label" : "Click to add image to the viewer"
+			"icon" : "fa fa-quora",
+			"label" : "Run term related queries"
 		}]
 	}]
 }
