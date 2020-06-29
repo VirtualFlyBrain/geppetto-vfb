@@ -338,7 +338,7 @@ export default class VFBFocusTerm extends React.Component {
   }
 
   setInstance (instance) {
-    this.focusTermConfiguration.buttons[0].label = instance.getName();
+    this.focusTermConfiguration.buttons[0].label = "Query for " + instance.getName();
     this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
     this.updateHistory(instance);
     this.setState({ currentInstance: instance });
@@ -518,10 +518,10 @@ export default class VFBFocusTerm extends React.Component {
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Search">
-                  <i className="fa fa-search arrowsStyle"
+                  title="Layers">
+                  <i className="fa fa-list arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("spotlightVisible");
+                      this.props.UIUpdateManager("controlPanelVisible");
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
@@ -532,10 +532,10 @@ export default class VFBFocusTerm extends React.Component {
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Layers">
-                  <i className="fa fa-list arrowsStyle"
+                  title="Search">
+                  <i className="fa fa-search arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("controlPanelVisible");
+                      this.props.UIUpdateManager("spotlightVisible");
                     }} />
                 </Tooltip>
               </MuiThemeProvider>
