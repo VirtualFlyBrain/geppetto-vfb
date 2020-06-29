@@ -483,6 +483,33 @@ export default class VFBFocusTerm extends React.Component {
           <div className="focusTermRight">
             <div className="focusTermDivR">
               <MuiThemeProvider theme={this.theme}>
+                { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
+                  ? <Tooltip placement="top-end"
+                    title={tooltipPrevious}>
+                    <i className="fa fa-chevron-left arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.back();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
+                }
+                <Menu
+                  configuration={this.focusTermConfiguration}
+                  menuHandler={this.menuHandler} />
+                { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
+                  ? <Tooltip placement="top-end"
+                    title={tooltipNext}> 
+                    <i className="fa fa-chevron-right arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.forward();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
+                }
                 <Tooltip placement="top-end"
                   title="Clear all">
                   <i className="fa fa-eraser arrowsStyle"
@@ -511,33 +538,6 @@ export default class VFBFocusTerm extends React.Component {
                       this.props.UIUpdateManager("controlPanelVisible");
                     }} />
                 </Tooltip>
-                { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
-                  ? <Tooltip placement="top-end"
-                    title={tooltipPrevious}>
-                    <i className="fa fa-chevron-left arrowsStyle"
-                      onClick={() => {
-                        if (window.vfbUpdatingHistory == false) {
-                          window.history.back();
-                        }
-                      }} />
-                  </Tooltip>
-                  : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
-                }
-                <Menu
-                  configuration={this.focusTermConfiguration}
-                  menuHandler={this.menuHandler} />
-                { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
-                  ? <Tooltip placement="top-end"
-                    title={tooltipNext}> 
-                    <i className="fa fa-chevron-right arrowsStyle"
-                      onClick={() => {
-                        if (window.vfbUpdatingHistory == false) {
-                          window.history.forward();
-                        }
-                      }} />
-                  </Tooltip>
-                  : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
-                }
               </MuiThemeProvider>
             </div>
           </div>
