@@ -12,14 +12,14 @@ const buttonBarConfiguration = {
       "condition": "GEPPETTO.SceneController.isSelected($instance$.$instance$_obj != undefined ? [$instance$.$instance$_obj] : []) ||  GEPPETTO.SceneController.isSelected($instance$.$instance$_swc != undefined ? [$instance$.$instance$_swc] : [])",
       "false": {
         "actions": ["$instance$.select(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
-        "icon": "fa-hand-stop-o",
+        "icon": "fa-check-circle-o",
         "label": "Unselected",
         "tooltip": "Select",
         "id": "select",
       },
       "true": {
         "actions": ["$instance$.deselect(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 500)"],
-        "icon": "fa-hand-rock-o",
+        "icon": "fa-check-circle",
         "label": "Selected",
         "tooltip": "Deselect",
         "id": "deselect",
@@ -27,7 +27,7 @@ const buttonBarConfiguration = {
     },
     "color": {
       "id": "color",
-      "actions": ["$instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
+      "actions": ["$instance$.deselect(); $instance$.setColor('$param$'); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 2000)"],
       "icon": "fa-tint",
       "label": "Color",
       "tooltip": "Color"
@@ -98,14 +98,14 @@ const buttonBarConfiguration = {
       "condition": "(function() { if ($instance$.getType().$instance$_swc != undefined && $instance$.geometryType === \"CYLINDERS\" ) { return true; } else { return false; } })()",
       "false": {
         "id": "cylynders_swc",
-        "actions": ["$instance$.setGeometryType('cylinders'); $instance$.geometryType = \"CYLINDERS\" "],
+        "actions": ["var instance = Instances.getInstance('$instance$.$instance$_swc'); instance.setGeometryType('cylinders'); $instance$.geometryType = \"CYLINDERS\" "],
         "icon": "fa-plus-circle",
         "label": "Cylinder",
         "tooltip": "Cylinder 3D Skeleton"
       },
       "true": {
         "id": "cylynders_swc",
-        "actions": ["$instance$.setGeometryType('lines'); $instance$.geometryType = \"LINES\" "],
+        "actions": ["var instance = Instances.getInstance('$instance$.$instance$_swc'); instance.setGeometryType('lines'); $instance$.geometryType = \"LINES\" "],
         "icon": "fa-minus-circle",
         "label": "Lines",
         "tooltip": "Lines 3D Skeleton"
