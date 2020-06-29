@@ -28,18 +28,9 @@ console.log("\n Building for a " + ((isProduction) ? "production" : "development
 var availableExtensions = [];
 
 availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
-availableExtensions.push({ from: 'tutorials/*', to: './', flatten: true });
+availableExtensions.push({ from: path.resolve(__dirname, "static"), to: 'static' });
 availableExtensions.push({ from: 'model/*', to: './', flatten: true });
-
-const splashLoadingImage = 'images/splash.png';
-
-try {
-  if (fs.existsSync(splashLoadingImage)) {
-    availableExtensions.push({ from: splashLoadingImage, to: './', flatten: true });
-  }
-} catch (err) {
-  console.error(err)
-}
+availableExtensions.push({ from: 'images/*', to: './', flatten: true });
 
 console.log(availableExtensions);
 

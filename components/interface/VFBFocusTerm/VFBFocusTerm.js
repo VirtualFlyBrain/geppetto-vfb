@@ -467,7 +467,7 @@ export default class VFBFocusTerm extends React.Component {
               <Tabs>
                 <TabList>
                   <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
-                  <Tab disabled={true}>&nbsp; + &nbsp;</Tab>
+                  <Tab disabled={true} style={{ display: "none" }}>&nbsp; + &nbsp;</Tab>
                 </TabList>
                 <TabPanel style={{ display: "none" }}/>
                 <TabPanel style={{ display: "none" }}/>
