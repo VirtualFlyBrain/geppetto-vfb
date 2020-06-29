@@ -736,7 +736,11 @@
   background: rgba(66, 59, 59, 1);
 }
 
-#controlpanel .griddle button:not(.color-picker-button) {
+#controlpanel .griddle button.fa-check-circle {
+  color: yellow !important;
+}
+
+#controlpanel .griddle button:not(.color-picker-button):not(.fa-check-circle) {
 	color: white !important;
 }
 
@@ -1644,9 +1648,10 @@
 }
 
 .unselectable {
-  -moz-user-select: -moz-none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
-  user-select: none;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  -o-user-select: text;
+  user-select: text;
 }
