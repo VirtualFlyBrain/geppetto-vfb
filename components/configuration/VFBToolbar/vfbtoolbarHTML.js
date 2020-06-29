@@ -16,7 +16,7 @@ var feedback
   + "title='Report an issue via GitHub' target='_blank'>"
   + "Create GitHub Issue</a>"
   + "</p>"
-  + "<p> This could simply be a question or a new feature request, but if you have found a bug we missed please copy in"
+  + "<p> This could simply be a question or a new feature request, but if you have found a bug we missed please copy in "
   + "the page address and system details listed below to help us resolve any issue as quickly as possible."
   + "</p>"
   + "<div style='border: 1px solid green;''>"

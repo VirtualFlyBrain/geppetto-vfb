@@ -1,5 +1,5 @@
 var restPostConfig = {
-  url: "https://pdb-alpha.VirtualFlyBrain.org/db/data/transaction/commit",
+  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
 };
 
