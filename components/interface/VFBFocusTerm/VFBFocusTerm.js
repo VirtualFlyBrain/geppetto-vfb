@@ -523,6 +523,9 @@ export default class VFBFocusTerm extends React.Component {
                   </Tooltip>
                   : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
                 }
+                <Menu
+                  configuration={this.focusTermConfiguration}
+                  menuHandler={this.menuHandler} />
                 { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
                   ? <Tooltip placement="top-end"
                     title={tooltipNext}> 
@@ -535,9 +538,6 @@ export default class VFBFocusTerm extends React.Component {
                   </Tooltip>
                   : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
                 }
-                <Menu
-                  configuration={this.focusTermConfiguration}
-                  menuHandler={this.menuHandler} />
               </MuiThemeProvider>
             </div>
           </div>
