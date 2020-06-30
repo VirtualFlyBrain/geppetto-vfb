@@ -4,7 +4,6 @@ import GeppettoGraphVisualization from 'geppetto-client/js/components/interface/
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import Tooltip from '@material-ui/core/Tooltip';
 
 /**
  * Read configuration from graphConfiguration.js
@@ -116,14 +115,7 @@ export default class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
-    this.state = { 
-      graph : { nodes : [], links : [] }, 
-      loading : true, 
-      currentQuery : this.props.instance,
-      dropDownAnchorEl : null,
-      optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
-      nodeSelected : { title : "", id : "" }
-    }
+    this.state = { graph : { nodes : [], links : [] } , loading : true, currentQuery : this.props.instance , dropDownAnchorEl : null };
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
     this.queryResults = this.queryResults.bind(this);
@@ -240,6 +232,18 @@ export default class VFBGraph extends Component {
   }
   
   /**
+   * Handle Menu drop down clicks
+   */
+  handleMenuClick (query) {
+    if (this.__isMounted){
+      // Show loading spinner while cypher query search occurs
+      this.setState({ loading : true , dropDownAnchorEl : null });
+      // Perform cypher query
+      this.queryResults(query())
+    }
+  }
+  
+  /**
    * Query new instance by using 'addVfbId' functionality
    */
   queryNewInstance (node) {
@@ -276,6 +280,19 @@ export default class VFBGraph extends Component {
       this.updateGraph();
     } else {
       this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
+    }
+  }
+  
+  /**
+   * Gets notified every time the instance focused changes
+   */
+  instanceFocusChange (instance) {
+    // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
+    this.focusedInstance = instance;
+    
+    // Force an update on the graph only if there's no previous graph rendered.
+    if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
+      this.updateGraph();
     }
   }
   
@@ -467,80 +484,18 @@ export default class VFBGraph extends Component {
             linkWidth={1.25}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                <Tooltip title={<h6>Reset View</h6>}>  
-                  <i
-                    style={
-                      {
-                        zIndex : "1000",
-                        cursor : "pointer",
-                        top : "10px",
-                        left : "10px"
-                      }
-                    }
-                    className={stylingConfiguration.icons.home}
-                    onClick={self.resetCamera }>
-                  </i>
-                </Tooltip>
-                <Tooltip title={<h6>Zoom In</h6>}>  
-                  <i
-                    style={
-                      {
-                        zIndex : "1000",
-                        cursor : "pointer",
-                        marginTop : "20px",
-                        left : "10px"
-                      }
-                    }
-                    className={stylingConfiguration.icons.zoomIn}
-                    onClick={self.zoomIn }>
-                  </i>
-                </Tooltip>
-                <Tooltip title={<h6>Zoom Out</h6>}>  
-                  <i
-                    style={
-                      {
-                        zIndex : "1000",
-                        cursor : "pointer",
-                        marginTop : "5px",
-                        left : "10px"
-                      }
-                    }
-                    className={stylingConfiguration.icons.zoomOut}
-                    onClick={self.zoomOut }>
-                  </i>
-                </Tooltip>
-                <Tooltip title={<h6>Refresh</h6>}>
-                  <i 
-                    style={ 
-                      { 
-                        zIndex : "1000",
-                        cursor : "pointer",
-                        marginTop : "20px",
-                        left : "10px",
-                        color : self.state.optionsIconColor
-                      }
-                    }
-                    className={stylingConfiguration.icons.sync}
-                    onClick={self.updateGraph }>
-                  </i>
-                </Tooltip>
-                <Tooltip title={<h6>Options</h6>}>
-                  <i 
-                    style={ 
-                      { 
-                        zIndex : "1000" ,
-                        cursor : "pointer",
-                        marginTop : "5px",
-                        left : "10px"
-                      }
-                    }
-                    className={stylingConfiguration.icons.dropdown}
-                    aria-label="more"
-                    aria-controls="dropdown-menu"
-                    aria-haspopup="true"
-                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-                  />
-                </Tooltip>
+                <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.icons.home} onClick={self.resetCamera }></i>
+                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.zoomIn }></i>
+                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.zoomOut }></i>
+                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.sync} onClick={self.updateGraph }></i>
+                <i 
+                  style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } 
+                  className={stylingConfiguration.icons.dropdown}
+                  aria-label="more"
+                  aria-controls="dropdown-menu"
+                  aria-haspopup="true"
+                  onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
+                />
                 <Menu
                   id="dropdown-menu"
                   anchorEl={self.state.dropDownAnchorEl}
@@ -557,7 +512,7 @@ export default class VFBGraph extends Component {
                 >
                   {stylingConfiguration.dropDownQueries.map(item => (
                     <MenuItem 
-                      key={item.label(self.state.currentQuery)} 
+                      key={item.label} 
                       onClick={() => self.handleMenuClick(item.query)}
                       style={{ fontSize : "12px" }}
                       onMouseEnter={e => { 
@@ -571,7 +526,7 @@ export default class VFBGraph extends Component {
                       }
                       }
                     >
-                      {item.label(self.state.currentQuery)}
+                      {item.label}
                     </MenuItem>
                   ))}
                 </Menu>

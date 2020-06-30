@@ -43,6 +43,7 @@ export default class VFBMain extends React.Component {
       spotlightVisible: true,
       termInfoVisible: true,
       treeBrowserVisible: true,
+      graphVisible : true,
       tutorialWidgetVisible: false,
       quickHelpVisible: undefined,
       UIUpdated: true,
