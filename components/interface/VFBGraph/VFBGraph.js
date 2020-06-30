@@ -2,13 +2,16 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import GeppettoGraphVisualization from 'geppetto-client/js/components/interface/graph-visualization/Graph'
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 
 /**
  * Read configuration from graphConfiguration.js
  */
 const configuration = require('../../configuration/VFBGraph/graphConfiguration').configuration;
 const restPostConfig = require('../../configuration/VFBGraph/graphConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').cypherQuery;
+const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 
 /**
@@ -113,15 +116,25 @@ export default class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
-    this.state = { graph : { nodes : [], links : [] } , loading : true, currentQuery : this.props.instance };
+    this.state = { 
+      graph : { nodes : [], links : [] }, 
+      loading : true, 
+      currentQuery : this.props.instance,
+      dropDownAnchorEl : null,
+      optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
+      nodeSelected : { title : "", id : "" }
+    }
     this.updateGraph = this.updateGraph.bind(this);
+    this.instanceFocusChange = this.instanceFocusChange.bind(this);
     this.queryResults = this.queryResults.bind(this);
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.handleNodeRightClick = this.handleNodeRightClick.bind(this);
+    this.handleMenuClick = this.handleMenuClick.bind(this);
     this.queryNewInstance = this.queryNewInstance.bind(this);
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -132,6 +145,7 @@ export default class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    this.focusedInstance = null;
   }
   
   componentDidMount () {
@@ -139,13 +153,20 @@ export default class VFBGraph extends Component {
     this.__isMounted = true;
     
     if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
-      this.updateGraph(this.props.instance);
+      this.focusedInstance = this.props.instance;
+      this.updateGraph();
     }
     
     // Keyboard listener, detect when shift is pressed down
     document.addEventListener("keydown", event => {
       if (event.isComposing || event.keyCode === 16) {
         self.shiftOn = true;
+      }
+    });
+    
+    document.addEventListener("keyup", event => {
+      if (event.isComposing || event.keyCode === 16) {
+        self.shiftOn = false;
       }
     });
   }
@@ -195,51 +216,87 @@ export default class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    if ( this.shiftOn ){
-      this.queryNewInstance(node.title);
-      this.shiftOn = false;
-    } else {
-      this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
-      this.graphRef.current.ggv.current.zoom(2, 1000);
-    }
+    this.queryNewInstance(node);
+  }
+
+  /**
+   * Handle Right click on Nodes
+   */
+  handleNodeRightClick (node, event) {
+    this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
+    this.graphRef.current.ggv.current.zoom(2, 1000);
   }
   
   /**
-   * Handle Right click on Nodes, creates a new graph using the clicked node's ID as instance for cypher query
+   * Handle Menu drop down clicks
    */
-  handleNodeRightClick (node, event) {
-    this.queryNewInstance(node.title);
+  handleMenuClick (query) {
+    if (this.__isMounted){
+      // Show loading spinner while cypher query search occurs
+      this.setState({ loading : true , dropDownAnchorEl : null });
+      // Perform cypher query
+      this.queryResults(query(this.state.currentQuery))
+    }
   }
   
   /**
    * Query new instance by using 'addVfbId' functionality
    */
-  queryNewInstance (id) {
-    this.setState( { loading : true } );
-    window.addVfbId(id);
+  queryNewInstance (node) {
+    this.setState( { loading : true, nodeSelected : node } );
+    window.addVfbId(node.title);
+  }
+  
+  selectedNodeLoaded (instance) {
+    var loadedId = null;
+    if (instance.getParent() !== null) {
+      loadedId = instance.getParent().id;
+    } else {
+      loadedId = instance.id;
+    } 
+    
+    if ( this.state.nodeSelected.title === loadedId ) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Gets notified every time the instance focused changes
+   */
+  instanceFocusChange (instance) {
+    // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
+    this.focusedInstance = instance;
+    
+    // Force an update on the graph only if there's no previous graph rendered.
+    if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
+      this.updateGraph();
+    } else if ( this.selectedNodeLoaded(instance) ) {
+      this.updateGraph();
+    } else {
+      this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
+    }
   }
   
   /**
    * Re-render graph with a new instance
    */
-  updateGraph (instance) {
+  updateGraph () {
+    var idToSearch = null;
     /*
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
-    var innerInstance = undefined;
-    if (instance.getParent() !== null) {
-      innerInstance = instance.getParent();
+    if (this.focusedInstance.getParent() !== null) {
+      idToSearch = this.focusedInstance.getParent().id;
     } else {
-      innerInstance = instance;
-    }
-    
-    // ID of instance used to perform cypher query
-    var idToSearch = innerInstance.id;
+      idToSearch = this.focusedInstance.id;
+    } 
 
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true, currentQuery : idToSearch });
+      this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
       this.queryResults(cypherQuery(idToSearch), idToSearch)
     }
@@ -268,9 +325,7 @@ export default class VFBGraph extends Component {
       url: url,
       headers: { 'content-type': contentType },
       data: request,
-    }).then( function (response) {
-      console.log(response);
-      
+    }).then( function (response) {      
       var blob = new Blob(["onmessage = " + refineData ]);
       var blobUrl = window.URL.createObjectURL(blob);
       
@@ -294,7 +349,7 @@ export default class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log(error);
+        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -342,7 +397,6 @@ export default class VFBGraph extends Component {
           ? <p>No Graph Available for {this.state.currentQuery}</p>
           : <GeppettoGraphVisualization
             id= { COMPONENT_ID }
-            containerStyle={ { position: 'fixed' } }
             // Graph data with Nodes and Links to populate
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
@@ -413,13 +467,118 @@ export default class VFBGraph extends Component {
             linkWidth={1.25}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className="fa fa-home" onClick={self.resetCamera }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className="fa fa-search-plus" onClick={self.zoomIn }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className="fa fa-search-minus" onClick={self.zoomOut }></i>
+                <Tooltip title={<h6>Reset View</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        top : "10px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.home}
+                    onClick={self.resetCamera }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom In</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomIn}
+                    onClick={self.zoomIn }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom Out</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomOut}
+                    onClick={self.zoomOut }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Refresh</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px",
+                        color : self.state.optionsIconColor
+                      }
+                    }
+                    className={stylingConfiguration.icons.sync}
+                    onClick={self.updateGraph }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Options</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000" ,
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.dropdown}
+                    aria-label="more"
+                    aria-controls="dropdown-menu"
+                    aria-haspopup="true"
+                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
+                  />
+                </Tooltip>
+                <Menu
+                  id="dropdown-menu"
+                  anchorEl={self.state.dropDownAnchorEl}
+                  keepMounted
+                  open={Boolean(self.state.dropDownAnchorEl)}
+                  onClose={ event => self.setState( { dropDownAnchorEl : null } )}
+                  PaperProps={{
+                    style: {
+                      backgroundColor: stylingConfiguration.dropDownBackgroundColor,
+                      marginTop: '30px',
+                      color : stylingConfiguration.dropDownTextColor
+                    }
+                  }}
+                >
+                  {stylingConfiguration.dropDownQueries.map(item => (
+                    <MenuItem 
+                      key={item.label(self.state.currentQuery)} 
+                      onClick={() => self.handleMenuClick(item.query)}
+                      style={{ fontSize : "12px" }}
+                      onMouseEnter={e => { 
+                        e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
+                        e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor; 
+                      }
+                      }
+                      onMouseLeave={e => {
+                        e.target.style.color = stylingConfiguration.dropDownTextColor;  
+                        e.target.style.backgroundColor = stylingConfiguration.dropDownBackgroundColor; 
+                      }
+                      }
+                    >
+                      {item.label(self.state.currentQuery)}
+                    </MenuItem>
+                  ))}
+                </Menu>
               </div>
             }
             click={() => self.graphRef.current.ggv.current.zoomToFit()}
-            // Function triggered when hovering over a node
+            // Function triggered when hovering over a nodeoptions
             onNodeHover={node => {
               // Reset maps of hover nodes and links
               self.highlightNodes.clear();

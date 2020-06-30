@@ -91,8 +91,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -102,11 +101,10 @@ jobs:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
       after_failure:
         - docker ps -a
-        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
+        - docker logs $CONTAINER_NAME
         - echo -e "travis_fold:start:Cleanup" || true
-        - docker stop $(docker ps -a -q)
-        - docker rm $(docker ps -a -q)
+        - docker stop $(docker ps -a -q) || true
+        - docker rm $(docker ps -a -q) || true
         - echo -e "travis_fold:end:Cleanup" || true
 
     - stage: test
@@ -132,8 +130,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -143,8 +140,7 @@ jobs:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
       after_failure:
         - docker ps -a
-        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
+        - docker logs $CONTAINER_NAME
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
@@ -173,8 +169,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -185,8 +180,7 @@ jobs:
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
-        - echo -e "travis_fold:start:Cleanup" || true
+        - docker logs $CONTAINER_NAME
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
         - echo -e "travis_fold:end:Cleanup" || true
@@ -272,8 +266,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -283,8 +276,7 @@ jobs:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
       after_failure:
         - docker ps -a
-        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
+        - docker logs $CONTAINER_NAME
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
