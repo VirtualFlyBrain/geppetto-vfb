@@ -63,6 +63,7 @@ export default class VFBMain extends React.Component {
     this.ThreeDViewerIdLoaded = this.ThreeDViewerIdLoaded.bind(this);
     this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
+    this.instancesFromDifferentTemplates = this.instancesFromDifferentTemplates.bind(this);
 
     this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
@@ -348,8 +349,10 @@ export default class VFBMain extends React.Component {
             if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
               window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
               window.open(newUrl, targetWindow);
+              this.instancesFromDifferentTemplates(rootInstance);
             } else {
               window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
+              this.instancesFromDifferentTemplates(rootInstance);
             }
             // stop flow here, we don't want to add to scene something with a different template
             return;
@@ -407,6 +410,20 @@ export default class VFBMain extends React.Component {
       }
     } catch (ignore) {
       // any alternative handling goes here
+    }
+  }
+
+  instancesFromDifferentTemplates (instance) {
+    this.handlerInstanceUpdate(instance);
+
+    var children = instance.getChildren();
+    for ( let i = 0; i < children.length; i++) {
+      if (children[i].getId().indexOf("_swc") || children.getId().indexOf("_obj")) {
+        this.ThreeDViewerIdLoaded(instance.getId());
+      }
+      if (children[i].getId().indexOf("_slice")) {
+        this.StackViewerIdLoaded(instance.getId());
+      }
     }
   }
 
