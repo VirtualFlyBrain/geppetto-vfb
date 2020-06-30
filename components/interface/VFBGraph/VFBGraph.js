@@ -10,7 +10,7 @@ import MenuItem from '@material-ui/core/MenuItem';
  */
 const configuration = require('../../configuration/VFBGraph/graphConfiguration').configuration;
 const restPostConfig = require('../../configuration/VFBGraph/graphConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').cypherQuery;
+const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 
 /**
@@ -126,6 +126,7 @@ export default class VFBGraph extends Component {
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -207,20 +208,27 @@ export default class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    if ( this.shiftOn ){
-      this.queryNewInstance(node.title);
-      this.shiftOn = false;
-    } else {
-      this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
-      this.graphRef.current.ggv.current.zoom(2, 1000);
-    }
+    this.queryNewInstance(node);
+  }
+
+  /**
+   * Handle Right click on Nodes
+   */
+  handleNodeRightClick (node, event) {
+    this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
+    this.graphRef.current.ggv.current.zoom(2, 1000);
   }
   
   /**
-   * Handle Right click on Nodes, creates a new graph using the clicked node's ID as instance for cypher query
+   * Handle Menu drop down clicks
    */
-  handleNodeRightClick (node, event) {
-    this.queryNewInstance(node.title);
+  handleMenuClick (query) {
+    if (this.__isMounted){
+      // Show loading spinner while cypher query search occurs
+      this.setState({ loading : true , dropDownAnchorEl : null });
+      // Perform cypher query
+      this.queryResults(query(this.state.currentQuery))
+    }
   }
   
   /**
@@ -238,9 +246,41 @@ export default class VFBGraph extends Component {
   /**
    * Query new instance by using 'addVfbId' functionality
    */
-  queryNewInstance (id) {
-    this.setState( { loading : true } );
-    window.addVfbId(id);
+  queryNewInstance (node) {
+    this.setState( { loading : true, nodeSelected : node } );
+    window.addVfbId(node.title);
+  }
+  
+  selectedNodeLoaded (instance) {
+    var loadedId = null;
+    if (instance.getParent() !== null) {
+      loadedId = instance.getParent().id;
+    } else {
+      loadedId = instance.id;
+    } 
+    
+    if ( this.state.nodeSelected.title === loadedId ) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Gets notified every time the instance focused changes
+   */
+  instanceFocusChange (instance) {
+    // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
+    this.focusedInstance = instance;
+    
+    // Force an update on the graph only if there's no previous graph rendered.
+    if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
+      this.updateGraph();
+    } else if ( this.selectedNodeLoaded(instance) ) {
+      this.updateGraph();
+    } else {
+      this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
+    }
   }
   
   /**
@@ -273,7 +313,7 @@ export default class VFBGraph extends Component {
 
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true, currentQuery : idToSearch });
+      this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
       this.queryResults(cypherQuery(idToSearch), idToSearch)
     }
@@ -302,9 +342,7 @@ export default class VFBGraph extends Component {
       url: url,
       headers: { 'content-type': contentType },
       data: request,
-    }).then( function (response) {
-      console.log(response);
-      
+    }).then( function (response) {      
       var blob = new Blob(["onmessage = " + refineData ]);
       var blobUrl = window.URL.createObjectURL(blob);
       
@@ -328,7 +366,7 @@ export default class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log(error);
+        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -376,7 +414,6 @@ export default class VFBGraph extends Component {
           ? <p>No Graph Available for {this.state.currentQuery}</p>
           : <GeppettoGraphVisualization
             id= { COMPONENT_ID }
-            containerStyle={ { position: 'fixed' } }
             // Graph data with Nodes and Links to populate
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
