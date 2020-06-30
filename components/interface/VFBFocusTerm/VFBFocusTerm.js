@@ -338,8 +338,51 @@ export default class VFBFocusTerm extends React.Component {
   }
 
   setInstance (instance) {
-    this.focusTermConfiguration.buttons[0].label = "Query for " + instance.getName();
-    this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
+    this.focusTermConfiguration.buttons[0].label = "Queries for " + instance.getName();
+    var variable = undefined;
+
+    if (instance.parent !== null || instance.parent !== undefined) {
+      variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([instance.getParent().getId()])[0]
+    } else {
+      variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([instance.getId()])[0]
+    }
+    allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+    if (allQueries.length > 0) {
+      if (instance.getType().classqueriesfrom !== undefined) {
+        var classId = instance.getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+        if (window[classId] === undefined) {
+          window.fetchVariableThenRun(classId, () => {
+            var variable2 = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries2 = GEPPETTO.ModelFactory.getMatchingQueries(variable2.getType(), undefined);
+            if (allQueries2.length > 0) {
+              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries },
+                                                                                       { variable: variable2, allQueries: allQueries2 }];
+            }
+          });
+        }
+      } else {
+        this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+      }
+    } else {
+      if (instance.getType().classqueriesfrom !== undefined) {
+        var classId = instance.getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+        if (window[classId] === undefined) {
+          window.fetchVariableThenRun(classId, () => {
+            var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+            if (allQueries.length > 0) {
+              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+            }
+          });
+        } else {
+          var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+          var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+          if (allQueries.length > 0) {
+            this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+          }
+        }
+      }
+    }
     this.updateHistory(instance);
     this.setState({ currentInstance: instance });
   }
@@ -382,8 +425,8 @@ export default class VFBFocusTerm extends React.Component {
         }
         compositeInstances.forEach(function (compositeInstance) {
           if (!items.includes(compositeInstance.getId())) {
-            items = items + ',' + compositeInstance.getId() 
-          } 
+            items = items + ',' + compositeInstance.getId()
+          }
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
         if (items != "i=") {
@@ -393,7 +436,7 @@ export default class VFBFocusTerm extends React.Component {
             title = instance.getName();
             window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
           } catch (ignore) { }
-        
+
           if (window.history.state == null) {
             window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
           }
@@ -518,10 +561,10 @@ export default class VFBFocusTerm extends React.Component {
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Layers">
-                  <i className="fa fa-list arrowsStyle"
+                  title="Search">
+                  <i className="fa fa-search arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("controlPanelVisible");
+                      this.props.UIUpdateManager("spotlightVisible");
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
@@ -532,10 +575,10 @@ export default class VFBFocusTerm extends React.Component {
                     }} />
                 </Tooltip>
                 <Tooltip placement="top-end"
-                  title="Search">
-                  <i className="fa fa-search arrowsStyle"
+                  title="Layers">
+                  <i className="fa fa-list arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("spotlightVisible");
+                      this.props.UIUpdateManager("controlPanelVisible");
                     }} />
                 </Tooltip>
               </MuiThemeProvider>

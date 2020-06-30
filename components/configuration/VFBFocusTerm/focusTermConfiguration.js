@@ -111,7 +111,7 @@ var focusTermConfiguration = {
       action: "",
       position: "bottom-start",
       dynamicListInjector: {
-        handlerAction: "focusTermHandler",
+        handlerAction: "subMenuGrouping",
         parameters: ["undefined"]
       }
     }
