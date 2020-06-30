@@ -404,7 +404,7 @@ export default class VFBGraph extends Component {
             // Assign color to Links connecting Nodes
             linkColor = {link => {
               let color = stylingConfiguration.linkColor;
-              if ( self.highlightLinks.has(link) ) { 
+              if ( self.highlightLinks.has(link) ) {
                 color = self.highlightNodes.has(link.source) || self.highlightNodes.has(link.targetNode) ? stylingConfiguration.linkHoverColor : stylingConfiguration.linkColor;
               }
 
