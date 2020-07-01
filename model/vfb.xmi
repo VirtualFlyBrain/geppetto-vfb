@@ -765,7 +765,7 @@
         queryProcessorId="nblastQueryProcessor"/>
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ListAllExamples"
+      id="ListAllAvailableImages"
       name="List all available images for class with examples"
       description="List all available images of $NAME"
       returnType="//@libraries.3/@types.0"
@@ -774,7 +774,7 @@
         type="//@libraries.3/@types.21 //@libraries.3/@types.1"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="TransgeneExpInX"
+      id="TransgeneExpressionHere"
       name="Expression overlapping selected anatomy"
       description="Reports of transgene expression in $NAME"
       returnType="//@libraries.3/@types.1"
@@ -783,7 +783,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.28"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ExpOverlapsX"
+      id="ExpressionOverlapsHere"
       name="Expression overlapping what anatomy"
       description="Anatomy $NAME is expressed in"
       returnType="//@libraries.3/@types.1"
@@ -792,7 +792,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="CompNeuronClassesFasciculatingHere"
+      id="NeuronClassesFasciculatingHere"
       name="Neuron classes fasciculating here"
       description="Neurons fasciculating in $NAME"
       returnType="//@libraries.3/@types.1"
@@ -823,7 +823,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="neuronsparthere"
+      id="NeuronsPartHere"
       name="Neurons with any part here"
       description="Neurons with some part in $NAME"
       queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
@@ -843,7 +843,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="neuronssynaptic"
+      id="NeuronsSynaptic"
       name="Neurons Synaptic"
       description="Neurons with synaptic terminals in $NAME"
       queryChain="//@dataSources.2/@queries.2 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
@@ -855,7 +855,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="neuronspresynaptic"
+      id="NeuronsPresynapticHere"
       name="Neurons Presynaptic"
       description="Neurons with presynaptic terminals in $NAME"
       queryChain="//@dataSources.2/@queries.3 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
@@ -867,7 +867,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="neuronspostsynaptic"
+      id="NeuronsPostsynapticHere"
       name="Neurons Postsynaptic"
       description="Neurons with postsynaptic terminals in $NAME"
       queryChain="//@dataSources.2/@queries.4 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
@@ -879,7 +879,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ListClustMembers"
+      id="ListClusterMembers"
       name="Cluster Members"
       description="Neurons in $NAME"
       returnType="//@libraries.3/@types.2"
@@ -888,7 +888,7 @@
         type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="paintedDomains"
+      id="PaintedDomains"
       name="Show all painted domains for template"
       description="List all painted anatomy available for $NAME"
       returnType="//@libraries.3/@types.0"
@@ -897,7 +897,7 @@
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="datasetImages"
+      id="DatasetImages"
       name="Show all images for a dataset"
       description="List all images included in $NAME"
       returnType="//@libraries.3/@types.0"
@@ -906,7 +906,7 @@
         type="//@libraries.3/@types.24"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="CompNeuronClassesInnervatingHere"
+      id="TractsNervesInnervatingHere"
       name="Tracts/nerves innervating synaptic neuropil"
       description="Tracts/nerves innervating $NAME"
       returnType="//@libraries.3/@types.1"
@@ -917,7 +917,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="componentsOf"
+      id="ComponentsOf"
       name="Components of"
       description="Components of $NAME"
       returnType="//@libraries.3/@types.1"
@@ -926,7 +926,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.4"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="lineageClonesIn"
+      id="LineageClonesIn"
       name="Lineage clones found here"
       description="Lineage clones found in $NAME"
       returnType="//@libraries.3/@types.4"
@@ -937,7 +937,7 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="similarto"
+      id="SimilarTo"
       name="NBLAST Similar to"
       description="NBLAST Similar to $NAME"
       returnType="//@libraries.3/@types.2"
@@ -955,7 +955,7 @@
         type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="alignedImages"
+      id="AllAlignedImages"
       name="Show all images aligned to template"
       description="List all images aligned to $NAME"
       returnType="//@libraries.3/@types.0"
@@ -964,7 +964,7 @@
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="partsof"
+      id="PartsOf"
       name="Parts of"
       description="Parts of $NAME"
       returnType="//@libraries.3/@types.1"
@@ -973,7 +973,7 @@
         type="//@libraries.3/@types.1"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="CompSubclasses"
+      id="SubclassesOf"
       name="Subclasses of"
       description="Subclasses of $NAME"
       returnType="//@libraries.3/@types.1"
@@ -982,7 +982,7 @@
         type="//@libraries.3/@types.1"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="alignedDatasets"
+      id="AlignedDatasets"
       name="Show all datasets aligned to template"
       description="List all datasets aligned to $NAME"
       returnType="//@libraries.3/@types.24"
@@ -991,7 +991,7 @@
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="allDatasets"
+      id="AllDatasets"
       name="Show all datasets"
       description="List all datasets"
       returnType="//@libraries.3/@types.24"
