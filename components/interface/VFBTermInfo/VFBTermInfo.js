@@ -652,7 +652,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
         this.props.queryBuilder.open();
         this.props.queryBuilder.switchView(false, false);
-        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.")) {
+        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
           console.log('Query stacking requested.');
         } else {
           this.props.queryBuilder.clearAllQueryItems();

@@ -146,28 +146,6 @@
 	box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
 }
 
-.quickHelpViewer {
-	animation: fadeIn 1s;
-	-webkit-animation: fadeIn 1s;
-	transition: opacity 1s ease-out;
-	background-color: @background_color_widget;
-	background: @background_color_widget;
-	color: white;
-	z-index: 999999;
-	overflow-y: scroll;
-  box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
-  overflow-y: hidden;
-}
-
-#quickHelpCheckbox {
-  position: absolute;
-  bottom: 15px;
-  left: 20px;
-  font-family: 'Khand', sans-serif;
-  color: #11bffe;
-  font-size: 18px;
-}
-
 .closeHTMLViewer {
 	float: right;
 	height: 5px;
@@ -754,12 +732,24 @@
     right:0;
 }
 
-#controlpanel .griddle button:not(.color-picker-button) {
+#controlpanel .griddle table {
+  background: rgba(66, 59, 59, 1);
+}
+
+#controlpanel .griddle button.fa-check-circle {
+  color: yellow !important;
+}
+
+#controlpanel .griddle button:not(.color-picker-button):not(.fa-check-circle) {
 	color: white !important;
 }
 
 #controlpanel .griddle a {
 	color: white !important;
+}
+
+#controlpanel .griddle th {
+  text-align: left !important;
 }
 
 .tooltipLink {
@@ -1190,7 +1180,7 @@
   
   .rst__rowLabel {
     flex: 0 1 auto;
-    padding-right: 20px;
+    padding-right: 10px;
   }
   .rst__rtl.rst__rowLabel {
     padding-left: 20px;
@@ -1574,9 +1564,6 @@
     background-color: transparent;
 }
 
-.rst__virtualScrollOverride {
-  overflow-x: hidden!important;
-}
 .rst__rowSubtitle {
     display: block;
     white-space: pre-wrap;
@@ -1628,7 +1615,7 @@
 }
 
 .nodeFound {
-  color: #0080ff;
+  color: #11bffe;
 
 }
 
@@ -1652,4 +1639,19 @@
   color: #ffffff;
   font-size: 17px;
   font-family: 'Khand', sans-serif;
+}
+
+@-moz-document url-prefix() {
+  #querybuilder .griddle-body>div {
+    padding-right: 10px;
+  }
+}
+
+.unselectable {
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  -o-user-select: text;
+  user-select: text;
 }
