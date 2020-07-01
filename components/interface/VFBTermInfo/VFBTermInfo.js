@@ -603,7 +603,7 @@ export default class VFBTermInfoWidget extends React.Component {
       }
     }
     if (path.indexOf(GRAPHS) === 0 ) {
-      this.props.dispatch(SHOW_GRAPH, path.split(',')[1], path.split(',')[2]);
+      this.props.vfbGraph(SHOW_GRAPH, path.split(',')[1], path.split(',')[2]);
       return;
     }
     var Query = require('geppetto-client/js/geppettoModel/model/Query');

@@ -873,7 +873,7 @@ class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
-          dispatch={this.props.vfbGraph}
+          vfbGraph={this.props.vfbGraph}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -992,8 +992,8 @@ class VFBMain extends React.Component {
       }
     }
 
-    if ( this.props.generals.type == "SHOW_GRAPH" ) {
-      this.setActiveTab();
+    if ( this.props.generals.type == SHOW_GRAPH ) {
+      this.setActiveTab("Graph");
     }
   }
 
@@ -1341,13 +1341,13 @@ class VFBMain extends React.Component {
     }
   }
 
-  setActiveTab () {
+  setActiveTab (tabName) {
     let matchTab = 0;
     let layoutChildren = this.model.toJson().layout.children;
     for ( var i = 0; i < layoutChildren.length; i++){
       if ( layoutChildren[i].type === "tabset"){
         for ( var j = 0; j < layoutChildren[i].children.length ; j++){
-          if (layoutChildren[i].children[j].name === "Graph"){
+          if (layoutChildren[i].children[j].name === tabName){
             matchTab = layoutChildren[i].children[j].id;
             break;
           }

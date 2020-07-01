@@ -19,7 +19,6 @@ export const GENERAL_DEFAULT_STATE = {
   stepsLoaded: 0,
   loading: false,
   graphTabSelected : false,
-  graphCreated : false,
   graphQueryIndex : {},
   instanceOnFocus : {},
   layout: {
