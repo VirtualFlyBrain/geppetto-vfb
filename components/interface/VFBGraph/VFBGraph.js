@@ -146,7 +146,7 @@ class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
-    this.focusedInstance = null;
+    this.focusedInstance = {};
   }
   
   componentDidMount () {
@@ -154,12 +154,6 @@ class VFBGraph extends Component {
     this.__isMounted = true;
     
     if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
-      const { graphQueryIndex } = this.props;
-      stylingConfiguration.dropDownQueries.map((item, index) => {
-        if ( parseInt(graphQueryIndex) === index ) {
-          self.handleMenuClick(item.query)
-        }
-      })
       this.focusedInstance = this.props.instance;
       this.updateGraph();
     }
@@ -175,7 +169,7 @@ class VFBGraph extends Component {
       if (event.isComposing || event.keyCode === 16) {
         self.shiftOn = false;
       }
-    });
+    });    
   }
   
   componentDidUpdate () {
@@ -184,12 +178,18 @@ class VFBGraph extends Component {
       setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
+        
+        // Graph query selected from the dropdown through props
+        const { graphQueryIndex } = self.props;
+        stylingConfiguration.dropDownQueries.map((item, index) => {
+          if ( parseInt(graphQueryIndex) === index ) {
+            self.handleMenuClick(item.query)
+          }
+        })
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
-    }
-    
-    console.log("Graph Props ", this.props)
+    }    
   }
   
   componentWillUnmount () {
@@ -274,7 +274,8 @@ class VFBGraph extends Component {
   /**
    * Gets notified every time the instance focused changes
    */
-  instanceFocusChange (instance) {
+  instanceFocusChange (id) {
+    let instance = Instances.getInstance(id);
     // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
     this.focusedInstance = instance;
     
@@ -387,6 +388,10 @@ class VFBGraph extends Component {
   
   render () {
     let self = this;
+    const { instanceOnFocus } = this.props;
+    if ( instanceOnFocus !== this.focusedInstance.id ) {
+      this.instanceFocusChange(instanceOnFocus);
+    }
     return (
       this.state.loading
         ? <CircularProgress 
@@ -587,7 +592,10 @@ class VFBGraph extends Component {
 }
 
 function mapStateToProps (state) {
-  return { graphQueryIndex: state.generals.graphQueryIndex }
+  return {
+    graphQueryIndex : state.generals.graphQueryIndex,
+    instanceOnFocus : state.generals.instanceOnFocus
+  }
 }
 
 export default connect(mapStateToProps)(VFBGraph);

@@ -5,6 +5,7 @@ import Collapsible from 'react-collapsible';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
 import { connect } from 'react-redux';
+import { SHOW_GRAPH } from './../../../actions/generals';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -144,8 +145,6 @@ class VFBTermInfo extends React.Component {
     }
     
     let metaType = type.getMetaType();
-    console.log("Term info getHTML type ", metaType);
-
     if (metaType == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
       for (var i = 0; i < type.getVariables().length; i++) {
         var v = type.getVariables()[i];
@@ -154,7 +153,6 @@ class VFBTermInfo extends React.Component {
         var nameKey = v.getName();
         this.contentTermInfo.keys[i] = nameKey;
         var id = "VFBTermInfo_el_" + i;
-        console.log("Variable : ", v);
         this.getHTML(v, id, i);
       }
     } else if (metaType === GEPPETTO.Resources.HTML_TYPE) {
@@ -163,9 +161,6 @@ class VFBTermInfo extends React.Component {
       if (counter !== undefined) {
         prevCounter = counter;
       }
-      console.log("HTML Value : ", value);
-      console.log("HTML ID : ", id);
-      console.log("HTLM Variable: ", value);
       this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
         <div>
           <HTMLViewer id={id} content={value.html} />
@@ -532,7 +527,6 @@ export default class VFBTermInfoWidget extends React.Component {
 
 
   closeHandler () {
-    console.log("close handler called");
     this.props.termInfoHandler();
   }
 
@@ -609,7 +603,7 @@ export default class VFBTermInfoWidget extends React.Component {
       }
     }
     if (path.indexOf(GRAPHS) === 0 ) {
-      this.props.callbackHandler('SHOW_GRAPH', path.split(',')[1], path.split(',')[2]);
+      this.props.dispatch(SHOW_GRAPH, path.split(',')[1], path.split(',')[2]);
       return;
     }
     var Query = require('geppetto-client/js/geppettoModel/model/Query');
@@ -736,7 +730,6 @@ export default class VFBTermInfoWidget extends React.Component {
   }
 
   render () {
-    console.log("Props, ", this.props);
     return (
       <VFBTermInfo
         id={this.idWidget}

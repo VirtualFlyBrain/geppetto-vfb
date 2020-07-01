@@ -15,6 +15,8 @@ import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/c
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
+import { connect } from "react-redux";
+import { SHOW_GRAPH } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -24,7 +26,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-export default class VFBMain extends React.Component {
+class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -109,7 +111,6 @@ export default class VFBMain extends React.Component {
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
-    this.graphReference = React.createRef();
   }
 
   clearQS () {
@@ -719,12 +720,6 @@ export default class VFBMain extends React.Component {
         }
         this.setState({ UIUpdated: false });
         break;
-      case 'graphVisible':
-        if (this.graphReference !== undefined && this.graphReference !== null) {
-          this.restoreUIComponent("vfbGraph");
-        }
-        this.setState({ UIUpdated: false });
-        break;
       }
     }
 
@@ -791,7 +786,7 @@ export default class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
-          callbackHandler={this.props.vfbGraph}
+          dispatch={this.props.vfbGraph}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -863,7 +858,7 @@ export default class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} dispatch={this.props.vfbGraph} visible={graphVisibility} />
       </div>);
     }
   }
@@ -900,6 +895,9 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    if ( this.props.generals.type == "SHOW_GRAPH" ) {
+      this.setActiveTab();
+    }
   }
 
   componentWillMount () {
@@ -1249,21 +1247,25 @@ export default class VFBMain extends React.Component {
     }
   }
 
-  render () {
-    console.log("VFB Main Props ", this.props);
+  setActiveTab () {
+    let matchTab = 0;
     let layoutChildren = this.model.toJson().layout.children;
     for ( var i = 0; i < layoutChildren.length; i++){
       if ( layoutChildren[i].type === "tabset"){
         for ( var j = 0; j < layoutChildren[i].children.length ; j++){
           if (layoutChildren[i].children[j].name === "Graph"){
+            matchTab = layoutChildren[i].children[j].id;
             break;
           }
         }
         if ( this.model._activeTabSet !== undefined ) {
-          this.model._activeTabSet._model._activeTabSet._attributes.selected = j;
+          this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
         }
       }
     }
+  }
+  
+  render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
     }
@@ -1407,3 +1409,8 @@ export default class VFBMain extends React.Component {
     );
   }
 }
+          
+function mapStateToProps (state) {
+  return { ...state }
+}
+export default connect(mapStateToProps)(VFBMain);         
