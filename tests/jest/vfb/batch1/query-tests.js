@@ -25,13 +25,17 @@ describe('VFB Query Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
-			// Close tutorial window
-			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toBe("Virtual Fly Brain");
+		})
+
+		it('Hide Quick Help Modal Window', async () => {
+			// Close tutorial window
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quickHelpFooter', { hidden : true })
 		})
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
@@ -45,11 +49,6 @@ describe('VFB Query Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
 		})
-
-//		it('Hide Quick Help Modal Window', async () => {
-//			closeModalWindow(page);
-//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-//		})
 
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
