@@ -156,6 +156,14 @@ describe('Test URL Trigger Query Builder', () => {
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
+		it('Typing VT945397 in the query filter', async () => {
+			await page.evaluate(async selector =>  {
+				var selectElement = $('#querybuilder input.form-control');
+				selectElement.focus();
+			});
+			await page.keyboard.type('EB-IDFP');
+ 		})
+
 		it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111420-image-container', { visible: true , timeout : 10000})
 		})
