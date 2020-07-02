@@ -59,6 +59,7 @@ jobs:
           fi;
         - export TAG="$TAG-TEST"
       before_script:
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - docker pull metacell/java-virgo-maven:development || true
         - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
       script:
@@ -80,6 +81,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -121,6 +123,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -162,6 +165,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -261,6 +265,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
