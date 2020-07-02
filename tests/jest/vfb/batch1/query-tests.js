@@ -8,7 +8,7 @@ import * as ST from '../selectors';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
-const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001&q=FBbt_00003678,neuronspostsynaptic"
+const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001&q=FBbt_00003678,NeuronsPresynapticHere"
 
 /**
  * Tests query panel component by searching for 'medu' and running query on it
