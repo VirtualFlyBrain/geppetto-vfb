@@ -456,7 +456,7 @@ var toolbarMenu = {
           icon: "",
           action: {
             handlerAction: "triggerRunQuery",
-            parameters: ["allDatasets,VFB_00017894,adult brain template JFRC2"]
+            parameters: ["AllDatasets,VFB_00017894,adult brain template JFRC2"]
           }
         },
         {
@@ -473,7 +473,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00101567,adult brain unisex JFRC2018"]
+                parameters: ["AlignedDatasets,VFB_00101567,adult brain unisex JFRC2018"]
               }
             },
             {
@@ -481,7 +481,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00017894,adult brain template JFRC2"]
+                parameters: ["AlignedDatasets,VFB_00017894,adult brain template JFRC2"]
               }
             },
             {
@@ -489,7 +489,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00100000,adult VNS template"]
+                parameters: ["AlignedDatasets,VFB_00100000,adult VNS template"]
               }
             }, 
             {
@@ -497,7 +497,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00101384,Janelia FlyEM HemiBrain"]
+                parameters: ["AlignedDatasets,VFB_00101384,Janelia FlyEM HemiBrain"]
               }
             },
             {
@@ -505,7 +505,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00030786,Ito Half Brain"]
+                parameters: ["AlignedDatasets,VFB_00030786,Ito Half Brain"]
               }
             }
           ]
@@ -524,7 +524,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00050000,L1 CNS"]
+                parameters: ["AlignedDatasets,VFB_00050000,L1 CNS"]
               }
             },
             {
@@ -532,7 +532,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["alignedDatasets,VFB_00049000,L3 CNS"]
+                parameters: ["AlignedDatasets,VFB_00049000,L3 CNS"]
               }
             }
           ]
