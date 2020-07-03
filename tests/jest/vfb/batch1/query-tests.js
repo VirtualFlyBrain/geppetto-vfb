@@ -168,8 +168,8 @@ describe('Test URL Trigger Query Builder', () => {
 			await wait4selector(page, '#FBbt_00111420-image-container', { visible: true , timeout : 10000})
 		})
 
-		it('Result "EB-IDFP DSB-PB 2 glomeruli neuron" present in the query builder', async () => {
-			await wait4selector(page, '#FBbt_00111413-image-container', { visible: true , timeout : 10000})
+		it('Result "EB-IDFP DSB-PB 8 glomeruli neuron" present in the query builder', async () => {
+			await wait4selector(page, '#FBbt_00111422-image-container', { visible: true , timeout : 10000})
 		})
 
 		it('Result "EB-IDFP DSB-PB slice 7 neuron" present in the query builder', async () => {
