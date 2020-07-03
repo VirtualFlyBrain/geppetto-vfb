@@ -224,8 +224,7 @@ function generalReducer (state, action) {
     }
     return {
       ...state,
-      idsMap: newMap,
-      instanceOnFocus : newInstance[0]
+      idsMap: newMap
     };
   }
 }
