@@ -26,7 +26,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-class VFBMain extends React.Component {
+export default class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -177,10 +177,7 @@ class VFBMain extends React.Component {
         if (idsList.length > 0) {
           this.props.vfbLoadId(idsList);
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({
-            UIUpdated: false,
-            idSelected: idsList[idsList.length - 1]
-          });
+          this.setState({ idSelected: idsList[idsList.length - 1] });
         }
       }
 
@@ -430,10 +427,7 @@ class VFBMain extends React.Component {
 
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
-      this.setState({
-        UIUpdated: true,
-        [itemState]: !this.state[itemState]
-      });
+      this.setState({ [itemState]: !this.state[itemState] });
     } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
       this.setState({ UIUpdated: itemState });
     }
@@ -577,10 +571,7 @@ class VFBMain extends React.Component {
 
   renderHTMLViewer (htmlChild) {
     if (htmlChild !== undefined) {
-      this.setState({
-        UIUpdated: true,
-        htmlFromToolbar: htmlChild
-      });
+      this.setState({ htmlFromToolbar: htmlChild });
     }
   }
 
@@ -594,10 +585,7 @@ class VFBMain extends React.Component {
 
   handleClickOutside () {
     if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
-      this.setState({
-        UIUpdated: true,
-        htmlFromToolbar: undefined
-      });
+      this.setState({ htmlFromToolbar: undefined });
     }
   }
 
@@ -791,9 +779,6 @@ class VFBMain extends React.Component {
         if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
           this.restoreUIComponent("sliceViewer");
         }
-        this.setState({ UIUpdated: false });
-        break;
-      case 'graphVisible':
         this.setState({ UIUpdated: false });
         break;
       case 'treeBrowserVisible':
@@ -1502,9 +1487,4 @@ class VFBMain extends React.Component {
       </div>
     );
   }
-}
-          
-function mapStateToProps (state) {
-  return { ...state }
-}
-export default connect(mapStateToProps)(VFBMain);         
+}       

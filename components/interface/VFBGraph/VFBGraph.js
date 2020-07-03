@@ -117,7 +117,14 @@ class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
-    this.state = { graph : { nodes : [], links : [] } , loading : true, currentQuery : this.props.instance , dropDownAnchorEl : null };
+    this.state = { 
+      graph : { nodes : [], links : [] }, 
+      loading : true, 
+      currentQuery : this.props.instance,
+      dropDownAnchorEl : null,
+      optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
+      nodeSelected : { title : "", id : "" }
+    }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
     this.queryResults = this.queryResults.bind(this);
@@ -139,7 +146,7 @@ class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
-    this.focusedInstance = {};
+    this.focusedInstance = { id : "" };
   }
 
   componentDidMount () {
@@ -147,7 +154,12 @@ class VFBGraph extends Component {
     this.__isMounted = true;
 
     if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
-      this.focusedInstance = this.props.instance;
+      if (this.props.instance.getParent() !== null) {
+        this.focusedInstance = this.props.instance.getParent();
+      } else {
+        this.focusedInstance = this.props.instance;
+      }
+      
       this.updateGraph();
     }
 
@@ -176,7 +188,10 @@ class VFBGraph extends Component {
         const { graphQueryIndex } = self.props;
         stylingConfiguration.dropDownQueries.map((item, index) => {
           if ( parseInt(graphQueryIndex) === index ) {
-            self.handleMenuClick(item.query)
+            // Show loading spinner while cypher query search occurs
+            self.setState({ loading : true , dropDownAnchorEl : null });
+            // Perform cypher query
+            self.queryResults(item.query(self.props.instanceOnFocus));
           }
         })
       }, (self.objectsLoaded * 20));
@@ -245,8 +260,10 @@ class VFBGraph extends Component {
    * Query new instance by using 'addVfbId' functionality
    */
   queryNewInstance (node) {
-    this.setState( { loading : true, nodeSelected : node } );
     window.addVfbId(node.title);
+    this.setState({ loading : true, nodeSelected : node, currentQuery : node.title, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+    // Perform cypher query
+    this.queryResults(cypherQuery(node.title), node.title)
   }
 
   selectedNodeLoaded (instance) {
@@ -270,15 +287,11 @@ class VFBGraph extends Component {
   instanceFocusChange (id) {
     let instance = Instances.getInstance(id);
     // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
-    this.focusedInstance = instance;
-
-    // Force an update on the graph only if there's no previous graph rendered.
-    if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
-      this.updateGraph();
-    } else if ( this.selectedNodeLoaded(instance) ) {
-      this.updateGraph();
+    
+    if (instance.getParent() !== null) {
+      this.focusedInstance = instance.getParent();
     } else {
-      this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
+      this.focusedInstance = instance;
     }
   }
 
@@ -382,8 +395,26 @@ class VFBGraph extends Component {
   render () {
     let self = this;
     const { instanceOnFocus } = this.props;
-    if ( instanceOnFocus !== this.focusedInstance.id ) {
+    let syncColor = this.state.optionsIconColor;
+    
+    if ( this.focusedInstance.id !== "" && instanceOnFocus !== this.focusedInstance.id ) {
       this.instanceFocusChange(instanceOnFocus);
+      
+      if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery ){
+        let idToSearch = "";
+        if (this.focusedInstance.getParent() !== null) {
+          idToSearch = this.focusedInstance.getParent().id;
+        } else {
+          idToSearch = this.focusedInstance.id;
+        }
+        syncColor = stylingConfiguration.defaultRefreshIconColor;
+        // Perform cypher query
+        this.queryResults(cypherQuery(idToSearch), idToSearch)
+      }
+      
+      if ( this.focusedInstance.id !== this.state.currentQuery ) {
+        syncColor = stylingConfiguration.outOfSyncIconColor;
+      }
     }
 
     return (
@@ -474,18 +505,80 @@ class VFBGraph extends Component {
             linkWidth={1.25}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.icons.home} onClick={self.resetCamera }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.zoomIn }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.zoomOut }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.sync} onClick={self.updateGraph }></i>
-                <i
-                  style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } }
-                  className={stylingConfiguration.icons.dropdown}
-                  aria-label="more"
-                  aria-controls="dropdown-menu"
-                  aria-haspopup="true"
-                  onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-                />
+                <Tooltip title={<h6>Reset View</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        top : "10px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.home}
+                    onClick={self.resetCamera }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom In</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomIn}
+                    onClick={self.zoomIn }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom Out</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomOut}
+                    onClick={self.zoomOut }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Refresh</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px",
+                        color : syncColor
+                      }
+                    }
+                    className={stylingConfiguration.icons.sync}
+                    onClick={self.updateGraph }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Options</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000" ,
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.dropdown}
+                    aria-label="more"
+                    aria-controls="dropdown-menu"
+                    aria-haspopup="true"
+                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
+                  />
+                </Tooltip>
                 <Menu
                   id="dropdown-menu"
                   anchorEl={self.state.dropDownAnchorEl}
@@ -501,8 +594,8 @@ class VFBGraph extends Component {
                   }}
                 >
                   {stylingConfiguration.dropDownQueries.map(item => (
-                    <MenuItem
-                      key={item.label}
+                    <MenuItem 
+                      key={item.label(self.state.currentQuery)} 
                       onClick={() => self.handleMenuClick(item.query)}
                       style={{ fontSize : "12px" }}
                       onMouseEnter={e => {
@@ -516,7 +609,7 @@ class VFBGraph extends Component {
                       }
                       }
                     >
-                      {item.label}
+                      {item.label(self.state.currentQuery)}
                     </MenuItem>
                   ))}
                 </Menu>
