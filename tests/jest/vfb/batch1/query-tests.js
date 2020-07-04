@@ -8,7 +8,7 @@ import * as ST from '../selectors';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
 
-const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001&q=FBbt_00003678,neuronspostsynaptic"
+const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001&q=FBbt_00003678,NeuronsPresynapticHere"
 
 /**
  * Tests query panel component by searching for 'medu' and running query on it
@@ -25,13 +25,17 @@ describe('VFB Query Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
-			// Close tutorial window
-			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toBe("Virtual Fly Brain");
+		})
+
+		it('Hide Quick Help Modal Window', async () => {
+			// Close tutorial window
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quickHelpFooter', { hidden : true })
 		})
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
@@ -45,11 +49,6 @@ describe('VFB Query Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
 		})
-
-//		it('Hide Quick Help Modal Window', async () => {
-//			closeModalWindow(page);
-//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-//		})
 
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
@@ -128,14 +127,12 @@ describe('Test URL Trigger Query Builder', () => {
 	});
 
 	describe('Test landing page', () => {
-//		it('Quick Help Tutorial Present', async () => {
-//			await wait4selector(page, 'i.close-quickHelp', { visible: true , timeout : 120000 })
-//		})
-
-//		it('Close Quick Help Tutorial', async () => {
-//			await page.evaluate(async () => document.getElementsByClassName("close-quickHelp")[0].click());
-//			await wait4selector(page, 'i.close-quickHelp', { hidden: true , timeout : 120000 })
-//		})
+		it('Hide Quick Help Modal Window', async () => {
+			await wait4selector(page, 'div#quickHelpFooter', { visible : true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
+			await wait4selector(page, 'div#quickHelpFooter', { hidden : true, timeout : 120000  })
+		})
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000 })
@@ -159,12 +156,20 @@ describe('Test URL Trigger Query Builder', () => {
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
+		it('Typing VT945397 in the query filter', async () => {
+			await page.evaluate(async selector =>  {
+				var selectElement = $('#querybuilder input.form-control');
+				selectElement.focus();
+			});
+			await page.keyboard.type('EB-IDFP');
+ 		})
+
 		it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
 			await wait4selector(page, '#FBbt_00111420-image-container', { visible: true , timeout : 10000})
 		})
 
-		it('Result "EB-IDFP DSB-PB 2 glomeruli neuron" present in the query builder', async () => {
-			await wait4selector(page, '#FBbt_00111413-image-container', { visible: true , timeout : 10000})
+		it('Result "EB-IDFP DSB-PB 8 glomeruli neuron" present in the query builder', async () => {
+			await wait4selector(page, '#FBbt_00111422-image-container', { visible: true , timeout : 10000})
 		})
 
 		it('Result "EB-IDFP DSB-PB slice 7 neuron" present in the query builder', async () => {
