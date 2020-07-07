@@ -352,11 +352,11 @@ class VFBGraph extends Component {
           self.setState( { graph : e.data.params.results , loading : false });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
-            self.resetCamera();
+            self.resetCamera().then( () => self.setState( { loading : false }));
             if ( self.graphRef.current !== null ) {
               self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
             }
-          }, (self.objectsLoaded * 20));
+          }, 0);
           break;
         }
       };
