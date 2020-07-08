@@ -1142,7 +1142,7 @@ export default class VFBMain extends React.Component {
       // remove duplicates
       var counter = this.idsFromURL.length;
       if (this.idFromURL === undefined) {
-        this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
+        this.idFromURL = this.idsFromURL[0];
       }
       while (counter--) {
         if (this.idsFromURL[counter] === this.idFromURL) {
