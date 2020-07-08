@@ -65,7 +65,7 @@ describe('VFB Spotlight Tests', () => {
 			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 10000 })
 		})
 
-		it('Opens and shows correct butttons.', async () => {
+		it('Opens and shows correct input.', async () => {
 			await page.waitFor(10000);
 			await click(page, 'i.fa-search');
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true});
@@ -76,11 +76,9 @@ describe('VFB Spotlight Tests', () => {
 			await page.keyboard.type('VFB_00000001 (fru-M-200266)');
 			await page.waitFor(10000);
 			await page.keyboard.press(String.fromCharCode(13))
-			await page.waitFor(10000);
-			await page.keyboard.press(String.fromCharCode(13))
 		})
 
-		it('Add scene button worked', async () => {
+		it('Add search worked', async () => {
 			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 500000})
 			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("fru-M-200266")');
 		})
