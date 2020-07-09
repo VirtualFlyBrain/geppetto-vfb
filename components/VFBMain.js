@@ -11,7 +11,7 @@ import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
 import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
+import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
@@ -32,7 +32,7 @@ export default class VFBMain extends React.Component {
     this.state = {
       canvasAvailable: false,
       canvasVisible: true,
-      controlPanelVisible: true,
+      listViewerVisible: true,
       graphVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
@@ -74,6 +74,7 @@ export default class VFBMain extends React.Component {
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
+    this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
@@ -90,11 +91,6 @@ export default class VFBMain extends React.Component {
 
     this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
     this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
-
-    this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
-    this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
-    this.controlPanelColumns = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColumns;
-    this.controlPanelControlConfigs = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelControlConfigs;
 
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
@@ -468,7 +464,7 @@ export default class VFBMain extends React.Component {
         [buttonState]: !this.state[buttonState]
       });
       break;
-    case 'controlPanelVisible':
+    case 'listViewerVisible':
       this.setState({
         UIUpdated: true,
         [buttonState]: !this.state[buttonState]
@@ -755,15 +751,22 @@ export default class VFBMain extends React.Component {
         graphVisible: true
       });
     }
-
+    if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Images",
+        component: "vfbListViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        listViewerVisible: true
+      });
+    }
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
     }
     if ((prevState.wireframeVisible !== this.state.wireframeVisible)) {
       this.canvasReference.setWireframe(!this.canvasReference.getWireframe());
-    }
-    if ((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-      this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
       $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
@@ -795,6 +798,12 @@ export default class VFBMain extends React.Component {
       case 'graphVisible':
         if (this.graphReference !== undefined && this.graphReference !== null) {
           this.restoreUIComponent("vfbGraph");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'listViewerVisible':
+        if (this.listViewerReference !== undefined && this.listViewerReference !== null) {
+          this.restoreUIComponent("vfbListViewer");
         }
         this.setState({ UIUpdated: false });
         break;
@@ -958,6 +967,20 @@ export default class VFBMain extends React.Component {
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
+    } else if (component === "vfbListViewer") {
+      let listViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        this.setState({
+          UIUpdated: false,
+          listViewerVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBListViewer ref={ref => this.listViewerReference = ref} />
+      </div>);
     }
   }
 
@@ -1086,31 +1109,6 @@ export default class VFBMain extends React.Component {
     this.canvasReference.displayAllInstances();
     this.canvasReference.engine.controls.rotateSpeed = 3;
     this.canvasReference.engine.setLinesThreshold(0);
-
-    // Control panel initialization and filter which instances to display
-    if (this.refs.controlpanelRef !== undefined) {
-      this.refs.controlpanelRef.setColumnMeta(this.controlPanelColMeta);
-      this.refs.controlpanelRef.setColumns(this.controlPanelColumns);
-      this.refs.controlpanelRef.setControlsConfig(this.controlPanelConfig);
-      this.refs.controlpanelRef.setControls(this.controlPanelControlConfigs);
-      this.refs.controlpanelRef.setDataFilter(function (entities) {
-        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
-        var visualParents = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getParent() != null) {
-            visualParents.push(visualInstances[i].getParent());
-          }
-        }
-        visualInstances = visualInstances.concat(visualParents);
-        var compositeInstances = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-            compositeInstances.push(visualInstances[i]);
-          }
-        }
-        return compositeInstances;
-      });
-    }
 
     // Loading ids passed through the browser's url
     var idsList = "";
@@ -1331,6 +1329,10 @@ export default class VFBMain extends React.Component {
       this.graphReference.instanceFocusChange(this.instanceOnFocus);
     }
     
+    if (this.listViewerReference !== undefined && this.listViewerReference !== null) {
+      this.listViewerReference.instanceFocusChange(this.instanceOnFocus);
+    }
+    
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
@@ -1458,18 +1460,6 @@ export default class VFBMain extends React.Component {
             spotlightDataSourceConfig={this.spotlightDataSourceConfig}
             icon={"styles.Modal"}
             useBuiltInFilter={false}
-            showClose={true} />
-        </div>
-
-        <div id="controlpanel" style={{ top: 0 }}>
-          <ControlPanel ref="controlpanelRef"
-            icon={"styles.Modal"}
-            enableInfiniteScroll={true}
-            useBuiltInFilter={false}
-            controlPanelColMeta={this.controlPanelColMeta}
-            controlPanelConfig={this.controlPanelConfig}
-            columns={this.controlPanelColumns}
-            controlPanelControlConfigs={this.controlPanelControlConfigs}
             showClose={true} />
         </div>
 

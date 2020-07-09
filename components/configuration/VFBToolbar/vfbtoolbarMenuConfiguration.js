@@ -202,7 +202,7 @@ var toolbarMenu = {
           icon: "fa fa-list",
           action: {
             handlerAction: "UIElementHandler",
-            parameters: ["controlPanelVisible"]
+            parameters: ["listViewerVisible"]
           }
         },
         {

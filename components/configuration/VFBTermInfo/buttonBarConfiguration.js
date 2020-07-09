@@ -9,7 +9,7 @@ var buttonBarConfig = {
     "label": "",
     "tooltip": "Query Results"
   },
-  "controlPanelVisible": {
+  "listViewerVisible": {
     "icon": "fa fa-list",
     "label": "",
     "tooltip": "Layers"
