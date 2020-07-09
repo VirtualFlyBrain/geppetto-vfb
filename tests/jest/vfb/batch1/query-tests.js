@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
+const PROJECT_URL = baseURL + "/geppetto";
 
 const QUERY_TRIGGER_URL = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00017894,VFB_00000001&q=FBbt_00003678,NeuronsPresynapticHere"
 
@@ -33,9 +33,9 @@ describe('VFB Query Component Tests', () => {
 		})
 
 		it('Hide Quick Help Modal Window', async () => {
+			await wait4selector(page, 'button#skipButton', { visible : true })
 			// Close tutorial window
 			closeModalWindow(page);
-			await wait4selector(page, 'div#quickHelpFooter', { hidden : true })
 		})
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
@@ -127,13 +127,6 @@ describe('Test URL Trigger Query Builder', () => {
 	});
 
 	describe('Test landing page', () => {
-		it('Hide Quick Help Modal Window', async () => {
-			await wait4selector(page, 'div#quickHelpFooter', { visible : true, timeout : 120000 })
-			// Close tutorial window
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quickHelpFooter', { hidden : true, timeout : 120000  })
-		})
-
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000 })
 		})
