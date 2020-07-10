@@ -4,7 +4,6 @@ import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
-import { connect } from 'react-redux';
 import { SHOW_GRAPH } from './../../../actions/generals';
 
 var $ = require('jquery');

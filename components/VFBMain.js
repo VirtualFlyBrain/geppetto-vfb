@@ -177,7 +177,10 @@ export default class VFBMain extends React.Component {
         if (idsList.length > 0) {
           this.props.vfbLoadId(idsList);
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({ idSelected: idsList[idsList.length - 1] });
+          this.setState({
+            UIUpdated: false,
+            idSelected: idsList[idsList.length - 1]
+          });
         }
       }
 
@@ -427,7 +430,10 @@ export default class VFBMain extends React.Component {
 
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
-      this.setState({ [itemState]: !this.state[itemState] });
+      this.setState({ 
+        UIUpdated: true,
+        [itemState]: !this.state[itemState]
+      });
     } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
       this.setState({ UIUpdated: itemState });
     }
@@ -571,7 +577,10 @@ export default class VFBMain extends React.Component {
 
   renderHTMLViewer (htmlChild) {
     if (htmlChild !== undefined) {
-      this.setState({ htmlFromToolbar: htmlChild });
+      this.setState({ 
+        UIUpdated: true,
+        htmlFromToolbar: htmlChild
+      });
     }
   }
 
@@ -585,7 +594,10 @@ export default class VFBMain extends React.Component {
 
   handleClickOutside () {
     if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
-      this.setState({ htmlFromToolbar: undefined });
+      this.setState({
+        UIUpdated: true,
+        htmlFromToolbar: undefined
+      });
     }
   }
 
@@ -786,6 +798,12 @@ export default class VFBMain extends React.Component {
           this.restoreUIComponent("treeBrowser");
         }
         this.setState({ UIUpdated: false });
+        break;
+      case 'graphVisible':
+        if (this.graphReference !== undefined && this.graphReference !== null) {	
+          this.restoreUIComponent("vfbGraph");	
+        }	
+        this.setState({ UIUpdated: false });	
         break;
       }
     }
