@@ -26,7 +26,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-export default class VFBMain extends React.Component {
+class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -800,10 +800,10 @@ export default class VFBMain extends React.Component {
         this.setState({ UIUpdated: false });
         break;
       case 'graphVisible':
-        if (this.graphReference !== undefined && this.graphReference !== null) {	
-          this.restoreUIComponent("vfbGraph");	
-        }	
-        this.setState({ UIUpdated: false });	
+        if (this.graphReference !== undefined && this.graphReference !== null) {
+          this.restoreUIComponent("vfbGraph");
+        }
+        this.setState({ UIUpdated: false });
         break;
       }
     }
@@ -838,6 +838,7 @@ export default class VFBMain extends React.Component {
   /* FLEXLayout factory method */
   factory (node) {
     var component = node.getComponent();
+    let self = this;
     if (component === "text") {
       return (<div className="">Panel {node.getName()}</div>);
     } else if (component === "canvas") {
@@ -876,7 +877,13 @@ export default class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
-          vfbGraph={this.props.vfbGraph}
+          vfbGraph= { (type, instance, queryIndex) => {
+            self.setState({
+              UIUpdated: true,
+              graphVisible: true
+            })
+            self.props.vfbGraph(type, instance, queryIndex);
+          }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -958,7 +965,7 @@ export default class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph instance={this.instanceOnFocus} dispatch={this.props.vfbGraph} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     }
   }
@@ -996,7 +1003,7 @@ export default class VFBMain extends React.Component {
     }
 
     if ( this.props.generals.type == SHOW_GRAPH ) {
-      this.setActiveTab("Graph");
+      this.setActiveTab("Term Context");
     }
   }
 
@@ -1508,4 +1515,12 @@ export default class VFBMain extends React.Component {
       </div>
     );
   }
-}       
+}
+
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+export default connect(mapStateToProps)(VFBMain);
+          
+          

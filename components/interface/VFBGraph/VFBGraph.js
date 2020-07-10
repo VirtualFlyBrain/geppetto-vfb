@@ -123,7 +123,8 @@ class VFBGraph extends Component {
       currentQuery : this.props.instance,
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
-      nodeSelected : { title : "", id : "" }
+      nodeSelected : { title : "", id : "" },
+      selectedDropDownQuery : 0
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
@@ -179,22 +180,41 @@ class VFBGraph extends Component {
 
   componentDidUpdate () {
     let self = this;
-    if ( this.props.visible && !this.focused ) {
-      setTimeout( function () {
+    const { instanceOnFocus, graphQueryIndex } = this.props;
+
+    if ( this.props.visible && !this.focused && !this.state.loading ) {
+    	self.setState({ loading : true });
+    	setTimeout( function () {
         self.resetCamera();
         self.focused = true;
         
         // Graph query selected from the dropdown through props
-        const { graphQueryIndex } = self.props;
         stylingConfiguration.dropDownQueries.map((item, index) => {
           if ( parseInt(graphQueryIndex) === index ) {
             // Show loading spinner while cypher query search occurs
-            self.setState({ loading : true , dropDownAnchorEl : null });
+            self.setState({ loading : true,  dropDownAnchorEl : null, selectedDropDownQuery : graphQueryIndex, currentQuery : instanceOnFocus });
             // Perform cypher query
-            self.queryResults(item.query(self.props.instanceOnFocus));
+            self.queryResults(item.query(instanceOnFocus));
           }
         })
       }, (self.objectsLoaded * 20));
+    } else if ( this.focused  && this.props.visible && !this.state.loading ) {
+      if ( instanceOnFocus !== this.state.currentQuery || this.state.selectedDropDownQuery !== graphQueryIndex  ) {
+        setTimeout( function () {
+          self.resetCamera();
+          self.focused = true;
+           
+          // Graph query selected from the dropdown through props
+          stylingConfiguration.dropDownQueries.map((item, index) => {
+            if ( parseInt(graphQueryIndex) === index ) {
+              // Show loading spinner while cypher query search occurs
+              self.setState({ loading : true , dropDownAnchorEl : null, selectedDropDownQuery : graphQueryIndex, currentQuery : instanceOnFocus });
+              // Perform cypher query
+              self.queryResults(item.query(instanceOnFocus));
+            }
+          })
+        }, (self.objectsLoaded * 20));
+      }
     } else if ( !this.props.visible ) {
       this.focused = false;
     }    
@@ -352,7 +372,7 @@ class VFBGraph extends Component {
           self.setState( { graph : e.data.params.results , loading : false });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
-            self.resetCamera().then( () => self.setState( { loading : false }));
+            self.resetCamera();
             if ( self.graphRef.current !== null ) {
               self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
             }
