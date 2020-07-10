@@ -1039,6 +1039,9 @@ export default class VFBMain extends React.Component {
 
     // Retrieve cookie for 'quick_help' modal
     var cookie = getCookie("show_quick_help");
+    if ((this.props.location.search.indexOf("id=") > -1) || (this.props.location.search.indexOf("i=") > -1) || (this.props.location.search.indexOf("q=") > -1)) {
+      this.quickHelpOpen = false;
+    }
     // Show 'Quick Help' modal if cookie to hide it is not set to True
     if (( cookie !== "1") && (this.quickHelpOpen)) {
       this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
@@ -1147,7 +1150,7 @@ export default class VFBMain extends React.Component {
       // remove duplicates
       var counter = this.idsFromURL.length;
       if (this.idFromURL === undefined) {
-        this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
+        this.idFromURL = this.idsFromURL[0];
       }
       while (counter--) {
         if (this.idsFromURL[counter] === this.idFromURL) {

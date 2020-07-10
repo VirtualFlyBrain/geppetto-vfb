@@ -383,36 +383,55 @@ var toolbarMenu = {
               }
             },
             {
-              label: "Adult Brain (JFRC2/2010)",
+              label: "Adult VNC Unisex (JRC2018VU)",
               icon: "",
               action: {
                 handlerAction: "openNewTab",
-                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00200000"]
               }
             },
             {
-              label: "Adult VNS",
+              label: "Other",
               icon: "",
+              position: "right-start",
               action: {
-                handlerAction: "openNewTab",
-                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
-              }
-            },
-            {
-              label: "Janelia FlyEM HemiBrain",
-              icon: "",
-              action: {
-                handlerAction: "openNewTab",
-                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00101384"]
-              }
-            },
-            {
-              label: "Ito Half Brain",
-              icon: "",
-              action: {
-                handlerAction: "openNewTab",
-                parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00030786"]
-              }
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult Brain (JFRC2/2010)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00017894"]
+                  }
+                },
+                {
+                  label: "Adult VNS (Court2017)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00100000"]
+                  }
+                },
+                {
+                  label: "Janelia FlyEM HemiBrain",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00101384"]
+                  }
+                },
+                {
+                  label: "Ito Half Brain",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00030786"]
+                  }
+                }
+              ]
             }
           ]
         },
@@ -473,40 +492,59 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["AlignedDatasets,VFB_00101567,adult brain unisex JFRC2018"]
+                parameters: ["AlignedDatasets,VFB_00101567,adult brain unisex JRC2018U"]
               }
             },
             {
-              label: "Adult Brain (JFRC2/2010)",
+              label: "Adult VNC Unisex (JRC2018VU)",
               icon: "",
               action: {
                 handlerAction: "triggerRunQuery",
-                parameters: ["AlignedDatasets,VFB_00017894,adult brain template JFRC2"]
+                parameters: ["AlignedDatasets,VFB_00200000,adult VNC unisex JRC2018VU"]
               }
             },
             {
-              label: "Adult VNS",
+              label: "Other",
               icon: "",
+              position: "right-start",
               action: {
-                handlerAction: "triggerRunQuery",
-                parameters: ["AlignedDatasets,VFB_00100000,adult VNS template"]
-              }
-            }, 
-            {
-              label: "Janelia FlyEM HemiBrain",
-              icon: "",
-              action: {
-                handlerAction: "triggerRunQuery",
-                parameters: ["AlignedDatasets,VFB_00101384,Janelia FlyEM HemiBrain"]
-              }
-            },
-            {
-              label: "Ito Half Brain",
-              icon: "",
-              action: {
-                handlerAction: "triggerRunQuery",
-                parameters: ["AlignedDatasets,VFB_00030786,Ito Half Brain"]
-              }
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult Brain (JFRC2/2010)",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00017894,adult brain template JFRC2"]
+                  }
+                },
+                {
+                  label: "Adult VNS",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00100000,adult VNS template"]
+                  }
+                },
+                {
+                  label: "Janelia FlyEM HemiBrain",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00101384,Janelia FlyEM HemiBrain"]
+                  }
+                },
+                {
+                  label: "Ito Half Brain",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00030786,Ito Half Brain"]
+                  }
+                }
+              ]
             }
           ]
         },
