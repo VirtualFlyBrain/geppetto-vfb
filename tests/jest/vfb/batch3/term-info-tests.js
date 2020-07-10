@@ -110,31 +110,6 @@ describe('VFB Term Info Component Tests', () => {
 	})
 
 	describe('Test Term Info Component Links and Buttons Work', () => {
-		it('Term info, hide volume using "Hide 3D Volume"', async () => {
-			// Click on Term Info Drop Down Menu
-			await page.evaluate(async () => document.querySelectorAll(".focusTermRight button")[0].click());
-			await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
-			await page.evaluate(async () => document.getElementById("Hide 3D Volume").click());
-			await page.waitFor(2000);
-			// Test Canvas Container doesn't have volume mesh visible anymore
-			expect(
-					await page.evaluate(async () => !CanvasContainer.engine.meshes["VFB_00030624.VFB_00030624_obj"].visible)
-			).toBeTruthy();
-		})
-
-		it('Term info ,show volume using "Show 3D Volume"', async () => {
-			// Click on Term Info Drop Down Menu
-			await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
-			await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
-			// Click on Show 3D Volume menu option
-			await page.evaluate(async () => document.getElementById("Show 3D Volume").click());
-			await page.waitFor(2000);
-			// Test canvas container has volume mesh visible again
-			expect(
-					await page.evaluate(async () => CanvasContainer.engine.meshes["VFB_00030624.VFB_00030624_obj"].visible)
-			).toBeTruthy();
-		})
-
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the third one belongs to the term info
 			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
@@ -145,32 +120,23 @@ describe('VFB Term Info Component Tests', () => {
 			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 50000})
 		})
 
-		it('Term info , open using "Show Info" menu option', async () => {
-			// Click on Term Info Drop Down Menu
-			await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
-			await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
-			// Click on 'Show Info' menu selection option
-			await page.evaluate(async () => document.getElementById("Show Info").click());
+		it('Term info opened', async () => {
+			await page.evaluate(async () => document.getElementById("Tools").click());
+			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
+			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+			await page.evaluate(async () => document.getElementById("Term Info").click());
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
-			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 50000});
+			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 500000});
 		})
 
 		it('Term info , run "Query For" from menu option', async () => {
 			// Takes a while for 'Query For' option to show, wait for it 20 seconds
 			await page.waitFor(20000);
 			// Click on Term Info Drop Down Menu
-			await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
-			await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
+			// await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
+			// await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
 			// Mouse over 'Query For' menu item to expand drop down menu
-			await page.evaluate(async () => {
-				let hover = document.querySelectorAll("[id='Query for'] .fa-chevron-right")[0];
-				let hoverEvent = new MouseEvent('mouseover', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				hover.dispatchEvent(hoverEvent);
-			});
+			await page.evaluate(async () => document.getElementById("Queries for medulla on adult brain template JFRC2").click());
 			await page.waitFor(1000);
 			// Click on item from query drop down menu and expect the query modal window to open
 			await page.evaluate(async () => document.getElementById("List all available images of medulla").click());

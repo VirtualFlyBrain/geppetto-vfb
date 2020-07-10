@@ -268,6 +268,7 @@ class VFBQuickHelp extends React.Component {
           </div>
           <div className={[classes.buttonBar, classes.font].join(' ')}>
             <Button
+              id="skipButton"
               onClick={self.closeQuickHelp}
               classes={{ label : classes.font }}
             >
