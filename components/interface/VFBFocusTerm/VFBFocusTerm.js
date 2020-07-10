@@ -338,8 +338,51 @@ export default class VFBFocusTerm extends React.Component {
   }
 
   setInstance (instance) {
-    this.focusTermConfiguration.buttons[0].label = instance.getName();
-    this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [instance];
+    this.focusTermConfiguration.buttons[0].label = "Queries for " + instance.getName();
+    var variable = undefined;
+
+    if (instance.parent !== null || instance.parent !== undefined) {
+      variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([instance.getParent().getId()])[0]
+    } else {
+      variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([instance.getId()])[0]
+    }
+    allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+    if (allQueries.length > 0) {
+      if (instance.getType().classqueriesfrom !== undefined) {
+        var classId = instance.getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+        if (window[classId] === undefined) {
+          window.fetchVariableThenRun(classId, () => {
+            var variable2 = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries2 = GEPPETTO.ModelFactory.getMatchingQueries(variable2.getType(), undefined);
+            if (allQueries2.length > 0) {
+              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries },
+                                                                                       { variable: variable2, allQueries: allQueries2 }];
+            }
+          });
+        }
+      } else {
+        this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+      }
+    } else {
+      if (instance.getType().classqueriesfrom !== undefined) {
+        var classId = instance.getType().classqueriesfrom.getValue().getWrappedObj().value.text;
+        if (window[classId] === undefined) {
+          window.fetchVariableThenRun(classId, () => {
+            var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+            if (allQueries.length > 0) {
+              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+            }
+          });
+        } else {
+          var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
+          var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+          if (allQueries.length > 0) {
+            this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+          }
+        }
+      }
+    }
     this.updateHistory(instance);
     this.setState({ currentInstance: instance });
   }
@@ -382,8 +425,8 @@ export default class VFBFocusTerm extends React.Component {
         }
         compositeInstances.forEach(function (compositeInstance) {
           if (!items.includes(compositeInstance.getId())) {
-            items = items + ',' + compositeInstance.getId() 
-          } 
+            items = items + ',' + compositeInstance.getId()
+          }
         });
         items = items.replace(',,', ',').replace('i=,', 'i=');
         if (items != "i=") {
@@ -393,7 +436,7 @@ export default class VFBFocusTerm extends React.Component {
             title = instance.getName();
             window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
           } catch (ignore) { }
-        
+
           if (window.history.state == null) {
             window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
           }
@@ -483,6 +526,33 @@ export default class VFBFocusTerm extends React.Component {
           <div className="focusTermRight">
             <div className="focusTermDivR">
               <MuiThemeProvider theme={this.theme}>
+                { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
+                  ? <Tooltip placement="top-end"
+                    title={tooltipPrevious}>
+                    <i className="fa fa-chevron-left arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.back();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
+                }
+                <Menu
+                  configuration={this.focusTermConfiguration}
+                  menuHandler={this.menuHandler} />
+                { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
+                  ? <Tooltip placement="top-end"
+                    title={tooltipNext}> 
+                    <i className="fa fa-chevron-right arrowsStyle"
+                      onClick={() => {
+                        if (window.vfbUpdatingHistory == false) {
+                          window.history.forward();
+                        }
+                      }} />
+                  </Tooltip>
+                  : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
+                }
                 <Tooltip placement="top-end"
                   title="Clear all">
                   <i className="fa fa-eraser arrowsStyle"
@@ -511,33 +581,6 @@ export default class VFBFocusTerm extends React.Component {
                       this.props.UIUpdateManager("controlPanelVisible");
                     }} />
                 </Tooltip>
-                { window.history.state !== null && window.history.state.b !== undefined && window.history.state.b !== ""
-                  ? <Tooltip placement="top-end"
-                    title={tooltipPrevious}>
-                    <i className="fa fa-chevron-left arrowsStyle"
-                      onClick={() => {
-                        if (window.vfbUpdatingHistory == false) {
-                          window.history.back();
-                        }
-                      }} />
-                  </Tooltip>
-                  : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
-                }
-                { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
-                  ? <Tooltip placement="top-end"
-                    title={tooltipNext}> 
-                    <i className="fa fa-chevron-right arrowsStyle"
-                      onClick={() => {
-                        if (window.vfbUpdatingHistory == false) {
-                          window.history.forward();
-                        }
-                      }} />
-                  </Tooltip>
-                  : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
-                }
-                <Menu
-                  configuration={this.focusTermConfiguration}
-                  menuHandler={this.menuHandler} />
               </MuiThemeProvider>
             </div>
           </div>
