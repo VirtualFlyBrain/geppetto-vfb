@@ -956,7 +956,7 @@ class VFBMain extends React.Component {
     } else if (component === "vfbGraph") {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
-        this.setState({
+        self.setState({
           UIUpdated: false,
           graphVisible: false
         });

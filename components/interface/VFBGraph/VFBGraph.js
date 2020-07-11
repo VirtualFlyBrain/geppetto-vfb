@@ -183,8 +183,8 @@ class VFBGraph extends Component {
     const { instanceOnFocus, graphQueryIndex } = this.props;
 
     if ( this.props.visible && !this.focused && !this.state.loading ) {
-    	self.setState({ loading : true });
-    	setTimeout( function () {
+      self.setState({ loading : true });
+      setTimeout( function () {
         self.resetCamera();
         self.focused = true;
         
@@ -192,14 +192,14 @@ class VFBGraph extends Component {
         stylingConfiguration.dropDownQueries.map((item, index) => {
           if ( parseInt(graphQueryIndex) === index ) {
             // Show loading spinner while cypher query search occurs
-            self.setState({ loading : true,  dropDownAnchorEl : null, selectedDropDownQuery : graphQueryIndex, currentQuery : instanceOnFocus });
+            self.setState({ loading : true, dropDownAnchorEl : null, selectedDropDownQuery : graphQueryIndex, currentQuery : instanceOnFocus });
             // Perform cypher query
             self.queryResults(item.query(instanceOnFocus));
           }
         })
       }, (self.objectsLoaded * 20));
-    } else if ( this.focused  && this.props.visible && !this.state.loading ) {
-      if ( instanceOnFocus !== this.state.currentQuery || this.state.selectedDropDownQuery !== graphQueryIndex  ) {
+    } else if ( this.focused && this.props.visible && !this.state.loading ) {
+      if ( instanceOnFocus !== this.state.currentQuery || this.state.selectedDropDownQuery !== graphQueryIndex ) {
         setTimeout( function () {
           self.resetCamera();
           self.focused = true;
@@ -433,6 +433,11 @@ class VFBGraph extends Component {
       }
       
       if ( this.focusedInstance.id !== this.state.currentQuery ) {
+        syncColor = stylingConfiguration.outOfSyncIconColor;
+      }
+    } else if ( this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ) {
+      const { instanceOnFocus } = this.props;
+      if ( instanceOnFocus !== this.state.currentQuery ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
     }
