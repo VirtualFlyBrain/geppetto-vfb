@@ -112,9 +112,7 @@ const styles = theme => ({
     color : "rgba(24, 24, 24, 0.6)"
   },
   
-  checkboxBar : {
-    float : "left",
-  }
+  checkboxBar : { float : "left" }
   
 });
 
