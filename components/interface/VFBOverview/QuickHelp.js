@@ -40,30 +40,34 @@ const styles = theme => ({
     float : "left" ,
     width : "50%",
     height : "100%",
-    textAlign : "center"
+    textAlign : "center",
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex"
   },
   
   mainRightSide : {
     float : "right" ,
     width : "50%",
-    height : "100%"
+    height : "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex"
   },
   
   image : {
     magin : "0 auto",
     height : "85%",
     width : "85%",
-    marginTop : "2rem"
+    objectFit: "cover"
   },
 
   contentBar : {
-    marginTop : "20%",
     width : "85%",
     float : "left"
   },
   
   navigationBar : {
-    marginTop : "20%",
     width : "15%",
     float : "left"
   },
@@ -97,7 +101,8 @@ const styles = theme => ({
   nextButton : {
     marginLeft : "5px",
     backgroundColor : "#52BDF8",
-    color : "white"
+    color : "white",
+    borderRadius: "0px"
   },
   
   checkboxLabel : {
@@ -109,6 +114,7 @@ const styles = theme => ({
     float : "left",
     width : "70%"
   }
+  
 });
 
 class VFBQuickHelp extends React.Component {
