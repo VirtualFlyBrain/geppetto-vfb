@@ -29,7 +29,7 @@ const styles = theme => ({
   main : { height : "85%" },
   
   font : {
-    fontFamily: "Barlow",
+    fontFamily: "Barlow Condensed",
     fontStyle: "normal",
     fontWeight: "normal",
     fontSize: "14px",
@@ -58,17 +58,19 @@ const styles = theme => ({
   image : {
     magin : "0 auto",
     height : "85%",
-    width : "85%",
+    width : "100%",
+    marginLeft : "2rem",
     objectFit: "cover"
   },
 
   contentBar : {
-    width : "85%",
-    float : "left"
+    width : "90%",
+    float : "left",
+    marginLeft : "3rem"
   },
   
   navigationBar : {
-    width : "15%",
+    width : "10%",
     float : "left"
   },
   
@@ -84,7 +86,7 @@ const styles = theme => ({
   },
     
   list : {
-    color : "rgba(24, 24, 24, 0.6)",
+    color : "rgba(24, 24, 24, 1)",
     padding : "10px 0 0 5px"
   },
   
