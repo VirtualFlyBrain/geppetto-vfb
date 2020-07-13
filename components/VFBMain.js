@@ -1139,7 +1139,7 @@ export default class VFBMain extends React.Component {
     if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
       this.urlIdsLoaded = true;
       if (!idsList.includes("VFB_")) {
-        idsList = "VFB_00017894," + idsList;
+        idsList = "VFB_00101567," + idsList;
       }
       this.idsFromURL = idsList.split(",");
       // remove duplicates
@@ -1158,7 +1158,7 @@ export default class VFBMain extends React.Component {
       console.log("Loading IDS to add to the scene from url");
     } else {
       this.urlIdsLoaded = true;
-      this.idsFinalList = ["VFB_00017894"];
+      this.idsFinalList = ["VFB_00101567"];
     }
 
     var that = this;
