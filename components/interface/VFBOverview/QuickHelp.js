@@ -97,7 +97,7 @@ const styles = theme => ({
   
   buttonBar : {
     float : "right",
-    width : "30%"
+    paddingRight : "2rem"
   },
   
   nextButton : {
@@ -114,7 +114,6 @@ const styles = theme => ({
   
   checkboxBar : {
     float : "left",
-    width : "70%"
   }
   
 });
