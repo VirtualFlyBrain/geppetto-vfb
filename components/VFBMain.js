@@ -9,7 +9,6 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from 'geppetto-client/js/components/interface/logo/Logo';
 import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
@@ -88,9 +87,6 @@ export default class VFBMain extends React.Component {
     this.UIElementsVisibility = {};
 
     this.colours = require('./configuration/VFBMain/colours.json');
-
-    this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
-    this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
 
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
@@ -1452,16 +1448,6 @@ export default class VFBMain extends React.Component {
           factory={this.factory.bind(this)}
           onRenderTabSet={onRenderTabSet}
           clickOnBordersAction={clickOnBordersAction}/>
-
-        <div id="spotlight" style={{ top: 0 }}>
-          <SpotLight ref="spotlightRef"
-            indexInstances={false}
-            spotlightConfig={this.spotlightConfig}
-            spotlightDataSourceConfig={this.spotlightDataSourceConfig}
-            icon={"styles.Modal"}
-            useBuiltInFilter={false}
-            showClose={true} />
-        </div>
 
         <div id="controlpanel" style={{ top: 0 }}>
           <ControlPanel ref="controlpanelRef"
