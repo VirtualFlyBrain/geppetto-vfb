@@ -32,11 +32,11 @@ describe('VFB Query Component Tests', () => {
 			expect(title).toBe("Virtual Fly Brain");
 		})
 
-		it('Hide Quick Help Modal Window', async () => {
-			await wait4selector(page, 'button#skipButton', { visible : true })
-			// Close tutorial window
-			closeModalWindow(page);
-		})
+		// it('Hide Quick Help Modal Window', async () => {
+		// 	await wait4selector(page, 'button#skipButton', { visible : true })
+		// 	// Close tutorial window
+		// 	closeModalWindow(page);
+		// })
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
