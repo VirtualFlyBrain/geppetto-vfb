@@ -877,12 +877,11 @@ class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
-          vfbGraph= { (type, instance, queryIndex) => {
+          uiUpdated= { () => {
             self.setState({
               UIUpdated: true,
               graphVisible: true
             })
-            self.props.vfbGraph(type, instance, queryIndex);
           }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}

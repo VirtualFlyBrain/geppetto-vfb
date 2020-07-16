@@ -5,6 +5,7 @@ import Collapsible from 'react-collapsible';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
 import { SHOW_GRAPH } from './../../../actions/generals';
+import { connect } from "react-redux";
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -74,6 +75,7 @@ class VFBTermInfo extends React.Component {
 
 
   setData (anyInstance) {
+    this.setGraphsLinks(anyInstance);
     this.addToHistory(anyInstance.getName(), "setData", [anyInstance], this.props.id);
 
     this.getHTML(anyInstance, "vfbTermInfoWidgetInnerID");
@@ -97,13 +99,12 @@ class VFBTermInfo extends React.Component {
     }
   }
   
-  setGraphsLinks (anyInstance) {    
-    let graphsHTML = ""
-    {stylingConfiguration.dropDownQueries.map( (item, index) => (
-      graphsHTML += '<i class="popup-icon-link fa fa-cogs" ></i><a href="#" data-instancepath='
-      + GRAPHS + "," + anyInstance.parent.id + "," + index + '">' + item.label(anyInstance.parent.id) + "</a><br/>"
-    ))}
-        
+  setGraphsLinks (anyInstance) {
+	    let graphs = new Array();
+	    {stylingConfiguration.dropDownQueries.map( (item, index) => (
+	      graphs.push({ "instance" : anyInstance, "item" : item, "index" : index })
+	    ))}
+	          
     var type = anyInstance;
     if (!(type instanceof Type)) {
       type = anyInstance.getType();
@@ -112,7 +113,7 @@ class VFBTermInfo extends React.Component {
     if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
       var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
       
-      var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphsHTML });
+      var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphs });
       graphsVariable.setTypes([graphType]);
       
       type.getVariables().push(graphsVariable);
@@ -246,10 +247,29 @@ class VFBTermInfo extends React.Component {
       if (counter !== undefined) {
         prevCounter = counter;
       }
+      let values = anyInstance.values;
+      let graphs = new Array();
+      for (var j = 0; j < values.length; j++) {
+        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
+          <a data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }> 
+            { values[j].item.label(values[j].instance.parent.id) }
+          </a>
+          <br/>
+         </div>
+        );
+      }
+      
       this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
-        <div>
-          <HTMLViewer id={id} content={anyInstance.values} />
-        </div>
+       {graphs.map((graph, key) => {
+          var Element = React.cloneElement(graph);
+          /*
+           * The id in the following div is used to hookup the images into the slider
+           * with the handler that has to load the id linked to that image
+           */
+          return (
+            <div key={key}> {Element} </div>
+          );
+        })}
       </Collapsible>);
     }
   }
@@ -480,7 +500,7 @@ class VFBTermInfo extends React.Component {
   }
 }
 
-export default class VFBTermInfoWidget extends React.Component {
+class VFBTermInfoWidget extends React.Component {
 
   constructor (props) {
     super(props);
@@ -548,7 +568,6 @@ export default class VFBTermInfoWidget extends React.Component {
       if (nodePresent === false) {
         this.data.unshift(data);
       }
-      this.refs.termInfoRef.setGraphsLinks(data);
       this.refs.termInfoRef.setData(data);
       this.refs.termInfoRef.setName(data.name);
     }
@@ -602,7 +621,12 @@ export default class VFBTermInfoWidget extends React.Component {
       }
     }
     if (path.indexOf(GRAPHS) === 0 ) {
-      this.props.vfbGraph(SHOW_GRAPH, path.split(',')[1], path.split(',')[2]);
+      // Show Graph
+      const { vfbGraph } = this.props;
+      vfbGraph(SHOW_GRAPH, path.split(',')[1], path.split(',')[2]);
+      
+      // Notify VFBMain about UI needs to be updated
+      this.props.uiUpdated();
       return;
     }
     var Query = require('geppetto-client/js/geppettoModel/model/Query');
@@ -744,3 +768,15 @@ export default class VFBTermInfoWidget extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+function mapDispatchToProps (dispatch) {
+   return {
+     vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } }),
+   };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBTermInfoWidget);
