@@ -29,7 +29,7 @@ const styles = theme => ({
   main : { height : "85%" },
   
   font : {
-    fontFamily: "Barlow",
+    fontFamily: "Barlow Condensed",
     fontStyle: "normal",
     fontWeight: "normal",
     fontSize: "14px",
@@ -40,31 +40,37 @@ const styles = theme => ({
     float : "left" ,
     width : "50%",
     height : "100%",
-    textAlign : "center"
+    textAlign : "center",
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex"
   },
   
   mainRightSide : {
     float : "right" ,
     width : "50%",
-    height : "100%"
+    height : "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex"
   },
   
   image : {
     magin : "0 auto",
     height : "85%",
-    width : "85%",
-    marginTop : "2rem"
+    width : "100%",
+    marginLeft : "2rem",
+    objectFit: "cover"
   },
 
   contentBar : {
-    marginTop : "20%",
-    width : "85%",
-    float : "left"
+    width : "90%",
+    float : "left",
+    marginLeft : "3rem"
   },
   
   navigationBar : {
-    marginTop : "20%",
-    width : "15%",
+    width : "10%",
     float : "left"
   },
   
@@ -80,7 +86,7 @@ const styles = theme => ({
   },
     
   list : {
-    color : "rgba(24, 24, 24, 0.6)",
+    color : "rgba(24, 24, 24, 1)",
     padding : "10px 0 0 5px"
   },
   
@@ -91,13 +97,14 @@ const styles = theme => ({
   
   buttonBar : {
     float : "right",
-    width : "30%"
+    paddingRight : "2rem"
   },
   
   nextButton : {
     marginLeft : "5px",
     backgroundColor : "#52BDF8",
-    color : "white"
+    color : "white",
+    borderRadius: "0px"
   },
   
   checkboxLabel : {
@@ -105,10 +112,8 @@ const styles = theme => ({
     color : "rgba(24, 24, 24, 0.6)"
   },
   
-  checkboxBar : {
-    float : "left",
-    width : "70%"
-  }
+  checkboxBar : { float : "left" }
+  
 });
 
 class VFBQuickHelp extends React.Component {
