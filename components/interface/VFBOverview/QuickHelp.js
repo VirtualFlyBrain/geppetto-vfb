@@ -1,5 +1,4 @@
 import React from 'react';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -217,22 +216,31 @@ class VFBQuickHelp extends React.Component {
                     component="div"
                     id="nested-list-subheader"
                     classes={{ root: classes.listHeader }}
-                  >  
+                  >
                     {configuration.steps[self.state.currentStep].title}
                   </ListSubheader>
                 }
                 classes={{ root: classes.list }}
               >
                 {configuration.steps[self.state.currentStep].instructions.map( function ( instruction, index ) {
-                  return (<ListItem key={index} classes={{ root: classes.list }} >
-                    <ListItemIcon>
-                      <Icon className={instruction.icon} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={instruction.label}
-                      classes={{ primary : classes.font }}
-                    />
-                  </ListItem>)
+                  if (instruction.icon !== undefined && instruction.icon !== "") {
+                    return (<ListItem key={index} classes={{ root: classes.list }} >
+                      <ListItemIcon>
+                        <Icon className={instruction.icon} />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={instruction.label}
+                        classes={{ primary : classes.font }}
+                      />
+                    </ListItem>)
+                  } else {
+                    return (<ListItem key={index} classes={{ root: classes.list }} >
+                      <ListItemText
+                        primary={instruction.label}
+                        classes={{ primary : classes.font }}
+                      />
+                    </ListItem>)
+                  }
                 })}
               </List>
             </div>
