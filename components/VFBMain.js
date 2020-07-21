@@ -803,7 +803,7 @@ class VFBMain extends React.Component {
         if (this.graphReference !== undefined && this.graphReference !== null) {
           this.restoreUIComponent("vfbGraph");
         }
-        this.setState({ UIUpdated: false });
+        this.setState({ UIUpdated: false, graphVisible : true });
         break;
       }
     }
@@ -956,7 +956,7 @@ class VFBMain extends React.Component {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
         self.setState({
-          UIUpdated: false,
+          UIUpdated: true,
           graphVisible: false
         });
       });

@@ -57,6 +57,10 @@ var styling = {
   outOfSyncIconColor : "red",
   dropDownQueries : [
     {
+      label : instance => "Show location of " + instance ,
+      query : instance => locationCypherQuery(instance)
+    },
+    {
       label : instance => "Show classification of " + instance,
       query : instance => ({
         "statements": [
@@ -69,10 +73,6 @@ var styling = {
           }
         ]
       })
-    },
-    {
-      label : instance => "Show location of " + instance ,
-      query : instance => locationCypherQuery(instance)
     }
   ],
   dropDownHoverBackgroundColor : "#11bffe",

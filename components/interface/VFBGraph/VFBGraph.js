@@ -123,8 +123,7 @@ class VFBGraph extends Component {
       currentQuery : this.props.instance,
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
-      nodeSelected : { title : "", id : "" },
-      selectedDropDownQuery : 0
+      nodeSelected : { title : "", id : "" }
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
@@ -148,6 +147,7 @@ class VFBGraph extends Component {
     this.objectsLoaded = 0;
     this.focused = false;
     this.focusedInstance = { id : "" };
+    this.selectedDropDownQuery = -1;
   }
 
   componentDidMount () {
@@ -180,44 +180,15 @@ class VFBGraph extends Component {
 
   componentDidUpdate () {
     let self = this;
-    const { instanceOnFocus, graphQueryIndex } = this.props;
-
-    if ( this.props.visible && !this.focused && !this.state.loading ) {
-      self.setState({ loading : true });
-      setTimeout( function () {
+    if ( this.props.visible && !this.focused ) {
+      setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
-        
-        // Graph query selected from the dropdown through props
-        stylingConfiguration.dropDownQueries.map((item, index) => {
-          if ( parseInt(graphQueryIndex) === index ) {
-            // Show loading spinner while cypher query search occurs
-            self.setState({ loading : true, dropDownAnchorEl : null, selectedDropDownQuery : graphQueryIndex, currentQuery : instanceOnFocus });
-            // Perform cypher query
-            self.queryResults(item.query(instanceOnFocus));
-          }
-        })
       }, (self.objectsLoaded * 20));
-    } else if ( this.focused && this.props.visible && !this.state.loading ) {
-      if ( instanceOnFocus !== this.state.currentQuery || this.state.selectedDropDownQuery !== graphQueryIndex ) {
-        setTimeout( function () {
-          self.resetCamera();
-          self.focused = true;
-           
-          // Graph query selected from the dropdown through props
-          stylingConfiguration.dropDownQueries.map((item, index) => {
-            if ( parseInt(graphQueryIndex) === index ) {
-              // Show loading spinner while cypher query search occurs
-              self.setState({ loading : true , dropDownAnchorEl : null, selectedDropDownQuery : graphQueryIndex, currentQuery : instanceOnFocus });
-              // Perform cypher query
-              self.queryResults(item.query(instanceOnFocus));
-            }
-          })
-        }, (self.objectsLoaded * 20));
-      }
     } else if ( !this.props.visible ) {
       this.focused = false;
-    }    
+      this.selectedDropDownQuery = -1;
+    }
   }
 
   componentWillUnmount () {
@@ -307,7 +278,7 @@ class VFBGraph extends Component {
   instanceFocusChange (id) {
     let instance = Instances.getInstance(id);
     // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
-    
+    this.selectedDropDownQuery = -1;
     if (instance.getParent() !== null) {
       this.focusedInstance = instance.getParent();
     } else {
@@ -414,8 +385,9 @@ class VFBGraph extends Component {
 
   render () {
     let self = this;
-    const { instanceOnFocus } = this.props;
+    const { instanceOnFocus, graphQueryIndex } = this.props;
     let syncColor = this.state.optionsIconColor;
+    let loading = this.state.loading;
     
     if ( this.focusedInstance.id !== "" && instanceOnFocus !== this.focusedInstance.id ) {
       this.instanceFocusChange(instanceOnFocus);
@@ -429,21 +401,30 @@ class VFBGraph extends Component {
         }
         syncColor = stylingConfiguration.defaultRefreshIconColor;
         // Perform cypher query
+        loading = true;
         this.queryResults(cypherQuery(idToSearch), idToSearch)
       }
-      
       if ( this.focusedInstance.id !== this.state.currentQuery ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
-    } else if ( this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ) {
-      const { instanceOnFocus } = this.props;
-      if ( instanceOnFocus !== this.state.currentQuery ) {
-        syncColor = stylingConfiguration.outOfSyncIconColor;
-      }
+    } else if (this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ){
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( self.selectedDropDownQuery === -1 || self.selectedDropDownQuery !== parseInt(graphQueryIndex) ) { 
+          if ( parseInt(graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            loading = true;
+            self.queryResults(item.query(instanceOnFocus));
+          }
+        }
+      })
+      
     }
-
+    
+    if ( this.focusedInstance.id !== instanceOnFocus ) {
+      syncColor = stylingConfiguration.outOfSyncIconColor;
+    }
     return (
-      this.state.loading
+      loading
         ? <CircularProgress
           style={{
             position: 'absolute',
