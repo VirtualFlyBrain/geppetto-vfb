@@ -8,7 +8,7 @@ var toolbarMenu = {
         boxShadow: '0px 0px',
         color: '#ffffff',
         fontSize: '16px',
-        fontFamily: 'Khand, sans-serif',
+        fontFamily: 'Barlow Condensed, Khand, sans-serif',
         margin: '0px 0px 0px 0px',
         minWidth: '44px',
         height: '30px',
@@ -26,7 +26,7 @@ var toolbarMenu = {
         boxShadow: '0px 0px',
         color: '#ffffff',
         fontSize: '16px',
-        fontFamily: 'Khand, sans-serif',
+        fontFamily: 'Barlow Condensed, Khand, sans-serif',
         margin: '0px 0px 0px 0px',
         minWidth: '44px',
         height: '30px',
@@ -44,7 +44,7 @@ var toolbarMenu = {
         borderRadius: 0,
         color: '#ffffff',
         fontSize: '12px',
-        fontFamily: 'Khand, sans-serif',
+        fontFamily: 'Barlow Condensed, Khand, sans-serif',
         minWidth: '110px',
         borderTop: '1px solid #585858',
         borderLeft: '1px solid #585858',
@@ -60,7 +60,7 @@ var toolbarMenu = {
         borderRadius: 0,
         color: '#ffffff',
         fontSize: '12px',
-        fontFamily: 'Khand, sans-serif',
+        fontFamily: 'Barlow Condensed, Khand, sans-serif',
         minWidth: '110px',
         borderTop: '1px solid #585858',
         borderLeft: '1px solid #585858',
@@ -77,7 +77,7 @@ var toolbarMenu = {
         borderRadius: 0,
         color: '#ffffff',
         fontSize: '14px',
-        fontFamily: 'Khand, sans-serif',
+        fontFamily: 'Barlow Condensed, Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
         fontWeight: '300',
@@ -90,7 +90,7 @@ var toolbarMenu = {
         borderRadius: 0,
         color: '#ffffff',
         fontSize: '14px',
-        fontFamily: 'Khand, sans-serif',
+        fontFamily: 'Barlow Condensed, Khand, sans-serif',
         paddingTop: 0,
         paddingBottom: 0,
         fontWeight: '300',
@@ -246,6 +246,7 @@ var toolbarMenu = {
             {
               label: "What is NBLAST?",
               icon: "",
+              trailerIcon: "fa fa-external-link",
               action: {
                 handlerAction: "openNewTab",
                 parameters: ["http://flybrain.mrc-lmb.cam.ac.uk/si/nblast/www/"]
@@ -254,6 +255,7 @@ var toolbarMenu = {
             {
               label: "NBLAST against your own data",
               icon: "",
+              trailerIcon: "fa fa-external-link",
               action: {
                 handlerAction: "openNewTab",
                 parameters: ["http://nblast.virtualflybrain.org:8080/NBLAST_on-the-fly/?gal4_n=10&all_use_mean=F&all_query=&tab=One%20against%20all&gal4_query="]
@@ -270,6 +272,7 @@ var toolbarMenu = {
             {
               label: "What is CATMAID?",
               icon: "",
+              trailerIcon: "fa fa-external-link",
               action: {
                 handlerAction: "openNewTab",
                 parameters: ["http://catmaid.readthedocs.io/"]
@@ -287,6 +290,7 @@ var toolbarMenu = {
                 {
                   label: "Adult Brain (FAFB)",
                   icon: "",
+                  trailerIcon: "fa fa-external-link",
                   action: {
                     handlerAction: "openNewTab",
                     parameters: ["https://fafb.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true"]
@@ -295,6 +299,7 @@ var toolbarMenu = {
                 {
                   label: "Adult VNC (VNC1)",
                   icon: "",
+                  trailerIcon: "fa fa-external-link",
                   action: {
                     handlerAction: "openNewTab",
                     parameters: ["https://vnc1.catmaid.virtualflybrain.org/?pid=1&zp=55260&yp=512482.5999999994&xp=173092.19999999998&tool=tracingtool&sid0=1&s0=9&help=true"]
@@ -303,6 +308,7 @@ var toolbarMenu = {
                 {
                   label: "Larval (L1EM)",
                   icon: "",
+                  trailerIcon: "fa fa-external-link",
                   action: {
                     handlerAction: "openNewTab",
                     parameters: ["https://l1em.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true"]
@@ -586,6 +592,7 @@ var toolbarMenu = {
         {
           label: "F.A.Q.",
           icon: "",
+          trailerIcon: "fa fa-external-link",
           action: {
             handlerAction: "openNewTab",
             parameters: ["https://groups.google.com/forum/embed/?place=forum/vfb-suport#!forum/vfb-suport"]
@@ -594,6 +601,7 @@ var toolbarMenu = {
         {
           label: "Support Forum",
           icon: "",
+          trailerIcon: "fa fa-external-link",
           action: {
             handlerAction: "openNewTab",
             parameters: ["https://groups.google.com/forum/#!forum/vfb-suport"]

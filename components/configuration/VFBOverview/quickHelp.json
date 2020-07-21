@@ -1,7 +1,7 @@
 {
 	"title": "VFB Tutorial",
-	"height": "500",
-    "width": "800",
+	"height": "575",
+    "width": "900",
 	"steps": [{
 		"title": "This is the Slice Viewer frame",
 		"image" : "geppetto/build/slice-viewer.png",

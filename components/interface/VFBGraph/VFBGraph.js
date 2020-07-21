@@ -463,8 +463,7 @@ export default class VFBGraph extends Component {
                 <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.zoomIn }></i>
                 <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.zoomOut }></i>
                 <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.sync} onClick={self.updateGraph }></i>
-                <i
-                  style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } }
+                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } }
                   className={stylingConfiguration.icons.dropdown}
                   aria-label="more"
                   aria-controls="dropdown-menu"
@@ -479,9 +478,12 @@ export default class VFBGraph extends Component {
                   onClose={ event => self.setState( { dropDownAnchorEl : null } )}
                   PaperProps={{
                     style: {
+                      marginTop: '32px',
+                      borderStyle: "solid",
+                      borderColor: "#585858",
+                      borderRadius: "0px 0px 2px 2px",
+                      color: stylingConfiguration.dropDownTextColor,
                       backgroundColor: stylingConfiguration.dropDownBackgroundColor,
-                      marginTop: '30px',
-                      color : stylingConfiguration.dropDownTextColor
                     }
                   }}
                 >
@@ -489,7 +491,10 @@ export default class VFBGraph extends Component {
                     <MenuItem
                       key={item.label}
                       onClick={() => self.handleMenuClick(item.query)}
-                      style={{ fontSize : "12px" }}
+                      style={{
+                        fontSize : "14px",
+                        fontFamily: "Barlow Condensed",
+                      }}
                       onMouseEnter={e => {
                         e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
                         e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor;
