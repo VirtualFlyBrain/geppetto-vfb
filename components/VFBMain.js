@@ -1329,10 +1329,6 @@ export default class VFBMain extends React.Component {
       this.graphReference.instanceFocusChange(this.instanceOnFocus);
     }
     
-    if (this.listViewerReference !== undefined && this.listViewerReference !== null) {
-      this.listViewerReference.instanceFocusChange(this.instanceOnFocus);
-    }
-    
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);

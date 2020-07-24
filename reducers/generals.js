@@ -17,6 +17,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
+  instanceOnFocus : {},
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -164,6 +165,7 @@ function generalReducer (state, action) {
         idsLoaded: idsLoaded,
         stepsToLoad: stepsToLoad,
         stepsLoaded: stepsLoaded,
+        instanceOnFocus : action.data.id
       };
     } else {
       return {
@@ -175,6 +177,7 @@ function generalReducer (state, action) {
         stepsLoaded: 0,
         idsMap: newMap,
         loading: loading,
+        instanceOnFocus : action.data.id
       };
     }
   case VFB_UI_UPDATED:

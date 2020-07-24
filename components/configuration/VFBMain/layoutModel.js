@@ -69,7 +69,7 @@ var modelJson = {
           },
           {
             "type": "tab",
-            "name": "Images",
+            "name": "Layers",
             "component": "vfbListViewer"
           }
         ]
