@@ -1033,8 +1033,10 @@ export default class VFBMain extends React.Component {
       this.quickHelpOpen = false;
     }
     // Show 'Quick Help' modal if cookie to hide it is not set to True
-    if (( cookie !== "1") && (this.quickHelpOpen)) {
-      this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+    if ((this.props.location.search.indexOf("id=") < 0) && (this.props.location.search.indexOf("i=") < 0) && (this.props.location.search.indexOf("q=") < 0)) {
+      if (( cookie !== "1") && (this.quickHelpOpen)) {
+        this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+      }
     }
   }
 
@@ -1134,7 +1136,7 @@ export default class VFBMain extends React.Component {
     if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
       this.urlIdsLoaded = true;
       if (!idsList.includes("VFB_")) {
-        idsList = "VFB_00017894," + idsList;
+        idsList = "VFB_00101567," + idsList;
       }
       this.idsFromURL = idsList.split(",");
       // remove duplicates
@@ -1153,7 +1155,7 @@ export default class VFBMain extends React.Component {
       console.log("Loading IDS to add to the scene from url");
     } else {
       this.urlIdsLoaded = true;
-      this.idsFinalList = ["VFB_00017894"];
+      this.idsFinalList = ["VFB_00101567"];
     }
 
     var that = this;
