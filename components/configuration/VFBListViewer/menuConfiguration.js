@@ -60,23 +60,17 @@ const controlsMenu = {
         {
           label: "Show Info",
           icon: "fa fa-info",
-          action: {
-            handlerAction: entity => console.log("Show Info ", entity)
-          }
+          action: { handlerAction: entity => console.log("Show Info ", entity) }
         },
         {
           label: "Select",
           icon: "fa fa-check-circle-o",
-          action: {
-              handlerAction: entity => entity.select()
-            }
+          action: { handlerAction: entity => entity.select() }
         },
         {
           label: "Zoom To",
           icon: "fa fa-search-plus",
-          action: {
-              handlerAction: entity => GEPPETTO.SceneController.zoomTo([entity])
-            }
+          action: { handlerAction: entity => GEPPETTO.SceneController.zoomTo([entity]) }
         },
         {
           label: "Show As",

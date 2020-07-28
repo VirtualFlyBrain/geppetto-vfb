@@ -1070,6 +1070,7 @@ export default class VFBMain extends React.Component {
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
 
+    let self = this;
     GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
@@ -1262,6 +1263,13 @@ export default class VFBMain extends React.Component {
       if (window.StackViewer1 != undefined) {
         this.sliceViewerReference.updateStackWidget();
       }
+      
+      self.props.instanceSelected(instance);
+    }.bind(this));
+    
+    
+    GEPPETTO.on(GEPPETTO.Events.Visibility_changed, function (instance) {
+      self.props.instanceVisibilityChanged(instance);
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {

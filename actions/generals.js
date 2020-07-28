@@ -2,7 +2,9 @@ export const VFB_ERROR = 'VFB_ERROR';
 export const VFB_LOAD_ID = 'VFB_LOAD_ID';
 export const VFB_ID_LOADED = 'VFB_ID_LOADED';
 export const VFB_UI_UPDATED = 'VFB_UI_UPDATED';
-export const INSTANCE_ADDED = 'INSTANCE_ADDED'
+export const INSTANCE_ADDED = 'INSTANCE_ADDED';
+export const INSTANCE_SELECTED = 'INSTANCE_SELECTION';
+export const INSTANCE_VISIBILITY_CHANGED = 'INSTANCE_VISIBILITY_CHANGED';
 
 export const vfbError = errorMessage => ({
   type: VFB_ERROR,
@@ -30,5 +32,15 @@ export const vfbUIUpdated = layout => ({
 
 export const instanceAdded = instance => ({
   type: INSTANCE_ADDED,
+  data: instance
+});
+
+export const instanceSelected = instance => ({
+  type: INSTANCE_SELECTED,
+  data: instance
+});
+
+export const instanceVisibilityChanged = instance => ({
+  type: INSTANCE_VISIBILITY_CHANGED,
   data: instance
 });

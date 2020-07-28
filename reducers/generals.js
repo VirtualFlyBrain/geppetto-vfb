@@ -3,7 +3,9 @@ import {
   VFB_ID_LOADED,
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
-  INSTANCE_ADDED
+  INSTANCE_ADDED,
+  INSTANCE_SELECTED,
+  INSTANCE_VISIBILITY_CHANGED
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -18,6 +20,8 @@ export const GENERAL_DEFAULT_STATE = {
   stepsLoaded: 0,
   loading: false,
   instanceOnFocus : {},
+  instanceSelection : {},
+  instanceVisibilityChanged : false,
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -211,5 +215,15 @@ function generalReducer (state, action) {
       ...state,
       idsMap: newMap,
     };
+  case INSTANCE_SELECTED:
+    return {
+      ...state,
+      instanceSelected : action.data
+    }
+  case INSTANCE_VISIBILITY_CHANGED:
+    return {
+      ...state,
+      instanceVisibilityChanged : action.data
+    }
   }
 }

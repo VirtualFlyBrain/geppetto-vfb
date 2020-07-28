@@ -1,15 +1,13 @@
 import React from 'react';
-import Menu from "geppetto-client/js/components/interface/menu/Menu";
-import { MenuComponent, MultiStatusComponent, GroupComponent, ImageComponent, IconComponent, ColorComponent } from "geppetto-client/js/components/interface/listViewer/ListViewer";
+import ListViewerControlsMenu from '../../interface/VFBListViewer/ListViewerControlsMenu';
+import { MultiStatusComponent, GroupComponent, ImageComponent, IconComponent, ColorComponent } from "geppetto-client/js/components/interface/listViewer/ListViewer";
 import { SliderPicker } from 'react-color';
 
-const controlsConfiguration = require('./menuConfiguration').default;
-const menuHandler = (value, component) => {
+const ControlsMenu = component => {
   let path = component.value.get("path").split(".")[0];
-  let entity = Instances.getInstance(path);
-  value.handlerAction(entity);
+  let instance = Instances.getInstance(path);
+  return <ListViewerControlsMenu component={component} instance={ instance }/>;
 }
-const ControlsMenu = (component) => <Menu configuration={ controlsConfiguration } menuHandler={ (value) => menuHandler(value, component) } />;
 
 const conf = [
   {
@@ -30,8 +28,8 @@ const conf = [
     id: "type",
     title: "Type",
     customComponent: component => { 
-      let ps = component.value.get("path").split(".")[0];
-      let html = Instances.getInstance(ps)[ps + "_meta"].getTypes().map(function (t) {
+      let path = component.value.get("path").split(".")[0];
+      let html = Instances.getInstance(path)[path + "_meta"].getTypes().map(function (t) {
         return t.type.getInitialValue().value
       })[0].html;
       
@@ -41,7 +39,7 @@ const conf = [
       
       // Extract HTML element anchor from html string
       var matchSpan = /<span[^>]*>([\s\S]*?)<\/span>/g
-          , span = html.match(matchSpan);
+        , span = html.match(matchSpan);
       
       let typeHTML = "<div>" + anchor.join('') + span.join('') + "</div>" ;
       
@@ -58,9 +56,9 @@ const conf = [
       return GEPPETTO.ModelFactory.getAllVariablesOfMetaType(Instances.getInstance(path)[path + "_meta"].getType(), 'ImageType')[0].getInitialValues()[0].value.data
     },
     configuration: {
-      alt: "Alt for the image",
-      title: "Image title",
-      action: () => alert('Image') // Action is optional
+      alt: "Thumbnail",
+      title: "Thumbnail",
+      action: () => null // Action is optional
     }
   }
 ];

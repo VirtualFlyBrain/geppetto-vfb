@@ -38,7 +38,7 @@ class VFBListViewer extends Component {
   
   render () {
     let instances = this.getInstances();
-    return <div style= { { position : "absolute" , width : "100%", backgroundColor : "#4f4f4f" } } >
+    return <div style= { { position : "absolute" , width : "100%", backgroundColor : "rgb(53, 51, 51)" } } >
       { this.state.loading
         ? <CircularProgress
           style={{
@@ -56,6 +56,7 @@ class VFBListViewer extends Component {
           handler={this}
           filter={() => true} 
           columnConfiguration={this.getColumnConfiguration()}
+          showPagination={false}
         />
       }
     </div>
