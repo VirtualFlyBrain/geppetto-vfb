@@ -2,6 +2,7 @@ import React from "react";
 
 const controlsMenuConf = {
   itemOptions: { customArrow: <i style={ { float : "right" } } className="fa fa-caret-right" /> },
+  // Global configuration for Menu buttons and drop down
   global: {
     buttonsStyle: {
       standard: {
@@ -50,21 +51,25 @@ const controlsMenuConf = {
       }
     }
   },
+  // Buttons to display inside the Menu
   buttons: [
     {
+      // Menu handler icon and label
       label: "",
       icon: "fa fa-eye",
+      activeColor : "",
       action: "",
       position: "bottom-start",
       caret : {
         show : true, 
         icon : "fa fa-caret-down"
-      },      
+      },
+      // Menu options to display
       list: [
         {
           label: "Show Info",
           icon: "fa fa-info",
-          action: entity => console.log("Show Info ", entity)
+          action: "info"
         },
         {
           toggle : {
@@ -137,7 +142,7 @@ const controlsMenuConf = {
         {
           label: "Color",
           icon: "fa fa-tint",
-          action: entity => entity => console.log("Color ", entity)
+          action: 'color'
         },
       ]
     }

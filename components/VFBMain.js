@@ -15,6 +15,8 @@ import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
+import { connect } from "react-redux";
+import { VFB_LOAD_TERM_INFO } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -24,7 +26,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-export default class VFBMain extends React.Component {
+class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -754,7 +756,7 @@ export default class VFBMain extends React.Component {
     if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
-        name: "Images",
+        name: "Layers",
         component: "vfbListViewer"
       });
       this.setState({
@@ -986,11 +988,18 @@ export default class VFBMain extends React.Component {
 
   /* React functions */
   shouldComponentUpdate (nextProps, nextState) {
+    this.instanceOnFocus = this.props.generals.instanceOnFocus;
     if (nextState.UIUpdated === false) {
+      // 
+      let visible = this.props.generals.termInfoVisible;
+      if ( visible && this.props.generals.type === VFB_LOAD_TERM_INFO ) {
+        this.setActiveTab("Term Info");
+        this.termInfoReference.setTermInfo(this.props.generals.instanceOnFocus, this.idOnFocus);
+      }
       return false;
     } else {
       return true;
-    }
+    }    
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -1016,6 +1025,10 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    let visible = this.props.termInfoVisible;
+    if ( visible && this.props.generals.type == VFB_LOAD_TERM_INFO ) {
+      this.setActiveTab("Term Info");
+    }
   }
 
   componentWillMount () {
@@ -1350,6 +1363,24 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  setActiveTab (tabName) {
+    let matchTab = 0;
+    let layoutChildren = this.model.toJson().layout.children;
+    for ( var i = 0; i < layoutChildren.length; i++){
+      if ( layoutChildren[i].type === "tabset"){
+        for ( var j = 0; j < layoutChildren[i].children.length ; j++){
+          if (layoutChildren[i].children[j].name === tabName){
+            matchTab = layoutChildren[i].children[j].id;
+            break;
+          }
+        }
+        if ( this.model._activeTabSet !== undefined ) {
+          this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
+        }
+      }
+    }
+  }
+  
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
@@ -1482,3 +1513,10 @@ export default class VFBMain extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ... state }
+}
+         
+export default connect(mapStateToProps)(VFBMain);
+          

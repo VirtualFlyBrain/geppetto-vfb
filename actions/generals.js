@@ -1,5 +1,6 @@
 export const VFB_ERROR = 'VFB_ERROR';
 export const VFB_LOAD_ID = 'VFB_LOAD_ID';
+export const VFB_LOAD_TERM_INFO = 'VFB_LOAD_TERM_INFO';
 export const VFB_ID_LOADED = 'VFB_ID_LOADED';
 export const VFB_UI_UPDATED = 'VFB_UI_UPDATED';
 export const INSTANCE_ADDED = 'INSTANCE_ADDED';
@@ -43,4 +44,9 @@ export const instanceSelected = instance => ({
 export const instanceVisibilityChanged = instance => ({
   type: INSTANCE_VISIBILITY_CHANGED,
   data: instance
+});
+
+export const setTermInfo = instance => ({
+  type: VFB_LOAD_TERM_INFO,
+  data : instance
 });

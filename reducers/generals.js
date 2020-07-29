@@ -5,7 +5,8 @@ import {
   VFB_UI_UPDATED,
   INSTANCE_ADDED,
   INSTANCE_SELECTED,
-  INSTANCE_VISIBILITY_CHANGED
+  INSTANCE_VISIBILITY_CHANGED,
+  VFB_LOAD_TERM_INFO
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -22,6 +23,7 @@ export const GENERAL_DEFAULT_STATE = {
   instanceOnFocus : {},
   instanceSelection : {},
   instanceVisibilityChanged : false,
+  termInfoVisible : false,
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -31,8 +33,13 @@ export const GENERAL_DEFAULT_STATE = {
 
 export default ( state = {}, action ) => ({
   ...state,
-  ...generalReducer(state, action)
+  ...generalReducer(state, action),
+  ...lastAction(state, action)
 });
+
+function lastAction (state = {}, action) {
+  return action;
+}
 
 function checkLayoutState (layout) {
   var stateValue = false;
@@ -187,7 +194,7 @@ function generalReducer (state, action) {
   case VFB_UI_UPDATED:
     return {
       ...state,
-      layout: action.data
+      layout: action.instance.id
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
@@ -224,6 +231,13 @@ function generalReducer (state, action) {
     return {
       ...state,
       instanceVisibilityChanged : action.data
+    }
+  case VFB_LOAD_TERM_INFO:
+    return {
+      ...state,
+      termInfoVisible : true,
+      instanceOnFocus : action.instance,
+      type : VFB_LOAD_TERM_INFO
     }
   }
 }

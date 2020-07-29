@@ -247,8 +247,10 @@ export default class VFBGraph extends Component {
       loadedId = instance.id;
     }
 
-    if ( this.state.nodeSelected.title === loadedId ) {
-      return true;
+    if ( this.state.nodeSselected ) {
+      if ( this.state.nodeSelected.title === loadedId ) {
+        return true;
+      }
     }
 
     return false;

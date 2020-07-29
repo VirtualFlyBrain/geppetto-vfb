@@ -4,14 +4,15 @@ import listViewerConf from '../../configuration/VFBListViewer/listViewerConfigur
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from 'react-redux';
 
+const VISUAL_TYPE = "VisualType";
+
+/**
+ * Wrapper class that connects geppetto-client's ListViewer component with VFB.
+ */
 class VFBListViewer extends Component {
 
   constructor (props) {
     super(props);
-    this.state = { update: 0, searchText : '', loading : false }
-  }
-
-  componentDidUpdate () {
   }
   
   filter (pathObj) {
@@ -19,17 +20,24 @@ class VFBListViewer extends Component {
     return false
   }
   
+  /**
+   * Retrieve configuration to display as column headers
+   * 
+   */
   getColumnConfiguration () {
     return listViewerConf;
   }
-  
-  clickShowInfo () {}
-  
+    
+  /**
+   * Retrieve instances to display in component
+   */
   getInstances () {
+    // Retrieve all instances from the ModelFactory
     let entities = GEPPETTO.ModelFactory.allPaths;
     var visuals = [];
+    // Match Visual Types from ModelFactory
     for (var i = 0; i < entities.length; i++) {
-      if (entities[i].metaType === "VisualType") {
+      if (entities[i].metaType === VISUAL_TYPE) {
         visuals.push(entities[i]);
       }
     }
@@ -38,27 +46,14 @@ class VFBListViewer extends Component {
   
   render () {
     let instances = this.getInstances();
-    return <div style= { { position : "absolute" , width : "100%", backgroundColor : "rgb(53, 51, 51)" } } >
-      { this.state.loading
-        ? <CircularProgress
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            top: 0,
-            margin: 'auto',
-            color: "#11bffe",
-            size: "55rem"
-          }}/>
-        : <ListViewer
-          instances={instances}
-          handler={this}
-          filter={() => true} 
-          columnConfiguration={this.getColumnConfiguration()}
-          showPagination={false}
-        />
-      }
+    return <div style= { { backgroundColor : "rgb(53, 51, 51)" } } >
+      <ListViewer
+        instances={instances}
+        handler={this}
+        filter={() => true} 
+        columnConfiguration={this.getColumnConfiguration()}
+        showPagination={false}
+      />
     </div>
   }
 }
