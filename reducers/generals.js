@@ -20,7 +20,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
-  instanceOnFocus : {},
+  instanceOnFocus : undefined,
   instanceSelection : {},
   instanceVisibilityChanged : false,
   termInfoVisible : false,
@@ -33,8 +33,13 @@ export const GENERAL_DEFAULT_STATE = {
 
 export default ( state = {}, action ) => ({
   ...state,
-  ...generalReducer(state, action)
+  ...generalReducer(state, action),
+  ...lastAction(state, action)
 });
+
+function lastAction (state = {}, action) {
+  return action;
+}
 
 function checkLayoutState (layout) {
   var stateValue = false;

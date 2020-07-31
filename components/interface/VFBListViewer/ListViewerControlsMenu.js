@@ -51,7 +51,14 @@ class ListViewerControlsMenu extends Component {
       this.setState({ displayColorPicker: true });
     } else if ( action === INFO ) {
       // If action belongs to 'info' control, display term info
-      this.props.setTermInfo(this.props.instance, true);
+      let self = this;
+      /**
+       * Needs a 100 ms delay before calling the setTermInfo method, this is due to Menu taking 
+       * a few ms to close.
+       */
+      setTimeout ( () => { 
+        self.props.setTermInfo(self.props.instance, true);
+      }, 100);
     } else {
       // For every other action execute the action as is
       action(this.props.instance);

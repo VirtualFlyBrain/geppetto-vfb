@@ -996,6 +996,29 @@ export default class VFBMain extends React.Component {
       return true;
     }    
   }
+  
+  componentWillReceiveProps (nextProps) {
+    // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
+    if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
+      if (typeof nextProps.generals.instanceOnFocus === 'string' ) {
+        if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
+          this.instanceOnFocus == Instances.getInstance(nextProps.generals.instanceOnFocus);
+        }
+      } else {
+        if ( nextProps.generals.instanceOnFocus.getId() !== this.instanceOnFocus.getId() ){
+          this.instanceOnFocus = nextProps.generals.instanceOnFocus;
+        }
+      }
+    }
+    
+    /**
+     * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
+     */
+    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
+      this.setActiveTab("Term Info");
+      this.termInfoReference.setTermInfo(this.instanceOnFocus);
+    }
+  }
 
   componentDidUpdate (prevProps, prevState) {
     document.addEventListener('mousedown', this.handleClickOutside);
