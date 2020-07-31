@@ -46,7 +46,10 @@ export const instanceVisibilityChanged = instance => ({
   data: instance
 });
 
-export const setTermInfo = instance => ({
+export const setTermInfo = ( instance, visible ) => ({
   type: VFB_LOAD_TERM_INFO,
-  data : instance
+  data : {
+    instance : instance,
+    visible : visible
+  }
 });

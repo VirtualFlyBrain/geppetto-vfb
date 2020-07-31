@@ -1,6 +1,7 @@
 import React from 'react';
 import ListViewerControlsMenu from '../../interface/VFBListViewer/ListViewerControlsMenu';
 import { MultiStatusComponent, GroupComponent, ImageComponent, IconComponent, ColorComponent } from "geppetto-client/js/components/interface/listViewer/ListViewer";
+import Tooltip from '@material-ui/core/Tooltip';
 
 /**
  * Create component to display controls
@@ -10,6 +11,20 @@ const ControlsMenu = component => {
   let instance = Instances.getInstance(path);
   return <ListViewerControlsMenu instance={ instance }/>;
 }
+
+const Thumbnail = component => (
+  <Tooltip
+    title={
+      <React.Fragment>
+        <img src={component.value}
+          className="thumbnail-img" />
+      </React.Fragment>
+    }
+  >
+    <img src={component.value}
+      className="thumbnail-img" />
+  </Tooltip>
+)
 
 const conf = [
   {
@@ -58,16 +73,12 @@ const conf = [
   {
     id: "image",
     title: "Thumbnail",
-    customComponent: ImageComponent,
+    customComponent: Thumbnail,
     source: entity => { 
       // Retrieve path from instance
       let path = entity.path.split(".")[0];
       // Retrieve thumbnail image from Instance
       return GEPPETTO.ModelFactory.getAllVariablesOfMetaType(Instances.getInstance(path)[path + "_meta"].getType(), 'ImageType')[0].getInitialValues()[0].value.data
-    },
-    configuration: {
-      alt: "",
-      title: "",
     }
   }
 ];

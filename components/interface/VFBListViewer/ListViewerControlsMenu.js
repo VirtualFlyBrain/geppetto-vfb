@@ -3,7 +3,7 @@ import Menu from "geppetto-client/js/components/interface/menu/Menu";
 import { connect } from 'react-redux';
 import controlsConfiguration from '../../configuration/VFBListViewer/controlsMenuConfiguration';
 import { SliderPicker } from 'react-color';
-import { VFB_LOAD_TERM_INFO } from './../../../actions/generals';
+import { setTermInfo } from './../../../actions/generals';
 
 // Special control actions handled by the menu handler
 const COLOR = 'color';
@@ -51,7 +51,7 @@ class ListViewerControlsMenu extends Component {
       this.setState({ displayColorPicker: true });
     } else if ( action === INFO ) {
       // If action belongs to 'info' control, display term info
-      this.props.setTermInfo(VFB_LOAD_TERM_INFO, this.props.instance);
+      this.props.setTermInfo(this.props.instance, true);
     } else {
       // For every other action execute the action as is
       action(this.props.instance);
@@ -126,7 +126,6 @@ class ListViewerControlsMenu extends Component {
   render () {
     // Update Menu Configuration
     let configuration = this.updateControlsConfiguration();
-    
     return (
       <div>
         <Menu
@@ -156,7 +155,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return { setTermInfo: (type, instance) => dispatch ( { type : type, instance : instance } ) }
+  return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewerControlsMenu);

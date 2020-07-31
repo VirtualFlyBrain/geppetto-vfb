@@ -17,6 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import { connect } from "react-redux";
 import { VFB_LOAD_TERM_INFO } from './../actions/generals';
+import { vfbLoadId, vfbIdLoaded, vfbUIUpdated, instanceAdded, instanceSelected, instanceVisibilityChanged, setTermInfo } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -26,7 +27,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-class VFBMain extends React.Component {
+export default class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -871,6 +872,7 @@ class VFBMain extends React.Component {
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
+        this.props.setTermInfo(VFB_LOAD_TERM_INFO, this.instanceOnFocus, false);
         this.setState({
           UIUpdated: false,
           termInfoVisible: false
@@ -988,14 +990,7 @@ class VFBMain extends React.Component {
 
   /* React functions */
   shouldComponentUpdate (nextProps, nextState) {
-    this.instanceOnFocus = this.props.generals.instanceOnFocus;
     if (nextState.UIUpdated === false) {
-      // 
-      let visible = this.props.generals.termInfoVisible;
-      if ( visible && this.props.generals.type === VFB_LOAD_TERM_INFO ) {
-        this.setActiveTab("Term Info");
-        this.termInfoReference.setTermInfo(this.props.generals.instanceOnFocus, this.idOnFocus);
-      }
       return false;
     } else {
       return true;
@@ -1513,10 +1508,3 @@ class VFBMain extends React.Component {
     );
   }
 }
-
-function mapStateToProps (state) {
-  return { ... state }
-}
-         
-export default connect(mapStateToProps)(VFBMain);
-          

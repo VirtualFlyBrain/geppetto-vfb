@@ -33,13 +33,8 @@ export const GENERAL_DEFAULT_STATE = {
 
 export default ( state = {}, action ) => ({
   ...state,
-  ...generalReducer(state, action),
-  ...lastAction(state, action)
+  ...generalReducer(state, action)
 });
-
-function lastAction (state = {}, action) {
-  return action;
-}
 
 function checkLayoutState (layout) {
   var stateValue = false;
@@ -235,9 +230,8 @@ function generalReducer (state, action) {
   case VFB_LOAD_TERM_INFO:
     return {
       ...state,
-      termInfoVisible : true,
-      instanceOnFocus : action.instance,
-      type : VFB_LOAD_TERM_INFO
+      termInfoVisible : action.data.visible,
+      instanceOnFocus : action.data.instance
     }
   }
 }
