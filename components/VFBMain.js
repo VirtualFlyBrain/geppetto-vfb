@@ -17,8 +17,6 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import { connect } from "react-redux";
 import { VFB_LOAD_TERM_INFO } from './../actions/generals';
-import { vfbLoadId, vfbIdLoaded, vfbUIUpdated, instanceAdded, instanceSelected, instanceVisibilityChanged, setTermInfo } from './../actions/generals';
-
 require('../css/base.less');
 require('../css/VFBMain.less');
 
@@ -872,7 +870,7 @@ export default class VFBMain extends React.Component {
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
-        this.props.setTermInfo(VFB_LOAD_TERM_INFO, this.instanceOnFocus, false);
+        this.props.setTermInfo(this.instanceOnFocus, false);
         this.setState({
           UIUpdated: false,
           termInfoVisible: false
@@ -1381,6 +1379,9 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  /**
+   * Makes tab named 'tabName' become active.
+   */
   setActiveTab (tabName) {
     let matchTab = 0;
     let layoutChildren = this.model.toJson().layout.children;

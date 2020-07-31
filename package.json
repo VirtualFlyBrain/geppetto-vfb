@@ -7,7 +7,6 @@
   "scripts": {
     "test": "jest --verbose",
     "prebuild": "eslint . --color",
-    "lint": "eslint --fix ./geppetto-client/js/components/interface/listViewer/ListViewer.js",
     "build": "webpack -p --progress",
     "prebuild-dev": "eslint . --color",
     "build-dev": "webpack --devtool eval",
