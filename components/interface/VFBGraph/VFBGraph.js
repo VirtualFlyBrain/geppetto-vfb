@@ -42,7 +42,7 @@ function refineData (e) {
       if (linksMap.get(startNode) === undefined) {
         linksMap.set(startNode, new Array());
       }
-      
+
       let newLink = true;
       linksMap.get(startNode).find( function ( ele ) {
         if ( ele.target !== endNode ) {
@@ -56,7 +56,7 @@ function refineData (e) {
       if ( newLink ) {
         linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
       }
-      
+
     });
   });
 
@@ -111,7 +111,7 @@ function refineData (e) {
       }
     }
   });
-  
+
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
 }
