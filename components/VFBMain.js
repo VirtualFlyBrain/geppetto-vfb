@@ -6,13 +6,13 @@ import VFBTree from './interface/VFBTree/VFBTree';
 import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
 import TutorialWidget from './interface/VFBOverview/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
-import Logo from 'geppetto-client/js/components/interface/logo/Logo';
-import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
-import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
-import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
-import Search from 'geppetto-client/js/components/interface/search/Search';
+import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
+import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
+import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
+import ControlPanel from '@geppettoengine/geppetto-client/components/interface/controlPanel/controlpanel';
+import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
+import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 
@@ -262,7 +262,7 @@ export default class VFBMain extends React.Component {
   }
 
   resolve3D (path, callback) {
-    var ImportType = require('geppetto-client/js/geppettoModel/model/ImportType');
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 

@@ -2,13 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
+import ButtonBarComponent from '@geppettoengine/geppetto-client/components/widgets/popup/ButtonBarComponent';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
-var Type = require('geppetto-client/js/geppettoModel/model/Type');
+var Type = require('@geppettoengine/geppetto-core/model/Type');
 
 require('../../../css/VFBTermInfo.less');
 
@@ -562,7 +562,7 @@ export default class VFBTermInfoWidget extends React.Component {
         path = instanceID;
       }
     }
-    var Query = require('geppetto-client/js/geppettoModel/model/Query');
+    var Query = require('@geppettoengine/geppetto-core/model/Query');
     var n = window[path];
     var otherId;
     var otherName;

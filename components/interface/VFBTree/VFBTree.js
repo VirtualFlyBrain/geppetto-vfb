@@ -1,7 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
 import { SliderPicker } from 'react-color';
-import Tree from 'geppetto-client/js/components/interface/tree/Tree';
+import Tree from '@geppettoengine/geppetto-ui/tree-viewer/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
