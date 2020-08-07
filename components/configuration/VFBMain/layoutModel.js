@@ -66,6 +66,11 @@ var modelJson = {
             "type": "tab",
             "name": "Graph",
             "component": "vfbGraph"
+          },
+          {
+            "type": "tab",
+            "name": "Circuit Browser",
+            "component": "vfbCircuitBrowser"
           }
         ]
       },
