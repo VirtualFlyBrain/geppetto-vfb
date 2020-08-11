@@ -4,7 +4,7 @@ var whatIsCypherQuery = instance => ({
       "statement": "MATCH p=(n:Entity)-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
       + "WHERE n.short_form = '" + instance + "' " 
       + "AND 'Anatomy' IN  labels(x) " 
-      + "RETURN  p, n.short_form as root",
+      + "RETURN p, n.short_form as root",
       "resultDataContents": ["graph"]
     }
   ]
@@ -15,7 +15,7 @@ var whereIsCypherQuery = instance => ({
     {
       "statement": "MATCH p=(Entity)-[:INSTANCEOF:part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|has_postsynaptic_terminal_in|overlaps*..]->(x) "
       + "WHERE n.short_form = '" + instance + "' " 
-      + "RETURN  p, n.short_form as root",
+      + "RETURN p, n.short_form as root",
       "resultDataContents": ["graph"]
     }
   ]
