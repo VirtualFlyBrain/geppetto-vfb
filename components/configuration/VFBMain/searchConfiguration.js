@@ -1,5 +1,5 @@
 var datasourceConfiguration = {
-  "url": "https://solr.virtualflybrain.org/solr/ontology/select",
+  "url": "https://solr-dev.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
@@ -21,69 +21,72 @@ var datasourceConfiguration = {
 
 // searchedObject define what to take from
 
+// filters state can be: disabled, negative, positive
+
 var searchConfiguration = {
   "resultsMapping":
-      {
-        "name": "label",
-        "id": "short_form"
-      },
+    {
+      "name": "label",
+      "id": "short_form"
+    },
   "filters": [
     {
       "key": "label",
       "filter_name": "Label",
       "type": "string",
-      "enabled": true,
+      "enabled": "positive",
     },
     {
       "key": "short_form",
       "filter_name": "ID",
       "type": "string",
-      "enabled": true,
+      "enabled": "negative",
     },
     {
       "key": "facets_annotation",
       "filter_name": "Type",
       "type": "array",
+      "enabled": "disabled",
       "values": [
         {
           "key": "Adult",
           "filter_name": "Adult",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Larval",
           "filter_name": "Larval",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Nervous_system",
           "filter_name": "Nervous System",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Anatomy",
           "filter_name": "Anatomy",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Expression_pattern",
           "filter_name": "Expression Pattern",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Individual",
           "filter_name": "Image",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Synaptic_neuropil_domain",
           "filter_name": "Synaptic Neuropil",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Neuron",
           "filter_name": "Neuron",
-          "enabled": false,
+          "enabled": "disabled",
         }
       ]
     },
