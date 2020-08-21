@@ -3,6 +3,7 @@ export const VFB_LOAD_ID = 'VFB_LOAD_ID';
 export const VFB_ID_LOADED = 'VFB_ID_LOADED';
 export const VFB_UI_UPDATED = 'VFB_UI_UPDATED';
 export const INSTANCE_ADDED = 'INSTANCE_ADDED'
+export const LOAD_CYPHER_QUERIES = 'CYPHER_QUERIES_ADDED'
 
 export const vfbError = errorMessage => ({
   type: VFB_ERROR,
@@ -31,4 +32,12 @@ export const vfbUIUpdated = layout => ({
 export const instanceAdded = instance => ({
   type: INSTANCE_ADDED,
   data: instance
+});
+
+export const loadCypherQueries = (neurons, hops) => ({
+  type: LOAD_CYPHER_QUERIES,
+  data: {
+    neurons : neurons,
+    hops : hops
+  }
 });

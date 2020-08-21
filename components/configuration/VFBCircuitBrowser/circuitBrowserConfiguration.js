@@ -1,9 +1,10 @@
-var locationCypherQuery = instance => ({
+var locationCypherQuery = ( instances, hops ) => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Entity)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in"
-      + "has_postsynaptic_terminal_in|overlaps*..]->(x)"
-      + "WHERE n.short_form = '" + instance + "' return distinct n,r,x,n.short_form as root",
+      "statement" : "WITH [" + instances + "] AS neurons" 
+      + " MATCH p=(x:Class)-[:synapsed_to*.." + hops.toString() + "]->(y:Class)"
+      + " WHERE x.short_form in neurons and y.short_form in neurons" 
+      + " RETURN p, neurons",
       "resultDataContents": ["graph"]
     }
   ]
@@ -22,7 +23,15 @@ var configuration = {
       "visible" : true,
       "tooltip" : "label"
     }
-  }
+  },
+  // Minimum amount of hops allowed
+  minHops : 1,
+  // Maximum amount of hops allowed
+  maxHops : 6,
+  // Minimum amount of neurons allowed
+  minNeurons : 2,
+  // Maximum amount of neurons allowed
+  maxNeurons : 5
 }
 
 var styling = {
