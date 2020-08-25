@@ -77,9 +77,19 @@ function refineData (e) {
 
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
-    graph.nodes.forEach(({ id, properties }) => {
+    graph.nodes.forEach(({ id, labels, properties }) => {
       let label = properties[e.data.params.configuration.resultsMapping.node.label];
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
+      let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;
+      
+      const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
+      
+      for (var i = 0; i < colorLabels.length ; i++ ) {
+        if ( labels.indexOf(colorLabels[i][0]) > -1 ) {
+          color = colorLabels[i][1];
+          break;
+        }
+      }
       let n = null;
       if (nodesMap.get(id) === undefined) {
         n = {
@@ -87,7 +97,8 @@ function refineData (e) {
           id : parseInt(id),
           title : title,
           width : e.data.params.NODE_WIDTH,
-          height : e.data.params.NODE_HEIGHT
+          height : e.data.params.NODE_HEIGHT,
+          color : color,
         };
         nodesMap.set(id, n);
         nodes.push(n);
@@ -167,7 +178,7 @@ class VFBCircuitBrowser extends Component {
   componentDidMount () {
     let self = this;
     this.__isMounted = true;
-    this.updateGraph(this.state.neurons, Math.ceil((configuration.maxHops - configuration.minHops) / 2));
+    this.updateGraph(['FBbt_00002303', 'FBbt_00002442'] , Math.ceil((configuration.maxHops - configuration.minHops) / 2));
   }
 
   componentDidUpdate () {
@@ -289,7 +300,7 @@ class VFBCircuitBrowser extends Component {
       };
 
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
         console.log("HTTP Request Error: ", error);
@@ -343,9 +354,9 @@ class VFBCircuitBrowser extends Component {
           backgroundColor = {stylingConfiguration.canvasColor}
           // Assign color to Links connecting Nodes
           linkColor = {link => {
-            let color = stylingConfiguration.linkColor;
+            let color = stylingConfiguration.defaultLinkColor;
             if ( self.highlightLinks.has(link) ) {
-              color = self.highlightNodes.has(link.source) || self.highlightNodes.has(link.targetNode) ? stylingConfiguration.linkHoverColor : stylingConfiguration.linkColor;
+              color = self.highlightNodes.has(link.source) || self.highlightNodes.has(link.targetNode) ? stylingConfiguration.defaultLinkHoverColor : stylingConfiguration.defaultLinkColor;
             }
 
             return color;
@@ -356,23 +367,23 @@ class VFBCircuitBrowser extends Component {
             let borderThickness = self.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
             // Node border color
-            ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.nodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.neighborNodesHoverColor : stylingConfiguration.nodeBorderColor) ;
+            ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
             // Create Border
             ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
 
             // Assign color to Description Area background in Node
-            ctx.fillStyle = stylingConfiguration.nodeDescriptionBackgroundColor;
+            ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
             // Create Description Area in Node
             ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
             // Assign color to Title Bar background in Node
-            ctx.fillStyle = stylingConfiguration.nodeTitleBackgroundColor;
+            ctx.fillStyle = node.color;
             // Create Title Bar in Node
             ctx.fillRect(node.x - cardWidth / 2 ,node.y - cardHeight / 2, cardWidth - ( borderThickness * 2 ), cardHeight / 3);
 
             // Assign font to text in Node
-            ctx.font = stylingConfiguration.nodeFont;
+            ctx.font = stylingConfiguration.defaultNodeFont;
             // Assign color to text in Node
-            ctx.fillStyle = stylingConfiguration.nodeFontColor;
+            ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
             // Text in font to be centered
             ctx.textAlign = "center";
             ctx.textBaseline = 'middle';

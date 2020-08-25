@@ -4,7 +4,6 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionActions from '@material-ui/core/AccordionActions';
 import Typography from '@material-ui/core/Typography';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/styles';
@@ -21,6 +20,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 /**
@@ -124,7 +124,7 @@ class Controls extends Component {
    */
   deleteNeuronField (event) {
     let id = parseInt(event.target.id);
-    if ( event.target.id === undefined ) {
+    if ( event.target.id === "" ) {
       id = parseInt(event.target.parentElement.id);
     }
     // remove neuron textfield
@@ -221,13 +221,13 @@ class Controls extends Component {
       <ThemeProvider theme={theme}>
         <div>
           <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-            <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.icons.home} onClick={self.props.resetCamera }></i>
-            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.props.zoomIn }></i>
-            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.props.zoomOut }></i>
+            <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.controlIcons.home} onClick={self.props.resetCamera }></i>
+            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomIn} onClick={self.props.zoomIn }></i>
+            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
           </div>
           <Accordion className={classes.root} defaultExpanded={expanded} >
             <AccordionSummary
-              expandIcon={<ChevronRightIcon fontSize="large" />}
+              expandIcon={<ExpandMoreIcon fontSize="large" />}
               onClick={() => self.setState({ expanded : !expanded })}
               classes={{ expanded: classes.expanded }}
               IconButtonProps={{ style: { padding : "0px", margin : "0px" } }}

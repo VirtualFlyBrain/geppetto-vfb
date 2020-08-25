@@ -38,24 +38,30 @@ var styling = {
   // Background color for canvas
   canvasColor : "black",
   // Color for links between nodes
-  linkColor : "white",
+  defaultLinkColor : "white",
   // Color apply to links while hovering over them 
-  linkHoverColor : "#11bffe",
+  defaultLinkHoverColor : "#11bffe",
   // Color apply to target and source nodes when hovering over a link or a node.
-  neighborNodesHoverColor : "orange",
+  defaultNeighborNodesHoverColor : "orange",
   // Font used for text in nodes
-  nodeFont : "5px sans-serif",
+  defaultNodeFont : "5px sans-serif",
   // Color of font in node's text
-  nodeFontColor : "black",
+  defaultNodeFontColor : "black",
   // Node border color
-  nodeBorderColor : "black",
+  defaultBorderColor : "black",
   // When hovering over a node, the node's border color changes to create a halo effect
-  nodeHoverBoderColor : "red", 
+  defaultNodeHoverBoderColor : "red", 
   // Title bar (in node) background color
-  nodeTitleBackgroundColor : "#11bffe",
+  defaultNodeTitleBackgroundColor : "#11bffe",
   // Description area (in node) background color
-  nodeDescriptionBackgroundColor : "white",
-  icons : {
+  defaultNodeDescriptionBackgroundColor : "white",
+  nodeColorsByLabel : {
+    "Cholinergic":"#ff0000", 
+    "Sensory_neuron":"#00ff00",
+    "Neuron":"#0000ff",
+    "Class":"#002222"
+  },
+  controlIcons : {
     home : "fa fa-home",
     zoomIn : "fa fa-search-plus",
     zoomOut : "fa fa-search-minus"
