@@ -178,7 +178,7 @@ class VFBCircuitBrowser extends Component {
   componentDidMount () {
     let self = this;
     this.__isMounted = true;
-    this.updateGraph(['FBbt_00002303', 'FBbt_00002442'] , Math.ceil((configuration.maxHops - configuration.minHops) / 2));
+    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxHops - configuration.minHops) / 2));
   }
 
   componentDidUpdate () {
