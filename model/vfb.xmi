@@ -132,6 +132,12 @@
     <types xsi:type="gep_1:SimpleType"
         id="Split"
         name="Split"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="VFB_00101567"
+        name="JRC2018U template"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="VFB_00200000"
+        name="JRC2018VU template"/>
   </libraries>
   <libraries
       id="vfbLibrary"

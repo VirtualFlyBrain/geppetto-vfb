@@ -587,9 +587,12 @@ class VFBGraph extends Component {
                   onClose={ event => self.setState( { dropDownAnchorEl : null } )}
                   PaperProps={{
                     style: {
+                      marginTop: '32px',
+                      borderStyle: "solid",
+                      borderColor: "#585858",
+                      borderRadius: "0px 0px 2px 2px",
+                      color: stylingConfiguration.dropDownTextColor,
                       backgroundColor: stylingConfiguration.dropDownBackgroundColor,
-                      marginTop: '30px',
-                      color : stylingConfiguration.dropDownTextColor
                     }
                   }}
                 >
@@ -597,7 +600,10 @@ class VFBGraph extends Component {
                     <MenuItem 
                       key={item.label(self.state.currentQuery)} 
                       onClick={() => self.handleMenuClick(item.query)}
-                      style={{ fontSize : "12px" }}
+                      style={{
+                        fontSize : "14px",
+                        fontFamily: "Barlow Condensed",
+                      }}
                       onMouseEnter={e => {
                         e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
                         e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor;

@@ -112,7 +112,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Click on Node "adult optic lobe"', async () => {
 			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[3].click());
 			// Check Term Info is now populated with adult cerebral ganglion name
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult optic lobe")', {timeout : 60000});
+			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult optic lobe")', {timeout : 600000});
 		})
 
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {

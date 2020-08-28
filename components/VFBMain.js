@@ -9,10 +9,10 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from 'geppetto-client/js/components/interface/logo/Logo';
 import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
 import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
 import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
 import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
 import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+import Search from 'geppetto-client/js/components/interface/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import { connect } from "react-redux";
@@ -89,8 +89,8 @@ export default class VFBMain extends React.Component {
 
     this.colours = require('./configuration/VFBMain/colours.json');
 
-    this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
-    this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
+    this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
     this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
     this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
@@ -115,10 +115,6 @@ export default class VFBMain extends React.Component {
   }
 
   clearQS () {
-    if (this.refs.spotlightRef) {
-      $("#spotlight").hide();
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-    }
     if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
     }
@@ -755,8 +751,7 @@ export default class VFBMain extends React.Component {
       this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-      this.refs.spotlightRef.open();
+      this.refs.searchRef.openSearch(true);
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
       this.refs.querybuilderRef.open();
@@ -1021,9 +1016,14 @@ export default class VFBMain extends React.Component {
 
     // Retrieve cookie for 'quick_help' modal
     var cookie = getCookie("show_quick_help");
+    if ((this.props.location.search.indexOf("id=") > -1) || (this.props.location.search.indexOf("i=") > -1) || (this.props.location.search.indexOf("q=") > -1)) {
+      this.quickHelpOpen = false;
+    }
     // Show 'Quick Help' modal if cookie to hide it is not set to True
-    if (( cookie !== "1") && (this.quickHelpOpen)) {
-      this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+    if ((this.props.location.search.indexOf("id=") < 0) && (this.props.location.search.indexOf("i=") < 0) && (this.props.location.search.indexOf("q=") < 0)) {
+      if (( cookie !== "1") && (this.quickHelpOpen)) {
+        this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+      }
     }
   }
 
@@ -1123,13 +1123,13 @@ export default class VFBMain extends React.Component {
     if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
       this.urlIdsLoaded = true;
       if (!idsList.includes("VFB_")) {
-        idsList = "VFB_00017894," + idsList;
+        idsList = "VFB_00101567," + idsList;
       }
       this.idsFromURL = idsList.split(",");
       // remove duplicates
       var counter = this.idsFromURL.length;
       if (this.idFromURL === undefined) {
-        this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
+        this.idFromURL = this.idsFromURL[0];
       }
       while (counter--) {
         if (this.idsFromURL[counter] === this.idFromURL) {
@@ -1142,7 +1142,7 @@ export default class VFBMain extends React.Component {
       console.log("Loading IDS to add to the scene from url");
     } else {
       this.urlIdsLoaded = true;
-      this.idsFinalList = ["VFB_00017894"];
+      this.idsFinalList = ["VFB_00101567"];
     }
 
     var that = this;
@@ -1451,16 +1451,6 @@ export default class VFBMain extends React.Component {
           onRenderTabSet={onRenderTabSet}
           clickOnBordersAction={clickOnBordersAction}/>
 
-        <div id="spotlight" style={{ top: 0 }}>
-          <SpotLight ref="spotlightRef"
-            indexInstances={false}
-            spotlightConfig={this.spotlightConfig}
-            spotlightDataSourceConfig={this.spotlightDataSourceConfig}
-            icon={"styles.Modal"}
-            useBuiltInFilter={false}
-            showClose={true} />
-        </div>
-
         <div id="controlpanel" style={{ top: 0 }}>
           <ControlPanel ref="controlpanelRef"
             icon={"styles.Modal"}
@@ -1482,6 +1472,11 @@ export default class VFBMain extends React.Component {
           datasourceConfig={this.queryBuilderDatasourceConfig}
           sorterColumns={this.sorterColumns}
           showClose={true} />
+
+        <Search ref="searchRef"
+          datasource="SOLR"
+          searchConfiguration={this.searchConfiguration}
+          datasourceConfiguration={this.datasourceConfiguration} />
 
         {this.htmlToolbarRender}
       </div>
