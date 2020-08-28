@@ -578,7 +578,7 @@ export default class VFBFocusTerm extends React.Component {
                   title="Layers">
                   <i className="fa fa-list arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("controlPanelVisible");
+                      this.props.UIUpdateManager("listViewerVisible");
                     }} />
                 </Tooltip>
               </MuiThemeProvider>
