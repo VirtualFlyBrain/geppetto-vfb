@@ -1,5 +1,14 @@
 import VFBMain from '../components/VFBMain';
-import { vfbLoadId, vfbIdLoaded, vfbUIUpdated, instanceAdded, vfbGraph } from '../actions/generals';
+import {
+  vfbLoadId,
+  vfbIdLoaded,
+  vfbUIUpdated,
+  instanceAdded,
+  instanceSelected,
+  instanceVisibilityChanged,
+  setTermInfo,
+  vfbGraph
+} from '../actions/generals';
 import { connect } from "react-redux";
 
 const mapStateToProps = state => ({ ...state });
@@ -10,6 +19,9 @@ const mapDispatchToProps = dispatch => ({
   vfbUIUpdated: layout => dispatch(vfbUIUpdated(layout)),
   vfbGraph: (id, component, type) => dispatch(vfbGraph(id, component, type)),
   instanceAdded: instance => dispatch(instanceAdded(instance)),
+  instanceSelected : instance => dispatch(instanceSelected(instance)),
+  instanceVisibilityChanged : instance => dispatch(instanceVisibilityChanged(instance)),
+  setTermInfo: (instance, visible) => dispatch (setTermInfo(instance, visible))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(VFBMain);
