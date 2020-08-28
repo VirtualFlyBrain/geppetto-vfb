@@ -147,6 +147,7 @@ class VFBGraph extends Component {
     this.objectsLoaded = 0;
     this.focused = false;
     this.focusedInstance = { id : "" };
+    this.selectedDropDownQuery = -1;
   }
 
   componentDidMount () {
@@ -180,24 +181,14 @@ class VFBGraph extends Component {
   componentDidUpdate () {
     let self = this;
     if ( this.props.visible && !this.focused ) {
-      setTimeout( function () {
+      setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
-        
-        // Graph query selected from the dropdown through props
-        const { graphQueryIndex } = self.props;
-        stylingConfiguration.dropDownQueries.map((item, index) => {
-          if ( parseInt(graphQueryIndex) === index ) {
-            // Show loading spinner while cypher query search occurs
-            self.setState({ loading : true , dropDownAnchorEl : null });
-            // Perform cypher query
-            self.queryResults(item.query(self.props.instanceOnFocus));
-          }
-        })
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
-    }    
+      this.selectedDropDownQuery = -1;
+    }
   }
 
   componentWillUnmount () {
@@ -287,7 +278,7 @@ class VFBGraph extends Component {
   instanceFocusChange (id) {
     let instance = Instances.getInstance(id);
     // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
-    
+    this.selectedDropDownQuery = -1;
     if (instance.getParent() !== null) {
       this.focusedInstance = instance.getParent();
     } else {
@@ -352,7 +343,7 @@ class VFBGraph extends Component {
           self.setState( { graph : e.data.params.results , loading : false });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
-            self.resetCamera().then( () => self.setState( { loading : false }));
+            self.resetCamera();
             if ( self.graphRef.current !== null ) {
               self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
             }
@@ -394,8 +385,9 @@ class VFBGraph extends Component {
 
   render () {
     let self = this;
-    const { instanceOnFocus } = this.props;
+    const { instanceOnFocus, graphQueryIndex } = this.props;
     let syncColor = this.state.optionsIconColor;
+    let loading = this.state.loading;
     
     if ( this.focusedInstance.id !== "" && instanceOnFocus !== this.focusedInstance.id ) {
       this.instanceFocusChange(instanceOnFocus);
@@ -409,16 +401,30 @@ class VFBGraph extends Component {
         }
         syncColor = stylingConfiguration.defaultRefreshIconColor;
         // Perform cypher query
+        loading = true;
         this.queryResults(cypherQuery(idToSearch), idToSearch)
       }
-      
       if ( this.focusedInstance.id !== this.state.currentQuery ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
+    } else if (this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ){
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( self.selectedDropDownQuery === -1 || self.selectedDropDownQuery !== parseInt(graphQueryIndex) ) { 
+          if ( parseInt(graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            loading = true;
+            self.queryResults(item.query(instanceOnFocus));
+          }
+        }
+      })
+      
     }
-
+    
+    if ( this.focusedInstance.id !== instanceOnFocus ) {
+      syncColor = stylingConfiguration.outOfSyncIconColor;
+    }
     return (
-      this.state.loading
+      loading
         ? <CircularProgress
           style={{
             position: 'absolute',
