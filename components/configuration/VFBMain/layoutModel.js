@@ -64,7 +64,7 @@ var modelJson = {
           },
           {
             "type": "tab",
-            "name": "Graph",
+            "name": "Term Context",
             "component": "vfbGraph"
           }
         ]

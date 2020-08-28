@@ -15,6 +15,8 @@ import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2
 import Search from 'geppetto-client/js/components/interface/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
+import { connect } from "react-redux";
+import { SHOW_GRAPH } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -24,7 +26,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-export default class VFBMain extends React.Component {
+class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -73,7 +75,6 @@ export default class VFBMain extends React.Component {
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
-    this.graphReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
@@ -425,7 +426,7 @@ export default class VFBMain extends React.Component {
 
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
-      this.setState({
+      this.setState({ 
         UIUpdated: true,
         [itemState]: !this.state[itemState]
       });
@@ -572,7 +573,7 @@ export default class VFBMain extends React.Component {
 
   renderHTMLViewer (htmlChild) {
     if (htmlChild !== undefined) {
-      this.setState({
+      this.setState({ 
         UIUpdated: true,
         htmlFromToolbar: htmlChild
       });
@@ -787,17 +788,17 @@ export default class VFBMain extends React.Component {
         }
         this.setState({ UIUpdated: false });
         break;
-      case 'graphVisible':
-        if (this.graphReference !== undefined && this.graphReference !== null) {
-          this.restoreUIComponent("vfbGraph");
-        }
-        this.setState({ UIUpdated: false });
-        break;
       case 'treeBrowserVisible':
         if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
           this.restoreUIComponent("treeBrowser");
         }
         this.setState({ UIUpdated: false });
+        break;
+      case 'graphVisible':
+        if (this.graphReference !== undefined && this.graphReference !== null) {
+          this.restoreUIComponent("vfbGraph");
+        }
+        this.setState({ UIUpdated: false, graphVisible : true });
         break;
       }
     }
@@ -832,6 +833,7 @@ export default class VFBMain extends React.Component {
   /* FLEXLayout factory method */
   factory (node) {
     var component = node.getComponent();
+    let self = this;
     if (component === "text") {
       return (<div className="">Panel {node.getName()}</div>);
     } else if (component === "canvas") {
@@ -870,6 +872,12 @@ export default class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
+          uiUpdated= { () => {
+            self.setState({
+              UIUpdated: true,
+              graphVisible: true
+            })
+          }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -889,7 +897,7 @@ export default class VFBMain extends React.Component {
                   'Related Individuals',
                   'Relationships',
                   'Query for',
-                  'Query For',
+                  'Graph for',
                   'Description',
                   'Cross References',
                   'Attribution',
@@ -942,8 +950,8 @@ export default class VFBMain extends React.Component {
     } else if (component === "vfbGraph") {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
-        this.setState({
-          UIUpdated: false,
+        self.setState({
+          UIUpdated: true,
           graphVisible: false
         });
       });
@@ -951,7 +959,7 @@ export default class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     }
   }
@@ -988,6 +996,9 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    if ( this.props.generals.type == SHOW_GRAPH ) {
+      this.setActiveTab("Term Context");
+    }
   }
 
   componentWillMount () {
@@ -1326,11 +1337,6 @@ export default class VFBMain extends React.Component {
       }
     }
 
-    // Update the graph component
-    if (this.graphReference !== undefined && this.graphReference !== null) {
-      this.graphReference.instanceFocusChange(this.instanceOnFocus);
-    }
-    
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
@@ -1344,6 +1350,24 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  setActiveTab (tabName) {
+    let matchTab = 0;
+    let layoutChildren = this.model.toJson().layout.children;
+    for ( var i = 0; i < layoutChildren.length; i++){
+      if ( layoutChildren[i].type === "tabset"){
+        for ( var j = 0; j < layoutChildren[i].children.length ; j++){
+          if (layoutChildren[i].children[j].name === tabName){
+            matchTab = layoutChildren[i].children[j].id;
+            break;
+          }
+        }
+        if ( this.model._activeTabSet !== undefined ) {
+          this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
+        }
+      }
+    }
+  }
+  
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
@@ -1483,3 +1507,11 @@ export default class VFBMain extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+export default connect(mapStateToProps)(VFBMain);
+          
+          
