@@ -101,7 +101,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click());
 			closeModalWindow(page);
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
+			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
+			expect(element).toBe("medulla on adult brain template JFRC2");
 		})
 	})
 

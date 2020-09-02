@@ -76,9 +76,8 @@ describe('VFB Spotlight Tests', () => {
     })
 
     it('Search Returned Results', async () => {
-      await page.waitFor(5000);
+      await page.waitFor(15000);
       await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
-      await page.waitForFunction('document.getElementById("paperResults").innerText.startsWith("fru-M-200266")');
     })
 
     it('fru-M-200266 (VFB_00000001) selected and spotlight has closed', async () => {
