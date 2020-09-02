@@ -32,19 +32,16 @@ describe('VFB Tree Browser Component Tests', () => {
 			expect(title).toBe("Virtual Fly Brain");
 		})
 
-		// Waits for Term info to populate, this is done to make sure project finishes loading before continuing
-		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 120000})
+		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
 		})
 
-//		it('Hide Quick Help Modal Window', async () => {
-//			closeModalWindow(page);
-//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-//		})
+		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+		})
 
-		// Waits for Term info to populate, this is done to make sure project finishes loading before continuing
-		it('Term info component correctly populated at startup', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")', {timeout : 120000});
+		it('Term info component created after load', async () => {
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 	})
 
@@ -75,7 +72,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			});
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, '#VFBTree_component', { visible: true, timeout : 500000 });
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 500000 });
 		})
 
 		it('First node in Tree Browser is correctly named', async () => {

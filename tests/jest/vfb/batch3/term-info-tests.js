@@ -2,10 +2,10 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click , closeModalWindow, flexWindowClick} from '../utils';
+import { wait4selector, click , closeModalWindow, flexWindowClick, findElementByText} from '../utils';
 import * as ST from '../selectors';
 
-const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
+const baseURL = process.env.url ||  'http://localhost:8081/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624";
 
 /**
@@ -31,27 +31,16 @@ describe('VFB Term Info Component Tests', () => {
 
 	//Tests metadata in term info component and clicking on links
 	describe('Test Term Info Component Opens on Load with Components', () => {
-		//Tests deselect button for VFB_00030624 is present in term info component
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 400000 })
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
 		})
 
-		//Tests zoom button for VFB_00030624 is present in term info component
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 400000 })
+			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true , timeout : 400000})
-		})
-		
-//		it('Hide Quick Help Modal Window', async () => {
-//			closeModalWindow(page);
-//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-//		})
-
-		it('Term info component name correctly populated at startup', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 	})
 
@@ -105,7 +94,6 @@ describe('VFB Term Info Component Tests', () => {
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("Term Info").click());
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 500000});
 		})
 	})
 
@@ -124,9 +112,19 @@ describe('VFB Term Info Component Tests', () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => document.getElementById("Term Info").click());
+			await page.evaluate(async () => {
+				let tabs = document.getElementsByClassName('MuiMenuItem-root');
+				for ( var i = 0; i < tabs.length ; i ++ ) {
+					if ( tabs[i].innerText === "Term Info" ) {
+						tabs[i].click();
+					}
+				}				
+			});
+			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true, timeout : 500000});
+
+			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
+			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})
 
 		it('Term info , run "Query For" from menu option', async () => {
@@ -151,7 +149,8 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
 			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya) (JenettShinomya_BrainName)")');
+			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya) (JenettShinomya_BrainName)");
+			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya) (JenettShinomya_BrainName)");
 		})
 	})
 
@@ -184,7 +183,8 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Clear All" Button Works', async () => {
 			await page.evaluate(async variableName => $(variableName).click(), "i.fa-eraser");
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
+			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
 		})
 	})
 })
