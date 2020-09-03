@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, flexWindowClick } from '../utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -109,29 +109,52 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Click on Node "adult optic lobe"', async () => {
 			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[3].click());
 			// Check Term Info is now populated with adult cerebral ganglion name
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult optic lobe")', {timeout : 600000});
+			let element = await findElementByText(page, "adult optic lobe");
+	        expect(element).toBe("adult optic lobe");
+		})
+		
+		it('Open Tree Browser', async () => {
+			page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+			//await page.evaluate(async () => document.getElementById("Tools").click());
+			//// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
+			//await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+			//await page.evaluate(async () => document.getElementById("Tree Browser").click());
+			//await flexWindowClick("Tree Browser","flexlayout__tab_button_content");
+			await page.evaluate(async () => {
+				let unselectedTab = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
+				let clickEvent = new MouseEvent('mousedown', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				unselectedTab.dispatchEvent(clickEvent);
+
+				clickEvent = new MouseEvent('mouseup', {
+					view: window,
+					bubbles: true,
+					cancelable: true
+				});
+				unselectedTab.dispatchEvent(clickEvent);
+			});
+
+			// Check that the Tree Browser is visible
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 500000 });
 		})
 
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
-			await page.evaluate((selector) => document.querySelectorAll(selector)[1].click(), '#VFBTree_component i.fa-eye-slash');
+			await page.evaluate(() => document.querySelectorAll('.rst__tree i.fa-eye-slash')[1].click());
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
-			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 });
+			await wait4selector(page, '.rst__tree i.fa-tint', { visible: true, timeout : 500000 });
 		})
-
-		it('Mesh for "adult optic lobe" icon changed after clicking on eye icon next to node', async () => {
-			await wait4selector(page, '#VFBTree_component i.fa-eye', { visible: true, timeout : 500000 });
-		})
-
+		
 		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
-			// Check 'adult optic lobe' mesh was rendered
-			await wait4selector(page, '#VFBTree_component i.fa-tint', { visible: true, timeout : 500000 })
 			expect(
-					await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00030870.VFB_00030870_obj').length)
+				await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00030870.VFB_00030870_obj').length)
 			).toEqual(1);
 		})
 
 		it('Color Picker Appears for "adult optic lobe"', async () => {
-			await page.evaluate(async variableName => $(variableName).first().click(), "#VFBTree_component i.fa-tint");
+			await page.evaluate(async () => document.querySelectorAll('.rst__tree i.fa-tint')[1].click());
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
 		})

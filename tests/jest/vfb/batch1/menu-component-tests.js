@@ -31,23 +31,23 @@ describe('VFB Menu Component Tests', () => {
       expect(title).toBe("Virtual Fly Brain");
     })
 
-    		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+    it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
+      await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+    })
 
-		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+    it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
+      await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+    })
 
-		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
-		
-		it('Term info component correctly populated at startup', async () => {
-			await page.waitFor(3000);
-			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
-			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
-		})
+    it('Term info component created after load', async () => {
+      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
+    })
+
+    it('Term info component correctly populated at startup', async () => {
+      await page.waitFor(3000);
+      let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+      expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
+    })
   })
 
   // Tests Menu Components for About and Help Work
