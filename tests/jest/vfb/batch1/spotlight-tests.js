@@ -68,16 +68,12 @@ describe('VFB Spotlight Tests', () => {
       await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { visible: true });
     });
 
-    it('Spotlight type term for search', async () => {
+    it('Search Returned Results', async () => {
       await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
       await page.keyboard.type('fru-M-200266');
-      await page.keyboard.type('');
       await page.waitFor(10000);
-      await page.keyboard.press(String.fromCharCode(13))
-    })
-
-    it('Search Returned Results', async () => {
-      await page.waitFor(15000);
+      await page.keyboard.type(' ');
+      await page.waitFor(5000);
       await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
     })
 
@@ -93,8 +89,8 @@ describe('VFB Spotlight Tests', () => {
     	await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
     })
 
-    it('VFB_00000001.VFB_00000001_swc loaded after adding it through spotlight', async () => {
-      await wait4selector(page, '#VFB_00000001_visibility_swc_buttonBar_btn', { visible: true , timeout : 500000 });
+    it('VFB_00000001.VFB_00000001 loaded after adding it through spotlight', async () => {
+      await wait4selector(page, '#VFB_00000001_visibility_buttonBar_btn', { visible: true , timeout : 500000 });
     })
   })
 })
