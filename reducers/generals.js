@@ -4,7 +4,11 @@ import {
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
   INSTANCE_ADDED,
-  LOAD_CYPHER_QUERIES
+  LOAD_CYPHER_QUERIES,
+  SHOW_GRAPH,
+  INSTANCE_SELECTED,
+  INSTANCE_VISIBILITY_CHANGED,
+  VFB_LOAD_TERM_INFO
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -19,6 +23,12 @@ export const GENERAL_DEFAULT_STATE = {
   stepsLoaded: 0,
   loading: false,
   queriesLoaded : [],
+  graphTabSelected : false,
+  graphQueryIndex : {},
+  instanceOnFocus : {},
+  instanceSelection : {},
+  instanceVisibilityChanged : false,
+  termInfoVisible : false,
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -28,8 +38,13 @@ export const GENERAL_DEFAULT_STATE = {
 
 export default ( state = {}, action ) => ({
   ...state,
-  ...generalReducer(state, action)
+  ...generalReducer(state, action),
+  ...lastAction(state, action)
 });
+
+function lastAction (state = {}, action) {
+  return action;
+}
 
 function checkLayoutState (layout) {
   var stateValue = false;
@@ -166,6 +181,7 @@ function generalReducer (state, action) {
         idsLoaded: idsLoaded,
         stepsToLoad: stepsToLoad,
         stepsLoaded: stepsLoaded,
+        instanceOnFocus : action.data.id
       };
     } else {
       return {
@@ -177,12 +193,20 @@ function generalReducer (state, action) {
         stepsLoaded: 0,
         idsMap: newMap,
         loading: loading,
+        instanceOnFocus : action.data.id
       };
     }
   case VFB_UI_UPDATED:
     return {
       ...state,
       layout: action.data
+    };
+  case SHOW_GRAPH:
+    return { 
+      ...state, 
+      graphTabSelected : true,
+      graphQueryIndex : action.data.queryIndex,
+      instanceOnFocus : action.data.instance
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
@@ -208,7 +232,7 @@ function generalReducer (state, action) {
     }
     return {
       ...state,
-      idsMap: newMap,
+      idsMap: newMap
     };
   case LOAD_CYPHER_QUERIES:
     return {
@@ -216,5 +240,21 @@ function generalReducer (state, action) {
       neurons : action.data.neurons,
       hops : action.data.hops
     };
+  case INSTANCE_SELECTED:
+    return {
+      ...state,
+      instanceSelected : action.data
+    }
+  case INSTANCE_VISIBILITY_CHANGED:
+    return {
+      ...state,
+      instanceVisibilityChanged : action.data
+    }
+  case VFB_LOAD_TERM_INFO:
+    return {
+      ...state,
+      termInfoVisible : action.data.visible,
+      instanceOnFocus : action.data.instance
+    }
   }
 }

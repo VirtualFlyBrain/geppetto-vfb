@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow } from '../utils';
+import { wait4selector, click, closeModalWindow, findElementByText } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
@@ -32,28 +32,21 @@ describe('VFB Query Component Tests', () => {
       expect(title).toBe("Virtual Fly Brain");
     })
 
-    /*
-     * it('Hide Quick Help Modal Window', async () => {
-     * 	await wait4selector(page, 'button#skipButton', { visible : true })
-     * 	// Close tutorial window
-     * 	closeModalWindow(page);
-     * })
-     */
-
-    it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
-      await wait4selector(page, '#VFB_00101567_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+    it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
+      await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
     })
 
-    it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
-      await wait4selector(page, 'button[id=VFB_00101567_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+    it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
+      await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
     })
 
     it('Term info component created after load', async () => {
-      await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
+      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
     })
 
     it('Term info component correctly populated at startup', async () => {
-      await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("JRC2018Unisex (VFB_00101567)")');
+      let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+      expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
     })
   })
 
@@ -113,7 +106,7 @@ describe('VFB Query Component Tests', () => {
       await wait4selector(page, 'div[id=VFBexp_FBtp0122071FBtp0118958----FBbt_00047588----FBrf0239335-image-container]', { hidden: true , timeout : 900000 })
     })
 
-    it('Term info correctly populated for transgene expressed in medulla after image of VDRC_VT945397_GAL4_attP2_2 opened', async () => {	
+    it('Term info correctly populated for transgene expressed in medulla after image of VDRC_VT945397_GAL4_attP2_2 opened', async () => {
       await wait4selector(page, '#VFB_00048552_deselect_buttonBar_btn', { visible: true, timeout : 900000 });
       await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("VDRC_VT945397_GAL4_attP2_2")', { visible : true, timeout : 600000 });
     })
@@ -157,7 +150,7 @@ describe('Test URL Trigger Query Builder', () => {
         selectElement.focus();
       });
       await page.keyboard.type('EB-IDFP');
- 		})
+    })
 
     it('Result "EB-IDFP VSB-PB slice 4 glomerulus neuron" present in the query builder', async () => {
       await wait4selector(page, '#FBbt_00111420-image-container', { visible: true , timeout : 10000 })

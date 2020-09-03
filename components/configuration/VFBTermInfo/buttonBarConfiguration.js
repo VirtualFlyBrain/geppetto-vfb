@@ -8,11 +8,6 @@ var buttonBarConfig = {
     "icon": "fa fa-quora",
     "label": "",
     "tooltip": "Query Results"
-  },
-  "controlPanelVisible": {
-    "icon": "fa fa-list",
-    "label": "",
-    "tooltip": "Layers"
   }
 };
 

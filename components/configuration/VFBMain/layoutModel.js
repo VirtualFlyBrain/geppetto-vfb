@@ -64,8 +64,13 @@ var modelJson = {
           },
           {
             "type": "tab",
-            "name": "Graph",
+            "name": "Term Context",
             "component": "vfbGraph"
+          },
+          {
+            "type": "tab",
+            "name": "Layers",
+            "component": "vfbListViewer"
           },
           {
             "type": "tab",
