@@ -1006,8 +1006,10 @@ class VFBMain extends React.Component {
           this.instanceOnFocus == Instances.getInstance(nextProps.generals.instanceOnFocus);
         }
       } else {
-        if ( nextProps.generals.instanceOnFocus.getId() !== this.instanceOnFocus.getId() ){
-          this.instanceOnFocus = nextProps.generals.instanceOnFocus;
+        if ( Object.keys(nextProps.generals.instanceOnFocus).length !== 0 ) {
+          if ( nextProps.generals.instanceOnFocus.getId() !== this.instanceOnFocus.getId() ){
+            this.instanceOnFocus = nextProps.generals.instanceOnFocus;
+          }
         }
       }
     }

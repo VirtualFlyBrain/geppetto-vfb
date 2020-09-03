@@ -5,7 +5,7 @@ import { getUrlFromProjectId } from '../cmdline.js';
 import { wait4selector, click , closeModalWindow, flexWindowClick, findElementByText} from '../utils';
 import * as ST from '../selectors';
 
-const baseURL = process.env.url ||  'http://localhost:8081/org.geppetto.frontend';
+const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624";
 
 /**
@@ -92,7 +92,14 @@ describe('VFB Term Info Component Tests', () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => document.getElementById("Term Info").click());
+			await page.evaluate(async () => {
+				let tabs = document.getElementsByClassName('MuiMenuItem-root');
+				for ( var i = 0; i < tabs.length ; i ++ ) {
+					if ( tabs[i].innerText === "Term Info" ) {
+						tabs[i].click();
+					}
+				}				
+			});
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 		})
 	})
@@ -148,29 +155,20 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
-			await page.evaluate(async variableName => $(variableName).find("a").click(), "#VFBTermInfo_el_1_component");
-			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya) (JenettShinomya_BrainName)");
-			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya) (JenettShinomya_BrainName)");
+			await page.evaluate(async () => document.querySelector(".terminfo-source a").click());
+			await page.waitFor(15000);
+			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
+			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
 		})
 	})
 
 	describe('Test Term Info Icon Buttons Work', () => {
 		it('Term info, "Spotlight" Button Works', async () => {
-			await page.evaluate(async variableName => $(variableName).click(), "i.fa-search");
+			await click(page, 'i.fa-search');
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, {visible: true, timeout : 50000});
 			// Close Spotlight
-			closeModalWindow(page);
+			await page.evaluate(async () => document.querySelector("#closeIcon").click());
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000});
-		})
-
-		it('Term info, "Control Panel" Button Works', async () => {
-			await page.evaluate(async variableName => $(variableName).click(), "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true , timeout : 50000 });
-			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
-			expect(rows).toEqual(4);
-			// Close Control Panel
-			closeModalWindow(page);
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { hidden: true, timeout : 50000});
 		})
 
 		it('Term info, "Query Button" Works', async () => {
