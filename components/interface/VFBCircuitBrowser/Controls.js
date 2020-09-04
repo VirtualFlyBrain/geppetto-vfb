@@ -131,6 +131,11 @@ class Controls extends Component {
     this.state.neuronsFields.splice(id,1);
     // Update state with one less neuron textfield
     this.setState( { neuronsFields : this.state.neuronsFields } );
+    
+    let neurons = this.state.neuronsFields;
+    if ( this.fieldsValidated(neurons) ) {
+      this.props.queriesUpdated(neurons);
+    }
   }
   
   /**
