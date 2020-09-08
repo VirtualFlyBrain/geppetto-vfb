@@ -23,7 +23,7 @@ stages:
   - test
   - deploy
   - name: review
-    if: branch = vfb_geppetto_application OR branch = development OR branch =~ ^(fix|feature).*
+    if: branch = vfb_geppetto_application OR branch = development OR branch = pipeline2 OR branch =~ ^(fix|feature).*
 
 jobs:
   fast_finish: true
