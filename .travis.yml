@@ -57,6 +57,11 @@ jobs:
             export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
             export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
           fi;
+          export VFB_TREE_PDB_SERVER=https://pdb.p2.virtualflybrain.org;
+          export VFB_PDB_SERVER=http://pdb.p2.virtualflybrain.org;
+          export VFB_OWL_SERVER=http://owl.p2.virtualflybrain.org/kbs/vfb/;
+          export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+          export SOLR_SERVER=https://solr.p2.virtualflybrain.org/solr/ontology/select;
         - export TAG="$TAG-TEST"
       before_script:
         - docker pull metacell/java-virgo-maven:development || true
@@ -217,6 +222,11 @@ jobs:
               export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
               export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
             fi;
+            export VFB_TREE_PDB_SERVER=https://pdb.p2.virtualflybrain.org;
+            export VFB_PDB_SERVER=http://pdb.p2.virtualflybrain.org;
+            export VFB_OWL_SERVER=http://owl.p2.virtualflybrain.org/kbs/vfb/;
+            export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+            export SOLR_SERVER=https://solr.p2.virtualflybrain.org/solr/ontology/select;
             docker build --cache-from metacell/java-virgo-maven:development -t=$REPO:$TAG.wss --build-arg VFB_TREE_PDB_SERVER_ARG=$VFB_TREE_PDB_SERVER --build-arg SOLR_SERVER_ARG=$SOLR_SERVER --build-arg VFB_R_SERVER_ARG=$VFB_R_SERVER --build-arg VFB_OWL_SERVER_ARG=$VFB_OWL_SERVER --build-arg VFB_PDB_SERVER_ARG=$VFB_PDB_SERVER --build-arg build_type=$BUILD_TYPE --build-arg targetBranch=$TRAVIS_BRANCH --build-arg originBranch=$BRANCH --build-arg defaultBranch=$DEFAULT_BRANCH --build-arg finalBuild=true $DOCKER_FOLDER && docker push $REPO:$TAG.wss;
           fi;
 
@@ -240,6 +250,11 @@ jobs:
             export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
             export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
           fi;
+        - export VFB_TREE_PDB_SERVER=https://pdb.p2.virtualflybrain.org;
+        - export VFB_PDB_SERVER=http://pdb.p2.virtualflybrain.org;
+        - export VFB_OWL_SERVER=http://owl.p2.virtualflybrain.org/kbs/vfb/;
+        - export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
+        - export SOLR_SERVER=https://solr.p2.virtualflybrain.org/solr/ontology/select;
       before_script:
         - cd $TRAVIS_BUILD_DIR;
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
