@@ -6,6 +6,7 @@ import {
   INSTANCE_ADDED,
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
+  LOAD_CIRCUIT_BROWSER,
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
   VFB_LOAD_TERM_INFO
@@ -22,13 +23,13 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
-  queriesLoaded : [],
-  graphTabSelected : false,
   graphQueryIndex : {},
   instanceOnFocus : {},
   instanceSelection : {},
   instanceVisibilityChanged : false,
   termInfoVisible : false,
+  circuitBrowserSelected : false,
+  circuitQuerySelected : {},
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -204,9 +205,14 @@ function generalReducer (state, action) {
   case SHOW_GRAPH:
     return { 
       ...state, 
-      graphTabSelected : true,
       graphQueryIndex : action.data.queryIndex,
       instanceOnFocus : action.data.instance
+    };
+  case LOAD_CIRCUIT_BROWSER:
+    return { 
+      ...state, 
+      circuitQuerySelected : action.data.instance,
+      circuitBrowserSelected : true
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
@@ -233,12 +239,6 @@ function generalReducer (state, action) {
     return {
       ...state,
       idsMap: newMap
-    };
-  case LOAD_CYPHER_QUERIES:
-    return {
-      ...state,
-      neurons : action.data.neurons,
-      hops : action.data.hops
     };
   case INSTANCE_SELECTED:
     return {

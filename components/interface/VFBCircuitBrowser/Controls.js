@@ -67,7 +67,21 @@ const styles = theme => ({
   addNeuron : { padding : "8px 5px 0px 2px" },
   // Override default padding in Delete Neuron button
   deleteNeuron : { padding : "4px 0px 0px 4px" },
-  dottedIcon : { margin : "1rem 0 1rem 0 " }
+  dottedIcon : { margin : "1rem 0 1rem 0 " },
+  legend : {
+    padding: "2vh",
+    listStyleType : "none",
+    position: "absolute",
+    right : "0",
+    backgroundColor : "#413C3C",
+    zIndex: "100"
+  },
+  legendItem :{
+    display : "inline-block",
+    marginRight : "5vh",
+    height : "2vh",
+    width : "2vh"
+  }
 });
 
 /**
@@ -105,20 +119,22 @@ class Controls extends Component {
     this.state = {
       typingTimeout: 0,
       expanded : true,
-      neuronsFields : this.props.neurons
+      neuronFields : this.props.neurons
     };
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
     this.typingTimeout = this.typingTimeout.bind(this);
     this.sliderChange = this.sliderChange.bind(this);
     this.fieldsValidated = this.fieldsValidated.bind(this);
-    this.deleteNeuronField = this.deleteNeuronField.bind(this);    
+    this.deleteNeuronField = this.deleteNeuronField.bind(this);
+    this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
   
   componentDidMount () {
     this.setState( { expanded : !this.props.resultsAvailable() } );
   }
-  
+
   /**
    * Deletes neuron field, updates control component right after
    */
@@ -128,11 +144,11 @@ class Controls extends Component {
       id = parseInt(event.target.parentElement.id);
     }
     // remove neuron textfield
-    this.state.neuronsFields.splice(id,1);
+    let neurons = this.state.neuronFields;
+    neurons.splice(id,1);
     // Update state with one less neuron textfield
-    this.setState( { neuronsFields : this.state.neuronsFields } );
+    this.setState( { neuronFields : neurons } );
     
-    let neurons = this.state.neuronsFields;
     if ( this.fieldsValidated(neurons) ) {
       this.props.queriesUpdated(neurons);
     }
@@ -142,14 +158,14 @@ class Controls extends Component {
    * Add neuron textfield
    */
   addNeuron () {
-    let neuronsFields = this.state.neuronsFields;
+    let neuronFields = this.state.neuronFields;
     // Add emptry string for now to text field
-    neuronsFields.push("");
+    neuronFields.push("");
     // User has added the maximum number of neurons allowed in query search
-    if ( configuration.maxNeurons <= neuronsFields.length ) {
-      this.setState({ neuronsFields : neuronsFields });
+    if ( configuration.maxNeurons <= neuronFields.length ) {
+      this.setState({ neuronFields : neuronFields });
     } else {
-      this.setState({ neuronsFields : neuronsFields });
+      this.setState({ neuronFields : neuronFields });
     }
   }
 
@@ -174,10 +190,10 @@ class Controls extends Component {
    * enters a new character in neuron fields
    */
   typingTimeout (target) {
-    let neurons = this.state.neuronsFields;
+    let neurons = this.state.neuronFields;
     neurons[target.id] = target.value;
     if ( this.fieldsValidated(neurons) ) {
-      this.setState( { neuronsFields : neurons } );
+      this.setState( { neuronFields : neurons } );
       this.props.queriesUpdated(neurons);
     }
   }
@@ -201,26 +217,65 @@ class Controls extends Component {
    */
   sliderChange (event, value ) {
     // Request new queries results with updated hops only if textfields contain valid neuron IDs
-    if ( this.fieldsValidated(this.state.neuronsFields) ) {
+    if ( this.fieldsValidated(this.state.neuronFields) ) {
       this.props.updateHops(value);
     }    
   }
 
+  /**
+   * Update neuron fields if there's a query preselected.
+   */
+  getUpdatedNeuronFields () {
+    let neuronFields = this.state.neuronFields;
+    let neuronMatch = false;
+    // Query preselected
+    let queriesPassed = Object.keys(this.circuitQuerySelected).length > 0;
+    
+    if ( queriesPassed) {
+      // If query is preselected and is not on the list already
+      if ( !this.state.neuronFields.includes(this.circuitQuerySelected) ) {
+        for ( var i = 0 ; i < neuronFields.length ; i++ ) {
+          if ( this.state.neuronFields[i] === "" ) {
+            neuronFields[i] = this.circuitQuerySelected;
+            neuronMatch = true;
+            break;
+          }
+        }
+      }
+      // Preselected query already in list of queries
+      else if ( queriesPassed && neuronFields.includes(this.circuitQuerySelected) ) {
+        neuronMatch = true;
+      }
+    }
+
+    // If preselected query is not on list of existing queries
+    if ( !neuronMatch ) {
+      if ( queriesPassed ) {
+        if ( neuronFields.length < configuration.maxNeurons ) {
+          neuronFields.push(this.circuitQuerySelected);
+        }
+      }
+    }
+    
+    return neuronFields;
+  }
+  
   render () {
     let self = this;
     const { classes } = this.props;
-        
+    let neuronFields = this.getUpdatedNeuronFields()
+    
     let expanded = this.state.expanded;
     if ( this.props.resultsAvailable() ){
       expanded = true;
     }
     
     // Show delete icon on neuron text fields only if there's more than the minimum allowed
-    let deleteIconVisible = this.state.neuronsFields.length > configuration.minNeurons;
+    let deleteIconVisible = neuronFields.length > configuration.minNeurons;
     // The grid item size with the neuron textfield will depend on whether or not delete icon is visible
     let neuronColumnSize = deleteIconVisible ? 11 : 12 ;
     // Only show Add Neuron button if the maximum hasn't been reached
-    let addNeuronDisabled = this.state.neuronsFields.length >= configuration.maxNeurons;
+    let addNeuronDisabled = neuronFields.length >= configuration.maxNeurons;
     
     return (
       <ThemeProvider theme={theme}>
@@ -230,6 +285,15 @@ class Controls extends Component {
             <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomIn} onClick={self.props.zoomIn }></i>
             <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
           </div>
+          { this.props.resultsAvailable()
+            ? <ul className={classes.legend}>
+              { Object.entries(stylingConfiguration.nodeColorsByLabel).map((label, index) => (
+                <li><div className={classes.legendItem} style={{ backgroundColor : label[1] }}></div>{label[0]}</li> 
+              ))
+              }
+            </ul>
+            : null
+          }
           <Accordion className={classes.root} defaultExpanded={expanded} >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon fontSize="large" />}
@@ -246,21 +310,21 @@ class Controls extends Component {
                 <Grid item sm={1} >
                   <div>
                     <AdjustIcon />
-                    <MoreVertIcon classes= {{ root : classes.dottedIcon }}/>
+                    <MoreVertIcon classes={{ root : classes.dottedIcon }}/>
                     <RoomIcon />
                   </div>
                 </Grid>
                 <Grid item sm={11}>
-                  { this.state.neuronsFields.map((value, index) => {
+                  { neuronFields.map((value, index) => {
                     let label = "Neuron " + (index + 1) .toString();
-                    return <Grid container alignItems="center" justify="center" >
-                      <Grid item sm={neuronColumnSize}>
+                    return <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
+                      <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <TextField
                           fullWidth
                           margin="dense"
                           defaultValue={value}
                           placeholder={label}
-                          key={"TextField-" + index}
+                          key={value}
                           onChange={this.neuronTextfieldModified}
                           id={index.toString()}
                           inputProps={{ style: { color: "white" } }}

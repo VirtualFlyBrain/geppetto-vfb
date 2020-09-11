@@ -17,7 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
-import { SHOW_GRAPH, VFB_LOAD_TERM_INFO } from './../actions/generals';
+import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -932,6 +932,7 @@ class VFBMain extends React.Component {
                   'Relationships',
                   'Query for',
                   'Graph for',
+                  'Circuit Browser for',
                   'Description',
                   'Cross References',
                   'Attribution',
@@ -1055,7 +1056,7 @@ class VFBMain extends React.Component {
      * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
      */
     if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
-      this.setActiveTab("Term Info");
+      this.setActiveTab("termInfo");
       this.termInfoReference.setTermInfo(this.instanceOnFocus);
     }
   }
@@ -1084,7 +1085,25 @@ class VFBMain extends React.Component {
     }
 
     if ( this.props.generals.type == SHOW_GRAPH ) {
-      this.setActiveTab("Term Context");
+      if( !this.state.graphVisible ) {
+        this.setState({
+          UIUpdated: true,
+          graphVisible: true
+        });
+      } else {
+        this.setActiveTab("vfbGraph");
+      }
+    }
+    
+    if ( this.props.generals.type == LOAD_CIRCUIT_BROWSER ) {
+      if( !this.state.circuitBrowserVisible ) {
+        this.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: true
+        });
+      } else {
+        this.setActiveTab("vfbCircuitBrowser");
+      }
     }
   }
 
@@ -1422,13 +1441,13 @@ class VFBMain extends React.Component {
   /**
    * Makes tab named 'tabName' become active.
    */
-  setActiveTab (tabName) {
+  setActiveTab (tabComponentName) {
     let matchTab = 0;
     let layoutChildren = this.model.toJson().layout.children;
     for ( var i = 0; i < layoutChildren.length; i++){
       if ( layoutChildren[i].type === "tabset"){
         for ( var j = 0; j < layoutChildren[i].children.length ; j++){
-          if (layoutChildren[i].children[j].name === tabName){
+          if (layoutChildren[i].children[j].component === tabComponentName){
             matchTab = layoutChildren[i].children[j].id;
             break;
           }

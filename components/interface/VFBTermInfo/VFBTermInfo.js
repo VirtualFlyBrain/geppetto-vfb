@@ -4,7 +4,7 @@ import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import ButtonBarComponent from '@geppettoengine/geppetto-client/components/widgets/popup/ButtonBarComponent';
-import { SHOW_GRAPH } from './../../../actions/generals';
+import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER } from './../../../actions/generals';
 import { connect } from "react-redux";
 
 var $ = require('jquery');
@@ -15,6 +15,7 @@ var Variable = require('@geppettoengine/geppetto-core/model/Variable').default;
 
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 const GRAPHS = "GRAPHS";
+const CIRCUIT_BROWSER = "CIRCUIT_BROWSER";
 
 require('../../../css/VFBTermInfo.less');
 
@@ -32,6 +33,7 @@ class VFBTermInfo extends React.Component {
     this.setData = this.setData.bind(this);
     this.setName = this.setName.bind(this);
     this.setGraphsLinks = this.setGraphsLinks.bind(this);
+    this.setCircuitBrowserLinks = this.setCircuitBrowserLinks.bind(this);
     this.getVariable = this.getVariable.bind(this);
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
@@ -76,6 +78,7 @@ class VFBTermInfo extends React.Component {
 
   setData (anyInstance) {
     this.setGraphsLinks(anyInstance);
+    this.setCircuitBrowserLinks(anyInstance);
     this.addToHistory(anyInstance.getName(), "setData", [anyInstance], this.props.id);
 
     this.getHTML(anyInstance, "vfbTermInfoWidgetInnerID");
@@ -131,6 +134,33 @@ class VFBTermInfo extends React.Component {
       
       // Add graphs Variable to root node
       type.getVariables().push(graphsVariable);
+    }
+  }
+  
+  /**
+   * Adds Links to open up Graphs from VFB Term Info Component
+   */
+  setCircuitBrowserLinks (anyInstance) {
+    let circuitBrowser = new Array();
+    
+    circuitBrowser.push({ "instance" : anyInstance })
+         
+    // From the main instance passed as argument, we retrieved the property 'type'
+    var type = anyInstance;
+    if (!(type instanceof Type)) {
+      type = anyInstance.getType();
+    }
+    
+    // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
+    if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+      var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
+      
+      // Variable object holding the information for the graph links
+      var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
+      circuitBrowserVariable.setTypes([circuitBrowserType]);
+      
+      // Add graphs Variable to root node
+      type.getVariables().push(circuitBrowserVariable);
     }
   }
 
@@ -273,6 +303,35 @@ class VFBTermInfo extends React.Component {
         );
       }
       
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+        {graphs.map((graph, key) => {
+          var Element = React.cloneElement(graph);
+          /*
+           * The id in the following div is used to hookup the images into the slider
+           * with the handler that has to load the id linked to that image
+           */
+          return (
+            <div key={key}> {Element} </div>
+          );
+        })}
+      </Collapsible>);
+    } else if ( metaType === CIRCUIT_BROWSER ) {
+      var prevCounter = this.contentTermInfo.keys.length;
+      if (counter !== undefined) {
+        prevCounter = counter;
+      }
+      let values = anyInstance.values;
+      let graphs = new Array();
+      for (var j = 0; j < values.length; j++) {
+        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
+          <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.id + "," + values[j].index }> 
+            { "Show Circuit Browser for ID " + values[j].instance.parent.id }
+          </a>
+          <br/>
+        </div>
+        );
+      }
+        
       this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
         {graphs.map((graph, key) => {
           var Element = React.cloneElement(graph);
@@ -648,6 +707,19 @@ class VFBTermInfoWidget extends React.Component {
       this.props.uiUpdated();
       return;
     }
+    if (path.indexOf(CIRCUIT_BROWSER) === 0 ) {
+      // Show Circuit Browser
+      const { vfbCircuitBrowser } = this.props;
+      /*
+       * Path contains the instance and the index of the drop down query options
+       * Path is of type : "instance_path, query_index"
+       */
+      vfbCircuitBrowser(LOAD_CIRCUIT_BROWSER, path.split(',')[1]);
+      
+      // Notify VFBMain UI needs to be updated
+      this.props.uiUpdated();
+      return;
+    }
     var Query = require('@geppettoengine/geppetto-core/model/Query');
     var n = window[path];
     var otherId;
@@ -793,7 +865,10 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return { vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } }) }
+  return { 
+    vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }),
+    vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } })
+  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBTermInfoWidget);

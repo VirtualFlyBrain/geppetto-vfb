@@ -56,13 +56,14 @@ const controlsMenuConf = {
     {
       // Menu handler icon and label
       label: "",
-      icon: "fa fa-eye",
+      icon: <i className="fa fa-eye" />,
       activeColor : "",
       action: "",
       position: "bottom-start",
       caret : {
         show : true, 
-        icon : "fa fa-caret-down"
+        expandedIcon : <i className="fa fa-caret-down" />,
+        closedIcon : <i className="fa fa-caret-up" />
       },
       // Menu options to display
       list: [
