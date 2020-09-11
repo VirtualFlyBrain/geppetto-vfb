@@ -153,14 +153,26 @@ class VFBTermInfo extends React.Component {
     
     // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
     if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
+      let variables = type.getVariables();
+      let isNeuron = false;
+      for ( var i = 0; i < variables.length; i++ ){
+        if ( variables[i].wrappedObj.name === "Classification" ) {
+          if ( variables[i].wrappedObj.initialValues[0].value.html.includes("Motor neuron") ) {
+            isNeuron = true;
+          }
+        }
+      }
       
-      // Variable object holding the information for the graph links
-      var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
-      circuitBrowserVariable.setTypes([circuitBrowserType]);
+      if ( isNeuron ) {
+        var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
       
-      // Add graphs Variable to root node
-      type.getVariables().push(circuitBrowserVariable);
+        // Variable object holding the information for the graph links
+        var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
+        circuitBrowserVariable.setTypes([circuitBrowserType]);
+      
+        // Add graphs Variable to root node
+        type.getVariables().push(circuitBrowserVariable);
+      }
     }
   }
 

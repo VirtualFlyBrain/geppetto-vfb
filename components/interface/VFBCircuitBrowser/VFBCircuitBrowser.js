@@ -27,6 +27,7 @@ const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrow
 const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
+const datasourceConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').datasourceConfiguration;
 
 /**
  * If no configuration is given for queries in graphConfiguration.js, we use this configuration.
@@ -175,6 +176,11 @@ class VFBCircuitBrowser extends Component {
     this.objectsLoaded = 0;
     this.focused = false;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
+    
+    this.getDatasource = {
+      [DatasourceTypes.CUSTOM]: this.props.customDatasourceHandler,
+      [DatasourceTypes.SOLRClient]: getResultsSOLR,
+    };
   }
 
   componentDidMount () {
