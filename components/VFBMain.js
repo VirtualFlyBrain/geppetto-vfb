@@ -1085,7 +1085,7 @@ class VFBMain extends React.Component {
     }
 
     if ( this.props.generals.type == SHOW_GRAPH ) {
-      if( !this.state.graphVisible ) {
+      if ( !this.state.graphVisible ) {
         this.setState({
           UIUpdated: true,
           graphVisible: true
@@ -1094,9 +1094,9 @@ class VFBMain extends React.Component {
         this.setActiveTab("vfbGraph");
       }
     }
-    
+
     if ( this.props.generals.type == LOAD_CIRCUIT_BROWSER ) {
-      if( !this.state.circuitBrowserVisible ) {
+      if ( !this.state.circuitBrowserVisible ) {
         this.setState({
           UIUpdated: true,
           circuitBrowserVisible: true
