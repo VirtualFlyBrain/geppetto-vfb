@@ -67,7 +67,21 @@ const styles = theme => ({
   addNeuron : { padding : "8px 5px 0px 2px" },
   // Override default padding in Delete Neuron button
   deleteNeuron : { padding : "4px 0px 0px 4px" },
-  dottedIcon : { margin : "1rem 0 1rem 0 " }
+  dottedIcon : { margin : "1rem 0 1rem 0 " },
+  legend : {
+    padding: "2vh",
+    listStyleType : "none",
+    position: "absolute",
+    right : "0",
+    backgroundColor : "#413C3C",
+    zIndex: "100"
+  },
+  legendItem :{
+    display : "inline-block",
+    marginRight : "5vh",
+    height : "2vh",
+    width : "2vh"
+  }
 });
 
 /**
@@ -269,6 +283,15 @@ class Controls extends Component {
             <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomIn} onClick={self.props.zoomIn }></i>
             <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
           </div>
+          { this.props.resultsAvailable()
+            ? <ul className={classes.legend}>
+              { Object.entries(stylingConfiguration.nodeColorsByLabel).map((label, index) => (
+                <li><div className={classes.legendItem} style={{ backgroundColor : label[1] }}></div>{label[0]}</li> 
+              ))
+              }
+            </ul>
+            : null
+          }
           <Accordion className={classes.root} defaultExpanded={expanded} >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon fontSize="large" />}
