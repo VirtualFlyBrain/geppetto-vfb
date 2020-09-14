@@ -197,7 +197,7 @@ function generalReducer (state, action) {
   case VFB_UI_UPDATED:
     return {
       ...state,
-      layout: action.instance.id
+      layout: action.data
     };
   case SHOW_GRAPH:
     return { 

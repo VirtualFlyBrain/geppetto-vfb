@@ -64,3 +64,21 @@ export const flexWindowClick = async (title, selector) => {
   }
   , title, selector);
 }
+
+export const findElementByText = async (page, text) => page.evaluate(async (text ) => {
+	  let elems = Array.from(document.querySelectorAll('*'));
+	  let found = "";
+	  
+	  for (var i = 0; i < elems.length; i++) {
+	    if (elems[i] !== undefined ) {
+	      if (elems[i].innerText !== undefined ) {
+	        if (elems[i].innerText === text) {
+	          found = elems[i].innerText;
+	          break;
+	        }
+	      }
+	    }
+	  }
+	  
+	  return found;
+	}, text);

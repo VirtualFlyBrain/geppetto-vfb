@@ -1,6 +1,6 @@
 import React from 'react';
 import ListViewerControlsMenu from '../../interface/VFBListViewer/ListViewerControlsMenu';
-import { MultiStatusComponent, GroupComponent, ImageComponent, IconComponent, ColorComponent } from "geppetto-client/js/components/interface/listViewer/ListViewer";
+import { MultiStatusComponent, GroupComponent, ImageComponent, IconComponent, ColorComponent } from "@geppettoengine/geppetto-ui/list-viewer/ListViewer";
 import Tooltip from '@material-ui/core/Tooltip';
 
 /**

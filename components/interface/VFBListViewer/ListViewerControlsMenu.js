@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Menu from "geppetto-client/js/components/interface/menu/Menu";
+import Menu from "@geppettoengine/geppetto-ui/menu/Menu";
 import { connect } from 'react-redux';
 import controlsConfiguration from '../../configuration/VFBListViewer/controlsMenuConfiguration';
 import { SliderPicker } from 'react-color';
@@ -134,7 +134,7 @@ class ListViewerControlsMenu extends Component {
     // Update Menu Configuration
     let configuration = this.updateControlsConfiguration();
     return (
-      <div>
+      <div id="LayersControls_Menu">
         <Menu
           configuration={configuration}
           menuHandler={ value => this.menuHandler(value) }/>

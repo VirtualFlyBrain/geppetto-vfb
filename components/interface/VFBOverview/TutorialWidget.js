@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Tutorial from 'geppetto-client/js/components/interface/tutorial/Tutorial';
-import WidgetCapability from 'geppetto-client/js/components/widgets/WidgetCapability';
+import Tutorial from '@geppettoengine/geppetto-client/components/interface/tutorial/Tutorial';
+import WidgetCapability from '@geppettoengine/geppetto-client/components/widgets/WidgetCapability';
 
 var vfbDefaultTutorial = require('../../../tutorials/stackTutorial.json');
 var GEPPETTO = require('geppetto');

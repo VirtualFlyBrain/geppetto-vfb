@@ -6,13 +6,13 @@ import VFBTree from './interface/VFBTree/VFBTree';
 import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
 import TutorialWidget from './interface/VFBOverview/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
-import Logo from 'geppetto-client/js/components/interface/logo/Logo';
-import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
-import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
+import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
+import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
+import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
-import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
-import Search from 'geppetto-client/js/components/interface/search/Search';
+import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
+import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import { connect } from "react-redux";
@@ -260,7 +260,7 @@ class VFBMain extends React.Component {
   }
 
   resolve3D (path, callback) {
-    var ImportType = require('geppetto-client/js/geppettoModel/model/ImportType');
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
@@ -792,12 +792,6 @@ class VFBMain extends React.Component {
         }
         this.setState({ UIUpdated: false });
         break;
-      case 'graphVisible':
-        if (this.graphReference !== undefined && this.graphReference !== null) {
-          this.restoreUIComponent("vfbGraph");
-        }
-        this.setState({ UIUpdated: false });
-        break;
       case 'listViewerVisible':
         if (this.listViewerReference !== undefined && this.listViewerReference !== null) {
           this.restoreUIComponent("vfbListViewer");
@@ -1012,8 +1006,10 @@ class VFBMain extends React.Component {
           this.instanceOnFocus == Instances.getInstance(nextProps.generals.instanceOnFocus);
         }
       } else {
-        if ( nextProps.generals.instanceOnFocus.getId() !== this.instanceOnFocus.getId() ){
-          this.instanceOnFocus = nextProps.generals.instanceOnFocus;
+        if ( Object.keys(nextProps.generals.instanceOnFocus).length !== 0 ) {
+          if ( nextProps.generals.instanceOnFocus.getId() !== this.instanceOnFocus.getId() ){
+            this.instanceOnFocus = nextProps.generals.instanceOnFocus;
+          }
         }
       }
     }

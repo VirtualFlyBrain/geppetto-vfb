@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ListViewer from 'geppetto-client/js/components/interface/listViewer/ListViewer';
+import ListViewer from '@geppettoengine/geppetto-ui/list-viewer/ListViewer';
 import listViewerConf from '../../configuration/VFBListViewer/listViewerConfiguration';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from 'react-redux';
@@ -46,11 +46,11 @@ class VFBListViewer extends Component {
   
   render () {
     let instances = this.getInstances();
-    return <div style= { { backgroundColor : "rgb(53, 51, 51)" } } >
+    return <div id="VFBLayers_component" style= { { backgroundColor : "rgb(53, 51, 51)" } } >
       <ListViewer
         instances={instances}
         handler={this}
-        filter={() => true} 
+        filter={() => true}
         columnConfiguration={this.getColumnConfiguration()}
         showPagination={false}
       />

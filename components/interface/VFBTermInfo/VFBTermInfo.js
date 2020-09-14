@@ -2,16 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
+import ButtonBarComponent from '@geppettoengine/geppetto-client/components/widgets/popup/ButtonBarComponent';
 import { SHOW_GRAPH } from './../../../actions/generals';
 import { connect } from "react-redux";
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
-var Type = require('geppetto-client/js/geppettoModel/model/Type');
-var Variable = require('geppetto-client/js/geppettoModel/model/Variable').default;
+var Type = require('@geppettoengine/geppetto-core/model/Type');
+var Variable = require('@geppettoengine/geppetto-core/model/Variable').default;
 
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 const GRAPHS = "GRAPHS";
@@ -560,6 +560,7 @@ class VFBTermInfoWidget extends React.Component {
 
 
   closeHandler () {
+    console.log("close handler called");
     this.props.termInfoHandler();
   }
 
@@ -647,7 +648,7 @@ class VFBTermInfoWidget extends React.Component {
       this.props.uiUpdated();
       return;
     }
-    var Query = require('geppetto-client/js/geppettoModel/model/Query');
+    var Query = require('@geppettoengine/geppetto-core/model/Query');
     var n = window[path];
     var otherId;
     var otherName;
@@ -737,6 +738,10 @@ class VFBTermInfoWidget extends React.Component {
         }.bind(this));
       }
     }
+  }
+
+  componentDidUpdate () {
+
   }
 
   componentDidMount () {

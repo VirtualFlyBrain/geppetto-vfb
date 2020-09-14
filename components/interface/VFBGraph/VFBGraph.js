@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios';
-import GeppettoGraphVisualization from 'geppetto-client/js/components/interface/graph-visualization/Graph'
+import GeppettoGraphVisualization from '@geppettoengine/geppetto-ui/graph-visualization/Graph'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -58,6 +58,7 @@ function refineData (e) {
       if ( newLink ) {
         linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
       }
+
     });
   });
 
@@ -70,7 +71,7 @@ function refineData (e) {
       if (nodesMap.get(id) === undefined) {
         n = {
           path :  label,
-          id : id,
+          id : parseInt(id),
           title : title,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT
@@ -83,7 +84,11 @@ function refineData (e) {
 
   // Creates Links array with nodes
   nodes.forEach( sourceNode => {
-    let n = linksMap.get(sourceNode.id);
+    let id = sourceNode.id;
+    if ( typeof id === "number" ) {
+      id = sourceNode.id.toString();
+    }
+    let n = linksMap.get(id);
     if (n !== undefined){
       for (var i = 0 ; i < n.length; i++){
         let targetNode = nodesMap.get(n[i].target);
