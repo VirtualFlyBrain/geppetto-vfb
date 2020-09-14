@@ -4,6 +4,7 @@ import {
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
   INSTANCE_ADDED,
+  LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
@@ -21,6 +22,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
+  queriesLoaded : [],
   graphTabSelected : false,
   graphQueryIndex : {},
   instanceOnFocus : {},
@@ -231,6 +233,12 @@ function generalReducer (state, action) {
     return {
       ...state,
       idsMap: newMap
+    };
+  case LOAD_CYPHER_QUERIES:
+    return {
+      ...state,
+      neurons : action.data.neurons,
+      hops : action.data.hops
     };
   case INSTANCE_SELECTED:
     return {

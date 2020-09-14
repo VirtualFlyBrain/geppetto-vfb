@@ -8,6 +8,7 @@ export const SHOW_GRAPH = 'SHOW_GRAPH';
 export const UPDATE_GRAPH = 'UPDATE_GRAPH';
 export const INSTANCE_SELECTED = 'INSTANCE_SELECTION';
 export const INSTANCE_VISIBILITY_CHANGED = 'INSTANCE_VISIBILITY_CHANGED';
+export const LOAD_CYPHER_QUERIES = 'CYPHER_QUERIES_ADDED'
 
 export const vfbError = errorMessage => ({
   type: VFB_ERROR,
@@ -43,6 +44,14 @@ export const vfbUIUpdated = layout => ({
 export const instanceAdded = instance => ({
   type: INSTANCE_ADDED,
   data: instance
+});
+
+export const loadCypherQueries = (neurons, hops) => ({
+  type: LOAD_CYPHER_QUERIES,
+  data: {
+    neurons : neurons,
+    hops : hops
+  }
 });
 
 export const instanceSelected = instance => ({

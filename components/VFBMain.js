@@ -15,6 +15,7 @@ import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
 import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
+import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
 import { SHOW_GRAPH, VFB_LOAD_TERM_INFO } from './../actions/generals';
 
@@ -36,6 +37,7 @@ class VFBMain extends React.Component {
       canvasVisible: true,
       listViewerVisible: true,
       graphVisible : true,
+      circuitBrowserVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -76,6 +78,7 @@ class VFBMain extends React.Component {
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
+    this.circuitBrowserReference = undefined;
     this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
@@ -450,6 +453,9 @@ class VFBMain extends React.Component {
     case 'graphVisible':
       this.UIUpdateItem(buttonState, "graphVisible");
       break;
+    case 'circuitBrowserVisible':
+      this.UIUpdateItem(buttonState, "circuitBrowserVisible");
+      break;
     case 'spotlightVisible':
       this.setState({
         UIUpdated: true,
@@ -749,6 +755,17 @@ class VFBMain extends React.Component {
         graphVisible: true
       });
     }
+    if ((this.state.circuitBrowserVisible !== prevState.circuitBrowserVisible) && (this.state.circuitBrowserVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Circuit Browser",
+        component: "vfbCircuitBrowser"
+      });
+      this.setState({
+        UIUpdated: true,
+        circuitBrowserVisible: true
+      });
+    }
     if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
@@ -798,6 +815,12 @@ class VFBMain extends React.Component {
         }
         this.setState({ UIUpdated: false });
         break;
+      case 'circuitBrowserVisible':
+        if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
+          this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;    
       case 'treeBrowserVisible':
         if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
           this.restoreUIComponent("treeBrowser");
@@ -985,6 +1008,20 @@ class VFBMain extends React.Component {
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBListViewer ref={ref => this.listViewerReference = ref} />
+      </div>);
+    } else if (component === "vfbCircuitBrowser") {
+      let circuitBrowserVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        this.setState({
+          UIUpdated: false,
+          circuitBrowserVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
       </div>);
     }
   }
