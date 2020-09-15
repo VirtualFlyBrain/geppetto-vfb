@@ -5,6 +5,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
+import { connect } from "react-redux";
 
 const styles = theme => ({
   loader: {
@@ -173,6 +174,7 @@ class VFBCircuitBrowser extends Component {
     this.__isMounted = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
 
   componentDidMount () {
@@ -334,6 +336,15 @@ class VFBCircuitBrowser extends Component {
     let self = this;
     const { classes } = this.props;
     
+    // Detect when the first load of the Graph component happens
+    if ( !this.state.loading && this.firstLoad ) {
+      // Reset CircuitQuerySelected value after first load
+      this.circuitQuerySelected = "";
+    }
+    if ( !this.state.loading && !this.firstLoad ) {
+      this.firstLoad = true;
+    }
+    
     return (
       this.state.loading
         ? <CircularProgress classes={{ root : classes.loader }}
@@ -416,6 +427,7 @@ class VFBCircuitBrowser extends Component {
               resetCamera={self.resetCamera}
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
+              circuitQuerySelected={this.circuitQuerySelected}
             />
           }
           // Function triggered when hovering over a nodeoptions
@@ -459,4 +471,11 @@ class VFBCircuitBrowser extends Component {
 
 VFBCircuitBrowser.propTypes = { classes: PropTypes.object.isRequired };
 
-export default withStyles(styles)(VFBCircuitBrowser);
+function mapStateToProps (state) {
+  return {
+    circuitQuerySelected : state.generals.circuitQuerySelected,
+    circuitBrowserSelected : state.generals.circuitBrowserSelected
+  }
+}
+
+export default connect(mapStateToProps)(withStyles(styles)(VFBCircuitBrowser));
