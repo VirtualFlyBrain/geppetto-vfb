@@ -24,7 +24,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { getResultsSOLR } from "./datasources/SOLRclient";
 import { DatasourceTypes } from './datasources/datasources';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -92,6 +91,7 @@ const styles = theme => ({
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
+// SOLR Configuration
 const datasourceConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').datasourceConfiguration;
 
 /**
@@ -135,8 +135,8 @@ class Controls extends Component {
     this.handleResults = this.handleResults.bind(this);
     
     this.getDatasource = { [DatasourceTypes.SOLRClient]: getResultsSOLR };
-    this.failedFields = new Array();
-    this.validFields = {}
+    this.invalidSOLRFields = new Array();
+    this.validSOLRFields = {}
   }
   
   componentDidMount () {
@@ -184,37 +184,55 @@ class Controls extends Component {
   fieldsValidated (neurons) {
     var pattern = /\d{8}/;
     let valid = true;
+    
+    // Loop through TextFields and validate values
     for ( var i = 0 ; i < neurons.length ; i++ ){
+      // If neuron entered is an empty string, it's an invalid ID
       if ( neurons[i] === "" ) {
         valid = false;
-        this.failedFields.push(i);
+        // Keep track of invalid neuron ID by keeping track of TextField index
+        this.invalidSOLRFields.push(i);
       } else if ( !neurons[i].match(pattern) ) {
+        // Neuron ID entered doesn't match ID pattern of 8 characters
         valid = false;
-        this.failedFields.push(i);
+        // Keep track of invalid neuron ID by keeping track of TextField index
+        this.invalidSOLRFields.push(i);
       } else if ( neurons[i].match(pattern)) {
-        this.getResults(neurons[i], this.handleResults, datasourceConfiguration);
+        // Neuron ID entered matches pattern of 8 characters
+        if ( this.validSOLRFields[neurons[i]] === undefined ) {
+          this.getResults(neurons[i], this.handleResults, datasourceConfiguration);
+        }
       }
     }
     
     return valid;
   }
   
+  /**
+   * Handle results coming from SOLR search
+   */
   handleResults (status, data, value) {
-    this.failedFields = new Array();
+    this.invalidSOLRFields = new Array();
     let invalidID = false;
     switch (status) {
     case "OK":
-      this.validFields = Object.assign(this.validFields, data);
+      // Keep track of valid SOLR IDs
+      this.validSOLRFields = Object.assign(this.validSOLRFields, data);
+      
+      // Loop through text fields and check if value belong to valid SOLR ID
       for ( var i = 0; i < this.state.neuronFields.length ; i ++ ){
-        if ( this.validFields[this.state.neuronFields[i]] === undefined ) {
+        if ( this.validSOLRFields[this.state.neuronFields[i]] === undefined ) {
           invalidID = true;
-          this.failedFields.push(i);
+          // Keep track of index of invalid TextField
+          this.invalidSOLRFields.push(i);
         }
       }
         
+      // Neuron ID is not a valid SOLRD Id
       if ( invalidID ) {
         this.setState( { validationFailed : true } );
       } else {
+        // Neuron fields are valid SOLR fields, request query and update state with valid fields
         this.props.queriesUpdated(this.state.neuronFields);
         this.setState( { validationFailed : false } );
       }
@@ -233,9 +251,17 @@ class Controls extends Component {
   typingTimeout (target) {
     let neurons = this.state.neuronFields;
     neurons[target.id] = target.value;
-    this.failedFields = new Array();
+    
+    // Reset array tracking invalid fields
+    this.invalidSOLRFields = new Array();
+    
+    // If fields failed validation, update state with fields showing error
     if ( !this.fieldsValidated(neurons) ) {
       this.setState( { validationFailed : true } );
+    } else {
+      if ( this.state.validationFailed ) {
+        this.setState( { validationFailed : false } );
+      }
     }
   }
   
@@ -360,8 +386,8 @@ class Controls extends Component {
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <TextField
                           fullWidth
-                          error={this.failedFields.includes(index) && value !== "" ? this.state.validationFailed : false }
-                          helperText={value !== "" && this.failedFields.includes(index) ? "Invalid ID" : null }
+                          error={this.invalidSOLRFields.includes(index) && value !== "" ? this.state.validationFailed : false }
+                          helperText={value !== "" && this.invalidSOLRFields.includes(index) ? "Invalid ID" : null }
                           margin="dense"
                           defaultValue={value}
                           placeholder={label}

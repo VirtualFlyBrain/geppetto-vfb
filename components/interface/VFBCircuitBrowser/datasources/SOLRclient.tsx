@@ -63,8 +63,6 @@ export function getResultsSOLR ( searchString: string, returnResults: Function, 
             };
             
             worker.postMessage({message: "refine", params: {results: response.data.response.docs, value: searchString}});
-
-            // refineResults(searchString, response.data.response.docs, returnResults);
         })
         .catch(function(error) {
             console.log('%c --- SOLR datasource error --- ', 'background: black; color: red');

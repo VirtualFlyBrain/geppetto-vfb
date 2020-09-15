@@ -68,7 +68,9 @@ var styling = {
   }
 }
 
-
+/**
+ * SOLR data source configuration
+ */
 var datasourceConfiguration = {
   "url": "https://solr.virtualflybrain.org/solr/ontology/select",
   "query_settings":
