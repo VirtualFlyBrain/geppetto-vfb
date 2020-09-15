@@ -27,7 +27,6 @@ const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrow
 const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
-const datasourceConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').datasourceConfiguration;
 
 /**
  * If no configuration is given for queries in graphConfiguration.js, we use this configuration.
@@ -176,11 +175,6 @@ class VFBCircuitBrowser extends Component {
     this.objectsLoaded = 0;
     this.focused = false;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
-    
-    this.getDatasource = {
-      [DatasourceTypes.CUSTOM]: this.props.customDatasourceHandler,
-      [DatasourceTypes.SOLRClient]: getResultsSOLR,
-    };
   }
 
   componentDidMount () {
@@ -262,7 +256,7 @@ class VFBCircuitBrowser extends Component {
       // Perform cypher query
       this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
     }
-  }
+  }    
 
   /**
    * Perform a cypher query to retrieve  cypher query
@@ -434,6 +428,7 @@ class VFBCircuitBrowser extends Component {
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
               circuitQuerySelected={this.circuitQuerySelected}
+              datasource="SOLR"
             />
           }
           // Function triggered when hovering over a nodeoptions

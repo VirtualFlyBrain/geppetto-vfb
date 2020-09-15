@@ -22,6 +22,9 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { getResultsSOLR } from "./datasources/SOLRclient";
+import { DatasourceTypes } from './datasources/datasources';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -88,9 +91,8 @@ const styles = theme => ({
  * Read configuration from circuitBrowserConfiguration
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
-const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
+const datasourceConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').datasourceConfiguration;
 
 /**
  * Create custom marks for Hops slider.
@@ -119,7 +121,8 @@ class Controls extends Component {
     this.state = {
       typingTimeout: 0,
       expanded : true,
-      neuronFields : this.props.neurons
+      neuronFields : this.props.neurons,
+      validationFailed : false
     };
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
@@ -129,10 +132,16 @@ class Controls extends Component {
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
     this.circuitQuerySelected = this.props.circuitQuerySelected;
+    this.handleResults = this.handleResults.bind(this);
+    
+    this.getDatasource = { [DatasourceTypes.SOLRClient]: getResultsSOLR };
+    this.failedFields = new Array();
+    this.validFields = {}
   }
   
   componentDidMount () {
     this.setState( { expanded : !this.props.resultsAvailable() } );
+    this.getResults = this.getDatasource[this.props.datasource];
   }
 
   /**
@@ -174,15 +183,47 @@ class Controls extends Component {
    */
   fieldsValidated (neurons) {
     var pattern = /\d{8}/;
+    let valid = true;
     for ( var i = 0 ; i < neurons.length ; i++ ){
       if ( neurons[i] === "" ) {
-        return false;
+        valid = false;
+        this.failedFields.push(i);
       } else if ( !neurons[i].match(pattern) ) {
-        return false;
+        valid = false;
+        this.failedFields.push(i);
+      } else if ( neurons[i].match(pattern)) {
+        this.getResults(neurons[i], this.handleResults, datasourceConfiguration);
       }
     }
     
-    return true;
+    return valid;
+  }
+  
+  handleResults (status, data, value) {
+    this.failedFields = new Array();
+    let invalidID = false;
+    switch (status) {
+    case "OK":
+      this.validFields = Object.assign(this.validFields, data);
+      for ( var i = 0; i < this.state.neuronFields.length ; i ++ ){
+        if ( this.validFields[this.state.neuronFields[i]] === undefined ) {
+          invalidID = true;
+          this.failedFields.push(i);
+        }
+      }
+        
+      if ( invalidID ) {
+        this.setState( { validationFailed : true } );
+      } else {
+        this.props.queriesUpdated(this.state.neuronFields);
+        this.setState( { validationFailed : false } );
+      }
+      break;
+    case "ERROR":
+      this.setState( { validationFailed : true } );
+      break;
+    default:
+    }
   }
   
   /**
@@ -192,9 +233,9 @@ class Controls extends Component {
   typingTimeout (target) {
     let neurons = this.state.neuronFields;
     neurons[target.id] = target.value;
-    if ( this.fieldsValidated(neurons) ) {
-      this.setState( { neuronFields : neurons } );
-      this.props.queriesUpdated(neurons);
+    this.failedFields = new Array();
+    if ( !this.fieldsValidated(neurons) ) {
+      this.setState( { validationFailed : true } );
     }
   }
   
@@ -319,6 +360,8 @@ class Controls extends Component {
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <TextField
                           fullWidth
+                          error={this.failedFields.includes(index) && value !== "" ? this.state.validationFailed : false }
+                          helperText={value !== "" && this.failedFields.includes(index) ? "Invalid ID" : null }
                           margin="dense"
                           defaultValue={value}
                           placeholder={label}
