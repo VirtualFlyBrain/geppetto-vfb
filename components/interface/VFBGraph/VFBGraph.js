@@ -151,6 +151,7 @@ class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    // Graph component has been resized
     this.graphResized = false;
     this.focusedInstance = { id : "" };
     this.selectedDropDownQuery = -1;
@@ -186,6 +187,7 @@ class VFBGraph extends Component {
 
   componentDidUpdate () {
     let self = this;
+    // Reset camera if graph component is visible, not focused or has been resized
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
       setTimeout( function () { 
         self.resetCamera();
@@ -317,10 +319,6 @@ class VFBGraph extends Component {
       this.queryResults(cypherQuery(idToSearch), idToSearch)
     }
   }
-  
-  handleResize () {
-    alert("Resize")
-  }
 
   /**
    * Perform a cypher query to retrieve graph for instance
@@ -400,6 +398,7 @@ class VFBGraph extends Component {
     let self = this;
     const { instanceOnFocus, graphQueryIndex, graphResized } = this.props;
     
+    // Graph component was resized, check property from redux store
     this.graphResized = graphResized;
     
     let syncColor = this.state.optionsIconColor;

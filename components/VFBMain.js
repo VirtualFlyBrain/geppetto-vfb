@@ -991,6 +991,7 @@ class VFBMain extends React.Component {
         });
       });
       
+      // Event listener fired when graph component is resized
       node.setEventListener("resize", () => {
         self.props.resizeGraph();
       });
