@@ -22,8 +22,6 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { getResultsSOLR } from "./datasources/SOLRclient";
-import { DatasourceTypes } from './datasources/datasources';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -90,9 +88,9 @@ const styles = theme => ({
  * Read configuration from circuitBrowserConfiguration
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
+const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
+const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
-// SOLR Configuration
-const datasourceConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').datasourceConfiguration;
 
 /**
  * Create custom marks for Hops slider.
@@ -121,8 +119,7 @@ class Controls extends Component {
     this.state = {
       typingTimeout: 0,
       expanded : true,
-      neuronFields : this.props.neurons,
-      validationFailed : false
+      neuronFields : this.props.neurons
     };
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
@@ -132,16 +129,10 @@ class Controls extends Component {
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
     this.circuitQuerySelected = this.props.circuitQuerySelected;
-    this.handleResults = this.handleResults.bind(this);
-    
-    this.getDatasource = { [DatasourceTypes.SOLRClient]: getResultsSOLR };
-    this.invalidSOLRFields = new Array();
-    this.validSOLRFields = {}
   }
   
   componentDidMount () {
     this.setState( { expanded : !this.props.resultsAvailable() } );
-    this.getResults = this.getDatasource[this.props.datasource];
   }
 
   /**
@@ -183,65 +174,15 @@ class Controls extends Component {
    */
   fieldsValidated (neurons) {
     var pattern = /\d{8}/;
-    let valid = true;
-    
-    // Loop through TextFields and validate values
     for ( var i = 0 ; i < neurons.length ; i++ ){
-      // If neuron entered is an empty string, it's an invalid ID
       if ( neurons[i] === "" ) {
-        valid = false;
-        // Keep track of invalid neuron ID by keeping track of TextField index
-        this.invalidSOLRFields.push(i);
+        return false;
       } else if ( !neurons[i].match(pattern) ) {
-        // Neuron ID entered doesn't match ID pattern of 8 characters
-        valid = false;
-        // Keep track of invalid neuron ID by keeping track of TextField index
-        this.invalidSOLRFields.push(i);
-      } else if ( neurons[i].match(pattern)) {
-        // Neuron ID entered matches pattern of 8 characters
-        if ( this.validSOLRFields[neurons[i]] === undefined ) {
-          this.getResults(neurons[i], this.handleResults, datasourceConfiguration);
-        }
+        return false;
       }
     }
     
-    return valid;
-  }
-  
-  /**
-   * Handle results coming from SOLR search
-   */
-  handleResults (status, data, value) {
-    this.invalidSOLRFields = new Array();
-    let invalidID = false;
-    switch (status) {
-    case "OK":
-      // Keep track of valid SOLR IDs
-      this.validSOLRFields = Object.assign(this.validSOLRFields, data);
-      
-      // Loop through text fields and check if value belong to valid SOLR ID
-      for ( var i = 0; i < this.state.neuronFields.length ; i ++ ){
-        if ( this.validSOLRFields[this.state.neuronFields[i]] === undefined ) {
-          invalidID = true;
-          // Keep track of index of invalid TextField
-          this.invalidSOLRFields.push(i);
-        }
-      }
-        
-      // Neuron ID is not a valid SOLRD Id
-      if ( invalidID ) {
-        this.setState( { validationFailed : true } );
-      } else {
-        // Neuron fields are valid SOLR fields, request query and update state with valid fields
-        this.props.queriesUpdated(this.state.neuronFields);
-        this.setState( { validationFailed : false } );
-      }
-      break;
-    case "ERROR":
-      this.setState( { validationFailed : true } );
-      break;
-    default:
-    }
+    return true;
   }
   
   /**
@@ -251,17 +192,9 @@ class Controls extends Component {
   typingTimeout (target) {
     let neurons = this.state.neuronFields;
     neurons[target.id] = target.value;
-    
-    // Reset array tracking invalid fields
-    this.invalidSOLRFields = new Array();
-    
-    // If fields failed validation, update state with fields showing error
-    if ( !this.fieldsValidated(neurons) ) {
-      this.setState( { validationFailed : true } );
-    } else {
-      if ( this.state.validationFailed ) {
-        this.setState( { validationFailed : false } );
-      }
+    if ( this.fieldsValidated(neurons) ) {
+      this.setState( { neuronFields : neurons } );
+      this.props.queriesUpdated(neurons);
     }
   }
   
@@ -386,8 +319,6 @@ class Controls extends Component {
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <TextField
                           fullWidth
-                          error={this.invalidSOLRFields.includes(index) && value !== "" ? this.state.validationFailed : false }
-                          helperText={value !== "" && this.invalidSOLRFields.includes(index) ? "Invalid ID" : null }
                           margin="dense"
                           defaultValue={value}
                           placeholder={label}

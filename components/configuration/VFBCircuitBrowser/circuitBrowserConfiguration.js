@@ -68,30 +68,6 @@ var styling = {
   }
 }
 
-/**
- * SOLR data source configuration
- */
-var datasourceConfiguration = {
-  "url": "https://solr.virtualflybrain.org/solr/ontology/select",
-  "query_settings":
-    {
-      "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
-      "defType": "edismax",
-      "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest_e synonym_autosuggest shortform_autosuggest has_narrow_synonym_annotation has_broad_synonym_annotation",
-      "indent": "true",
-      "fl": "short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation,facets_annotation",
-      "start": "0",
-      "fq": [
-        "type:class OR type:individual OR type:property",
-        "ontology_name:(vfb)",
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
-      ],
-      "rows": "100",
-      "wt": "json",
-      "bq": "is_obsolete:false^100.0 shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 is_defining_ontology:true^100.0 label_s:\"\"^2 synonym_s:\"\" in_subset_annotation:BRAINNAME^3 short_form:FBbt_00003982^2"
-    }
-};
-
 var restPostConfig = {
   url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
@@ -101,6 +77,5 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  locationCypherQuery,
-  datasourceConfiguration
+  locationCypherQuery
 };

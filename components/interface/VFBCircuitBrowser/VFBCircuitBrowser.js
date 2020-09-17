@@ -256,7 +256,7 @@ class VFBCircuitBrowser extends Component {
       // Perform cypher query
       this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
     }
-  }    
+  }
 
   /**
    * Perform a cypher query to retrieve  cypher query
@@ -428,7 +428,6 @@ class VFBCircuitBrowser extends Component {
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
               circuitQuerySelected={this.circuitQuerySelected}
-              datasource="SOLR"
             />
           }
           // Function triggered when hovering over a nodeoptions

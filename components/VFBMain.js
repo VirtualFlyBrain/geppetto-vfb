@@ -999,7 +999,7 @@ class VFBMain extends React.Component {
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph ref={ref => self.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
       let listViewerVisibility = node.isVisible();
