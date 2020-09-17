@@ -6,6 +6,7 @@ import {
   INSTANCE_ADDED,
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
+  RESIZE_GRAPH,
   LOAD_CIRCUIT_BROWSER,
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
@@ -24,6 +25,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsLoaded: 0,
   loading: false,
   graphQueryIndex : {},
+  graphResized : false,
   instanceOnFocus : {},
   instanceSelection : {},
   instanceVisibilityChanged : false,
@@ -208,6 +210,11 @@ function generalReducer (state, action) {
       graphQueryIndex : action.data.queryIndex,
       instanceOnFocus : action.data.instance
     };
+  case RESIZE_GRAPH:
+    return { 
+      ...state,
+      graphResized : true
+    }
   case LOAD_CIRCUIT_BROWSER:
     return { 
       ...state, 

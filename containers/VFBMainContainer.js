@@ -7,7 +7,8 @@ import {
   instanceSelected,
   instanceVisibilityChanged,
   setTermInfo,
-  vfbGraph
+  vfbGraph,
+  resizeGraph
 } from '../actions/generals';
 import { connect } from "react-redux";
 
@@ -18,6 +19,7 @@ const mapDispatchToProps = dispatch => ({
   vfbIdLoaded: (id, component) => dispatch(vfbIdLoaded(id, component)),
   vfbUIUpdated: layout => dispatch(vfbUIUpdated(layout)),
   vfbGraph: (id, component, type) => dispatch(vfbGraph(id, component, type)),
+  resizeGraph: () => dispatch(resizeGraph()),
   instanceAdded: instance => dispatch(instanceAdded(instance)),
   instanceSelected : instance => dispatch(instanceSelected(instance)),
   instanceVisibilityChanged : instance => dispatch(instanceVisibilityChanged(instance)),

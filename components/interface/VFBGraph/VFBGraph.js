@@ -151,6 +151,7 @@ class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    this.graphResized = false;
     this.focusedInstance = { id : "" };
     this.selectedDropDownQuery = -1;
   }
@@ -185,10 +186,11 @@ class VFBGraph extends Component {
 
   componentDidUpdate () {
     let self = this;
-    if ( this.props.visible && !this.focused ) {
+    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
       setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
+        self.graphResized = false;
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
@@ -315,6 +317,10 @@ class VFBGraph extends Component {
       this.queryResults(cypherQuery(idToSearch), idToSearch)
     }
   }
+  
+  handleResize () {
+    alert("Resize")
+  }
 
   /**
    * Perform a cypher query to retrieve graph for instance
@@ -392,7 +398,10 @@ class VFBGraph extends Component {
 
   render () {
     let self = this;
-    const { instanceOnFocus, graphQueryIndex } = this.props;
+    const { instanceOnFocus, graphQueryIndex, graphResized } = this.props;
+    
+    this.graphResized = graphResized;
+    
     let syncColor = this.state.optionsIconColor;
     let loading = this.state.loading;
     
@@ -676,8 +685,10 @@ class VFBGraph extends Component {
 
 function mapStateToProps (state) {
   return {
+    ...state,
     graphQueryIndex : state.generals.graphQueryIndex,
-    instanceOnFocus : state.generals.instanceOnFocus
+    instanceOnFocus : state.generals.instanceOnFocus,
+    graphResized : state.generals.graphResized
   }
 }
 
