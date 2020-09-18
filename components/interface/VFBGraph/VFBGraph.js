@@ -423,7 +423,6 @@ class VFBGraph extends Component {
           }
         }
       })
-      
     }
     
     if ( !instanceOnFocus.id.includes(this.focusedInstance.id) ) {
