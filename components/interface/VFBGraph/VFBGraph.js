@@ -125,7 +125,7 @@ class VFBGraph extends Component {
     this.state = { 
       graph : { nodes : [], links : [] }, 
       loading : true, 
-      currentQuery : this.props.instance,
+      currentQuery : this.props.instance.id,
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
       nodeSelected : { title : "", id : "" }
@@ -282,8 +282,7 @@ class VFBGraph extends Component {
   /**
    * Gets notified every time the instance focused changes
    */
-  instanceFocusChange (id) {
-    let instance = Instances.getInstance(id);
+  instanceFocusChange (instance) {
     // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
     this.selectedDropDownQuery = -1;
     if (instance.getParent() !== null) {
@@ -427,7 +426,7 @@ class VFBGraph extends Component {
       
     }
     
-    if ( this.focusedInstance.id !== instanceOnFocus ) {
+    if ( !instanceOnFocus.id.includes(this.focusedInstance.id) ) {
       syncColor = stylingConfiguration.outOfSyncIconColor;
     }
     return (
@@ -572,6 +571,7 @@ class VFBGraph extends Component {
                       }
                     }
                     className={stylingConfiguration.icons.sync}
+                    key="tooltip-icon"
                     onClick={self.updateGraph }>
                   </i>
                 </Tooltip>
