@@ -9,7 +9,9 @@ export const UPDATE_GRAPH = 'UPDATE_GRAPH';
 export const LOAD_CIRCUIT_BROWSER = 'LOAD_CIRCUIT_BROWSER';
 export const UPDATE_CIRCUIT_BROWSER = 'UPDATE_CIRCUIT_BROWSER';
 export const INSTANCE_SELECTED = 'INSTANCE_SELECTION';
+export const INSTANCE_DELETED = 'INSTANCE_DELETED';
 export const INSTANCE_VISIBILITY_CHANGED = 'INSTANCE_VISIBILITY_CHANGED';
+export const SHOW_LIST_VIEWER = 'SHOW_LIST_VIEWER';
 
 export const vfbError = errorMessage => ({
   type: VFB_ERROR,
@@ -52,6 +54,11 @@ export const instanceAdded = instance => ({
   data: instance
 });
 
+export const instanceDeleted = (type, instance) => ({
+  type: type,
+  data: instance
+});
+
 export const instanceSelected = instance => ({
   type: INSTANCE_SELECTED,
   data: instance
@@ -68,4 +75,9 @@ export const setTermInfo = ( instance, visible ) => ({
     instance : instance,
     visible : visible
   }
+});
+
+export const showListViewer = () => ({
+  type: SHOW_LIST_VIEWER,
+  data : {}
 });

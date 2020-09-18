@@ -6,13 +6,15 @@ import {
   createMuiTheme,
   MuiThemeProvider
 } from "@material-ui/core/styles";
+import { connect } from 'react-redux';
+import { SHOW_LIST_VIEWER } from './../../../actions/generals';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 
 require('../../../css/VFBFocusTerm.less');
 
-export default class VFBFocusTerm extends React.Component {
+class VFBFocusTerm extends React.Component {
 
   constructor (props) {
     super(props);
@@ -486,6 +488,9 @@ export default class VFBFocusTerm extends React.Component {
         tooltipNext = window.history.state.f
       }
     }
+    
+    const { showListViewer } = this.props;
+    
     return (
       <Rnd
         enableResizing={{
@@ -578,7 +583,7 @@ export default class VFBFocusTerm extends React.Component {
                   title="Layers">
                   <i className="fa fa-list arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("listViewerVisible");
+                      this.props.showListViewer(SHOW_LIST_VIEWER);
                     }} />
                 </Tooltip>
               </MuiThemeProvider>
@@ -590,3 +595,13 @@ export default class VFBFocusTerm extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ... state }
+}
+
+function mapDispatchToProps (dispatch) {
+  return { showListViewer: type => dispatch({ type : type }) }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VFBFocusTerm);

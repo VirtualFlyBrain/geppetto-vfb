@@ -62,8 +62,8 @@ const controlsMenuConf = {
       position: "bottom-start",
       caret : {
         show : true, 
-        expandedIcon : <i className="fa fa-caret-down" />,
-        closedIcon : <i className="fa fa-caret-up" />
+        expandedIcon : <i className="fa fa-angle-down" />,
+        closedIcon : <i className="fa fa-angle-up" />
       },
       // Menu options to display
       list: [
@@ -105,6 +105,12 @@ const controlsMenuConf = {
               }
             }
           }
+        },
+        {
+          label: "Delete",
+          icon: "fa fa-trash",
+          isVisible : entity => entity.getId() != window.templateID,
+          action: 'delete'
         },
         {
           label: "Zoom To",

@@ -4,6 +4,7 @@ import {
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
   INSTANCE_ADDED,
+  INSTANCE_DELETED,
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
   LOAD_CIRCUIT_BROWSER,
@@ -26,6 +27,7 @@ export const GENERAL_DEFAULT_STATE = {
   graphQueryIndex : {},
   instanceOnFocus : {},
   instanceSelection : {},
+  instanceDeleted : {},
   instanceVisibilityChanged : false,
   termInfoVisible : false,
   circuitBrowserSelected : false,
@@ -189,7 +191,6 @@ function generalReducer (state, action) {
         ...state,
         idsToLoad: 0,
         idsLoaded: 0,
-        idsList: [],
         stepsToLoad: 0,
         stepsLoaded: 0,
         idsMap: newMap,
@@ -243,7 +244,19 @@ function generalReducer (state, action) {
   case INSTANCE_SELECTED:
     return {
       ...state,
-      instanceSelected : action.data
+      instanceSelected : action.data,
+      instanceOnFocus : action.data
+    }
+  case INSTANCE_DELETED:
+    var newMap = [ ...state.idsList ];
+    var index = newMap.indexOf(action.instance.id);
+    if ( index > -1 ) {
+      newMap.splice(index, 1);
+    }
+    return {
+      ...state,
+      instanceDeleted : action.instance,
+      idsList : newMap
     }
   case INSTANCE_VISIBILITY_CHANGED:
     return {
