@@ -312,7 +312,7 @@ class VFBGraph extends Component {
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
-      this.queryResults(cypherQuery(idToSearch), idToSearch)
+      this.queryResults(cypherQuery(idToSearch), idToSearch);
     }
   }
 
@@ -363,7 +363,6 @@ class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
