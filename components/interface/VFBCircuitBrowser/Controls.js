@@ -74,8 +74,9 @@ const styles = theme => ({
     padding: "2vh",
     listStyleType : "none",
     position: "absolute",
-    right : "0",
+    right : "1rem",
     backgroundColor : "#413C3C",
+    fontFamily : "'Barlow Condensed', 'Khand', sans-serif",
     zIndex: "100"
   },
   legendItem :{
