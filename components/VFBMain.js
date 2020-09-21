@@ -299,8 +299,9 @@ class VFBMain extends React.Component {
             var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
             var domObj = $(templateMarkup);
             var anchorElement = domObj.filter('a');
-            // load Template:
-            this.addVfbId(anchorElement.attr('data-instancepath'));
+            // extract ID
+            var templateID = anchorElement.attr('data-instancepath');
+            this.addVfbId(templateID);
             setTimeout(function (){
               window.resolve3D(path);
             }, 5000);
