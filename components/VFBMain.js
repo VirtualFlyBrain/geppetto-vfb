@@ -418,7 +418,7 @@ class VFBMain extends React.Component {
       if (children[i].getId().indexOf("_swc") || children.getId().indexOf("_obj")) {
         this.ThreeDViewerIdLoaded(instance.getId());
       }
-      if (children[i].getId().indexOf("_slice")) {
+      if (children[i].getId().indexOf("_slices")) {
         this.StackViewerIdLoaded(instance.getId());
       }
     }

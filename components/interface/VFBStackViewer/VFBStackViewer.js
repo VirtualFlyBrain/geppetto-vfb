@@ -113,7 +113,11 @@ export default class VFBStackViewer extends React.Component {
         if (this.props.onLoad !== undefined) {
           this.props.onLoad(instances.parent.getId());
         }
-        this.data.instances[this.data.instances.length] = instances;
+        if (instances.parent.getId() == window.templateID){
+          this.data.instances.unshift(instances);
+        } else {
+          this.data.instances[this.data.instances.length] = instances;
+        }
       } else {
         // console.log('Adding ' + instances.toString() + ' to ' + this.data.instances.length);
         window.test = instances;
