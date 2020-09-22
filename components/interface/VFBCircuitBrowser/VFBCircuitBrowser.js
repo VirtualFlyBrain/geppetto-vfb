@@ -155,7 +155,8 @@ class VFBCircuitBrowser extends Component {
       loading : true,
       dropDownAnchorEl : null,
       neurons : ["", ""],
-      hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2)
+      hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.queryResults = this.queryResults.bind(this);
@@ -174,6 +175,8 @@ class VFBCircuitBrowser extends Component {
     this.__isMounted = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    // Circuit Browser component has been resized
+    this.graphResized = false;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
 
@@ -185,10 +188,11 @@ class VFBCircuitBrowser extends Component {
 
   componentDidUpdate () {
     let self = this;
-    if ( this.props.visible && !this.focused ) {
+    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
       setTimeout( function () {
         self.resetCamera();
         self.focused = true;
+        self.graphResized = false;
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
@@ -211,6 +215,11 @@ class VFBCircuitBrowser extends Component {
    */
   updateHops (hops) {
     this.updateGraph(this.state.neurons, hops);
+  }
+  
+  resize(){
+    this.graphResized = true;
+    this.setState( { reload : !this.state.reload } );
   }
 
   resetCamera () {
@@ -478,4 +487,4 @@ function mapStateToProps (state) {
   }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(VFBCircuitBrowser));
+export default connect(mapStateToProps, null, null, { forwardRef : true } )(withStyles(styles)(VFBCircuitBrowser));

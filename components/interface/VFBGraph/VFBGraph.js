@@ -128,7 +128,8 @@ class VFBGraph extends Component {
       currentQuery : this.props.instance,
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
-      nodeSelected : { title : "", id : "" }
+      nodeSelected : { title : "", id : "" },
+      reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
@@ -141,6 +142,7 @@ class VFBGraph extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
+    this.resize = this.resize.bind(this);
 
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -209,6 +211,11 @@ class VFBGraph extends Component {
       this.graphRef.current.ggv.current.zoomToFit();
       this.focused = true;
     }
+  }
+  
+  resize(){
+    this.graphResized = true;
+    this.setState( { reload : !this.state.reload } );
   }
 
   zoomIn () {
@@ -396,10 +403,7 @@ class VFBGraph extends Component {
 
   render () {
     let self = this;
-    const { instanceOnFocus, graphQueryIndex, graphResized } = this.props;
-    
-    // Graph component was resized, check property from redux store
-    this.graphResized = graphResized;
+    const { instanceOnFocus, graphQueryIndex } = this.props;
     
     let syncColor = this.state.optionsIconColor;
     let loading = this.state.loading;
@@ -686,9 +690,8 @@ function mapStateToProps (state) {
   return {
     ...state,
     graphQueryIndex : state.generals.graphQueryIndex,
-    instanceOnFocus : state.generals.instanceOnFocus,
-    graphResized : state.generals.graphResized
+    instanceOnFocus : state.generals.instanceOnFocus
   }
 }
 
-export default connect(mapStateToProps)(VFBGraph);
+export default connect(mapStateToProps, null, null, { forwardRef : true } )(VFBGraph);

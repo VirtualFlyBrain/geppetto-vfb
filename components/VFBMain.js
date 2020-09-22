@@ -17,7 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
-import { SHOW_GRAPH, RESIZE_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO } from './../actions/generals';
+import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -993,14 +993,14 @@ class VFBMain extends React.Component {
       
       // Event listener fired when graph component is resized
       node.setEventListener("resize", () => {
-        self.props.resizeGraph();
+        self.graphReference.resize();
       });
       
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
       let listViewerVisibility = node.isVisible();
@@ -1024,6 +1024,12 @@ class VFBMain extends React.Component {
           circuitBrowserVisible: false
         });
       });
+      
+      // Event listener fired when circuit browser component is resized
+      node.setEventListener("resize", () => {
+        self.circuitBrowserReference.resize();
+      });
+      
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;

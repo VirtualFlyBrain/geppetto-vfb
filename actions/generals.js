@@ -5,7 +5,6 @@ export const VFB_ID_LOADED = 'VFB_ID_LOADED';
 export const VFB_UI_UPDATED = 'VFB_UI_UPDATED';
 export const INSTANCE_ADDED = 'INSTANCE_ADDED';
 export const SHOW_GRAPH = 'SHOW_GRAPH';
-export const RESIZE_GRAPH = 'RESIZE_GRAPH';
 export const UPDATE_GRAPH = 'UPDATE_GRAPH';
 export const LOAD_CIRCUIT_BROWSER = 'LOAD_CIRCUIT_BROWSER';
 export const UPDATE_CIRCUIT_BROWSER = 'UPDATE_CIRCUIT_BROWSER';
@@ -36,11 +35,6 @@ export const vfbGraph = (type, instance, queryIndex) => ({
     instance : instance ,
     queryIndex : queryIndex
   }
-});
-
-export const resizeGraph = type => ({
-  type: RESIZE_GRAPH,
-  data : {}
 });
 
 export const vfbCircuitBrowser = (type, instance) => ({
