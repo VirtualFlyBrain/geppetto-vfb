@@ -80,6 +80,8 @@ const styles = theme => ({
     zIndex: "100"
   },
   legendItem :{
+    position: "relative",
+    top: "2px",
     display : "inline-block",
     marginRight : "5vh",
     height : "2vh",
