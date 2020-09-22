@@ -217,11 +217,6 @@ class VFBCircuitBrowser extends Component {
   updateHops (hops) {
     this.updateGraph(this.state.neurons, hops);
   }
-  
-  resize(){
-    this.graphResized = true;
-    this.setState( { reload : !this.state.reload } );
-  }
 
   resetCamera () {
     if ( this.graphRef.current !== null ) {
@@ -230,6 +225,11 @@ class VFBCircuitBrowser extends Component {
     }
   }
 
+  resize(){
+    this.graphResized = true;
+    this.setState( { reload : !this.state.reload } );
+  }
+  
   zoomIn () {
     let zoom = this.graphRef.current.ggv.current.zoom();
     let inValue = 1;
@@ -266,7 +266,7 @@ class VFBCircuitBrowser extends Component {
       // Perform cypher query
       this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
     }
-  }
+  }    
 
   /**
    * Perform a cypher query to retrieve  cypher query
