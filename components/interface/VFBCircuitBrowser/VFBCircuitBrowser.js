@@ -438,6 +438,7 @@ class VFBCircuitBrowser extends Component {
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
               circuitQuerySelected={this.circuitQuerySelected}
+              datasource="SOLR"
             />
           }
           // Function triggered when hovering over a nodeoptions
