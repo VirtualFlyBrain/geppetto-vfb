@@ -688,7 +688,6 @@ class VFBGraph extends Component {
 
 function mapStateToProps (state) {
   return {
-    ...state,
     graphQueryIndex : state.generals.graphQueryIndex,
     instanceOnFocus : state.generals.instanceOnFocus
   }

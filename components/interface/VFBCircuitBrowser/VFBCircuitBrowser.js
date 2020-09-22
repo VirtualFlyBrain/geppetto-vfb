@@ -166,6 +166,7 @@ class VFBCircuitBrowser extends Component {
     this.zoomOut = this.zoomOut.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updateHops = this.updateHops.bind(this);
+    this.resize = this.resize.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
