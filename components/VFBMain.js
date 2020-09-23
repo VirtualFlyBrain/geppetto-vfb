@@ -990,11 +990,17 @@ class VFBMain extends React.Component {
           graphVisible: false
         });
       });
+      
+      // Event listener fired when graph component is resized
+      node.setEventListener("resize", () => {
+        self.graphReference.resize();
+      });
+      
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
       let listViewerVisibility = node.isVisible();
@@ -1018,6 +1024,12 @@ class VFBMain extends React.Component {
           circuitBrowserVisible: false
         });
       });
+      
+      // Event listener fired when circuit browser component is resized
+      node.setEventListener("resize", () => {
+        self.circuitBrowserReference.resize();
+      });
+      
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
