@@ -4,6 +4,8 @@ import listViewerConf from '../../configuration/VFBListViewer/listViewerConfigur
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from 'react-redux';
 
+require('../../../css/VFBListViewer.less');
+
 const VISUAL_TYPE = "VisualType";
 
 /**
@@ -35,10 +37,15 @@ class VFBListViewer extends Component {
     // Retrieve all instances from the ModelFactory
     let entities = GEPPETTO.ModelFactory.allPaths;
     var visuals = [];
+    
+    const { instanceDeleted, idsMap, idsList } = this.props;
+    
     // Match Visual Types from ModelFactory
     for (var i = 0; i < entities.length; i++) {
-      if (entities[i].metaType === VISUAL_TYPE) {
-        visuals.push(entities[i]);
+      if (entities[i].metaType === VISUAL_TYPE ) {
+        if (idsList.includes(entities[i].path.split(".")[0])){
+          visuals.push(entities[i]);
+        }
       }
     }
     return visuals;  
@@ -49,6 +56,7 @@ class VFBListViewer extends Component {
     return <div id="VFBLayers_component" style= { { backgroundColor : "rgb(53, 51, 51)" } } >
       <ListViewer
         instances={instances}
+        className = "vfbListViewer"
         handler={this}
         filter={() => true}
         columnConfiguration={this.getColumnConfiguration()}
@@ -60,7 +68,12 @@ class VFBListViewer extends Component {
 
 
 function mapStateToProps (state) {
-  return { instanceOnFocus : state.generals.instanceOnFocus }
+  return { 
+    instanceOnFocus : state.generals.instanceOnFocus,
+    instanceDeleted : state.generals.instanceDeleted,
+    idsMap : state.generals.idsMap,
+    idsList : state.generals.idsList
+  }
 }
 
 export default connect(mapStateToProps)(VFBListViewer);
