@@ -1,21 +1,24 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
 import { SliderPicker } from 'react-color';
-import Tree from 'geppetto-client/js/components/interface/tree/Tree';
+import Tree from '@geppettoengine/geppetto-ui/tree-viewer/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
+import { setTermInfo } from './../../../actions/generals';
+
 import {
   createMuiTheme,
   MuiThemeProvider
 } from "@material-ui/core/styles";
 
 import 'react-sortable-tree/style.css';
+import { connect } from 'react-redux';
 
 var $ = require('jquery');
 const restPostConfig = require('../../configuration/VFBTree/VFBTreeConfiguration').restPostConfig;
 const treeCypherQuery = require('../../configuration/VFBTree/VFBTreeConfiguration').treeCypherQuery;
 
-export default class VFBTree extends React.Component {
+class VFBTree extends React.Component {
 
   constructor (props) {
     super(props);
@@ -442,8 +445,10 @@ export default class VFBTree extends React.Component {
               }
               if (instanceFound && typeof Instances[rowInfo.node.instanceId].isVisible === "function") {
                 this.props.selectionHandler(rowInfo.node.instanceId);
+                this.props.setTermInfo({}, true);
               } else {
                 this.props.selectionHandler(rowInfo.node.classId);
+                this.props.setTermInfo({}, true);
               }
               this.setState({ nodeSelected: rowInfo.node });
             }}>
@@ -556,3 +561,12 @@ export default class VFBTree extends React.Component {
     }
   }
 }
+
+function mapStateToProps (state) {
+  return { ... state }
+}
+function mapDispatchToProps (dispatch) {
+  return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VFBTree);

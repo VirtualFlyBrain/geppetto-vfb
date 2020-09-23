@@ -1,18 +1,20 @@
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
   createMuiTheme,
   MuiThemeProvider
 } from "@material-ui/core/styles";
+import { connect } from 'react-redux';
+import { SHOW_LIST_VIEWER } from './../../../actions/generals';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 
 require('../../../css/VFBFocusTerm.less');
 
-export default class VFBFocusTerm extends React.Component {
+class VFBFocusTerm extends React.Component {
 
   constructor (props) {
     super(props);
@@ -281,7 +283,7 @@ export default class VFBFocusTerm extends React.Component {
       return searchSubMenu;
     case 'runQueryHandler':
       var that = this;
-      var Query = require('geppetto-client/js/geppettoModel/model/Query');
+      var Query = require('@geppettoengine/geppetto-core/model/Query');
       var otherId = click.parameters[0].getId();
       var otherName = click.parameters[0].getName();
       var callback = function () {
@@ -486,6 +488,9 @@ export default class VFBFocusTerm extends React.Component {
         tooltipNext = window.history.state.f
       }
     }
+    
+    const { showListViewer } = this.props;
+    
     return (
       <Rnd
         enableResizing={{
@@ -578,7 +583,7 @@ export default class VFBFocusTerm extends React.Component {
                   title="Layers">
                   <i className="fa fa-list arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("controlPanelVisible");
+                      this.props.showListViewer(SHOW_LIST_VIEWER);
                     }} />
                 </Tooltip>
               </MuiThemeProvider>
@@ -590,3 +595,13 @@ export default class VFBFocusTerm extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ... state }
+}
+
+function mapDispatchToProps (dispatch) {
+  return { showListViewer: type => dispatch({ type : type }) }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VFBFocusTerm);

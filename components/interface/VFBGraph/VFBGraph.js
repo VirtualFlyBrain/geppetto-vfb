@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import axios from 'axios';
-import GeppettoGraphVisualization from 'geppetto-client/js/components/interface/graph-visualization/Graph'
+import GeppettoGraphVisualization from '@geppettoengine/geppetto-ui/graph-visualization/Graph'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
+import { connect } from "react-redux";
 
 /**
  * Read configuration from graphConfiguration.js
@@ -56,6 +58,7 @@ function refineData (e) {
       if ( newLink ) {
         linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
       }
+
     });
   });
 
@@ -68,7 +71,7 @@ function refineData (e) {
       if (nodesMap.get(id) === undefined) {
         n = {
           path :  label,
-          id : id,
+          id : parseInt(id),
           title : title,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT
@@ -81,7 +84,11 @@ function refineData (e) {
 
   // Creates Links array with nodes
   nodes.forEach( sourceNode => {
-    let n = linksMap.get(sourceNode.id);
+    let id = sourceNode.id;
+    if ( typeof id === "number" ) {
+      id = sourceNode.id.toString();
+    }
+    let n = linksMap.get(id);
     if (n !== undefined){
       for (var i = 0 ; i < n.length; i++){
         let targetNode = nodesMap.get(n[i].target);
@@ -111,11 +118,19 @@ function refineData (e) {
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
 }
 
-export default class VFBGraph extends Component {
+class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
-    this.state = { graph : { nodes : [], links : [] } , loading : true, currentQuery : this.props.instance , dropDownAnchorEl : null };
+    this.state = { 
+      graph : { nodes : [], links : [] }, 
+      loading : true, 
+      currentQuery : this.props.instance.id,
+      dropDownAnchorEl : null,
+      optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
+      nodeSelected : { title : "", id : "" },
+      reload : false
+    }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
     this.queryResults = this.queryResults.bind(this);
@@ -127,6 +142,7 @@ export default class VFBGraph extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
+    this.resize = this.resize.bind(this);
 
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -137,7 +153,10 @@ export default class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
-    this.focusedInstance = null;
+    // Graph component has been resized
+    this.graphResized = false;
+    this.focusedInstance = { id : "" };
+    this.selectedDropDownQuery = -1;
   }
 
   componentDidMount () {
@@ -145,7 +164,12 @@ export default class VFBGraph extends Component {
     this.__isMounted = true;
 
     if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
-      this.focusedInstance = this.props.instance;
+      if (this.props.instance.getParent() !== null) {
+        this.focusedInstance = this.props.instance.getParent();
+      } else {
+        this.focusedInstance = this.props.instance;
+      }
+      
       this.updateGraph();
     }
 
@@ -160,18 +184,21 @@ export default class VFBGraph extends Component {
       if (event.isComposing || event.keyCode === 16) {
         self.shiftOn = false;
       }
-    });
+    });    
   }
 
   componentDidUpdate () {
     let self = this;
-    if ( this.props.visible && !this.focused ) {
-      setTimeout( function () {
+    // Reset camera if graph component is visible, not focused or has been resized
+    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
+      setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
+        self.graphResized = false;
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
+      this.selectedDropDownQuery = -1;
     }
   }
 
@@ -184,6 +211,11 @@ export default class VFBGraph extends Component {
       this.graphRef.current.ggv.current.zoomToFit();
       this.focused = true;
     }
+  }
+  
+  resize(){
+    this.graphResized = true;
+    this.setState( { reload : !this.state.reload } );
   }
 
   zoomIn () {
@@ -235,8 +267,10 @@ export default class VFBGraph extends Component {
    * Query new instance by using 'addVfbId' functionality
    */
   queryNewInstance (node) {
-    this.setState( { loading : true, nodeSelected : node } );
     window.addVfbId(node.title);
+    this.setState({ loading : true, nodeSelected : node, currentQuery : node.title, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+    // Perform cypher query
+    this.queryResults(cypherQuery(node.title), node.title)
   }
 
   selectedNodeLoaded (instance) {
@@ -247,8 +281,10 @@ export default class VFBGraph extends Component {
       loadedId = instance.id;
     }
 
-    if ( this.state.nodeSelected.title === loadedId ) {
-      return true;
+    if ( this.state.nodeSselected ) {
+      if ( this.state.nodeSelected.title === loadedId ) {
+        return true;
+      }
     }
 
     return false;
@@ -259,15 +295,11 @@ export default class VFBGraph extends Component {
    */
   instanceFocusChange (instance) {
     // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
-    this.focusedInstance = instance;
-
-    // Force an update on the graph only if there's no previous graph rendered.
-    if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 ){
-      this.updateGraph();
-    } else if ( this.selectedNodeLoaded(instance) ) {
-      this.updateGraph();
+    this.selectedDropDownQuery = -1;
+    if (instance.getParent() !== null) {
+      this.focusedInstance = instance.getParent();
     } else {
-      this.setState( { optionsIconColor : stylingConfiguration.outOfSyncIconColor } );
+      this.focusedInstance = instance;
     }
   }
 
@@ -290,7 +322,7 @@ export default class VFBGraph extends Component {
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
-      this.queryResults(cypherQuery(idToSearch), idToSearch)
+      this.queryResults(cypherQuery(idToSearch), idToSearch);
     }
   }
 
@@ -332,7 +364,7 @@ export default class VFBGraph extends Component {
             if ( self.graphRef.current !== null ) {
               self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
             }
-          }, (self.objectsLoaded * 20));
+          }, 0);
           break;
         }
       };
@@ -341,7 +373,6 @@ export default class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -370,9 +401,46 @@ export default class VFBGraph extends Component {
 
   render () {
     let self = this;
-
+    const { instanceOnFocus, graphQueryIndex } = this.props;
+    
+    let syncColor = this.state.optionsIconColor;
+    let loading = this.state.loading;
+    
+    if ( this.focusedInstance.id !== "" && instanceOnFocus !== this.focusedInstance.id ) {
+      this.instanceFocusChange(instanceOnFocus);
+      
+      if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery ){
+        let idToSearch = "";
+        if (this.focusedInstance.getParent() !== null) {
+          idToSearch = this.focusedInstance.getParent().id;
+        } else {
+          idToSearch = this.focusedInstance.id;
+        }
+        syncColor = stylingConfiguration.defaultRefreshIconColor;
+        // Perform cypher query
+        loading = true;
+        this.queryResults(cypherQuery(idToSearch), idToSearch)
+      }
+      if ( this.focusedInstance.id !== this.state.currentQuery ) {
+        syncColor = stylingConfiguration.outOfSyncIconColor;
+      }
+    } else if (this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ){
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( self.selectedDropDownQuery === -1 || self.selectedDropDownQuery !== parseInt(graphQueryIndex) ) { 
+          if ( parseInt(graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            loading = true;
+            self.queryResults(item.query(instanceOnFocus));
+          }
+        }
+      })
+    }
+    
+    if ( !instanceOnFocus.id.includes(this.focusedInstance.id) ) {
+      syncColor = stylingConfiguration.outOfSyncIconColor;
+    }
     return (
-      this.state.loading
+      loading
         ? <CircularProgress
           style={{
             position: 'absolute',
@@ -459,17 +527,81 @@ export default class VFBGraph extends Component {
             linkWidth={1.25}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.icons.home} onClick={self.resetCamera }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.zoomIn} onClick={self.zoomIn }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.icons.zoomOut} onClick={self.zoomOut }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.icons.sync} onClick={self.updateGraph }></i>
-                <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } }
-                  className={stylingConfiguration.icons.dropdown}
-                  aria-label="more"
-                  aria-controls="dropdown-menu"
-                  aria-haspopup="true"
-                  onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-                />
+                <Tooltip title={<h6>Reset View</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        top : "10px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.home}
+                    onClick={self.resetCamera }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom In</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomIn}
+                    onClick={self.zoomIn }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Zoom Out</h6>}>  
+                  <i
+                    style={
+                      {
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.zoomOut}
+                    onClick={self.zoomOut }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Refresh</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000",
+                        cursor : "pointer",
+                        marginTop : "20px",
+                        left : "10px",
+                        color : syncColor
+                      }
+                    }
+                    className={stylingConfiguration.icons.sync}
+                    key="tooltip-icon"
+                    onClick={self.updateGraph }>
+                  </i>
+                </Tooltip>
+                <Tooltip title={<h6>Options</h6>}>
+                  <i 
+                    style={ 
+                      { 
+                        zIndex : "1000" ,
+                        cursor : "pointer",
+                        marginTop : "5px",
+                        left : "10px"
+                      }
+                    }
+                    className={stylingConfiguration.icons.dropdown}
+                    aria-label="more"
+                    aria-controls="dropdown-menu"
+                    aria-haspopup="true"
+                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
+                  />
+                </Tooltip>
                 <Menu
                   id="dropdown-menu"
                   anchorEl={self.state.dropDownAnchorEl}
@@ -488,8 +620,8 @@ export default class VFBGraph extends Component {
                   }}
                 >
                   {stylingConfiguration.dropDownQueries.map(item => (
-                    <MenuItem
-                      key={item.label}
+                    <MenuItem 
+                      key={item.label(self.state.currentQuery)} 
                       onClick={() => self.handleMenuClick(item.query)}
                       style={{
                         fontSize : "14px",
@@ -506,7 +638,7 @@ export default class VFBGraph extends Component {
                       }
                       }
                     >
-                      {item.label}
+                      {item.label(self.state.currentQuery)}
                     </MenuItem>
                   ))}
                 </Menu>
@@ -551,3 +683,12 @@ export default class VFBGraph extends Component {
     )
   }
 }
+
+function mapStateToProps (state) {
+  return {
+    graphQueryIndex : state.generals.graphQueryIndex,
+    instanceOnFocus : state.generals.instanceOnFocus
+  }
+}
+
+export default connect(mapStateToProps, null, null, { forwardRef : true } )(VFBGraph);

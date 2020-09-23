@@ -6,15 +6,18 @@ import VFBTree from './interface/VFBTree/VFBTree';
 import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
 import TutorialWidget from './interface/VFBOverview/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
-import Logo from 'geppetto-client/js/components/interface/logo/Logo';
-import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
-import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
-import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
-import Search from 'geppetto-client/js/components/interface/search/Search';
+import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
+import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
+import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
+import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
+import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
+import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
+import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import { connect } from "react-redux";
+import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO, SHOW_LIST_VIEWER } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -24,7 +27,7 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-export default class VFBMain extends React.Component {
+class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
@@ -32,8 +35,9 @@ export default class VFBMain extends React.Component {
     this.state = {
       canvasAvailable: false,
       canvasVisible: true,
-      controlPanelVisible: true,
+      listViewerVisible: true,
       graphVisible : true,
+      circuitBrowserVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -74,6 +78,8 @@ export default class VFBMain extends React.Component {
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
+    this.circuitBrowserReference = undefined;
+    this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
@@ -90,11 +96,6 @@ export default class VFBMain extends React.Component {
 
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
-
-    this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
-    this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
-    this.controlPanelColumns = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColumns;
-    this.controlPanelControlConfigs = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelControlConfigs;
 
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
@@ -262,7 +263,7 @@ export default class VFBMain extends React.Component {
   }
 
   resolve3D (path, callback) {
-    var ImportType = require('geppetto-client/js/geppettoModel/model/ImportType');
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
@@ -417,7 +418,7 @@ export default class VFBMain extends React.Component {
       if (children[i].getId().indexOf("_swc") || children.getId().indexOf("_obj")) {
         this.ThreeDViewerIdLoaded(instance.getId());
       }
-      if (children[i].getId().indexOf("_slice")) {
+      if (children[i].getId().indexOf("_slices")) {
         this.StackViewerIdLoaded(instance.getId());
       }
     }
@@ -425,7 +426,7 @@ export default class VFBMain extends React.Component {
 
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
-      this.setState({
+      this.setState({ 
         UIUpdated: true,
         [itemState]: !this.state[itemState]
       });
@@ -452,6 +453,9 @@ export default class VFBMain extends React.Component {
     case 'graphVisible':
       this.UIUpdateItem(buttonState, "graphVisible");
       break;
+    case 'circuitBrowserVisible':
+      this.UIUpdateItem(buttonState, "circuitBrowserVisible");
+      break;
     case 'spotlightVisible':
       this.setState({
         UIUpdated: true,
@@ -464,11 +468,8 @@ export default class VFBMain extends React.Component {
         [buttonState]: !this.state[buttonState]
       });
       break;
-    case 'controlPanelVisible':
-      this.setState({
-        UIUpdated: true,
-        [buttonState]: !this.state[buttonState]
-      });
+    case 'listViewerVisible':
+      this.UIUpdateItem(buttonState, "listViewerVisible");
       break;
     case 'wireframeVisible':
       this.setState({
@@ -572,7 +573,7 @@ export default class VFBMain extends React.Component {
 
   renderHTMLViewer (htmlChild) {
     if (htmlChild !== undefined) {
-      this.setState({
+      this.setState({ 
         UIUpdated: true,
         htmlFromToolbar: htmlChild
       });
@@ -751,15 +752,33 @@ export default class VFBMain extends React.Component {
         graphVisible: true
       });
     }
-
+    if ((this.state.circuitBrowserVisible !== prevState.circuitBrowserVisible) && (this.state.circuitBrowserVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Circuit Browser",
+        component: "vfbCircuitBrowser"
+      });
+      this.setState({
+        UIUpdated: true,
+        circuitBrowserVisible: true
+      });
+    }
+    if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Layers",
+        component: "vfbListViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        listViewerVisible: true
+      });
+    }
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
     }
     if ((prevState.wireframeVisible !== this.state.wireframeVisible)) {
       this.canvasReference.setWireframe(!this.canvasReference.getWireframe());
-    }
-    if ((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-      this.refs.controlpanelRef.open();
     }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
       this.refs.searchRef.openSearch(true);
@@ -787,17 +806,29 @@ export default class VFBMain extends React.Component {
         }
         this.setState({ UIUpdated: false });
         break;
-      case 'graphVisible':
-        if (this.graphReference !== undefined && this.graphReference !== null) {
-          this.restoreUIComponent("vfbGraph");
+      case 'listViewerVisible':
+        if (this.listViewerReference !== undefined || this.listViewerReference !== null) {
+          this.restoreUIComponent("vfbListViewer");
         }
         this.setState({ UIUpdated: false });
         break;
+      case 'circuitBrowserVisible':
+        if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
+          this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;    
       case 'treeBrowserVisible':
         if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
           this.restoreUIComponent("treeBrowser");
         }
         this.setState({ UIUpdated: false });
+        break;
+      case 'graphVisible':
+        if (this.graphReference !== undefined && this.graphReference !== null) {
+          this.restoreUIComponent("vfbGraph");
+        }
+        this.setState({ UIUpdated: false, graphVisible : true });
         break;
       }
     }
@@ -832,6 +863,7 @@ export default class VFBMain extends React.Component {
   /* FLEXLayout factory method */
   factory (node) {
     var component = node.getComponent();
+    let self = this;
     if (component === "text") {
       return (<div className="">Panel {node.getName()}</div>);
     } else if (component === "canvas") {
@@ -855,6 +887,7 @@ export default class VFBMain extends React.Component {
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
+        this.props.setTermInfo(this.instanceOnFocus, false);
         this.setState({
           UIUpdated: false,
           termInfoVisible: false
@@ -870,6 +903,12 @@ export default class VFBMain extends React.Component {
           onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
+          uiUpdated= { () => {
+            self.setState({
+              UIUpdated: true,
+              graphVisible: true
+            })
+          }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
           order={['Name',
@@ -889,7 +928,8 @@ export default class VFBMain extends React.Component {
                   'Related Individuals',
                   'Relationships',
                   'Query for',
-                  'Query For',
+                  'Graph for',
+                  'Circuit Browser for',
                   'Description',
                   'Cross References',
                   'Attribution',
@@ -942,16 +982,56 @@ export default class VFBMain extends React.Component {
     } else if (component === "vfbGraph") {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          graphVisible: false
+        });
+      });
+      
+      // Event listener fired when graph component is resized
+      node.setEventListener("resize", () => {
+        self.graphReference.resize();
+      });
+      
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
+      </div>);
+    } else if (component === "vfbListViewer") {
+      let listViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
         this.setState({
           UIUpdated: false,
-          graphVisible: false
+          listViewerVisible: false
         });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph ref={ref => this.graphReference = ref} instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBListViewer ref={ref => this.listViewerReference = ref} />
+      </div>);
+    } else if (component === "vfbCircuitBrowser") {
+      let circuitBrowserVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        this.setState({
+          UIUpdated: false,
+          circuitBrowserVisible: false
+        });
+      });
+      
+      // Event listener fired when circuit browser component is resized
+      node.setEventListener("resize", () => {
+        self.circuitBrowserReference.resize();
+      });
+      
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
       </div>);
     }
   }
@@ -962,6 +1042,35 @@ export default class VFBMain extends React.Component {
       return false;
     } else {
       return true;
+    }    
+  }
+  
+  componentWillReceiveProps (nextProps) {
+    // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
+    if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
+      if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
+        if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
+          this.instanceOnFocus == nextProps.generals.instanceOnFocus;
+        }
+      }
+    }
+    
+    /**
+     * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
+     */
+    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
+      this.setActiveTab("termInfo");
+      this.termInfoReference.setTermInfo(this.instanceOnFocus);
+    }
+    
+    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === SHOW_LIST_VIEWER ) {
+      if (this.listViewerReference === undefined || this.listViewerReference === null) {
+        this.setState({
+          UIUpdated: true,
+          listViewerVisible: true
+        });
+      }
+      this.setActiveTab("vfbListViewer");
     }
   }
 
@@ -988,6 +1097,27 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    if ( this.props.generals.type == SHOW_GRAPH ) {
+      if ( !this.state.graphVisible ) {
+        this.setState({
+          UIUpdated: true,
+          graphVisible: true
+        });
+      } else {
+        this.setActiveTab("vfbGraph");
+      }
+    }
+    
+    if ( this.props.generals.type == LOAD_CIRCUIT_BROWSER ) {
+      if ( !this.state.circuitBrowserVisible ) {
+        this.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: true
+        });
+      } else {
+        this.setActiveTab("vfbCircuitBrowser");
+      }
+    }
   }
 
   componentWillMount () {
@@ -1047,6 +1177,7 @@ export default class VFBMain extends React.Component {
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
 
+    let self = this;
     GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
@@ -1086,31 +1217,6 @@ export default class VFBMain extends React.Component {
     this.canvasReference.displayAllInstances();
     this.canvasReference.engine.controls.rotateSpeed = 3;
     this.canvasReference.engine.setLinesThreshold(0);
-
-    // Control panel initialization and filter which instances to display
-    if (this.refs.controlpanelRef !== undefined) {
-      this.refs.controlpanelRef.setColumnMeta(this.controlPanelColMeta);
-      this.refs.controlpanelRef.setColumns(this.controlPanelColumns);
-      this.refs.controlpanelRef.setControlsConfig(this.controlPanelConfig);
-      this.refs.controlpanelRef.setControls(this.controlPanelControlConfigs);
-      this.refs.controlpanelRef.setDataFilter(function (entities) {
-        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
-        var visualParents = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getParent() != null) {
-            visualParents.push(visualInstances[i].getParent());
-          }
-        }
-        visualInstances = visualInstances.concat(visualParents);
-        var compositeInstances = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-            compositeInstances.push(visualInstances[i]);
-          }
-        }
-        return compositeInstances;
-      });
-    }
 
     // Loading ids passed through the browser's url
     var idsList = "";
@@ -1264,6 +1370,12 @@ export default class VFBMain extends React.Component {
       if (window.StackViewer1 != undefined) {
         this.sliceViewerReference.updateStackWidget();
       }
+
+      self.props.instanceSelected(instance);
+    }.bind(this));
+
+    GEPPETTO.on(GEPPETTO.Events.Visibility_changed, function (instance) {
+      self.props.instanceVisibilityChanged(instance);
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
@@ -1326,11 +1438,6 @@ export default class VFBMain extends React.Component {
       }
     }
 
-    // Update the graph component
-    if (this.graphReference !== undefined && this.graphReference !== null) {
-      this.graphReference.instanceFocusChange(this.instanceOnFocus);
-    }
-    
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
@@ -1344,6 +1451,27 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  /**
+   * Makes tab named 'tabName' become active.
+   */
+  setActiveTab (tabComponentName) {
+    let matchTab = 0;
+    let layoutChildren = this.model.toJson().layout.children;
+    for ( var i = 0; i < layoutChildren.length; i++){
+      if ( layoutChildren[i].type === "tabset"){
+        for ( var j = 0; j < layoutChildren[i].children.length ; j++){
+          if (layoutChildren[i].children[j].component === tabComponentName){
+            matchTab = layoutChildren[i].children[j].id;
+            break;
+          }
+        }
+        // if ( this.model._activeTabSet !== undefined ) {
+        this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
+      //  }
+      }
+    }
+  }
+  
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
@@ -1451,18 +1579,6 @@ export default class VFBMain extends React.Component {
           onRenderTabSet={onRenderTabSet}
           clickOnBordersAction={clickOnBordersAction}/>
 
-        <div id="controlpanel" style={{ top: 0 }}>
-          <ControlPanel ref="controlpanelRef"
-            icon={"styles.Modal"}
-            enableInfiniteScroll={true}
-            useBuiltInFilter={false}
-            controlPanelColMeta={this.controlPanelColMeta}
-            controlPanelConfig={this.controlPanelConfig}
-            columns={this.controlPanelColumns}
-            controlPanelControlConfigs={this.controlPanelControlConfigs}
-            showClose={true} />
-        </div>
-
         <QueryBuilder ref="querybuilderRef"
           icon={"styles.Modal"}
           useBuiltInFilter={false}
@@ -1483,3 +1599,9 @@ export default class VFBMain extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+export default connect(mapStateToProps)(VFBMain);
