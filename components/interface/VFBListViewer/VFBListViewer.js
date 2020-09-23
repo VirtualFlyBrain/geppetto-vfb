@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 require('../../../css/VFBListViewer.less');
 
 const VISUAL_TYPE = "VisualType";
+const COMPOSITE_VISUAL_TYPE = "CompositeVisualType";
 
 /**
  * Wrapper class that connects geppetto-client's ListViewer component with VFB.
@@ -42,7 +43,7 @@ class VFBListViewer extends Component {
     
     // Match Visual Types from ModelFactory
     for (var i = 0; i < entities.length; i++) {
-      if (entities[i].metaType === VISUAL_TYPE ) {
+      if (entities[i].metaType === VISUAL_TYPE || entities[i].metaType === COMPOSITE_VISUAL_TYPE ) {
         if (idsList.includes(entities[i].path.split(".")[0])){
           visuals.push(entities[i]);
         }
