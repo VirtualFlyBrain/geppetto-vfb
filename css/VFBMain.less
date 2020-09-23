@@ -1,4 +1,6 @@
 @import "./colors.less";
+@import (css) url('https://fonts.googleapis.com/css2?family=Barlow:wght@300&display=swap');
+@import (css) url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300&display=swap');
 
 @-webkit-keyframes fadeIn {
 		from {
@@ -52,12 +54,12 @@
 	background-color: #11bffe;
 }
 
-#controlPanelVisible {
+#listViewerVisible {
 	color: white;
 	background-color: rgb(1, 1, 1);
 }
 
-#controlPanelVisible:hover {
+#listViewerVisible:hover {
 	background-color: #11bffe;
 }
 
@@ -101,7 +103,7 @@
     border-color: #11bffe;
     color: #ffffff;
     font-size: 20px;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow', 'Khand', sans-serif;
     border: 0px solid;
     background: #444141;
 	padding: 4px 5px 4px 5px;
@@ -144,28 +146,6 @@
 	z-index: 999999;
 	overflow-y: scroll;
 	box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
-}
-
-.quickHelpViewer {
-	animation: fadeIn 1s;
-	-webkit-animation: fadeIn 1s;
-	transition: opacity 1s ease-out;
-	background-color: @background_color_widget;
-	background: @background_color_widget;
-	color: white;
-	z-index: 999999;
-	overflow-y: scroll;
-  box-shadow:0 0 0 1600px rgba(0,0,0,0.65);
-  overflow-y: hidden;
-}
-
-#quickHelpCheckbox {
-  position: absolute;
-  bottom: 15px;
-  left: 20px;
-  font-family: 'Khand', sans-serif;
-  color: #11bffe;
-  font-size: 18px;
 }
 
 .closeHTMLViewer {
@@ -281,6 +261,9 @@
 	max-width: 15VW;
 }
 
+.label {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 
 // FlexLayout layout
 
@@ -395,7 +378,7 @@
 .flexlayout__tab_button--selected {
     color: @background_color_body_0;
     font-size: 16px;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow Condensed', 'Khand', sans-serif;
     background-color: #000000;
 
 }
@@ -417,7 +400,7 @@
     padding-right: 5px;
     font-weight: 300;
     font-size: 15px;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow Condensed', 'Khand', sans-serif;
 }
 
 .flexlayout__tab_button_textbox {
@@ -567,7 +550,7 @@
     color: @primary_color;
     border: 1px solid;
     font-size: 16px;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow', 'Khand', sans-serif;
 }
 
 .flexlayout__popup_menu_item:hover {
@@ -675,7 +658,7 @@
     padding-right: 4px;
     font-weight: 300;
     font-size: 15px;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow', 'Khand', sans-serif;
     color: white;
 }
 
@@ -758,7 +741,11 @@
   background: rgba(66, 59, 59, 1);
 }
 
-#controlpanel .griddle button:not(.color-picker-button) {
+#controlpanel .griddle button.fa-check-circle {
+  color: yellow !important;
+}
+
+#controlpanel .griddle button:not(.color-picker-button):not(.fa-check-circle) {
 	color: white !important;
 }
 
@@ -787,7 +774,7 @@
     -ms-transition: opacity 0.5s;
     -o-transition: opacity 0.5s;
     transition: opacity 0.5s;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow', 'Khand', sans-serif;
     font-size: 13px;
     font-weight: 300;
     min-width: 60px;
@@ -1586,7 +1573,7 @@
     display: block;
     white-space: pre-wrap;
     font-size:0px;
-    font-family: 'Khand', sans-serif;
+    font-family: 'Barlow', 'Khand', sans-serif;
     padding-top: 8px;
 }
 
@@ -1623,7 +1610,7 @@
 .nodeSelected {
   color: #ffffff;
   font-size: 14px;
-  font-family: 'Khand', sans-serif;
+  font-family: 'Barlow', 'Khand', sans-serif;
   border: 0px solid;
   background: transparent;
 }
@@ -1656,7 +1643,7 @@
 #treeError {
   color: #ffffff;
   font-size: 17px;
-  font-family: 'Khand', sans-serif;
+  font-family: 'Barlow', 'Khand', sans-serif;
 }
 
 @-moz-document url-prefix() {

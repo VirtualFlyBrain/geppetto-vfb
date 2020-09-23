@@ -1,6 +1,6 @@
 /* eslint-disable no-tabs */
 import React from 'react';
-import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
 var VFBLoader = require('../VFBLoader/VFBLoaderContainer').default;
 var Rnd = require('react-rnd').default;
 
@@ -13,7 +13,7 @@ const popperStyles = {
     borderRadius: 0,
     color: '#ffffff',
     fontSize: '12px',
-    fontFamily: 'Khand, sans-serif',
+    fontFamily: 'Barlow Condensed, Khand, sans-serif',
     minWidth: '110px',
     borderLeft: '1px solid #585858',
     borderRight: '1px solid #585858',
@@ -31,7 +31,7 @@ const sectionStyles = {
     boxShadow: '0px 0px',
     color: '#ffffff',
     fontSize: '16px',
-    fontFamily: 'Khand, sans-serif',
+    fontFamily: 'Barlow Condensed, Khand, sans-serif',
     margin: '0px 0px 0px 0px',
     minWidth: '44px',
     height: '30px',
@@ -48,7 +48,7 @@ const sectionStyles = {
     boxShadow: '0px 0px',
     color: '#ffffff',
     fontSize: '16px',
-    fontFamily: 'Khand, sans-serif',
+    fontFamily: 'Barlow Condensed, Khand, sans-serif',
     margin: '0px 0px 0px 0px',
     minWidth: '44px',
     height: '30px',
@@ -150,7 +150,7 @@ export default class VFBToolBar extends React.Component {
       majorVersion = parseInt(navigator.appVersion,10);
     }
     // return as much of the log up to the last 10 events < 1000 characters:
-    var logLength = -10;
+    var logLength = -50;
     var limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
       /\&/g,escape('&')
     ).replace(

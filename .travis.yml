@@ -45,11 +45,11 @@ jobs:
             export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
             export TAG=$TAG-development;
           elif [ "$BUILD_TYPE" == "staging" ]; then
-            export VFB_TREE_PDB_SERVER=https://pdb-alpha.virtualflybrain.org;
-            export VFB_PDB_SERVER=http://pdb-alpha.virtualflybrain.org;
-            export VFB_OWL_SERVER=http://owl-alpha.virtualflybrain.org/kbs/vfb/;
+            export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
+            export VFB_PDB_SERVER=http://pdb.virtualflybrain.org;
+            export VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/;
             export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
-            export SOLR_SERVER=https://solr-alpha.virtualflybrain.org/solr/ontology/select;
+            export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
           else
             export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
             export VFB_PDB_SERVER=http://pdb.virtualflybrain.org;
@@ -64,6 +64,7 @@ jobs:
           export SOLR_SERVER=https://solr.p2.virtualflybrain.org/solr/ontology/select;
         - export TAG="$TAG-TEST"
       before_script:
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - docker pull metacell/java-virgo-maven:development || true
         - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
       script:
@@ -85,6 +86,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -96,8 +98,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -107,11 +108,10 @@ jobs:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
       after_failure:
         - docker ps -a
-        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
+        - docker logs $CONTAINER_NAME
         - echo -e "travis_fold:start:Cleanup" || true
-        - docker stop $(docker ps -a -q)
-        - docker rm $(docker ps -a -q)
+        - docker stop $(docker ps -a -q) || true
+        - docker rm $(docker ps -a -q) || true
         - echo -e "travis_fold:end:Cleanup" || true
 
     - stage: test
@@ -126,6 +126,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -137,8 +138,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -148,8 +148,7 @@ jobs:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
       after_failure:
         - docker ps -a
-        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
+        - docker logs $CONTAINER_NAME
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
@@ -167,6 +166,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -178,8 +178,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -190,8 +189,7 @@ jobs:
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
-        - echo -e "travis_fold:start:Cleanup" || true
+        - docker logs $CONTAINER_NAME
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)
         - echo -e "travis_fold:end:Cleanup" || true
@@ -216,8 +214,8 @@ jobs:
               export VFB_TREE_PDB_SERVER=https://pdb-dev.virtualflybrain.org;
               export SOLR_SERVER=https://solr-dev.virtualflybrain.org/solr/ontology/select;
             elif [ "$BUILD_TYPE" == "staging" ]; then
-              export VFB_TREE_PDB_SERVER=https://pdb-alpha.virtualflybrain.org;
-              export SOLR_SERVER=https://solr-alpha.virtualflybrain.org/solr/ontology/select;
+              export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
+              export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
             else
               export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
               export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
@@ -276,6 +274,7 @@ jobs:
         - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS;
         - travis_wait 70 docker run -t -dit --name=$CONTAINER_NAME -p 8080:8080 $REPO:$TAG || travis_terminate 1
         - echo -e "travis_fold:end:Docker_Run" || true
         - echo -e "travis_fold:start:Startup_Server1" || true
@@ -287,8 +286,7 @@ jobs:
         - echo "$http_status"
         - while [ "$http_status" != "200" ]; do
             echo "Printing logs for debugging purposes";
-            sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc;
-            tail /etc/log.log;
+            docker logs $CONTAINER_NAME;
             docker stop $(docker ps -a -q);
             echo "Docker container failed to start!";
             travis_terminate 1;
@@ -298,8 +296,7 @@ jobs:
         - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
       after_failure:
         - docker ps -a
-        - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
-        - cat /etc/log.log
+        - docker logs $CONTAINER_NAME
         - echo -e "travis_fold:start:Cleanup" || true
         - docker stop $(docker ps -a -q)
         - docker rm $(docker ps -a -q)

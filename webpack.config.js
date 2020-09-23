@@ -17,7 +17,8 @@ try {
   // Failed to load config file
   console.error('\nFailed to load Geppetto Configuration')
 }
-var geppetto_client_path = 'node_modules/@geppettoengine/geppetto-client'
+var geppetto_base_path = 'node_modules/@geppettoengine/geppetto-client'
+const geppetto_client_path = geppetto_base_path + '/geppetto-client';
 
 var publicPath = path.join("/", geppettoConfig.contextPath, "geppetto/build/");
 console.log("\nThe public path (used by the main bundle when including split bundles) is: " + publicPath);
@@ -30,26 +31,7 @@ var availableExtensions = [];
 availableExtensions.push({ from: path.resolve(__dirname, geppetto_client_path, "static/*"), to: 'static', flatten: true });
 availableExtensions.push({ from: path.resolve(__dirname, "static"), to: 'static' });
 availableExtensions.push({ from: 'model/*', to: './', flatten: true });
-
-const splashLoadingImage = 'images/splash.gif';
-
-try {
-  if (fs.existsSync(splashLoadingImage)) {
-    availableExtensions.push({ from: splashLoadingImage, to: './', flatten: true });
-  }
-} catch (err) {
-  console.error(err)
-}
-
-const quickHelpImage = 'images/splash.png';
-
-try {
-  if (fs.existsSync(quickHelpImage)) {
-    availableExtensions.push({ from: quickHelpImage, to: './', flatten: true });
-  }
-} catch (err) {
-  console.error(err)
-}
+availableExtensions.push({ from: 'images/*', to: './', flatten: true });
 
 console.log(availableExtensions);
 
@@ -155,9 +137,11 @@ module.exports = function (env){
     resolve: {
       alias: {
         root: path.resolve(__dirname),
-        'geppetto-client': path.resolve(__dirname, geppetto_client_path),
+        '@geppettoengine/geppetto-client': path.resolve(__dirname, geppetto_client_path + '/js'),
+        '@geppettoengine/geppetto-ui': path.resolve(__dirname, geppetto_base_path + '/geppetto-ui/src'),
+        '@geppettoengine/geppetto-core': path.resolve(__dirname, geppetto_base_path + '/geppetto-core/src'),
         geppetto: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/GEPPETTO.js'),
-        'geppetto-client-initialization': path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/main'),
+        '@geppettoengine/geppetto-client-initialization': path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/main'),
         handlebars: 'handlebars/dist/handlebars.js'
       },
       extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx'],
@@ -169,9 +153,9 @@ module.exports = function (env){
           test: /\.(js|jsx)$/,
           exclude: [/ami.min.js/, /node_modules\/(?!(@geppettoengine\/geppetto-client)\/).*/], 
           loader: 'babel-loader',
-          query: {
+          query: { 
             presets: [['@babel/preset-env', { "modules": false }], '@babel/preset-react'],
-            plugins: [ "@babel/plugin-proposal-class-properties" ]
+            plugins : ["@babel/plugin-transform-runtime", "@babel/plugin-proposal-class-properties"], sourceType: "unambiguous"
           }
         },
         // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.

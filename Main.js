@@ -6,7 +6,7 @@ const configureStore = require('./store').default;
 const store = configureStore();
 
 jQuery(function () {
-  require('geppetto-client-initialization');
+  require('@geppettoengine/geppetto-client-initialization');
   var React = require('react');
   var ReactDOM = require('react-dom');
   var Route = require('react-router-dom').Route;
