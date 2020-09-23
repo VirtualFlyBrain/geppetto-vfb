@@ -51,6 +51,7 @@ function refineData (e) {
   let nodes = [], links = [];
   let linksMap = new Map();
   let nodesMap = new Map();
+  let presentColorLabels = new Array();
 
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph }) => {
@@ -83,11 +84,18 @@ function refineData (e) {
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
       let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;
       
+      // Retrieve list of Label colors from configuration
       const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
       
+      // Loop through color labels
       for (var i = 0; i < colorLabels.length ; i++ ) {
-        if ( labels.indexOf(colorLabels[i][0]) > -1 ) {
+        let index = labels.indexOf(colorLabels[i][0]);
+        if ( index > -1 ) {
           color = colorLabels[i][1];
+          // Add to array of present colors only if array doesn't have it already
+          if ( !presentColorLabels.includes(labels[index]) ) {
+            presentColorLabels.push(labels[index]);
+          }
           break;
         }
       }
@@ -140,7 +148,7 @@ function refineData (e) {
   });
 
   // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
+  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
 }
 
 /**
@@ -151,7 +159,8 @@ class VFBCircuitBrowser extends Component {
   constructor (props) {
     super(props);
     this.state = {
-      graph : { nodes : [], links : [] } , 
+      graph : { nodes : [], links : [] } ,
+      legend : {},
       loading : true,
       dropDownAnchorEl : null,
       neurons : ["", ""],
@@ -210,7 +219,7 @@ class VFBCircuitBrowser extends Component {
    * Hops in controls component have been updated, request new graph with updated amount of hops
    */
   updateHops (hops) {
-    this.updateGraph(this.state.neurons, hops);
+    this.setState({ hops : hops });
   }
 
   resetCamera () {
@@ -256,7 +265,7 @@ class VFBCircuitBrowser extends Component {
       // Perform cypher query
       this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
     }
-  }
+  }    
 
   /**
    * Perform a cypher query to retrieve  cypher query
@@ -289,7 +298,7 @@ class VFBCircuitBrowser extends Component {
       worker.onmessage = function (e) {
         switch (e.data.resultMessage) {
         case "OK":
-          self.setState( { graph : e.data.params.results , loading : false });
+          self.setState( { graph : e.data.params.results , legend : e.data.params.colorLabels, loading : false });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
             self.resetCamera();
@@ -428,6 +437,8 @@ class VFBCircuitBrowser extends Component {
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
               circuitQuerySelected={this.circuitQuerySelected}
+              datasource="SOLR"
+              legend = {self.state.legend}
             />
           }
           // Function triggered when hovering over a nodeoptions
