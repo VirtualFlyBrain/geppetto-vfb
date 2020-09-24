@@ -31,22 +31,11 @@ var searchConfiguration = {
     },
   "filters": [
     {
-      "key": "label",
-      "filter_name": "Label",
-      "type": "string",
-      "enabled": "positive",
-    },
-    {
-      "key": "short_form",
-      "filter_name": "ID",
-      "type": "string",
-      "enabled": "negative",
-    },
-    {
       "key": "facets_annotation",
       "filter_name": "Type",
       "type": "array",
       "enabled": "disabled",
+      "disableGlobal": true,
       "values": [
         {
           "key": "Adult",
