@@ -128,7 +128,8 @@ class VFBGraph extends Component {
       currentQuery : this.props.instance.id,
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
-      nodeSelected : { title : "", id : "" }
+      nodeSelected : { title : "", id : "" },
+      reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.instanceFocusChange = this.instanceFocusChange.bind(this);
@@ -141,6 +142,7 @@ class VFBGraph extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
+    this.resize = this.resize.bind(this);
 
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -151,6 +153,8 @@ class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    // Graph component has been resized
+    this.graphResized = false;
     this.focusedInstance = { id : "" };
     this.selectedDropDownQuery = -1;
   }
@@ -185,10 +189,12 @@ class VFBGraph extends Component {
 
   componentDidUpdate () {
     let self = this;
-    if ( this.props.visible && !this.focused ) {
+    // Reset camera if graph component is visible, not focused or has been resized
+    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
       setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
+        self.graphResized = false;
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
@@ -205,6 +211,11 @@ class VFBGraph extends Component {
       this.graphRef.current.ggv.current.zoomToFit();
       this.focused = true;
     }
+  }
+  
+  resize(){
+    this.graphResized = true;
+    this.setState( { reload : !this.state.reload } );
   }
 
   zoomIn () {
@@ -311,7 +322,7 @@ class VFBGraph extends Component {
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
-      this.queryResults(cypherQuery(idToSearch), idToSearch)
+      this.queryResults(cypherQuery(idToSearch), idToSearch);
     }
   }
 
@@ -362,7 +373,6 @@ class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -392,6 +402,7 @@ class VFBGraph extends Component {
   render () {
     let self = this;
     const { instanceOnFocus, graphQueryIndex } = this.props;
+    
     let syncColor = this.state.optionsIconColor;
     let loading = this.state.loading;
     
@@ -680,4 +691,4 @@ function mapStateToProps (state) {
   }
 }
 
-export default connect(mapStateToProps)(VFBGraph);
+export default connect(mapStateToProps, null, null, { forwardRef : true } )(VFBGraph);
