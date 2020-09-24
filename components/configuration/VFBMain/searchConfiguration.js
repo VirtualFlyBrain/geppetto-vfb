@@ -6,11 +6,10 @@ var datasourceConfiguration = {
       "defType": "edismax",
       "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
-      "fl": "short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation,facets_annotation",
+      "fl": "short_form,label,synonym,id,facets_annotation",
       "start": "0",
       "fq": [
-        "type:class OR type:individual OR type:property",
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
+        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
       ],
       "rows": "100",
       "wt": "json",
