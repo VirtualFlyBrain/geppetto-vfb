@@ -80,13 +80,13 @@ class ListViewerControlsMenu extends Component {
     case ACTIONS.SHOW_VOLUME:
       var color = this.props.instance.getColor();
       var instance = this.props.instance[this.props.instance.getId() + "_obj"];
-      if ( instance === null || instance === undefined ){
-        instance = this.props.instance;  
+      if ( instance === undefined ) {
+        instance = this.props.instance.getType()[this.props.instance.getId() + "_obj"];
       }
       if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) {
-        var col = instance.getParent().getColor();
+        var self = this;
         instance.getType().resolve(function () {
-          instance.setColor(col);
+          self.props.instance.setColor(color);
           GEPPETTO.trigger('experiment:visibility_changed', instance);
           GEPPETTO.ControlPanel.refresh();
         });
@@ -99,7 +99,11 @@ class ListViewerControlsMenu extends Component {
       }
       break;
     case ACTIONS.HIDE_VOLUME:
-      this.props.instance.hide();
+      var instance = this.props.instance[this.props.instance.getId() + "_obj"];
+      if ( instance === undefined ) {
+        instance = this.props.instance.getType()[this.props.instance.getId() + "_obj"];
+      }
+      instance.hide();
       break;
     case ACTIONS.SHOW_SKELETON:
       var color = this.props.instance.getColor();

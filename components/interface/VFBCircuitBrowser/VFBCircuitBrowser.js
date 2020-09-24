@@ -234,7 +234,7 @@ class VFBCircuitBrowser extends Component {
     }
   }
 
-  resize(){
+  resize (){
     this.graphResized = true;
     this.setState( { reload : !this.state.reload } );
   }
