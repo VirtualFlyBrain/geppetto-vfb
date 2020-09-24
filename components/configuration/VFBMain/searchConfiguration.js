@@ -10,12 +10,11 @@ var datasourceConfiguration = {
       "start": "0",
       "fq": [
         "type:class OR type:individual OR type:property",
-        "ontology_name:(vfb)",
         "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "is_obsolete:false^100.0 shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 is_defining_ontology:true^100.0 label_s:\"\"^2 synonym_s:\"\" in_subset_annotation:BRAINNAME^3 short_form:FBbt_00003982^2"
+      "bq": "shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2"
     }
 };
 
