@@ -1,3 +1,88 @@
+var searchStyle = {
+  inputWrapper: {
+    "position": "absolute",
+    "height": "100%",
+    "width": "100%",
+    "top": "10%"
+  },
+  searchText: {
+    "width": "100vh",
+    "zIndex": "6",
+    "fontSize": "22px",
+    "color": "black",
+    "backgroundColor": "white",
+    "padding": "7px 20px 7px 20px",
+    "border": "3px solid #11bffe",
+  },
+  filterIcon: {
+    "right": "25px",
+    "bottom": "15px",
+    "zIndex": "6",
+    "cursor": "pointer",
+    "fontSize": "25px",
+    "position": "absolute",
+    "color": "black",
+  },
+  closeIcon: {
+    "position": "relative",
+    "color": "#11bffe",
+    "bottom": "50px",
+    "right": "14px",
+    "fontWeight": "bold",
+    "fontSize": "20px",
+    "cursor": "pointer",
+  },
+  paperResults: {
+    "left": "14%",
+    "height": "50%",
+    "width": "70%",
+    "position": "absolute",
+    "textAlign": "center",
+    "backgroundColor": "#333333",
+    "padding": "12px 20px 12px 20px",
+    "overflow": "scroll",
+    "zIndex": "5",
+  },
+  paperFilters: {
+    "minHeight": "280px",
+    "minWidth": "240px",
+    "position": "absolute",
+    "backgroundColor": "#141313",
+    "color": "white",
+    "overflow": "scroll",
+    "zIndex": "6",
+    "border": "3px solid #11bffe",
+    "fontFamily": "Barlow, Khand, sans-serif",
+    "fontSize": "16px",
+    "top": "58px",
+    "right": "0px",
+  },
+  singleResult: {
+    "color": "white",
+    "fontSize": "18px",
+
+    ":hover": {
+      "color": "#11bffe",
+      "background-color": "#252323",
+    },
+  },
+  main: {
+    "position": "absolute",
+    "top": "0px",
+    "left": "0px",
+    "width": "100%",
+    "height": "100%",
+    "margin": "0",
+    "padding": "0",
+    "zIndex": "3",
+    "backgroundColor": "rgba(51, 51, 51, 0.7)",
+    "textAlign": "center",
+    "display": "flex",
+    "alignItems": "center",
+    "justifyContent": "center",
+  }
+};
+
 var datasourceConfiguration = {
   "url": "https://solr-dev.virtualflybrain.org/solr/ontology/select",
   "query_settings":
@@ -18,10 +103,6 @@ var datasourceConfiguration = {
       "bq": "is_obsolete:false^100.0 shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 is_defining_ontology:true^100.0 label_s:\"\"^2 synonym_s:\"\" in_subset_annotation:BRAINNAME^3 short_form:FBbt_00003982^2"
     }
 };
-
-// searchedObject define what to take from
-
-// filters state can be: disabled, negative, positive
 
 var searchConfiguration = {
   "resultsMapping":
@@ -167,6 +248,7 @@ var searchConfiguration = {
 };
 
 module.exports = {
+  searchStyle,
+  searchConfiguration,
   datasourceConfiguration,
-  searchConfiguration
 };
