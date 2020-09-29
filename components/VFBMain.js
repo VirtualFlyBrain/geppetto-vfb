@@ -17,7 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
-import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO } from './../actions/generals';
+import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO, SHOW_LIST_VIEWER } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -94,6 +94,7 @@ class VFBMain extends React.Component {
 
     this.colours = require('./configuration/VFBMain/colours.json');
 
+    this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
@@ -469,10 +470,7 @@ class VFBMain extends React.Component {
       });
       break;
     case 'listViewerVisible':
-      this.setState({
-        UIUpdated: true,
-        [buttonState]: !this.state[buttonState]
-      });
+      this.UIUpdateItem(buttonState, "listViewerVisible");
       break;
     case 'wireframeVisible':
       this.setState({
@@ -810,7 +808,7 @@ class VFBMain extends React.Component {
         this.setState({ UIUpdated: false });
         break;
       case 'listViewerVisible':
-        if (this.listViewerReference !== undefined && this.listViewerReference !== null) {
+        if (this.listViewerReference !== undefined || this.listViewerReference !== null) {
           this.restoreUIComponent("vfbListViewer");
         }
         this.setState({ UIUpdated: false });
@@ -990,11 +988,17 @@ class VFBMain extends React.Component {
           graphVisible: false
         });
       });
+      
+      // Event listener fired when graph component is resized
+      node.setEventListener("resize", () => {
+        self.graphReference.resize();
+      });
+      
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
-        <VFBGraph instance={this.instanceOnFocus} visible={graphVisibility} />
+        <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
       let listViewerVisibility = node.isVisible();
@@ -1018,6 +1022,12 @@ class VFBMain extends React.Component {
           circuitBrowserVisible: false
         });
       });
+      
+      // Event listener fired when circuit browser component is resized
+      node.setEventListener("resize", () => {
+        self.circuitBrowserReference.resize();
+      });
+      
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
@@ -1039,15 +1049,9 @@ class VFBMain extends React.Component {
   componentWillReceiveProps (nextProps) {
     // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
     if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
-      if (typeof nextProps.generals.instanceOnFocus === 'string' ) {
+      if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
         if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
-          this.instanceOnFocus == Instances.getInstance(nextProps.generals.instanceOnFocus);
-        }
-      } else {
-        if ( Object.keys(nextProps.generals.instanceOnFocus).length !== 0 ) {
-          if ( nextProps.generals.instanceOnFocus.getId() !== this.instanceOnFocus.getId() ){
-            this.instanceOnFocus = nextProps.generals.instanceOnFocus;
-          }
+          this.instanceOnFocus == nextProps.generals.instanceOnFocus;
         }
       }
     }
@@ -1058,6 +1062,16 @@ class VFBMain extends React.Component {
     if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
       this.setActiveTab("termInfo");
       this.termInfoReference.setTermInfo(this.instanceOnFocus);
+    }
+    
+    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === SHOW_LIST_VIEWER ) {
+      if (this.listViewerReference === undefined || this.listViewerReference === null) {
+        this.setState({
+          UIUpdated: true,
+          listViewerVisible: true
+        });
+      }
+      this.setActiveTab("vfbListViewer");
     }
   }
 
@@ -1094,7 +1108,7 @@ class VFBMain extends React.Component {
         this.setActiveTab("vfbGraph");
       }
     }
-
+    
     if ( this.props.generals.type == LOAD_CIRCUIT_BROWSER ) {
       if ( !this.state.circuitBrowserVisible ) {
         this.setState({
@@ -1452,9 +1466,9 @@ class VFBMain extends React.Component {
             break;
           }
         }
-        if ( this.model._activeTabSet !== undefined ) {
-          this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
-        }
+        // if ( this.model._activeTabSet !== undefined ) {
+        this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
+      //  }
       }
     }
   }
@@ -1578,6 +1592,7 @@ class VFBMain extends React.Component {
 
         <Search ref="searchRef"
           datasource="SOLR"
+          searchStyle={this.searchStyle}
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 

@@ -39,8 +39,7 @@ const conf = [
     source : entity => { 
       let path = entity.path.split(".")[0];
       return Instances.getInstance(path).getName();
-    },
-    customHeadingComponent : ({ title }) => <span style={{ color: '#AA0000' }}></span>
+    }
   },
   {
     id: "type",
@@ -49,8 +48,14 @@ const conf = [
       // Retrieve instance path
       let path = component.value.get("path").split(".")[0];
       
+      let instance = Instances.getInstance(path)[path + "_meta"];
+      
+      if ( instance === undefined ) {
+        return null;
+      }
+      
       // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string
-      let html = Instances.getInstance(path)[path + "_meta"].getTypes().map(function (t) {
+      let html = instance.getTypes().map(function (t) {
         return t.type.getInitialValue().value
       })[0].html;
       
@@ -77,8 +82,14 @@ const conf = [
     source: entity => { 
       // Retrieve path from instance
       let path = entity.path.split(".")[0];
+      
+      let instance = Instances.getInstance(path)[path + "_meta"];
+      
+      if ( instance === undefined ) {
+        return null;
+      }
       // Retrieve thumbnail image from Instance
-      return GEPPETTO.ModelFactory.getAllVariablesOfMetaType(Instances.getInstance(path)[path + "_meta"].getType(), 'ImageType')[0].getInitialValues()[0].value.data
+      return GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0].getInitialValues()[0].value.data
     }
   }
 ];

@@ -72,11 +72,14 @@ const styles = theme => ({
     padding: "2vh",
     listStyleType : "none",
     position: "absolute",
-    right : "0",
+    right : "1rem",
     backgroundColor : "#413C3C",
+    fontFamily : "'Barlow Condensed', 'Khand', sans-serif",
     zIndex: "100"
   },
   legendItem :{
+    position: "relative",
+    top: "2px",
     display : "inline-block",
     marginRight : "5vh",
     height : "2vh",
@@ -285,8 +288,8 @@ class Controls extends Component {
           </div>
           { this.props.resultsAvailable()
             ? <ul className={classes.legend}>
-              { Object.entries(stylingConfiguration.nodeColorsByLabel).map((label, index) => (
-                <li><div className={classes.legendItem} style={{ backgroundColor : label[1] }}></div>{label[0]}</li> 
+              { this.props.legend.map((label, index) => (
+                <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li> 
               ))
               }
             </ul>

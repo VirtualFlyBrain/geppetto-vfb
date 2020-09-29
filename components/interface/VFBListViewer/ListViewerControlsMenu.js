@@ -3,11 +3,12 @@ import Menu from "@geppettoengine/geppetto-ui/menu/Menu";
 import { connect } from 'react-redux';
 import controlsConfiguration from '../../configuration/VFBListViewer/controlsMenuConfiguration';
 import { SliderPicker } from 'react-color';
-import { setTermInfo } from './../../../actions/generals';
+import { setTermInfo, SHOW_LIST_VIEWER, INSTANCE_DELETED } from './../../../actions/generals';
 
 // Special control actions handled by the menu handler
 const COLOR = 'color';
 const INFO = 'info';
+const DELETE = 'delete';
 
 /**
  * Menu component to display controls for VFB List Viewer
@@ -59,6 +60,9 @@ class ListViewerControlsMenu extends Component {
       setTimeout ( () => { 
         self.props.setTermInfo(self.props.instance, true);
       }, 100);
+    } else if ( action === DELETE ) {
+      this.props.instance.delete();   
+      this.props.instanceDeleted(INSTANCE_DELETED, this.props.instance);
     } else {
       // For every other action execute the action as is
       action(this.props.instance);
@@ -81,7 +85,14 @@ class ListViewerControlsMenu extends Component {
       let condition = item.toggle.condition(this.props.instance);
       list.push(item.toggle.options[condition]);
     } else {
-      list.push(item);
+      if ( item.isVisible !== undefined) {
+        let visible = item.isVisible(this.props.instance);
+        if ( visible ) {
+          list.push(item);
+        }
+      } else { 
+        list.push(item);
+      }
     }
   }
   
@@ -109,6 +120,7 @@ class ListViewerControlsMenu extends Component {
     // Create deep clone of configuration
     var configuration = $.extend(true, {}, controlsConfiguration);
     let list = new Array();
+    let self = this;
     /**
      * Loop through configuration buttons and create button list with correct visibility buttons.
      * Some buttons in configuration have two set of options and a condition. 
@@ -117,14 +129,16 @@ class ListViewerControlsMenu extends Component {
      * is already selected or not. 
      */ 
     configuration.buttons.map((button, index) => {
-      button.activeColor = this.props.instance.getColor();
-      button.list.map(item => {
-        // Iterate through button list in configuration, store new configuration in 'list' array
-        this.iterateConfList(list, item);
-      })
+      if ( self.props.instance.getColor !== undefined ) {
+        button.activeColor = self.props.instance.getColor();
+        button.list.map(item => {
+          // Iterate through button list in configuration, store new configuration in 'list' array
+          this.iterateConfList(list, item);
+        })
       
-      // Replace buttons list in configuration with updated one
-      button.list = list;
+        // Replace buttons list in configuration with updated one
+        button.list = list;
+      }
     });
         
     return configuration;
@@ -162,7 +176,10 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
+  return {
+    setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )),
+    instanceDeleted : ( type, instance ) => dispatch({ type : type , instance : instance })
+  }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewerControlsMenu);

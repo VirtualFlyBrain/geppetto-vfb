@@ -4,6 +4,8 @@ import {
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
   INSTANCE_ADDED,
+  INSTANCE_DELETED,
+  SHOW_LIST_VIEWER,
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
   LOAD_CIRCUIT_BROWSER,
@@ -26,8 +28,10 @@ export const GENERAL_DEFAULT_STATE = {
   graphQueryIndex : {},
   instanceOnFocus : {},
   instanceSelection : {},
+  instanceDeleted : {},
   instanceVisibilityChanged : false,
   termInfoVisible : false,
+  listViewerInfoVisible : true,
   circuitBrowserSelected : false,
   circuitQuerySelected : {},
   layout: {
@@ -181,20 +185,17 @@ function generalReducer (state, action) {
         loading: loading,
         idsLoaded: idsLoaded,
         stepsToLoad: stepsToLoad,
-        stepsLoaded: stepsLoaded,
-        instanceOnFocus : action.data.id
+        stepsLoaded: stepsLoaded
       };
     } else {
       return {
         ...state,
         idsToLoad: 0,
         idsLoaded: 0,
-        idsList: [],
         stepsToLoad: 0,
         stepsLoaded: 0,
         idsMap: newMap,
-        loading: loading,
-        instanceOnFocus : action.data.id
+        loading: loading
       };
     }
   case VFB_UI_UPDATED:
@@ -243,7 +244,19 @@ function generalReducer (state, action) {
   case INSTANCE_SELECTED:
     return {
       ...state,
-      instanceSelected : action.data
+      instanceSelected : action.data,
+      instanceOnFocus : action.data
+    }
+  case INSTANCE_DELETED:
+    var newMap = [ ...state.idsList ];
+    var index = newMap.indexOf(action.instance.id);
+    if ( index > -1 ) {
+      newMap.splice(index, 1);
+    }
+    return {
+      ...state,
+      instanceDeleted : action.instance,
+      idsList : newMap
     }
   case INSTANCE_VISIBILITY_CHANGED:
     return {
@@ -256,5 +269,10 @@ function generalReducer (state, action) {
       termInfoVisible : action.data.visible,
       instanceOnFocus : action.data.instance
     }
+  case SHOW_LIST_VIEWER:
+    return {
+      ...state,
+      listViewerInfoVisible : true
+    }    
   }
 }
