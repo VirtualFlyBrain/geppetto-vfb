@@ -175,11 +175,25 @@ var searchConfiguration = {
     if (InputString == b.label) {
       return 1;
     }
+    // move exact matches to top ['XX ('ID/Label)]
+    if (a.label.indexOf(InputString + " (") == 0) {
+      return -1;
+    }
+    if (b.label.indexOf(InputString + " (") == 0) {
+      return 1;
+    }
     // close match without case matching
     if (InputString.toLowerCase() == a.label.toLowerCase()) {
       return -1;
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
+      return 1;
+    }
+    // close match without case matching ['xx ('ID/Label)]
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
+      return -1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
       return 1;
     }
     // match ignoring joinging nonwords
