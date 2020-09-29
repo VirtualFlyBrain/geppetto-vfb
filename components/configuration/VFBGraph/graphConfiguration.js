@@ -1,8 +1,8 @@
 var whereCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Entity)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in"
-      + "has_postsynaptic_terminal_in|overlaps*..]->(x)"
+      "statement": "MATCH p=(n:Entity)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
+      + "has_postsynaptic_terminal_in|overlaps*..]->(x) "
       + "WHERE n.short_form = '" + instance + "' return distinct n,r,x,n.short_form as root",
       "resultDataContents": ["graph"]
     }
@@ -12,9 +12,10 @@ var whereCypherQuery = instance => ({
 var whatCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Entity)-[:INSTANCEOF|:SUBCLASSOF*..]->(x)"
-      + "WHERE 'Anatomy' IN  labels(x)"
-      + "AND n.short_form = '" + instance + "'" 
+      "statement": "MATCH p=(n:Entity)-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
+      + "WHERE (('Cell' IN  labels(x)) OR ('synaptic neuropil' IN labels(x))) "
+      + " OR (('Ganglion' IN  labels(x)) OR ('Neuron_projection_bundle' IN labels(x))) "
+      + "AND n.short_form = '" + instance + "' " 
       + "RETURN  p, n.short_form as root",
       "resultDataContents": ["graph"]
     }
