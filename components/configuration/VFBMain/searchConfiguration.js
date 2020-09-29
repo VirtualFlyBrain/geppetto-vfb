@@ -89,10 +89,11 @@ var datasourceConfiguration = {
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "defType": "edismax",
-      "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
+      "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation",
       "start": "0",
+      "pf":"true",
       "fq": [
         "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
       ],
