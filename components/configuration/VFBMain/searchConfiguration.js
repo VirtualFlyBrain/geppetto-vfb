@@ -84,14 +84,14 @@ var searchStyle = {
 };
 
 var datasourceConfiguration = {
-  "url": "https://solr-dev.virtualflybrain.org/solr/ontology/select",
+  "url": "https://solr.p2.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "defType": "edismax",
       "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
-      "fl": "short_form:concat(short_form),label:concat(label),synonym,id,facets_annotation",
+      "fl": "short_form,label,synonym,id,facets_annotation",
       "start": "0",
       "fq": [
         "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
