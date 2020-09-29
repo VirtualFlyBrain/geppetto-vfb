@@ -1,3 +1,5 @@
+import React from "react";
+
 var focusTermConfiguration = {
   global: {
     buttonsStyle: {
@@ -107,7 +109,8 @@ var focusTermConfiguration = {
   buttons: [
     {
       label: "",
-      icon: "fa fa-bars",
+      icon: <i className="fa fa-bars" style={{ paddingRight: "8px" }}/>,
+      activeColor : "",
       action: "",
       position: "bottom-start",
       dynamicListInjector: {
@@ -118,10 +121,4 @@ var focusTermConfiguration = {
   ]
 };
 
-var subMenusGrouping = [{ "label": "Neurons with ", "keys": ["Neurons with"] },
-                        { "label": "Images of neurons with ", "keys": ["Images of neurons with"] },
-                        { "label": "Tract/Nerves innervating here ", "keys": ["Tracts/nerves innervating"] },
-                        { "label": "Lineage clones with ", "keys": ["Lineage clones found"] },
-                        { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] }];
-
-module.exports = { focusTermConfiguration, subMenusGrouping };
+export default focusTermConfiguration;

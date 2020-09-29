@@ -8,6 +8,7 @@ import {
 } from "@material-ui/core/styles";
 import { connect } from 'react-redux';
 import { SHOW_LIST_VIEWER } from './../../../actions/generals';
+import focusTermConfiguration from '../../configuration/VFBFocusTerm/focusTermConfiguration';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -20,9 +21,10 @@ class VFBFocusTerm extends React.Component {
     super(props);
     this.state = { currentInstance: undefined };
 
-    this.focusTermConfiguration = require('../../configuration/VFBFocusTerm/focusTermConfiguration').focusTermConfiguration;
-    this.labels = require('../../configuration/VFBFocusTerm/focusTermConfiguration').subMenusGrouping;
+
+    this.labels = require('../../configuration/VFBFocusTerm/menuGroups').subMenusGrouping;
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
+    this.configuration = undefined;
 
     this.clearAll = this.clearAll.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
@@ -340,7 +342,7 @@ class VFBFocusTerm extends React.Component {
   }
 
   setInstance (instance) {
-    this.focusTermConfiguration.buttons[0].label = "Queries for " + instance.getName();
+    this.configuration.buttons[0].label = "Queries for " + instance.getName();
     var variable = undefined;
 
     if (instance.parent !== null || instance.parent !== undefined) {
@@ -357,13 +359,13 @@ class VFBFocusTerm extends React.Component {
             var variable2 = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
             var allQueries2 = GEPPETTO.ModelFactory.getMatchingQueries(variable2.getType(), undefined);
             if (allQueries2.length > 0) {
-              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries },
-                                                                                       { variable: variable2, allQueries: allQueries2 }];
+              this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries },
+                                                                              { variable: variable2, allQueries: allQueries2 }];
             }
           });
         }
       } else {
-        this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+        this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
       }
     } else {
       if (instance.getType().classqueriesfrom !== undefined) {
@@ -373,14 +375,14 @@ class VFBFocusTerm extends React.Component {
             var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
             var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
             if (allQueries.length > 0) {
-              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+              this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
             }
           });
         } else {
           var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
           var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
           if (allQueries.length > 0) {
-            this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+            this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
           }
         }
       }
@@ -397,6 +399,10 @@ class VFBFocusTerm extends React.Component {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
     }.bind(this));
+  }
+
+  componentWillMount () {
+    this.configuration = $.extend(true, {}, focusTermConfiguration);
   }
 
   updateHistory (instance) {
@@ -544,7 +550,7 @@ class VFBFocusTerm extends React.Component {
                   : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
                 }
                 <Menu
-                  configuration={this.focusTermConfiguration}
+                  configuration={this.configuration}
                   menuHandler={this.menuHandler} />
                 { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
                   ? <Tooltip placement="top-end"

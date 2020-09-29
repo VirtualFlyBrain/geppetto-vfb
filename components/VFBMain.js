@@ -94,6 +94,7 @@ class VFBMain extends React.Component {
 
     this.colours = require('./configuration/VFBMain/colours.json');
 
+    this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
@@ -1591,6 +1592,7 @@ class VFBMain extends React.Component {
 
         <Search ref="searchRef"
           datasource="SOLR"
+          searchStyle={this.searchStyle}
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
