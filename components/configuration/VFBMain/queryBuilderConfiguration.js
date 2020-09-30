@@ -163,7 +163,7 @@ var queryResultsControlConfig = {
 
 var queryBuilderDatasourceConfig = {
   VFB: {
-    url: "https://solr.p2.virtualflybrain.org/solr/ontology/select?q:$SEARCH_TERM$+OR+$SEARCH_TERM$*+OR+*$SEARCH_TERM$*&defType:edismax&qf:label%5E100+synonym%5E100+label_autosuggest_ws+label_autosuggest_e+label_autosuggest+synonym_autosuggest_ws+synonym_autosuggest+shortform_autosuggest&indent:true&fl:short_form+label+synonym+id+facets_annotation&start:0&pf:true&fq:[shortform_autosuggest:VFB*+OR+shortform_autosuggest:FB*]&rows:100&wt:json&bq:shortform_autosuggest:VFB*%5E110.0+shortform_autosuggest:FBbt*%5E100.0+label_s:%5C%5C%5E2+synonym_s:%5C%5C+short_form:FBbt_00003982%5E2+facets_annotation:Deprecated%5E0.001",
+    url: "https://solr.p2.virtualflybrain.org/solr/ontology/select?q:$SEARCH_TERM$+OR+$SEARCH_TERM$*+OR+*$SEARCH_TERM$*&defType:edismax&qf:label^100+synonym^100+label_autosuggest_ws+label_autosuggest_e+label_autosuggest+synonym_autosuggest_ws+synonym_autosuggest+shortform_autosuggest&indent:true&fl:short_form+label+synonym+id+facets_annotation&start:0&pf:true&fq:[shortform_autosuggest:VFB*+OR+shortform_autosuggest:FB*]&rows:100&wt:json&bq:shortform_autosuggest:VFB*^110.0+shortform_autosuggest:FBbt*^100.0+label_s:\"\"^2+synonym_s:\"\"+short_form:FBbt_00003982^2+facets_annotation:Deprecated^0.001",
     crossDomain: true,
     id: "short_form",
     label: { field: "label", formatting: "$VALUE$" },
