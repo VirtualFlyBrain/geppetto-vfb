@@ -42,20 +42,20 @@ export const closeModalWindow = async (page) => {
 
 export const flexWindowClick = async (title, selector) => {
   await page.evaluate((title, selector) => {
-    if (document.getElementsByClassName("flexlayout__tab_button_content")  != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length > 0) {
-      if (document.getElementsByClassName("flexlayout__tab_button_content")[0].innerText == title) {
+    if (document.getElementsByClassName(selector)  != undefined && document.getElementsByClassName(selector).length != undefined && document.getElementsByClassName(selector).length > 0) {
+      if (document.getElementsByClassName(selector)[0].innerText == title) {
         document.getElementsByClassName(selector)[0].click();
-      }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 1 && document.getElementsByClassName("flexlayout__tab_button_content")[1].innerText == title) {
+      }else if (document.getElementsByClassName(selector).length > 1 && document.getElementsByClassName(selector)[1].innerText == title) {
         document.getElementsByClassName(selector)[1].click();
-      }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 2 && document.getElementsByClassName("flexlayout__tab_button_content")[2].innerText == title) {
+      }else if (document.getElementsByClassName(selector).length > 2 && document.getElementsByClassName(selector)[2].innerText == title) {
         document.getElementsByClassName(selector)[2].click();
-      }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 3 && document.getElementsByClassName("flexlayout__tab_button_content")[3].innerText == title) {
+      }else if (document.getElementsByClassName(selector).length > 3 && document.getElementsByClassName(selector)[3].innerText == title) {
         document.getElementsByClassName(selector)[3].click();
-      }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 4 && document.getElementsByClassName("flexlayout__tab_button_content")[4].innerText == title) {
+      }else if (document.getElementsByClassName(selector).length > 4 && document.getElementsByClassName(selector)[4].innerText == title) {
         document.getElementsByClassName(selector)[4].click();
-      }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 5 && document.getElementsByClassName("flexlayout__tab_button_content")[5].innerText == title) {
+      }else if (document.getElementsByClassName(selector).length > 5 && document.getElementsByClassName(selector)[5].innerText == title) {
         document.getElementsByClassName(selector)[5].click();
-      }else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 6 && document.getElementsByClassName("flexlayout__tab_button_content")[6].innerText == title) {
+      }else if (document.getElementsByClassName(selector).length > 6 && document.getElementsByClassName(selector)[6].innerText == title) {
         document.getElementsByClassName(selector)[6].click();
       }else{
         console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
