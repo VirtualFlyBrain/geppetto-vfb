@@ -42,23 +42,40 @@ export const closeModalWindow = async (page) => {
 
 export const flexWindowClick = async (title, selector) => {
   await page.evaluate((title, selector) => {
+    var i = -1;
     if (document.getElementsByClassName(selector)  != undefined && document.getElementsByClassName(selector).length != undefined && document.getElementsByClassName(selector).length > 0) {
       if (document.getElementsByClassName(selector)[0].innerText == title) {
-        document.getElementsByClassName(selector)[0].click();
+        i = 0;
       }else if (document.getElementsByClassName(selector).length > 1 && document.getElementsByClassName(selector)[1].innerText == title) {
-        document.getElementsByClassName(selector)[1].click();
+        i = 1;
       }else if (document.getElementsByClassName(selector).length > 2 && document.getElementsByClassName(selector)[2].innerText == title) {
-        document.getElementsByClassName(selector)[2].click();
+        i = 2;
       }else if (document.getElementsByClassName(selector).length > 3 && document.getElementsByClassName(selector)[3].innerText == title) {
-        document.getElementsByClassName(selector)[3].click();
+        i = 3;
       }else if (document.getElementsByClassName(selector).length > 4 && document.getElementsByClassName(selector)[4].innerText == title) {
-        document.getElementsByClassName(selector)[4].click();
+        i = 4;
       }else if (document.getElementsByClassName(selector).length > 5 && document.getElementsByClassName(selector)[5].innerText == title) {
-        document.getElementsByClassName(selector)[5].click();
+        i = 5;
       }else if (document.getElementsByClassName(selector).length > 6 && document.getElementsByClassName(selector)[6].innerText == title) {
-        document.getElementsByClassName(selector)[6].click();
+        i = 6;
       }else{
         console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
+      }
+      if (i > -1) {
+        let unselectedTab = document.getElementsByClassName('flexlayout__tab_button--unselected')[i];
+        let clickEvent = new MouseEvent('mousedown', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+        });
+        unselectedTab.dispatchEvent(clickEvent);
+
+        clickEvent = new MouseEvent('mouseup', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+        });
+        unselectedTab.dispatchEvent(clickEvent);
       }
     }
   }
