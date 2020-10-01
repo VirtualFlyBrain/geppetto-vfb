@@ -162,6 +162,7 @@ class VFBCircuitBrowser extends Component {
       graph : { nodes : [], links : [] } ,
       legend : {},
       loading : true,
+      queryLoaded : false,
       dropDownAnchorEl : null,
       neurons : ["", ""],
       hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
@@ -194,11 +195,15 @@ class VFBCircuitBrowser extends Component {
     let self = this;
     this.__isMounted = true;
     this.updateGraph(this.state.neurons , Math.ceil((configuration.maxHops - configuration.minHops) / 2));
+    const { circuitQuerySelected } = this.props;
+    this.circuitQuerySelected = circuitQuerySelected;
   }
 
   componentDidUpdate () {
     let self = this;
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
+      const { circuitQuerySelected } = this.props;
+      this.circuitQuerySelected = circuitQuerySelected;
       setTimeout( function () {
         self.resetCamera();
         self.focused = true;
@@ -216,8 +221,16 @@ class VFBCircuitBrowser extends Component {
   /**
    * New neurons have been entered by user, update graph
    */
-  queriesUpdated (neurons) {
-    this.updateGraph(neurons, this.state.hops);
+  queriesUpdated (neurons, updateGraph) {
+    var is_same = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
+      return element === neurons[index]; 
+    });
+  
+    this.circuitQuerySelected = "";
+    
+    if ( !this.state.loading && !is_same ) {
+      this.updateGraph(neurons, this.state.hops);
+    }
   }
   
   /**
@@ -225,6 +238,7 @@ class VFBCircuitBrowser extends Component {
    */
   updateHops (hops) {
     this.setState({ hops : hops });
+    this.updateGraph(this.state.neurons, hops);
   }
 
   resetCamera () {
@@ -234,7 +248,7 @@ class VFBCircuitBrowser extends Component {
     }
   }
 
-  resize(){
+  resize (){
     this.graphResized = true;
     this.setState( { reload : !this.state.reload } );
   }
@@ -270,8 +284,9 @@ class VFBCircuitBrowser extends Component {
    */
   updateGraph (neurons, hops) {
     if (this.__isMounted){
+      console.log("Graph updated", this.state.neurons);
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true , neurons : neurons, hops : hops });
+      this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
       // Perform cypher query
       this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
     }
@@ -308,7 +323,7 @@ class VFBCircuitBrowser extends Component {
       worker.onmessage = function (e) {
         switch (e.data.resultMessage) {
         case "OK":
-          self.setState( { graph : e.data.params.results , legend : e.data.params.colorLabels, loading : false });
+          self.setState( { graph : e.data.params.results , legend : e.data.params.colorLabels, loading : false, queryLoaded : true });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
             self.resetCamera();
@@ -353,16 +368,8 @@ class VFBCircuitBrowser extends Component {
 
   render () {
     let self = this;
-    const { classes } = this.props;
     
-    // Detect when the first load of the Graph component happens
-    if ( !this.state.loading && this.firstLoad ) {
-      // Reset CircuitQuerySelected value after first load
-      this.circuitQuerySelected = "";
-    }
-    if ( !this.state.loading && !this.firstLoad ) {
-      this.firstLoad = true;
-    }
+    const { classes } = this.props;
     
     return (
       this.state.loading
@@ -441,6 +448,7 @@ class VFBCircuitBrowser extends Component {
               queriesUpdated={self.queriesUpdated}
               updateHops={self.updateHops}
               neurons={this.state.neurons}
+              queryLoaded={this.state.queryLoaded}
               hops={this.state.hops}
               resultsAvailable={ () => this.state.graph.nodes.length > 0 }
               resetCamera={self.resetCamera}

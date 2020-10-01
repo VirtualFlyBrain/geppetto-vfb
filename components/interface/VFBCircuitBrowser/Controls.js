@@ -122,7 +122,7 @@ class Controls extends Component {
     this.state = {
       typingTimeout: 0,
       expanded : true,
-      neuronFields : this.props.neurons
+      neuronFields : ["", ""]
     };
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
@@ -132,10 +132,18 @@ class Controls extends Component {
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
     this.circuitQuerySelected = this.props.circuitQuerySelected;
+    this.initialValidation = false;
   }
   
   componentDidMount () {
-    this.setState( { expanded : !this.props.resultsAvailable() } );
+    let neurons = [...this.props.neurons];
+    this.setState( { expanded : !this.props.resultsAvailable(), neuronFields : neurons } );
+    this.initialValidation = true;
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
+  }
+  
+  componentDidUpdate () {
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
 
   /**
@@ -146,6 +154,8 @@ class Controls extends Component {
     if ( event.target.id === "" ) {
       id = parseInt(event.target.parentElement.id);
     }
+    
+    this.circuitQuerySelected = "";
     // remove neuron textfield
     let neurons = this.state.neuronFields;
     neurons.splice(id,1);
@@ -153,7 +163,9 @@ class Controls extends Component {
     this.setState( { neuronFields : neurons } );
     
     if ( this.fieldsValidated(neurons) ) {
-      this.props.queriesUpdated(neurons);
+      this.props.queriesUpdated(neurons, true);
+    } else {
+      this.props.queriesUpdated(neurons, false);
     }
   }
   
@@ -176,7 +188,7 @@ class Controls extends Component {
    * Validates neurons ID's are valid, checks there's at least 8 numbers in it
    */
   fieldsValidated (neurons) {
-    var pattern = /\d{8}/;
+    var pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
     for ( var i = 0 ; i < neurons.length ; i++ ){
       if ( neurons[i] === "" ) {
         return false;
@@ -195,6 +207,7 @@ class Controls extends Component {
   typingTimeout (target) {
     let neurons = this.state.neuronFields;
     neurons[target.id] = target.value;
+    this.circuitQuerySelected = "";
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
       this.props.queriesUpdated(neurons);
@@ -257,6 +270,11 @@ class Controls extends Component {
         }
       }
     }
+    
+    if ( this.fieldsValidated(neuronFields) ) {
+      this.props.queriesUpdated(neuronFields);
+      this.initialValidation = true;
+    } 
     
     return neuronFields;
   }
