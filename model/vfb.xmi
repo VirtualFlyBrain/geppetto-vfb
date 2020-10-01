@@ -171,7 +171,7 @@
           name="Get images from Neo4j for class examples"
           description="fetch Individual instances from ID list"
           runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (n:Class) WHERE n.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (n)&lt;-[:SUBCLASSOF|INSTANCEOF*..]-(i:Individual)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (n)-[:SUBCLASSOF]->(c:Class) RETURN n.short_form as class_Id, n.label as class_Name, n.description[0] as class_Desc, COLLECT(DISTINCT c.label) as class_Type, COLLECT (DISTINCT { image_name: i.label, image_id: i.short_form, image_thumb: replace(k.folder,'http:','https:') + '/thumbnailT.png', template_id: m.short_form}) AS inds&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS }"
+          query="&quot;statement&quot;: &quot;MATCH (n:Class) WHERE n.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (n)&lt;-[:SUBCLASSOF|INSTANCEOF*..]-(i:Individual)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (n)-[:SUBCLASSOF]->(c:Class) RETURN n.short_form as class_Id, n.label as class_Name, n.description[0] as class_Desc, COLLECT(DISTINCT c.label) as class_Type, COLLECT (DISTINCT { image_name: i.label, image_id: i.short_form, image_thumb: replace(k.folder[0],'http:','https:') + '/thumbnailT.png', template_id: m.short_form}) AS inds&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:Class) WHERE n.short_form IN {ARRAY_ID_RESULTS} RETURN count(n) AS count&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -189,7 +189,7 @@
           name="Get meta from Neo4j"
           description="Get images for individual list"
           runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (i:Individual) WHERE i.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (i)&lt;-[:depicts]-(:Individual)-[k1:in_register_with]->(:Individual) OPTIONAL MATCH (i:Cluster)&lt;-[:exemplar_of]-(e:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ic:Class) OPTIONAL MATCH (e)-[:INSTANCEOF]->(ec:Class) with coalesce('Exemplar: ' + ec.label,ic.label) as ct, i, coalesce(replace(k1.folder,'http:','https:') + '/thumbnailT.png','http://flybrain.mrc-lmb.cam.ac.uk/vfb/fc/clusterv/3/' + e.label + '/snapshot.png') as iri, i.description[0] as cd, FILTER(x IN i.synonym WHERE x &lt;> i.label) as syn RETURN i.short_form as id, i.label  as name, CASE WHEN not syn = [] THEN cd + replace(' Synonym(s): '+reduce(a='',n in syn|a+n+', ')+')',', )','.') ELSE cd END as def, COLLECT(DISTINCT ct) as type, collect(distinct iri) as file&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (i:Individual) WHERE i.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (i)&lt;-[:depicts]-(:Individual)-[k1:in_register_with]->(:Individual) OPTIONAL MATCH (i:Cluster)&lt;-[:exemplar_of]-(e:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ic:Class) OPTIONAL MATCH (e)-[:INSTANCEOF]->(ec:Class) with coalesce('Exemplar: ' + ec.label,ic.label) as ct, i, coalesce(replace(k1.folder[0],'http:','https:') + '/thumbnailT.png','http://flybrain.mrc-lmb.cam.ac.uk/vfb/fc/clusterv/3/' + e.label + '/snapshot.png') as iri, i.description[0] as cd, FILTER(x IN i.synonym WHERE x &lt;> i.label) as syn RETURN i.short_form as id, i.label  as name, CASE WHEN not syn = [] THEN cd + replace(' Synonym(s): '+reduce(a='',n in syn|a+n+', ')+')',', )','.') ELSE cd END as def, COLLECT(DISTINCT ct) as type, collect(distinct iri) as file&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH(i:Individual) WHERE i.short_form IN {ARRAY_ID_RESULTS} RETURN count(i) as count&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -207,7 +207,7 @@
           id="GetFellowClusterMembers"
           name="Get other cluster members"
           description="$NAME's fellow cluster members"
-          query="&quot;statement&quot;: &quot;MATCH (n:Neuron { short_form: {ID} } )-[r1:member_of]->(c:Cluster)-[r2:has_member]->(i:Neuron)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ec:Class) RETURN DISTINCT i.short_form as id, CASE WHEN not i.synonym is null THEN i.label+replace(' ('+reduce(a='',n in i.synonym|a+n+', ')+')',', )',')') ELSE i.label END as name, i.description[0] as def, COLLECT(DISTINCT ec.label) as type, COLLECT(DISTINCT replace(k.folder,'http:','https:') + '/thumbnailT.png') as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (n:Neuron { short_form: {ID} } )-[r1:member_of]->(c:Cluster)-[r2:has_member]->(i:Neuron)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ec:Class) RETURN DISTINCT i.short_form as id, CASE WHEN not i.synonym is null THEN i.label+replace(' ('+reduce(a='',n in i.synonym|a+n+', ')+')',', )',')') ELSE i.label END as name, i.description[0] as def, COLLECT(DISTINCT ec.label) as type, COLLECT(DISTINCT replace(k.folder[0],'http:','https:') + '/thumbnailT.png') as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:Neuron { short_form: {ID} } )-[r1:member_of]->(c:Cluster)-[r2:has_member]->(i:Neuron) RETURN count(i) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -224,7 +224,7 @@
           name="Fetch all example individuals for Class"
           description="Fetch all example Individual instances of this Class or subclasses"
           returnType="//@libraries.3/@types.0"
-          query="&quot;statement&quot;: &quot;MATCH p=(n:Class { short_form: {ID} } )&lt;-[r:expresses|SUBCLASSOF|INSTANCEOF*..]-(i:Individual)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual:Template) WITH i, k ORDER BY length(p) asc OPTIONAL MATCH (i)-[:INSTANCEOF]->(c:Class) RETURN distinct i.short_form as id, CASE WHEN not i.synonym is null THEN i.label+replace(' ('+reduce(a='',n in i.synonym|a+n+', ')+')',', )',')') ELSE i.label END as name, i.description[0] as def, COLLECT(DISTINCT c.label) as type, COLLECT(DISTINCT replace(k.folder,'http:','https:') + '/thumbnailT.png') as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH p=(n:Class { short_form: {ID} } )&lt;-[r:expresses|SUBCLASSOF|INSTANCEOF*..]-(i:Individual)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual:Template) WITH i, k ORDER BY length(p) asc OPTIONAL MATCH (i)-[:INSTANCEOF]->(c:Class) RETURN distinct i.short_form as id, CASE WHEN not i.synonym is null THEN i.label+replace(' ('+reduce(a='',n in i.synonym|a+n+', ')+')',', )',')') ELSE i.label END as name, i.description[0] as def, COLLECT(DISTINCT c.label) as type, COLLECT(DISTINCT replace(k.folder[0],'http:','https:') + '/thumbnailT.png') as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:VFB:Class { short_form: {ID} } )&lt;-[r:expresses|SUBCLASSOF|INSTANCEOF*..]-(i:Individual)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual:Template) RETURN count(i) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -244,7 +244,7 @@
           name="Find domain individuals for template id"
           description="Find domain individuals for template id"
           returnType="//@libraries.3/@types.0"
-          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:{ID}})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual)-[:INSTANCEOF]->(d:Class) WHERE exists(r.index) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder,'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:{ID}})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual)-[:INSTANCEOF]->(d:Class) WHERE exists(r.index) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder[0],'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:{ID}})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual)-[:INSTANCEOF]->(d:Class) WHERE exists(r.index) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -261,7 +261,7 @@
           id="GetClusterMembers"
           name="Get cluster members"
           description="$NAME's members"
-          query="&quot;statement&quot;: &quot;MATCH (c:Cluster { short_form: {ID} } )-[r2:has_member]->(i:Neuron)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ec:Class) RETURN DISTINCT i.short_form as id, CASE WHEN not i.synonym is null THEN i.label+replace(' ('+reduce(a='',n in i.synonym|a+n+', ')+')',', )',')') ELSE i.label END as name, i.description[0] as def, COLLECT(DISTINCT ec.label) as type, COLLECT(DISTINCT replace(k.folder,'http:','https:') + '/thumbnailT.png') as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (c:Cluster { short_form: {ID} } )-[r2:has_member]->(i:Neuron)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ec:Class) RETURN DISTINCT i.short_form as id, CASE WHEN not i.synonym is null THEN i.label+replace(' ('+reduce(a='',n in i.synonym|a+n+', ')+')',', )',')') ELSE i.label END as name, i.description[0] as def, COLLECT(DISTINCT ec.label) as type, COLLECT(DISTINCT replace(k.folder[0],'http:','https:') + '/thumbnailT.png') as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (c:Cluster { short_form: {ID} } )-[r2:has_member]->(i:Neuron) RETURN count(i) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -281,7 +281,7 @@
           name="Find images for dataset"
           description="Find images for a dataset"
           returnType="//@libraries.3/@types.0"
-          query="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:{ID}})&lt;-[:has_source]-(di:Individual)&lt;-[:depicts]-(dc:Individual)-[r:in_register_with]->(:Template) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],di.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder,'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:{ID}})&lt;-[:has_source]-(di:Individual)&lt;-[:depicts]-(dc:Individual)-[r:in_register_with]->(:Template) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],di.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder[0],'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:{ID}})&lt;-[:has_source]-(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -301,7 +301,7 @@
           name="Find images aligned to template id"
           description="Find images aligned to template id"
           returnType="//@libraries.3/@types.0"
-          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:{ID}})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) WHERE not exists(r.index) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder,'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:{ID}})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) WHERE not exists(r.index) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder[0],'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:{ID}})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) WHERE not exists(r.index) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
