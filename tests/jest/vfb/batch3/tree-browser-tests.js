@@ -120,7 +120,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			//// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			//await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			//await page.evaluate(async () => document.getElementById("Template ROI Browser").click());
-			await flexWindowClick("Template ROI Browser","flexlayout__tab_button--unselected");
+			await flexWindowClick("Template ROI Browser","flexlayout__tab_button_content");
 			// await page.evaluate(async () => {
 			// 	let unselectedTab = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
 			// 	let clickEvent = new MouseEvent('mousedown', {
