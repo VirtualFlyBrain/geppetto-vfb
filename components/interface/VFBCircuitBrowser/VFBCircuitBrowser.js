@@ -189,6 +189,7 @@ class VFBCircuitBrowser extends Component {
     // Circuit Browser component has been resized
     this.graphResized = false;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
+    this.lastSelectedQuery = this.cir
   }
 
   componentDidMount () {
@@ -202,8 +203,6 @@ class VFBCircuitBrowser extends Component {
   componentDidUpdate () {
     let self = this;
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
-      const { circuitQuerySelected } = this.props;
-      this.circuitQuerySelected = circuitQuerySelected;
       setTimeout( function () {
         self.resetCamera();
         self.focused = true;
@@ -212,6 +211,10 @@ class VFBCircuitBrowser extends Component {
     } else if ( !this.props.visible ) {
       this.focused = false;
     }
+    
+    if ( this.circuitQuerySelected !== this.props.circuitQuerySelected ) {
+      this.circuitQuerySelected = this.props.circuitQuerySelected;
+    }
   }
 
   componentWillUnmount () {
@@ -219,15 +222,16 @@ class VFBCircuitBrowser extends Component {
   }
   
   /**
-   * New neurons have been entered by user, update graph
+   * New neurons have been entered by user, update graph.
+   * @neurons (array): New list of neurons user has entered
    */
-  queriesUpdated (neurons, updateGraph) {
+  queriesUpdated (neurons) {
+    // Check if new list of neurons is the same as the ones already rendered on last update
     var is_same = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
       return element === neurons[index]; 
     });
-  
-    this.circuitQuerySelected = "";
     
+    // Request graph update if the list of new neurons is not the same
     if ( !this.state.loading && !is_same ) {
       this.updateGraph(neurons, this.state.hops);
     }

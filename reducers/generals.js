@@ -9,6 +9,7 @@ import {
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
   LOAD_CIRCUIT_BROWSER,
+  UPDATE_CIRCUIT_QUERY,
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
   VFB_LOAD_TERM_INFO
@@ -212,8 +213,13 @@ function generalReducer (state, action) {
   case LOAD_CIRCUIT_BROWSER:
     return { 
       ...state, 
-      circuitQuerySelected : action.data.instance,
+      circuitQuerySelected : action.data.instance != null ? action.data.instance : {},
       circuitBrowserSelected : true
+    };
+  case UPDATE_CIRCUIT_QUERY:
+    return { 
+      ...state, 
+      circuitQuerySelected : action.data.instance != null ? action.data.instance : {}
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };

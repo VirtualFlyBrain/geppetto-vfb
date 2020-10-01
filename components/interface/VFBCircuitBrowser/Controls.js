@@ -22,6 +22,8 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { connect } from "react-redux";
+import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -132,13 +134,11 @@ class Controls extends Component {
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
     this.circuitQuerySelected = this.props.circuitQuerySelected;
-    this.initialValidation = false;
   }
   
   componentDidMount () {
     let neurons = [...this.props.neurons];
     this.setState( { expanded : !this.props.resultsAvailable(), neuronFields : neurons } );
-    this.initialValidation = true;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
   
@@ -155,17 +155,19 @@ class Controls extends Component {
       id = parseInt(event.target.parentElement.id);
     }
     
+    // Update circuit selection
     this.circuitQuerySelected = "";
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, null);
+    
     // remove neuron textfield
     let neurons = this.state.neuronFields;
     neurons.splice(id,1);
     // Update state with one less neuron textfield
     this.setState( { neuronFields : neurons } );
     
+    // If neuron fields are validated, let the VFBCircuitBrowser component know, it will do a graph update
     if ( this.fieldsValidated(neurons) ) {
-      this.props.queriesUpdated(neurons, true);
-    } else {
-      this.props.queriesUpdated(neurons, false);
+      this.props.queriesUpdated(neurons);
     }
   }
   
@@ -273,7 +275,6 @@ class Controls extends Component {
     
     if ( this.fieldsValidated(neuronFields) ) {
       this.props.queriesUpdated(neuronFields);
-      this.initialValidation = true;
     } 
     
     return neuronFields;
@@ -408,4 +409,12 @@ class Controls extends Component {
 
 Controls.propTypes = { classes: PropTypes.object.isRequired };
 
-export default withStyles(styles)(Controls);
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+function mapDispatchToProps (dispatch) {
+  return { vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }), }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(withStyles(styles)(Controls));
