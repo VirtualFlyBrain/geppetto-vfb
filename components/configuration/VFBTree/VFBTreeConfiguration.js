@@ -8,7 +8,7 @@ var treeCypherQuery = instance => ({
     {
       "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual {short_form:'" + instance + "'})"
       + "<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:"
-      + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE has(ie.index) WITH root, anat,r,image"
+      + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE exists(ie.index) WITH root, anat,r,image"
       + " MATCH p=(root)<-[:SUBCLASSOF|part_of*..]-(anat) "
       + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
       + " AS image_nodes, id(root) AS root, collect(p)",
@@ -32,7 +32,7 @@ var styling = {
           {
             "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual {short_form:'FBbt_00007145'})"
             + "<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:"
-            + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE has(ie.index) WITH root, anat,r,image"
+            + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE exists(ie.index) WITH root, anat,r,image"
             + " MATCH p=allShortestPaths((root)<-[:SUBCLASSOF|part_of*..]-(anat)) "
             + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
             + " AS image_nodes, id(root) AS root, collect(p)",
@@ -48,7 +48,7 @@ var styling = {
           {
             "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual {short_form:'VFB_00017894'})"
             + "<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:"
-            + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE has(ie.index) WITH root, anat,r,image"
+            + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE exists(ie.index) WITH root, anat,r,image"
             + " MATCH p=allShortestPaths((root)<-[:SUBCLASSOF|part_of*..]-(anat)) "
             + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
             + " AS image_nodes, id(root) AS root, collect(p)",
@@ -64,7 +64,7 @@ var styling = {
           {
             "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Individual {short_form:'FBbt_00007050'})"
             + "<-[:depicts]-(tc:Individual)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:"
-            + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE has(ie.index) WITH root, anat,r,image"
+            + "Individual)-[r:INSTANCEOF]->(anat:Class) WHERE exists(ie.index) WITH root, anat,r,image"
             + " MATCH p=allShortestPaths((root)<-[:SUBCLASSOF|part_of*..]-(anat)) "
             + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
             + " AS image_nodes, id(root) AS root, collect(p)",
