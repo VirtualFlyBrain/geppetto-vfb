@@ -72,7 +72,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			});
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 500000 });
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
 		})
 
 		it('First node in Tree Browser is correctly named', async () => {
