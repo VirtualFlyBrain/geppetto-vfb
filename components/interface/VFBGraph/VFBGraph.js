@@ -115,7 +115,7 @@ function refineData (e) {
   });
 
   // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
+  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, id : e.data.params.value } });
 }
 
 class VFBGraph extends Component {
@@ -124,8 +124,7 @@ class VFBGraph extends Component {
     super(props);
     this.state = { 
       graph : { nodes : [], links : [] }, 
-      loading : true, 
-      currentQuery : this.props.instance.id,
+      currentQuery : this.props.instance != null ? this.props.instance.id : "",
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
       nodeSelected : { title : "", id : "" },
@@ -157,6 +156,7 @@ class VFBGraph extends Component {
     this.graphResized = false;
     this.focusedInstance = { id : "" };
     this.selectedDropDownQuery = -1;
+    this.loading = true;
   }
 
   componentDidMount () {
@@ -191,6 +191,20 @@ class VFBGraph extends Component {
     let self = this;
     // Reset camera if graph component is visible, not focused or has been resized
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
+      /*
+       * Update graph with selected query index from configuration dropdown selection, this is to allow to lauch the component to be launched
+       * with specific configuration dropdown query. 
+       */
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( self.selectedDropDownQuery === -1 || self.selectedDropDownQuery !== parseInt(self.props.graphQueryIndex) ) { 
+          if ( parseInt(self.props.graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            self.loading = true;
+            self.queryResults(item.query(self.props.instanceOnFocus.id), self.props.instanceOnFocus.id);
+          }
+        }
+      });
+      // Reset camera view after graph component becomes visible
       setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
@@ -213,7 +227,7 @@ class VFBGraph extends Component {
     }
   }
   
-  resize(){
+  resize (){
     this.graphResized = true;
     this.setState( { reload : !this.state.reload } );
   }
@@ -257,9 +271,10 @@ class VFBGraph extends Component {
   handleMenuClick (query) {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true , dropDownAnchorEl : null });
+      this.loading = true;
+      this.setState({ dropDownAnchorEl : null });
       // Perform cypher query
-      this.queryResults(query(this.state.currentQuery))
+      this.queryResults(query(this.state.currentQuery), this.state.currentQuery)
     }
   }
 
@@ -268,7 +283,8 @@ class VFBGraph extends Component {
    */
   queryNewInstance (node) {
     window.addVfbId(node.title);
-    this.setState({ loading : true, nodeSelected : node, currentQuery : node.title, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+    this.loading = true;
+    this.setState({ nodeSelected : node, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
     // Perform cypher query
     this.queryResults(cypherQuery(node.title), node.title)
   }
@@ -320,7 +336,8 @@ class VFBGraph extends Component {
 
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+      this.loading = true;
+      this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
       this.queryResults(cypherQuery(idToSearch), idToSearch);
     }
@@ -357,7 +374,8 @@ class VFBGraph extends Component {
       worker.onmessage = function (e) {
         switch (e.data.resultMessage) {
         case "OK":
-          self.setState( { graph : e.data.params.results , loading : false });
+          self.loading = false;
+          self.setState( { graph : e.data.params.results, currentQuery : e.data.params.id });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
             self.resetCamera();
@@ -373,7 +391,6 @@ class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        self.setState( { loading : false } );
       })
   }
 
@@ -404,9 +421,8 @@ class VFBGraph extends Component {
     const { instanceOnFocus, graphQueryIndex } = this.props;
     
     let syncColor = this.state.optionsIconColor;
-    let loading = this.state.loading;
     
-    if ( this.focusedInstance.id !== "" && instanceOnFocus !== this.focusedInstance.id ) {
+    if ( this.focusedInstance.id !== "" && !instanceOnFocus.id.includes(this.focusedInstance.id) ) {
       this.instanceFocusChange(instanceOnFocus);
       
       if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery ){
@@ -418,29 +434,19 @@ class VFBGraph extends Component {
         }
         syncColor = stylingConfiguration.defaultRefreshIconColor;
         // Perform cypher query
-        loading = true;
+        this.loading = true;
         this.queryResults(cypherQuery(idToSearch), idToSearch)
       }
       if ( this.focusedInstance.id !== this.state.currentQuery ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
-    } else if (this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ){
-      stylingConfiguration.dropDownQueries.map((item, index) => {
-        if ( self.selectedDropDownQuery === -1 || self.selectedDropDownQuery !== parseInt(graphQueryIndex) ) { 
-          if ( parseInt(graphQueryIndex) === index ) {
-            self.selectedDropDownQuery = index;
-            loading = true;
-            self.queryResults(item.query(instanceOnFocus));
-          }
-        }
-      })
     }
     
-    if ( !instanceOnFocus.id.includes(this.focusedInstance.id) ) {
+    if ( !this.state.currentQuery.includes(this.focusedInstance.id) ) {
       syncColor = stylingConfiguration.outOfSyncIconColor;
     }
     return (
-      loading
+      this.loading
         ? <CircularProgress
           style={{
             position: 'absolute',
