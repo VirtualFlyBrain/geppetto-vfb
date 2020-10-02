@@ -1,4 +1,4 @@
-var whereCypherQuery = instance => ({
+var locationCypherQuery = instance => ({
   "statements": [
     {
       "statement": "MATCH p=(n:Entity)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
@@ -71,7 +71,7 @@ var styling = {
   dropDownQueries : [
     {
       label : instance => "Show location of " + instance ,
-      query : instance => whereCypherQuery(instance)
+      query : instance => locationCypherQuery(instance)
     },
     {
       label : instance => "Show classification of " + instance,
@@ -93,6 +93,6 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  whereCypherQuery,
+  locationCypherQuery,
   whatCypherQuery
 };
