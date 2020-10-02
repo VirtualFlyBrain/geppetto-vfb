@@ -163,11 +163,13 @@ class VFBGraph extends Component {
     let self = this;
     this.__isMounted = true;
 
-    if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
-      if (this.props.instance.getParent() !== null) {
-        this.focusedInstance = this.props.instance.getParent();
-      } else {
-        this.focusedInstance = this.props.instance;
+    if (this.state.currentQuery !== undefined && this.state.currentQuery !== "" && this.state.currentQuery !== null){
+      if ( this.props.instance != null ) {
+        if (this.props.instance.getParent() !== null) {
+          this.focusedInstance = this.props.instance.getParent();
+        } else {
+          this.focusedInstance = this.props.instance;
+        }
       }
       
       this.updateGraph();
@@ -200,7 +202,11 @@ class VFBGraph extends Component {
           if ( parseInt(self.props.graphQueryIndex) === index ) {
             self.selectedDropDownQuery = index;
             self.loading = true;
-            self.queryResults(item.query(self.props.instanceOnFocus.id), self.props.instanceOnFocus.id);
+            let idToSearch = self.props.instanceOnFocus.id;
+            if (self.props.instanceOnFocus.getParent() !== null) {
+              idToSearch = self.props.instanceOnFocus.getParent().id;
+            }
+            self.queryResults(item.query(idToSearch), idToSearch);
           }
         }
       });
@@ -208,10 +214,12 @@ class VFBGraph extends Component {
       setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
+        self.loading = false;
         self.graphResized = false;
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
+      this.loading = true;
       this.selectedDropDownQuery = -1;
     }
   }
@@ -290,11 +298,9 @@ class VFBGraph extends Component {
   }
 
   selectedNodeLoaded (instance) {
-    var loadedId = null;
+    var loadedId = instance.id;
     if (instance.getParent() !== null) {
       loadedId = instance.getParent().id;
-    } else {
-      loadedId = instance.id;
     }
 
     if ( this.state.nodeSselected ) {
@@ -323,15 +329,13 @@ class VFBGraph extends Component {
    * Re-render graph with a new instance
    */
   updateGraph () {
-    var idToSearch = null;
+    var idToSearch = this.focusedInstance.id;
     /*
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
     if (this.focusedInstance.getParent() !== null) {
       idToSearch = this.focusedInstance.getParent().id;
-    } else {
-      idToSearch = this.focusedInstance.id;
     }
 
     if (this.__isMounted){
@@ -391,6 +395,7 @@ class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
+        self.loading = false;
       })
   }
 
@@ -426,12 +431,11 @@ class VFBGraph extends Component {
       this.instanceFocusChange(instanceOnFocus);
       
       if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery ){
-        let idToSearch = "";
+        let idToSearch = this.focusedInstance.id;
         if (this.focusedInstance.getParent() !== null) {
           idToSearch = this.focusedInstance.getParent().id;
-        } else {
-          idToSearch = this.focusedInstance.id;
         }
+        
         syncColor = stylingConfiguration.defaultRefreshIconColor;
         // Perform cypher query
         this.loading = true;
