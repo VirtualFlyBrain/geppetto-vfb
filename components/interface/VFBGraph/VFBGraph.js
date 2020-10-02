@@ -12,7 +12,7 @@ import { connect } from "react-redux";
  */
 const configuration = require('../../configuration/VFBGraph/graphConfiguration').configuration;
 const restPostConfig = require('../../configuration/VFBGraph/graphConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').whereCypherQuery;
+const cypherQuery = require('../../configuration/VFBGraph/graphConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
 
 /**
