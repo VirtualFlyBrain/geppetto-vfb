@@ -112,7 +112,7 @@ var searchConfiguration = {
   "filters": [
     {
       "key": "facets_annotation",
-      "filter_name": "Type",
+      "filter_name": "Filters",
       "type": "array",
       "enabled": "disabled",
       "disableGlobal": true,
