@@ -100,7 +100,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[2].click());
 			// Check tree now expanded with adult cerebral ganglion name
 			let firstNode = await page.evaluate(async () => {
-				return document.getElementsByClassName("nodeSelected")[1].innerText;
+				return document.getElementsByClassName("nodeSelected")[3].innerText;
 			});
 			expect(firstNode).toEqual("adult protocerebrum");
 		})
