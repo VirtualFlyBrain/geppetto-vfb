@@ -91,6 +91,7 @@ const controlsMenuConf = {
         {
           toggle : {
             condition : entity => entity.isSelected(),
+            isVisible : entity => entity.isVisible(),
             options : {
               false : {
                 label: "Select",
@@ -131,7 +132,8 @@ const controlsMenuConf = {
         {
           label: "Zoom To",
           icon: "fa fa-search-plus",
-          action: { handlerAction: ACTIONS.ZOOM_TO }
+          action: { handlerAction: ACTIONS.ZOOM_TO },
+          isVisible : entity => entity.isVisible()
         },
         {
           label: "Show Volume",
@@ -201,7 +203,8 @@ const controlsMenuConf = {
         {
           label: "Color",
           icon: "fa fa-tint",
-          action: { handlerAction: ACTIONS.COLOR }
+          action: { handlerAction: ACTIONS.COLOR },
+          isVisible : entity => entity.isVisible()
         },
       ]
     }

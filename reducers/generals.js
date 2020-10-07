@@ -140,13 +140,6 @@ function generalReducer (state, action) {
     var idsLoaded = state.idsLoaded;
     var newMap = { ...state.idsMap };
 
-    if (newMap[action.data.id] === undefined ) {
-      return {
-        ...state,
-        error: "instance " + action.data.id + "is not present anymore in the map"
-      };
-    }
-
     if (newMap[action.data.id] !== undefined && newMap[action.data.id].components[action.data.component]) {
       var newComponents = { ...newMap[action.data.id].components };
       newMap[action.data.id].components = newComponents;
@@ -195,7 +188,8 @@ function generalReducer (state, action) {
         stepsToLoad: 0,
         stepsLoaded: 0,
         idsMap: newMap,
-        loading: loading
+        loading: loading,
+        idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
       };
     }
   case VFB_UI_UPDATED:
@@ -239,7 +233,8 @@ function generalReducer (state, action) {
     }
     return {
       ...state,
-      idsMap: newMap
+      idsMap: newMap,
+      idsList : !state.idsList.includes(action.data) ? [ ...state.idsList, action.data ] : [ ...state.idsList ]
     };
   case INSTANCE_SELECTED:
     return {

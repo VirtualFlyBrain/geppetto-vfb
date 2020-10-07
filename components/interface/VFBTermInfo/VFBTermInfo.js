@@ -126,14 +126,26 @@ class VFBTermInfo extends React.Component {
     
     // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
     if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
+      let variables = type.getVariables();
+      let present = false;
       
-      // Variable object holding the information for the graph links
-      var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphs });
-      graphsVariable.setTypes([graphType]);
+      // Check if link has been added already, if it has, don't add it again
+      for ( var i = 0; i < variables.length; i++ ){
+        if ( variables[i].types[0].wrappedObj.name === GRAPHS ){
+          present = true;
+        }
+      }  
+    
+      if ( !present ) {
+        var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
       
-      // Add graphs Variable to root node
-      type.getVariables().push(graphsVariable);
+        // Variable object holding the information for the graph links
+        var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphs });
+        graphsVariable.setTypes([graphType]);
+      
+        // Add graphs Variable to root node
+        type.getVariables().push(graphsVariable);
+      }
     }
   }
   
@@ -153,14 +165,25 @@ class VFBTermInfo extends React.Component {
     
     // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
     if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
+      let variables = type.getVariables();
+      let present = false;
+      // Check if link has been added already, if it has, don't add it again
+      for ( var i = 0; i < variables.length; i++ ){
+        if ( variables[i].types[0].wrappedObj.name === CIRCUIT_BROWSER ){
+          present = true;
+        }
+      }  
       
-      // Variable object holding the information for the graph links
-      var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
-      circuitBrowserVariable.setTypes([circuitBrowserType]);
+      if ( !present ) {
+        var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
       
-      // Add graphs Variable to root node
-      type.getVariables().push(circuitBrowserVariable);
+        // Variable object holding the information for the graph links
+        var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
+        circuitBrowserVariable.setTypes([circuitBrowserType]);
+      
+        // Add graphs Variable to root node
+        type.getVariables().push(circuitBrowserVariable);
+      }
     }
   }
 
