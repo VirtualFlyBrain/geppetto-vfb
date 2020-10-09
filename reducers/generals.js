@@ -195,7 +195,8 @@ function generalReducer (state, action) {
         stepsToLoad: 0,
         stepsLoaded: 0,
         idsMap: newMap,
-        loading: loading
+        loading: loading,
+        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {}
       };
     }
   case VFB_UI_UPDATED:
@@ -239,7 +240,8 @@ function generalReducer (state, action) {
     }
     return {
       ...state,
-      idsMap: newMap
+      idsMap: newMap,
+      instanceOnFocus : Instances[newInstance[0]] != null ? Instances[newInstance[0]] : {}
     };
   case INSTANCE_SELECTED:
     return {

@@ -158,6 +158,7 @@ class VFBGraph extends Component {
     this.selectedDropDownQuery = -1;
     this.loading = true;
     this.firstLoad = true;
+    this.nodeSelectedID = "";
   }
 
   componentDidMount () {
@@ -171,6 +172,7 @@ class VFBGraph extends Component {
         } else {
           this.focusedInstance = this.props.instance;
         }
+        this.nodeSelectedID = this.focusedInstance.id;
       }
       this.updateGraph();
     }
@@ -285,6 +287,7 @@ class VFBGraph extends Component {
    */
   handleNodeLeftClick (node, event) {
     this.queryNewInstance(node);
+    this.nodeSelectedID = node.title;
   }
 
   /**
@@ -345,6 +348,7 @@ class VFBGraph extends Component {
     } else {
       this.focusedInstance = instance;
     }
+    this.nodeSelectedID = this.focusedInstance.id;
   }
 
   /**
@@ -469,12 +473,12 @@ class VFBGraph extends Component {
         this.loading = true;
         this.queryResults(cypherQuery(idToSearch), idToSearch)
       }
-      if ( this.focusedInstance.id !== this.state.currentQuery ) {
+      if ( this.focusedInstance.id !== this.state.currentQuery && this.nodeSelectedID !== this.state.currentQuery ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
     }
 
-    if ( !this.state.currentQuery.includes(this.focusedInstance.id) ) {
+    if ( !this.state.currentQuery.includes(this.focusedInstance.id)  && this.nodeSelectedID !== this.state.currentQuery  ) {
       syncColor = stylingConfiguration.outOfSyncIconColor;
     }
     return (
@@ -607,7 +611,7 @@ class VFBGraph extends Component {
                     onClick={self.zoomOut }>
                   </i>
                 </Tooltip>
-                <Tooltip title={<h6>Refresh</h6>}>
+                <Tooltip title={<h6>Refresh for {this.focusedInstance.name} </h6>}>
                   <i 
                     style={ 
                       { 
