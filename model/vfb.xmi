@@ -457,7 +457,7 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get term core info"
           description="Fetches term core details."
-          query="&quot;statement&quot;: &quot;MATCH (primary:Entity {short_form: {ID}}) RETURN { core: { short_form: primary.short_form, label: primary.label, iri: primary.iri, types: labels(primary) }} as term&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (primary {short_form: {ID}}) RETURN { core: { short_form: primary.short_form, label: primary.label, iri: primary.iri, types: labels(primary) }} as term&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (primary:Entity {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
