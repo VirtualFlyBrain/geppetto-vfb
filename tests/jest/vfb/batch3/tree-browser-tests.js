@@ -153,9 +153,9 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
 			await page.evaluate(() => document.querySelectorAll('.rst__tree i.fa-eye-slash')[3].click());
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
-			await wait4selector(page, '.rst__tree i.fa-tint', { visible: true, timeout : 500000 });
+			await wait4selector(page, 'i.fa-tint', { visible: true, timeout : 500000 });
 		})
-		
+
 		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
 			expect(
 				await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00030870.VFB_00030870_obj').length)
