@@ -168,8 +168,8 @@
         runForCount="false">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
-          name="Get images from Neo4j for class examples"
-          description="fetch Individual instances from ID list"
+          name="anatomy_query"
+          description="fetch Individual instances from Class ID list"
           runForCount="false"
           query="&quot;statement&quot;: &quot;MATCH (n:Class) WHERE n.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (n)&lt;-[:SUBCLASSOF|INSTANCEOF*..]-(i:Individual)&lt;-[:depicts]-(j:Individual)-[k:in_register_with]->(m:Individual) OPTIONAL MATCH (n)-[:SUBCLASSOF]->(c:Class) RETURN n.short_form as class_Id, n.label as class_Name, n.description[0] as class_Desc, COLLECT(DISTINCT c.label) as class_Type, COLLECT (DISTINCT { image_name: i.label, image_id: i.short_form, image_thumb: replace(k.folder[0],'http:','https:') + '/thumbnailT.png', template_id: m.short_form}) AS inds&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:Class) WHERE n.short_form IN {ARRAY_ID_RESULTS} RETURN count(n) AS count&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS }"/>
@@ -186,17 +186,17 @@
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           id="GetMetaForIndList"
-          name="Get meta from Neo4j"
+          name="anat_image_query"
           description="Get images for individual list"
           runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (i:Individual) WHERE i.short_form IN {ARRAY_ID_RESULTS} OPTIONAL MATCH (i)&lt;-[:depicts]-(:Individual)-[k1:in_register_with]->(:Individual) OPTIONAL MATCH (i:Cluster)&lt;-[:exemplar_of]-(e:Individual) OPTIONAL MATCH (i)-[:INSTANCEOF]->(ic:Class) OPTIONAL MATCH (e)-[:INSTANCEOF]->(ec:Class) with coalesce('Exemplar: ' + ec.label,ic.label) as ct, i, coalesce(replace(k1.folder[0],'http:','https:') + '/thumbnailT.png','http://flybrain.mrc-lmb.cam.ac.uk/vfb/fc/clusterv/3/' + e.label + '/snapshot.png') as iri, i.description[0] as cd, FILTER(x IN i.synonym WHERE x &lt;> i.label) as syn RETURN i.short_form as id, i.label  as name, CASE WHEN not syn = [] THEN cd + replace(' Synonym(s): '+reduce(a='',n in syn|a+n+', ')+')',', )','.') ELSE cd END as def, COLLECT(DISTINCT ct) as type, collect(distinct iri) as file&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual) WHERE primary.short_form in {ARRAY_ID_RESULTS} WITH primary OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), symbol: coalesce(channel.`IAO_0000028`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), symbol: coalesce(technique.`IAO_0000028`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), symbol: coalesce(template.`IAO_0000028`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`IAO_0000028`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary OPTIONAL MATCH (primary)-[:INSTANCEOF]->(typ:Class) WITH CASE WHEN typ is null THEN [] ELSE collect ({ short_form: typ.short_form, label: coalesce(typ.label,''), iri: typ.iri, types: labels(typ), symbol: coalesce(typ.`IAO_0000028`[0], '')} ) END AS types,primary,channel_image RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), symbol: coalesce(primary.`IAO_0000028`[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, '58214d4' AS version, 'anat_image_query' AS query, channel_image, types&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH(i:Individual) WHERE i.short_form IN {ARRAY_ID_RESULTS} RETURN count(i) as count&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
           runForCount="false"
           returnType="//@libraries.3/@types.0"
-          queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
+          queryProcessorId="neo4jQueryProcessor"/>
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
