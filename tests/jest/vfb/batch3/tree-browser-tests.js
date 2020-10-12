@@ -110,13 +110,13 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[3].click());
 			// Check tree now expanded with adult cerebral ganglion name
 			let sixthNode = await page.evaluate(async () => {
-				return document.getElementsByClassName("nodeSelected")[9].innerText;
+				return document.getElementsByClassName("nodeSelected")[6].innerText;
 			});
 			expect(sixthNode).toEqual("adult optic lobe");
 		})
 
 		it('Click on Node "adult optic lobe"', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[9].click());
+			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[6].click());
 			// Check Term Info is now populated with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult optic lobe");
 	        expect(element).toBe("adult optic lobe");
