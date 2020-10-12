@@ -26,6 +26,19 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "type",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "expressed_in",
     "order": 3,
     "locked": false,
