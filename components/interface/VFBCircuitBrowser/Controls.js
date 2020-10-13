@@ -22,6 +22,8 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { connect } from "react-redux";
+import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -122,7 +124,7 @@ class Controls extends Component {
     this.state = {
       typingTimeout: 0,
       expanded : true,
-      neuronFields : this.props.neurons
+      neuronFields : ["", ""]
     };
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
@@ -135,7 +137,13 @@ class Controls extends Component {
   }
   
   componentDidMount () {
-    this.setState( { expanded : !this.props.resultsAvailable() } );
+    let neurons = [...this.props.neurons];
+    this.setState( { expanded : !this.props.resultsAvailable(), neuronFields : neurons } );
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
+  }
+  
+  componentDidUpdate () {
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
 
   /**
@@ -146,12 +154,17 @@ class Controls extends Component {
     if ( event.target.id === "" ) {
       id = parseInt(event.target.parentElement.id);
     }
+    
     // remove neuron textfield
     let neurons = this.state.neuronFields;
     neurons.splice(id,1);
+    
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    
     // Update state with one less neuron textfield
     this.setState( { neuronFields : neurons } );
     
+    // If neuron fields are validated, let the VFBCircuitBrowser component know, it will do a graph update
     if ( this.fieldsValidated(neurons) ) {
       this.props.queriesUpdated(neurons);
     }
@@ -176,7 +189,7 @@ class Controls extends Component {
    * Validates neurons ID's are valid, checks there's at least 8 numbers in it
    */
   fieldsValidated (neurons) {
-    var pattern = /\d{8}/;
+    var pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
     for ( var i = 0 ; i < neurons.length ; i++ ){
       if ( neurons[i] === "" ) {
         return false;
@@ -195,6 +208,8 @@ class Controls extends Component {
   typingTimeout (target) {
     let neurons = this.state.neuronFields;
     neurons[target.id] = target.value;
+    this.circuitQuerySelected = neurons;
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
       this.props.queriesUpdated(neurons);
@@ -230,21 +245,28 @@ class Controls extends Component {
    */
   getUpdatedNeuronFields () {
     let neuronFields = this.state.neuronFields;
-    
+    let added = false;
     for ( var i = 0; i < this.circuitQuerySelected.length; i++ ){
-      if ( !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
-          for ( var j = 0 ; j < neuronFields.length ; j++ ) {
-              if ( this.state.neuronFields[j] === "" ) {
-                neuronFields[j] = this.circuitQuerySelected[i];
-                break;
-              }
-            }
-        } else if ( neuronFields.includes(this.circuitQuerySelected[i]) ) {
-        	if ( neuronFields.length < configuration.maxNeurons ) {
-                neuronFields.push(this.circuitQuerySelected);
-              }
+      if ( !this.state.neuronFields.includes(this.circuitQuerySelected[i])) { 
+        for ( var j = 0 ; j < neuronFields.length ; j++ ) {
+          if ( this.state.neuronFields[j] === "" ) {
+            neuronFields[j] = this.circuitQuerySelected[i];
+            added = true;
+            break;
+          }
         }
+        
+        if ( this.circuitQuerySelected.length > neuronFields.length && !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
+            if ( neuronFields.length < configuration.maxNeurons && this.circuitQuerySelected !== "" ) {
+              neuronFields.push(this.circuitQuerySelected[i]);
+            } 
+          }
+      }
     }
+    
+    if ( this.fieldsValidated(neuronFields) ) {
+      this.props.queriesUpdated(neuronFields);
+    } 
     
     return neuronFields;
   }
@@ -379,4 +401,12 @@ class Controls extends Component {
 
 Controls.propTypes = { classes: PropTypes.object.isRequired };
 
-export default withStyles(styles)(Controls);
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+function mapDispatchToProps (dispatch) {
+  return { vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }), }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(withStyles(styles)(Controls));

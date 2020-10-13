@@ -7,7 +7,7 @@ export const INSTANCE_ADDED = 'INSTANCE_ADDED';
 export const SHOW_GRAPH = 'SHOW_GRAPH';
 export const UPDATE_GRAPH = 'UPDATE_GRAPH';
 export const LOAD_CIRCUIT_BROWSER = 'LOAD_CIRCUIT_BROWSER';
-export const UPDATE_CIRCUIT_BROWSER = 'UPDATE_CIRCUIT_BROWSER';
+export const UPDATE_CIRCUIT_QUERY = 'UPDATE_CIRCUIT_QUERY';
 export const INSTANCE_SELECTED = 'INSTANCE_SELECTION';
 export const INSTANCE_DELETED = 'INSTANCE_DELETED';
 export const INSTANCE_VISIBILITY_CHANGED = 'INSTANCE_VISIBILITY_CHANGED';
@@ -40,7 +40,7 @@ export const vfbGraph = (type, instance, queryIndex) => ({
 });
 
 export const vfbCircuitBrowser = (type, instance) => ({
-  type: LOAD_CIRCUIT_BROWSER,
+  type: type,
   data: { instance : instance }
 });
 
