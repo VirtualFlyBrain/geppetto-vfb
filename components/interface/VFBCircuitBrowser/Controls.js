@@ -257,10 +257,10 @@ class Controls extends Component {
         }
         
         if ( this.circuitQuerySelected.length > neuronFields.length && !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
-            if ( neuronFields.length < configuration.maxNeurons && this.circuitQuerySelected !== "" ) {
-              neuronFields.push(this.circuitQuerySelected[i]);
-            } 
-          }
+          if ( neuronFields.length < configuration.maxNeurons && this.circuitQuerySelected !== "" ) {
+            neuronFields.push(this.circuitQuerySelected[i]);
+          } 
+        }
       }
     }
     
