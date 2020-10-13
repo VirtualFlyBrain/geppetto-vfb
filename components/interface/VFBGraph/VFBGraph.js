@@ -5,7 +5,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
-import { UPDATE_GRAPH } from './../../../actions/generals';
 import { connect } from "react-redux";
 
 /**
@@ -196,6 +195,37 @@ class VFBGraph extends Component {
   componentDidUpdate () {
     let self = this;
     
+    // Reset camera if graph component is visible, not focused or has been resized
+    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
+      /*
+       * Update graph with selected query index from configuration dropdown selection, this is to allow to lauch the component to be launched
+       * with specific configuration dropdown query. 
+       */
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( (self.selectedDropDownQuery < 0 ) && this.firstLoad ) { 
+          if ( parseInt(self.props.graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            self.loading = true;
+            let idToSearch = self.props.instanceOnFocus.id;
+            if (self.props.instanceOnFocus.getParent() !== null) {
+              idToSearch = self.props.instanceOnFocus.getParent().id;
+            }
+            self.queryResults(item.query(idToSearch), idToSearch);
+          }
+        }
+      });
+      // Reset camera view after graph component becomes visible
+      setTimeout( function () {
+        self.resetCamera();
+        self.focused = true;
+        self.loading = false;
+        self.graphResized = false;
+      }, (self.objectsLoaded * 20));
+    } else if ( !this.props.visible ) {
+      this.focused = false;
+      this.selectedDropDownQuery = -1;
+    }
+    
     if (this.loading && this.firstLoad) {
       if (this.state.currentQuery === undefined || this.state.currentQuery === "" || this.state.currentQuery === null){
         if (this.props.instance !== null && this.props.instance !== undefined) {
@@ -216,42 +246,6 @@ class VFBGraph extends Component {
           this.updateGraph();
         }
       }
-    }
-    
-    
-    // Reset camera if graph component is visible, not focused or has been resized
-    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
-      /*
-       * Update graph with selected query index from configuration dropdown selection, this is to allow to lauch the component to be launched
-       * with specific configuration dropdown query. 
-       */
-      stylingConfiguration.dropDownQueries.map((item, index) => {
-        if ( parseInt(self.props.graphQueryIndex) >= 0 && self.firstLoad ) { 
-          if ( parseInt(self.props.graphQueryIndex) === index ) {
-            self.selectedDropDownQuery = index;
-            self.loading = true;
-            let idToSearch = self.props.instanceOnFocus.id;
-            if (self.props.instanceOnFocus.getParent() !== null) {
-              idToSearch = self.props.instanceOnFocus.getParent().id;
-            }
-            self.queryResults(item.query(idToSearch), idToSearch);
-          }
-        }
-      });
-      // Reset camera view after graph component becomes visible
-      setTimeout( function () {
-        self.resetCamera();
-        self.focused = true;
-        self.loading = false;
-        self.graphResized = false;
-      }, (self.objectsLoaded * 50));
-    } else if ( !this.props.visible ) {
-      this.focused = false;
-      if ( parseInt(this.props.graphQueryIndex) >= 0 && !this.firstLoad ) {
-        this.selectedDropDownQuery = -1;
-        this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1);
-      }
-      this.firstLoad = true;
     }
   }
 
@@ -417,7 +411,6 @@ class VFBGraph extends Component {
         switch (e.data.resultMessage) {
         case "OK":
           self.loading = false;
-          self.firstLoad = false;
           self.focusedInstance = e.data.params;
           self.setState( { graph : e.data.params.results, currentQuery : e.data.params.id });
           self.objectsLoaded = e.data.params.results.nodes.length;
@@ -750,8 +743,4 @@ function mapStateToProps (state) {
   }
 }
 
-function mapDispatchToProps (dispatch) {
-  return { vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } } ) }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBGraph);
+export default connect(mapStateToProps, null, null, { forwardRef : true } )(VFBGraph);
