@@ -8,7 +8,6 @@ import {
   SHOW_LIST_VIEWER,
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
-  UPDATE_GRAPH,
   LOAD_CIRCUIT_BROWSER,
   UPDATE_CIRCUIT_QUERY,
   INSTANCE_SELECTED,
@@ -27,7 +26,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
-  graphQueryIndex : -1,
+  graphQueryIndex : {},
   instanceOnFocus : {},
   instanceSelection : {},
   instanceDeleted : {},
@@ -211,11 +210,6 @@ function generalReducer (state, action) {
       ...state, 
       graphQueryIndex : action.data.queryIndex,
       instanceOnFocus : action.data.instance
-    };
-  case UPDATE_GRAPH:
-    return { 
-      ...state, 
-      graphQueryIndex : action.data.queryIndex
     };
   case LOAD_CIRCUIT_BROWSER:
     return { 

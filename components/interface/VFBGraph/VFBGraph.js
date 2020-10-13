@@ -115,16 +115,17 @@ function refineData (e) {
   });
 
   // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, id : e.data.params.value } });
+  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
 }
 
 class VFBGraph extends Component {
 
   constructor (props) {
     super(props);
-    this.state = {
-      graph : { nodes : [], links : [] },
-      currentQuery : this.props.instance != null ? this.props.instance.id : "",
+    this.state = { 
+      graph : { nodes : [], links : [] }, 
+      loading : true, 
+      currentQuery : this.props.instance.id,
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
       nodeSelected : { title : "", id : "" },
@@ -142,7 +143,6 @@ class VFBGraph extends Component {
     this.zoomOut = this.zoomOut.bind(this);
     this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
     this.resize = this.resize.bind(this);
-    this.sync = this.sync.bind(this);
 
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -157,24 +157,19 @@ class VFBGraph extends Component {
     this.graphResized = false;
     this.focusedInstance = { id : "" };
     this.selectedDropDownQuery = -1;
-    this.loading = true;
-    this.firstLoad = true;
-    this.nodeSelectedID = "";
   }
 
   componentDidMount () {
     let self = this;
     this.__isMounted = true;
 
-    if (this.state.currentQuery !== undefined && this.state.currentQuery !== "" && this.state.currentQuery !== null){
-      if ( this.props.instance !== null ) {
-        if (this.props.instance.getParent() !== null) {
-          this.focusedInstance = this.props.instance.getParent();
-        } else {
-          this.focusedInstance = this.props.instance;
-        }
-        this.nodeSelectedID = this.focusedInstance.id;
+    if (this.state.currentQuery !== undefined && this.state.currentQuery !== null){
+      if (this.props.instance.getParent() !== null) {
+        this.focusedInstance = this.props.instance.getParent();
+      } else {
+        this.focusedInstance = this.props.instance;
       }
+      
       this.updateGraph();
     }
 
@@ -189,63 +184,21 @@ class VFBGraph extends Component {
       if (event.isComposing || event.keyCode === 16) {
         self.shiftOn = false;
       }
-    });
+    });    
   }
 
   componentDidUpdate () {
     let self = this;
-    
     // Reset camera if graph component is visible, not focused or has been resized
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
-      /*
-       * Update graph with selected query index from configuration dropdown selection, this is to allow to lauch the component to be launched
-       * with specific configuration dropdown query. 
-       */
-      stylingConfiguration.dropDownQueries.map((item, index) => {
-        if ( (self.selectedDropDownQuery < 0 ) && this.firstLoad ) { 
-          if ( parseInt(self.props.graphQueryIndex) === index ) {
-            self.selectedDropDownQuery = index;
-            self.loading = true;
-            let idToSearch = self.props.instanceOnFocus.id;
-            if (self.props.instanceOnFocus.getParent() !== null) {
-              idToSearch = self.props.instanceOnFocus.getParent().id;
-            }
-            self.queryResults(item.query(idToSearch), idToSearch);
-          }
-        }
-      });
-      // Reset camera view after graph component becomes visible
-      setTimeout( function () {
+      setTimeout( function () { 
         self.resetCamera();
         self.focused = true;
-        self.loading = false;
         self.graphResized = false;
       }, (self.objectsLoaded * 20));
     } else if ( !this.props.visible ) {
       this.focused = false;
       this.selectedDropDownQuery = -1;
-    }
-    
-    if (this.loading && this.firstLoad) {
-      if (this.state.currentQuery === undefined || this.state.currentQuery === "" || this.state.currentQuery === null){
-        if (this.props.instance !== null && this.props.instance !== undefined) {
-          if (this.props.instance.getParent() !== null) {
-            this.focusedInstance = this.props.instance.getParent();
-          } else {
-            this.focusedInstance = this.props.instance;
-          }
-          this.firstLoad = false;
-          this.updateGraph();
-        } else if (this.props.instanceOnFocus !== null && this.props.instanceOnFocus !== undefined) {
-          if (this.props.instanceOnFocus.getParent() !== null) {
-            this.focusedInstance = this.props.instanceOnFocus.getParent();
-          } else {
-            this.focusedInstance = this.props.instanceOnFocus;
-          }
-          this.firstLoad = false;
-          this.updateGraph();
-        }
-      }
     }
   }
 
@@ -259,7 +212,7 @@ class VFBGraph extends Component {
       this.focused = true;
     }
   }
-
+  
   resize (){
     this.graphResized = true;
     this.setState( { reload : !this.state.reload } );
@@ -288,7 +241,6 @@ class VFBGraph extends Component {
    */
   handleNodeLeftClick (node, event) {
     this.queryNewInstance(node);
-    this.nodeSelectedID = node.title;
   }
 
   /**
@@ -298,11 +250,6 @@ class VFBGraph extends Component {
     this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
     this.graphRef.current.ggv.current.zoom(2, 1000);
   }
-  
-  sync () {
-    this.instanceFocusChange(this.props.instanceOnFocus);
-    this.updateGraph();
-  }
 
   /**
    * Handle Menu drop down clicks
@@ -310,10 +257,9 @@ class VFBGraph extends Component {
   handleMenuClick (query) {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.loading = true;
-      this.setState({ dropDownAnchorEl : null });
+      this.setState({ loading : true , dropDownAnchorEl : null });
       // Perform cypher query
-      this.queryResults(query(this.state.currentQuery), this.state.currentQuery)
+      this.queryResults(query(this.state.currentQuery))
     }
   }
 
@@ -322,16 +268,17 @@ class VFBGraph extends Component {
    */
   queryNewInstance (node) {
     window.addVfbId(node.title);
-    this.loading = true;
-    this.setState({ nodeSelected : node, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+    this.setState({ loading : true, nodeSelected : node, currentQuery : node.title, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
     // Perform cypher query
     this.queryResults(cypherQuery(node.title), node.title)
   }
 
   selectedNodeLoaded (instance) {
-    var loadedId = instance.id;
+    var loadedId = null;
     if (instance.getParent() !== null) {
       loadedId = instance.getParent().id;
+    } else {
+      loadedId = instance.id;
     }
 
     if ( this.state.nodeSselected ) {
@@ -354,26 +301,26 @@ class VFBGraph extends Component {
     } else {
       this.focusedInstance = instance;
     }
-    this.nodeSelectedID = this.focusedInstance.id;
   }
 
   /**
    * Re-render graph with a new instance
    */
   updateGraph () {
-    var idToSearch = this.focusedInstance.id;
+    var idToSearch = null;
     /*
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
     if (this.focusedInstance.getParent() !== null) {
       idToSearch = this.focusedInstance.getParent().id;
+    } else {
+      idToSearch = this.focusedInstance.id;
     }
 
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.loading = true;
-      this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+      this.setState({ loading : true, currentQuery : idToSearch, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
       this.queryResults(cypherQuery(idToSearch), idToSearch);
     }
@@ -410,9 +357,7 @@ class VFBGraph extends Component {
       worker.onmessage = function (e) {
         switch (e.data.resultMessage) {
         case "OK":
-          self.loading = false;
-          self.focusedInstance = e.data.params;
-          self.setState( { graph : e.data.params.results, currentQuery : e.data.params.id });
+          self.setState( { graph : e.data.params.results , loading : false });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
             self.resetCamera();
@@ -428,7 +373,7 @@ class VFBGraph extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        self.loading = false;
+        self.setState( { loading : false } );
       })
   }
 
@@ -456,43 +401,46 @@ class VFBGraph extends Component {
 
   render () {
     let self = this;
-    const { graphQueryIndex } = this.props;
-
+    const { instanceOnFocus, graphQueryIndex } = this.props;
+    
     let syncColor = this.state.optionsIconColor;
-
-    if (Object.keys(this.props.instanceOnFocus).length === 0 && this.props.instanceOnFocus.constructor === Object) {
-      return (
-        <p>Model not loaded, graph not available yet</p>
-      );
-    }
-
-    if ( this.focusedInstance.id !== "" && !this.props.instanceOnFocus.id.includes(this.focusedInstance.id) ) {
-      // If the length of the graph is 0, request a new query using the instanceOnFocus
+    let loading = this.state.loading;
+    
+    if ( this.focusedInstance.id !== "" && instanceOnFocus !== this.focusedInstance.id ) {
+      this.instanceFocusChange(instanceOnFocus);
+      
       if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery ){
-        let idToSearch = this.focusedInstance.id;
+        let idToSearch = "";
         if (this.focusedInstance.getParent() !== null) {
           idToSearch = this.focusedInstance.getParent().id;
+        } else {
+          idToSearch = this.focusedInstance.id;
         }
-
         syncColor = stylingConfiguration.defaultRefreshIconColor;
         // Perform cypher query
-        this.loading = true;
+        loading = true;
         this.queryResults(cypherQuery(idToSearch), idToSearch)
       }
-      
-      // Out of sync if instanceOnFocus is not what's on display
       if ( this.focusedInstance.id !== this.state.currentQuery ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
-    }
-
-    // Out of sync if instanceOnFocus is not what's on display
-    if ( !this.props.instanceOnFocus.id.includes(this.focusedInstance.id) ) {
-      syncColor = stylingConfiguration.outOfSyncIconColor;
+    } else if (this.focusedInstance.id !== "" && instanceOnFocus === this.focusedInstance.id ){
+      stylingConfiguration.dropDownQueries.map((item, index) => {
+        if ( self.selectedDropDownQuery === -1 || self.selectedDropDownQuery !== parseInt(graphQueryIndex) ) { 
+          if ( parseInt(graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            loading = true;
+            self.queryResults(item.query(instanceOnFocus));
+          }
+        }
+      })
     }
     
+    if ( !instanceOnFocus.id.includes(this.focusedInstance.id) ) {
+      syncColor = stylingConfiguration.outOfSyncIconColor;
+    }
     return (
-      this.loading
+      loading
         ? <CircularProgress
           style={{
             position: 'absolute',
@@ -579,7 +527,7 @@ class VFBGraph extends Component {
             linkWidth={1.25}
             controls = {
               <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-                <Tooltip title={<h6>Reset View</h6>}>
+                <Tooltip title={<h6>Reset View</h6>}>  
                   <i
                     style={
                       {
@@ -593,7 +541,7 @@ class VFBGraph extends Component {
                     onClick={self.resetCamera }>
                   </i>
                 </Tooltip>
-                <Tooltip title={<h6>Zoom In</h6>}>
+                <Tooltip title={<h6>Zoom In</h6>}>  
                   <i
                     style={
                       {
@@ -607,7 +555,7 @@ class VFBGraph extends Component {
                     onClick={self.zoomIn }>
                   </i>
                 </Tooltip>
-                <Tooltip title={<h6>Zoom Out</h6>}>
+                <Tooltip title={<h6>Zoom Out</h6>}>  
                   <i
                     style={
                       {
@@ -621,7 +569,7 @@ class VFBGraph extends Component {
                     onClick={self.zoomOut }>
                   </i>
                 </Tooltip>
-                <Tooltip title={<h6>Refresh for {this.focusedInstance.name} </h6>}>
+                <Tooltip title={<h6>Refresh</h6>}>
                   <i 
                     style={ 
                       { 
@@ -634,7 +582,7 @@ class VFBGraph extends Component {
                     }
                     className={stylingConfiguration.icons.sync}
                     key="tooltip-icon"
-                    onClick={self.sync}>
+                    onClick={self.updateGraph }>
                   </i>
                 </Tooltip>
                 <Tooltip title={<h6>Options</h6>}>
