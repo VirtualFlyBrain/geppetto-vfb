@@ -33,7 +33,7 @@ export const GENERAL_DEFAULT_STATE = {
   termInfoVisible : false,
   listViewerInfoVisible : true,
   circuitBrowserSelected : false,
-  circuitQuerySelected : {},
+  circuitQuerySelected : [],
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -213,7 +213,7 @@ function generalReducer (state, action) {
   case LOAD_CIRCUIT_BROWSER:
     return { 
       ...state, 
-      circuitQuerySelected : action.data.instance,
+      circuitQuerySelected : !state.circuitQuerySelected.includes(action.data.instance) ? [...state.circuitQuerySelected, action.data.instance] : [...state.circuitQuerySelected] ,
       circuitBrowserSelected : true
     };
   case INSTANCE_ADDED:

@@ -230,32 +230,20 @@ class Controls extends Component {
    */
   getUpdatedNeuronFields () {
     let neuronFields = this.state.neuronFields;
-    let neuronMatch = false;
-    // Query preselected
-    let queriesPassed = Object.keys(this.circuitQuerySelected).length > 0;
     
-    if ( queriesPassed) {
-      // If query is preselected and is not on the list already
-      if ( !this.state.neuronFields.includes(this.circuitQuerySelected) ) {
-        for ( var i = 0 ; i < neuronFields.length ; i++ ) {
-          if ( this.state.neuronFields[i] === "" ) {
-            neuronFields[i] = this.circuitQuerySelected;
-            neuronMatch = true;
-            break;
-          }
+    for ( var i = 0; i < this.circuitQuerySelected.length; i++ ){
+      if ( !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
+          for ( var j = 0 ; j < neuronFields.length ; j++ ) {
+              if ( this.state.neuronFields[j] === "" ) {
+                neuronFields[j] = this.circuitQuerySelected[i];
+                break;
+              }
+            }
+        } else if ( neuronFields.includes(this.circuitQuerySelected[i]) ) {
+        	if ( neuronFields.length < configuration.maxNeurons ) {
+                neuronFields.push(this.circuitQuerySelected);
+              }
         }
-      } else if ( queriesPassed && neuronFields.includes(this.circuitQuerySelected) ) {
-        neuronMatch = true;
-      }
-    }
-
-    // If preselected query is not on list of existing queries
-    if ( !neuronMatch ) {
-      if ( queriesPassed ) {
-        if ( neuronFields.length < configuration.maxNeurons ) {
-          neuronFields.push(this.circuitQuerySelected);
-        }
-      }
     }
     
     return neuronFields;
@@ -264,6 +252,7 @@ class Controls extends Component {
   render () {
     let self = this;
     const { classes } = this.props;
+    
     let neuronFields = this.getUpdatedNeuronFields()
     
     let expanded = this.state.expanded;

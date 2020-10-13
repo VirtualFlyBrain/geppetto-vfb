@@ -356,13 +356,7 @@ class VFBCircuitBrowser extends Component {
     const { classes } = this.props;
     
     // Detect when the first load of the Graph component happens
-    if ( !this.state.loading && this.firstLoad ) {
-      // Reset CircuitQuerySelected value after first load
-      this.circuitQuerySelected = "";
-    }
-    if ( !this.state.loading && !this.firstLoad ) {
-      this.firstLoad = true;
-    }
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
     
     return (
       this.state.loading
