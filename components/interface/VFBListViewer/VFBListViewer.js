@@ -61,7 +61,7 @@ class VFBListViewer extends Component {
         handler={this}
         filter={() => true}
         columnConfiguration={this.getColumnConfiguration()}
-        showPagination={false}
+        infiniteScroll={true}
       />
     </div>
   }

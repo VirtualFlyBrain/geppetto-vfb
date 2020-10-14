@@ -9,7 +9,6 @@ import {
   LOAD_CYPHER_QUERIES,
   SHOW_GRAPH,
   UPDATE_GRAPH,
-  LOAD_CIRCUIT_BROWSER,
   UPDATE_CIRCUIT_QUERY,
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
@@ -34,7 +33,6 @@ export const GENERAL_DEFAULT_STATE = {
   instanceVisibilityChanged : false,
   termInfoVisible : false,
   listViewerInfoVisible : true,
-  circuitBrowserSelected : false,
   circuitQuerySelected : [],
   layout: {
     "ThreeDViewer": true,
@@ -142,13 +140,6 @@ function generalReducer (state, action) {
     var idsLoaded = state.idsLoaded;
     var newMap = { ...state.idsMap };
 
-    if (newMap[action.data.id] === undefined ) {
-      return {
-        ...state,
-        error: "instance " + action.data.id + "is not present anymore in the map"
-      };
-    }
-
     if (newMap[action.data.id] !== undefined && newMap[action.data.id].components[action.data.component]) {
       var newComponents = { ...newMap[action.data.id].components };
       newMap[action.data.id].components = newComponents;
@@ -198,7 +189,8 @@ function generalReducer (state, action) {
         stepsLoaded: 0,
         idsMap: newMap,
         loading: loading,
-        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {}
+        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
+        idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
       };
     }
   case VFB_UI_UPDATED:
@@ -217,16 +209,17 @@ function generalReducer (state, action) {
       ...state, 
       graphQueryIndex : action.data.queryIndex
     };
-  case LOAD_CIRCUIT_BROWSER:
-    return { 
-      ...state, 
-      circuitQuerySelected : !state.circuitQuerySelected.includes(action.data.instance) ? [...state.circuitQuerySelected, action.data.instance] : [...state.circuitQuerySelected],
-      circuitBrowserSelected : true
-    };
   case UPDATE_CIRCUIT_QUERY:
+    var newQueryMap = [];
+    if ( Array.isArray(action.data.instance) ) {
+      newQueryMap = action.data.instance;
+    } else {
+      !state.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.circuitQuerySelected];
+    }
+    
     return { 
       ...state, 
-      circuitQuerySelected : action.data.instance
+      circuitQuerySelected : newQueryMap,
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
@@ -253,7 +246,8 @@ function generalReducer (state, action) {
     return {
       ...state,
       idsMap: newMap,
-      instanceOnFocus : Instances[newInstance[0]] != null ? Instances[newInstance[0]] : {}
+      instanceOnFocus : Instances[newInstance[0]] != null ? Instances[newInstance[0]] : {},
+      idsList : !state.idsList.includes(action.data) ? [ ...state.idsList, action.data ] : [ ...state.idsList ]
     };
   case INSTANCE_SELECTED:
     return {

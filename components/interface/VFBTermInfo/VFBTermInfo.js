@@ -4,7 +4,7 @@ import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import ButtonBarComponent from '@geppettoengine/geppetto-client/components/widgets/popup/ButtonBarComponent';
-import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER } from './../../../actions/generals';
+import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
 
 var $ = require('jquery');
@@ -126,14 +126,26 @@ class VFBTermInfo extends React.Component {
     
     // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
     if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
+      let variables = type.getVariables();
+      let present = false;
       
-      // Variable object holding the information for the graph links
-      var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphs });
-      graphsVariable.setTypes([graphType]);
+      // Check if link has been added already, if it has, don't add it again
+      for ( var i = 0; i < variables.length; i++ ){
+        if ( variables[i].types[0].wrappedObj.name === GRAPHS ){
+          present = true;
+        }
+      }  
+    
+      if ( !present ) {
+        var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
       
-      // Add graphs Variable to root node
-      type.getVariables().push(graphsVariable);
+        // Variable object holding the information for the graph links
+        var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphs });
+        graphsVariable.setTypes([graphType]);
+      
+        // Add graphs Variable to root node
+        type.getVariables().push(graphsVariable);
+      }
     }
   }
   
@@ -153,14 +165,25 @@ class VFBTermInfo extends React.Component {
     
     // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
     if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
+      let variables = type.getVariables();
+      let present = false;
+      // Check if link has been added already, if it has, don't add it again
+      for ( var i = 0; i < variables.length; i++ ){
+        if ( variables[i].types[0].wrappedObj.name === CIRCUIT_BROWSER ){
+          present = true;
+        }
+      }  
       
-      // Variable object holding the information for the graph links
-      var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
-      circuitBrowserVariable.setTypes([circuitBrowserType]);
+      if ( !present ) {
+        var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
       
-      // Add graphs Variable to root node
-      type.getVariables().push(circuitBrowserVariable);
+        // Variable object holding the information for the graph links
+        var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
+        circuitBrowserVariable.setTypes([circuitBrowserType]);
+      
+        // Add graphs Variable to root node
+        type.getVariables().push(circuitBrowserVariable);
+      }
     }
   }
 
@@ -711,10 +734,9 @@ class VFBTermInfoWidget extends React.Component {
       // Show Circuit Browser
       const { vfbCircuitBrowser } = this.props;
       /*
-       * Path contains the instance and the index of the drop down query options
-       * Path is of type : "instance_path, query_index"
+       * Path contains the instancE ID passed to the circuit browser
        */
-      vfbCircuitBrowser(LOAD_CIRCUIT_BROWSER, path.split(',')[1]);
+      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1]);
       
       // Notify VFBMain UI needs to be updated
       this.props.uiUpdated();

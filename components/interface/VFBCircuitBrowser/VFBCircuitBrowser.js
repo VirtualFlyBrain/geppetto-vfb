@@ -189,7 +189,6 @@ class VFBCircuitBrowser extends Component {
     // Circuit Browser component has been resized
     this.graphResized = false;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
-    this.lastSelectedQuery = this.cir
   }
 
   componentDidMount () {
@@ -507,10 +506,7 @@ class VFBCircuitBrowser extends Component {
 VFBCircuitBrowser.propTypes = { classes: PropTypes.object.isRequired };
 
 function mapStateToProps (state) {
-  return {
-    circuitQuerySelected : state.generals.circuitQuerySelected,
-    circuitBrowserSelected : state.generals.circuitBrowserSelected
-  }
+  return { circuitQuerySelected : state.generals.circuitQuerySelected }
 }
 
 export default connect(mapStateToProps, null, null, { forwardRef : true } )(withStyles(styles)(VFBCircuitBrowser));
