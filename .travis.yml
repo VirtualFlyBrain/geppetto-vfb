@@ -234,6 +234,7 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
+        - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export VFB_PDB_SERVER=http://pdb:7474;
         - export VFB_OWL_SERVER=http://owl:8080/kbs/vfb/;
         - export VFB_R_SERVER=http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast;
