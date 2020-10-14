@@ -373,9 +373,8 @@ class VFBCircuitBrowser extends Component {
     let self = this;
     
     // Detect when the first load of the Graph component happens
-    this.circuitQuerySelected = this.props.circuitQuerySelected;
-    const { classes } = this.props;
-    
+    const { classes, circuitQuerySelected } = this.props;
+    this.circuitQuerySelected = circuitQuerySelected;
     return (
       this.state.loading
         ? <CircularProgress classes={{ root : classes.loader }}

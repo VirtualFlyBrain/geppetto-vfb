@@ -142,9 +142,7 @@ class Controls extends Component {
     this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
   
-  componentDidUpdate () {
-    this.circuitQuerySelected = this.props.circuitQuerySelected;
-  }
+  componentDidUpdate () {}
 
   /**
    * Deletes neuron field, updates control component right after
@@ -246,19 +244,19 @@ class Controls extends Component {
   getUpdatedNeuronFields () {
     let neuronFields = this.state.neuronFields;
     let added = false;
-    for ( var i = 0; i < this.circuitQuerySelected.length; i++ ){
-      if ( !this.state.neuronFields.includes(this.circuitQuerySelected[i])) { 
+    for ( var i = 0; i < this.props.circuitQuerySelected.length; i++ ){
+      if ( !this.state.neuronFields.includes(this.props.circuitQuerySelected[i])) { 
         for ( var j = 0 ; j < neuronFields.length ; j++ ) {
           if ( this.state.neuronFields[j] === "" ) {
-            neuronFields[j] = this.circuitQuerySelected[i];
+            neuronFields[j] = this.props.circuitQuerySelected[i];
             added = true;
             break;
           }
         }
         
-        if ( this.circuitQuerySelected.length > neuronFields.length && !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
-          if ( neuronFields.length < configuration.maxNeurons && this.circuitQuerySelected !== "" ) {
-            neuronFields.push(this.circuitQuerySelected[i]);
+        if ( this.props.circuitQuerySelected.length > neuronFields.length && !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
+          if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
+            neuronFields.push(this.props.circuitQuerySelected[i]);
           } 
         }
       }
@@ -274,7 +272,7 @@ class Controls extends Component {
   render () {
     let self = this;
     const { classes } = this.props;
-    
+    this.circuitQuerySelected = this.props.circuitQuerySelected;
     let neuronFields = this.getUpdatedNeuronFields()
     
     let expanded = this.state.expanded;
