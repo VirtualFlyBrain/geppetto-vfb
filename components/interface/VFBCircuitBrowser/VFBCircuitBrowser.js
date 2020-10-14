@@ -287,7 +287,6 @@ class VFBCircuitBrowser extends Component {
    */
   updateGraph (neurons, hops) {
     if (this.__isMounted){
-      console.log("Graph updated", this.state.neurons);
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
       // Perform cypher query
