@@ -128,7 +128,6 @@ class VFBGraph extends Component {
       currentQuery : this.props.instance != null ? this.props.instance.id : "",
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
-      nodeSelected : { title : "", id : "" },
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
@@ -174,7 +173,6 @@ class VFBGraph extends Component {
         } else {
           this.focusedInstance = this.props.instance;
         }
-        this.nodeSelectedID = this.focusedInstance.id;
       }
       this.updateGraph();
     }
@@ -293,8 +291,8 @@ class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    this.queryNewInstance(node);
     this.nodeSelectedID = node.title;
+    this.queryNewInstance(node);
   }
 
   /**
@@ -329,7 +327,7 @@ class VFBGraph extends Component {
   queryNewInstance (node) {
     window.addVfbId(node.title);
     this.loading = true;
-    this.setState({ nodeSelected : node, optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
+    this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
     // Perform cypher query
     this.queryResults(cypherQuery(node.title), node.title)
   }
@@ -340,8 +338,8 @@ class VFBGraph extends Component {
       loadedId = instance.getParent().id;
     }
 
-    if ( this.state.nodeSselected ) {
-      if ( this.state.nodeSelected.title === loadedId ) {
+    if ( this.nodeSselected ) {
+      if ( this.nodeSelectedID === loadedId ) {
         return true;
       }
     }
@@ -360,7 +358,6 @@ class VFBGraph extends Component {
     } else {
       this.focusedInstance = instance;
     }
-    this.nodeSelectedID = this.focusedInstance.id;
   }
 
   /**
@@ -466,7 +463,7 @@ class VFBGraph extends Component {
     const { graphQueryIndex } = this.props;
 
     let syncColor = this.state.optionsIconColor;
-
+    
     if (Object.keys(this.props.instanceOnFocus).length === 0 && this.props.instanceOnFocus.constructor === Object) {
       return (
         <p>Model not loaded, graph not available yet</p>
