@@ -84,23 +84,22 @@ var searchStyle = {
 };
 
 var datasourceConfiguration = {
-  "url": "https://solr-dev.virtualflybrain.org/solr/ontology/select",
+  "url": "https://solr.p2.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "defType": "edismax",
-      "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest_e synonym_autosuggest shortform_autosuggest has_narrow_synonym_annotation has_broad_synonym_annotation",
+      "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
-      "fl": "short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation,facets_annotation",
+      "fl": "short_form,label,synonym,id,facets_annotation",
       "start": "0",
+      "pf":"true",
       "fq": [
-        "type:class OR type:individual OR type:property",
-        "ontology_name:(vfb)",
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
+        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "is_obsolete:false^100.0 shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 is_defining_ontology:true^100.0 label_s:\"\"^2 synonym_s:\"\" in_subset_annotation:BRAINNAME^3 short_form:FBbt_00003982^2"
+      "bq": "shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
@@ -113,7 +112,7 @@ var searchConfiguration = {
   "filters": [
     {
       "key": "facets_annotation",
-      "filter_name": "Type",
+      "filter_name": "Filters",
       "type": "array",
       "enabled": "disabled",
       "disableGlobal": true,
@@ -177,11 +176,25 @@ var searchConfiguration = {
     if (InputString == b.label) {
       return 1;
     }
+    // move exact matches to top ['XX ('ID/Label)]
+    if (a.label.indexOf(InputString + " (") == 0) {
+      return -1;
+    }
+    if (b.label.indexOf(InputString + " (") == 0) {
+      return 1;
+    }
     // close match without case matching
     if (InputString.toLowerCase() == a.label.toLowerCase()) {
       return -1;
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
+      return 1;
+    }
+    // close match without case matching ['xx ('ID/Label)]
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
+      return -1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
       return 1;
     }
     // match ignoring joinging nonwords

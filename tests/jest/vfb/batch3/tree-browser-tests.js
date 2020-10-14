@@ -72,7 +72,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			});
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 500000 });
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
 		})
 
 		it('First node in Tree Browser is correctly named', async () => {
@@ -99,15 +99,24 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Click on third node of tree browser, 'adult cerebral ganglion'
 			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[2].click());
 			// Check tree now expanded with adult cerebral ganglion name
-			let thirdNode = await page.evaluate(async () => {
+			let firstNode = await page.evaluate(async () => {
 				return document.getElementsByClassName("nodeSelected")[3].innerText;
 			});
-			expect(thirdNode).toEqual("adult optic lobe");
+			expect(firstNode).toEqual("adult protocerebrum");
 		})
 
+		it('Expand node "adult protocerebrum"', async () => {
+			// Click on third node of tree browser, 'adult cerebral ganglion'
+			await page.evaluate(async () => document.getElementsByClassName("rst__rowContents rst__rowContentsDragDisabled")[3].click());
+			// Check tree now expanded with adult cerebral ganglion name
+			let sixthNode = await page.evaluate(async () => {
+				return document.getElementsByClassName("nodeSelected")[6].innerText;
+			});
+			expect(sixthNode).toEqual("adult optic lobe");
+		})
 
 		it('Click on Node "adult optic lobe"', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[3].click());
+			await page.evaluate(async () => document.getElementsByClassName("nodeSelected")[6].click());
 			// Check Term Info is now populated with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult optic lobe");
 	        expect(element).toBe("adult optic lobe");
@@ -142,11 +151,11 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
-			await page.evaluate(() => document.querySelectorAll('.rst__tree i.fa-eye-slash')[1].click());
+			await page.evaluate(() => document.querySelectorAll('.rst__tree i.fa-eye-slash')[3].click());
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
-			await wait4selector(page, '.rst__tree i.fa-tint', { visible: true, timeout : 500000 });
+			await wait4selector(page, 'i.fa-tint', { visible: true, timeout : 500000 });
 		})
-		
+
 		it('Mesh for "adult optic lobe" rendered in canvas after clicking on eye icon next to node', async () => {
 			expect(
 				await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00030870.VFB_00030870_obj').length)
@@ -154,7 +163,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Color Picker Appears for "adult optic lobe"', async () => {
-			await page.evaluate(async () => document.querySelectorAll('.rst__tree i.fa-tint')[1].click());
+			await page.evaluate(async () => document.querySelectorAll('.rst__tree i.fa-tint')[0].click());
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
 		})
