@@ -1,14 +1,11 @@
 import React, { Component } from "react";
 import Menu from "@geppettoengine/geppetto-ui/menu/Menu";
 import { connect } from 'react-redux';
-import controlsConfiguration from '../../configuration/VFBListViewer/controlsMenuConfiguration';
 import { SliderPicker } from 'react-color';
 import { setTermInfo, SHOW_LIST_VIEWER, INSTANCE_DELETED } from './../../../actions/generals';
 
-// Special control actions handled by the menu handler
-const COLOR = 'color';
-const INFO = 'info';
-const DELETE = 'delete';
+const controlsConfiguration = require('../../configuration/VFBListViewer/controlsMenuConfiguration').default;
+const ACTIONS = controlsConfiguration.actions;
 
 /**
  * Menu component to display controls for VFB List Viewer
@@ -47,12 +44,28 @@ class ListViewerControlsMenu extends Component {
    * Handles menu option selection
    */
   menuHandler (action, component) {
-    // If action belongs to color control, display the color picker
-    if ( action === COLOR ) {
-      this.setState({ displayColorPicker: true });
-    } else if ( action === INFO ) {
-      // If action belongs to 'info' control, display term info
-      let self = this;
+    switch (action.handlerAction){
+    case ACTIONS.SHOW:
+      this.props.instance.show();
+      break;
+    case ACTIONS.HIDE:
+      this.props.instance.hide();
+      break;
+    case ACTIONS.SELECT:
+      this.props.instance.select();
+      break;
+    case ACTIONS.DESELECT:
+      this.props.instance.deselect();
+      break;
+    case ACTIONS.ZOOM_TO:
+      GEPPETTO.SceneController.zoomTo([this.props.instance]);
+      break;
+    case ACTIONS.DELETE:
+      this.props.instance.delete();   
+      this.props.instanceDeleted(INSTANCE_DELETED, this.props.instance);
+      break;
+    case ACTIONS.INFO:
+      var self = this;
       /**
        * Needs a 100 ms delay before calling the setTermInfo method, this is due to Menu taking 
        * a few ms to close.
@@ -60,12 +73,60 @@ class ListViewerControlsMenu extends Component {
       setTimeout ( () => { 
         self.props.setTermInfo(self.props.instance, true);
       }, 100);
-    } else if ( action === DELETE ) {
-      this.props.instance.delete();   
-      this.props.instanceDeleted(INSTANCE_DELETED, this.props.instance);
-    } else {
-      // For every other action execute the action as is
-      action(this.props.instance);
+      break;
+    case ACTIONS.COLOR:
+      this.setState({ displayColorPicker: true });
+      break;
+    case ACTIONS.SHOW_VOLUME:
+      var color = this.props.instance.getColor();
+      var instance = this.props.instance[this.props.instance.getId() + "_obj"];
+      if ( instance === undefined ) {
+        instance = this.props.instance.getType()[this.props.instance.getId() + "_obj"];
+      }
+      if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) {
+        var self = this;
+        instance.getType().resolve(function () {
+          self.props.instance.setColor(color);
+          GEPPETTO.trigger('experiment:visibility_changed', instance);
+          GEPPETTO.ControlPanel.refresh();
+        });
+      } else { 
+        if (GEPPETTO.SceneController.isInstancePresent(instance)) { 
+          GEPPETTO.SceneController.show([instance]);
+        } else { 
+          GEPPETTO.SceneController.display(instance); instance.setColor(color);
+        }
+      }
+      break;
+    case ACTIONS.HIDE_VOLUME:
+      var instance = this.props.instance[this.props.instance.getId() + "_obj"];
+      if ( instance === undefined ) {
+        instance = this.props.instance.getType()[this.props.instance.getId() + "_obj"];
+      }
+      instance.hide();
+      break;
+    case ACTIONS.SHOW_SKELETON:
+      var color = this.props.instance.getColor();
+      var instance = this.props.instance[this.props.instance.getId() + "_swc"];
+      if (instance.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) {
+        var col = instance.getParent().getColor();
+        instance.getType().resolve( function () { 
+          instance.setColor(col);
+          GEPPETTO.trigger('experiment:visibility_changed', instance);
+          GEPPETTO.ControlPanel.refresh();
+        });
+      } else {
+        if (GEPPETTO.SceneController.isInstancePresent(instance)) {
+          GEPPETTO.SceneController.show([instance]);
+        } else {
+          GEPPETTO.SceneController.display(instance);
+          instance.setColor(color);
+        }
+      }
+      break;
+    case ACTIONS.HIDE_SKELETON:
+      GEPPETTO.SceneController.hide([this.props.instance[this.props.instance.getId() + "_swc"]]);
+      break;
     }
   }
   
@@ -83,7 +144,14 @@ class ListViewerControlsMenu extends Component {
     // Button configuration has two options, perform condition to determine which button to use 
     if ( item.toggle ){
       let condition = item.toggle.condition(this.props.instance);
-      list.push(item.toggle.options[condition]);
+      if ( item.toggle.isVisible !== undefined) {
+        let visible = item.toggle.isVisible(this.props.instance);
+        if ( visible ) {
+          list.push(item.toggle.options[condition]);
+        }
+      } else {
+        list.push(item.toggle.options[condition]);
+      }
     } else {
       if ( item.isVisible !== undefined) {
         let visible = item.isVisible(this.props.instance);
@@ -95,6 +163,7 @@ class ListViewerControlsMenu extends Component {
       }
     }
   }
+  
   
   /**
    * Iterate through button list in Menu configuration
