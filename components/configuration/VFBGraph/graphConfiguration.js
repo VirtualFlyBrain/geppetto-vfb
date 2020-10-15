@@ -1,21 +1,9 @@
 var locationCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
-      + "has_postsynaptic_terminal_in|overlaps*..]->(x) "
-      + "RETURN distinct n,r,x,n.short_form as root",
-      "resultDataContents": ["graph"]
-    }
-  ]
-});
-
-var whatCypherQuery = instance => ({
-  "statements": [
-    {
-      "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
-      + "WHERE (('Cell' IN  labels(x)) OR ('synaptic neuropil' IN labels(x))) "
-      + " OR (('Ganglion' IN  labels(x)) OR ('Neuron_projection_bundle' IN labels(x))) "
-      + "RETURN  p, n.short_form as root",
+      "statement": "MATCH p=(n:Entity)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in"
+      + "has_postsynaptic_terminal_in|overlaps*..]->(x)"
+      + "WHERE n.short_form = '" + instance + "' return distinct n,r,x,n.short_form as root",
       "resultDataContents": ["graph"]
     }
   ]
@@ -74,7 +62,17 @@ var styling = {
     },
     {
       label : instance => "Show classification of " + instance,
-      query : instance => whatCypherQuery(instance)
+      query : instance => ({
+        "statements": [
+          {
+            "statement": "MATCH p=(n:Entity)-[:INSTANCEOF|:SUBCLASSOF*..]->(x)"
+            + "WHERE 'Anatomy' IN  labels(x)"
+            + "AND n.short_form = '" + instance + "'" 
+            + "RETURN  p, n.short_form as root",
+            "resultDataContents": ["graph"]
+          }
+        ]
+      })
     }
   ],
   dropDownHoverBackgroundColor : "#11bffe",
@@ -84,7 +82,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb.p2.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
 };
 
@@ -92,6 +90,5 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  locationCypherQuery,
-  whatCypherQuery
+  locationCypherQuery
 };
