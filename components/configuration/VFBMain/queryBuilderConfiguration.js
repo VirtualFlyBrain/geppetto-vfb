@@ -26,6 +26,19 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "type",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "expressed_in",
     "order": 3,
     "locked": false,
@@ -163,7 +176,7 @@ var queryResultsControlConfig = {
 
 var queryBuilderDatasourceConfig = {
   VFB: {
-    url: "https://solr.virtualflybrain.org/solr/ontology/select?fl=short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation&start=0&fq=type%3Aclass+OR+type%3Aindividual+OR+type%3Aproperty&fq=ontology_name:(vfb)&fq=shortform_autosuggest:VFB*%20OR%20shortform_autosuggest:FB*%20OR%20is_defining_ontology:true&rows=100&bq=is_obsolete:false%5E100.0%20shortform_autosuggest:VFB*%5E110.0%20shortform_autosuggest:FBbt*%5E100.0%20is_defining_ontology:true%5E100.0%20label_s:%22%22%5E2%20synonym_s:%22%22%20in_subset_annotation:BRAINNAME%5E3%20short_form:FBbt_00003982%5E2&q=$SEARCH_TERM$%20OR%20$SEARCH_TERM$*%20OR%20*$SEARCH_TERM$*&defType=edismax&qf=label%20synonym%20label_autosuggest_ws%20label_autosuggest_e%20label_autosuggest%20synonym_autosuggest_ws%20synonym_autosuggest_e%20synonym_autosuggest%20shortform_autosuggest%20has_narrow_synonym_annotation%20has_broad_synonym_annotation&wt=json&indent=true",
+    url: 'https://solr.p2.virtualflybrain.org/solr/ontology/select?q=$SEARCH_TERM$+OR+$SEARCH_TERM$*+OR+*$SEARCH_TERM$*&defType=edismax&qf=label^100+synonym^100+label_autosuggest_ws+label_autosuggest_e+label_autosuggest+synonym_autosuggest_ws+synonym_autosuggest+shortform_autosuggest&indent=true&fl=short_form+label+synonym+id+facets_annotation+type:"class"&start=0&pf=true&rows=100&wt=json&bq=shortform_autosuggest:VFB*^110.0+shortform_autosuggest:FBbt*^100.0+label_s:""^2+synonym_s:""+short_form=FBbt_00003982^2+facets_annotation:Deprecated^0.001',
     crossDomain: true,
     id: "short_form",
     label: { field: "label", formatting: "$VALUE$" },
