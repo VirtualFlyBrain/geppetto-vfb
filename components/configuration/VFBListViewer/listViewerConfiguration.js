@@ -41,10 +41,10 @@ const conf = [
       let path = component.value.get("path").split(".")[0];
         
       let instance = Instances.getInstance(path);
-	  var self = this;
-      
-      let click = (value) => {
-    	let instance = Instances.getInstance(value.target.id);
+      var self = this;
+
+      let click = value => {
+        let instance = Instances.getInstance(value.target.id);
         window.setTermInfo(Instances.getInstance(path)[path + "_meta"], path);
       };
       // Create new HTML string with the Type name and tags only
