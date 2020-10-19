@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, flexWindowClick} from '../utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText} from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -39,17 +39,13 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true, timeout : 120000 })
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 		
-//		it('Hide Quick Help Modal Window', async () => {
-//			closeModalWindow(page);
-//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-//		})
-
 		it('Term info component correctly populated at startup', async () => {
-			// Checks name in Term Info is present and correct
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
+			await page.waitFor(3000);
+			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
 		})
 	})
 
@@ -121,7 +117,14 @@ describe('VFB 3D Viewer Component Tests', () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => document.getElementById("3D Viewer").click());
+			await page.evaluate(async () => {
+				let tabs = document.getElementsByClassName('MuiMenuItem-root');
+				for ( var i = 0; i < tabs.length ; i ++ ) {
+					if ( tabs[i].innerText === "3D Viewer" ) {
+						tabs[i].click();
+					}
+				}				
+			});
 			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 50000});
 		})
 	})

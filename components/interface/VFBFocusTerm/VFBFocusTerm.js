@@ -1,26 +1,30 @@
 import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
   createMuiTheme,
   MuiThemeProvider
 } from "@material-ui/core/styles";
+import { connect } from 'react-redux';
+import { SHOW_LIST_VIEWER } from './../../../actions/generals';
+import focusTermConfiguration from '../../configuration/VFBFocusTerm/focusTermConfiguration';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 
 require('../../../css/VFBFocusTerm.less');
 
-export default class VFBFocusTerm extends React.Component {
+class VFBFocusTerm extends React.Component {
 
   constructor (props) {
     super(props);
     this.state = { currentInstance: undefined };
 
-    this.focusTermConfiguration = require('../../configuration/VFBFocusTerm/focusTermConfiguration').focusTermConfiguration;
-    this.labels = require('../../configuration/VFBFocusTerm/focusTermConfiguration').subMenusGrouping;
+
+    this.labels = require('../../configuration/VFBFocusTerm/menuGroups').subMenusGrouping;
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
+    this.configuration = undefined;
 
     this.clearAll = this.clearAll.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
@@ -281,7 +285,7 @@ export default class VFBFocusTerm extends React.Component {
       return searchSubMenu;
     case 'runQueryHandler':
       var that = this;
-      var Query = require('geppetto-client/js/geppettoModel/model/Query');
+      var Query = require('@geppettoengine/geppetto-core/model/Query');
       var otherId = click.parameters[0].getId();
       var otherName = click.parameters[0].getName();
       var callback = function () {
@@ -338,7 +342,7 @@ export default class VFBFocusTerm extends React.Component {
   }
 
   setInstance (instance) {
-    this.focusTermConfiguration.buttons[0].label = "Queries for " + instance.getName();
+    this.configuration.buttons[0].label = "Queries for " + instance.getName();
     var variable = undefined;
 
     if (instance.parent !== null || instance.parent !== undefined) {
@@ -355,13 +359,13 @@ export default class VFBFocusTerm extends React.Component {
             var variable2 = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
             var allQueries2 = GEPPETTO.ModelFactory.getMatchingQueries(variable2.getType(), undefined);
             if (allQueries2.length > 0) {
-              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries },
-                                                                                       { variable: variable2, allQueries: allQueries2 }];
+              this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries },
+                                                                              { variable: variable2, allQueries: allQueries2 }];
             }
           });
         }
       } else {
-        this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+        this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
       }
     } else {
       if (instance.getType().classqueriesfrom !== undefined) {
@@ -371,14 +375,14 @@ export default class VFBFocusTerm extends React.Component {
             var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
             var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
             if (allQueries.length > 0) {
-              this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+              this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
             }
           });
         } else {
           var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
           var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
           if (allQueries.length > 0) {
-            this.focusTermConfiguration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+            this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
           }
         }
       }
@@ -395,6 +399,10 @@ export default class VFBFocusTerm extends React.Component {
         this.setInstance(instance[instance.getId() + "_meta"]);
       }
     }.bind(this));
+  }
+
+  componentWillMount () {
+    this.configuration = $.extend(true, {}, focusTermConfiguration);
   }
 
   updateHistory (instance) {
@@ -486,6 +494,9 @@ export default class VFBFocusTerm extends React.Component {
         tooltipNext = window.history.state.f
       }
     }
+    
+    const { showListViewer } = this.props;
+    
     return (
       <Rnd
         enableResizing={{
@@ -539,7 +550,7 @@ export default class VFBFocusTerm extends React.Component {
                   : <i className="fa fa-chevron-left arrowsStyle isDisabled" /> 
                 }
                 <Menu
-                  configuration={this.focusTermConfiguration}
+                  configuration={this.configuration}
                   menuHandler={this.menuHandler} />
                 { window.history.state !== null && window.history.state.f !== undefined && window.history.state.f !== "" 
                   ? <Tooltip placement="top-end"
@@ -578,7 +589,7 @@ export default class VFBFocusTerm extends React.Component {
                   title="Layers">
                   <i className="fa fa-list arrowsStyle"
                     onClick={() => {
-                      this.props.UIUpdateManager("controlPanelVisible");
+                      this.props.showListViewer(SHOW_LIST_VIEWER);
                     }} />
                 </Tooltip>
               </MuiThemeProvider>
@@ -590,3 +601,13 @@ export default class VFBFocusTerm extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ... state }
+}
+
+function mapDispatchToProps (dispatch) {
+  return { showListViewer: type => dispatch({ type : type }) }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(VFBFocusTerm);

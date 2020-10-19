@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, flexWindowClick } from '../utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -13,7 +13,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Slice Viewer Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(1800000); 
+		jest.setTimeout(60000); 
 		await page.goto(PROJECT_URL);
 
 	});
@@ -40,16 +40,13 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: true , timeout : 120000 })
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 		
-//		it('Hide Quick Help Modal Window', async () => {
-//			closeModalWindow(page);
-//			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-//		})
-
 		it('Term info component correctly populated at startup', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
+			await page.waitFor(3000);
+			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
 		})
 
 		it('Canvas container component has 1 mesh rendered', async () => {
@@ -72,7 +69,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('Typing medu in the query builder search bar', async () => {
 			await page.focus('input#query-typeahead');
-			await page.keyboard.type('medulla');
+			await page.keyboard.type('medu');
 			await page.keyboard.press(String.fromCharCode(13))
 
 			await wait4selector(page, 'div.tt-suggestion', { visible: true , timeout : 10000})
@@ -104,7 +101,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click());
 			closeModalWindow(page);
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
+			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
+			expect(element).toBe("medulla on adult brain template JFRC2");
 		})
 	})
 

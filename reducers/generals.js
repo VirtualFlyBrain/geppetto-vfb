@@ -3,7 +3,16 @@ import {
   VFB_ID_LOADED,
   VFB_LOAD_ID,
   VFB_UI_UPDATED,
-  INSTANCE_ADDED
+  INSTANCE_ADDED,
+  INSTANCE_DELETED,
+  SHOW_LIST_VIEWER,
+  LOAD_CYPHER_QUERIES,
+  SHOW_GRAPH,
+  UPDATE_GRAPH,
+  UPDATE_CIRCUIT_QUERY,
+  INSTANCE_SELECTED,
+  INSTANCE_VISIBILITY_CHANGED,
+  VFB_LOAD_TERM_INFO
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -17,6 +26,14 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
+  graphQueryIndex : -1,
+  instanceOnFocus : {},
+  instanceSelection : {},
+  instanceDeleted : {},
+  instanceVisibilityChanged : false,
+  termInfoVisible : false,
+  listViewerInfoVisible : true,
+  circuitQuerySelected : [],
   layout: {
     "ThreeDViewer": true,
     "StackViewer": true,
@@ -26,8 +43,13 @@ export const GENERAL_DEFAULT_STATE = {
 
 export default ( state = {}, action ) => ({
   ...state,
-  ...generalReducer(state, action)
+  ...generalReducer(state, action),
+  ...lastAction(state, action)
 });
+
+function lastAction (state = {}, action) {
+  return action;
+}
 
 function checkLayoutState (layout) {
   var stateValue = false;
@@ -118,13 +140,6 @@ function generalReducer (state, action) {
     var idsLoaded = state.idsLoaded;
     var newMap = { ...state.idsMap };
 
-    if (newMap[action.data.id] === undefined ) {
-      return {
-        ...state,
-        error: "instance " + action.data.id + "is not present anymore in the map"
-      };
-    }
-
     if (newMap[action.data.id] !== undefined && newMap[action.data.id].components[action.data.component]) {
       var newComponents = { ...newMap[action.data.id].components };
       newMap[action.data.id].components = newComponents;
@@ -163,24 +178,48 @@ function generalReducer (state, action) {
         loading: loading,
         idsLoaded: idsLoaded,
         stepsToLoad: stepsToLoad,
-        stepsLoaded: stepsLoaded,
+        stepsLoaded: stepsLoaded
       };
     } else {
       return {
         ...state,
         idsToLoad: 0,
         idsLoaded: 0,
-        idsList: [],
         stepsToLoad: 0,
         stepsLoaded: 0,
         idsMap: newMap,
         loading: loading,
+        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
+        idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
       };
     }
   case VFB_UI_UPDATED:
     return {
       ...state,
       layout: action.data
+    };
+  case SHOW_GRAPH:
+    return { 
+      ...state, 
+      graphQueryIndex : action.data.queryIndex,
+      instanceOnFocus : action.data.instance
+    };
+  case UPDATE_GRAPH:
+    return { 
+      ...state, 
+      graphQueryIndex : action.data.queryIndex
+    };
+  case UPDATE_CIRCUIT_QUERY:
+    var newQueryMap = [];
+    if ( Array.isArray(action.data.instance) ) {
+      newQueryMap = action.data.instance;
+    } else {
+      !state.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.circuitQuerySelected];
+    }
+    
+    return { 
+      ...state, 
+      circuitQuerySelected : newQueryMap,
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
@@ -207,6 +246,41 @@ function generalReducer (state, action) {
     return {
       ...state,
       idsMap: newMap,
+      instanceOnFocus : Instances[newInstance[0]] != null ? Instances[newInstance[0]] : {},
+      idsList : !state.idsList.includes(action.data) ? [ ...state.idsList, action.data ] : [ ...state.idsList ]
     };
+  case INSTANCE_SELECTED:
+    return {
+      ...state,
+      instanceSelected : action.data,
+      instanceOnFocus : action.data
+    }
+  case INSTANCE_DELETED:
+    var newMap = [ ...state.idsList ];
+    var index = newMap.indexOf(action.instance.id);
+    if ( index > -1 ) {
+      newMap.splice(index, 1);
+    }
+    return {
+      ...state,
+      instanceDeleted : action.instance,
+      idsList : newMap
+    }
+  case INSTANCE_VISIBILITY_CHANGED:
+    return {
+      ...state,
+      instanceVisibilityChanged : action.data
+    }
+  case VFB_LOAD_TERM_INFO:
+    return {
+      ...state,
+      termInfoVisible : action.data.visible,
+      instanceOnFocus : action.data.instance
+    }
+  case SHOW_LIST_VIEWER:
+    return {
+      ...state,
+      listViewerInfoVisible : true
+    }    
   }
 }
