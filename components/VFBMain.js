@@ -17,7 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
-import { SHOW_GRAPH, LOAD_CIRCUIT_BROWSER, VFB_LOAD_TERM_INFO, SHOW_LIST_VIEWER } from './../actions/generals';
+import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY, VFB_LOAD_TERM_INFO, SHOW_LIST_VIEWER } from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -1110,7 +1110,7 @@ class VFBMain extends React.Component {
       }
     }
     
-    if ( this.props.generals.type == LOAD_CIRCUIT_BROWSER ) {
+    if ( this.props.generals.type == UPDATE_CIRCUIT_QUERY ) {
       if ( !this.state.circuitBrowserVisible ) {
         this.setState({
           UIUpdated: true,

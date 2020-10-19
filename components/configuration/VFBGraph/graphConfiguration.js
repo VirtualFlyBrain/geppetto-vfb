@@ -1,4 +1,4 @@
-var locationCypherQuery = instance => ({
+var whatIsCypherQuery = instance => ({
   "statements": [
     {
       "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
