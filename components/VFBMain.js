@@ -1240,7 +1240,7 @@ class VFBMain extends React.Component {
       } else if (idList[list].indexOf("q=") > -1) {
         this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
         // if no other ids are loaded the query target is added.
-        if (idsList.length == 0 && this.urlQueryLoader.size() > 1) {
+        if (idsList.length == 0 && this.urlQueryLoader.length > 1) {
           idsList = this.urlQueryLoader[0];
         }
       }
