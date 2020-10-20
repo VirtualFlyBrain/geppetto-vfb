@@ -912,8 +912,9 @@ class VFBMain extends React.Component {
           }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
-          order={['Name',
+          order={['Symbol',
                   'Title',
+                  'Name',
                   'Label',
                   'Alternative Names',
                   'Types',
