@@ -14,7 +14,7 @@ var feedback
   + "<p>If you have a GitHub account you can easily raise a new issue: "
   + "<form id='GitHubIssue' method='get' action='https://github.com/VirtualFlyBrain/VFB2/issues/new' target='_blank'>"
   + "<input type='hidden' name='body' value='%0A%0A%0A%0A%0A%0ASupport%20info%3A%0A$DATE$%0A$BROWSER$%20$VERSION$%20%5B$SCREEN$%5D%0A$URL$%0A%0A%60%60%60diff%0A$LOG$%0A%60%60%60%0A' />"
-  + "<input type='submit' value='Create GitHub Issue'></form>"
+  + "<input type='submit' value='Create GitHub Issue' style='color: black; border-color: darkcyan;'></form>"
   + "</p>"
   + "<p> This could simply be a question or a new feature request, but if you have found a bug we missed please copy in "
   + "the page address and system details listed below to help us resolve any issue as quickly as possible."
