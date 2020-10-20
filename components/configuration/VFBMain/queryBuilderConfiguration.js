@@ -75,12 +75,12 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
-    "columnName": "type",
+    "columnName": "gross_type",
     "order": 6,
     "locked": false,
     "visible": true,
-    "displayName": "Type",
-    "cssClassName": "query-results-type-column",
+    "displayName": "Gross_Type",
+    "cssClassName": "query-results-grosstype-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
