@@ -1193,6 +1193,7 @@ class VFBMain extends React.Component {
 
     window.setTermInfo = function (meta, id) {
       this.handlerInstanceUpdate(meta);
+      this.props.setTermInfo(meta, true);
     }.bind(this);
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
