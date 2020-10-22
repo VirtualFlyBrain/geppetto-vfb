@@ -1,5 +1,5 @@
 const { TimeoutError } = require('puppeteer/Errors');
-
+import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
   let success = undefined;
@@ -20,6 +20,53 @@ export const wait4selector = async (page, selector, settings = {}) => {
   expect(success).toBeDefined()
 }
 
+
+export const testLandingPage = async (page, ID) => {
+  await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+  // Close tutorial window
+  closeModalWindow(page);
+
+  const title = await page.title();
+  expect(title).toBe("Virtual Fly Brain");
+
+  await wait4selector(page, '#' + ID + '_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+}
+
+export const selectTab = async (page, tabName) => {
+  await page.evaluate(async (tabName) => {
+    let termContextTab = null;
+    let tabs = document.getElementsByClassName('flexlayout__tab_button');
+    for ( var i = 0 ; i < tabs.length; i++ ) {
+      if ( tabs[i].innerText === tabName) {
+        termContextTab = tabs[i];
+      }
+    }
+    
+    if ( termContextTab !== null && termContextTab !== undefined ) {
+      let clickEvent = new MouseEvent('mousedown', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      termContextTab.dispatchEvent(clickEvent);
+
+      clickEvent = new MouseEvent('mouseup', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      termContextTab.dispatchEvent(clickEvent);
+    } else {
+      let unselectedTab = document.getElementsByClassName('flexlayout__tab_button_overflow')[0].click();
+      let tabs = document.getElementsByClassName('flexlayout__popup_menu_item');
+      for ( var i = 0; i < tabs.length ; i ++ ) {
+        if ( tabs[i].innerText === tabName ) {
+          tabs[i].click();
+        }
+      } 
+    }
+  }, tabName);
+}
 
 export const click = async (page, selector) => {
   await wait4selector(page, selector, { visible: true, timeout: 500000});

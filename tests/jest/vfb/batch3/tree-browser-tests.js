@@ -16,60 +16,17 @@ describe('VFB Tree Browser Component Tests', () => {
 		//increases timeout to ~8 minutes
 		jest.setTimeout(500000);
 		await page.goto(projectURL);
-
 	});
 
 	//Tests components in landing page are present
-	describe('Test Landing Page', () => {
-		it('Loading spinner goes away', async () => {
-			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
-			// Close tutorial window
-			closeModalWindow(page);
-		})
-
-		it('VFB Title shows up', async () => {
-			const title = await page.title();
-			expect(title).toBe("Virtual Fly Brain");
-		})
-
-		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
-
-		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
-
-		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+	it('Test Landing Page', async () => {
+		await testLandingPage(page, 'VFB_00017894');
 	})
 
 	//Tests opening control panel and clicking on row buttons
 	describe('Test Tree Browser Component', () => {
 		it('Open Tree Browser', async () => {
-			page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-			//await page.evaluate(async () => document.getElementById("Tools").click());
-			//// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
-			//await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			//await page.evaluate(async () => document.getElementById("Tree Browser").click());
-			//await flexWindowClick("Tree Browser","flexlayout__tab_button_content");
-			await page.evaluate(async () => {
-				let unselectedTab = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
-				let clickEvent = new MouseEvent('mousedown', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				unselectedTab.dispatchEvent(clickEvent);
-
-				clickEvent = new MouseEvent('mouseup', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				unselectedTab.dispatchEvent(clickEvent);
-			});
+			await selectTab(page, "Template ROI Browser");
 
 			// Check that the Tree Browser is visible
 			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
@@ -123,31 +80,10 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 		
 		it('Open Tree Browser', async () => {
-			page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-			//await page.evaluate(async () => document.getElementById("Tools").click());
-			//// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
-			//await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			//await page.evaluate(async () => document.getElementById("Tree Browser").click());
-			//await flexWindowClick("Tree Browser","flexlayout__tab_button_content");
-			await page.evaluate(async () => {
-				let unselectedTab = document.getElementsByClassName('flexlayout__tab_button--unselected')[0]
-				let clickEvent = new MouseEvent('mousedown', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				unselectedTab.dispatchEvent(clickEvent);
-
-				clickEvent = new MouseEvent('mouseup', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				unselectedTab.dispatchEvent(clickEvent);
-			});
+			await selectTab(page, "Template ROI Browser");
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 500000 });
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
 		})
 
 		it('Click on "eye" icon to render "adult optic lobe" mesh', async () => {
