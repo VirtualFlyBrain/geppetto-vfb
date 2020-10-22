@@ -37,11 +37,11 @@ describe('VFB Focus Term Tests', () => {
 			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 10000 })
 			await page.waitFor(10000);
 			await click(page, 'i.fa-search');
-			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { visible: true });
+			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { visible: true , timeout : 10000});
 
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
-			await page.keyboard.type('VFB_00102107');
-			await page.waitFor(10000);
+			await page.keyboard.type('FBbt_00003748');
+			await page.waitFor(5000);
 			await page.keyboard.type(' ');
 			await page.waitFor(5000);
 			await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
@@ -49,7 +49,7 @@ describe('VFB Focus Term Tests', () => {
 			await page.evaluate(async () => {
 				let tabs = document.getElementsByClassName('MuiListItem-root ');
 				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "VFB_00102107 (ME on JRC2018Unisex adult brain)" ) {
+					if ( tabs[i].innerText === "medulla (FBbt_00003748)" ) {
 						tabs[i].click();
 					}
 				}				
@@ -57,10 +57,20 @@ describe('VFB Focus Term Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
 		})
 
-		it('Test VFB_00102107 is Displayed in Focus Term', async () => {
+		it('Text for FBbt_00003748 is Displayed in Focus Term', async () => {
 			expect(
 				await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
 			).toBe("Queries for ME on JRC2018Unisex adult brain")
+		})
+		
+		it('Open Focus Term Menu for FBbt_00003748 (Medulla) ', async () => {
+			await page.evaluate(async selector => document.getElementById("Queries for medulla on adult brain template JFRC2").click())
+			await wait4selector(page, '#simple-popper', { visible: true , timeout : 50000 })
+		})
+		
+		it('Queries Component Opens Up After Launching it from Focus Term', async () => {
+			await page.evaluate(async selector => document.getElementById("Subclasses of medulla").click())
+			await wait4selector(page, '#query-builder-container', { visible: true , timeout : 50000 })
 		})
 	})
 })

@@ -35,10 +35,7 @@ const clickLayerControlsElement = async (page, text) => page.evaluate(async (tex
  */
 describe('VFB Layer Component Tests', () => {
   beforeAll(async () => {
-    jest.setTimeout(120000); 
-    await page.on('dialog', async dialog => {
-		await dialog.accept("OK");
-	});
+    jest.setTimeout(120000);
     await page.goto(PROJECT_URL);
   });
 
@@ -49,15 +46,6 @@ describe('VFB Layer Component Tests', () => {
 
   // Tests opening control panel and clicking on row buttons
   describe('Test Layers Component', () => {
-    it('Open Tabs Overflow Menu', async () => {
-      await page.evaluate(async () => {
-        document.getElementsByClassName('flexlayout__tab_button_overflow')[0].click();
-      });
-
-      // Check that the Tree Browser is visible
-      await wait4selector(page, 'div.flexlayout__popup_menu_container', { visible: true, timeout : 5000 });
-    })
-    
     it('Open Layers Component', async () => {
       await selectTab(page, "Layers");
 
@@ -152,6 +140,49 @@ describe('VFB Layer Component Tests', () => {
       await page.waitFor(2000);
       await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
       await wait4selector(page, '#VFB_jrchk4wj_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
+    })
+    
+    it('Open Layers Component', async () => {
+      await selectTab(page, "Layers");
+
+      // Check that the Layers component is visible
+      await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 800000 });
+    })
+    
+    it('Color Picker Appears for VFB_jrchk4wj', async () => {
+    	await openControls(page, "PVLP142_R - 5812987602");
+    	await clickLayerControlsElement(page, 'Color');
+    	await wait4selector(page, 'div.slider-picker', { visible: true, timeout : 500000 })
+    })
+
+    it('Use color picker to change color of VFB_jrchk4wj', async () => {
+    	// Retrieve old color in mesh
+    	let originalColor = await page.evaluate(async () => {
+    		return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
+    	});
+    	// Select color in color picker box, index 17 belongs to last available color in picker
+    	await page.evaluate(async () => document.querySelectorAll("div.slider-picker div")[16].click());
+    	// Wait couple of seconds for mesh to reflect new color
+    	await page.waitFor(20000);
+    	// Retrieve new color in mesh
+    	let newColor = await page.evaluate(async () => {
+    		return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
+    	});
+
+    	// Compare RGB's of original color and new color
+    	expect(originalColor).not.toEqual(newColor);
+    })
+    
+    it('Delete VFB_jrchk4wj Instance', async () => {
+      await openControls(page, "PVLP142_R - 5812987602");
+      await clickLayerControlsElement(page, 'Delete');
+      await page.waitFor(2000);
+      
+      let instance = await page.evaluate(async () => {
+  		return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"];
+  	  });
+
+  	  expect(instance).toEqual(undefined);
     })
   })
 })
