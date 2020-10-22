@@ -912,8 +912,9 @@ class VFBMain extends React.Component {
           }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
-          order={['Name',
+          order={['Symbol',
                   'Title',
+                  'Name',
                   'Label',
                   'Alternative Names',
                   'Types',
@@ -1238,6 +1239,10 @@ class VFBMain extends React.Component {
         idsList = idList[list].replace("i=","") + idsList;
       } else if (idList[list].indexOf("q=") > -1) {
         this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+        // if no other ids are loaded the query target is added.
+        if (idsList.length == 0 && this.urlQueryLoader.length > 1) {
+          idsList = this.urlQueryLoader[0];
+        }
       }
     }
 
