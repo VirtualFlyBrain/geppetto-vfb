@@ -610,4 +610,4 @@ function mapDispatchToProps (dispatch) {
   return { showListViewer: type => dispatch({ type : type }) }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VFBFocusTerm);
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBFocusTerm);
