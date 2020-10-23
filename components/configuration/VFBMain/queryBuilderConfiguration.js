@@ -75,12 +75,12 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
-    "columnName": "type",
+    "columnName": "gross_type",
     "order": 6,
     "locked": false,
     "visible": true,
-    "displayName": "Type",
-    "cssClassName": "query-results-type-column",
+    "displayName": "Gross_Type",
+    "cssClassName": "query-results-grosstype-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
@@ -106,8 +106,26 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
-    "columnName": "controls",
+    "columnName": "template",
     "order": 9,
+    "locked": false,
+    "visible": true,
+    "displayName": "Template_Space",
+    "cssClassName": "query-results-template-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "technique",
+    "order": 10,
+    "locked": false,
+    "visible": true,
+    "displayName": "Imaging_Technique",
+    "cssClassName": "query-results-technique-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "controls",
+    "order": 11,
     "locked": false,
     "visible": false,
     "customComponent": QueryResultsControlsComponent,
@@ -118,7 +136,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "images",
-    "order": 10,
+    "order": 12,
     "locked": false,
     "visible": true,
     "customComponent": SlideshowImageComponent,
@@ -129,7 +147,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "score",
-    "order": 11,
+    "order": 13,
     "locked": false,
     "visible": true,
     "displayName": "Score",
@@ -138,7 +156,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "image_count",
-    "order": 12,
+    "order": 14,
     "locked": false,
     "visible": true,
     "displayName": "Image_count",
@@ -148,7 +166,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'expressed_in', 'description', 'reference', 'type', 'stage', 'license', 'images', 'score','image_count'];
+var queryResultsColumns = ['name', 'type', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score','image_count'];
 
 var queryResultsControlConfig = {
   "Common": {

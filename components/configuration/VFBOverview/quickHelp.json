@@ -3,7 +3,7 @@
 	"height": "575",
     "width": "900",
 	"steps": [{
-		"title": "This is the Slice Viewer frame",
+		"title": "This is the Slice Viewer tab",
 		"image" : "geppetto/build/slice-viewer.png",
 		"instructions": [{
 			"icon" : "",
@@ -28,7 +28,7 @@
 			"label" : "Toggles the slice position on the 3D Viewer on/off"
 		}]
 	},{
-		"title": "This is the 3D Viewer frame",
+		"title": "This is the 3D Viewer tab",
 		"image" : "geppetto/build/3d-viewer.png",
 		"instructions": [{
 			"icon" : "",
@@ -47,17 +47,17 @@
 			"label" : "Home resets your view"
 		},{
 			"icon" : "fa fa-video-camera",
-			"label" : "The camera icon starts/stops a rotation animation the scene"
+			"label" : "The camera icon starts/stops a rotation animation of the scene"
 		},{
 			"icon" : "gpt-sphere_wireframe-jpg",
 			"label" : "The sphere icon toggles wireframes on/off"
 		}]
 	},{
-		"title": "This is the Term Info frame",
+		"title": "This is the Term Info tab",
 		"image" : "geppetto/build/term-info.png",
 		"instructions": [{
 			"icon" : "",
-			"label" : "Term Info displays information on the currently selected painted anatomy region, neuron or expression pattern"
+			"label" : "Term Info displays information on the currently selected painted anatomy region, neuron, expression pattern or non-image term definitions"
 		},{
 			"icon" : "fa fa-hand-pointer-o",
 			"label" : "Click on thumbnails to add that image to the viewer"

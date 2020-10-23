@@ -139,7 +139,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
 			await page.keyboard.type('FBbt_00003748');
-			await page.waitFor(5000);
+			await page.waitFor(10000);
 			await page.keyboard.type(' ');
 			await page.waitFor(5000);
 			await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
