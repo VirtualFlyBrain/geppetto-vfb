@@ -109,6 +109,7 @@ var searchConfiguration = {
       "name": "label",
       "id": "short_form"
     },
+  "filters_expanded": true,
   "filters": [
     {
       "key": "facets_annotation",
