@@ -165,7 +165,7 @@ class VFBMain extends React.Component {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
             this.vfbLoadBuffer.push(idsList[singleId]);
           }
-          if (window[idsList[singleId]] != undefined) {
+          if (Instances.getInstance(idsList[singleId]) !== undefined) {
             this.handleSceneAndTermInfoCallback(idsList[singleId]);
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
             this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
@@ -250,6 +250,7 @@ class VFBMain extends React.Component {
         }.bind(this));
       } else {
         this.handlerInstanceUpdate(meta);
+        this.setActiveTab("termInfo");
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
