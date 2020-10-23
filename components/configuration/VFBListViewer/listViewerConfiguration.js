@@ -36,10 +36,24 @@ const conf = [
   {
     id: "name",
     title: "Name",
-    source : entity => { 
-      let path = entity.path.split(".")[0];
-      return Instances.getInstance(path).getName();
-    }
+    customComponent: component => { 
+      // Retrieve instance path
+      let path = component.value.get("path").split(".")[0];
+        
+      let instance = Instances.getInstance(path);
+      var self = this;
+
+      let click = value => {
+        let instance = Instances.getInstance(value.target.id);
+        window.setTermInfo(Instances.getInstance(path)[path + "_meta"], path);
+      };
+      // Create new HTML string with the Type name and tags only
+      let typeHTML = '<a id="' + instance.id + '" style="color:white;text-decoration: none;">' + instance.getName() + "</a>" ;
+        
+      // Set HTML string inside div ready for React
+      return <div onClick={e => click(e)} dangerouslySetInnerHTML={{ __html: typeHTML }} />
+    },
+    source : entity => entity
   },
   {
     id: "type",
@@ -67,8 +81,10 @@ const conf = [
       var matchSpan = /<span[^>]*>([\s\S]*?)<\/span>/g
         , tags = html.match(matchSpan);
       
+      // Make anchor open in new tab, and fix path by adding 'geppetto?' to href
+      let textContent = type.join().replace('href="?', 'target="_blank" href="geppetto?');
       // Create new HTML string with the Type name and tags only
-      let typeHTML = "<div>" + type.join('') + tags.join('') + "</div>" ;
+      let typeHTML = "<div>" + textContent + tags.join('') + "</div>" ;
       
       // Set HTML string inside div ready for React
       return <div dangerouslySetInnerHTML={{ __html: typeHTML }} />
@@ -88,8 +104,16 @@ const conf = [
       if ( instance === undefined ) {
         return null;
       }
+      
+      let value = GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0].getInitialValues()[0].value;
+      let img = "";
+      if ( value.elements != undefined ) {
+        img = value.elements[0].initialValue.data;
+      } else if ( value.data != undefined ) {
+        img = value.data;
+      }
       // Retrieve thumbnail image from Instance
-      return GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0].getInitialValues()[0].value.data
+      return img;
     }
   }
 ];
