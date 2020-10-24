@@ -78,6 +78,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Check Term Info is now populated with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult deutocerebrum");
 			expect(element).toBe("adult deutocerebrum");
+			await page.waitFor(5000);
 		})
 
 		it('Open Tree Browser', async () => {
@@ -88,7 +89,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		})
 
 		it('Click on "eye" icon to render "adult mushroom body" mesh', async () => {
-			await page.evaluate(() => document.querySelectorAll('.rst__tree i.fa-eye-slash')[3].click());
+			await page.evaluate(() => document.querySelectorAll('.rst__tree i.fa-eye-slash')[2].click());
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, 'i.fa-tint', { visible: true, timeout : 500000 });
 		})
@@ -128,6 +129,8 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Check Term Info is now populated with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult mushroom body");
 			expect(element).toBe("adult mushroom body");
+			await wait4selector(page, '#VFB_00030867_deselect_buttonBar_btn', { visible: true , timeout : 120000 });
+			await page.waitFor(5000);
 		})
 	})
 
@@ -160,13 +163,13 @@ describe('VFB Tree Browser Component Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
 		})
 
-		it('Medulla is Selected inside Tree Component', async () => {
+		it('Adult Brain remains root node after Medulla selection', async () => {
 			await page.waitFor(10000);
 			// Retrieve text from first node in Tree Browser
 			let firstNode = await page.evaluate(async () => {
 				return document.querySelectorAll(".rst__rowContents.rst__rowContentsDragDisabled span")[0].innerText;
 			});
-			expect(firstNode).toEqual("medulla");
+			expect(firstNode).toEqual("adult brain");
 		})
 	})
 })

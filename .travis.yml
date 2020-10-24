@@ -83,7 +83,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -123,7 +123,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -163,7 +163,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -272,7 +272,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;

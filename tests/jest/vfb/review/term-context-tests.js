@@ -102,7 +102,7 @@ describe('VFB Term Context Component Tests', () => {
 		})
 
 		// Take snapshot of Page and compare to image of what it should look like
-		it('Snapshot Comparison of Term Context', async () => {
+		it("Snapshot Comparison of Term Context After Medulla Loaded, Graph Remains the Same", async () => {
 			// Wait 5 seconds so nodes in Term Context stop moving
 			await page.waitFor(5000);
 			const image = await page.screenshot();
@@ -110,7 +110,7 @@ describe('VFB Term Context Component Tests', () => {
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
 		})
 
-		it('Snapshot Comparison of Term Context', async () => {
+		it('Snapshot Comparison of Term Context After Sync Trigger, Graph Displays Medulla', async () => {
 			// Click on sync button
 			await click(page, 'i.fa-refresh');
 			// Wait 10 seconds so nodes in Term Context stop moving
