@@ -294,7 +294,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -u -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
       after_failure:
         - docker ps -a
         - docker logs $CONTAINER_NAME
