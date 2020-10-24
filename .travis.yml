@@ -105,7 +105,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
       after_failure:
         - docker ps -a
         - docker logs $CONTAINER_NAME
@@ -145,7 +145,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
       after_failure:
         - docker ps -a
         - docker logs $CONTAINER_NAME
@@ -185,7 +185,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch3/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch3/.*js'
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
