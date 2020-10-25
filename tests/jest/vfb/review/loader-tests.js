@@ -70,14 +70,14 @@ describe('VFB Loader Component Tests', () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 60000})
 			// Check Slice Viewer has instance loaded
 			expect(
-					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes["VFB_00017894.VFB_00017894_obj"].visible)
+				await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes["VFB_00017894.VFB_00017894_obj"].visible)
 			).toBeTruthy()
 		})
 
 		// Check that the Canvas in 3D Viewer component is loaded
 		it("Canvas container component has 1 mesh rendered", async () => {
 			expect(
-					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
+				await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(1)
 		})
 	})
@@ -101,7 +101,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the Loading component bar has correct text displayed, 'Loading 1/2/'
 		it('Progress Bar Loading 1 Instance(s)', async () => {
 			expect(
-					await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
+				await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
 			).toBe("Loading 1/2 ...");
 		})
 	})
@@ -125,17 +125,17 @@ describe('VFB Loader Component Tests', () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 60000})
 			// Check Slice Viewer has 2 instances loaded
 			expect(
-					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
+				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
 			).toBeTruthy()
 			expect(
-					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00000001.VFB_00000001_swc'].visible)
+				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00000001.VFB_00000001_swc'].visible)
 			).toBeTruthy()
 		})
 
 		// Check that the canvas inside 3D Viewer has two meshes for the two instances
 		it("Canvas container component has 2 mesh(es) rendered", async () => {
 			expect(
-					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
+				await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(2)
 		})
 	})
@@ -160,7 +160,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the progress bar text shows is loading 3 instances
 		it('Progress Bar Loading 3 Instance(s)', async () => {
 			expect(
-					await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
+				await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
 			).toBe("Loading 1/3 ...");
 		})
 	})
@@ -185,17 +185,17 @@ describe('VFB Loader Component Tests', () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 60000});
 			// Checks instances are loaded inside Slice Viewer
 			expect(
-					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
+				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
 			).toBeTruthy()
 			expect(
-					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00030624.VFB_00030624_obj'].visible)
+				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00030624.VFB_00030624_obj'].visible)
 			).toBeTruthy()
 		})
 
 		// Check that the 3D Viewer has 2 instances loaded, FBbt_00003678 isn't a visual capability so we don't search for it here
 		it("Canvas container component has 2 mesh(es) rendered", async () => {
 			expect(
-					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
+				await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(2)
 		})
 	})

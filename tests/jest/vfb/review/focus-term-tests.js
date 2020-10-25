@@ -26,7 +26,7 @@ describe('VFB Focus Term Tests', () => {
 		//Tests initial focus term label matches that of Adult Brain
 		it('Test VFB_00017894 is Displayed in Focus Term', async () => {
 			expect(
-					await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
+				await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
 			).toBe("Queries for adult brain template JFRC2")
 		})
 	});
@@ -63,8 +63,9 @@ describe('VFB Focus Term Tests', () => {
 
 		// Test Focus Term was updated with Medulla
 		it('Text for FBbt_00003748 is Displayed in Focus Term', async () => {
+			await page.waitFor(10000);
 			expect(
-					await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
+				await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
 			).toBe("Queries for medulla")
 		})
 
