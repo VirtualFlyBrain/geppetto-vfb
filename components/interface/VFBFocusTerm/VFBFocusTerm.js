@@ -373,16 +373,20 @@ class VFBFocusTerm extends React.Component {
         if (window[classId] === undefined) {
           window.fetchVariableThenRun(classId, () => {
             var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
-            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
-            if (allQueries.length > 0) {
-              this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+            if (variable !== undefined) {
+              var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+              if (allQueries.length > 0) {
+                this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+              }
             }
           });
         } else {
           var variable = GEPPETTO.ModelFactory.getTopLevelVariablesById([classId])[0]
-          var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
-          if (allQueries.length > 0) {
-            this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+          if (variable !== undefined) {
+            var allQueries = GEPPETTO.ModelFactory.getMatchingQueries(variable.getType(), undefined);
+            if (allQueries.length > 0) {
+              this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+            }
           }
         }
       }
@@ -610,4 +614,4 @@ function mapDispatchToProps (dispatch) {
   return { showListViewer: type => dispatch({ type : type }) }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VFBFocusTerm);
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBFocusTerm);

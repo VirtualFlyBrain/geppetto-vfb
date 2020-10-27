@@ -569,4 +569,4 @@ function mapDispatchToProps (dispatch) {
   return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VFBTree);
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBTree);
