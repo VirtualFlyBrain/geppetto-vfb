@@ -116,8 +116,106 @@ function refineData (e) {
   });
 
   // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, id : e.data.params.value } });
+  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, instance : e.data.params.value } });
 }
+
+
+/**
+ * Shows the data value as a link
+ */
+class DropDownQueries extends Component {
+  constructor (props) {
+    super(props);
+    this.state = { dropDownAnchorEl: null };
+    this.handleMenuClick = this.handleMenuClick.bind(this);
+  }
+
+  handleMenuClick (query) {
+    this.setState( { dropDownAnchorEl: null } );
+    this.props.handleMenuClick(query);
+  }
+
+  render () {
+    let self = this;
+    return (
+      <div>
+        <Tooltip title={<h6>Refresh for {self.props.focusedInstance.name} </h6>}>
+          <i style={ 
+            { 
+              zIndex : "1000",
+              cursor : "pointer",
+              marginTop : "20px",
+              left : "10px",
+              color : self.props.syncColor
+            }
+          }
+          className={stylingConfiguration.icons.sync}
+          key="tooltip-icon"
+          onClick={self.props.sync}>
+          </i>
+        </Tooltip>
+        <Tooltip title={<h6>Options</h6>}>
+          <i 
+            style={ 
+              { 
+                zIndex : "1000" ,
+                cursor : "pointer",
+                marginTop : "5px",
+                left : "10px"
+              }
+            }
+            className={stylingConfiguration.icons.dropdown}
+            aria-label="more"
+            aria-controls="dropdown-menu"
+            aria-haspopup="true"
+            onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
+          />
+        </Tooltip>
+        <Menu
+          id="dropdown-menu"
+          anchorEl={self.state.dropDownAnchorEl}
+          keepMounted
+          open={Boolean(self.state.dropDownAnchorEl)}
+          onClose={ event => self.setState( { dropDownAnchorEl : null } )}
+          PaperProps={{
+            style: {
+              marginTop: '32px',
+              borderStyle: "solid",
+              borderColor: "#585858",
+              borderRadius: "0px 0px 2px 2px",
+              color: stylingConfiguration.dropDownTextColor,
+              backgroundColor: stylingConfiguration.dropDownBackgroundColor,
+            }
+          }}
+        >
+          {stylingConfiguration.dropDownQueries.map(item => (
+            <MenuItem 
+              key={item.label(self.props.currentQuery.id)} 
+              onClick={() => self.handleMenuClick(item.query)}
+              style={{
+                fontSize : "14px",
+                fontFamily: "Barlow Condensed",
+              }}
+              onMouseEnter={e => {
+                e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
+                e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor;
+              }
+              }
+              onMouseLeave={e => {
+                e.target.style.color = stylingConfiguration.dropDownTextColor;
+                e.target.style.backgroundColor = stylingConfiguration.dropDownBackgroundColor;
+              }
+              }
+            >
+              {item.label(self.props.currentQuery.name)}
+            </MenuItem>
+          ))}
+        </Menu>
+      </div>
+    )
+  }
+}
+
 
 class VFBGraph extends Component {
 
@@ -125,7 +223,7 @@ class VFBGraph extends Component {
     super(props);
     this.state = {
       graph : { nodes : [], links : [] },
-      currentQuery : this.props.instance != null ? this.props.instance.id : "",
+      currentQuery : this.props.instance != null ? this.props.instance : { id : "" , name : "" },
       dropDownAnchorEl : null,
       optionsIconColor : stylingConfiguration.defaultRefreshIconColor,
       reload : false
@@ -166,7 +264,7 @@ class VFBGraph extends Component {
     let self = this;
     this.__isMounted = true;
 
-    if (this.state.currentQuery !== undefined && this.state.currentQuery !== "" && this.state.currentQuery !== null){
+    if (this.state.currentQuery.id !== undefined && this.state.currentQuery.id !== "" && this.state.currentQuery.id !== null){
       if ( this.props.instance !== null ) {
         if (this.props.instance.getParent() !== null) {
           this.focusedInstance = this.props.instance.getParent();
@@ -193,9 +291,9 @@ class VFBGraph extends Component {
 
   componentDidUpdate () {
     let self = this;
-    
+
     if (this.loading && this.firstLoad) {
-      if (this.state.currentQuery === undefined || this.state.currentQuery === "" || this.state.currentQuery === null){
+      if (this.state.currentQuery.id === undefined || this.state.currentQuery.id === "" || this.state.currentQuery.id === null){
         if (this.props.instance !== null && this.props.instance !== undefined) {
           if (this.props.instance.getParent() !== null) {
             this.focusedInstance = this.props.instance.getParent();
@@ -215,8 +313,8 @@ class VFBGraph extends Component {
         }
       }
     }
-    
-    
+
+
     // Reset camera if graph component is visible, not focused or has been resized
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
       /*
@@ -229,10 +327,12 @@ class VFBGraph extends Component {
             self.selectedDropDownQuery = index;
             self.loading = true;
             let idToSearch = self.props.instanceOnFocus.id;
+            let instanceName = self.props.instanceOnFocus.name;
             if (self.props.instanceOnFocus.getParent() !== null) {
               idToSearch = self.props.instanceOnFocus.getParent().id;
+              instanceName = this.focusedInstance.getParent().name;
             }
-            self.queryResults(item.query(idToSearch), idToSearch);
+            self.queryResults(item.query(idToSearch), { id : idToSearch, name : instanceName } );
           }
         }
       });
@@ -302,7 +402,7 @@ class VFBGraph extends Component {
     this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
     this.graphRef.current.ggv.current.zoom(2, 1000);
   }
-  
+
   sync () {
     this.instanceFocusChange(this.props.instanceOnFocus);
     this.updateGraph();
@@ -315,9 +415,8 @@ class VFBGraph extends Component {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
       this.loading = true;
-      this.setState({ dropDownAnchorEl : null });
       // Perform cypher query
-      this.queryResults(query(this.state.currentQuery), this.state.currentQuery)
+      this.queryResults(query(this.state.currentQuery.id), { id : this.state.currentQuery.id, name : this.state.currentQuery.name } );
     }
   }
 
@@ -329,7 +428,7 @@ class VFBGraph extends Component {
     this.loading = true;
     this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
     // Perform cypher query
-    this.queryResults(cypherQuery(node.title), node.title)
+    this.queryResults(cypherQuery(node.title), { id : node.title, name : node.path } );
   }
 
   selectedNodeLoaded (instance) {
@@ -365,12 +464,14 @@ class VFBGraph extends Component {
    */
   updateGraph () {
     var idToSearch = this.focusedInstance.id;
+    var instanceName = this.focusedInstance.name;
     /*
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
     if (this.focusedInstance.getParent() !== null) {
       idToSearch = this.focusedInstance.getParent().id;
+      instanceName = this.focusedInstance.getParent().name;
     }
 
     if (this.__isMounted){
@@ -378,14 +479,14 @@ class VFBGraph extends Component {
       this.loading = true;
       this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
       // Perform cypher query
-      this.queryResults(cypherQuery(idToSearch), idToSearch);
+      this.queryResults(cypherQuery(idToSearch), { id : idToSearch, name : instanceName });
     }
   }
 
   /**
    * Perform a cypher query to retrieve graph for instance
    */
-  queryResults (requestQuery, instanceID) {
+  queryResults (requestQuery, instance) {
     var url = restPostConfig.url;
 
     if (restPostConfig.url === undefined) {
@@ -415,8 +516,8 @@ class VFBGraph extends Component {
         case "OK":
           self.loading = false;
           self.firstLoad = false;
-          self.focusedInstance = e.data.params;
-          self.setState( { graph : e.data.params.results, currentQuery : e.data.params.id });
+          var query = query = { id : e.data.params.instance.id , name : e.data.params.instance.name };
+          self.setState( { graph : e.data.params.results, currentQuery : query });
           self.objectsLoaded = e.data.params.results.nodes.length;
           setTimeout( function () {
             self.resetCamera();
@@ -429,7 +530,7 @@ class VFBGraph extends Component {
       };
 
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, value: instanceID, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: { results: response.data, value: instance, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
         self.loading = false;
@@ -463,7 +564,7 @@ class VFBGraph extends Component {
     const { graphQueryIndex } = this.props;
 
     let syncColor = this.state.optionsIconColor;
-    
+
     if (Object.keys(this.props.instanceOnFocus).length === 0 && this.props.instanceOnFocus.constructor === Object) {
       return (
         <p>Model not loaded, graph not available yet</p>
@@ -472,20 +573,22 @@ class VFBGraph extends Component {
 
     if ( this.focusedInstance.id !== "" && !this.props.instanceOnFocus.id.includes(this.focusedInstance.id) ) {
       // If the length of the graph is 0, request a new query using the instanceOnFocus
-      if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery ){
+      if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery.id ){
         let idToSearch = this.focusedInstance.id;
+        let instanceName = this.focusedInstance.name;
         if (this.focusedInstance.getParent() !== null) {
           idToSearch = this.focusedInstance.getParent().id;
+          instanceName = this.focusedInstance.getParent().name;
         }
 
         syncColor = stylingConfiguration.defaultRefreshIconColor;
         // Perform cypher query
         this.loading = true;
-        this.queryResults(cypherQuery(idToSearch), idToSearch)
+        this.queryResults(cypherQuery(idToSearch), { id : idToSearch, name : instanceName } )
       }
-      
+
       // Out of sync if instanceOnFocus is not what's on display
-      if ( this.focusedInstance.id !== this.state.currentQuery ) {
+      if ( this.focusedInstance.id !== this.state.currentQuery.id ) {
         syncColor = stylingConfiguration.outOfSyncIconColor;
       }
     }
@@ -494,7 +597,7 @@ class VFBGraph extends Component {
     if ( !this.props.instanceOnFocus.id.includes(this.focusedInstance.id) ) {
       syncColor = stylingConfiguration.outOfSyncIconColor;
     }
-    
+
     return (
       this.loading
         ? <CircularProgress
@@ -510,7 +613,16 @@ class VFBGraph extends Component {
           }}
         />
         : this.state.graph.nodes.length == 0
-          ? <p>No Graph Available for {this.state.currentQuery}</p>
+          ? <div>
+            <DropDownQueries
+              handleMenuClick={query => self.handleMenuClick(query)}
+              currentQuery = { self.state.currentQuery }
+              focusedInstance = {self.focusedInstance}
+              sync = {self.state.sync}
+              syncColor = {self.state.syncColor}
+            />
+            <p style={{ float : "left" }}>No Graph Available for {this.state.currentQuery.name}</p>
+          </div>
           : <GeppettoGraphVisualization
             id= { COMPONENT_ID }
             // Graph data with Nodes and Links to populate
@@ -625,79 +737,13 @@ class VFBGraph extends Component {
                     onClick={self.zoomOut }>
                   </i>
                 </Tooltip>
-                <Tooltip title={<h6>Refresh for {this.focusedInstance.name} </h6>}>
-                  <i 
-                    style={ 
-                      { 
-                        zIndex : "1000",
-                        cursor : "pointer",
-                        marginTop : "20px",
-                        left : "10px",
-                        color : syncColor
-                      }
-                    }
-                    className={stylingConfiguration.icons.sync}
-                    key="tooltip-icon"
-                    onClick={self.sync}>
-                  </i>
-                </Tooltip>
-                <Tooltip title={<h6>Options</h6>}>
-                  <i 
-                    style={ 
-                      { 
-                        zIndex : "1000" ,
-                        cursor : "pointer",
-                        marginTop : "5px",
-                        left : "10px"
-                      }
-                    }
-                    className={stylingConfiguration.icons.dropdown}
-                    aria-label="more"
-                    aria-controls="dropdown-menu"
-                    aria-haspopup="true"
-                    onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-                  />
-                </Tooltip>
-                <Menu
-                  id="dropdown-menu"
-                  anchorEl={self.state.dropDownAnchorEl}
-                  keepMounted
-                  open={Boolean(self.state.dropDownAnchorEl)}
-                  onClose={ event => self.setState( { dropDownAnchorEl : null } )}
-                  PaperProps={{
-                    style: {
-                      marginTop: '32px',
-                      borderStyle: "solid",
-                      borderColor: "#585858",
-                      borderRadius: "0px 0px 2px 2px",
-                      color: stylingConfiguration.dropDownTextColor,
-                      backgroundColor: stylingConfiguration.dropDownBackgroundColor,
-                    }
-                  }}
-                >
-                  {stylingConfiguration.dropDownQueries.map(item => (
-                    <MenuItem 
-                      key={item.label(self.state.currentQuery)} 
-                      onClick={() => self.handleMenuClick(item.query)}
-                      style={{
-                        fontSize : "14px",
-                        fontFamily: "Barlow Condensed",
-                      }}
-                      onMouseEnter={e => {
-                        e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
-                        e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor;
-                      }
-                      }
-                      onMouseLeave={e => {
-                        e.target.style.color = stylingConfiguration.dropDownTextColor;
-                        e.target.style.backgroundColor = stylingConfiguration.dropDownBackgroundColor;
-                      }
-                      }
-                    >
-                      {item.label(self.state.currentQuery)}
-                    </MenuItem>
-                  ))}
-                </Menu>
+                <DropDownQueries
+                  handleMenuClick={query => self.handleMenuClick(query)}
+                  currentQuery = {self.state.currentQuery}
+                  focusedInstance = {self.focusedInstance}
+                  sync = { () => self.sync() }
+                  syncColor = { syncColor }
+                />
               </div>
             }
             click={() => self.graphRef.current.ggv.current.zoomToFit()}

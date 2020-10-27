@@ -17,7 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
-import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY, VFB_LOAD_TERM_INFO, SHOW_LIST_VIEWER } from './../actions/generals';
+import * as ACTIONS from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -1062,12 +1062,12 @@ class VFBMain extends React.Component {
     /**
      * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
      */
-    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
+    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO ) {
       this.setActiveTab("termInfo");
       this.termInfoReference.setTermInfo(this.instanceOnFocus);
     }
     
-    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === SHOW_LIST_VIEWER ) {
+    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === ACTIONS.SHOW_LIST_VIEWER ) {
       if (this.listViewerReference === undefined || this.listViewerReference === null) {
         this.setState({
           UIUpdated: true,
@@ -1101,7 +1101,7 @@ class VFBMain extends React.Component {
       }
     }
 
-    if ( this.props.generals.type == SHOW_GRAPH ) {
+    if ( this.props.generals.type == ACTIONS.SHOW_GRAPH ) {
       if ( !this.state.graphVisible ) {
         this.setState({
           UIUpdated: true,
@@ -1112,7 +1112,7 @@ class VFBMain extends React.Component {
       }
     }
     
-    if ( this.props.generals.type == UPDATE_CIRCUIT_QUERY ) {
+    if ( this.props.generals.type == ACTIONS.UPDATE_CIRCUIT_QUERY ) {
       if ( !this.state.circuitBrowserVisible ) {
         this.setState({
           UIUpdated: true,
