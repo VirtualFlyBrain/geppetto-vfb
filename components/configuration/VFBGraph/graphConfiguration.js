@@ -90,5 +90,6 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  locationCypherQuery
+  whatIsCypherQuery,
+  whereIsCypherQuery
 };
