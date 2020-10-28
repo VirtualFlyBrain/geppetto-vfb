@@ -222,7 +222,7 @@ function generalReducer (state, action) {
     if ( Array.isArray(action.data.instance) ) {
       newQueryMap = action.data.instance;
     } else {
-      !state.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.circuitQuerySelected];
+      !state.ui.circuitBrowser.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
     }
     
     ui.circuitBrowser.circuitQuerySelected = newQueryMap;
