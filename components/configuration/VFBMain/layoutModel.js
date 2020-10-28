@@ -48,31 +48,38 @@ var modelJson = {
         ]
       },
       {
-        "type": "tabset",
+        "type": "row",
         "weight": 45,
         "selected": 0,
         "children": [
           {
-            "type": "tab",
-            "name": "Term Info",
-            "component": "termInfo"
-          }
-        ]
-      },
-      {
-        "type": "tabset",
-        "weight": 45,
-        "selected": 0,
-        "children": [
-          {
-            "type": "tab",
-            "name": "Layers",
-            "component": "vfbListViewer"
+            "type": "tabset",
+            "weight": 45,
+            "selected": 0,
+            "children": [
+              {
+                "type": "tab",
+                "name": "Term Info",
+                "component": "termInfo"
+              }
+            ]
           },
           {
-            "type": "tab",
-            "name": "Template ROI Browser",
-            "component": "treeBrowser"
+            "type": "tabset",
+            "weight": 45,
+            "selected": 0,
+            "children": [
+              {
+                "type": "tab",
+                "name": "Layers",
+                "component": "vfbListViewer"
+              },
+              {
+                "type": "tab",
+                "name": "Template ROI Browser",
+                "component": "treeBrowser"
+              }
+            ]
           }
         ]
       }
