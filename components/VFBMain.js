@@ -983,6 +983,10 @@ class VFBMain extends React.Component {
     } else if (component === "vfbGraph") {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          graphVisible: false
+        });
         self.props.vfbGraph(ACTIONS.SHOW_GRAPH,null,-1, false);
       });
       
@@ -1100,12 +1104,7 @@ class VFBMain extends React.Component {
         });
       } else if ( this.state.graphVisible && this.props.generals.ui.graph.visible ) {
         this.setActiveTab("vfbGraph");
-      } else if ( !this.props.generals.ui.graph.visible && this.state.graphVisible ) {
-        this.setState({
-          UIUpdated: true,
-          graphVisible: false
-        });
-      }
+      } 
     }
     
     if ( this.props.generals.type == ACTIONS.UPDATE_CIRCUIT_QUERY ) {

@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import GeppettoGraphVisualization from '@geppettoengine/geppetto-ui/graph-visualization/Graph'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import { queryParser } from './QueryParser';
+import DropDownQueries from './DropDownQueries';
 import Tooltip from '@material-ui/core/Tooltip';
 import { UPDATE_GRAPH } from './../../../actions/generals';
 import { connect } from "react-redux";
@@ -28,194 +28,6 @@ const COMPONENT_ID = "VFBGraph";
 const NODE_WIDTH = 55;
 const NODE_HEIGHT = 40;
 const NODE_BORDER_THICKNESS = 2;
-
-/**
- * Converts graph data received from cypher query into a readable format for react-force-graph-2d
- */
-function refineData (e) {
-  let graphData = e.data.params.results;
-  let data = graphData.results[0].data;
-  let nodes = [], links = [];
-  let linksMap = new Map();
-  let nodesMap = new Map();
-
-  // Creates links map from Relationships, avoid duplicates
-  data.forEach(({ graph }) => {
-    graph.relationships.forEach(({ startNode, endNode, properties }) => {
-      if (linksMap.get(startNode) === undefined) {
-        linksMap.set(startNode, new Array());
-      }
-
-      let newLink = true;
-      linksMap.get(startNode).find( function ( ele ) {
-        if ( ele.target !== endNode ) {
-          newLink = true;
-        } else {
-          newLink = false;
-        }
-      });
-
-      // Only keep track of new links, avoid duplicates
-      if ( newLink ) {
-        linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
-      }
-
-    });
-  });
-
-  // Loop through nodes from query and create nodes for graph
-  data.forEach(({ graph }) => {
-    graph.nodes.forEach(({ id, properties }) => {
-      let label = properties[e.data.params.configuration.resultsMapping.node.label];
-      let title = properties[e.data.params.configuration.resultsMapping.node.title];
-      let n = null;
-      if (nodesMap.get(id) === undefined) {
-        n = {
-          path :  label,
-          id : parseInt(id),
-          title : title,
-          width : e.data.params.NODE_WIDTH,
-          height : e.data.params.NODE_HEIGHT
-        };
-        nodesMap.set(id, n);
-        nodes.push(n);
-      }
-    });
-  });
-
-  // Creates Links array with nodes
-  nodes.forEach( sourceNode => {
-    let id = sourceNode.id;
-    if ( typeof id === "number" ) {
-      id = sourceNode.id.toString();
-    }
-    let n = linksMap.get(id);
-    if (n !== undefined){
-      for (var i = 0 ; i < n.length; i++){
-        let targetNode = nodesMap.get(n[i].target);
-
-        if (targetNode !== undefined) {
-          // Create new link for graph
-          let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
-          links.push( link );
-
-          // Assign neighbors to nodes and links
-          !sourceNode.neighbors && (sourceNode.neighbors = []);
-          !targetNode.neighbors && (targetNode.neighbors = []);
-          sourceNode.neighbors.push(targetNode);
-          targetNode.neighbors.push(sourceNode);
-
-          // Assign links to nodes
-          !sourceNode.links && (sourceNode.links = []);
-          !targetNode.links && (targetNode.links = []);
-          sourceNode.links.push(link);
-          targetNode.links.push(link);
-        }
-      }
-    }
-  });
-
-  // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, instance : e.data.params.value } });
-}
-
-
-/**
- * Shows the data value as a link
- */
-class DropDownQueries extends Component {
-  constructor (props) {
-    super(props);
-    this.state = { dropDownAnchorEl: null };
-    this.handleMenuClick = this.handleMenuClick.bind(this);
-  }
-
-  handleMenuClick (query) {
-    this.setState( { dropDownAnchorEl: null } );
-    this.props.handleMenuClick(query);
-  }
-
-  render () {
-    let self = this;
-    return (
-      <div>
-        <Tooltip title={<h6>Refresh for {self.props.focusedInstance.name} </h6>}>
-          <i style={ 
-            { 
-              zIndex : "1000",
-              cursor : "pointer",
-              marginTop : "20px",
-              left : "10px",
-              color : self.props.syncColor
-            }
-          }
-          className={stylingConfiguration.icons.sync}
-          key="tooltip-icon"
-          onClick={self.props.sync}>
-          </i>
-        </Tooltip>
-        <Tooltip title={<h6>Options</h6>}>
-          <i 
-            style={ 
-              { 
-                zIndex : "1000" ,
-                cursor : "pointer",
-                marginTop : "5px",
-                left : "10px"
-              }
-            }
-            className={stylingConfiguration.icons.dropdown}
-            aria-label="more"
-            aria-controls="dropdown-menu"
-            aria-haspopup="true"
-            onClick={ event => self.setState( { dropDownAnchorEl : event.currentTarget } )}
-          />
-        </Tooltip>
-        <Menu
-          id="dropdown-menu"
-          anchorEl={self.state.dropDownAnchorEl}
-          keepMounted
-          open={Boolean(self.state.dropDownAnchorEl)}
-          onClose={ event => self.setState( { dropDownAnchorEl : null } )}
-          PaperProps={{
-            style: {
-              marginTop: '32px',
-              borderStyle: "solid",
-              borderColor: "#585858",
-              borderRadius: "0px 0px 2px 2px",
-              color: stylingConfiguration.dropDownTextColor,
-              backgroundColor: stylingConfiguration.dropDownBackgroundColor,
-            }
-          }}
-        >
-          {stylingConfiguration.dropDownQueries.map(item => (
-            <MenuItem 
-              key={item.label(self.props.currentQuery.id)} 
-              onClick={() => self.handleMenuClick(item.query)}
-              style={{
-                fontSize : "14px",
-                fontFamily: "Barlow Condensed",
-              }}
-              onMouseEnter={e => {
-                e.target.style.color = stylingConfiguration.dropDownHoverTextColor;
-                e.target.style.backgroundColor = stylingConfiguration.dropDownHoverBackgroundColor;
-              }
-              }
-              onMouseLeave={e => {
-                e.target.style.color = stylingConfiguration.dropDownTextColor;
-                e.target.style.backgroundColor = stylingConfiguration.dropDownBackgroundColor;
-              }
-              }
-            >
-              {item.label(self.props.currentQuery.name)}
-            </MenuItem>
-          ))}
-        </Menu>
-      </div>
-    )
-  }
-}
-
 
 class VFBGraph extends Component {
 
@@ -444,8 +256,10 @@ class VFBGraph extends Component {
    * Query new instance by using 'addVfbId' functionality
    */
   queryNewInstance (node) {
-    // TODO : Comment out if clicking on a node needs to add it globally
-    // window.addVfbId(node.title);
+    /*
+     * TODO : Comment out if clicking on a node needs to add it globally
+     * window.addVfbId(node.title);
+     */
     this.loading = true;
     this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
     // Perform cypher query
@@ -528,7 +342,7 @@ class VFBGraph extends Component {
       headers: { 'content-type': contentType },
       data: request,
     }).then( function (response) {
-      var blob = new Blob(["onmessage = " + refineData ]);
+      var blob = new Blob(["onmessage = " + queryParser ]);
       var blobUrl = window.URL.createObjectURL(blob);
 
       var worker = new Worker(blobUrl);
@@ -558,8 +372,16 @@ class VFBGraph extends Component {
       };
       // Add ID to list of query requests made
       self.queryRequests.push(instance.id);
+      
+      let params = {
+        results: response.data,
+        value: instance,
+        configuration : configuration,
+        NODE_WIDTH : NODE_WIDTH,
+        NODE_HEIGHT : NODE_HEIGHT
+      }
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, value: instance, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: params });
     })
       .catch( function (error) {
         self.loading = false;
@@ -652,6 +474,7 @@ class VFBGraph extends Component {
                 focusedInstance = {self.focusedInstance}
                 sync = { () => self.sync() }
                 syncColor = { syncColor }
+                stylingConfiguration = { stylingConfiguration }
               />
             </div>
             <p style={{ float : "right", width : "80%" }}>No Graph Available for {this.state.currentQuery.name}</p>
@@ -776,6 +599,7 @@ class VFBGraph extends Component {
                   focusedInstance = {self.focusedInstance}
                   sync = { () => self.sync() }
                   syncColor = { syncColor }
+                  stylingConfiguration = { stylingConfiguration }
                 />
               </div>
             }
