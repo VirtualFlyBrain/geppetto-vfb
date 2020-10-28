@@ -1,6 +1,6 @@
 /* eslint-disable no-tabs */
 import React from 'react';
-import Menu from 'geppetto-client/js/components/interface/menu/Menu';
+import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
 var VFBLoader = require('../VFBLoader/VFBLoaderContainer').default;
 var Rnd = require('react-rnd').default;
 
@@ -95,6 +95,10 @@ export default class VFBToolBar extends React.Component {
   clickFeedback () {
     var htmlContent = this.feedbackHTML;
     window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
+    // add clinet data to console
+    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
+      console.log('USER: ' + data.geobytesipaddress + '  ' + data.geobytesfqcn);
+    });
     // report console log for agrigated analysis
     window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace(/\#/g,escape('#')), );
 
@@ -147,10 +151,26 @@ export default class VFBToolBar extends React.Component {
     }
     // return as much of the log up to the last 10 events < 1000 characters:
     var logLength = -50;
-    var limitedLog = window.console.logs.slice(logLength).join('/n');
-    while (limitedLog.length < 1000 && logLength < 0) {
+    var limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+      /\&/g,escape('&')
+    ).replace(
+      /\#/g,escape('#')
+    ).replace(
+      /\-/g,'%2D'
+    ).replace(
+      /\+/g,'%2B'
+    );
+    while (limitedLog.length > 1000 && logLength < 0) {
       logLength += 1;
-      limitedLog = window.console.logs.slice(logLength).join('/n');
+      limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+        /\&/g,escape('&')
+      ).replace(
+        /\#/g,escape('#')
+      ).replace(
+        /\-/g,'%2D'
+      ).replace(
+        /\+/g,'%2B'
+      );
     }
     this.props.htmlOutputHandler(
       htmlContent.replace(

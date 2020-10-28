@@ -202,7 +202,7 @@ var toolbarMenu = {
           icon: "fa fa-list",
           action: {
             handlerAction: "UIElementHandler",
-            parameters: ["controlPanelVisible"]
+            parameters: ["listViewerVisible"]
           }
         },
         {
@@ -235,6 +235,22 @@ var toolbarMenu = {
           action: {
             handlerAction: "UIElementHandler",
             parameters: ["treeBrowserVisible"]
+          }
+        },
+        {
+          label: "Term Context",
+          icon: "fas fa-project-diagram",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["graphVisible"]
+          }
+        },
+        {
+          label: "Circuit Browser",
+          icon: "fa fa-cogs",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["circuitBrowserVisible"]
           }
         },
         {

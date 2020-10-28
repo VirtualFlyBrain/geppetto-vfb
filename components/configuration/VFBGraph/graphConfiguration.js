@@ -1,21 +1,21 @@
-var whatIsCypherQuery = instance => ({
+var locationCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Entity)-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
-      + "WHERE n.short_form = '" + instance + "' " 
-      + "AND 'Anatomy' IN  labels(x) " 
-      + "RETURN p, n.short_form as root",
+      "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
+      + "has_postsynaptic_terminal_in|overlaps*..]->(x) "
+      + "RETURN distinct n,r,x,n.short_form as root",
       "resultDataContents": ["graph"]
     }
   ]
 });
 
-var whereIsCypherQuery = instance => ({
+var whatCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(Entity)-[:INSTANCEOF:part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|has_postsynaptic_terminal_in|overlaps*..]->(x) "
-      + "WHERE n.short_form = '" + instance + "' " 
-      + "RETURN p, n.short_form as root",
+      "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
+      + "WHERE (('Cell' IN  labels(x)) OR ('synaptic neuropil' IN labels(x))) "
+      + " OR (('Ganglion' IN  labels(x)) OR ('Neuron_projection_bundle' IN labels(x))) "
+      + "RETURN  p, n.short_form as root",
       "resultDataContents": ["graph"]
     }
   ]
@@ -65,14 +65,16 @@ var styling = {
     sync : "fa fa-refresh",
     dropdown : "fa fa-bars",
   },
+  defaultRefreshIconColor : "white",
+  outOfSyncIconColor : "red",
   dropDownQueries : [
     {
-      label : instance => "What is " + instance ,
-      query : instance => whatIsCypherQuery(instance)
+      label : instance => "Show location of " + instance ,
+      query : instance => locationCypherQuery(instance)
     },
     {
-      label : instance => "Where is " + instance ,
-      query : instance => whereIsCypherQuery(instance)
+      label : instance => "Show classification of " + instance,
+      query : instance => whatCypherQuery(instance)
     }
   ],
   dropDownHoverBackgroundColor : "#11bffe",
@@ -82,7 +84,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb-alpha.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb.p2.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
 };
 
@@ -90,6 +92,6 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  whatIsCypherQuery,
-  whereIsCypherQuery
+  locationCypherQuery,
+  whatCypherQuery
 };

@@ -1,89 +1,162 @@
+var searchStyle = {
+  inputWrapper: {
+    "position": "absolute",
+    "height": "100%",
+    "width": "100%",
+    "top": "10%"
+  },
+  searchText: {
+    "width": "100vh",
+    "zIndex": "6",
+    "fontSize": "22px",
+    "color": "black",
+    "backgroundColor": "white",
+    "padding": "7px 20px 7px 20px",
+    "border": "3px solid #11bffe",
+  },
+  filterIcon: {
+    "right": "25px",
+    "bottom": "15px",
+    "zIndex": "6",
+    "cursor": "pointer",
+    "fontSize": "25px",
+    "position": "absolute",
+    "color": "black",
+  },
+  closeIcon: {
+    "position": "relative",
+    "color": "#11bffe",
+    "bottom": "50px",
+    "right": "14px",
+    "fontWeight": "bold",
+    "fontSize": "20px",
+    "cursor": "pointer",
+  },
+  paperResults: {
+    "left": "14%",
+    "height": "50%",
+    "width": "70%",
+    "position": "absolute",
+    "textAlign": "center",
+    "backgroundColor": "#333333",
+    "padding": "12px 20px 12px 20px",
+    "overflow": "scroll",
+    "zIndex": "5",
+  },
+  paperFilters: {
+    "minHeight": "280px",
+    "minWidth": "240px",
+    "position": "absolute",
+    "backgroundColor": "#141313",
+    "color": "white",
+    "overflow": "scroll",
+    "zIndex": "6",
+    "border": "3px solid #11bffe",
+    "fontFamily": "Barlow, Khand, sans-serif",
+    "fontSize": "16px",
+    "top": "58px",
+    "right": "0px",
+  },
+  singleResult: {
+    "color": "white",
+    "fontSize": "18px",
+
+    ":hover": {
+      "color": "#11bffe",
+      "background-color": "#252323",
+    },
+  },
+  main: {
+    "position": "absolute",
+    "top": "0px",
+    "left": "0px",
+    "width": "100%",
+    "height": "100%",
+    "margin": "0",
+    "padding": "0",
+    "zIndex": "3",
+    "backgroundColor": "rgba(51, 51, 51, 0.7)",
+    "textAlign": "center",
+    "display": "flex",
+    "alignItems": "center",
+    "justifyContent": "center",
+  }
+};
+
 var datasourceConfiguration = {
-  "url": "https://solr.virtualflybrain.org/solr/ontology/select",
+  "url": "https://solr.p2.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "defType": "edismax",
-      "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest_e synonym_autosuggest shortform_autosuggest has_narrow_synonym_annotation has_broad_synonym_annotation",
+      "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
-      "fl": "short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation,facets_annotation",
+      "fl": "short_form,label,synonym,id,facets_annotation",
       "start": "0",
+      "pf":"true",
       "fq": [
-        "type:class OR type:individual OR type:property",
-        "ontology_name:(vfb)",
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
+        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "is_obsolete:false^100.0 shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 is_defining_ontology:true^100.0 label_s:\"\"^2 synonym_s:\"\" in_subset_annotation:BRAINNAME^3 short_form:FBbt_00003982^2"
+      "bq": "shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
-// searchedObject define what to take from
-
 var searchConfiguration = {
   "resultsMapping":
-      {
-        "name": "label",
-        "id": "short_form"
-      },
+    {
+      "name": "label",
+      "id": "short_form"
+    },
+  "filters_expanded": true,
   "filters": [
     {
-      "key": "label",
-      "filter_name": "Label",
-      "type": "string",
-      "enabled": true,
-    },
-    {
-      "key": "short_form",
-      "filter_name": "ID",
-      "type": "string",
-      "enabled": true,
-    },
-    {
       "key": "facets_annotation",
-      "filter_name": "Type",
+      "filter_name": "Filters",
       "type": "array",
+      "enabled": "disabled",
+      "disableGlobal": true,
       "values": [
         {
           "key": "Adult",
           "filter_name": "Adult",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Larval",
           "filter_name": "Larval",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Nervous_system",
           "filter_name": "Nervous System",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Anatomy",
           "filter_name": "Anatomy",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Expression_pattern",
           "filter_name": "Expression Pattern",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Individual",
           "filter_name": "Image",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Synaptic_neuropil_domain",
           "filter_name": "Synaptic Neuropil",
-          "enabled": false,
+          "enabled": "disabled",
         },
         {
           "key": "Neuron",
           "filter_name": "Neuron",
-          "enabled": false,
+          "enabled": "disabled",
         }
       ]
     },
@@ -104,11 +177,25 @@ var searchConfiguration = {
     if (InputString == b.label) {
       return 1;
     }
+    // move exact matches to top ['XX ('ID/Label)]
+    if (a.label.indexOf(InputString + " (") == 0) {
+      return -1;
+    }
+    if (b.label.indexOf(InputString + " (") == 0) {
+      return 1;
+    }
     // close match without case matching
     if (InputString.toLowerCase() == a.label.toLowerCase()) {
       return -1;
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
+      return 1;
+    }
+    // close match without case matching ['xx ('ID/Label)]
+    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
+      return -1;
+    }
+    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
       return 1;
     }
     // match ignoring joinging nonwords
@@ -175,6 +262,7 @@ var searchConfiguration = {
 };
 
 module.exports = {
+  searchStyle,
+  searchConfiguration,
   datasourceConfiguration,
-  searchConfiguration
 };
