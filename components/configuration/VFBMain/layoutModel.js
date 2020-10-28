@@ -56,17 +56,14 @@ var modelJson = {
             "type": "tab",
             "name": "Term Info",
             "component": "termInfo"
-          },
-          {
-            "type": "tab",
-            "name": "Template ROI Browser",
-            "component": "treeBrowser"
-          },
-          {
-            "type": "tab",
-            "name": "Term Context",
-            "component": "vfbGraph"
-          },
+          }
+        ]
+      },
+      {
+        "type": "tabset",
+        "weight": 45,
+        "selected": 0,
+        "children": [
           {
             "type": "tab",
             "name": "Layers",
@@ -74,11 +71,11 @@ var modelJson = {
           },
           {
             "type": "tab",
-            "name": "Circuit Browser",
-            "component": "vfbCircuitBrowser"
+            "name": "Template ROI Browser",
+            "component": "treeBrowser"
           }
         ]
-      },
+      }
     ]
   }
 };
