@@ -26,19 +26,29 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
-  graphQueryIndex : -1,
   instanceOnFocus : {},
-  instanceSelection : {},
-  instanceDeleted : {},
-  instanceVisibilityChanged : false,
-  termInfoVisible : false,
-  listViewerInfoVisible : true,
-  circuitQuerySelected : [],
-  layout: {
-    "ThreeDViewer": true,
-    "StackViewer": true,
-    "TermInfo": true
-  }
+  ui : {
+    canvas : {
+      instanceSelection : {},
+      instanceDeleted : {},
+      instanceVisibilityChanged : false
+    },
+    graph : {
+      graphQueryIndex : -1,
+      visible : true
+    },
+    termInfo : { termInfoVisible : false },
+    layers : { listViewerInfoVisible : true },
+    circuitBrowser : {
+      circuitQuerySelected : [],
+      visible : true
+    },
+    layout: {
+      "ThreeDViewer": true,
+      "StackViewer": true,
+      "TermInfo": true
+    }
+  } 
 }
 
 export default ( state = {}, action ) => ({
@@ -84,6 +94,7 @@ function returnComponent (instance_type) {
 }
 
 function generalReducer (state, action) {
+  let ui = { ...state.ui };
   switch (action.type) {
   case VFB_ERROR:
     return {
@@ -93,11 +104,11 @@ function generalReducer (state, action) {
   case VFB_LOAD_ID:
     // check if data are provided as string or array of strings
     if (typeof action.data === "string") {
-      if (!state.idsList.includes(action.data) && checkLayoutState(state.layout)) {
+      if (!state.idsList.includes(action.data) && checkLayoutState(state.ui.layout)) {
         var idsToLoad = state.idsToLoad + 1;
         var newMap = { ...state.idsMap };
         newMap[action.data] = {
-          loaded: !checkLayoutState(state.layout),
+          loaded: !checkLayoutState(state.ui.layout),
           components: {}
         };
         return {
@@ -113,11 +124,11 @@ function generalReducer (state, action) {
       var idsToLoad = state.idsToLoad;
       var newMap = { ...state.idsMap };
       action.data.map(item => {
-        if (!state.idsList.includes(item) && checkLayoutState(state.layout)) {
+        if (!state.idsList.includes(item) && checkLayoutState(state.ui.layout)) {
           idsToLoad++;
           newIds.push(item);
           newMap[item] = {
-            loaded: !checkLayoutState(state.layout),
+            loaded: !checkLayoutState(state.ui.layout),
             components: {}
           };
         }
@@ -194,32 +205,44 @@ function generalReducer (state, action) {
       };
     }
   case VFB_UI_UPDATED:
+    ui.layout = action.data;
     return {
       ...state,
-      layout: action.data
+      ui : ui
     };
   case SHOW_GRAPH:
+    ui.graph.graphQueryIndex = action.data.queryIndex !== undefined && action.data.queryIndex !== null ? action.data.queryIndex : ui.graph.graphQueryIndex;
+    ui.graph.visible = action.data.visible !== undefined ? action.data.visible : ui.graph.visible;
+    if ( action.data.instance !== null && action.data.instance !== undefined){
+      return { 
+        ...state, 
+        ui : ui,
+        instanceOnFocus : action.data.instance
+      };
+    }
     return { 
       ...state, 
-      graphQueryIndex : action.data.queryIndex,
-      instanceOnFocus : action.data.instance
+      ui : ui
     };
   case UPDATE_GRAPH:
+    ui.graph.graphQueryIndex = action.data.queryIndex;
     return { 
       ...state, 
-      graphQueryIndex : action.data.queryIndex
+      ui : ui
     };
   case UPDATE_CIRCUIT_QUERY:
     var newQueryMap = [];
     if ( Array.isArray(action.data.instance) ) {
       newQueryMap = action.data.instance;
     } else {
-      !state.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.circuitQuerySelected];
+      !state.ui.circuitBrowser.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
     }
     
+    ui.circuitBrowser.circuitQuerySelected = newQueryMap;
+    ui.circuitBrowser.visible = action.data.visible !== undefined ? action.data.visible : ui.circuitBrowser.visible;
     return { 
       ...state, 
-      circuitQuerySelected : newQueryMap,
+      ui : ui
     };
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
@@ -231,7 +254,7 @@ function generalReducer (state, action) {
               && Instances[newInstance[0]][newInstance[1]] !== undefined) {
       var newComponents = { ...newMap[newInstance[0]].components };
       newMap[newInstance[0]].components = newComponents;
-      if (state.layout[component]) {
+      if (state.ui.layout[component]) {
         newMap[newInstance[0]].components[component] = {
           loaded: false,
           loadable: true
@@ -250,9 +273,10 @@ function generalReducer (state, action) {
       idsList : !state.idsList.includes(action.data) ? [ ...state.idsList, action.data ] : [ ...state.idsList ]
     };
   case INSTANCE_SELECTED:
+    ui.canvas.instanceSelected = action.data;
     return {
       ...state,
-      instanceSelected : action.data,
+      ui : ui,
       instanceOnFocus : action.data
     }
   case INSTANCE_DELETED:
@@ -261,26 +285,30 @@ function generalReducer (state, action) {
     if ( index > -1 ) {
       newMap.splice(index, 1);
     }
+    ui.canvas.instanceDeleted = action.instance;
     return {
       ...state,
-      instanceDeleted : action.instance,
+      ui : ui,
       idsList : newMap
     }
   case INSTANCE_VISIBILITY_CHANGED:
+    ui.canvas.instanceVisibilityChanged = action.data;
     return {
       ...state,
-      instanceVisibilityChanged : action.data
+      ui : ui
     }
   case VFB_LOAD_TERM_INFO:
+    ui.termInfo.termInfoVisible = action.data.visible;
     return {
       ...state,
-      termInfoVisible : action.data.visible,
+      ui : ui,
       instanceOnFocus : action.data.instance
     }
   case SHOW_LIST_VIEWER:
+    ui.layers.listViewerInfoVisible = true; 
     return {
       ...state,
-      listViewerInfoVisible : true
+      ui : ui
     }    
   }
 }

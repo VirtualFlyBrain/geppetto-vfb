@@ -30,17 +30,21 @@ export const vfbIdLoaded = (id, component) => ({
   }
 });
 
-export const vfbGraph = (type, instance, queryIndex) => ({
+export const vfbGraph = (type, instance, queryIndex, visible) => ({
   type: type,
   data: {
     instance : instance ,
-    queryIndex : queryIndex
+    queryIndex : queryIndex,
+    visible : visible
   }
 });
 
-export const vfbCircuitBrowser = (type, instance) => ({
+export const vfbCircuitBrowser = (type, instance, visible) => ({
   type: type,
-  data: { instance : instance }
+  data: {
+    instance : instance,
+    visible : visible
+  }
 });
 
 export const vfbUIUpdated = layout => ({

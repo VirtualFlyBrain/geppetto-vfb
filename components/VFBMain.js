@@ -906,10 +906,7 @@ class VFBMain extends React.Component {
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
           uiUpdated= { () => {
-            self.setState({
-              UIUpdated: true,
-              graphVisible: true
-            })
+            self.setState({ UIUpdated: true })
           }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
@@ -986,10 +983,7 @@ class VFBMain extends React.Component {
     } else if (component === "vfbGraph") {
       let graphVisibility = node.isVisible();
       node.setEventListener("close", () => {
-        self.setState({
-          UIUpdated: true,
-          graphVisible: false
-        });
+        self.props.vfbGraph(ACTIONS.SHOW_GRAPH,null,-1, false);
       });
       
       // Event listener fired when graph component is resized
@@ -1020,10 +1014,7 @@ class VFBMain extends React.Component {
     } else if (component === "vfbCircuitBrowser") {
       let circuitBrowserVisibility = node.isVisible();
       node.setEventListener("close", () => {
-        this.setState({
-          UIUpdated: false,
-          circuitBrowserVisible: false
-        });
+        self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
       });
       
       // Event listener fired when circuit browser component is resized
@@ -1062,12 +1053,12 @@ class VFBMain extends React.Component {
     /**
      * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
      */
-    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO ) {
+    if ( nextProps.generals.ui.termInfo.termInfoVisible && nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO ) {
       this.setActiveTab("termInfo");
       this.termInfoReference.setTermInfo(this.instanceOnFocus);
     }
-    
-    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === ACTIONS.SHOW_LIST_VIEWER ) {
+
+    if ( nextProps.generals.ui.layers.listViewerInfoVisible && nextProps.generals.type === ACTIONS.SHOW_LIST_VIEWER ) {
       if (this.listViewerReference === undefined || this.listViewerReference === null) {
         this.setState({
           UIUpdated: true,
@@ -1102,24 +1093,34 @@ class VFBMain extends React.Component {
     }
 
     if ( this.props.generals.type == ACTIONS.SHOW_GRAPH ) {
-      if ( !this.state.graphVisible ) {
+      if ( !this.state.graphVisible && this.props.generals.ui.graph.visible ) {
         this.setState({
           UIUpdated: true,
           graphVisible: true
         });
-      } else {
+      } else if ( this.state.graphVisible && this.props.generals.ui.graph.visible ) {
         this.setActiveTab("vfbGraph");
+      } else if ( !this.props.generals.ui.graph.visible && this.state.graphVisible ) {
+        this.setState({
+          UIUpdated: true,
+          graphVisible: false
+        });
       }
     }
     
     if ( this.props.generals.type == ACTIONS.UPDATE_CIRCUIT_QUERY ) {
-      if ( !this.state.circuitBrowserVisible ) {
+      if ( !this.state.circuitBrowserVisible && this.props.generals.ui.circuitBrowser.visible ) {
         this.setState({
           UIUpdated: true,
           circuitBrowserVisible: true
         });
-      } else {
+      } else if ( this.state.circuitBrowserVisible && this.props.generals.ui.circuitBrowser.visible ) {
         this.setActiveTab("vfbCircuitBrowser");
+      } else if ( !this.props.generals.ui.circuitBrowser.visible && this.state.circuitBrowserVisible ) {
+        this.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: false
+        });
       }
     }
   }

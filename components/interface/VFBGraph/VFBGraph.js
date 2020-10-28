@@ -258,6 +258,7 @@ class VFBGraph extends Component {
     this.loading = true;
     this.firstLoad = true;
     this.nodeSelectedID = "";
+    this.queryRequests = [];
   }
 
   componentDidMount () {
@@ -272,7 +273,9 @@ class VFBGraph extends Component {
           this.focusedInstance = this.props.instance;
         }
       }
-      this.updateGraph();
+      if ( this.selectedDropDownQuery <= 0 ){
+        this.updateGraph();
+      }
     }
 
     // Keyboard listener, detect when shift is pressed down
@@ -347,9 +350,25 @@ class VFBGraph extends Component {
       this.focused = false;
       if ( parseInt(this.props.graphQueryIndex) >= 0 && !this.firstLoad ) {
         this.selectedDropDownQuery = -1;
-        this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1);
+        this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1, true);
       }
       this.firstLoad = true;
+    } else if ( this.props.visible && this.focused) {
+      let idToSearch = self.props.instanceOnFocus.id;
+      let instanceName = self.props.instanceOnFocus.name;
+      if (self.props.instanceOnFocus.getParent() !== null) {
+        idToSearch = self.props.instanceOnFocus.getParent().id;
+        instanceName = self.props.instanceOnFocus.getParent().name;
+      }
+      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery && ( idToSearch != this.state.currentQuery.id )) {
+        stylingConfiguration.dropDownQueries.map((item, index) => {
+          if ( parseInt(self.props.graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            self.loading = true;
+            self.queryResults(item.query(idToSearch), { id : idToSearch, name : instanceName } );
+          }
+        });
+      }
     }
   }
 
@@ -415,6 +434,7 @@ class VFBGraph extends Component {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
       this.loading = true;
+      this.forceUpdate();
       // Perform cypher query
       this.queryResults(query(this.state.currentQuery.id), { id : this.state.currentQuery.id, name : this.state.currentQuery.name } );
     }
@@ -424,7 +444,8 @@ class VFBGraph extends Component {
    * Query new instance by using 'addVfbId' functionality
    */
   queryNewInstance (node) {
-    window.addVfbId(node.title);
+    // TODO : Comment out if clicking on a node needs to add it globally
+    // window.addVfbId(node.title);
     this.loading = true;
     this.setState({ optionsIconColor : stylingConfiguration.defaultRefreshIconColor });
     // Perform cypher query
@@ -517,8 +538,15 @@ class VFBGraph extends Component {
           self.loading = false;
           self.firstLoad = false;
           var query = query = { id : e.data.params.instance.id , name : e.data.params.instance.name };
+          var index = self.queryRequests.indexOf(instance.id);
+          // Remove ID from list of requests, needs to be reset
+          if ( index != -1 ){
+            self.queryRequests.push(query.id);
+          }
+          // Update state with results and current query
           self.setState( { graph : e.data.params.results, currentQuery : query });
           self.objectsLoaded = e.data.params.results.nodes.length;
+          // Reset camera after loading new graph
           setTimeout( function () {
             self.resetCamera();
             if ( self.graphRef.current !== null ) {
@@ -528,7 +556,8 @@ class VFBGraph extends Component {
           break;
         }
       };
-
+      // Add ID to list of query requests made
+      self.queryRequests.push(instance.id);
       // Invoke web worker to perform conversion of graph data into format
       worker.postMessage({ message: "refine", params: { results: response.data, value: instance, configuration : configuration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
@@ -563,8 +592,10 @@ class VFBGraph extends Component {
     let self = this;
     const { graphQueryIndex } = this.props;
 
+    // Color to use for synchronization button
     let syncColor = this.state.optionsIconColor;
 
+    // No graph to display, message is shown instead of graph
     if (Object.keys(this.props.instanceOnFocus).length === 0 && this.props.instanceOnFocus.constructor === Object) {
       return (
         <p>Model not loaded, graph not available yet</p>
@@ -614,14 +645,16 @@ class VFBGraph extends Component {
         />
         : this.state.graph.nodes.length == 0
           ? <div>
-            <DropDownQueries
-              handleMenuClick={query => self.handleMenuClick(query)}
-              currentQuery = { self.state.currentQuery }
-              focusedInstance = {self.focusedInstance}
-              sync = {self.state.sync}
-              syncColor = {self.state.syncColor}
-            />
-            <p style={{ float : "left" }}>No Graph Available for {this.state.currentQuery.name}</p>
+            <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
+              <DropDownQueries
+                handleMenuClick={query => self.handleMenuClick(query)}
+                currentQuery = { self.state.currentQuery }
+                focusedInstance = {self.focusedInstance}
+                sync = { () => self.sync() }
+                syncColor = { syncColor }
+              />
+            </div>
+            <p style={{ float : "right", width : "80%" }}>No Graph Available for {this.state.currentQuery.name}</p>
           </div>
           : <GeppettoGraphVisualization
             id= { COMPONENT_ID }
@@ -788,13 +821,13 @@ class VFBGraph extends Component {
 
 function mapStateToProps (state) {
   return {
-    graphQueryIndex : state.generals.graphQueryIndex,
+    graphQueryIndex : state.generals.ui.graph.graphQueryIndex,
     instanceOnFocus : state.generals.instanceOnFocus
   }
 }
 
 function mapDispatchToProps (dispatch) {
-  return { vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } } ) }
+  return { vfbGraph: (type, path, index, visible) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible } } ) }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBGraph);
