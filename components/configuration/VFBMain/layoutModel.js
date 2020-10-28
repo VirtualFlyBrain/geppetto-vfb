@@ -49,7 +49,7 @@ var modelJson = {
       },
       {
         "type": "row",
-        "weight": 100,
+        "weight": 45,
         "selected": 0,
         "children": [
           {
