@@ -49,12 +49,12 @@ var modelJson = {
       },
       {
         "type": "row",
-        "weight": 45,
+        "weight": 100,
         "selected": 0,
         "children": [
           {
             "type": "tabset",
-            "weight": 45,
+            "weight": 55,
             "selected": 0,
             "children": [
               {
