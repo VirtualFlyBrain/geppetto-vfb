@@ -1062,12 +1062,12 @@ class VFBMain extends React.Component {
     /**
      * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
      */
-    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
+    if ( nextProps.generals.ui.termInfo.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
       this.setActiveTab("termInfo");
       this.termInfoReference.setTermInfo(this.instanceOnFocus);
     }
     
-    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === SHOW_LIST_VIEWER ) {
+    if ( nextProps.generals.ui.layers.listViewerInfoVisible && nextProps.generals.type === SHOW_LIST_VIEWER ) {
       if (this.listViewerReference === undefined || this.listViewerReference === null) {
         this.setState({
           UIUpdated: true,
