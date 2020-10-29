@@ -319,7 +319,7 @@ class VFBTermInfo extends React.Component {
       for (var j = 0; j < values.length; j++) {
         graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
           <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }> 
-            { values[j].item.label(values[j].instance.parent.id) }
+            { values[j].item.label(values[j].instance.parent.name) }
           </a>
           <br/>
         </div>
@@ -348,7 +348,7 @@ class VFBTermInfo extends React.Component {
       for (var j = 0; j < values.length; j++) {
         graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
           <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.id + "," + values[j].index }> 
-            { "Show Circuit Browser for ID " + values[j].instance.parent.id }
+            { "Show Circuit Browser for " + values[j].instance.parent.name }
           </a>
           <br/>
         </div>
