@@ -13,7 +13,7 @@ var whatCypherQuery = instance => ({
   "statements": [
     {
       "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
-      + "WHERE (('Cell' IN  labels(x)) OR ('synaptic neuropil' IN labels(x))) "
+      + "WHERE ('Anatomy' IN  labels(x)) OR (('Cell' IN  labels(x)) OR ('synaptic neuropil' IN labels(x))) "
       + " OR (('Ganglion' IN  labels(x)) OR ('Neuron_projection_bundle' IN labels(x))) "
       + "RETURN  p, n.short_form as root",
       "resultDataContents": ["graph"]
