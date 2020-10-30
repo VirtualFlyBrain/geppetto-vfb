@@ -1,9 +1,15 @@
+/**
+ * Converts graph data received from cypher query into a readable format for react-force-graph-2d
+ */
 export function queryParser (e) {
   let graphData = e.data.params.results;
+  console.log("Results ", e);
   let data = graphData.results[0].data;
   let nodes = [], links = [];
   let linksMap = new Map();
-  let nodesMap = new Map();  
+  let nodesMap = new Map();
+  let presentColorLabels = new Array();
+
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph }) => {
     graph.relationships.forEach(({ startNode, endNode, properties }) => {
@@ -30,9 +36,26 @@ export function queryParser (e) {
 
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
-    graph.nodes.forEach(({ id, properties }) => {
+    graph.nodes.forEach(({ id, labels, properties }) => {
       let label = properties[e.data.params.configuration.resultsMapping.node.label];
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
+      let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;
+      
+      // Retrieve list of Label colors from configuration
+      const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
+      
+      // Loop through color labels
+      for (var i = 0; i < colorLabels.length ; i++ ) {
+        let index = labels.indexOf(colorLabels[i][0]);
+        if ( index > -1 ) {
+          color = colorLabels[i][1];
+          // Add to array of present colors only if array doesn't have it already
+          if ( !presentColorLabels.includes(labels[index]) ) {
+            presentColorLabels.push(labels[index]);
+          }
+          break;
+        }
+      }
       let n = null;
       if (nodesMap.get(id) === undefined) {
         n = {
@@ -40,7 +63,8 @@ export function queryParser (e) {
           id : parseInt(id),
           title : title,
           width : e.data.params.NODE_WIDTH,
-          height : e.data.params.NODE_HEIGHT
+          height : e.data.params.NODE_HEIGHT,
+          color : color,
         };
         nodesMap.set(id, n);
         nodes.push(n);
@@ -81,5 +105,5 @@ export function queryParser (e) {
   });
 
   // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, instance : e.data.params.value } });
+  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
 }

@@ -77,7 +77,9 @@ class VFBGraph extends Component {
     let self = this;
     this.__isMounted = true;
 
+    // This is where the initial call to load the graph happens first, after component is mounted
     if (this.state.currentQuery.id !== undefined && this.state.currentQuery.id !== "" && this.state.currentQuery.id !== null){
+      // Set focusedInstance
       if ( this.props.instance !== null ) {
         if (this.props.instance.getParent() !== null) {
           this.focusedInstance = this.props.instance.getParent();
@@ -85,7 +87,19 @@ class VFBGraph extends Component {
           this.focusedInstance = this.props.instance;
         }
       }
-      if ( this.selectedDropDownQuery <= 0 ){
+      
+      // If there's a graphQueryIndex set, it is used to retrieve the corresponding option from the DropDownQueries options
+      if ( parseInt(self.props.graphQueryIndex) >= 0 ){
+        stylingConfiguration.dropDownQueries.map((item, index) => {
+          if ( parseInt(self.props.graphQueryIndex) === index ) {
+            self.selectedDropDownQuery = index;
+            self.loading = true;
+            // Call to query graph
+            self.queryResults(item.query(this.focusedInstance.id), { id : this.focusedInstance.id, name : this.focusedInstance.name } );
+          }
+        });
+      } else {
+        // If there was no graphQueryIndex set, the default graph is loaded
         this.updateGraph();
       }
     }
@@ -107,6 +121,7 @@ class VFBGraph extends Component {
   componentDidUpdate () {
     let self = this;
 
+    // Hanles the case of the first load of the graph, when is not yet visible
     if (this.loading && this.firstLoad) {
       if (this.state.currentQuery.id === undefined || this.state.currentQuery.id === "" || this.state.currentQuery.id === null){
         if (this.props.instance !== null && this.props.instance !== undefined) {
@@ -133,8 +148,7 @@ class VFBGraph extends Component {
     // Reset camera if graph component is visible, not focused or has been resized
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
       /*
-       * Update graph with selected query index from configuration dropdown selection, this is to allow to lauch the component to be launched
-       * with specific configuration dropdown query. 
+       * Update graph with selected query index from configuration dropdown selection
        */
       stylingConfiguration.dropDownQueries.map((item, index) => {
         if ( parseInt(self.props.graphQueryIndex) >= 0 && self.firstLoad ) { 
@@ -161,18 +175,32 @@ class VFBGraph extends Component {
     } else if ( !this.props.visible ) {
       this.focused = false;
       if ( parseInt(this.props.graphQueryIndex) >= 0 && !this.firstLoad ) {
-        this.selectedDropDownQuery = -1;
         this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1, true);
       }
       this.firstLoad = true;
+      
+      // Reset camera view after graph component becomes visible
+      setTimeout( function () {
+        self.resetCamera();
+        self.focused = true;
+        self.loading = false;
+        self.graphResized = false;
+      }, (self.objectsLoaded * 50));
     } else if ( this.props.visible && this.focused) {
+      /*
+       * If graph is visible, update contents based on properties passed by redux store
+       * Retrieve id and name of selected instance
+       */
       let idToSearch = self.props.instanceOnFocus.id;
       let instanceName = self.props.instanceOnFocus.name;
       if (self.props.instanceOnFocus.getParent() !== null) {
         idToSearch = self.props.instanceOnFocus.getParent().id;
         instanceName = self.props.instanceOnFocus.getParent().name;
       }
-      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery && ( idToSearch != this.state.currentQuery.id )) {
+      /*
+       * Update graph with selected query index from configuration dropdown selection
+       */
+      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery ) {
         stylingConfiguration.dropDownQueries.map((item, index) => {
           if ( parseInt(self.props.graphQueryIndex) === index ) {
             self.selectedDropDownQuery = index;
@@ -236,6 +264,7 @@ class VFBGraph extends Component {
 
   sync () {
     this.instanceFocusChange(this.props.instanceOnFocus);
+    this.selectedDropDownQuery = -1;
     this.updateGraph();
   }
 
@@ -322,6 +351,11 @@ class VFBGraph extends Component {
    * Perform a cypher query to retrieve graph for instance
    */
   queryResults (requestQuery, instance) {
+    if ( this.queryRequests.includes(instance.id) ) {
+      alert("yo")
+      return;
+    }
+
     var url = restPostConfig.url;
 
     if (restPostConfig.url === undefined) {
@@ -355,7 +389,7 @@ class VFBGraph extends Component {
           var index = self.queryRequests.indexOf(instance.id);
           // Remove ID from list of requests, needs to be reset
           if ( index != -1 ){
-            self.queryRequests.push(query.id);
+            self.queryRequests.splice(index, 1);
           }
           // Update state with results and current query
           self.setState( { graph : e.data.params.results, currentQuery : query });
@@ -414,6 +448,7 @@ class VFBGraph extends Component {
     let self = this;
     const { graphQueryIndex } = this.props;
 
+    this.focused = true;
     // Color to use for synchronization button
     let syncColor = this.state.optionsIconColor;
 
@@ -422,28 +457,6 @@ class VFBGraph extends Component {
       return (
         <p>Model not loaded, graph not available yet</p>
       );
-    }
-
-    if ( this.focusedInstance.id !== "" && !this.props.instanceOnFocus.id.includes(this.focusedInstance.id) ) {
-      // If the length of the graph is 0, request a new query using the instanceOnFocus
-      if ( this.state.graph.nodes.length === 0 && this.state.graph.links.length === 0 && this.focusedInstance.id !== this.state.currentQuery.id ){
-        let idToSearch = this.focusedInstance.id;
-        let instanceName = this.focusedInstance.name;
-        if (this.focusedInstance.getParent() !== null) {
-          idToSearch = this.focusedInstance.getParent().id;
-          instanceName = this.focusedInstance.getParent().name;
-        }
-
-        syncColor = stylingConfiguration.defaultRefreshIconColor;
-        // Perform cypher query
-        this.loading = true;
-        this.queryResults(cypherQuery(idToSearch), { id : idToSearch, name : instanceName } )
-      }
-
-      // Out of sync if instanceOnFocus is not what's on display
-      if ( this.focusedInstance.id !== this.state.currentQuery.id ) {
-        syncColor = stylingConfiguration.outOfSyncIconColor;
-      }
     }
 
     // Out of sync if instanceOnFocus is not what's on display

@@ -1463,9 +1463,9 @@ class VFBMain extends React.Component {
   /**
    * Makes tab named 'tabName' become active.
    */
-  setActiveTab (tabComponentName) {
+  setActiveTab (tabComponentName, children) {
     let matchTab = 0;
-    let layoutChildren = this.model.toJson().layout.children;
+    let layoutChildren = children == undefined || children == null ? this.model.toJson().layout.children : children;
     for ( var i = 0; i < layoutChildren.length; i++){
       if ( layoutChildren[i].type === "tabset"){
         for ( var j = 0; j < layoutChildren[i].children.length ; j++){
@@ -1474,9 +1474,9 @@ class VFBMain extends React.Component {
             break;
           }
         }
-        // if ( this.model._activeTabSet !== undefined ) {
         this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
-      //  }
+      } else if ( layoutChildren[i].children !== undefined){
+        this.setActiveTab(tabComponentName, layoutChildren[i].children);
       }
     }
   }
