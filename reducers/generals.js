@@ -33,10 +33,16 @@ export const GENERAL_DEFAULT_STATE = {
       instanceDeleted : {},
       instanceVisibilityChanged : false
     },
-    graph : { graphQueryIndex : -1 },
+    graph : {
+      graphQueryIndex : -1,
+      visible : true
+    },
     termInfo : { termInfoVisible : false },
     layers : { listViewerInfoVisible : true },
-    circuitBrowser : { circuitQuerySelected : [] },
+    circuitBrowser : {
+      circuitQuerySelected : [],
+      visible : true
+    },
     layout: {
       "ThreeDViewer": true,
       "StackViewer": true,
@@ -205,11 +211,18 @@ function generalReducer (state, action) {
       ui : ui
     };
   case SHOW_GRAPH:
-    ui.graph.graphQueryIndex = action.data.queryIndex;
+    ui.graph.graphQueryIndex = action.data.queryIndex !== undefined && action.data.queryIndex !== null ? action.data.queryIndex : ui.graph.graphQueryIndex;
+    ui.graph.visible = action.data.visible !== undefined ? action.data.visible : ui.graph.visible;
+    if ( action.data.instance !== null && action.data.instance !== undefined){
+      return { 
+        ...state, 
+        ui : ui,
+        instanceOnFocus : action.data.instance
+      };
+    }
     return { 
       ...state, 
-      ui : ui,
-      instanceOnFocus : action.data.instance
+      ui : ui
     };
   case UPDATE_GRAPH:
     ui.graph.graphQueryIndex = action.data.queryIndex;
@@ -226,6 +239,7 @@ function generalReducer (state, action) {
     }
     
     ui.circuitBrowser.circuitQuerySelected = newQueryMap;
+    ui.circuitBrowser.visible = action.data.visible !== undefined ? action.data.visible : ui.circuitBrowser.visible;
     return { 
       ...state, 
       ui : ui
