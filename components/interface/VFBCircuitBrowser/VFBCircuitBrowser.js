@@ -504,7 +504,7 @@ class VFBCircuitBrowser extends Component {
 VFBCircuitBrowser.propTypes = { classes: PropTypes.object.isRequired };
 
 function mapStateToProps (state) {
-  return { circuitQuerySelected : state.generals.circuitQuerySelected }
+  return { circuitQuerySelected : state.generals.ui.circuitBrowser.circuitQuerySelected }
 }
 
 export default connect(mapStateToProps, null, null, { forwardRef : true } )(withStyles(styles)(VFBCircuitBrowser));

@@ -70,8 +70,8 @@ class VFBListViewer extends Component {
 
 function mapStateToProps (state) {
   return { 
+    instanceDeleted : state.generals.ui.canvas.instanceDeleted,
     instanceOnFocus : state.generals.instanceOnFocus,
-    instanceDeleted : state.generals.instanceDeleted,
     idsMap : state.generals.idsMap,
     idsList : state.generals.idsList
   }
