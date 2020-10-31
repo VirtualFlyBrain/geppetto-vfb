@@ -35,7 +35,8 @@ export const GENERAL_DEFAULT_STATE = {
     },
     graph : {
       graphQueryIndex : -1,
-      visible : true
+      visible : true,
+      sync : false
     },
     termInfo : { termInfoVisible : false },
     layers : { listViewerInfoVisible : true },
@@ -213,6 +214,7 @@ function generalReducer (state, action) {
   case SHOW_GRAPH:
     ui.graph.graphQueryIndex = action.data.queryIndex !== undefined && action.data.queryIndex !== null ? action.data.queryIndex : ui.graph.graphQueryIndex;
     ui.graph.visible = action.data.visible !== undefined ? action.data.visible : ui.graph.visible;
+    ui.graph.sync = action.data.sync !== undefined ? action.data.sync : ui.graph.sync;
     if ( action.data.instance !== null && action.data.instance !== undefined){
       return { 
         ...state, 
@@ -226,6 +228,14 @@ function generalReducer (state, action) {
     };
   case UPDATE_GRAPH:
     ui.graph.graphQueryIndex = action.data.queryIndex;
+    ui.graph.sync = action.data.sync !== undefined ? action.data.sync : ui.graph.sync;
+    if ( action.data.instance !== null && action.data.instance !== undefined){
+      return { 
+        ...state, 
+        ui : ui,
+        instanceOnFocus : action.data.instance
+      };
+    }
     return { 
       ...state, 
       ui : ui

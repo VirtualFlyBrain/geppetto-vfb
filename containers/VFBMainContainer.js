@@ -18,7 +18,7 @@ const mapDispatchToProps = dispatch => ({
   vfbLoadId: id => dispatch(vfbLoadId(id)),
   vfbIdLoaded: (id, component) => dispatch(vfbIdLoaded(id, component)),
   vfbUIUpdated: layout => dispatch(vfbUIUpdated(layout)),
-  vfbGraph: (id, component, type, visible) => dispatch(vfbGraph(id, component, type, visible)),
+  vfbGraph: (id, component, type, visible, sync) => dispatch(vfbGraph(id, component, type, visible, sync)),
   vfbCircuitBrowser: (type, path, visible) => dispatch (vfbCircuitBrowser(type, path, visible)),
   instanceAdded: instance => dispatch(instanceAdded(instance)),
   instanceSelected : instance => dispatch(instanceSelected(instance)),

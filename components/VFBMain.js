@@ -450,13 +450,13 @@ class VFBMain extends React.Component {
       this.UIUpdateItem(buttonState, "sliceViewer");
       break;
     case 'treeBrowserVisible':
-      this.UIUpdateItem(buttonState, "treeBrowserVisible");
+      this.UIUpdateItem(buttonState, "treeBrowser");
       break;
     case 'graphVisible':
-      this.UIUpdateItem(buttonState, "graphVisible");
+      this.UIUpdateItem(buttonState, "vfbGraph");
       break;
     case 'circuitBrowserVisible':
-      this.UIUpdateItem(buttonState, "circuitBrowserVisible");
+      this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
       break;
     case 'spotlightVisible':
       this.setState({
@@ -471,7 +471,7 @@ class VFBMain extends React.Component {
       });
       break;
     case 'listViewerVisible':
-      this.UIUpdateItem(buttonState, "listViewerVisible");
+      this.UIUpdateItem(buttonState, "vfbListViewer");
       break;
     case 'wireframeVisible':
       this.setState({
@@ -987,7 +987,7 @@ class VFBMain extends React.Component {
           UIUpdated: true,
           graphVisible: false
         });
-        self.props.vfbGraph(ACTIONS.SHOW_GRAPH,null,-1, false);
+        self.props.vfbGraph(ACTIONS.SHOW_GRAPH,null,-1, false, false);
       });
       
       // Event listener fired when graph component is resized

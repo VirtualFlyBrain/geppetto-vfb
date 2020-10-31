@@ -53,6 +53,7 @@ class VFBGraph extends Component {
     this.selectedNodeLoaded = this.selectedNodeLoaded.bind(this);
     this.resize = this.resize.bind(this);
     this.sync = this.sync.bind(this);
+    this.getErrorLabel = this.getErrorLabel.bind(this);
 
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -166,26 +167,16 @@ class VFBGraph extends Component {
         }
       });
       // Reset camera view after graph component becomes visible
-      setTimeout( function () {
-        self.resetCamera();
-        self.focused = true;
-        self.loading = false;
-        self.graphResized = false;
-      }, (self.objectsLoaded * 50));
+      this.updateCameraAtStart();
     } else if ( !this.props.visible ) {
       this.focused = false;
       if ( parseInt(this.props.graphQueryIndex) >= 0 && !this.firstLoad ) {
-        this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1, true);
+        this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1, true, false);
       }
       this.firstLoad = true;
       
       // Reset camera view after graph component becomes visible
-      setTimeout( function () {
-        self.resetCamera();
-        self.focused = true;
-        self.loading = false;
-        self.graphResized = false;
-      }, (self.objectsLoaded * 50));
+      this.updateCameraAtStart();
     } else if ( this.props.visible && this.focused) {
       /*
        * If graph is visible, update contents based on properties passed by redux store
@@ -200,18 +191,34 @@ class VFBGraph extends Component {
       /*
        * Update graph with selected query index from configuration dropdown selection
        */
-      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery ) {
-        stylingConfiguration.dropDownQueries.map((item, index) => {
-          if ( parseInt(self.props.graphQueryIndex) === index ) {
-            self.selectedDropDownQuery = index;
-            self.loading = true;
-            self.queryResults(item.query(idToSearch), { id : idToSearch, name : instanceName } );
-          }
-        });
+      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery || idToSearch != this.state.currentQuery.id) {
+        if ( this.props.sync ) {
+          stylingConfiguration.dropDownQueries.map((item, index) => {
+            if ( parseInt(self.props.graphQueryIndex) === index ) {
+              self.props.vfbGraph(UPDATE_GRAPH, null, -1, true, false);
+              self.instanceFocusChange(self.props.instanceOnFocus);
+              self.selectedDropDownQuery = index;
+              self.loading = true;
+              self.queryResults(item.query(idToSearch), { id : idToSearch, name : instanceName } );
+            }
+          });
+        }
       }
+      
+      this.updateCameraAtStart();
     }
   }
 
+  updateCameraAtStart () {
+    let self = this;
+    // Reset camera view after graph component becomes visible
+    setTimeout( function () {
+      self.resetCamera();
+      self.focused = true;
+      self.loading = false;
+      self.graphResized = false;
+    }, (self.objectsLoaded * 20));
+  }
   componentWillUnmount () {
     this.__isMounted = false;
   }
@@ -313,9 +320,7 @@ class VFBGraph extends Component {
   /**
    * Gets notified every time the instance focused changes
    */
-  instanceFocusChange (instance) {
-    // Keep track of latest instance loaded/focused, will be needed to synchronize/update graph.
-    this.selectedDropDownQuery = -1;
+  instanceFocusChange (instance) {    
     if (instance.getParent() !== null) {
       this.focusedInstance = instance.getParent();
     } else {
@@ -443,6 +448,19 @@ class VFBGraph extends Component {
     }
     context.fillText(line, x, y);
   }
+  
+  getErrorLabel () {
+    let self = this;
+    let indexQuery = this.selectedDropDownQuery;
+    if ( indexQuery == -1 ){
+      indexQuery = 0;
+    } 
+    return stylingConfiguration.dropDownQueries.map((item, index) => {
+      if ( indexQuery === index ) {
+        return "'" + item.label(self.state.currentQuery.id) + "'";
+      }
+    });
+  }
 
   render () {
     let self = this;
@@ -490,7 +508,7 @@ class VFBGraph extends Component {
                 stylingConfiguration = { stylingConfiguration }
               />
             </div>
-            <p style={{ float : "right", width : "80%" }}>No Graph Available for {this.state.currentQuery.name}</p>
+            <p style={{ float : "right", width : "80%", paddingTop : "2vh" }}>No graph available for {this.getErrorLabel()}</p>
           </div>
           : <GeppettoGraphVisualization
             id= { COMPONENT_ID }
@@ -659,12 +677,13 @@ class VFBGraph extends Component {
 function mapStateToProps (state) {
   return {
     graphQueryIndex : state.generals.ui.graph.graphQueryIndex,
+    sync : state.generals.ui.graph.sync,
     instanceOnFocus : state.generals.instanceOnFocus
   }
 }
 
 function mapDispatchToProps (dispatch) {
-  return { vfbGraph: (type, path, index, visible) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible } } ) }
+  return { vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } } ) }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBGraph);
