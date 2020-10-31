@@ -72,6 +72,7 @@ class VFBGraph extends Component {
     this.firstLoad = true;
     this.nodeSelectedID = "";
     this.queryRequests = [];
+    this.querySelection = {};
   }
 
   componentDidMount () {
@@ -278,13 +279,14 @@ class VFBGraph extends Component {
   /**
    * Handle Menu drop down clicks
    */
-  handleMenuClick (query) {
+  handleMenuClick (selection) {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
       this.loading = true;
+      this.querySelection = selection;
       this.forceUpdate();
       // Perform cypher query
-      this.queryResults(query(this.state.currentQuery.id), { id : this.state.currentQuery.id, name : this.state.currentQuery.name } );
+      this.queryResults(selection.query(this.state.currentQuery.id), { id : this.state.currentQuery.id, name : this.state.currentQuery.name } );
     }
   }
 
@@ -451,13 +453,12 @@ class VFBGraph extends Component {
   
   getErrorLabel () {
     let self = this;
-    let indexQuery = this.selectedDropDownQuery;
-    if ( indexQuery == -1 ){
-      indexQuery = 0;
-    } 
+    if ( this.selectedDropDownQuery == -1 ) {
+      return this.querySelection.label(self.state.currentQuery.id);
+    }
     return stylingConfiguration.dropDownQueries.map((item, index) => {
-      if ( indexQuery === index ) {
-        return "'" + item.label(self.state.currentQuery.id) + "'";
+      if ( self.selectedDropDownQuery === index ) {
+        return item.label(self.state.currentQuery.id);
       }
     });
   }
@@ -473,7 +474,7 @@ class VFBGraph extends Component {
     // No graph to display, message is shown instead of graph
     if (Object.keys(this.props.instanceOnFocus).length === 0 && this.props.instanceOnFocus.constructor === Object) {
       return (
-        <p>Model not loaded, graph not available yet</p>
+        <p>No graph available for {this.state.currentQuery.name} , where {this.state.currentQuery.name} is either 'show classification for $Instance' or 'show location for $instance'</p>
       );
     }
 
@@ -500,7 +501,7 @@ class VFBGraph extends Component {
           ? <div>
             <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
               <DropDownQueries
-                handleMenuClick={query => self.handleMenuClick(query)}
+                handleMenuClick={selection => self.handleMenuClick(selection)}
                 currentQuery = { self.state.currentQuery }
                 focusedInstance = {self.focusedInstance}
                 sync = { () => self.sync() }
@@ -625,7 +626,7 @@ class VFBGraph extends Component {
                   </i>
                 </Tooltip>
                 <DropDownQueries
-                  handleMenuClick={query => self.handleMenuClick(query)}
+                  handleMenuClick={selection => self.handleMenuClick(selection)}
                   currentQuery = {self.state.currentQuery}
                   focusedInstance = {self.focusedInstance}
                   sync = { () => self.sync() }

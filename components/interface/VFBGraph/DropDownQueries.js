@@ -14,9 +14,9 @@ class DropDownQueries extends Component {
     this.handleMenuClick = this.handleMenuClick.bind(this);
   }
 
-  handleMenuClick (query) {
+  handleMenuClick (selection) {
     this.setState( { dropDownAnchorEl: null } );
-    this.props.handleMenuClick(query);
+    this.props.handleMenuClick(selection);
   }
 
   render () {
@@ -75,7 +75,7 @@ class DropDownQueries extends Component {
           {self.props.stylingConfiguration.dropDownQueries.map(item => (
             <MenuItem 
               key={item.label(self.props.currentQuery.id)} 
-              onClick={() => self.handleMenuClick(item.query)}
+              onClick={() => self.handleMenuClick(item)}
               style={{
                 fontSize : "14px",
                 fontFamily: "Barlow Condensed",
