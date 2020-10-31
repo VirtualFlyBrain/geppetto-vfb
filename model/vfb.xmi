@@ -736,8 +736,8 @@
         queryProcessorId="owleryIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
-      id="opencpuDataSource"
-      name="NBLAST Data Source"
+      id="opencpuDataSourceOld"
+      name="NBLAST Data Source (flycircuit OLD)"
       dataSourceService="opencpuDataSource"
       url="http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast/json"
       dependenciesLibrary="//@libraries.3"
@@ -762,6 +762,30 @@
         countQuery="">
       <matchingCriteria
           type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="nblastPassIdAndScores"
+        name="NBLAST pass ids and scores"
+        description="Keep nothing slimply pass ids and scores"
+        queryProcessorId="nblastQueryProcessor"/>
+  </dataSources>
+  <dataSources
+      id="opencpuDataSource"
+      name="NBLAST Data Source (vfbnblast)"
+      dataSourceService="opencpuDataSource"
+      url="http://r.virtualflybrain.org/ocpu/library/vfbnblast/R/vfbnblast_neuron/json"
+      dependenciesLibrary="//@libraries.3"
+      targetLibrary="//@libraries.4">
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="vfbnblastSimilarTo"
+        name="VFB NBLAST similar to"
+        description="Find all similar to $NAME"
+        query="&quot;query&quot;:&quot;$ID&quot;,&quot;n&quot;:25"
+        countQuery="">
+      <matchingCriteria
+          type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
     </queries>
     <queries
         xsi:type="gep_2:ProcessQuery"
@@ -1004,5 +1028,14 @@
       queryChain="//@dataSources.0/@queries.13">
     <matchingCriteria
         type="//@libraries.3/@types.20"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="vfbSimilarTo"
+      name="VFB NBLAST Similar to"
+      description="NBLAST Similar to $NAME"
+      returnType="//@libraries.3/@types.2"
+      queryChain="//@dataSources.5/@queries.0 //@dataSources.4/@queries.2 //@dataSources.0/@queries.1">
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
   </queries>
 </gep:GeppettoModel>
