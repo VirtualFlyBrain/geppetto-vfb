@@ -25,11 +25,11 @@ jobs:
       - name: Set servers
         shell: bash
         run: |
-          echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474)"
-          echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/)"
-          echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast)"
-          echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.p2.virtualflybrain.org)"
-          echo "::set-output name=SOLR_SERVER::https://solr.p2.virtualflybrain.org/solr/ontology/select)"
+          echo "::set-output name=PDB::http://pdb:7474"
+          echo "::set-output name=OWL::http://owl:8080/kbs/vfb/"
+          echo "::set-output name=R::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast"
+          echo "::set-output name=TREE::https://pdb.p2.virtualflybrain.org"
+          echo "::set-output name=SOLR::https://solr.p2.virtualflybrain.org/solr/ontology/select"
           if [ "${GITHUB_REF##*/}" == master ] ; then
             echo "::debug::Set to master setup"
             echo "##[set-output name=VFB_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
