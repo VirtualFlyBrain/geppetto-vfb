@@ -87,8 +87,10 @@ class ListViewerControlsMenu extends Component {
         var self = this;
         instance.getType().resolve(function () {
           self.props.instance.setColor(color);
-          GEPPETTO.trigger('experiment:visibility_changed', instance);
-          GEPPETTO.ControlPanel.refresh();
+          if ( instance.getInstancePath !== undefined ) {
+            GEPPETTO.trigger('experiment:visibility_changed', instance);
+            GEPPETTO.ControlPanel.refresh();
+          }
         });
       } else { 
         if (GEPPETTO.SceneController.isInstancePresent(instance)) { 
