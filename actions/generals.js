@@ -30,12 +30,13 @@ export const vfbIdLoaded = (id, component) => ({
   }
 });
 
-export const vfbGraph = (type, instance, queryIndex, visible) => ({
+export const vfbGraph = (type, instance, queryIndex, visible, sync) => ({
   type: type,
   data: {
     instance : instance ,
     queryIndex : queryIndex,
-    visible : visible
+    visible : visible,
+    sync : sync
   }
 });
 

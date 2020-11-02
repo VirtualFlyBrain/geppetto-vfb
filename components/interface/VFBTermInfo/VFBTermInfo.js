@@ -724,7 +724,7 @@ class VFBTermInfoWidget extends React.Component {
        * Path contains the instance and the index of the drop down query options
        * Path is of type : "instance_path, query_index"
        */
-      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true);
+      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
       
       // Notify VFBMain UI needs to be updated
       this.props.uiUpdated();
@@ -889,7 +889,7 @@ function mapStateToProps (state) {
 function mapDispatchToProps (dispatch) {
   return { 
     vfbCircuitBrowser: (type, path, visible) => dispatch ( { type : type, data : { instance : path, visible : visible } }),
-    vfbGraph: (type, path, index, visible) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible } })
+    vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } })
   }
 }
 
