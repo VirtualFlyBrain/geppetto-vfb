@@ -21,10 +21,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: Set servers
-        shell: bash
+        
       - id: pdb
+        shell: bash
         run: if [ "${GITHUB_REF##*/}" == master ] ; then
             echo "::debug::Set to master setup"
             echo "##[set-output name=VFB_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
