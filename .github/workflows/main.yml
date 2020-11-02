@@ -25,7 +25,6 @@ jobs:
       - name: Set servers
         shell: bash
         run: |
-          echo "##[set-output name=;]$(echo ${GITHUB_REF##*/})"
           echo "##[set-output name=VFB_PDB_SERVER;]$(echo http://pdb:7474)"
           echo "##[set-output name=VFB_OWL_SERVER;]$(echo http://owl:8080/kbs/vfb/)"
           echo "##[set-output name=VFB_R_SERVER;]$(echo http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast)"
