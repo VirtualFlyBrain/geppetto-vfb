@@ -22,14 +22,45 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Extract branch name
+      - name: Set servers
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
-        id: extract_branch
+        run: |
+          echo "##[set-output name=;]$(echo ${GITHUB_REF##*/})"
+          echo "##[set-output name=VFB_PDB_SERVER;]$(echo http://pdb:7474)"
+          echo "##[set-output name=VFB_OWL_SERVER;]$(echo http://owl:8080/kbs/vfb/)"
+          echo "##[set-output name=VFB_R_SERVER;]$(echo http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast)"
+          echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.p2.virtualflybrain.org)"
+          echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.p2.virtualflybrain.org/solr/ontology/select)"
+          if [ "${GITHUB_REF##*/}" == debug ]
+          then
+            echo "##[set-output name=VFB_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
+            echo "##[set-output name=VFB_OWL_SERVER;]$(echo http://owl.virtualflybrain.org/kbs/vfb/)"
+            echo "##[set-output name=VFB_R_SERVER;]$(echo http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast)"
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)"
+          elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ]
+          then
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-dev.virtualflybrain.org)"
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr-dev.virtualflybrain.org/solr/ontology/select)"
+          elif [ "${GITHUB_REF##*/}" == alpha ]
+          then
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-alpha.virtualflybrain.org)"
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr-alpha.virtualflybrain.org/solr/ontology/select)"
+          else
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)"
+          fi
+        id: servers
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: echo ${{ steps.extract_branch.outputs.branch }}
+        run: |
+          echo PDB:${{ steps.server.outputs.VFB_PDB_SERVER }}
+          echo OWL:${{ steps.server.outputs.VFB_OWL_SERVER }}
+          echo SOLR:${{ steps.server.outputs.SOLR_SERVER }}
+          echo TREE_PDB:${{ steps.server.outputs.VFB_TREE_PDB_SERVER }}
+          echo R:${{ steps.server.outputs.VFB_R_SERVER }}
+
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
