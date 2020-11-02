@@ -22,7 +22,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         
-      - id: pdb
+      - id: server
         shell: bash
         run: if [ "${GITHUB_REF##*/}" == master ] ; then
             echo "::debug::Set to master setup";
@@ -57,10 +57,10 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
-          echo PDB:${{ steps.pdb.outputs.VFB_PDB_SERVER }}
-          echo OWL:${{ steps.pdb.outputs.VFB_OWL_SERVER }}
-          echo SOLR:${{ steps.pdb.outputs.SOLR_SERVER }}
-          echo TREE_PDB:${{ steps.pdb.outputs.VFB_TREE_PDB_SERVER }}
+          echo PDB:${{ steps.server.outputs.VFB_PDB_SERVER }}
+          echo OWL:${{ steps.server.outputs.VFB_OWL_SERVER }}
+          echo SOLR:${{ steps.server.outputs.SOLR_SERVER }}
+          echo TREE_PDB:${{ steps.server.outputs.VFB_TREE_PDB_SERVER }}
           echo R:${{ steps.server.pdb.VFB_R_SERVER }}
 
 
