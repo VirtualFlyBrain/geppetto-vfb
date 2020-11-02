@@ -87,7 +87,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: virtualflybrain/geppetto-vfb:${GITHUB_REF##*/}
+          tags: virtualflybrain/geppetto-vfb:debug
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.server.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.server.outputs.SOLR_SERVER }}
