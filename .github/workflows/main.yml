@@ -61,7 +61,7 @@ jobs:
           echo OWL:${{ steps.server.outputs.VFB_OWL_SERVER }}
           echo SOLR:${{ steps.server.outputs.SOLR_SERVER }}
           echo TREE_PDB:${{ steps.server.outputs.VFB_TREE_PDB_SERVER }}
-          echo R:${{ steps.server.pdb.VFB_R_SERVER }}
+          echo R:${{ steps.server.outputs.VFB_R_SERVER }}
 
 
       # Runs a set of commands using the runners shell
