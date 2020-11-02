@@ -25,33 +25,33 @@ jobs:
       - id: pdb
         shell: bash
         run: if [ "${GITHUB_REF##*/}" == master ] ; then
-            echo "::debug::Set to master setup"
-            echo "##[set-output name=VFB_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
-            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
-            echo "##[set-output name=VFB_OWL_SERVER;]$(echo http://owl.virtualflybrain.org/kbs/vfb/)"
-            echo "##[set-output name=VFB_R_SERVER;]$(echo http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast)"
-            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)"
+            echo "::debug::Set to master setup";
+            echo "##[set-output name=VFB_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)";
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)";
+            echo "##[set-output name=VFB_OWL_SERVER;]$(echo http://owl.virtualflybrain.org/kbs/vfb/)";
+            echo "##[set-output name=VFB_R_SERVER;]$(echo http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast)";
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)";
           elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] ; then
-            echo "::debug::Set to dev setup"
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474"
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/"
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast"
-            echo "::set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-dev.virtualflybrain.org)"
-            echo "::set-output name=SOLR_SERVER:https://solr-dev.virtualflybrain.org/solr/ontology/select)"
+            echo "::debug::Set to dev setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
+            echo "::set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-dev.virtualflybrain.org)";
+            echo "::set-output name=SOLR_SERVER:https://solr-dev.virtualflybrain.org/solr/ontology/select)";
           elif [ "${GITHUB_REF##*/}" == alpha ] ; then
-            echo "::debug::Set to alpha setup"
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474"
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/"
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast"
-            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-alpha.virtualflybrain.org)"
-            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr-alpha.virtualflybrain.org/solr/ontology/select)"
+            echo "::debug::Set to alpha setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-alpha.virtualflybrain.org)";
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr-alpha.virtualflybrain.org/solr/ontology/select)";
           else 
-            echo "::debug::Set to default setup"
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474"
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/"
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast"
-            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
-            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)"
+            echo "::debug::Set to default setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
+            echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)";
+            echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)";
           fi
         
       # Runs a single command using the runners shell
