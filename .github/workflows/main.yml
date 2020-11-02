@@ -36,8 +36,8 @@ jobs:
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-dev.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER:https://solr-dev.virtualflybrain.org/solr/ontology/select";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
+            echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
           elif [ "${GITHUB_REF##*/}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
