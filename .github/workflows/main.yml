@@ -30,22 +30,19 @@ jobs:
           echo "##[set-output name=VFB_R_SERVER;]$(echo http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast)"
           echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.p2.virtualflybrain.org)"
           echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.p2.virtualflybrain.org/solr/ontology/select)"
-          if [ "${GITHUB_REF##*/}" == debug ]
-          then
+          if [ "${GITHUB_REF##*/}" == debug ] ; then
             echo "##[set-output name=VFB_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
             echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
             echo "##[set-output name=VFB_OWL_SERVER;]$(echo http://owl.virtualflybrain.org/kbs/vfb/)"
             echo "##[set-output name=VFB_R_SERVER;]$(echo http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast)"
             echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)"
-          elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ]
-          then
+          elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] ; then
             echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-dev.virtualflybrain.org)"
             echo "##[set-output name=SOLR_SERVER;]$(echo https://solr-dev.virtualflybrain.org/solr/ontology/select)"
-          elif [ "${GITHUB_REF##*/}" == alpha ]
-          then
+          elif [ "${GITHUB_REF##*/}" == alpha ] ; then
             echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb-alpha.virtualflybrain.org)"
             echo "##[set-output name=SOLR_SERVER;]$(echo https://solr-alpha.virtualflybrain.org/solr/ontology/select)"
-          else
+          else 
             echo "##[set-output name=VFB_TREE_PDB_SERVER;]$(echo https://pdb.virtualflybrain.org)"
             echo "##[set-output name=SOLR_SERVER;]$(echo https://solr.virtualflybrain.org/solr/ontology/select)"
           fi
