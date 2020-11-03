@@ -23,6 +23,9 @@ jobs:
       - uses: actions/checkout@v2
       
       # Decide based on branch which servers to use
+      - name: Pass branch
+        id: branch
+        run: echo "::set-output name=value::${GITHUB_REF##*/} ";
       - name: Setup local servers
         id: local-servers
         shell: bash
@@ -123,7 +126,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${GITHUB_REF##*/}-local.wss"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-local.wss"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
@@ -141,7 +144,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${GITHUB_REF##*/}-remote"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
