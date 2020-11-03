@@ -23,15 +23,15 @@ jobs:
       - uses: actions/checkout@v2
       
       # Decide based on branch which servers to use
-      - name: Setup servers
-        id: server
+      - name: Setup local servers
+        id: local-servers
         shell: bash
         run: if [ "${GITHUB_REF##*/}" == master ] ; then
             echo "::debug::Set to master setup";
-            echo "::set-output name=VFB_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
           elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] ; then
@@ -59,6 +59,42 @@ jobs:
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
           fi
+      - name: Setup remote servers
+        id: remote-servers
+        shell: bash
+        run: if [ "${GITHUB_REF##*/}" == master ] ; then
+            echo "::debug::Set to master setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
+            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
+            echo "::set-output name=BUILD_TYPE::release";
+          elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] ; then
+            echo "::debug::Set to dev setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb-dev.virtualflybrain.org";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl-dev.virtualflybrain.org/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
+            echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
+            echo "::set-output name=BUILD_TYPE::development";
+          elif [ "${GITHUB_REF##*/}" == alpha ] ; then
+            echo "::debug::Set to alpha setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb-alpha.virtualflybrain.org";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl-alpha.virtualflybrain.org/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
+            echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
+            echo "::set-output name=BUILD_TYPE::staging";
+          else 
+            echo "::debug::Set to default setup";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
+            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
+            echo "::set-output name=BUILD_TYPE::release";
+          fi
         
       # Output the chosen servers
       - name: Used Servers
@@ -82,23 +118,43 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build and push
-        id: docker_build
+      - name: Build and push local wss
+        id: docker_build_local
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: virtualflybrain/geppetto-vfb:debug
+          tags: "virtualflybrain/geppetto-vfb:${GITHUB_REF##*/}-local.wss"
           build-args: |
-            VFB_TREE_PDB_SERVER_ARG=${{ steps.server.outputs.VFB_TREE_PDB_SERVER }}
-            SOLR_SERVER_ARG=${{ steps.server.outputs.SOLR_SERVER }}
-            VFB_R_SERVER_ARG=${{ steps.server.outputs.VFB_R_SERVER }}
-            VFB_OWL_SERVER_ARG=${{ steps.server.outputs.VFB_OWL_SERVER }}
-            VFB_PDB_SERVER_ARG=${{ steps.server.outputs.VFB_PDB_SERVER }}
-            build_type=${{ steps.server.outputs.BUILD_TYPE }} 
+            VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
+            SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
+            VFB_R_SERVER_ARG=${{ steps.local-servers.outputs.VFB_R_SERVER }}
+            VFB_OWL_SERVER_ARG=${{ steps.local-servers.outputs.VFB_OWL_SERVER }}
+            VFB_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_PDB_SERVER }}
+            build_type=${{ steps.local-servers.outputs.BUILD_TYPE }} 
+            targetBranch=${GITHUB_REF##*/} 
+            originBranch=${GITHUB_REF##*/} 
+            defaultBranch=development
+            finalBuild=true
+      
+      - name: Build and push remote
+        id: docker_build_remote
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: "virtualflybrain/geppetto-vfb:${GITHUB_REF##*/}-remote"
+          build-args: |
+            VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
+            SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
+            VFB_R_SERVER_ARG=${{ steps.local-servers.outputs.VFB_R_SERVER }}
+            VFB_OWL_SERVER_ARG=${{ steps.local-servers.outputs.VFB_OWL_SERVER }}
+            VFB_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_PDB_SERVER }}
+            build_type=${{ steps.local-servers.outputs.BUILD_TYPE }} 
             targetBranch=${GITHUB_REF##*/} 
             originBranch=${GITHUB_REF##*/} 
             defaultBranch=development
             finalBuild=true
       
       - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+        run: |
+          echo "local:${{ steps.docker_build_local.outputs.digest }}"
+          echo "remote:${{ steps.docker_build_remote.outputs.digest }}"
