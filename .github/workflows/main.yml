@@ -6,9 +6,7 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: [ debug ]
-  pull_request:
-    branches: [ debug ]
+    branches: '*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -100,14 +98,13 @@ jobs:
           fi
         
       # Output the chosen servers
-      - name: Used Servers
+      - name: Used remote servers
         run: |
-          echo PDB:${{ steps.server.outputs.VFB_PDB_SERVER }}
-          echo OWL:${{ steps.server.outputs.VFB_OWL_SERVER }}
-          echo SOLR:${{ steps.server.outputs.SOLR_SERVER }}
-          echo TREE_PDB:${{ steps.server.outputs.VFB_TREE_PDB_SERVER }}
-          echo R:${{ steps.server.outputs.VFB_R_SERVER }}
-
+          echo PDB:${{ steps.remote-servers.outputs.VFB_PDB_SERVER }}
+          echo OWL:${{ steps.remote-servers.outputs.VFB_OWL_SERVER }}
+          echo SOLR:${{ steps.remote-servers.outputs.SOLR_SERVER }}
+          echo TREE_PDB:${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
+          echo R:${{ steps.remote-servers.outputs.VFB_R_SERVER }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
