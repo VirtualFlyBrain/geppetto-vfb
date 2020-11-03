@@ -158,7 +158,7 @@ jobs:
         run: |
           echo "local:${{ steps.docker_build_local.outputs.digest }}"
           echo "remote:${{ steps.docker_build_remote.outputs.digest }}"
-          
+                
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       - name: Start VFB server
@@ -167,10 +167,11 @@ jobs:
           docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote";
           Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 1; Test; fi; else echo "$(date) - connected successfully"; fi; }
           Test;
-          sleep 1m;
-          docker logs testServer
-          npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch1/.*js'
+      - name: Test batch 2   
+        run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch1/.*js'
       - name: Test batch 2   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch2/.*js'
+      - name: Test batch 3   
+        run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch3/.*js'
       - name: Stop VFB server   
         run: docker stop testServer
