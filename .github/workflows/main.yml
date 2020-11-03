@@ -134,8 +134,8 @@ jobs:
             VFB_OWL_SERVER_ARG=${{ steps.local-servers.outputs.VFB_OWL_SERVER }}
             VFB_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_PDB_SERVER }}
             build_type=${{ steps.local-servers.outputs.BUILD_TYPE }} 
-            targetBranch=${GITHUB_REF##*/} 
-            originBranch=${GITHUB_REF##*/} 
+            targetBranch=${{ steps.branch.outputs.value }} 
+            originBranch=${{ steps.branch.outputs.value }}
             defaultBranch=development
             finalBuild=true
       
