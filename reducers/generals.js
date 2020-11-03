@@ -233,22 +233,24 @@ function generalReducer (state, action) {
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
     var newInstance = action.data.split(".");
-    var component = returnComponent(newInstance[1]);
-    if (newMap[newInstance[0]] !== undefined
-              && component !== null
-              && newMap[newInstance[0]].components[component] === undefined
-              && Instances[newInstance[0]][newInstance[1]] !== undefined) {
-      var newComponents = { ...newMap[newInstance[0]].components };
-      newMap[newInstance[0]].components = newComponents;
-      if (state.ui.layout[component]) {
-        newMap[newInstance[0]].components[component] = {
-          loaded: false,
-          loadable: true
-        }
-      } else {
-        newMap[newInstance[0]].components[component] = {
-          loaded: true,
-          loadable: false
+    if ( newInstance[1] !== undefined ){
+      var component = returnComponent(newInstance[1]);
+      if (newMap[newInstance[0]] !== undefined
+                && component !== null
+                && newMap[newInstance[0]].components[component] === undefined
+                && Instances[newInstance[0]][newInstance[1]] !== undefined) {
+        var newComponents = { ...newMap[newInstance[0]].components };
+        newMap[newInstance[0]].components = newComponents;
+        if (state.ui.layout[component]) {
+          newMap[newInstance[0]].components[component] = {
+            loaded: false,
+            loadable: true
+          }
+        } else {
+          newMap[newInstance[0]].components[component] = {
+            loaded: true,
+            loadable: false
+          }
         }
       }
     }
