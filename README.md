@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/VirtualFlyBrain/geppetto-vfb.svg?branch=master)](https://travis-ci.org/VirtualFlyBrain/geppetto-vfb)[![Docker Hub](https://www.shippable.com/assets/images/logos/docker-hub.jpg)](https://hub.docker.com/r/virtualflybrain/geppetto-vfb/)
+[![Build Status](https://github.com/VirtualFlyBrain/geppetto-vfb/workflows/CI/badge.svg)](https://github.com/Robbie1977/geppetto-vfb/actions?query=workflow%3ACI)[![Docker Hub](https://www.shippable.com/assets/images/logos/docker-hub.jpg)](https://hub.docker.com/r/virtualflybrain/geppetto-vfb/)
 
 # geppetto-vfb
 Virtual Fly Brain project customised Geppetto build
