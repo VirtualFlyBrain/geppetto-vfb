@@ -161,5 +161,4 @@ jobs:
           
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
-      - name: Run VFB server
-        uses: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote"
+      
