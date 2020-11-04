@@ -138,6 +138,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="VFB_00200000"
         name="JRC2018VU template"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="NBLAST2"
+        name="NEW NBLAST"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -189,7 +192,7 @@
           name="anat_image_query"
           description="Get images for individual list"
           runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (primary:Individual) WHERE primary.short_form in {ARRAY_ID_RESULTS} WITH primary OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary OPTIONAL MATCH (primary)-[:INSTANCEOF]->(typ:Class) WITH CASE WHEN typ is null THEN [] ELSE collect ({ short_form: typ.short_form, label: coalesce(typ.label,''), iri: typ.iri, types: labels(typ), symbol: coalesce(typ.symbol[0], '')} ) END AS types,primary,channel_image RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), symbol: coalesce(primary.symbol[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, '58214d4' AS version, 'anat_image_query' AS query, channel_image, types&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual) WHERE primary.short_form in {ARRAY_ID_RESULTS} WITH primary OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary OPTIONAL MATCH (primary)-[:INSTANCEOF]->(typ:Class) WITH CASE WHEN typ is null THEN [] ELSE collect ({ short_form: typ.short_form, label: coalesce(typ.label,''), iri: typ.iri, types: labels(typ), symbol: coalesce(typ.symbol[0], '')} ) END AS types,primary,channel_image RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), symbol: coalesce(primary.symbol[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, '58214d4' AS version, 'anat_image_query' AS query, channel_image, types $EXTRA_RESULT_COLUMNS&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH(i:Individual) WHERE i.short_form IN {ARRAY_ID_RESULTS} RETURN count(i) as count&quot;, &quot;parameters&quot; : { &quot;ARRAY_ID_RESULTS&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -1036,6 +1039,6 @@
       returnType="//@libraries.3/@types.2"
       queryChain="//@dataSources.5/@queries.0 //@dataSources.4/@queries.2 //@dataSources.0/@queries.1">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.40 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
   </queries>
 </gep:GeppettoModel>
