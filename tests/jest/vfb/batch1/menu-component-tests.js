@@ -8,6 +8,22 @@ import * as ST from '../selectors';
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 
+const clickQueryResult = async (page, text) => page.evaluate(async (text ) => {
+	let elems = Array.from(document.querySelectorAll('.query-results-name-column'));
+	let found = "";
+
+	for (var i = 0; i < elems.length; i++) {
+		if (elems[i] !== undefined ) {
+			if (elems[i].innerText!== undefined ) {
+				if (elems[i].innerText === text) {
+					elems[i].getElementsByTagName("a")[0].click();
+					break;
+				}
+			}
+		}
+	}
+}, text);
+
 /**
  * Tests Menu Components
  */
@@ -117,13 +133,17 @@ describe('VFB Menu Component Tests', () => {
     it('All Available Datasets Opens', async () => {
       await page.evaluate(async () => document.getElementById("All Available Datasets").click());
       // Wait for results to appear, this means datasets were returned
-      await wait4selector(page, 'tbody > .standard-row:nth-child(1) > .query-results-name-column > div > a', { visible: true , timeout : 500000 });
+      await wait4selector(page, '#querybuilder', { visible: true , timeout : 500000 });
+      await wait4selector(page, '#VFB_00028208-checkbox', { visible: true , timeout : 500000 });
     })
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
-      await page.click('tbody > .standard-row:nth-child(1) > .query-results-name-column > div > a');
-      await wait4selector(page, '.label-DataSet', { visible: true, timeout : 10000 });
-      await page.waitForFunction('document.getElementsByClassName("label-DataSet")[0].innerText.startsWith("DataSet")');
+      await await clickQueryResult(page, "Dickson lab VT line collection - VDRC images")
+      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
+      await page.waitFor(3000);
+      await wait4selector(page, '#slider_image_0', { visible: true , timeout : 500000 });
+      let element = await findElementByText(page, "Dickson lab VT line collection - VDRC images [Dickson_VT]");
+      expect(element).toBe("Dickson lab VT line collection - VDRC images [Dickson_VT]");
     })
   })
 

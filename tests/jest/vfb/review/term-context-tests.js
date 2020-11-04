@@ -86,11 +86,10 @@ describe('VFB Term Context Component Tests', () => {
 
 		// Wait for Medulla to be loaded by checking term info and Focus Term
 		it('Medulla Loaded', async () => {
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
 			expect(
 					await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
 			).toBe("Queries for medulla")
-
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 
 		// Re open Term Context

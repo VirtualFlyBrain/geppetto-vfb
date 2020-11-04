@@ -273,7 +273,7 @@ class VFBCircuitBrowser extends Component {
     }
     return (
       this.state.loading
-        ? <CircularProgress classes={{ root : classes.loader }}
+        ? <CircularProgress id= { COMPONENT_ID } classes={{ root : classes.loader }}
         />
         : this.state.graph.nodes.length == 0
           ? <div>
