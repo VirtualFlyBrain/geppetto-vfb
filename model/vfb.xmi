@@ -138,6 +138,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="VFB_00200000"
         name="JRC2018VU template"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="NBLAST2"
+        name="NEW NBLAST"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -1036,6 +1039,6 @@
       returnType="//@libraries.3/@types.2"
       queryChain="//@dataSources.5/@queries.0 //@dataSources.4/@queries.2 //@dataSources.0/@queries.1">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.40 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
   </queries>
 </gep:GeppettoModel>
