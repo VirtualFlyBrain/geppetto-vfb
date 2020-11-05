@@ -138,6 +138,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="VFB_00200000"
         name="JRC2018VU template"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="NBLAST2"
+        name="NEW NBLAST"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -146,7 +149,7 @@
       id="neo4JDataSourceService"
       name="neo4j Data Source"
       dataSourceService="neo4jDataSource"
-      url="http://pdb.p2.virtualflybrain.org/db/data/transaction"
+      url="http://pdb.virtualflybrain.org/db/data/transaction"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <libraryConfigurations
@@ -512,6 +515,16 @@
       </queryChain>
       <queryChain
           xsi:type="gep_2:SimpleQuery"
+          name="Get JSON for Cluster"
+          description="Get JSON for Cluster"
+          runForCount="false"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Cluster) WHERE primary.short_form in [{ID}] WITH primary OPTIONAL MATCH (primary)-[:has_source]->(ds:DataSet)-[:has_license]->(l:License) WITH COLLECT ({ dataset: { link : coalesce(ds.dataset_link, ''), core : { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds) }  }, license: { icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l) }  }}) AS dataset_license,primary OPTIONAL MATCH (o:Class)&lt;-[r:SUBCLASSOF|INSTANCEOF]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o) } ) END AS parents ,primary,dataset_license OPTIONAL MATCH (o:Class)&lt;-[r {type:'Related'}]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.uri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o) }  }) END AS relationships ,primary,dataset_license,parents OPTIONAL MATCH (s:Site { short_form: primary.self_xref })  WITH CASE WHEN s IS NULL THEN [] ELSE COLLECT({ link_base: s.link_base[0], accession: coalesce(primary.short_form, ''), link_text: primary.label + ' on ' + s.label, site: { short_form: s.short_form, label: coalesce(s.label,''), iri: s.iri, types: labels(s) } , icon: coalesce(s.link_icon_url[0], ''),  link_postfix: coalesce(s.link_postfix, '')})  END AS self_xref, primary, dataset_license, parents, relationships OPTIONAL MATCH (s:Site)&lt;-[dbx:hasDbXref]-(primary) WITH CASE WHEN s IS NULL THEN self_xref ELSE COLLECT({ link_base: s.link_base[0], accession: coalesce(dbx.accession, ''), link_text: primary.label + ' on ' + s.label, site: { short_form: s.short_form, label: coalesce(s.label,''), iri: s.iri, types: labels(s) } , icon: coalesce(s.link_icon_url[0], ''),  link_postfix: coalesce(s.link_postfix, '')})   + self_xref END AS xrefs,primary,dataset_license,parents,relationships OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary, dataset_license, parents, relationships, xrefs   OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel) } , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique) } ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template) } , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat) } ,image_folder: irw.folder[0], index: coalesce(irw.index[0], []) + [] }}) END AS channel_image,primary,dataset_license,parents,relationships,xrefs OPTIONAL MATCH (o:Individual)&lt;-[r {type:'Related'}]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.uri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o) }  }) END AS related_individuals ,primary,dataset_license,parents,relationships,xrefs,channel_image RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary) } , description : coalesce(primary.description, []), comment : coalesce(primary.`annotation-comment`, []) } AS term, 'Get JSON for Individual:Anatomy' AS query, 'ca9ab19' AS version , dataset_license, parents, relationships, xrefs, channel_image, related_individuals&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Cluster {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
+        <matchingCriteria
+            type="//@libraries.3/@types.22"/>
+      </queryChain>
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
           name="Get JSON for Template"
           description="Get JSON for Template"
           runForCount="false"
@@ -549,16 +562,6 @@
           countQuery="&quot;statement&quot;: &quot;MATCH (primary:License {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
         <matchingCriteria
             type="//@libraries.3/@types.30"/>
-      </queryChain>
-      <queryChain
-          xsi:type="gep_2:SimpleQuery"
-          name="Get JSON for Cluster"
-          description="Get JSON for Cluster"
-          runForCount="false"
-          query="&quot;statement&quot;: &quot;MATCH (primary:Cluster) WHERE primary.short_form in [{ID}] WITH primary OPTIONAL MATCH (primary)-[:has_source]->(ds:DataSet)-[:has_license]->(l:License) WITH COLLECT ({ dataset: { link : coalesce(ds.dataset_link, ''), core : { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds) }  }, license: { icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l) }  }}) AS dataset_license,primary OPTIONAL MATCH (o:Class)&lt;-[r:SUBCLASSOF|INSTANCEOF]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o) } ) END AS parents ,primary,dataset_license OPTIONAL MATCH (o:Class)&lt;-[r {type:'Related'}]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.uri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o) }  }) END AS relationships ,primary,dataset_license,parents OPTIONAL MATCH (s:Site { short_form: primary.self_xref })  WITH CASE WHEN s IS NULL THEN [] ELSE COLLECT({ link_base: s.link_base[0], accession: coalesce(primary.short_form, ''), link_text: primary.label + ' on ' + s.label, site: { short_form: s.short_form, label: coalesce(s.label,''), iri: s.iri, types: labels(s) } , icon: coalesce(s.link_icon_url[0], ''),  link_postfix: coalesce(s.link_postfix, '')})  END AS self_xref, primary, dataset_license, parents, relationships OPTIONAL MATCH (s:Site)&lt;-[dbx:hasDbXref]-(primary) WITH CASE WHEN s IS NULL THEN self_xref ELSE COLLECT({ link_base: s.link_base[0], accession: coalesce(dbx.accession, ''), link_text: primary.label + ' on ' + s.label, site: { short_form: s.short_form, label: coalesce(s.label,''), iri: s.iri, types: labels(s) } , icon: coalesce(s.link_icon_url[0], ''),  link_postfix: coalesce(s.link_postfix, '')})   + self_xref END AS xrefs,primary,dataset_license,parents,relationships OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary, dataset_license, parents, relationships, xrefs   OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel) } , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique) } ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template) } , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat) } ,image_folder: irw.folder[0], index: coalesce(irw.index[0], []) + [] }}) END AS channel_image,primary,dataset_license,parents,relationships,xrefs OPTIONAL MATCH (o:Individual)&lt;-[r {type:'Related'}]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.uri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o) }  }) END AS related_individuals ,primary,dataset_license,parents,relationships,xrefs,channel_image RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary) } , description : coalesce(primary.description, []), comment : coalesce(primary.`annotation-comment`, []) } AS term, 'Get JSON for Individual:Anatomy' AS query, 'ca9ab19' AS version , dataset_license, parents, relationships, xrefs, channel_image, related_individuals&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
-          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Cluster {short_form: {ID}} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }">
-        <matchingCriteria
-            type="//@libraries.3/@types.22"/>
       </queryChain>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -1036,6 +1039,6 @@
       returnType="//@libraries.3/@types.2"
       queryChain="//@dataSources.5/@queries.0 //@dataSources.4/@queries.2 //@dataSources.0/@queries.1">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.40 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
   </queries>
 </gep:GeppettoModel>
