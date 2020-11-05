@@ -33,10 +33,17 @@ export const GENERAL_DEFAULT_STATE = {
       instanceDeleted : {},
       instanceVisibilityChanged : false
     },
-    graph : { graphQueryIndex : -1 },
+    graph : {
+      graphQueryIndex : -1,
+      visible : true,
+      sync : false
+    },
     termInfo : { termInfoVisible : false },
     layers : { listViewerInfoVisible : true },
-    circuitBrowser : { circuitQuerySelected : [] },
+    circuitBrowser : {
+      circuitQuerySelected : [],
+      visible : true
+    },
     layout: {
       "ThreeDViewer": true,
       "StackViewer": true,
@@ -205,14 +212,30 @@ function generalReducer (state, action) {
       ui : ui
     };
   case SHOW_GRAPH:
-    ui.graph.graphQueryIndex = action.data.queryIndex;
+    ui.graph.graphQueryIndex = action.data.queryIndex !== undefined && action.data.queryIndex !== null ? action.data.queryIndex : ui.graph.graphQueryIndex;
+    ui.graph.visible = action.data.visible !== undefined ? action.data.visible : ui.graph.visible;
+    ui.graph.sync = action.data.sync !== undefined ? action.data.sync : ui.graph.sync;
+    if ( action.data.instance !== null && action.data.instance !== undefined){
+      return { 
+        ...state, 
+        ui : ui,
+        instanceOnFocus : action.data.instance
+      };
+    }
     return { 
       ...state, 
-      ui : ui,
-      instanceOnFocus : action.data.instance
+      ui : ui
     };
   case UPDATE_GRAPH:
     ui.graph.graphQueryIndex = action.data.queryIndex;
+    ui.graph.sync = action.data.sync !== undefined ? action.data.sync : ui.graph.sync;
+    if ( action.data.instance !== null && action.data.instance !== undefined){
+      return { 
+        ...state, 
+        ui : ui,
+        instanceOnFocus : action.data.instance
+      };
+    }
     return { 
       ...state, 
       ui : ui
@@ -226,6 +249,7 @@ function generalReducer (state, action) {
     }
     
     ui.circuitBrowser.circuitQuerySelected = newQueryMap;
+    ui.circuitBrowser.visible = action.data.visible !== undefined ? action.data.visible : ui.circuitBrowser.visible;
     return { 
       ...state, 
       ui : ui
@@ -233,22 +257,24 @@ function generalReducer (state, action) {
   case INSTANCE_ADDED:
     var newMap = { ...state.idsMap };
     var newInstance = action.data.split(".");
-    var component = returnComponent(newInstance[1]);
-    if (newMap[newInstance[0]] !== undefined
-              && component !== null
-              && newMap[newInstance[0]].components[component] === undefined
-              && Instances[newInstance[0]][newInstance[1]] !== undefined) {
-      var newComponents = { ...newMap[newInstance[0]].components };
-      newMap[newInstance[0]].components = newComponents;
-      if (state.ui.layout[component]) {
-        newMap[newInstance[0]].components[component] = {
-          loaded: false,
-          loadable: true
-        }
-      } else {
-        newMap[newInstance[0]].components[component] = {
-          loaded: true,
-          loadable: false
+    if ( newInstance[1] !== undefined ){
+      var component = returnComponent(newInstance[1]);
+      if (newMap[newInstance[0]] !== undefined
+                && component !== null
+                && newMap[newInstance[0]].components[component] === undefined
+                && Instances[newInstance[0]][newInstance[1]] !== undefined) {
+        var newComponents = { ...newMap[newInstance[0]].components };
+        newMap[newInstance[0]].components = newComponents;
+        if (state.ui.layout[component]) {
+          newMap[newInstance[0]].components[component] = {
+            loaded: false,
+            loadable: true
+          }
+        } else {
+          newMap[newInstance[0]].components[component] = {
+            loaded: true,
+            loadable: false
+          }
         }
       }
     }
