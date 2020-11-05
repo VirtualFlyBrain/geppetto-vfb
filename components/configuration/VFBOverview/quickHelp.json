@@ -3,7 +3,7 @@
 	"height": "575",
     "width": "900",
 	"steps": [{
-		"title": "Welcome to the Virtual Fly Brain",
+		"title": "Welcome to Virtual Fly Brain",
 		"image" : "geppetto/build/VFBqHelpMain.jpg",
 		"instructions": [{
 			"icon" : "",
