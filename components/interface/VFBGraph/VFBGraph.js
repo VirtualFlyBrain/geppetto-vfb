@@ -226,9 +226,11 @@ class VFBGraph extends Component {
 
   resetCamera () {
     if ( this.graphRef.current !== null ) {
+      // If more than one graph node, use library's 'zoomToFit' method to center camera
       if ( this.state.graph.nodes.length > 1 ) {
         this.graphRef.current.ggv.current.zoomToFit();
       } else if ( this.state.graph.nodes.length == 1 ) {
+        // Only one graph node, center camera around it
         let x = this.state.graph.nodes[0].x;
         let y = this.state.graph.nodes[0].y;
         this.graphRef.current.ggv.current.centerAt(x,y);
