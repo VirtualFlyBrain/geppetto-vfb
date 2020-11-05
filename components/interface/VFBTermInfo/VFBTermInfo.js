@@ -724,7 +724,7 @@ class VFBTermInfoWidget extends React.Component {
        * Path contains the instance and the index of the drop down query options
        * Path is of type : "instance_path, query_index"
        */
-      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2]);
+      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
       
       // Notify VFBMain UI needs to be updated
       this.props.uiUpdated();
@@ -736,7 +736,7 @@ class VFBTermInfoWidget extends React.Component {
       /*
        * Path contains the instancE ID passed to the circuit browser
        */
-      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1]);
+      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], true);
       
       // Notify VFBMain UI needs to be updated
       this.props.uiUpdated();
@@ -888,8 +888,8 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return { 
-    vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }),
-    vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } })
+    vfbCircuitBrowser: (type, path, visible) => dispatch ( { type : type, data : { instance : path, visible : visible } }),
+    vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } })
   }
 }
 
