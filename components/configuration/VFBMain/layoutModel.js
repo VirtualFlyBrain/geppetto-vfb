@@ -71,11 +71,6 @@ var modelJson = {
             "type": "tab",
             "name": "Layers",
             "component": "vfbListViewer"
-          },
-          {
-            "type": "tab",
-            "name": "Circuit Browser",
-            "component": "vfbCircuitBrowser"
           }
         ]
       },

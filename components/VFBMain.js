@@ -37,7 +37,7 @@ class VFBMain extends React.Component {
       canvasVisible: true,
       listViewerVisible: true,
       graphVisible : true,
-      circuitBrowserVisible : true,
+      circuitBrowserVisible : false,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
