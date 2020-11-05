@@ -246,14 +246,6 @@ var toolbarMenu = {
           }
         },
         {
-          label: "Circuit Browser",
-          icon: "fa fa-cogs",
-          action: {
-            handlerAction: "UIElementHandler",
-            parameters: ["circuitBrowserVisible"]
-          }
-        },
-        {
           label: "NBLAST",
           icon: "",
           action: "",
