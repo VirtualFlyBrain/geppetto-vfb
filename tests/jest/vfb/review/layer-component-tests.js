@@ -152,7 +152,7 @@ describe('VFB Layer Component Tests', () => {
 		it('Enable 3D Volume For VFB_jrchk4wj Instance', async () => {
 			await openControls(page, "PVLP142_R - 5812987602");
 			await clickLayerControlsElement(page, 'Enable 3D Volume');
-			await page.waitFor(2000);
+			await page.waitFor(10000);
 			const enableVolume = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].visible
 			});
@@ -163,7 +163,7 @@ describe('VFB Layer Component Tests', () => {
 		it('Disable 3D Volume For VFB_jrchk4wj Instance', async () => {
 			await openControls(page, "PVLP142_R - 5812987602");
 			await clickLayerControlsElement(page, 'Disable 3D Volume');
-			await page.waitFor(2000);
+			await page.waitFor(10000);
 			const disableVolume = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].visible
 			});
