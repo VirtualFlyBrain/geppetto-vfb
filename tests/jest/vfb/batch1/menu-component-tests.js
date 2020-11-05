@@ -142,8 +142,8 @@ describe('VFB Menu Component Tests', () => {
       await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
       await page.waitFor(3000);
       await wait4selector(page, '#slider_image_0', { visible: true , timeout : 500000 });
-      let element = await findElementByText(page, "Dickson lab VT line collection - VDRC images [Dickson_VT]");
-      expect(element).toBe("Dickson lab VT line collection - VDRC images [Dickson_VT]");
+      let element = await findElementByText(page, "Dickson lab VT line collection - VDRC images");
+      expect(element).toBe("Dickson lab VT line collection - VDRC images");
     })
   })
 
