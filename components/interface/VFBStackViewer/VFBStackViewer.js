@@ -94,13 +94,22 @@ export default class VFBStackViewer extends React.Component {
     var potentialInstances = GEPPETTO.ModelFactory.getAllPotentialInstancesEndingWith('_slices');
     var sliceInstances = [];
     var instance;
-    for (var i = 0; i < potentialInstances.length; i++) {
-      instance = Instances.getInstance(potentialInstances[i], false);
-      if (instance) {
-        sliceInstances.push(instance);
+    if (window.templateID !== undefined) {
+      // Template ID must always be on top
+      potentialInstances.sort(function (x,y) {
+        return x.includes(window.templateID) ? -1 : y.includes(window.templateID) ? 1 : 0;
+      });
+
+      for (var i = 0; i < potentialInstances.length; i++) {
+        instance = Instances.getInstance(potentialInstances[i], false);
+        if (instance) {
+          sliceInstances.push(instance);
+        }
       }
+      return sliceInstances;
+    } else {
+      return sliceInstances
     }
-    return sliceInstances;
   }
 
   addSlices (instances) {

@@ -59,7 +59,7 @@ describe('VFB Loader Component Tests', () => {
 		})
 
 		// Check that the Term Info component has the instance loaded
-		it('Term info component created after load', async () => {
+		it('Term info component created and populated after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 60000 })
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 60000 })
 		})
@@ -114,7 +114,7 @@ describe('VFB Loader Component Tests', () => {
 		})
 
 		// Check that the Term Info was contains the second instance loaded
-		it('Term info component created after load', async () => {
+		it('Term info component created and populated after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 60000 })
 			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 60000 })
 		})
@@ -173,7 +173,7 @@ describe('VFB Loader Component Tests', () => {
 		})
 
 		// Check Term Info has loaded the last instance added 
-		it('Term info component created after load with FBbt_00003678', async () => {
+		it('Term info component created and populated after load with FBbt_00003678', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 60000 })
 			let element = await findElementByText(page, "ellipsoid body");
 			expect(element).toBe("ellipsoid body");
