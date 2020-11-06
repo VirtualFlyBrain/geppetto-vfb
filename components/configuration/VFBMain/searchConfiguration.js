@@ -157,6 +157,11 @@ var searchConfiguration = {
           "key": "Neuron",
           "filter_name": "Neuron",
           "enabled": "disabled",
+        },
+        {
+          "key": "Deprecated",
+          "filter_name": "Deprecated",
+          "enabled": "negative",
         }
       ]
     },
