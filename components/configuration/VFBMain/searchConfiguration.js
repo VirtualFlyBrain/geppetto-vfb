@@ -124,8 +124,8 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
-          "key": "Larval",
-          "filter_name": "Larval",
+          "key": "Larva",
+          "filter_name": "Larva",
           "enabled": "disabled",
         },
         {
