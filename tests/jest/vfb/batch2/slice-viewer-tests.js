@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import {  getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
-import * as ST from './selectors';
+import {  getUrlFromProjectId } from '../cmdline.js';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText } from '../utils';
+import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
@@ -13,7 +13,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Slice Viewer Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(1800000); 
+		jest.setTimeout(60000); 
 		await page.goto(PROJECT_URL);
 
 	});
@@ -22,6 +22,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -38,16 +40,13 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 		
-		it('Hide Quick Help Modal Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-		})
-
 		it('Term info component correctly populated at startup', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
+			await page.waitFor(3000);
+			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
 		})
 
 		it('Canvas container component has 1 mesh rendered', async () => {
@@ -60,12 +59,12 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Opens query panel and runs query for 'medu'. This will be used later to test stack viewer got a new mesh as a result of this query run
 	describe('Test Query Panel', () => {
 		it('Query builder button appeared', async () => {
-			await wait4selector(page, 'i.fa-quora', { visible: true })
+			await wait4selector(page, 'div.focusTermDivR i.fa-quora', { visible: true, timeout : 120000 })
 		})
 
 		it('Query builder is visible', async () => {
-			await click(page, 'i.fa-quora');
-			await wait4selector(page, '#querybuilder', { visible: true })
+			await click(page, 'div.focusTermDivR i.fa-quora');
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000 })
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
@@ -88,26 +87,29 @@ describe('VFB Slice Viewer Component Tests', () => {
 				var event = new Event('change', { bubbles: true });
 				selectElement[0].dispatchEvent(event);
 			})
-			//Test there are 2 results before running query
-			await page.waitForFunction('document.getElementById("query-results-label").innerText.startsWith("2 results")', {visible : true, timeout : 60000});
+			//Test there are 2+ results before running query
+			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
+			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
 			await click(page, 'button[id=run-query-btn]');
-			await wait4selector(page, '#VFB_00030624-image-container', { visible: true, timeout : 10000 })
+			await wait4selector(page, '#VFB_00030624-image-container', { visible: true, timeout : 60000 })
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
-			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click())
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 60000 })
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("medulla on adult brain template JFRC2 (VFB_00030624)")');
+			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click());
+			closeModalWindow(page);
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
+			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
+			expect(element).toBe("medulla on adult brain template JFRC2");
 		})
 	})
 
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
 	describe('Test Slice Viewer Component', () => {
 		it('SliceViewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 500000})
 		})
 
 		it('SliceViewer component has 2 meshes rendered', async () => {
@@ -209,7 +211,12 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('SliceViewer closed', async () => {
 			// There's 3 div elements with same class (slice viewer, 3d viewer and term info), since the Slice Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[2].click());
+			await flexWindowClick("Stack Viewer","flexlayout__tab_button_trailing");
+			//await page.evaluate(async () =>{
+			//	flexWindowClick("Slice Viewer", "flexlayout__tab_button_trailing");
+			//	//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+			//	//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			//});
 			expect(
 					await page.evaluate(async () => {
 						document.getElementById("NewStackViewerdisplayArea")
@@ -222,8 +229,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
 			await page.evaluate(async () => document.getElementById("Slice Viewer").click());
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 5000});
-			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 5000});
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout : 50000});
+			await wait4selector(page, 'div.stack-canvas-container', { visible: true, timeout : 50000});
 		})
 	})
 })

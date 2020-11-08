@@ -1,0 +1,71 @@
+.vfbListViewer {
+    display: flex;
+    width: 100%;
+    min-height: 100%;
+    font-family : 'Barlow Condensed', 'Khand', sans-serif;
+    flex-grow: 2;
+    flex-direction: column;
+    .listviewer-container {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        overflow: none;
+        > div {
+            flex-grow: 2;
+        }    
+    }
+
+    .griddle-filter {
+        padding: 0.5em;
+        background-color : #4f4f4f;
+        border : none !important;
+     }
+     
+    .griddle-filter::placeholder {
+       color: white;
+       opacity: 1;
+    }
+
+    table {
+        min-width: 100%;
+        overflow: auto;
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    tr.griddle-row{
+        height: 1.5em;
+    }
+    
+    thead {
+       background-color : #131212;
+    } 
+
+    th {
+      color : #4f4f4f;
+    }
+    
+    td, th {
+        padding: 0.3em ;
+        text-align: left;
+        max-width: 50%;
+        
+        img {
+            max-height: 1.5em;
+        }
+    }
+
+    .list-icon{
+        cursor: pointer;
+        padding: 0.2em;
+        font-size: 1.5em;
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+    
+    button {
+        padding : 0.3rem 0 0.3rem 0.5rem;
+    }
+}
+    

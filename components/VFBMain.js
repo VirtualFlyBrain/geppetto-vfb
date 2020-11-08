@@ -6,14 +6,18 @@ import VFBTree from './interface/VFBTree/VFBTree';
 import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
 import TutorialWidget from './interface/VFBOverview/TutorialWidget';
 import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
-import Logo from 'geppetto-client/js/components/interface/logo/Logo';
-import Canvas from 'geppetto-client/js/components/interface/3dCanvas/Canvas';
-import QueryBuilder from 'geppetto-client/js/components/interface/query/queryBuilder';
-import SpotLight from 'geppetto-client/js/components/interface/spotlight/spotlight';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ControlPanel from 'geppetto-client/js/components/interface/controlPanel/controlpanel';
-import * as FlexLayout from 'geppetto-client/js/components/interface/flexLayout2/src/index';
+import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
+import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
+import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
+import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
+import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
+import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
+import VFBGraph from './interface/VFBGraph/VFBGraph';
+import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import { connect } from "react-redux";
+import * as ACTIONS from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -23,44 +27,48 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
-export default class VFBMain extends React.Component {
+class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
 
     this.state = {
       canvasAvailable: false,
-      modelLoaded: (window.Model != undefined),
       canvasVisible: true,
-      termInfoVisible: true,
-      treeBrowserVisible: false,
-      sliceViewerVisible: true,
-      tutorialWidgetVisible: false,
-      spotlightVisible: true,
-      controlPanelVisible: true,
-      wireframeVisible: false,
-      queryBuilderVisible: true,
-      quickHelpVisible: undefined,
-      UIUpdated: false,
+      listViewerVisible: true,
+      graphVisible : true,
+      circuitBrowserVisible : false,
       htmlFromToolbar: undefined,
-      idOnFocus: undefined,
-      instanceOnFocus: undefined,
       idSelected: undefined,
+      instanceOnFocus: undefined,
+      modelLoaded: (window.Model != undefined),
+      queryBuilderVisible: true,
+      sliceViewerVisible: true,
+      spotlightVisible: true,
+      termInfoVisible: true,
+      treeBrowserVisible: true,
+      tutorialWidgetVisible: false,
+      quickHelpVisible: undefined,
+      UIUpdated: true,
+      wireframeVisible: false,
     };
 
     this.addVfbId = this.addVfbId.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
+    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.tutorialHandler = this.tutorialHandler.bind(this);
     this.UIUpdateManager = this.UIUpdateManager.bind(this);
     this.closeHtmlViewer = this.closeHtmlViewer.bind(this);
-    this.closeQuickHelp = this.closeQuickHelp.bind(this);
     this.renderHTMLViewer = this.renderHTMLViewer.bind(this);
+    this.TermInfoIdLoaded = this.TermInfoIdLoaded.bind(this);
+    this.StackViewerIdLoaded = this.StackViewerIdLoaded.bind(this);
+    this.ThreeDViewerIdLoaded = this.ThreeDViewerIdLoaded.bind(this);
     this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
+    this.instancesFromDifferentTemplates = this.instancesFromDifferentTemplates.bind(this);
 
-    this.coli = 1;
     this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
     this.htmlToolbarRender = undefined;
@@ -69,29 +77,37 @@ export default class VFBMain extends React.Component {
     this.termInfoReference = undefined;
     this.sliceViewerReference = undefined;
     this.treeBrowserReference = undefined;
+    this.graphReference = undefined;
+    this.circuitBrowserReference = undefined;
+    this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
     this.instanceOnFocus = undefined;
     this.idFromURL = undefined;
-    this.firstLoad = true;
     this.idsFromURL = [];
     this.urlQueryLoader = undefined;
     this.quickHelpRender = undefined;
+    this.firstLoad = true;
+    this.quickHelpOpen = true;
 
     this.UIElementsVisibility = {};
 
     this.colours = require('./configuration/VFBMain/colours.json');
-    this.spotlightConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightConfig;
-    this.spotlightDataSourceConfig = require('./configuration/VFBMain/spotlightConfiguration').spotlightDataSourceConfig;
-    this.controlPanelConfig = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelConfig;
-    this.controlPanelColMeta = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColMeta;
-    this.controlPanelColumns = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelColumns;
-    this.controlPanelControlConfigs = require('./configuration/VFBMain/controlPanelConfiguration').controlPanelControlConfigs;
+
+    this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
+    this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
+
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
     this.queryResultsControlConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsControlConfig;
     this.queryBuilderDatasourceConfig = require('./configuration/VFBMain/queryBuilderConfiguration').queryBuilderDatasourceConfig;
     this.sorterColumns = require('./configuration/VFBMain/queryBuilderConfiguration').sorterColumns;
+
+    this.setSepCol = require('./interface/utils/utils').setSepCol;
+    this.hasVisualType = require('./interface/utils/utils').hasVisualType;
+    this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
+    this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
     this.model = FlexLayout.Model.fromJson(modelJson)
 
@@ -99,44 +115,7 @@ export default class VFBMain extends React.Component {
     window.customAction = [];
   }
 
-  getStackViewerDefaultX () {
-    return (Math.ceil(window.innerWidth / 1.826));
-  }
-
-  getStackViewerDefaultY () {
-    return (Math.ceil(window.innerHeight / 3.14));
-  }
-
-  // Logic to add VFB ids into the scene starts here
-  setSepCol (entityPath) {
-    if (entityPath.indexOf(window.templateID) < 0) {
-      var c = this.coli;
-      this.coli++;
-      if (this.coli > 199) {
-        this.coli = 1;
-      }
-    } else {
-      c = 0;
-    }
-    if (Instances.getInstance(entityPath).setColor != undefined) {
-      Instances.getInstance(entityPath).setColor(this.colours[c], true).setOpacity(0.3, true);
-      try {
-        Instances.getInstance(entityPath)[entityPath + '_swc'].setOpacity(1.0);
-      } catch (ignore) {
-      }
-      if (c == 0) {
-        Instances.getInstance(entityPath).setOpacity(0.4, true);
-      }
-    } else {
-      console.log('Issue setting colour for ' + entityPath);
-    }
-  }
-
   clearQS () {
-    if (this.refs.spotlightRef) {
-      $("#spotlight").hide();
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-    }
     if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
     }
@@ -186,15 +165,19 @@ export default class VFBMain extends React.Component {
           if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
             this.vfbLoadBuffer.push(idsList[singleId]);
           }
-          if (window[idsList[singleId]] != undefined) {
+          if (Instances.getInstance(idsList[singleId]) !== undefined) {
             this.handleSceneAndTermInfoCallback(idsList[singleId]);
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
             this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
           }
         }
         if (idsList.length > 0) {
+          this.props.vfbLoadId(idsList);
           this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({ idSelected: idsList[idsList.length - 1] });
+          this.setState({
+            UIUpdated: false,
+            idSelected: idsList[idsList.length - 1]
+          });
         }
       }
 
@@ -220,6 +203,18 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  ThreeDViewerIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "ThreeDViewer");
+  }
+
+  StackViewerIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "StackViewer");
+  }
+
+  TermInfoIdLoaded (id) {
+    this.props.vfbIdLoaded(id, "TermInfo");
+  }
+
   handleSceneAndTermInfoCallback (variableIds) {
     if (typeof(variableIds) == "undefined") {
       console.log('Blank Term Info Callback ');
@@ -239,6 +234,9 @@ export default class VFBMain extends React.Component {
         continue;
       }
       if (this.hasVisualType(variableIds[singleId])) {
+        if (!this.firstLoad) {
+          this.handlerInstanceUpdate(meta);
+        }
         this.resolve3D(variableIds[singleId], function (id) {
           var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
@@ -252,6 +250,7 @@ export default class VFBMain extends React.Component {
         }.bind(this));
       } else {
         this.handlerInstanceUpdate(meta);
+        this.setActiveTab("termInfo");
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
@@ -265,29 +264,8 @@ export default class VFBMain extends React.Component {
     }
   }
 
-  hasVisualType (variableId) {
-    var counter = 0;
-    var instance = undefined;
-    var extEnum = {
-      0 : { extension: "_swc" },
-      1 : { extension: "_obj" },
-      2 : { extension: "_slice" }
-    };
-    while ((instance == undefined) && (counter < 3)) {
-      try {
-        instance = Instances.getInstance(variableId + "." + variableId + extEnum[counter].extension);
-      } catch (ignore) { }
-      counter++;
-    }
-    if (instance != undefined) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   resolve3D (path, callback) {
-    var ImportType = require('geppetto-client/js/geppettoModel/model/ImportType');
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
@@ -299,13 +277,19 @@ export default class VFBMain extends React.Component {
           // Set wireframe by template:
           switch (window.templateID) {
           case "VFB_00030786":
-            this.canvasReference.setWireframe(true);
+            this.canvasReference.setWireframe(false);
             break;
           case "VFB_00050000":
-            this.canvasReference.setWireframe(true);
+            this.canvasReference.setWireframe(false);
+            break;
+          case "VFB_00101384":
+            this.canvasReference.setWireframe(false);
+            this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
+            // TOOD: Fix Orientaion
             break;
           default:
             this.canvasReference.setWireframe(false);
+            break;
           }
         }
       }
@@ -362,10 +346,12 @@ export default class VFBMain extends React.Component {
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
             if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              window.open(newUrl, targetWindow);
               window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
+              window.open(newUrl, targetWindow);
+              this.instancesFromDifferentTemplates(rootInstance);
             } else {
               window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
+              this.instancesFromDifferentTemplates(rootInstance);
             }
             // stop flow here, we don't want to add to scene something with a different template
             return;
@@ -426,9 +412,26 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  instancesFromDifferentTemplates (instance) {
+    this.handlerInstanceUpdate(instance);
+
+    var children = instance.getChildren();
+    for ( let i = 0; i < children.length; i++) {
+      if (children[i].getId().indexOf("_swc") || children.getId().indexOf("_obj")) {
+        this.ThreeDViewerIdLoaded(instance.getId());
+      }
+      if (children[i].getId().indexOf("_slices")) {
+        this.StackViewerIdLoaded(instance.getId());
+      }
+    }
+  }
+
   UIUpdateItem (itemState, visibilityAnchor) {
     if (this.state[itemState] === false) {
-      this.setState({ [itemState]: !this.state[itemState] });
+      this.setState({ 
+        UIUpdated: true,
+        [itemState]: !this.state[itemState]
+      });
     } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
       this.setState({ UIUpdated: itemState });
     }
@@ -446,29 +449,53 @@ export default class VFBMain extends React.Component {
     case 'sliceViewerVisible':
       this.UIUpdateItem(buttonState, "sliceViewer");
       break;
+    case 'treeBrowserVisible':
+      this.UIUpdateItem(buttonState, "treeBrowser");
+      break;
+    case 'graphVisible':
+      this.UIUpdateItem(buttonState, "vfbGraph");
+      break;
+    case 'circuitBrowserVisible':
+      this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
+      break;
     case 'spotlightVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
       break;
     case 'queryBuilderVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
       break;
-    case 'controlPanelVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+    case 'listViewerVisible':
+      this.UIUpdateItem(buttonState, "vfbListViewer");
       break;
     case 'wireframeVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
       break;
     case 'tutorialWidgetVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
-      break;
-    case 'treeBrowserVisible':
-      this.setState({ [buttonState]: !this.state[buttonState] });
+      this.setState({
+        UIUpdated: true,
+        [buttonState]: !this.state[buttonState]
+      });
       break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
-        this.setState({ [buttonState]: true });
+        this.setState({
+          UIUpdated: true,
+          [buttonState]: true
+        });
       } else {
-        this.setState({ [buttonState]: !this.state[buttonState] });
+        this.setState({
+          UIUpdated: true,
+          [buttonState]: !this.state[buttonState]
+        });
       }
       break;
     }
@@ -507,7 +534,7 @@ export default class VFBMain extends React.Component {
       this.refs.querybuilderRef.open();
       this.refs.querybuilderRef.switchView(false, false);
       this.refs.querybuilderRef.clearAllQueryItems();
-      
+
       var callback = function () {
         // check if any results with count flag
         if (that.refs.querybuilderRef.props.model.count > 0) {
@@ -548,7 +575,10 @@ export default class VFBMain extends React.Component {
 
   renderHTMLViewer (htmlChild) {
     if (htmlChild !== undefined) {
-      this.setState({ htmlFromToolbar: htmlChild });
+      this.setState({ 
+        UIUpdated: true,
+        htmlFromToolbar: htmlChild
+      });
     }
   }
 
@@ -562,16 +592,25 @@ export default class VFBMain extends React.Component {
 
   handleClickOutside () {
     if (this.toolBarRef && !this.toolBarRef.contains(event.target)) {
-      this.setState({ htmlFromToolbar: undefined });
+      this.setState({
+        UIUpdated: true,
+        htmlFromToolbar: undefined
+      });
     }
   }
 
   closeHtmlViewer () {
-    this.setState({ htmlFromToolbar: undefined });
+    this.setState({
+      UIUpdated: true,
+      htmlFromToolbar: undefined
+    });
   }
 
   closeQuickHelp () {
-    this.setState({ quickHelpVisible: false });
+    this.setState({
+      UIUpdated: true,
+      quickHelpVisible: false
+    });
   }
 
   /*
@@ -651,11 +690,24 @@ export default class VFBMain extends React.Component {
   }
 
   UIDidUpdate (prevState) {
+    // REDUX action to update the ui state
+    if ((prevState.canvasVisible !== this.state.canvasVisible) || (prevState.sliceViewerVisible !== this.state.sliceViewerVisible) || (prevState.termInfoVisible !== this.state.termInfoVisible)) {
+      this.props.vfbUIUpdated({
+        "ThreeDViewer": this.state.canvasVisible,
+        "StackViewer": this.state.sliceViewerVisible,
+        "TermInfo": this.state.termInfoVisible
+      });
+    }
+
     if ((this.state.termInfoVisible !== prevState.termInfoVisible) && (this.state.termInfoVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
         name: "Term Info",
         component: "termInfo"
+      });
+      this.setState({
+        UIUpdated: true,
+        termInfoVisible: true
       });
     }
     if ((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true)) {
@@ -664,6 +716,10 @@ export default class VFBMain extends React.Component {
         name: "Slice Viewer",
         component: "sliceViewer"
       });
+      this.setState({
+        UIUpdated: true,
+        sliceViewerVisible: true
+      });
     }
     if ((this.state.canvasVisible !== prevState.canvasVisible) && (this.state.canvasVisible === true)) {
       this.reopenUIComponent({
@@ -671,29 +727,63 @@ export default class VFBMain extends React.Component {
         name: "3D Viewer",
         component: "canvas"
       });
-      this.setState({ canvasAvailable: true });
+      this.setState({
+        UIUpdated: true,
+        canvasAvailable: true
+      });
     }
     if ((this.state.treeBrowserVisible !== prevState.treeBrowserVisible) && (this.state.treeBrowserVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
-        name: "Tree Browser",
+        name: "Template ROI Browser",
         component: "treeBrowser"
       });
-      this.setState({ treeBrowserVisible: true });
+      this.setState({
+        UIUpdated: true,
+        treeBrowserVisible: true
+      });
     }
-
+    if ((this.state.graphVisible !== prevState.graphVisible) && (this.state.graphVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Term Context",
+        component: "vfbGraph"
+      });
+      this.setState({
+        UIUpdated: true,
+        graphVisible: true
+      });
+    }
+    if ((this.state.circuitBrowserVisible !== prevState.circuitBrowserVisible) && (this.state.circuitBrowserVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Circuit Browser",
+        component: "vfbCircuitBrowser"
+      });
+      this.setState({
+        UIUpdated: true,
+        circuitBrowserVisible: true
+      });
+    }
+    if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Layers",
+        component: "vfbListViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        listViewerVisible: true
+      });
+    }
     if ((prevState.tutorialWidgetVisible !== this.state.tutorialWidgetVisible) && (this.state.tutorialWidgetVisible !== false) && (this.tutorialRender !== undefined)) {
       this.refs.tutorialWidgetRef.refs.tutorialRef.open(true);
     }
     if ((prevState.wireframeVisible !== this.state.wireframeVisible)) {
       this.canvasReference.setWireframe(!this.canvasReference.getWireframe());
     }
-    if ((prevState.controlPanelVisible !== this.state.controlPanelVisible)) {
-      this.refs.controlpanelRef.open();
-    }
     if ((prevState.spotlightVisible !== this.state.spotlightVisible)) {
-      $('#spotlight #typeahead')[0].placeholder = "Search for the item you're interested in...";
-      this.refs.spotlightRef.open();
+      this.refs.searchRef.openSearch(true);
     }
     if ((prevState.queryBuilderVisible !== this.state.queryBuilderVisible)) {
       this.refs.querybuilderRef.open();
@@ -717,6 +807,30 @@ export default class VFBMain extends React.Component {
           this.restoreUIComponent("sliceViewer");
         }
         this.setState({ UIUpdated: false });
+        break;
+      case 'listViewerVisible':
+        if (this.listViewerReference !== undefined || this.listViewerReference !== null) {
+          this.restoreUIComponent("vfbListViewer");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'circuitBrowserVisible':
+        if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
+          this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;    
+      case 'treeBrowserVisible':
+        if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
+          this.restoreUIComponent("treeBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'graphVisible':
+        if (this.graphReference !== undefined && this.graphReference !== null) {
+          this.restoreUIComponent("vfbGraph");
+        }
+        this.setState({ UIUpdated: false, graphVisible : true });
         break;
       }
     }
@@ -751,12 +865,14 @@ export default class VFBMain extends React.Component {
   /* FLEXLayout factory method */
   factory (node) {
     var component = node.getComponent();
+    let self = this;
     if (component === "text") {
       return (<div className="">Panel {node.getName()}</div>);
     } else if (component === "canvas") {
       this.UIElementsVisibility;
       node.setEventListener("close", () => {
         this.setState({
+          UIUpdated: false,
           canvasVisible: false,
           canvasAvailable: false
         });
@@ -766,11 +882,18 @@ export default class VFBMain extends React.Component {
         id="CanvasContainer"
         name={"Canvas"}
         baseZoom="1.2"
+        movieFilter={false}
         wireframeEnabled={true}
+        minimiseAnimation={true}
+        onLoad={this.ThreeDViewerIdLoaded}
         ref={ref => this.canvasReference = ref} />)
     } else if (component === "termInfo") {
       node.setEventListener("close", () => {
-        this.setState({ termInfoVisible: false });
+        this.props.setTermInfo(this.instanceOnFocus, false);
+        this.setState({
+          UIUpdated: false,
+          termInfoVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
       return (<div className="flexChildContainer">
@@ -779,11 +902,17 @@ export default class VFBMain extends React.Component {
           ref={ref => this.termInfoReference = ref}
           queryBuilder={this.refs.querybuilderRef}
           showButtonBar={true}
+          onLoad={this.TermInfoIdLoaded}
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
+          uiUpdated= { () => {
+            self.setState({ UIUpdated: true })
+          }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
-          order={['Name',
+          order={['Symbol',
+                  'Title',
+                  'Name',
                   'Label',
                   'Alternative Names',
                   'Types',
@@ -793,27 +922,32 @@ export default class VFBMain extends React.Component {
                   'Link',
                   'Thumbnail',
                   'Examples',
-                  'Source',
-                  'License',
+                  'Available Images',
                   'Targeting Splits',
                   'Targeting Neurons',
                   'Targeted Neurons',
                   'Related Individuals',
                   'Relationships',
                   'Query for',
-                  'Query For',
+                  'Graph for',
+                  'Circuit Browser for',
                   'Description',
                   'Cross References',
                   'Attribution',
+                  'Source',
+                  'License',
                   'Aligned To',
                   'Download']} /></div>)
     } else if (component === "sliceViewer") {
       node.setEventListener("close", () => {
-        this.setState({ sliceViewerVisible: false });
+        this.setState({
+          UIUpdated: false,
+          sliceViewerVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
-      let _height = node.getRect().height;
-      let _width = node.getRect().width;
+      let _height = node.getRect().height - 3;
+      let _width = node.getRect().width - 3;
       if (_height > 0 || _width > 0) {
         return (<div className="flexChildContainer">
           <VFBStackViewer
@@ -823,18 +957,22 @@ export default class VFBMain extends React.Component {
             layout={this.refs.layout}
             ref={ref => this.sliceViewerReference = ref}
             canvasRef={this.canvasReference}
+            onLoad={this.StackViewerIdLoaded}
             stackViewerHandler={this.stackViewerHandler} /></div>);
       } else {
         return (<div className="flexChildContainer"></div>);
       }
     } else if (component === "treeBrowser") {
       node.setEventListener("close", () => {
-        this.setState({ treeBrowserVisible: false });
+        this.setState({
+          UIUpdated: false,
+          treeBrowserVisible: false
+        });
       });
       this.UIElementsVisibility[component] = node.isVisible();
-      let _height = node.getRect().height;
-      let _width = node.getRect().width;
-      return (<div className="flexChildContainer">
+      let _height = node.getRect().height - 15;
+      let _width = node.getRect().width - 15;
+      return (<div className="flexChildContainer" style={{ position : "fixed", height: _height, width: _width }}>
         <VFBTree
           id="treeWidget"
           instance={this.instanceOnFocus}
@@ -842,15 +980,96 @@ export default class VFBMain extends React.Component {
           ref={ref => this.treeBrowserReference = ref}
           selectionHandler={this.addVfbId} />
       </div>);
+    } else if (component === "vfbGraph") {
+      let graphVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          graphVisible: false
+        });
+        self.props.vfbGraph(ACTIONS.SHOW_GRAPH,null,-1, false, false);
+      });
+      
+      // Event listener fired when graph component is resized
+      node.setEventListener("resize", () => {
+        self.graphReference.resize();
+      });
+      
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
+      </div>);
+    } else if (component === "vfbListViewer") {
+      let listViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        this.setState({
+          UIUpdated: false,
+          listViewerVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBListViewer ref={ref => this.listViewerReference = ref} />
+      </div>);
+    } else if (component === "vfbCircuitBrowser") {
+      let circuitBrowserVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
+      });
+      
+      // Event listener fired when circuit browser component is resized
+      node.setEventListener("resize", () => {
+        self.circuitBrowserReference.resize();
+      });
+      
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
+        <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
+      </div>);
     }
   }
 
   /* React functions */
   shouldComponentUpdate (nextProps, nextState) {
-    if ((nextState.UIUpdated === false) && (this.state.UIUpdated !== nextState.UIUpdated)) {
+    if (nextState.UIUpdated === false) {
       return false;
     } else {
       return true;
+    }    
+  }
+  
+  componentWillReceiveProps (nextProps) {
+    // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
+    if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
+      if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
+        if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
+          this.instanceOnFocus == nextProps.generals.instanceOnFocus;
+        }
+      }
+    }
+    
+    /**
+     * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
+     */
+    if ( nextProps.generals.ui.termInfo.termInfoVisible && nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO ) {
+      this.setActiveTab("termInfo");
+      this.termInfoReference.setTermInfo(this.instanceOnFocus);
+    }
+
+    if ( nextProps.generals.ui.layers.listViewerInfoVisible && nextProps.generals.type === ACTIONS.SHOW_LIST_VIEWER ) {
+      if (this.listViewerReference === undefined || this.listViewerReference === null) {
+        this.setState({
+          UIUpdated: true,
+          listViewerVisible: true
+        });
+      }
+      this.setActiveTab("vfbListViewer");
     }
   }
 
@@ -867,7 +1086,7 @@ export default class VFBMain extends React.Component {
     if (this.canvasReference !== undefined && this.canvasReference !== null) {
       this.canvasReference.engine.controls.handleResize();
     }
-    
+
     /**
      * Global reference to Stackviewer used in testing
      */
@@ -877,6 +1096,32 @@ export default class VFBMain extends React.Component {
       }
     }
 
+    if ( this.props.generals.type == ACTIONS.SHOW_GRAPH ) {
+      if ( !this.state.graphVisible && this.props.generals.ui.graph.visible ) {
+        this.setState({
+          UIUpdated: true,
+          graphVisible: true
+        });
+      } else if ( this.state.graphVisible && this.props.generals.ui.graph.visible ) {
+        this.setActiveTab("vfbGraph");
+      } 
+    }
+    
+    if ( this.props.generals.type == ACTIONS.UPDATE_CIRCUIT_QUERY ) {
+      if ( !this.state.circuitBrowserVisible && this.props.generals.ui.circuitBrowser.visible ) {
+        this.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: true
+        });
+      } else if ( this.state.circuitBrowserVisible && this.props.generals.ui.circuitBrowser.visible ) {
+        this.setActiveTab("vfbCircuitBrowser");
+      } else if ( !this.props.generals.ui.circuitBrowser.visible && this.state.circuitBrowserVisible ) {
+        this.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: false
+        });
+      }
+    }
   }
 
   componentWillMount () {
@@ -915,12 +1160,17 @@ export default class VFBMain extends React.Component {
       }
       return null;
     };
-    
+
     // Retrieve cookie for 'quick_help' modal
     var cookie = getCookie("show_quick_help");
+    if ((this.props.location.search.indexOf("id=") > -1) || (this.props.location.search.indexOf("i=") > -1) || (this.props.location.search.indexOf("q=") > -1)) {
+      this.quickHelpOpen = false;
+    }
     // Show 'Quick Help' modal if cookie to hide it is not set to True
-    if ( cookie !== "1") {
-      this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+    if ((this.props.location.search.indexOf("id=") < 0) && (this.props.location.search.indexOf("i=") < 0) && (this.props.location.search.indexOf("q=") < 0)) {
+      if (( cookie !== "1") && (this.quickHelpOpen)) {
+        this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
+      }
     }
   }
 
@@ -931,6 +1181,7 @@ export default class VFBMain extends React.Component {
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
 
+    let self = this;
     GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
@@ -944,6 +1195,7 @@ export default class VFBMain extends React.Component {
 
     window.setTermInfo = function (meta, id) {
       this.handlerInstanceUpdate(meta);
+      this.props.setTermInfo(meta, true);
     }.bind(this);
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
@@ -971,31 +1223,6 @@ export default class VFBMain extends React.Component {
     this.canvasReference.engine.controls.rotateSpeed = 3;
     this.canvasReference.engine.setLinesThreshold(0);
 
-    // Control panel initialization and filter which instances to display
-    if (this.refs.controlpanelRef !== undefined) {
-      this.refs.controlpanelRef.setColumnMeta(this.controlPanelColMeta);
-      this.refs.controlpanelRef.setColumns(this.controlPanelColumns);
-      this.refs.controlpanelRef.setControlsConfig(this.controlPanelConfig);
-      this.refs.controlpanelRef.setControls(this.controlPanelControlConfigs);
-      this.refs.controlpanelRef.setDataFilter(function (entities) {
-        var visualInstances = GEPPETTO.ModelFactory.getAllInstancesWithCapability(GEPPETTO.Resources.VISUAL_CAPABILITY, entities);
-        var visualParents = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getParent() != null) {
-            visualParents.push(visualInstances[i].getParent());
-          }
-        }
-        visualInstances = visualInstances.concat(visualParents);
-        var compositeInstances = [];
-        for (var i = 0; i < visualInstances.length; i++) {
-          if (visualInstances[i].getType().getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-            compositeInstances.push(visualInstances[i]);
-          }
-        }
-        return compositeInstances;
-      });
-    }
-
     // Loading ids passed through the browser's url
     var idsList = "";
     var idList = this.props.location.search;
@@ -1014,19 +1241,23 @@ export default class VFBMain extends React.Component {
         idsList = idList[list].replace("i=","") + idsList;
       } else if (idList[list].indexOf("q=") > -1) {
         this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+        // if no other ids are loaded the query target is added.
+        if (idsList.length == 0 && this.urlQueryLoader.length > 1) {
+          idsList = this.urlQueryLoader[0];
+        }
       }
     }
 
     if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
       this.urlIdsLoaded = true;
       if (!idsList.includes("VFB_")) {
-        idsList = "VFB_00017894," + idsList;
+        idsList = "VFB_00101567," + idsList;
       }
       this.idsFromURL = idsList.split(",");
       // remove duplicates
       var counter = this.idsFromURL.length;
       if (this.idFromURL === undefined) {
-        this.idFromURL = this.idsFromURL[this.idsFromURL.length - 1];
+        this.idFromURL = this.idsFromURL[0];
       }
       while (counter--) {
         if (this.idsFromURL[counter] === this.idFromURL) {
@@ -1039,10 +1270,15 @@ export default class VFBMain extends React.Component {
       console.log("Loading IDS to add to the scene from url");
     } else {
       this.urlIdsLoaded = true;
-      this.idsFinalList = ["VFB_00017894"];
+      this.idsFinalList = ["VFB_00101567"];
     }
 
     var that = this;
+
+    GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
+      that.props.instanceAdded(instance);
+    });
+
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
       that.addVfbId(that.idsFinalList);
 
@@ -1143,12 +1379,25 @@ export default class VFBMain extends React.Component {
       if (window.StackViewer1 != undefined) {
         this.sliceViewerReference.updateStackWidget();
       }
+
+      self.props.instanceSelected(instance);
+    }.bind(this));
+
+    GEPPETTO.on(GEPPETTO.Events.Visibility_changed, function (instance) {
+      self.props.instanceVisibilityChanged(instance);
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
-      console.log("Reloading websocket connection by reloading page");
-      window.location.reload(true);
+      if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
+        window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
+        console.log("Reloading websocket connection by reloading page");
+
+        setTimeout(() => {
+          window.location.reload(true);
+        }, 5000);
+      } else {
+        console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
+      }
     });
   }
 
@@ -1156,7 +1405,6 @@ export default class VFBMain extends React.Component {
   handlerInstanceUpdate (instance) {
     let metaInstance = undefined;
     let parentInstance = undefined;
-    let initException = true;
     if (instance === undefined || instance === null) {
       console.log("Instance passed to handlerInstanceUpdate is undefined");
       console.trace();
@@ -1188,11 +1436,13 @@ export default class VFBMain extends React.Component {
      */
     for (var counter = 0; counter < this.idsFromURL.length; counter++) {
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL !== this.idOnFocus) {
+        this.TermInfoIdLoaded(this.idOnFocus);
         this.idsFromURL.splice(counter, 1);
         return;
       }
       if (this.idsFromURL[counter] === this.idOnFocus && this.idFromURL === this.idOnFocus) {
         this.idsFromURL.splice(counter, 1);
+        this.firstLoad = false;
         break;
       }
     }
@@ -1200,6 +1450,8 @@ export default class VFBMain extends React.Component {
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
+    } else {
+      this.TermInfoIdLoaded(this.idOnFocus);
     }
 
     // Update the tree browser
@@ -1208,6 +1460,27 @@ export default class VFBMain extends React.Component {
     }
   }
 
+  /**
+   * Makes tab named 'tabName' become active.
+   */
+  setActiveTab (tabComponentName, children) {
+    let matchTab = 0;
+    let layoutChildren = children == undefined || children == null ? this.model.toJson().layout.children : children;
+    for ( var i = 0; i < layoutChildren.length; i++){
+      if ( layoutChildren[i].type === "tabset"){
+        for ( var j = 0; j < layoutChildren[i].children.length ; j++){
+          if (layoutChildren[i].children[j].component === tabComponentName){
+            matchTab = layoutChildren[i].children[j].id;
+            break;
+          }
+        }
+        this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
+      } else if ( layoutChildren[i].children !== undefined){
+        this.setActiveTab(tabComponentName, layoutChildren[i].children);
+      }
+    }
+  }
+  
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
@@ -1293,7 +1566,7 @@ export default class VFBMain extends React.Component {
     }
 
     return (
-      <div style={{ height: '100%', width: '100%' }}>
+      <div className="unselectable" style={{ height: '100%', width: '100%' }}>
         { this.quickHelpRender }
         <VFBToolBar
           htmlOutputHandler={this.renderHTMLViewer}
@@ -1315,37 +1588,30 @@ export default class VFBMain extends React.Component {
           onRenderTabSet={onRenderTabSet}
           clickOnBordersAction={clickOnBordersAction}/>
 
-        <div id="spotlight" style={{ top: 0 }}>
-          <SpotLight ref="spotlightRef"
-            indexInstances={false}
-            spotlightConfig={this.spotlightConfig}
-            spotlightDataSourceConfig={this.spotlightDataSourceConfig}
-            icon={"styles.Modal"}
-            useBuiltInFilter={false} />
-        </div>
-
-        <div id="controlpanel" style={{ top: 0 }}>
-          <ControlPanel ref="controlpanelRef"
-            icon={"styles.Modal"}
-            enableInfiniteScroll={true}
-            useBuiltInFilter={false}
-            controlPanelColMeta={this.controlPanelColMeta}
-            controlPanelConfig={this.controlPanelConfig}
-            columns={this.controlPanelColumns}
-            controlPanelControlConfigs={this.controlPanelControlConfigs}/>
-        </div>
-
         <QueryBuilder ref="querybuilderRef"
           icon={"styles.Modal"}
           useBuiltInFilter={false}
           resultsColMeta={this.queryResultsColMeta}
           resultsColumns={this.queryResultsColumns}
           resultsControlConfig={this.queryResultsControlConfig}
-          datasourceConfig={this.queryBuilderDatasourceConfig} 
-          sorterColumns={this.sorterColumns} />
+          datasourceConfig={this.queryBuilderDatasourceConfig}
+          sorterColumns={this.sorterColumns}
+          showClose={true} />
+
+        <Search ref="searchRef"
+          datasource="SOLR"
+          searchStyle={this.searchStyle}
+          searchConfiguration={this.searchConfiguration}
+          datasourceConfiguration={this.datasourceConfiguration} />
 
         {this.htmlToolbarRender}
       </div>
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+export default connect(mapStateToProps)(VFBMain);

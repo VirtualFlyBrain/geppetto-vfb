@@ -1,35 +1,41 @@
+import React from "react";
+
 var focusTermConfiguration = {
   global: {
     buttonsStyle: {
       standard: {
+        top: "2px",
         background: '#191919',
         backgroundColor: "#191919",
         borderRadius: 0,
-        border: 0,
+        border: "1px solid #11bffe",
         boxShadow: '0px 0px',
         color: '#ffffff',
         fontFamily: 'Khand, sans-serif',
         margin: '0px -5px 0px 0px',
         minWidth: '400px',
-        height: '30px',
+        height: '29px',
+        maxHeight: '29px',
         textTransform: 'none',
         textAlign: 'left',
         justifyContent: 'start',
         marginTop: '1px',
         fontSize: '15px',
-        fontWeight: '300'
+        fontWeight: '300',
       },
       hover: {
+        top: "2px",
         background: "#11bffe",
         backgroundColor: "#11bffe",
         borderRadius: 0,
-        border: 0,
+        border: "1px solid #11bffe",
         boxShadow: '0px 0px',
         color: '#ffffff',
         fontFamily: 'Khand, sans-serif',
         margin: '0px -5px 0px 0px',
         minWidth: '400px',
-        height: '30px',
+        height: '29px',
+        maxHeight: '29px',
         textTransform: 'none',
         textAlign: 'left',
         justifyContent: 'start',
@@ -103,21 +109,16 @@ var focusTermConfiguration = {
   buttons: [
     {
       label: "",
-      icon: "fa fa-chevron-down",
+      icon: <i className="fa fa-bars" style={{ paddingRight: "8px" }}/>,
+      activeColor : "",
       action: "",
       position: "bottom-start",
       dynamicListInjector: {
-        handlerAction: "focusTermHandler",
+        handlerAction: "subMenuGrouping",
         parameters: ["undefined"]
       }
     }
   ]
 };
 
-var subMenusGrouping = [{ "label": "Neurons with ", "keys": ["Neurons with"] },
-                        { "label": "Images of neurons with ", "keys": ["Images of neurons with"] },
-                        { "label": "Tract/Nerves innervating here ", "keys": ["Tracts/nerves innervating"] },
-                        { "label": "Lineage clones with ", "keys": ["Lineage clones found"] },
-                        { "label": "Expression/Phenotypes found here", "keys": ["Transgenes expressed in"] }];
-
-module.exports = { focusTermConfiguration, subMenusGrouping };
+export default focusTermConfiguration;

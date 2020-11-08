@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import StackViewerComponent from 'geppetto-client/js/components/widgets/stackViewer/StackViewerComponent';
+import StackViewerComponent from '@geppettoengine/geppetto-client/components/widgets/stackViewer/StackViewerComponent';
 
 function arrayUnique (array) {
   var a = array.concat();
@@ -57,6 +57,9 @@ export default class VFBStackViewer extends React.Component {
             if (a[i].parent.getColor() != b[i].parent.getColor()) {
               return true;
             }
+            if (a[i].parent.isVisible() != b[i].parent.isVisible()) {
+              return true;
+            }
           } catch (ignore) { }
         }
         return false;
@@ -79,11 +82,7 @@ export default class VFBStackViewer extends React.Component {
   }
 
   updateStackWidget () {
-    this.checkConnection();
-    if (this.changedStacks()) {
-      this.addSlices(this.getSliceInstances());
-    }
-    this.forceUpdate();
+    this.addSlices(this.getSliceInstances());
   }
 
   updateCanvasRef (newRef) {
@@ -95,38 +94,56 @@ export default class VFBStackViewer extends React.Component {
     var potentialInstances = GEPPETTO.ModelFactory.getAllPotentialInstancesEndingWith('_slices');
     var sliceInstances = [];
     var instance;
-    for (var i = 0; i < potentialInstances.length; i++) {
-      instance = Instances.getInstance(potentialInstances[i], false);
-      if (instance) {
-        sliceInstances.push(instance);
+    if (window.templateID !== undefined) {
+      // Template ID must always be on top
+      potentialInstances.sort(function (x,y) {
+        return x.includes(window.templateID) ? -1 : y.includes(window.templateID) ? 1 : 0;
+      });
+
+      for (var i = 0; i < potentialInstances.length; i++) {
+        instance = Instances.getInstance(potentialInstances[i], false);
+        if (instance) {
+          sliceInstances.push(instance);
+        }
       }
+      return sliceInstances;
+    } else {
+      return sliceInstances
     }
-    return sliceInstances;
   }
 
   addSlices (instances) {
+    var added = undefined;
     var curr = this.data.instances.length;
     if (instances.length == undefined) {
+      added = [instances];
       if (instances.parent) {
-        console.log('Adding ' + instances.parent.getName() + ' to ' + this.data.instances.length);
+        // console.log('Adding ' + instances.parent.getName() + ' to StackViewer...');
+        if (this.props.onLoad !== undefined) {
+          this.props.onLoad(instances.parent.getId());
+        }
+        if (instances.parent.getId() == window.templateID){
+          this.data.instances.unshift(instances);
+        } else {
+          this.data.instances[this.data.instances.length] = instances;
+        }
       } else {
-        console.log('Adding ' + instances.toString() + ' to ' + this.data.instances.length);
+        // console.log('Adding ' + instances.toString() + ' to ' + this.data.instances.length);
         window.test = instances;
       }
     } else {
-      console.log('Adding ' + instances.length + ' instances to ' + this.data.instances.length);
+      added = instances;
+      // console.log('Updating ' + instances.length + ' instances...');
+      this.data.instances = instances;
     }
-    this.data.instances = arrayUnique(this.data.instances.concat(instances));
-    if (curr != this.data.instances.length){
-      console.log('Passing ' + this.data.instances.length + ' instances');
-      this.setState({ data: this.data }, () => {
-        this.forceUpdate();
-      });
-    }
+    // console.log('Passing ' + this.data.instances.length + ' instances');
+    this.setState({ data: this.data }, () => {
+      this.forceUpdate();
+    });
   }
 
   removeSlice (path) {
-    console.log('Removing ' + path.split('.')[0] + ' from ' + this.data.instances.length);
+    // console.log('Removing ' + path.split('.')[0] + ' from ' + this.data.instances.length);
     var i;
     for (i in this.data.instances){
       try {
@@ -138,7 +155,7 @@ export default class VFBStackViewer extends React.Component {
         // this.data.instances.splice(i,1);
       }
     }
-    console.log('Passing ' + this.data.instances.length + ' instances');
+    // console.log('Passing ' + this.data.instances.length + ' instances');
     this.setState({ data: this.data }, () => {
       this.forceUpdate();
     });
@@ -172,12 +189,12 @@ export default class VFBStackViewer extends React.Component {
 
     // on change to instances reload stack:
     GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (path) {
-      console.log(path.split('.')[0] + ' deleted...');
+      // console.log(path.split('.')[0] + ' deleted...');
       if (this.refs.StackViewerRef != undefined) {
         if (path != undefined && path.length > 0) {
           this.removeSlice(path);
         } else {
-          console.log('Removing instance issue: ' + path);
+          console.error('Removing instance issue: ' + path);
         }
       }
     }.bind(this));
@@ -207,7 +224,7 @@ export default class VFBStackViewer extends React.Component {
                     });
                   }
                 }
-                console.log('Passing instance: ' + instance.getId());
+                // console.log('Passing instance: ' + instance.getId());
               }
             })
           });
@@ -241,6 +258,10 @@ export default class VFBStackViewer extends React.Component {
         serverUrl: 'http://www.virtualflybrain.org/fcgi/wlziipsrv.fcgi',
         templateId: 'NOTSET'
       };
+    } else if (this.config.subDomains != undefined && this.config.subDomains[0] != undefined && this.config.subDomains[0].length > 2) {
+      this.voxelSize.x = Number(this.config.subDomains[0][0] || 0.622088);
+      this.voxelSize.y = Number(this.config.subDomains[0][1] || 0.622088);
+      this.voxelSize.z = Number(this.config.subDomains[0][2] || 0.622088);
     }
 
     return (

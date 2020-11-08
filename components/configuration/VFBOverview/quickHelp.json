@@ -1,0 +1,91 @@
+{
+	"title": "VFB Tutorial",
+	"height": "575",
+    "width": "900",
+	"steps": [{
+		"title": "Welcome to Virtual Fly Brain",
+		"image" : "geppetto/build/VFBqHelpMain.jpg",
+		"instructions": [{
+			"icon" : "",
+			"label" : "VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron."
+		},{
+			"icon" : "fa fa-search",
+			"label" : "Search for the item you're interested in"
+		},{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Hover to explore brain regions in the Stack Viewer"
+		},{
+			"icon" : "fa fa-quora",
+			"label" : "Query for related terms and images"
+		}]
+	},{
+		"title": "This is the Slice Viewer tab",
+		"image" : "geppetto/build/slice-viewer.png",
+		"instructions": [{
+			"icon" : "",
+			"label" : "The Slice Viewer displays single slices of the template, showing all selected painted anatomy, neurons and expression patterns"
+		},{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Hover to explore, click to list or shift + click to add painted anatomy"
+		},{
+			"icon" : "fa fa-arrows-v",
+			"label" : "Use the arrow icons or scroll with the mouse to move through the stack"
+		},{
+			"icon" : "fa fa-home",
+			"label" : "Home resets your view"
+		},{
+			"icon" : "fa fa-search-plus",
+			"label" : "Use the zoom icons or pinch gesture to zoom"
+		},{
+			"icon" : "gpt-xyz",
+			"label" : "Toggles through orthogonal views"
+		},{
+			"icon" : "fa gpt-showplane",
+			"label" : "Toggles the slice position on the 3D Viewer on/off"
+		}]
+	},{
+		"title": "This is the 3D Viewer tab",
+		"image" : "geppetto/build/3d-viewer.png",
+		"instructions": [{
+			"icon" : "",
+			"label" : "The 3D Viewer displays 3D models of the template, showing all selected painted anatomy, neurons and expression patterns"
+		},{
+			"icon" : "fa fa-mouse-pointer",
+			"label" : "Point and click to select neurons/expression"
+		},{
+			"icon" : "fa fa-compass",
+			"label" : "Click and drag with the mouse or use the directional icons to rotate/move"
+		},{
+			"icon" : "fa fa-search-plus",
+			"label" : "Use the zoom icons or scroll with the mouse to zoom in/out"
+		},{
+			"icon" : "fa fa-home",
+			"label" : "Home resets your view"
+		},{
+			"icon" : "fa fa-video-camera",
+			"label" : "The camera icon starts/stops a rotation animation of the scene"
+		},{
+			"icon" : "gpt-sphere_wireframe-jpg",
+			"label" : "The sphere icon toggles wireframes on/off"
+		}]
+	},{
+		"title": "This is the Term Info tab",
+		"image" : "geppetto/build/term-info.png",
+		"instructions": [{
+			"icon" : "",
+			"label" : "Term Info displays information on the currently selected painted anatomy region, neuron, expression pattern or non-image term definitions"
+		},{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click on thumbnails to add that image to the viewer"
+		},{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click on terms to select them"
+		},{
+			"icon" : "fa fa-hand-pointer-o",
+			"label" : "Click on download items to begin downloading"
+		},{
+			"icon" : "fa fa-quora",
+			"label" : "Run term related queries"
+		}]
+	}]
+}

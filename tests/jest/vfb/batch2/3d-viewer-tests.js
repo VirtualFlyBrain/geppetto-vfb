@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import {  getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow} from './utils';
-import * as ST from './selectors';
+import {  getUrlFromProjectId } from '../cmdline.js';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText} from '../utils';
+import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
@@ -21,6 +21,8 @@ describe('VFB 3D Viewer Component Tests', () => {
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -37,17 +39,13 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 		
-		it('Hide Quick Help Modal Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-		})
-
 		it('Term info component correctly populated at startup', async () => {
-			// Checks name in Term Info is present and correct
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("adult brain template JFRC2 (VFB_00017894)")');
+			await page.waitFor(3000);
+			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
+			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
 		})
 	})
 
@@ -105,7 +103,11 @@ describe('VFB 3D Viewer Component Tests', () => {
 		it('3DViewer closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), since the 3D Viewer
 			// was previously minimized and maximized it should now occupy the third position
-			await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab_button_trailing")[3].click());
+			await flexWindowClick("3D Viewer","flexlayout__tab_button_trailing");
+			//await page.evaluate(async () => {	
+				//let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+				//document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+			//});
 			expect(
 					await page.evaluate(async () => document.getElementById("CanvasContainer_component"))
 			).toBe(null);
@@ -115,8 +117,15 @@ describe('VFB 3D Viewer Component Tests', () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => document.getElementById("3D Viewer").click());
-			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 5000});
+			await page.evaluate(async () => {
+				let tabs = document.getElementsByClassName('MuiMenuItem-root');
+				for ( var i = 0; i < tabs.length ; i ++ ) {
+					if ( tabs[i].innerText === "3D Viewer" ) {
+						tabs[i].click();
+					}
+				}				
+			});
+			await wait4selector(page, 'div#CanvasContainer_component', { visible: true, timeout : 50000});
 		})
 	})
 })

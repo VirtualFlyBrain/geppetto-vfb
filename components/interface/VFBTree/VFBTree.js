@@ -1,21 +1,24 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
 import { SliderPicker } from 'react-color';
-import Tree from 'geppetto-client/js/components/interface/tree/Tree';
+import Tree from '@geppettoengine/geppetto-ui/tree-viewer/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
+import { setTermInfo } from './../../../actions/generals';
+
 import {
   createMuiTheme,
   MuiThemeProvider
 } from "@material-ui/core/styles";
 
 import 'react-sortable-tree/style.css';
+import { connect } from 'react-redux';
 
 var $ = require('jquery');
 const restPostConfig = require('../../configuration/VFBTree/VFBTreeConfiguration').restPostConfig;
 const treeCypherQuery = require('../../configuration/VFBTree/VFBTreeConfiguration').treeCypherQuery;
 
-export default class VFBTree extends React.Component {
+class VFBTree extends React.Component {
 
   constructor (props) {
     super(props);
@@ -313,7 +316,7 @@ export default class VFBTree extends React.Component {
     var buttons = [];
     var fillCondition = "unknown";
     var instanceLoaded = false;
-    if (rowInfo.node.instanceId.indexOf("VFB_") > -1) {
+    if (rowInfo.node.instanceId != undefined && rowInfo.node.instanceId.indexOf("VFB_") > -1) {
       fillCondition = "3dAvailable";
       for (var i = 1; i < Instances.length; i++) {
         if (Instances[i].id !== undefined && Instances[i].id === rowInfo.node.instanceId) {
@@ -334,7 +337,7 @@ export default class VFBTree extends React.Component {
 
     switch (fillCondition) {
     case "3dToLoad":
-      buttons.push(<i className="fa fa-eye"
+      buttons.push(<i className="fa fa-eye-slash"
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
@@ -344,7 +347,7 @@ export default class VFBTree extends React.Component {
         }} />);
       break;
     case "3dHidden":
-      buttons.push(<i className="fa fa-eye"
+      buttons.push(<i className="fa fa-eye-slash"
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
@@ -358,7 +361,7 @@ export default class VFBTree extends React.Component {
       break;
     case "3dVisible":
       var color = Instances[rowInfo.node.instanceId].getColor();
-      buttons.push(<i className="fa fa-eye-slash"
+      buttons.push(<i className="fa fa-eye"
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
@@ -442,8 +445,10 @@ export default class VFBTree extends React.Component {
               }
               if (instanceFound && typeof Instances[rowInfo.node.instanceId].isVisible === "function") {
                 this.props.selectionHandler(rowInfo.node.instanceId);
+                this.props.setTermInfo({}, true);
               } else {
                 this.props.selectionHandler(rowInfo.node.classId);
+                this.props.setTermInfo({}, true);
               }
               this.setState({ nodeSelected: rowInfo.node });
             }}>
@@ -543,7 +548,7 @@ export default class VFBTree extends React.Component {
               treeData={treeData}
               activateParentsNodeOnClick={true}
               handleClick={this.nodeClick}
-              style={{ width: this.props.size.width, height: this.props.size.height, float: 'left', clear: 'both' }}
+              style={{ width: this.props.size.width - 10, height: this.props.size.height, float: 'left', clear: 'both' }}
               rowHeight={this.styles.row_height}
               getButtons={this.getButtons}
               getNodesProps={this.getNodes}
@@ -556,3 +561,12 @@ export default class VFBTree extends React.Component {
     }
   }
 }
+
+function mapStateToProps (state) {
+  return { ... state }
+}
+function mapDispatchToProps (dispatch) {
+  return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBTree);

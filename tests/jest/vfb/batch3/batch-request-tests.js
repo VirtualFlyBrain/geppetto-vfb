@@ -1,12 +1,12 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { getUrlFromProjectId } from './cmdline.js';
-import { wait4selector, click, closeModalWindow } from './utils';
-import * as ST from './selectors';
+import { getUrlFromProjectId } from '../cmdline.js';
+import { wait4selector, click, closeModalWindow, findElementByText } from '../utils';
+import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
@@ -23,7 +23,9 @@ describe('VFB Batch Requests Tests', () => {
 
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
-			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 100000 })
+			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			// Close tutorial window
+			closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -31,28 +33,22 @@ describe('VFB Batch Requests Tests', () => {
 			expect(title).toBe("Virtual Fly Brain");
 		})
 
-		//Testing last of the requested VFB IDs finished loading and deselect button appeared in term info component
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 1800000 })
+			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
 		})
 
-		//Testing last of the requested VFB IDs finished loading and zoom button appeared in term info component
 		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 1800000 })
+			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		})
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#VFBTermInfo_el_1_component', { visible: true })
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
 		
-		it('Hide Quick Help Modal Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, 'div#quick_help_modal', { hidden : true })
-		})
-
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
-			await page.waitForFunction('document.getElementById("VFBTermInfo_el_0_component").innerText.startsWith("ventral complex on adult brain template JFRC2 (VFB_00030880)")');
+			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2");
+			expect(element).toBe("ventral complex on adult brain template JFRC2");
 		})
 
 		//Tests canvas has 5 meshes rendered
@@ -63,10 +59,10 @@ describe('VFB Batch Requests Tests', () => {
 		})
 	})
 
-	//Expects stack viewer component to have 5 meshes rendered and visible. 
+	//Expects stack viewer component to have 5 meshes rendered and visible.
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true })
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 1800000 })
 		})
 
 		it('Slice viewer component has 5 meshes rendered', async () => {
@@ -84,15 +80,35 @@ describe('VFB Batch Requests Tests', () => {
 
 	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
 	describe('Tests Batch Requests in Control Panel', () => {
-		it('The control panel opened with right amount of rows.', async () => {
-			await click(page, "i.fa-list");
-			await wait4selector(page, ST.CONTROL_PANEL_SELECTOR, { visible: true })
+		it('Open Tabs Overflow Menu', async () => {
+			await page.evaluate(async () => {
+				let unselectedTab = document.getElementsByClassName('flexlayout__tab_button_overflow')[0].click();
+			});
+
+			// Check that the Tree Browser is visible
+			await wait4selector(page, 'div.flexlayout__popup_menu_container', { visible: true, timeout : 5000 });
+		})
+		
+		it('Open Layers Component', async () => {
+			await page.evaluate(async () => {
+				let tabs = document.getElementsByClassName('flexlayout__popup_menu_item');
+				for ( var i = 0; i < tabs.length ; i ++ ) {
+					if ( tabs[i].innerText === "Layers" ) {
+						tabs[i].click();
+					}
+				}				
+			});
+
+			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 5000 });
+		})
+		
+		it('The layers component opened with right amount of rows.', async () => {
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
 		})
-
-		it.each(batch_requests)('Row created for batch request with id %s in control panel', async id => {
-			await wait4selector(page, 'button[id=' + id + '_info_ctrlPanel_btn]', { visible: true })
-		})
+//
+//		it.each(batch_requests)('Row created for batch request with id %s in control panel', async id => {
+//			await wait4selector(page, 'button[id=' + id + '_info_ctrlPanel_btn]', { visible: true, timeout: 1800000})
+//		})
 	})
 })

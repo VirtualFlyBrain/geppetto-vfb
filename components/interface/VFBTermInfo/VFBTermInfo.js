@@ -2,13 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
-import HTMLViewer from 'geppetto-client/js/components/interface/htmlViewer/HTMLViewer';
-import ButtonBarComponent from 'geppetto-client/js/components/widgets/popup/ButtonBarComponent';
+import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
+import ButtonBarComponent from '@geppettoengine/geppetto-client/components/widgets/popup/ButtonBarComponent';
+import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
+import { connect } from "react-redux";
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var anchorme = require('anchorme');
-var Type = require('geppetto-client/js/geppettoModel/model/Type');
+var Type = require('@geppettoengine/geppetto-core/model/Type');
+var Variable = require('@geppettoengine/geppetto-core/model/Variable').default;
+
+const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
+const GRAPHS = "Graph";
+const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
@@ -25,6 +32,7 @@ class VFBTermInfo extends React.Component {
     this.getHTML = this.getHTML.bind(this);
     this.setData = this.setData.bind(this);
     this.setName = this.setName.bind(this);
+    this.setLinks = this.setLinks.bind(this);
     this.getVariable = this.getVariable.bind(this);
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
@@ -51,6 +59,8 @@ class VFBTermInfo extends React.Component {
       index: 0,
       list: []
     };
+    
+    this.linksConfiguration = require('../../configuration/VFBTermInfo/VFBTermInfoConfiguration').linksConfiguration;
 
     this.innerHandler = { funct: undefined, event: 'click', meta: undefined, hooked: false, id: undefined };
   }
@@ -68,8 +78,13 @@ class VFBTermInfo extends React.Component {
 
 
   setData (anyInstance) {
+    for (const [key, conf] of Object.entries(this.linksConfiguration)) {
+      if ( conf.visibility ){
+        this.setLinks(anyInstance, key, conf.title, conf.superType);
+      }
+    }
+    
     this.addToHistory(anyInstance.getName(), "setData", [anyInstance], this.props.id);
-
     this.getHTML(anyInstance, "vfbTermInfoWidgetInnerID");
     this.setName(anyInstance.name);
     this.setState({
@@ -88,6 +103,76 @@ class VFBTermInfo extends React.Component {
       this.renderButtonBar(anyInstance);
     } else {
       this.cleanButtonBar();
+    }
+  }
+  
+  /**
+   * Adds Links to open up Graphs from VFB Term Info Component
+   */
+  setLinks (anyInstance, type, name, superType) {
+    let links = new Array();
+    
+    // Here we create links based on the type, graph or circuit browser
+    if ( type === GRAPHS ) {
+      // Loop in graph configuration file for the different Graph configurations available.
+      {stylingConfiguration.dropDownQueries.map( (item, index) => (
+        /*
+         *  Keep track of each possible graph in configuration (dropDownQueries).
+         * We keep track of the instance, the configuration for the graph and the index of the
+         * graph configuration
+         */
+        links.push({ "instance" : anyInstance, "item" : item, "index" : index })
+      ))}
+    } else if ( type == CIRCUIT_BROWSER ) {
+      links.push({ "instance" : anyInstance })
+    }
+         
+    // From the main instance passed as argument, we retrieved the property 'type'
+    var instanceType = anyInstance;
+    if (!(instanceType instanceof Type)) {
+      instanceType = anyInstance.getType();
+    }
+    
+    // If there are no variables, we have an empty composite node, don't add any links
+    if ( instanceType.getVariables().length == 0 ){
+      return;
+    }
+    
+    // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
+    if (instanceType.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+      let variables = instanceType.getVariables();
+      let present = false;
+      let hasSuperType = false;
+      
+      let superTypes = anyInstance.getType().getSuperType();
+      if ( anyInstance.parent != null && anyInstance.parent != undefined ){
+        superTypes = anyInstance.getParent().getType().getSuperType();
+      }
+      
+      for ( var i = 0 ; i < superTypes.length ; i++ ){
+        if ( superTypes[i].wrappedObj.id == superType ){
+          hasSuperType = true;
+          break;
+        }
+      }
+      
+      // Check if link has been added already, if it has, don't add it again
+      for ( var i = 0; i < variables.length; i++ ){
+        if ( variables[i].types[0].wrappedObj.name === type ){
+          present = true;
+        }
+      }  
+    
+      if ( !present && hasSuperType ) {
+        var linkType = new Type({ wrappedObj : { name : type, eClass : type } })
+      
+        // Variable object holding the information for the links
+        var linksVariable = new Variable({ wrappedObj : { name : name }, values : links });
+        linksVariable.setTypes([linkType]);
+      
+        // Add links Variable to instance
+        instanceType.getVariables().push(linksVariable);
+      }
     }
   }
 
@@ -114,8 +199,9 @@ class VFBTermInfo extends React.Component {
     if (!(type instanceof Type)) {
       type = anyInstance.getType();
     }
-
-    if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+    
+    let metaType = type.getMetaType();
+    if (metaType == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
       for (var i = 0; i < type.getVariables().length; i++) {
         var v = type.getVariables()[i];
 
@@ -125,7 +211,7 @@ class VFBTermInfo extends React.Component {
         var id = "VFBTermInfo_el_" + i;
         this.getHTML(v, id, i);
       }
-    } else if (type.getMetaType() == GEPPETTO.Resources.HTML_TYPE) {
+    } else if (metaType === GEPPETTO.Resources.HTML_TYPE) {
       var value = this.getVariable(anyInstance).getInitialValues()[0].value;
       var prevCounter = this.contentTermInfo.keys.length;
       if (counter !== undefined) {
@@ -136,7 +222,7 @@ class VFBTermInfo extends React.Component {
           <HTMLViewer id={id} content={value.html} />
         </div>
       </Collapsible>);
-    } else if (type.getMetaType() == GEPPETTO.Resources.TEXT_TYPE) {
+    } else if (metaType == GEPPETTO.Resources.TEXT_TYPE) {
       var value = this.getVariable(anyInstance).getInitialValues()[0].value;
       var prevCounter = this.contentTermInfo.keys.length;
       if (counter !== undefined) {
@@ -147,7 +233,7 @@ class VFBTermInfo extends React.Component {
           <HTMLViewer id={id} content={anchorme(value.text, anchorOptions)} />
         </div>
       </Collapsible>);
-    } else if (type.getMetaType() == GEPPETTO.Resources.IMAGE_TYPE) {
+    } else if (metaType == GEPPETTO.Resources.IMAGE_TYPE) {
       if (this.getVariable(anyInstance).getInitialValues()[0] != undefined) {
         var value = this.getVariable(anyInstance).getInitialValues()[0].value;
         var prevCounter = this.contentTermInfo.keys.length;
@@ -212,6 +298,64 @@ class VFBTermInfo extends React.Component {
           </Collapsible>);
         }
       }
+    } else if ( metaType === GRAPHS ) {
+      var prevCounter = this.contentTermInfo.keys.length;
+      if (counter !== undefined) {
+        prevCounter = counter;
+      }
+      let values = anyInstance.values;
+      let graphs = new Array();
+      for (var j = 0; j < values.length; j++) {
+        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
+          <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }> 
+            { values[j].item.label(values[j].instance.parent.id) }
+          </a>
+          <br/>
+        </div>
+        );
+      }
+      
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+        {graphs.map((graph, key) => {
+          var Element = React.cloneElement(graph);
+          /*
+           * The id in the following div is used to hookup the images into the slider
+           * with the handler that has to load the id linked to that image
+           */
+          return (
+            <div key={key}> {Element} </div>
+          );
+        })}
+      </Collapsible>);
+    } else if ( metaType === CIRCUIT_BROWSER ) {
+      var prevCounter = this.contentTermInfo.keys.length;
+      if (counter !== undefined) {
+        prevCounter = counter;
+      }
+      let values = anyInstance.values;
+      let graphs = new Array();
+      for (var j = 0; j < values.length; j++) {
+        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
+          <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.id + "," + values[j].index }> 
+            { "Show Circuit Browser for ID " + values[j].instance.parent.id }
+          </a>
+          <br/>
+        </div>
+        );
+      }
+        
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+        {graphs.map((graph, key) => {
+          var Element = React.cloneElement(graph);
+          /*
+           * The id in the following div is used to hookup the images into the slider
+           * with the handler that has to load the id linked to that image
+           */
+          return (
+            <div key={key}> {Element} </div>
+          );
+        })}
+      </Collapsible>);
     }
   }
 
@@ -441,7 +585,7 @@ class VFBTermInfo extends React.Component {
   }
 }
 
-export default class VFBTermInfoWidget extends React.Component {
+class VFBTermInfoWidget extends React.Component {
 
   constructor (props) {
     super(props);
@@ -520,11 +664,74 @@ export default class VFBTermInfoWidget extends React.Component {
     if (typeof data.getParent().select === "function") {
       data.getParent().select(); // Select if visual type loaded.
     }
+
+    if (this.props.onLoad !== undefined) {
+      let parent = data.getParent();
+      if (parent !== null) {
+        this.props.onLoad(parent.getId());
+      } else {
+        this.props.onLoad(data.getId());
+      }
+    }
   }
 
 
   customHandler (node, path, widget) {
-    var Query = require('geppetto-client/js/geppettoModel/model/Query');
+    // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
+    if (path.indexOf("[") == 0) {
+      var templateID = path.split(',')[0].replace('[','');
+      var instanceID = path.split(',')[1].replace(']','');
+      if (templateID != window.templateID) {
+        // open new window with the new template and the instance ID
+        window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+          if (window.EMBEDDED) {
+            var curHost = parent.document.location.host;
+            var curProto = parent.document.location.protocol;
+          } else {
+            var curHost = document.location.host;
+            var curProto = document.location.protocol;
+          }
+          var targetWindow = '_blank';
+          var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, instanceID).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);  
+          window.ga('vfb.send', 'event', 'opening', 'newtemplate', path);
+          window.open(newUrl, targetWindow);
+        } else {
+          window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', path);
+        }
+        // passing only the instance ID for processing 
+        path = instanceID;
+      } else {
+        // as same template pass only the instance ID for processing 
+        path = instanceID;
+      }
+    }
+    if (path.indexOf(GRAPHS) === 0 ) {
+      // Show Graph
+      const { vfbGraph } = this.props;
+      /*
+       * Path contains the instance and the index of the drop down query options
+       * Path is of type : "instance_path, query_index"
+       */
+      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
+      
+      // Notify VFBMain UI needs to be updated
+      this.props.uiUpdated();
+      return;
+    }
+    if (path.indexOf(CIRCUIT_BROWSER) === 0 ) {
+      // Show Circuit Browser
+      const { vfbCircuitBrowser } = this.props;
+      /*
+       * Path contains the instancE ID passed to the circuit browser
+       */
+      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], true);
+      
+      // Notify VFBMain UI needs to be updated
+      this.props.uiUpdated();
+      return;
+    }
+    var Query = require('@geppettoengine/geppetto-core/model/Query');
     var n = window[path];
     var otherId;
     var otherName;
@@ -544,8 +751,8 @@ export default class VFBTermInfoWidget extends React.Component {
           this.data.unshift(metanode);
         }
       }
-      window.resolve3D(path);
       this.setTermInfo(metanode, metanode.name);
+      window.resolve3D(path);
     } else {
       // check for passed ID:
       if (path.indexOf(',') > -1) {
@@ -570,7 +777,7 @@ export default class VFBTermInfoWidget extends React.Component {
 
         this.props.queryBuilder.open();
         this.props.queryBuilder.switchView(false, false);
-        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.")) {
+        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
           console.log('Query stacking requested.');
         } else {
           this.props.queryBuilder.clearAllQueryItems();
@@ -610,7 +817,7 @@ export default class VFBTermInfoWidget extends React.Component {
         Model.getDatasources()[0].fetchVariable(path, function () {
           var m = Instances.getInstance(meta);
           this.setTermInfo(m, m.name);
-          window.resolve3D(path);
+          window.addVfbId(path);
         }.bind(this));
       }
     }
@@ -663,3 +870,16 @@ export default class VFBTermInfoWidget extends React.Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+function mapDispatchToProps (dispatch) {
+  return { 
+    vfbCircuitBrowser: (type, path, visible) => dispatch ( { type : type, data : { instance : path, visible : visible } }),
+    vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } })
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(VFBTermInfoWidget);

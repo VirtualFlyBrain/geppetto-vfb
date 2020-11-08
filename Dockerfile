@@ -7,27 +7,35 @@ ARG originBranch=development
 ARG defaultBranch=development
 
 #SET TAG/BRANCH to use:
-ARG geppettoRelease=VFBv2.1.0.1
-ARG geppettoModelRelease=VFBv2.1.0.1
-ARG geppettoCoreRelease=VFBv2.1.0.1
-ARG geppettoSimulationRelease=VFBv2.1.0.1
-ARG geppettoDatasourceRelease=VFBv2.1.0.1
-ARG geppettoModelSwcRelease=VFBv2.1.0.1
-ARG geppettoFrontendRelease=VFBv2.1.0.1
-ARG geppettoClientRelease=VFBv2.1.0.1
-ARG ukAcVfbGeppettoRelease=v2.1.0.0
+ARG geppettoRelease=vfb_20200604_a
+ARG geppettoModelRelease=vfb_20200604_a
+ARG geppettoCoreRelease=vfb_20200604_a
+ARG geppettoSimulationRelease=vfb_20200604_a
+ARG geppettoDatasourceRelease=vfb_20200604_a
+ARG geppettoModelSwcRelease=v1.0.1
+ARG geppettoFrontendRelease=development
+ARG geppettoClientRelease=VFBv2.2.0.5
+ARG ukAcVfbGeppettoRelease=pipeline2
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
-ENV VFB_PDB_SERVER=http://pdb.virtualflybrain.org
-ENV VFB_OWL_SERVER=http://owl.virtualflybrain.org/kbs/vfb/ß
-ENV VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
-ENV SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select
-ARG googleAnalyticsSiteCode=UA-18509775-2
+ARG VFB_PDB_SERVER_ARG=http://pdb.virtualflybrain.org
+ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.virtualflybrain.org
+ARG VFB_OWL_SERVER_ARG=http://owl.virtualflybrain.org/kbs/vfb/
+ARG VFB_R_SERVER_ARG=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
+ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select
+ARG googleAnalyticsSiteCode_ARG=UA-18509775-2
 ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
+ARG build_type=production
 
+ENV VFB_PDB_SERVER=${VFB_PDB_SERVER_ARG}
+ENV VFB_TREE_PDB_SERVER=${VFB_TREE_PDB_SERVER_ARG}
+ENV VFB_OWL_SERVER=${VFB_OWL_SERVER_ARG}
+ENV VFB_R_SERVER=${VFB_R_SERVER_ARG}
+ENV SOLR_SERVER=${SOLR_SERVER_ARG}
+ENV googleAnalyticsSiteCode=${googleAnalyticsSiteCode_ARG}
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
@@ -65,9 +73,11 @@ RUN ../copy.sh https://github.com/openworm/org.geppetto.datasources.git "${geppe
   rm -rf src
 
 RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}"
-  
+
 RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
-  /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g"
+  echo "DEBUG=$DEBUG" && \
+  /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs /bin/sed -i "s@Boolean debug=.*;@Boolean debug=$DEBUG;@g" &&\
+  /bin/grep -rls "Boolean debug=" $HOME/workspace/uk.ac.vfb.geppetto/src/ | xargs cat | grep 'Boolean debug'
 
 RUN cd uk.ac.vfb.geppetto &&\
   /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
@@ -86,17 +96,16 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   $HOME/copy.sh https://github.com/VirtualFlyBrain/geppetto-vfb.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
   mv geppetto-vfb webapp
 
-RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
-  /bin/grep -rls "window.location.reload(true)" $HOME/workspace/org.geppetto.frontend/src/main/webapp | xargs /bin/sed -i "s@window.location.reload(true);@window.location.reload($DEBUG);@g"
-
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
+
+RUN echo "package.json" && cat $HOME/workspace/org.geppetto.frontend/src/main/webapp/package.json
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
-RUN if [[ ! "${build_type}" == "development" ]]; then /startup.sh || true; fi
+RUN if test ! "${build_type}" = "development" ; then /startup.sh || true; fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr

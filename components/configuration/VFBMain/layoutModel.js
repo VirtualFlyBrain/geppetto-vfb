@@ -59,8 +59,18 @@ var modelJson = {
           },
           {
             "type": "tab",
-            "name": "Tree Browser",
+            "name": "Template ROI Browser",
             "component": "treeBrowser"
+          },
+          {
+            "type": "tab",
+            "name": "Term Context",
+            "component": "vfbGraph"
+          },
+          {
+            "type": "tab",
+            "name": "Layers",
+            "component": "vfbListViewer"
           }
         ]
       },
