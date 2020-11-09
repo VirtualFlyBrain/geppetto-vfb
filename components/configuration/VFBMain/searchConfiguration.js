@@ -196,6 +196,16 @@ var searchConfiguration = {
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
       return 1;
     }
+    if (InputString.toLowerCase().indexOf(' ') {
+      lcInputStingFac = InputString.toLowerCase().split(' ');
+      compare = (a1, a2) => arr1.filter(v => arr2.includes(v)).length;
+      cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
+      cB = compare(lcInputStingFac, b.label.toLowerCase().split(' '));
+      if (cA > 0 || cB > 0) {
+        if (cA > cB) return -1;
+        if (cA < cB) return 1;
+      }
+    }
     // close match without case matching ['xx ('ID/Label)]
     if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
       return -1;
