@@ -226,7 +226,15 @@ class VFBGraph extends Component {
 
   resetCamera () {
     if ( this.graphRef.current !== null ) {
-      this.graphRef.current.ggv.current.zoomToFit();
+      // If more than one graph node, use library's 'zoomToFit' method to center camera
+      if ( this.state.graph.nodes.length > 1 ) {
+        this.graphRef.current.ggv.current.zoomToFit();
+      } else if ( this.state.graph.nodes.length == 1 ) {
+        // Only one graph node, center camera around it
+        let x = this.state.graph.nodes[0].x;
+        let y = this.state.graph.nodes[0].y;
+        this.graphRef.current.ggv.current.centerAt(x,y);
+      }
       this.focused = true;
     }
   }
@@ -474,7 +482,7 @@ class VFBGraph extends Component {
     // No graph to display, message is shown instead of graph
     if (Object.keys(this.props.instanceOnFocus).length === 0 && this.props.instanceOnFocus.constructor === Object) {
       return (
-        <p>No graph available for {this.state.currentQuery.name} , where {this.state.currentQuery.name} is either 'show classification for $Instance' or 'show location for $instance'</p>
+        <p>Model not loaded, graph not available yet</p>
       );
     }
 
