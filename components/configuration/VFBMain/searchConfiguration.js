@@ -196,7 +196,7 @@ var searchConfiguration = {
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
       return 1;
     }
-    if (InputString.toLowerCase().indexOf(' ') {
+    if (InputString.toLowerCase().indexOf(' ') > -1) {
       lcInputStingFac = InputString.toLowerCase().split(' ');
       compare = (a1, a2) => arr1.filter(v => arr2.includes(v)).length;
       cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
