@@ -202,8 +202,12 @@ var searchConfiguration = {
       var cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
       var cB = compare(lcInputStingFac, b.label.toLowerCase().split(' '));
       if (cA > 0 || cB > 0) {
-        if (cA > cB) {return -1;}
-        if (cA < cB) {return 1;}
+        if (cA > cB) {
+          return -1;
+        }
+        if (cA < cB) {
+          return 1;
+        }
       }
     }
     // close match without case matching ['xx ('ID/Label)]
