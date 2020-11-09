@@ -1,7 +1,7 @@
 var locationCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH p=(n:Entity {short_form:'" + instance + "'})-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
+      "statement": "MATCH (n:Entity {short_form:'" + instance + "'}) OPTIONAL MATCH p=(n)-[r:INSTANCEOF|part_of|has_synaptic_terminal_in|has_presynaptic_terminal_in|"
       + "has_postsynaptic_terminal_in|overlaps*..]->(x) "
       + "RETURN distinct n,r,x,n.short_form as root",
       "resultDataContents": ["graph"]
@@ -84,7 +84,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb.p2.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
   contentType: "application/json"
 };
 

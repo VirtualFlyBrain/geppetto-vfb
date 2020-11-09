@@ -124,8 +124,8 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
-          "key": "Larval",
-          "filter_name": "Larval",
+          "key": "Larva",
+          "filter_name": "Larva",
           "enabled": "disabled",
         },
         {
@@ -195,6 +195,20 @@ var searchConfiguration = {
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
       return 1;
+    }
+    if (InputString.toLowerCase().indexOf(' ') > -1) {
+      var lcInputStingFac = InputString.toLowerCase().split(' ');
+      var compare = (a1, a2) => a1.filter(v => a2.includes(v)).length;
+      var cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
+      var cB = compare(lcInputStingFac, b.label.toLowerCase().split(' '));
+      if (cA > 0 || cB > 0) {
+        if (cA > cB) {
+          return -1;
+        }
+        if (cA < cB) {
+          return 1;
+        }
+      }
     }
     // close match without case matching ['xx ('ID/Label)]
     if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
