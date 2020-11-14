@@ -64,6 +64,7 @@ class VFBGraph extends Component {
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
+    
     // Graph component has been resized
     this.graphResized = false;
     this.focusedInstance = { id : "" };
@@ -72,7 +73,7 @@ class VFBGraph extends Component {
     this.firstLoad = true;
     this.nodeSelectedID = "";
     this.queryRequests = [];
-    this.querySelection = {};
+    this.querySelection = stylingConfiguration.dropDownQueries[0];
   }
 
   componentDidMount () {
@@ -83,10 +84,12 @@ class VFBGraph extends Component {
     if (this.state.currentQuery.id !== undefined && this.state.currentQuery.id !== "" && this.state.currentQuery.id !== null){
       // Set focusedInstance
       if ( this.props.instance !== null ) {
-        if (this.props.instance.getParent() !== null) {
-          this.focusedInstance = this.props.instance.getParent();
-        } else {
-          this.focusedInstance = this.props.instance;
+        this.focusedInstance = this.props.instance;
+        
+        if (this.props.instance.getParent !== undefined) {
+          if (this.props.instance.getParent() !== null ) {
+            this.focusedInstance = this.props.instance.getParent();
+          }
         }
       }
       
@@ -127,7 +130,7 @@ class VFBGraph extends Component {
     if (this.loading && this.firstLoad) {
       if (this.state.currentQuery.id === undefined || this.state.currentQuery.id === "" || this.state.currentQuery.id === null){
         if (this.props.instance !== null && this.props.instance !== undefined) {
-          if (this.props.instance.getParent() !== null) {
+          if (this.props.instance.getParent != undefined ) {
             this.focusedInstance = this.props.instance.getParent();
           } else {
             this.focusedInstance = this.props.instance;
@@ -135,10 +138,11 @@ class VFBGraph extends Component {
           this.firstLoad = false;
           this.updateGraph();
         } else if (this.props.instanceOnFocus !== null && this.props.instanceOnFocus !== undefined) {
-          if (this.props.instanceOnFocus.getParent() !== null) {
-            this.focusedInstance = this.props.instanceOnFocus.getParent();
-          } else {
-            this.focusedInstance = this.props.instanceOnFocus;
+          this.focusedInstance = this.props.instanceOnFocus;
+          if (this.props.instanceOnFocus.getParent != undefined) {
+            if (this.props.instanceOnFocus.getParent() != null) {
+              this.focusedInstance = this.props.instanceOnFocus.getParent();
+            }
           }
           this.firstLoad = false;
           this.updateGraph();
@@ -159,9 +163,11 @@ class VFBGraph extends Component {
             self.loading = true;
             let idToSearch = self.props.instanceOnFocus.id;
             let instanceName = self.props.instanceOnFocus.name;
-            if (self.props.instanceOnFocus.getParent() !== null) {
-              idToSearch = self.props.instanceOnFocus.getParent().id;
-              instanceName = this.focusedInstance.getParent().name;
+            if (self.props.instanceOnFocus.getParent !== undefined ) {
+              if (self.props.instanceOnFocus.getParent() !== null) {
+                idToSearch = self.props.instanceOnFocus.getParent().id;
+                instanceName = this.focusedInstance.getParent().name;
+              }
             }
             self.queryResults(item.query(idToSearch), { id : idToSearch, name : instanceName } );
           }
@@ -171,6 +177,7 @@ class VFBGraph extends Component {
       this.updateCameraAtStart();
     } else if ( !this.props.visible ) {
       this.focused = false;
+      this.visible = false;
       if ( parseInt(this.props.graphQueryIndex) >= 0 && !this.firstLoad ) {
         this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1, true, false);
       }
@@ -185,9 +192,11 @@ class VFBGraph extends Component {
        */
       let idToSearch = self.props.instanceOnFocus.id;
       let instanceName = self.props.instanceOnFocus.name;
-      if (self.props.instanceOnFocus.getParent() !== null) {
-        idToSearch = self.props.instanceOnFocus.getParent().id;
-        instanceName = self.props.instanceOnFocus.getParent().name;
+      if (self.props.instanceOnFocus.getParent !== undefined) {
+        if (self.props.instanceOnFocus.getParent() !== null) {
+          idToSearch = self.props.instanceOnFocus.getParent().id;
+          instanceName = self.props.instanceOnFocus.getParent().name;
+        }
       }
       /*
        * Update graph with selected query index from configuration dropdown selection
@@ -205,8 +214,10 @@ class VFBGraph extends Component {
           });
         }
       }
-      
-      this.updateCameraAtStart();
+      if ( !this.visible ){
+        this.updateCameraAtStart();
+        this.visible = true;
+      }
     }
   }
 
@@ -314,8 +325,10 @@ class VFBGraph extends Component {
 
   selectedNodeLoaded (instance) {
     var loadedId = instance.id;
-    if (instance.getParent() !== null) {
-      loadedId = instance.getParent().id;
+    if (instance.getParent !== undefined) {
+      if (instance.getParent() !== null) {
+        loadedId = instance.getParent().id;
+      }
     }
 
     if ( this.nodeSselected ) {
@@ -331,10 +344,11 @@ class VFBGraph extends Component {
    * Gets notified every time the instance focused changes
    */
   instanceFocusChange (instance) {    
-    if (instance.getParent() !== null) {
-      this.focusedInstance = instance.getParent();
-    } else {
-      this.focusedInstance = instance;
+    this.focusedInstance = instance;
+    if (instance.getParent !== undefined) {
+      if (instance.getParent() !== null) {
+        this.focusedInstance = instance.getParent();
+      }
     }
   }
 
@@ -348,9 +362,11 @@ class VFBGraph extends Component {
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
-    if (this.focusedInstance.getParent() !== null) {
-      idToSearch = this.focusedInstance.getParent().id;
-      instanceName = this.focusedInstance.getParent().name;
+    if (this.focusedInstance.getParent !== undefined) {
+      if ( this.focusedInstance.getParent() !== null ){
+        idToSearch = this.focusedInstance.getParent().id;
+        instanceName = this.focusedInstance.getParent().name;
+      }
     }
 
     if (this.__isMounted){
