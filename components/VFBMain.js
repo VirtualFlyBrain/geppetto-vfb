@@ -531,9 +531,6 @@ class VFBMain extends React.Component {
       var otherName = click.parameters[0].split(',')[2];
       var path = click.parameters[0].split(',')[0];
       var entity = Model[path];
-      this.refs.querybuilderRef.open();
-      this.refs.querybuilderRef.switchView(false, false);
-      this.refs.querybuilderRef.clearAllQueryItems();
 
       var callback = function () {
         // check if any results with count flag
