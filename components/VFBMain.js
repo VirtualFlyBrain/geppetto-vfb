@@ -533,8 +533,9 @@ class VFBMain extends React.Component {
       var entity = Model[path];
 
       $("body").css("cursor", "progress");
-      this.props.queryBuilder.open();
-      this.props.queryBuilder.switchView(false, false);
+      this.refs.querybuilderRef.open();
+      this.refs.querybuilderRef.switchView(false, false);
+      this.refs.querybuilderRef.clearAllQueryItems();
       $('#add-new-query-container')[0].hidden = true;
       $('#query-builder-items-container')[0].hidden = true;
 
