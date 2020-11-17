@@ -531,10 +531,13 @@ class VFBMain extends React.Component {
       var otherName = click.parameters[0].split(',')[2];
       var path = click.parameters[0].split(',')[0];
       var entity = Model[path];
+
+      $("body").css("cursor", "progress");
       this.props.queryBuilder.open();
       this.props.queryBuilder.switchView(false, false);
       $('#add-new-query-container')[0].hidden = true;
       $('#query-builder-items-container')[0].hidden = true;
+
       var callback = function () {
         // check if any results with count flag
         if (that.refs.querybuilderRef.props.model.count > 0) {
@@ -545,6 +548,7 @@ class VFBMain extends React.Component {
         }
         // show query component
         that.refs.querybuilderRef.open();
+        $("body").css("cursor", "default");
         GEPPETTO.trigger('stop_spin_logo');
       };
       // add query item + selection
