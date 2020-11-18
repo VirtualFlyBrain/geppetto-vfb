@@ -293,9 +293,13 @@ function generalReducer (state, action) {
     }
   case INSTANCE_DELETED:
     var newMap = [ ...state.idsList ];
-    var index = newMap.indexOf(action.instance.id);
-    if ( index > -1 ) {
-      newMap.splice(index, 1);
+    var id = action.data;
+    var index = 0;
+    for ( var i = 0; i < newMap.length; i++ ){
+      if ( newMap[i].includes(id) ) {
+        newMap.splice(i, 1);
+        i--;
+      }
     }
     ui.canvas.instanceDeleted = action.instance;
     return {

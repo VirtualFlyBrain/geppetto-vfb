@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Menu from "@geppettoengine/geppetto-ui/menu/Menu";
 import { connect } from 'react-redux';
 import { SliderPicker } from 'react-color';
-import { setTermInfo, SHOW_LIST_VIEWER, INSTANCE_DELETED } from './../../../actions/generals';
+import { setTermInfo, SHOW_LIST_VIEWER } from './../../../actions/generals';
 
 const controlsConfiguration = require('../../configuration/VFBListViewer/controlsMenuConfiguration').default;
 const ACTIONS = controlsConfiguration.actions;
@@ -62,7 +62,6 @@ class ListViewerControlsMenu extends Component {
       break;
     case ACTIONS.DELETE:
       this.props.instance.delete();   
-      this.props.instanceDeleted(INSTANCE_DELETED, this.props.instance);
       break;
     case ACTIONS.INFO:
       var self = this;
@@ -247,10 +246,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return {
-    setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )),
-    instanceDeleted : ( type, instance ) => dispatch({ type : type , instance : instance })
-  }
+  return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewerControlsMenu);
