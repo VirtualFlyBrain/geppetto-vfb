@@ -29,7 +29,7 @@ const clickQueryResult = async (page, text) => page.evaluate(async (text ) => {
  */
 describe('VFB Menu Component Tests', () => {
   beforeAll(async () => {
-    jest.setTimeout(120000); 
+    jest.setTimeout(120000);
     await page.goto(projectURL);
 
   });
@@ -101,7 +101,7 @@ describe('VFB Menu Component Tests', () => {
 
     it('Help Menu Appears', async () => {
       await page.evaluate(async () => document.getElementById("Help").click());
-      // Wait for drop down menu of 'Help' to show 
+      // Wait for drop down menu of 'Help' to show
       await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
       // Check there's four elements in the drop down menu of 'Help'
       const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
