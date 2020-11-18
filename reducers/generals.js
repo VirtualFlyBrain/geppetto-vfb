@@ -294,7 +294,7 @@ function generalReducer (state, action) {
   case INSTANCE_DELETED:
     var newMap = [ ...state.idsList ];
     var id = action.data;
-    var index = 0;
+    // Delete all matching instances, e.g. instances of same name endign in obj, meta, swc
     for ( var i = 0; i < newMap.length; i++ ){
       if ( newMap[i].includes(id) ) {
         newMap.splice(i, 1);
