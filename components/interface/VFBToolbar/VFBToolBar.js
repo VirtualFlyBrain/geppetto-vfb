@@ -174,7 +174,8 @@ export default class VFBToolBar extends React.Component {
     }
     this.props.htmlOutputHandler(
       htmlContent.replace(
-        /\$URL\$/g,window.location.href.replace(
+        /\$URL\$/g,window.location.href
+      ).replace(
         /\$BROWSER\$/g, browserName
       ).replace(
         /\$VERSION\$/g, fullVersion
