@@ -536,8 +536,8 @@ class VFBMain extends React.Component {
       this.refs.querybuilderRef.open();
       this.refs.querybuilderRef.switchView(false, false);
       this.refs.querybuilderRef.clearAllQueryItems();
-      $('#add-new-query-container')[0].hidden = true;
-      $('#query-builder-items-container')[0].hidden = true;
+      // $('#add-new-query-container')[0].hidden = true;
+      // $('#query-builder-items-container')[0].hidden = true;
 
       var callback = function () {
         // check if any results with count flag
