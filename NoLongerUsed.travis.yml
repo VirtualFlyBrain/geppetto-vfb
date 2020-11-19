@@ -37,10 +37,10 @@ jobs:
         - export VFB_REPO=$(echo ${TRAVIS_REPO_SLUG##*/} | awk '{gsub(/\-/,"_",$0);gsub(/\./,"_",$0);print toupper($0)}')
         - export REPO=$(echo ${TRAVIS_REPO_SLUG} | awk '{gsub(/\./,"_",$0);print tolower($0)}')
         - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH/\//-}; fi`
-        - export VFB_PDB_SERVER=https://pdb.p2.virtualflybrain.org;
+        - export VFB_PDB_SERVER=https://pdb.virtualflybrain.org;
         - export VFB_OWL_SERVER=http://owl.p2.virtualflybrain.org/kbs/vfb/;
         - export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
-        - export VFB_TREE_PDB_SERVER=https://pdb.p2.virtualflybrain.org;
+        - export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
         - export SOLR_SERVER=https://solr.p2.virtualflybrain.org/solr/ontology/select;
         - if [ "$TRAVIS_BRANCH" == "master" ]; then
             export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
@@ -82,7 +82,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -104,7 +104,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch1/.*js'
       after_failure:
         - docker ps -a
         - docker logs $CONTAINER_NAME
@@ -122,7 +122,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -144,7 +144,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch2/.*js'
       after_failure:
         - docker ps -a
         - docker logs $CONTAINER_NAME
@@ -162,7 +162,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -184,7 +184,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch3/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/batch3/.*js'
       after_failure:
         - docker ps -a
         - sudo docker cp $CONTAINER_NAME:/home/developer/virgo/serviceability/logs/log.log /etc
@@ -249,8 +249,8 @@ jobs:
         #     export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
         #     export SOLR_SERVER=https://solr.virtualflybrain.org/solr/ontology/select;
         #   fi;
-        - export VFB_TREE_PDB_SERVER=https://pdb.p2.virtualflybrain.org;
-        - export VFB_PDB_SERVER=http://pdb.p2.virtualflybrain.org;
+        - export VFB_TREE_PDB_SERVER=https://pdb.virtualflybrain.org;
+        - export VFB_PDB_SERVER=http://pdb.virtualflybrain.org;
         - export VFB_OWL_SERVER=http://owl.p2.virtualflybrain.org/kbs/vfb/;
         - export VFB_R_SERVER=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast;
         - export SOLR_SERVER=https://solr.p2.virtualflybrain.org/solr/ontology/select;
@@ -272,7 +272,7 @@ jobs:
         - if [ "$BUILD_TYPE" == "development" ]; then export TAG=$TAG-development; fi;
         - export TAG="$TAG-TEST"
       install:
-        - npm install jest@24.8.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+        - npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       before_script:
         - echo -e "travis_fold:start:Docker_Run" || true
         - docker login -u $DOCKER_USER -p $DOCKER_PASS;
@@ -294,7 +294,7 @@ jobs:
           done;
         - echo -e "travis_fold:end:Startup_Server3" || true
       script:
-        - travis_wait 41 npm test -- --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
+        - travis_wait 41 npm test -- --updateSnapshot --verbose --colors --forceExit --testPathPattern='tests/jest/vfb/review/.*js'
       after_failure:
         - docker ps -a
         - docker logs $CONTAINER_NAME

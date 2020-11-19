@@ -14,8 +14,8 @@ var Type = require('@geppettoengine/geppetto-core/model/Type');
 var Variable = require('@geppettoengine/geppetto-core/model/Variable').default;
 
 const stylingConfiguration = require('../../configuration/VFBGraph/graphConfiguration').styling;
-const GRAPHS = "GRAPHS";
-const CIRCUIT_BROWSER = "CIRCUIT_BROWSER";
+const GRAPHS = "Graph";
+const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
@@ -32,8 +32,7 @@ class VFBTermInfo extends React.Component {
     this.getHTML = this.getHTML.bind(this);
     this.setData = this.setData.bind(this);
     this.setName = this.setName.bind(this);
-    this.setGraphsLinks = this.setGraphsLinks.bind(this);
-    this.setCircuitBrowserLinks = this.setCircuitBrowserLinks.bind(this);
+    this.setLinks = this.setLinks.bind(this);
     this.getVariable = this.getVariable.bind(this);
     this.hookupImages = this.hookupImages.bind(this);
     this.addToHistory = this.addToHistory.bind(this);
@@ -60,6 +59,8 @@ class VFBTermInfo extends React.Component {
       index: 0,
       list: []
     };
+    
+    this.linksConfiguration = require('../../configuration/VFBTermInfo/VFBTermInfoConfiguration').linksConfiguration;
 
     this.innerHandler = { funct: undefined, event: 'click', meta: undefined, hooked: false, id: undefined };
   }
@@ -77,10 +78,13 @@ class VFBTermInfo extends React.Component {
 
 
   setData (anyInstance) {
-    this.setGraphsLinks(anyInstance);
-    this.setCircuitBrowserLinks(anyInstance);
+    for (const [key, conf] of Object.entries(this.linksConfiguration)) {
+      if ( conf.visibility ){
+        this.setLinks(anyInstance, key, conf.title, conf.superType);
+      }
+    }
+    
     this.addToHistory(anyInstance.getName(), "setData", [anyInstance], this.props.id);
-
     this.getHTML(anyInstance, "vfbTermInfoWidgetInnerID");
     this.setName(anyInstance.name);
     this.setState({
@@ -105,84 +109,69 @@ class VFBTermInfo extends React.Component {
   /**
    * Adds Links to open up Graphs from VFB Term Info Component
    */
-  setGraphsLinks (anyInstance) {
-    let graphs = new Array();
+  setLinks (anyInstance, type, name, superType) {
+    let links = new Array();
     
-    // Loop in graph configuration file for the different Graph configurations available.
-    {stylingConfiguration.dropDownQueries.map( (item, index) => (
-      /*
-       *  Keep track of each possible graph in configuration (dropDownQueries).
-       * We keep track of the instance, the configuration for the graph and the index of the
-       * graph configuration
-       */
-      graphs.push({ "instance" : anyInstance, "item" : item, "index" : index })
-    ))}
+    // Here we create links based on the type, graph or circuit browser
+    if ( type === GRAPHS ) {
+      // Loop in graph configuration file for the different Graph configurations available.
+      {stylingConfiguration.dropDownQueries.map( (item, index) => (
+        /*
+         *  Keep track of each possible graph in configuration (dropDownQueries).
+         * We keep track of the instance, the configuration for the graph and the index of the
+         * graph configuration
+         */
+        links.push({ "instance" : anyInstance, "item" : item, "index" : index })
+      ))}
+    } else if ( type == CIRCUIT_BROWSER ) {
+      links.push({ "instance" : anyInstance })
+    }
          
     // From the main instance passed as argument, we retrieved the property 'type'
-    var type = anyInstance;
-    if (!(type instanceof Type)) {
-      type = anyInstance.getType();
+    var instanceType = anyInstance;
+    if (!(instanceType instanceof Type)) {
+      instanceType = anyInstance.getType();
+    }
+    
+    // If there are no variables, we have an empty composite node, don't add any links
+    if ( instanceType.getVariables().length == 0 ){
+      return;
     }
     
     // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
-    if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      let variables = type.getVariables();
+    if (instanceType.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
+      let variables = instanceType.getVariables();
       let present = false;
+      let hasSuperType = false;
       
-      // Check if link has been added already, if it has, don't add it again
-      for ( var i = 0; i < variables.length; i++ ){
-        if ( variables[i].types[0].wrappedObj.name === GRAPHS ){
-          present = true;
-        }
-      }  
-    
-      if ( !present ) {
-        var graphType = new Type({ wrappedObj : { name : GRAPHS, eClass : GRAPHS } })
-      
-        // Variable object holding the information for the graph links
-        var graphsVariable = new Variable({ wrappedObj : { name : "Graph for" }, values : graphs });
-        graphsVariable.setTypes([graphType]);
-      
-        // Add graphs Variable to root node
-        type.getVariables().push(graphsVariable);
+      let superTypes = anyInstance.getType().getSuperType();
+      if ( anyInstance.parent != null && anyInstance.parent != undefined ){
+        superTypes = anyInstance.getParent().getType().getSuperType();
       }
-    }
-  }
-  
-  /**
-   * Adds Links to open up Graphs from VFB Term Info Component
-   */
-  setCircuitBrowserLinks (anyInstance) {
-    let circuitBrowser = new Array();
-    
-    circuitBrowser.push({ "instance" : anyInstance })
-         
-    // From the main instance passed as argument, we retrieved the property 'type'
-    var type = anyInstance;
-    if (!(type instanceof Type)) {
-      type = anyInstance.getType();
-    }
-    
-    // Look for root node, create a Variable object with the graphs configuration, and attach it to root type object
-    if (type.getMetaType() == GEPPETTO.Resources.COMPOSITE_TYPE_NODE) {
-      let variables = type.getVariables();
-      let present = false;
+      
+      for ( var i = 0 ; i < superTypes.length ; i++ ){
+        if ( superTypes[i].wrappedObj.id == superType ){
+          hasSuperType = true;
+          break;
+        }
+      }
+      
       // Check if link has been added already, if it has, don't add it again
       for ( var i = 0; i < variables.length; i++ ){
-        if ( variables[i].types[0].wrappedObj.name === CIRCUIT_BROWSER ){
+        if ( variables[i].types[0].wrappedObj.name === type ){
           present = true;
         }
       }  
+    
+      if ( !present && hasSuperType ) {
+        var linkType = new Type({ wrappedObj : { name : type, eClass : type } })
       
-      if ( !present ) {
-        var circuitBrowserType = new Type({ wrappedObj : { name : CIRCUIT_BROWSER, eClass : CIRCUIT_BROWSER } })
+        // Variable object holding the information for the links
+        var linksVariable = new Variable({ wrappedObj : { name : name }, values : links });
+        linksVariable.setTypes([linkType]);
       
-        // Variable object holding the information for the graph links
-        var circuitBrowserVariable = new Variable({ wrappedObj : { name : "Circuit Browser for" }, values : circuitBrowser });
-        circuitBrowserVariable.setTypes([circuitBrowserType]);
-      
-        // Add graphs Variable to root node
-        type.getVariables().push(circuitBrowserVariable);
+        // Add links Variable to instance
+        instanceType.getVariables().push(linksVariable);
       }
     }
   }
@@ -724,7 +713,7 @@ class VFBTermInfoWidget extends React.Component {
        * Path contains the instance and the index of the drop down query options
        * Path is of type : "instance_path, query_index"
        */
-      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2]);
+      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
       
       // Notify VFBMain UI needs to be updated
       this.props.uiUpdated();
@@ -736,7 +725,7 @@ class VFBTermInfoWidget extends React.Component {
       /*
        * Path contains the instancE ID passed to the circuit browser
        */
-      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1]);
+      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], true);
       
       // Notify VFBMain UI needs to be updated
       this.props.uiUpdated();
@@ -888,8 +877,8 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return { 
-    vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }),
-    vfbGraph: (type, path, index) => dispatch ( { type : type, data : { instance : path, queryIndex : index } })
+    vfbCircuitBrowser: (type, path, visible) => dispatch ( { type : type, data : { instance : path, visible : visible } }),
+    vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } })
   }
 }
 

@@ -5,6 +5,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
+import { queryParser } from './QueryParser';
 import { connect } from "react-redux";
 
 const styles = theme => ({
@@ -18,6 +19,7 @@ const styles = theme => ({
     color: "#11bffe",
     size: "55rem"
   },
+  errorMessage : { textAlign : "center" }
 });
 
 /**
@@ -40,116 +42,6 @@ const COMPONENT_ID = "VFBCircuitBrowser";
 const NODE_WIDTH = 55;
 const NODE_HEIGHT = 40;
 const NODE_BORDER_THICKNESS = 2;
-
-/**
- * Converts graph data received from cypher query into a readable format for react-force-graph-2d
- */
-function refineData (e) {
-  let graphData = e.data.params.results;
-  console.log("Results ", e);
-  let data = graphData.results[0].data;
-  let nodes = [], links = [];
-  let linksMap = new Map();
-  let nodesMap = new Map();
-  let presentColorLabels = new Array();
-
-  // Creates links map from Relationships, avoid duplicates
-  data.forEach(({ graph }) => {
-    graph.relationships.forEach(({ startNode, endNode, properties }) => {
-      if (linksMap.get(startNode) === undefined) {
-        linksMap.set(startNode, new Array());
-      }
-
-      let newLink = true;
-      linksMap.get(startNode).find( function ( ele ) {
-        if ( ele.target !== endNode ) {
-          newLink = true;
-        } else {
-          newLink = false;
-        }
-      });
-
-      // Only keep track of new links, avoid duplicates
-      if ( newLink ) {
-        linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
-      }
-
-    });
-  });
-
-  // Loop through nodes from query and create nodes for graph
-  data.forEach(({ graph }) => {
-    graph.nodes.forEach(({ id, labels, properties }) => {
-      let label = properties[e.data.params.configuration.resultsMapping.node.label];
-      let title = properties[e.data.params.configuration.resultsMapping.node.title];
-      let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;
-      
-      // Retrieve list of Label colors from configuration
-      const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
-      
-      // Loop through color labels
-      for (var i = 0; i < colorLabels.length ; i++ ) {
-        let index = labels.indexOf(colorLabels[i][0]);
-        if ( index > -1 ) {
-          color = colorLabels[i][1];
-          // Add to array of present colors only if array doesn't have it already
-          if ( !presentColorLabels.includes(labels[index]) ) {
-            presentColorLabels.push(labels[index]);
-          }
-          break;
-        }
-      }
-      let n = null;
-      if (nodesMap.get(id) === undefined) {
-        n = {
-          path :  label,
-          id : parseInt(id),
-          title : title,
-          width : e.data.params.NODE_WIDTH,
-          height : e.data.params.NODE_HEIGHT,
-          color : color,
-        };
-        nodesMap.set(id, n);
-        nodes.push(n);
-      }
-    });
-  });
-
-  // Creates Links array with nodes
-  nodes.forEach( sourceNode => {
-    let id = sourceNode.id;
-    if ( typeof id === "number" ) {
-      id = sourceNode.id.toString();
-    }
-    let n = linksMap.get(id);
-    if (n !== undefined){
-      for (var i = 0 ; i < n.length; i++){
-        let targetNode = nodesMap.get(n[i].target);
-
-        if (targetNode !== undefined) {
-          // Create new link for graph
-          let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
-          links.push( link );
-
-          // Assign neighbors to nodes and links
-          !sourceNode.neighbors && (sourceNode.neighbors = []);
-          !targetNode.neighbors && (targetNode.neighbors = []);
-          sourceNode.neighbors.push(targetNode);
-          targetNode.neighbors.push(sourceNode);
-
-          // Assign links to nodes
-          !sourceNode.links && (sourceNode.links = []);
-          !targetNode.links && (targetNode.links = []);
-          sourceNode.links.push(link);
-          targetNode.links.push(link);
-        }
-      }
-    }
-  });
-
-  // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
-}
 
 /**
  * Component for VFB Circuit Browser between Neurons
@@ -318,7 +210,7 @@ class VFBCircuitBrowser extends Component {
       headers: { 'content-type': contentType },
       data: request,
     }).then( function (response) {
-      var blob = new Blob(["onmessage = " + refineData ]);
+      var blob = new Blob(["onmessage = " + queryParser ]);
       var blobUrl = window.URL.createObjectURL(blob);
 
       var worker = new Worker(blobUrl);
@@ -374,79 +266,18 @@ class VFBCircuitBrowser extends Component {
     // Detect when the first load of the Graph component happens
     const { classes, circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
+    
+    let errorMessage = "Not enough input queries to create a graph, needs 2.";
+    if ( this.state.neurons[0] != "" && this.state.neurons[1] != "" ){
+      errorMessage = "Graph not available for " + this.state.neurons.join(",");
+    }
     return (
       this.state.loading
-        ? <CircularProgress classes={{ root : classes.loader }}
+        ? <CircularProgress id= { COMPONENT_ID } classes={{ root : classes.loader }}
         />
-        : <GeppettoGraphVisualization
-          id= { COMPONENT_ID }
-          // Graph data with Nodes and Links to populate
-          data={this.state.graph}
-          // Create the Graph as 2 Dimensional
-          d2={true}
-          // Node label, used in tooltip when hovering over Node
-          nodeLabel={node => node.path}
-          nodeRelSize={20}
-          nodeSize={30}
-          // Relationship label, placed in Link
-          linkLabel={link => link.name}
-          // Assign background color to Canvas
-          backgroundColor = {stylingConfiguration.canvasColor}
-          // Assign color to Links connecting Nodes
-          linkColor = {link => {
-            let color = stylingConfiguration.defaultLinkColor;
-            if ( self.highlightLinks.has(link) ) {
-              color = self.highlightNodes.has(link.source) || self.highlightNodes.has(link.targetNode) ? stylingConfiguration.defaultLinkHoverColor : stylingConfiguration.defaultLinkColor;
-            }
-
-            return color;
-          }}
-          nodeCanvasObject={(node, ctx, globalScale) => {
-            let cardWidth = NODE_WIDTH;
-            let cardHeight = NODE_HEIGHT;
-            let borderThickness = self.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
-
-            // Node border color
-            ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
-            // Create Border
-            ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
-
-            // Assign color to Description Area background in Node
-            ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
-            // Create Description Area in Node
-            ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
-            // Assign color to Title Bar background in Node
-            ctx.fillStyle = node.color;
-            // Create Title Bar in Node
-            ctx.fillRect(node.x - cardWidth / 2 ,node.y - cardHeight / 2, cardWidth - ( borderThickness * 2 ), cardHeight / 3);
-
-            // Assign font to text in Node
-            ctx.font = stylingConfiguration.defaultNodeFont;
-            // Assign color to text in Node
-            ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
-            // Text in font to be centered
-            ctx.textAlign = "center";
-            ctx.textBaseline = 'middle';
-            // Create Title in Node
-            ctx.fillText(node.title, node.x, node.y - 15);
-            // Add Description text to Node
-            this.wrapText(ctx, node.path, node.x, node.y, cardWidth - (borderThickness * 2) , 5);
-          }}
-          // Overwrite Node Canvas Object
-          nodeCanvasObjectMode={node => 'replace'}
-          // bu = Bottom Up, creates Graph with root at bottom
-          dagMode="lr"
-          dagLevelDistance = {100}
-          // Handles clicking event on an individual node
-          onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
-          ref={this.graphRef}
-          // Disable dragging of nodes
-          enableNodeDrag={false}
-          // Allow camera pan and zoom with mouse
-          enableZoomPanInteraction={true}
-          // Width of links
-          linkWidth={1.25}
-          controls = {
+        : this.state.graph.nodes.length == 0
+          ? <div>
+            <h4 className={classes.errorMessage}>{errorMessage}</h4>
             <Controls
               queriesUpdated={self.queriesUpdated}
               updateHops={self.updateHops}
@@ -461,42 +292,126 @@ class VFBCircuitBrowser extends Component {
               datasource="SOLR"
               legend = {self.state.legend}
             />
-          }
-          // Function triggered when hovering over a nodeoptions
-          onNodeHover={node => {
-            // Reset maps of hover nodes and links
-            self.highlightNodes.clear();
-            self.highlightLinks.clear();
+          </div>
+          : <GeppettoGraphVisualization
+            id= { COMPONENT_ID }
+            // Graph data with Nodes and Links to populate
+            data={this.state.graph}
+            // Create the Graph as 2 Dimensional
+            d2={true}
+            // Node label, used in tooltip when hovering over Node
+            nodeLabel={node => node.path}
+            nodeRelSize={20}
+            nodeSize={30}
+            // Relationship label, placed in Link
+            linkLabel={link => link.name}
+            // Assign background color to Canvas
+            backgroundColor = {stylingConfiguration.canvasColor}
+            // Assign color to Links connecting Nodes
+            linkColor = {link => {
+              let color = stylingConfiguration.defaultLinkColor;
+              if ( self.highlightLinks.has(link) ) {
+                color = self.highlightNodes.has(link.source) || self.highlightNodes.has(link.targetNode) ? stylingConfiguration.defaultLinkHoverColor : stylingConfiguration.defaultLinkColor;
+              }
 
-            // We found the node that we are hovering over
-            if (node) {
+              return color;
+            }}
+            nodeCanvasObject={(node, ctx, globalScale) => {
+              let cardWidth = NODE_WIDTH;
+              let cardHeight = NODE_HEIGHT;
+              let borderThickness = self.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
+
+              // Node border color
+              ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
+              // Create Border
+              ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
+
+              // Assign color to Description Area background in Node
+              ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
+              // Create Description Area in Node
+              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
+              // Assign color to Title Bar background in Node
+              ctx.fillStyle = node.color;
+              // Create Title Bar in Node
+              ctx.fillRect(node.x - cardWidth / 2 ,node.y - cardHeight / 2, cardWidth - ( borderThickness * 2 ), cardHeight / 3);
+
+              // Assign font to text in Node
+              ctx.font = stylingConfiguration.defaultNodeFont;
+              // Assign color to text in Node
+              ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
+              // Text in font to be centered
+              ctx.textAlign = "center";
+              ctx.textBaseline = 'middle';
+              // Create Title in Node
+              ctx.fillText(node.title, node.x, node.y - 15);
+              // Add Description text to Node
+              this.wrapText(ctx, node.path, node.x, node.y, cardWidth - (borderThickness * 2) , 5);
+            }}
+            // Overwrite Node Canvas Object
+            nodeCanvasObjectMode={node => 'replace'}
+            // bu = Bottom Up, creates Graph with root at bottom
+            dagMode="lr"
+            dagLevelDistance = {100}
+            // Handles clicking event on an individual node
+            onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
+            ref={this.graphRef}
+            // Disable dragging of nodes
+            enableNodeDrag={false}
+            // Allow camera pan and zoom with mouse
+            enableZoomPanInteraction={true}
+            // Width of links
+            linkWidth={1.25}
+            controls = {
+              <Controls
+                queriesUpdated={self.queriesUpdated}
+                updateHops={self.updateHops}
+                neurons={this.state.neurons}
+                queryLoaded={this.state.queryLoaded}
+                hops={this.state.hops}
+                resultsAvailable={ () => this.state.graph.nodes.length > 0 }
+                resetCamera={self.resetCamera}
+                zoomIn={self.zoomIn}
+                zoomOut={self.zoomOut}
+                circuitQuerySelected={this.circuitQuerySelected}
+                datasource="SOLR"
+                legend = {self.state.legend}
+              />
+            }
+            // Function triggered when hovering over a nodeoptions
+            onNodeHover={node => {
+            // Reset maps of hover nodes and links
+              self.highlightNodes.clear();
+              self.highlightLinks.clear();
+
+              // We found the node that we are hovering over
+              if (node) {
               // Keep track of hover node, its neighbors and links
-              self.highlightNodes.add(node);
-              node.neighbors.forEach(neighbor => self.highlightNodes.add(neighbor));
-              node.links.forEach(link => self.highlightLinks.add(link));
-            }
+                self.highlightNodes.add(node);
+                node.neighbors.forEach(neighbor => self.highlightNodes.add(neighbor));
+                node.links.forEach(link => self.highlightLinks.add(link));
+              }
 
-            // Keep track of hover node
-            self.hoverNode = node || null;
-            document.getElementById(COMPONENT_ID).style.cursor = node ? '-webkit-grab' : null;
-          }
-          }
-          // Function triggered when hovering over a link
-          onLinkHover={link => {
+              // Keep track of hover node
+              self.hoverNode = node || null;
+              document.getElementById(COMPONENT_ID).style.cursor = node ? '-webkit-grab' : null;
+            }
+            }
+            // Function triggered when hovering over a link
+            onLinkHover={link => {
             // Reset maps of hover nodes and links
-            self.highlightNodes.clear();
-            self.highlightLinks.clear();
+              self.highlightNodes.clear();
+              self.highlightLinks.clear();
 
-            // We found link being hovered
-            if (link) {
+              // We found link being hovered
+              if (link) {
               // Keep track of hovered link, and it's source/target node
-              self.highlightLinks.add(link);
-              self.highlightNodes.add(link.source);
-              self.highlightNodes.add(link.target);
+                self.highlightLinks.add(link);
+                self.highlightNodes.add(link.source);
+                self.highlightNodes.add(link.target);
+              }
             }
-          }
-          }
-        />
+            }
+          />
     )
   }
 }
@@ -504,7 +419,7 @@ class VFBCircuitBrowser extends Component {
 VFBCircuitBrowser.propTypes = { classes: PropTypes.object.isRequired };
 
 function mapStateToProps (state) {
-  return { circuitQuerySelected : state.generals.circuitQuerySelected }
+  return { circuitQuerySelected : state.generals.ui.circuitBrowser.circuitQuerySelected }
 }
 
 export default connect(mapStateToProps, null, null, { forwardRef : true } )(withStyles(styles)(VFBCircuitBrowser));

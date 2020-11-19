@@ -246,14 +246,6 @@ var toolbarMenu = {
           }
         },
         {
-          label: "Circuit Browser",
-          icon: "fa fa-cogs",
-          action: {
-            handlerAction: "UIElementHandler",
-            parameters: ["circuitBrowserVisible"]
-          }
-        },
-        {
           label: "NBLAST",
           icon: "",
           action: "",
@@ -309,16 +301,16 @@ var toolbarMenu = {
                   trailerIcon: "fa fa-external-link",
                   action: {
                     handlerAction: "openNewTab",
-                    parameters: ["https://fafb.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true"]
+                    parameters: ["https://fafb.catmaid.virtualflybrain.org/?pid=1&zp=65720&yp=160350.0517811483&xp=487737.6942783438&tool=tracingtool&sid0=1&s0=3.1999999999999993&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22Published%22%7D%7D,%200.6)"]
                   }
                 },
                 {
-                  label: "Adult VNC (VNC1)",
+                  label: "Adult VNC (FANC)",
                   icon: "",
                   trailerIcon: "fa fa-external-link",
                   action: {
                     handlerAction: "openNewTab",
-                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/?pid=1&zp=55260&yp=512482.5999999994&xp=173092.19999999998&tool=tracingtool&sid0=1&s0=9&help=true"]
+                    parameters: ["https://fanc.catmaid.virtualflybrain.org/?pid=1&zp=55260&yp=512482.5999999994&xp=173092.19999999998&tool=tracingtool&sid0=1&s0=9&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22publication%22%7D%7D,%200.6)"]
                   }
                 },
                 {
@@ -327,7 +319,7 @@ var toolbarMenu = {
                   trailerIcon: "fa fa-external-link",
                   action: {
                     handlerAction: "openNewTab",
-                    parameters: ["https://l1em.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true"]
+                    parameters: ["https://l1em.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
                   }
                 }
               ]
@@ -350,11 +342,11 @@ var toolbarMenu = {
                   }
                 },
                 {
-                  label: "Adult VNC (VNC1)",
+                  label: "Adult VNC (FANC)",
                   icon: "",
                   action: {
                     handlerAction: "openNewTab",
-                    parameters: ["https://vnc1.catmaid.virtualflybrain.org/apis/"]
+                    parameters: ["https://fanc.catmaid.virtualflybrain.org/apis/"]
                   }
                 },
                 {

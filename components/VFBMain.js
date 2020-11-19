@@ -17,7 +17,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import { connect } from "react-redux";
-import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY, VFB_LOAD_TERM_INFO, SHOW_LIST_VIEWER } from './../actions/generals';
+import * as ACTIONS from './../actions/generals';
 
 require('../css/base.less');
 require('../css/VFBMain.less');
@@ -36,7 +36,7 @@ class VFBMain extends React.Component {
       canvasAvailable: false,
       canvasVisible: true,
       listViewerVisible: true,
-      graphVisible: false,
+      graphVisible : true,
       circuitBrowserVisible : false,
       htmlFromToolbar: undefined,
       idSelected: undefined,
@@ -450,13 +450,13 @@ class VFBMain extends React.Component {
       this.UIUpdateItem(buttonState, "sliceViewer");
       break;
     case 'treeBrowserVisible':
-      this.UIUpdateItem(buttonState, "treeBrowserVisible");
+      this.UIUpdateItem(buttonState, "treeBrowser");
       break;
     case 'graphVisible':
-      this.UIUpdateItem(buttonState, "graphVisible");
+      this.UIUpdateItem(buttonState, "vfbGraph");
       break;
     case 'circuitBrowserVisible':
-      this.UIUpdateItem(buttonState, "circuitBrowserVisible");
+      this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
       break;
     case 'spotlightVisible':
       this.setState({
@@ -471,7 +471,7 @@ class VFBMain extends React.Component {
       });
       break;
     case 'listViewerVisible':
-      this.UIUpdateItem(buttonState, "listViewerVisible");
+      this.UIUpdateItem(buttonState, "vfbListViewer");
       break;
     case 'wireframeVisible':
       this.setState({
@@ -531,9 +531,12 @@ class VFBMain extends React.Component {
       var otherName = click.parameters[0].split(',')[2];
       var path = click.parameters[0].split(',')[0];
       var entity = Model[path];
+
+      $("body").css("cursor", "progress");
       this.refs.querybuilderRef.open();
       this.refs.querybuilderRef.switchView(false, false);
       this.refs.querybuilderRef.clearAllQueryItems();
+      // $('#add-new-query-container')[0].hidden = true; $('#query-builder-items-container')[0].hidden = true;
 
       var callback = function () {
         // check if any results with count flag
@@ -545,6 +548,7 @@ class VFBMain extends React.Component {
         }
         // show query component
         that.refs.querybuilderRef.open();
+        $("body").css("cursor", "default");
         GEPPETTO.trigger('stop_spin_logo');
       };
       // add query item + selection
@@ -906,10 +910,7 @@ class VFBMain extends React.Component {
           termInfoName={this.instanceOnFocus}
           termInfoId={this.idOnFocus}
           uiUpdated= { () => {
-            self.setState({
-              UIUpdated: true,
-              graphVisible: true
-            })
+            self.setState({ UIUpdated: true })
           }}
           focusTermRef={this.focusTermReference}
           exclude={["ClassQueriesFrom", "Debug"]}
@@ -990,6 +991,7 @@ class VFBMain extends React.Component {
           UIUpdated: true,
           graphVisible: false
         });
+        self.props.vfbGraph(ACTIONS.SHOW_GRAPH,null,-1, false, false);
       });
       
       // Event listener fired when graph component is resized
@@ -1020,10 +1022,7 @@ class VFBMain extends React.Component {
     } else if (component === "vfbCircuitBrowser") {
       let circuitBrowserVisibility = node.isVisible();
       node.setEventListener("close", () => {
-        this.setState({
-          UIUpdated: false,
-          circuitBrowserVisible: false
-        });
+        self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
       });
       
       // Event listener fired when circuit browser component is resized
@@ -1062,12 +1061,12 @@ class VFBMain extends React.Component {
     /**
      * If redux action was to set term info visible, we handle it here, other wise 'shouldComponentUpdate' will prevent update
      */
-    if ( nextProps.generals.termInfoVisible && nextProps.generals.type === VFB_LOAD_TERM_INFO ) {
+    if ( nextProps.generals.ui.termInfo.termInfoVisible && nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO ) {
       this.setActiveTab("termInfo");
       this.termInfoReference.setTermInfo(this.instanceOnFocus);
     }
-    
-    if ( nextProps.generals.listViewerInfoVisible && nextProps.generals.type === SHOW_LIST_VIEWER ) {
+
+    if ( nextProps.generals.ui.layers.listViewerInfoVisible && nextProps.generals.type === ACTIONS.SHOW_LIST_VIEWER ) {
       if (this.listViewerReference === undefined || this.listViewerReference === null) {
         this.setState({
           UIUpdated: true,
@@ -1101,25 +1100,30 @@ class VFBMain extends React.Component {
       }
     }
 
-    if ( this.props.generals.type == SHOW_GRAPH ) {
-      if ( !this.state.graphVisible ) {
+    if ( this.props.generals.type == ACTIONS.SHOW_GRAPH ) {
+      if ( !this.state.graphVisible && this.props.generals.ui.graph.visible ) {
         this.setState({
           UIUpdated: true,
           graphVisible: true
         });
-      } else {
+      } else if ( this.state.graphVisible && this.props.generals.ui.graph.visible ) {
         this.setActiveTab("vfbGraph");
-      }
+      } 
     }
     
-    if ( this.props.generals.type == UPDATE_CIRCUIT_QUERY ) {
-      if ( !this.state.circuitBrowserVisible ) {
+    if ( this.props.generals.type == ACTIONS.UPDATE_CIRCUIT_QUERY ) {
+      if ( !this.state.circuitBrowserVisible && this.props.generals.ui.circuitBrowser.visible ) {
         this.setState({
           UIUpdated: true,
           circuitBrowserVisible: true
         });
-      } else {
+      } else if ( this.state.circuitBrowserVisible && this.props.generals.ui.circuitBrowser.visible ) {
         this.setActiveTab("vfbCircuitBrowser");
+      } else if ( !this.props.generals.ui.circuitBrowser.visible && this.state.circuitBrowserVisible ) {
+        this.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: false
+        });
       }
     }
   }
@@ -1463,9 +1467,9 @@ class VFBMain extends React.Component {
   /**
    * Makes tab named 'tabName' become active.
    */
-  setActiveTab (tabComponentName) {
+  setActiveTab (tabComponentName, children) {
     let matchTab = 0;
-    let layoutChildren = this.model.toJson().layout.children;
+    let layoutChildren = children == undefined || children == null ? this.model.toJson().layout.children : children;
     for ( var i = 0; i < layoutChildren.length; i++){
       if ( layoutChildren[i].type === "tabset"){
         for ( var j = 0; j < layoutChildren[i].children.length ; j++){
@@ -1474,9 +1478,9 @@ class VFBMain extends React.Component {
             break;
           }
         }
-        // if ( this.model._activeTabSet !== undefined ) {
         this.model.doAction(FlexLayout.Actions.selectTab(matchTab));
-      //  }
+      } else if ( layoutChildren[i].children !== undefined){
+        this.setActiveTab(tabComponentName, layoutChildren[i].children);
       }
     }
   }

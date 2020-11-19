@@ -133,8 +133,23 @@ const buttonBarControls = {
                        'delete']
 };
 
+const linksConfiguration = {
+  // Graph Links configuration, name of key "Graph" must not be changed
+  "Graph": {
+    "title": "Graphs For",
+    "visibility": true,
+    "superType": "Anatomy"
+  },
+  // CircuitBrowser Links configuration, name of key "CircuitBrowser" must not be changed
+  "CircuitBrowser": {
+    "title": "Circuit browser For",
+    "visibility": true,
+    "superType": "hasSynapses"
+  }
+}
 
 module.exports = {
   buttonBarConfiguration,
-  buttonBarControls
+  buttonBarControls,
+  linksConfiguration
 };

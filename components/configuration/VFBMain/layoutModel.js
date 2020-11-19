@@ -53,33 +53,24 @@ var modelJson = {
         "selected": 0,
         "children": [
           {
-            "type": "tabset",
-            "weight": 55,
-            "selected": 0,
-            "children": [
-              {
-                "type": "tab",
-                "name": "Term Info",
-                "component": "termInfo"
-              }
-            ]
+            "type": "tab",
+            "name": "Term Info",
+            "component": "termInfo"
           },
           {
-            "type": "tabset",
-            "weight": 45,
-            "selected": 0,
-            "children": [
-              {
-                "type": "tab",
-                "name": "Layers",
-                "component": "vfbListViewer"
-              },
-              {
-                "type": "tab",
-                "name": "Template ROI Browser",
-                "component": "treeBrowser"
-              }
-            ]
+            "type": "tab",
+            "name": "Template ROI Browser",
+            "component": "treeBrowser"
+          },
+          {
+            "type": "tab",
+            "name": "Term Context",
+            "component": "vfbGraph"
+          },
+          {
+            "type": "tab",
+            "name": "Layers",
+            "component": "vfbListViewer"
           }
         ]
       }
