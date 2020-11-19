@@ -61,8 +61,12 @@ then
     cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
 
     # set java memory maximum
-    sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
-    sed 's/Xmx1024m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
+    sed "s/XX:MaxPermSize=512m/XX:MaxMetaspaceSize=${MAXSIZE,,}/g" -i $SERVER_HOME/bin/dmk.sh
+    sed "s/Xmx1024m/Xmx${MAXSIZE,,}/g" -i $SERVER_HOME/bin/dmk.sh
+    # shutdown on catastrophic out of memory error
+    sed 's/XX:+HeapDumpOnOutOfMemoryError/XX:OnOutOfMemoryError="shutdown -r"/g' -i $SERVER_HOME/bin/dmk.sh
+    # output error to the main log
+    sed 's@ErrorFile="$KERNEL_HOME/serviceability/error.log"@ErrorFile="$SERVER_HOME/serviceability/logs/log.log"@g' -i $SERVER_HOME/bin/dmk.sh
 
     # output log
     tail -F --retry $SERVER_HOME/serviceability/logs/log.log || true &
