@@ -48,7 +48,7 @@ var modelJson = {
         ]
       },
       {
-        "type": "tabset",
+        "type": "row",
         "weight": 45,
         "selected": 0,
         "children": [
@@ -73,7 +73,7 @@ var modelJson = {
             "component": "vfbListViewer"
           }
         ]
-      },
+      }
     ]
   }
 };
