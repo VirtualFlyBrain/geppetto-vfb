@@ -29,7 +29,7 @@ const clickQueryResult = async (page, text) => page.evaluate(async (text ) => {
  */
 describe('VFB Menu Component Tests', () => {
   beforeAll(async () => {
-    jest.setTimeout(120000); 
+    jest.setTimeout(120000);
     await page.goto(projectURL);
 
   });
@@ -101,7 +101,7 @@ describe('VFB Menu Component Tests', () => {
 
     it('Help Menu Appears', async () => {
       await page.evaluate(async () => document.getElementById("Help").click());
-      // Wait for drop down menu of 'Help' to show 
+      // Wait for drop down menu of 'Help' to show
       await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
       // Check there's four elements in the drop down menu of 'Help'
       const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
@@ -134,16 +134,16 @@ describe('VFB Menu Component Tests', () => {
       await page.evaluate(async () => document.getElementById("All Available Datasets").click());
       // Wait for results to appear, this means datasets were returned
       await wait4selector(page, '#querybuilder', { visible: true , timeout : 500000 });
-      await wait4selector(page, '#VFB_00028208-checkbox', { visible: true , timeout : 500000 });
+      await wait4selector(page, '#Xu2020NeuronsV1point1----VFBlicense_CC_BY_4_0----doi_10_1101_2020_01_21_911859-image-container', { visible: true , timeout : 500000 });
     })
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
-      await await clickQueryResult(page, "Dickson lab VT line collection - VDRC images")
+      await await clickQueryResult(page, "JRC_FlyEM_Hemibrain neurons Version 1.1")
       await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
       await page.waitFor(3000);
       await wait4selector(page, '#slider_image_0', { visible: true , timeout : 500000 });
-      let element = await findElementByText(page, "Dickson lab VT line collection - VDRC images");
-      expect(element).toBe("Dickson lab VT line collection - VDRC images");
+      let element = await findElementByText(page, "JRC_FlyEM_Hemibrain neurons Version 1.1");
+      expect(element).toBe("JRC_FlyEM_Hemibrain neurons Version 1.1");
     })
   })
 
