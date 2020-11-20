@@ -73,7 +73,7 @@ var modelJson = {
             "component": "vfbListViewer"
           }
         ]
-      },
+      }
     ]
   }
 };
