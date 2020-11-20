@@ -48,7 +48,7 @@ var modelJson = {
         ]
       },
       {
-        "type": "row",
+        "type": "tabset",
         "weight": 45,
         "selected": 0,
         "children": [
