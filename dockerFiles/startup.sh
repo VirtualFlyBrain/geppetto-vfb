@@ -54,7 +54,8 @@ then
 
     # Start a logfile
     mkdir -p $SERVER_HOME/serviceability/logs
-    echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
+    export log="$SERVER_HOME/serviceability/logs/log.log"
+    echo 'Start of log...' > $log
 
     # Deploy Geppetto
     rm $SERVER_HOME/./repository/usr/* || true
@@ -69,7 +70,6 @@ then
     sed 's@ErrorFile="$KERNEL_HOME/serviceability/error.log"@ErrorFile="$SERVER_HOME/serviceability/logs/log.log"@g' -i $SERVER_HOME/bin/dmk.sh
 
     # output log
-    log="$SERVER_HOME/serviceability/logs/log.log"
     tail -F --retry "$log" || true &
 
     # check for any memory issues:
