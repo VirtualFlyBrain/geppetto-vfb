@@ -36,7 +36,7 @@ then
     # Frontend final build
     cd $HOME/workspace/org.geppetto.frontend
     /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install 
+    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install
     rm -rf src
 fi
 
@@ -51,7 +51,7 @@ then
     echo "Client SOLR Server: $SOLR_SERVER"
     echo "Google Analytics code: ${googleAnalyticsSiteCode}"
     echo "useSSL:${USESSL}"
-    
+
     # Start a logfile
     mkdir -p $SERVER_HOME/serviceability/logs
     echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
@@ -69,7 +69,13 @@ then
     sed 's@ErrorFile="$KERNEL_HOME/serviceability/error.log"@ErrorFile="$SERVER_HOME/serviceability/logs/log.log"@g' -i $SERVER_HOME/bin/dmk.sh
 
     # output log
-    tail -F --retry $SERVER_HOME/serviceability/logs/log.log || true &
+    log="$SERVER_HOME/serviceability/logs/log.log"
+    tail -F --retry "$log" || true &
+
+    # check for any memory issues:
+    pid=1
+    match="java.lang.OutOfMemoryError"
+    while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; kill $pid; exit 0; fi; done &
 
     # start virgo server
     $SERVER_HOME/bin/startup.sh
