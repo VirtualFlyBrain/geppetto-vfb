@@ -6,6 +6,8 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
+VOLUME /tmp/error
+
 #SET TAG/BRANCH to use:
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
