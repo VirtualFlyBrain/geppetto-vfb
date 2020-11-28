@@ -152,17 +152,8 @@ describe('VFB Tree Browser Component Tests', () => {
 			let adultCerebralGanglionColor = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"].children[0].material.color.getHexString();
 			});
-			// Select color in color picker box, index 17 belongs to last available color in picker
-			await page.evaluate(async () => document.querySelectorAll("#tree-color-picker div")[17].click());
-			// Wait couple of seconds for mesh to reflect new color
-			await page.waitFor(20000);
-			// Retrieve new color in mesh
-			let adultCerebralGanglionNewColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"].children[0].material.color.getHexString();
-			});
-
-			// Compare RGB's of original color and new color
-			expect(adultCerebralGanglionColor).not.toEqual(adultCerebralGanglionNewColor);
+			expect(adultCerebralGanglionColor).toEqual("ffcc00");
+			await expect(page).toFill('input[value="#00FF00"]', '#f542e6');
 		})
 
 		it('Click on Node "adult mushroom body"', async () => {
@@ -178,39 +169,41 @@ describe('VFB Tree Browser Component Tests', () => {
 	describe('Add "Medulla"', () => {
 		// Load Medulla using search component
 		it('Search and Load "Medulla"', async () => {
-			// Open search component and search for Medulla
-			await wait4selector(page, 'i.fa-search', { visible: true, timeout : 10000 })
-			await page.waitFor(10000);
 			await click(page, 'i.fa-search');
-			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { visible: true , timeout : 10000});
-			await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
-			await page.keyboard.type('FBbt_00003748');
-			await page.waitFor(10000);
-			await page.keyboard.type(' ');
-			await page.waitFor(5000);
-			await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
-
-			// Click on Medulla from results page
-			await page.evaluate(async () => {
-				let tabs = document.getElementsByClassName('MuiListItem-root ');
-				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "medulla (FBbt_00003748)" ) {
-						tabs[i].click();
-					}
-				}				
+		    await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { visible: true });
+		    await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
+		    await page.keyboard.type('FBbt_00003748');
+		    await page.waitFor(10000);
+		    await page.keyboard.type(' ');
+		    await page.waitFor(5000);
+		    await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
+		     
+		    await page.evaluate(async () => {
+			  let tabs = document.getElementsByClassName('MuiListItem-root ');
+			  for ( var i = 0; i < tabs.length ; i ++ ) {
+			    if ( tabs[i].innerText === "medulla (FBbt_00003748)" ) {
+		  		  tabs[i].click();
+				}
+			   }				
 			});
-
-			// Wait for drop down menu in searchs component to go away
-			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
+		    await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
 		})
 
+		it('Open Tree Browser', async () => {
+			await page.waitFor(2000);
+			await selectTab(page, "Template ROI Browser");
+
+			// Check that the Tree Browser is visible
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
+		})
+		
 		it('Adult Brain remains root node after Medulla selection', async () => {
-			await page.waitFor(10000);
+			await page.waitFor(2000);
 			// Retrieve text from first node in Tree Browser
 			let firstNode = await page.evaluate(async () => {
-				return document.querySelectorAll(".rst__rowContents.rst__rowContentsDragDisabled span")[0].innerText;
+				return document.querySelector(".nodeFound").innerText;
 			});
-			expect(firstNode).toEqual("adult brain");
+			expect(firstNode).toEqual("medulla");
 		})
 	})
 })
