@@ -1245,11 +1245,12 @@ class VFBMain extends React.Component {
         if ( window.XMLHttpRequest ) {
           var xhr = new XMLHttpRequest();
           xhr.onload = function() { 
-            document.title = 'Virtual Fly Brain (' + this.responseXML.attr('title') + ')';
-            document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.querySelector( '#content' ));
+            document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
+            document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
           }
           xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
           xhr.responseType = 'document';
+          xhr.send();
         }
       } else if (idList[list].indexOf("i=") > -1) {
         if (idsList.length > 0) {
