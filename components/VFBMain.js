@@ -1177,7 +1177,7 @@ class VFBMain extends React.Component {
       }
     }
     // Set default page metadata
-    document.querySelector('meta[name="description"]').setAttribute("VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.", _desc);
+    document.querySelector('meta[name="description"]').setAttribute("content","VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.");
     document.title = "Virtual Fly Brain, a data integrator for Drosophila neurobiology";
   }
 
@@ -1241,6 +1241,8 @@ class VFBMain extends React.Component {
           idsList += ",";
         }
         idsList += this.idFromURL;
+        // populate page meta for this term for indexing
+
       } else if (idList[list].indexOf("i=") > -1) {
         if (idsList.length > 0) {
           idsList = "," + idsList;
