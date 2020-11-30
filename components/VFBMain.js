@@ -1000,9 +1000,9 @@ class VFBMain extends React.Component {
       });
       
       this.UIElementsVisibility[component] = node.isVisible();
-      let _height = node.getRect().height + 30;
-      let _width = node.getRect().width - 15;
-      return (<div className="flexChildContainer" style={{ position : "fixed", height: _height, width: _width }}>
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
@@ -1015,8 +1015,8 @@ class VFBMain extends React.Component {
       });
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
-      let _width = node.getRect().width - 15;
-      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "auto", height: _height, width: _width }}>
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBListViewer ref={ref => this.listViewerReference = ref} />
       </div>);
     } else if (component === "vfbCircuitBrowser") {
@@ -1033,7 +1033,7 @@ class VFBMain extends React.Component {
       this.UIElementsVisibility[component] = node.isVisible();
       let _height = node.getRect().height;
       let _width = node.getRect().width;
-      return (<div className="flexChildContainer" style={{ position : "fixed", height: _height, width: _width }}>
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
       </div>);
     }
@@ -1281,6 +1281,11 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
+    });
+    
+    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {
+      let id = instancePath.split(".")[0];
+      that.props.instanceDeleted(ACTIONS.INSTANCE_DELETED, id);
     });
 
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
