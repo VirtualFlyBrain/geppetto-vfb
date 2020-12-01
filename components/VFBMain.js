@@ -1183,7 +1183,7 @@ class VFBMain extends React.Component {
     document.querySelector('meta[property="og:title"]').setAttribute("content",document.title);
     setTimeout(function () {
       if (window.templateID == undefined) {
-        window.location.reload();
+        window.location.reload(true);
       }
     }, 20000);
   }
