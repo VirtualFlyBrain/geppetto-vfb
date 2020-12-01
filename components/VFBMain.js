@@ -1185,7 +1185,7 @@ class VFBMain extends React.Component {
       if (window.templateID == undefined) {
         window.location.reload();
       }
-    }, 5000);
+    }, 20000);
   }
 
   componentWillUnmount () {
