@@ -531,9 +531,12 @@ class VFBMain extends React.Component {
       var otherName = click.parameters[0].split(',')[2];
       var path = click.parameters[0].split(',')[0];
       var entity = Model[path];
+
+      $("body").css("cursor", "progress");
       this.refs.querybuilderRef.open();
       this.refs.querybuilderRef.switchView(false, false);
       this.refs.querybuilderRef.clearAllQueryItems();
+      // $('#add-new-query-container')[0].hidden = true; $('#query-builder-items-container')[0].hidden = true;
 
       var callback = function () {
         // check if any results with count flag
@@ -545,6 +548,7 @@ class VFBMain extends React.Component {
         }
         // show query component
         that.refs.querybuilderRef.open();
+        $("body").css("cursor", "default");
         GEPPETTO.trigger('stop_spin_logo');
       };
       // add query item + selection
@@ -1277,6 +1281,11 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
+    });
+    
+    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {
+      let id = instancePath.split(".")[0];
+      that.props.instanceDeleted(ACTIONS.INSTANCE_DELETED, id);
     });
 
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {

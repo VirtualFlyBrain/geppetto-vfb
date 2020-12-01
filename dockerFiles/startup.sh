@@ -36,7 +36,7 @@ then
     # Frontend final build
     cd $HOME/workspace/org.geppetto.frontend
     /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install 
+    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install
     rm -rf src
 fi
 
@@ -51,21 +51,31 @@ then
     echo "Client SOLR Server: $SOLR_SERVER"
     echo "Google Analytics code: ${googleAnalyticsSiteCode}"
     echo "useSSL:${USESSL}"
-    
+
     # Start a logfile
     mkdir -p $SERVER_HOME/serviceability/logs
-    echo 'Start of log...' > $SERVER_HOME/serviceability/logs/log.log
+    export log="$SERVER_HOME/serviceability/logs/log.log"
+    echo 'Start of log...' > $log
 
     # Deploy Geppetto
     rm $SERVER_HOME/./repository/usr/* || true
     cd $HOME/workspace/org.geppetto/utilities/source_setup && python update_server.py
 
     # set java memory maximum
-    sed 's/XX:MaxPermSize=512m/XX:MaxPermSize=$MAXSIZE/g' -i $SERVER_HOME/bin/dmk.sh
-    sed 's/Xmx1024m/Xmx$MAXSIZE/' -i $SERVER_HOME/bin/dmk.sh
+    sed "s/XX:MaxPermSize=512m/XX:MaxMetaspaceSize=${MAXSIZE,,}/g" -i $SERVER_HOME/bin/dmk.sh
+    sed "s/Xmx1024m/Xmx${MAXSIZE,,}/g" -i $SERVER_HOME/bin/dmk.sh
+    # shutdown on catastrophic out of memory error
+    sed 's/XX:+HeapDumpOnOutOfMemoryError/XX:OnOutOfMemoryError="shutdown -r"/g' -i $SERVER_HOME/bin/dmk.sh
+    # output error to the main log
+    sed 's@ErrorFile="$KERNEL_HOME/serviceability/error.log"@ErrorFile="$SERVER_HOME/serviceability/logs/log.log"@g' -i $SERVER_HOME/bin/dmk.sh
 
     # output log
-    tail -F --retry $SERVER_HOME/serviceability/logs/log.log || true &
+    tail -F --retry "$log" || true &
+
+    # check for any memory issues:
+    pid=1
+    match="java.lang.OutOfMemoryError"
+    while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; kill $pid; exit 0; fi; done &
 
     # start virgo server
     $SERVER_HOME/bin/startup.sh

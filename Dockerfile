@@ -6,6 +6,8 @@ ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
 
+VOLUME /tmp/error
+
 #SET TAG/BRANCH to use:
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
@@ -14,7 +16,7 @@ ARG geppettoSimulationRelease=vfb_20200604_a
 ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=development
-ARG geppettoClientRelease=VFBv2.2.0.5
+ARG geppettoClientRelease=VFBv2.2.0.6
 ARG ukAcVfbGeppettoRelease=pipeline2
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"

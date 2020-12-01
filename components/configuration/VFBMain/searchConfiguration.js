@@ -208,6 +208,12 @@ var searchConfiguration = {
         if (cA < cB) {
           return 1;
         }
+        if (a.label.length < b.label.length) {
+          return -1;
+        }
+        if (a.label.length > b.label.length) {
+          return 1;
+        }
       }
     }
     // close match without case matching ['xx ('ID/Label)]
