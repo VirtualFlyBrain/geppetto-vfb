@@ -1178,9 +1178,9 @@ class VFBMain extends React.Component {
     }
     // Set default page metadata
     document.querySelector('meta[name="description"]').setAttribute("content","VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.");
-    document.querySelector('meta[name="og:description"]').setAttribute("content","VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.");
+    document.querySelector('meta[property="og:description"]').setAttribute("content","VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.");
     document.title = "Virtual Fly Brain, a data integrator for Drosophila neurobiology";
-    document.querySelector('meta[name="og:title"]').setAttribute("content",document.title);
+    document.querySelector('meta[property="og:title"]').setAttribute("content",document.title);
   }
 
   componentWillUnmount () {
@@ -1248,9 +1248,9 @@ class VFBMain extends React.Component {
           var xhr = new XMLHttpRequest();
           xhr.onload = function () {
             document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
-            document.querySelector('meta[name="og:title"]').setAttribute("content",this.responseXML.title);
+            document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
             document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
-            document.querySelector('meta[name="og:description"]').setAttribute("content",this.responseXML.body.innerText);
+            document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
           }
           xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
           xhr.responseType = 'document';
