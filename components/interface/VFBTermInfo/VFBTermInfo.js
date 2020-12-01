@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Slider from "react-slick";
 import Collapsible from 'react-collapsible';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
-import ButtonBarComponent from '@geppettoengine/geppetto-client/components/widgets/popup/ButtonBarComponent';
+import ButtonBarComponent from './ButtonBarComponent';
 import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
 

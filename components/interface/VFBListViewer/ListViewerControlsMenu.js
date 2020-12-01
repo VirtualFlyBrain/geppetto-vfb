@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import Menu from "@geppettoengine/geppetto-ui/menu/Menu";
 import { connect } from 'react-redux';
-import { SliderPicker } from 'react-color';
-import { setTermInfo, SHOW_LIST_VIEWER } from './../../../actions/generals';
+import { ChromePicker } from 'react-color';
+import { setTermInfo, SHOW_LIST_VIEWER, INSTANCE_DELETED } from './../../../actions/generals';
 
 const controlsConfiguration = require('../../configuration/VFBListViewer/controlsMenuConfiguration').default;
 const ACTIONS = controlsConfiguration.actions;
@@ -227,7 +227,7 @@ class ListViewerControlsMenu extends Component {
             className="btnBar-color-picker"
             ref={ref => this.colorPickerContainer = ref}
             style={{ left: this.state.pickerPosition }}>
-            <SliderPicker
+            <ChromePicker
               color={ this.props.instance.getColor() }
               onChangeComplete={ (color, event) => {
                 this.props.instance.setColor(color.hex);
