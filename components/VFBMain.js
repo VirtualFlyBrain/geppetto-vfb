@@ -1261,7 +1261,7 @@ class VFBMain extends React.Component {
           xhr.responseType = 'document';
           xhr.send();
         }
-        var link = !document.querySelector("link[rel='amphtml']") ? document.querySelector("link[rel='amphtml']") : document.createElement('link');
+        var link = !!document.querySelector("link[rel='amphtml']") ? document.querySelector("link[rel='amphtml']") : document.createElement('link');
         link.setAttribute('rel', 'amphtml');
         link.setAttribute('href', 'https://virtualflybrain.org/data/VFB/json' + this.idFromURL + '.html');
         document.head.appendChild(link);
