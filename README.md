@@ -7,7 +7,7 @@ Running latest here: https://v2.virtualflybrain.org/org.geppetto.frontend/geppet
 
 To run server locally:
 
-docker run -p 8080:8080 virtualflybrain/geppetto-vfb
+docker run -p 8080:8080 virtualflybrain/geppetto-vfb:v2.2.0.4c-remote
 
 Access via: http://localhost:8080/org.geppetto.frontend/geppetto
 
