@@ -73,9 +73,8 @@ then
     tail -F --retry "$log" || true &
 
     # check for any memory issues:
-    pid=1
     match="java.lang.OutOfMemoryError"
-    while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; kill $pid; exit 0; fi; done &
+    while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; kill 17; kill 18; kill 19; kill 20; kill 21; exit 0; fi; done &
 
     # start virgo server
     $SERVER_HOME/bin/startup.sh
