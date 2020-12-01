@@ -1246,7 +1246,7 @@ class VFBMain extends React.Component {
         // populate page meta for this term for indexing
         if ( window.XMLHttpRequest ) {
           var xhr = new XMLHttpRequest();
-          xhr.onload = function() { 
+          xhr.onload = function () {
             document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
             document.querySelector('meta[name="og:title"]').setAttribute("content",this.responseXML.title);
             document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
@@ -1256,7 +1256,7 @@ class VFBMain extends React.Component {
           xhr.responseType = 'document';
           xhr.send();
         }
-        var link = !!document.querySelector("link[rel='amphtml']") ? document.querySelector("link[rel='amphtml']") : document.createElement('link');
+        var link = !document.querySelector("link[rel='amphtml']") ? document.querySelector("link[rel='amphtml']") : document.createElement('link');
         link.setAttribute('rel', 'amphtml');
         link.setAttribute('href', 'https://virtualflybrain.org/data/VFB/json' + this.idFromURL + '.html');
         document.head.appendChild(link);
