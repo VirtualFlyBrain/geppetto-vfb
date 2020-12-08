@@ -177,14 +177,14 @@ describe('VFB Tree Browser Component Tests', () => {
 		    await page.keyboard.type(' ');
 		    await page.waitFor(5000);
 		    await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
-		     
+
 		    await page.evaluate(async () => {
 			  let tabs = document.getElementsByClassName('MuiListItem-root ');
 			  for ( var i = 0; i < tabs.length ; i ++ ) {
 			    if ( tabs[i].innerText === "medulla (FBbt_00003748)" ) {
 		  		  tabs[i].click();
 				}
-			   }				
+			   }
 			});
 		    await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
 		})
@@ -196,7 +196,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Check that the Tree Browser is visible
 			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
 		})
-		
+
 		it('Adult Brain remains root node after Medulla selection', async () => {
 			await page.waitFor(2000);
 			// Retrieve text from first node in Tree Browser
