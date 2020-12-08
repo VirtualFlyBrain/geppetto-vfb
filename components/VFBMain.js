@@ -1318,6 +1318,11 @@ class VFBMain extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
     });
+    
+    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {
+      let id = instancePath.split(".")[0];
+      that.props.instanceDeleted(ACTIONS.INSTANCE_DELETED, id);
+    });
 
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
       that.addVfbId(that.idsFinalList);
