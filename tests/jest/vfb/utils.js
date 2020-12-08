@@ -32,7 +32,15 @@ export const testLandingPage = async (page, ID) => {
 
 	// Check page title
 	const title = await page.title();
-	expect(title).stringMatching("Virtual Fly Brain");
+	// Possible titles
+	const expected = [
+		expect.stringMatching("Virtual Fly Brain"),
+		expect.stringMatching("VFB_"),
+		expect.stringMatching("FBbt_")
+	  ];
+	expect(title).toEqual(
+		expect.arrayContaining(expected),
+	  );
 
 	// Check that the Term Info has a button for deselecting instance, this means it's done loading
 	await wait4selector(page, '#' + ID + '_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
