@@ -34,7 +34,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check Page was loaded by checking on the page title
 		it('Test Landing Page', async () => {
 			const title = await page.title();
-			expect(title).toBe("Virtual Fly Brain");
+			expect(title).toMatch("Virtual Fly Brain");
 		})
 
 		// Check for appearance of Loading component on top right corner
@@ -52,7 +52,7 @@ describe('VFB Loader Component Tests', () => {
 	})
 
 	// Once Loader is done, check all is correctly loaded
-	describe('Loader Finished, Test 1 Instance was Loaded', () => {				
+	describe('Loader Finished, Test 1 Instance was Loaded', () => {
 		// Check that progress bar has disappeared
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
