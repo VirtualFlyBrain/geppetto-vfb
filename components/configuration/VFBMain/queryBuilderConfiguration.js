@@ -39,6 +39,19 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "parent",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Parent",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "expressed_in",
     "order": 3,
     "locked": false,
@@ -89,6 +102,42 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Stage",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "downstream",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Downstream",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "tbars",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Tbars",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "upstream",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Upstream",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "weight",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Weight",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
