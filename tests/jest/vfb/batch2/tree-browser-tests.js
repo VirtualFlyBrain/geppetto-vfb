@@ -197,7 +197,7 @@ describe('VFB Tree Browser Component Tests', () => {
 					if ( tabs[i].innerText === "medulla (FBbt_00003748)" ) {
 						tabs[i].click();
 					}
-				}				
+				}
 			});
 
 			// Wait for drop down menu in searchs component to go away
@@ -206,6 +206,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Adult Brain remains root node after Medulla selection', async () => {
 			await page.waitFor(10000);
+			
 			// Retrieve text from first node in Tree Browser
 			let firstNode = await page.evaluate(async () => {
 				return document.querySelectorAll(".rst__rowContents.rst__rowContentsDragDisabled span")[0].innerText;
