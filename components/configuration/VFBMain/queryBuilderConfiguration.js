@@ -215,7 +215,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'type', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score','image_count'];
+var queryResultsColumns = ['name', 'type', 'parent', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'downstream', 'tbars', 'upstream', 'weight', 'license', 'template', 'technique', 'controls', 'images', 'score','image_count'];
 
 var queryResultsControlConfig = {
   "Common": {
