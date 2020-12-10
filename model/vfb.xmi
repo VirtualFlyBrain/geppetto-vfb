@@ -142,6 +142,9 @@
         id="NBLAST2"
         name="NEW NBLAST"/>
     <types xsi:type="gep_1:SimpleType"
+        id="has_image"
+        name="Has Image"/>
+    <types xsi:type="gep_1:SimpleType"
         id="has_neuron_connectivity"
         name="Has Neuron Connectivity"/>
     <types xsi:type="gep_1:SimpleType"
