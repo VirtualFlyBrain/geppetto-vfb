@@ -462,7 +462,27 @@
           name="neuron_region_connectivity_query"
           description="neuron_region_connectivity_query"
           query="&quot;statement&quot;: &quot;MATCH (primary) WHERE primary.short_form in [{ID}] WITH primary MATCH (target:Individual)&lt;-[r:has_presynaptic_terminals_in|has_post_synaptic_terminal_in]-(primary) WITH DISTINCT collect(properties(r)) + {} as props, target, primary WITH apoc.map.removeKeys(apoc.map.merge(props[0], props[1]),['iri', 'short_form', 'Related', 'label', 'type']) as synapse_counts, { short_form: target.short_form, label: coalesce(target.label,''), iri: target.iri, types: labels(target), symbol: coalesce(target.`symbol`[0], '')} as related_individuals, target,primary OPTIONAL MATCH (o:Class)&lt;-[r:SUBCLASSOF|INSTANCEOF]-(target) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o), symbol: coalesce(o.`symbol`[0], '')} ) END AS parents ,primary,target,synapse_counts, related_individuals OPTIONAL MATCH (target)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary, target, synapse_counts, related_individuals, parents   OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary,target,synapse_counts, related_individuals,parents RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), symbol: coalesce(primary.`symbol`[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, '64731dc' AS version , synapse_counts, related_individuals, parents, channel_image, 'neuron_region_connectivity_query' as query&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
-          countQuery="&quot;statement&quot;: &quot;MATCH (primary) WHERE primary.short_form in [{ID}] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary) WHERE primary.short_form in [{ID}] WITH primary MATCH (target:Individual)&lt;-[r:has_presynaptic_terminals_in|has_post_synaptic_terminal_in]-(primary) RETURN count(target) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="vfb_query schema processor"
+          description="vfb_query schema processor"
+          runForCount="false"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="compound_neuron_neuron_connectivity_query"
+        name="neuron_neuron_connectivity_query"
+        description="compound query for neo4j neuron_neuron_connectivity_query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          id="neuron_neuron_connectivity_query"
+          name="neuron_neuron_connectivity_query"
+          description="neuron_neuron_connectivity_query"
+          query="&quot;statement&quot;: &quot;MATCH (primary) WHERE primary.short_form in [{ID}] WITH primary MATCH (oi:Individual)-[r:synapsed_to]-(primary:Individual) WHERE exists(r.weight) AND r.weight[0] > 1 WITH primary, oi OPTIONAL MATCH (oi)&lt;-[down:synapsed_to]-(primary) WITH down, oi, primary OPTIONAL MATCH (primary)&lt;-[up:synapsed_to]-(oi) WITH { downstream: [coalesce(down.weight[0],0)], upstream:[coalesce(up.weight[0],0)] } as synapse_counts, { short_form: oi.short_form, label: coalesce(oi.label,''), iri: oi.iri, types: labels(oi), symbol: coalesce(oi.`symbol`[0], '')}  as related_individuals, oi,primary OPTIONAL MATCH (o:Class)&lt;-[r:SUBCLASSOF|INSTANCEOF]-(oi) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o), symbol: coalesce(o.`symbol`[0], '')} ) END AS parents ,primary,oi,synapse_counts, related_individuals OPTIONAL MATCH (oi)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary, oi, synapse_counts, related_individuals, parents   OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary,oi,synapse_counts, related_individuals,parents RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), symbol: coalesce(primary.`symbol`[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, '64731dc' AS version , synapse_counts, related_individuals, parents, channel_image, 'neuron_neuron_connectivity_query' as query&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary) WHERE primary.short_form in [{ID}] WITH primary MATCH (oi:Individual)-[r:synapsed_to]-(primary:Individual) WHERE exists(r.weight) AND r.weight[0] > 1 RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           id="vfb_query_schema_processor"
@@ -1065,6 +1085,14 @@
       name="Show connectivity to regions from Neuron X"
       description="Show connectivity to regions from $NAME"
       queryChain="//@dataSources.0/@queries.15">
+    <matchingCriteria
+        type="//@libraries.3/@types.2"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ref_neuron_neuron_connectivity_query"
+      name="Show connectivity to neurons from Neuron X"
+      description="Show synaptic connectivity from $NAME"
+      queryChain="//@dataSources.0/@queries.16">
     <matchingCriteria
         type="//@libraries.3/@types.2"/>
   </queries>
