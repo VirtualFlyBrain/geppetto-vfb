@@ -380,6 +380,10 @@ var queryBuilderDatasourceConfig = {
 
 var sorterColumns = [
   {
+    column: "downstream",
+    order: "ASC"
+  },
+  {
     column: "score",
     order: "DESC"
   },
