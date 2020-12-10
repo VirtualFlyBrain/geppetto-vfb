@@ -141,6 +141,12 @@
     <types xsi:type="gep_1:SimpleType"
         id="NBLAST2"
         name="NEW NBLAST"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="has_neuron_connectivity"
+        name="Has Neuron Connectivity"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="has_region_connectivity"
+        name="Has Region Connectivity"/>
   </libraries>
   <libraries
       id="vfbLibrary"
