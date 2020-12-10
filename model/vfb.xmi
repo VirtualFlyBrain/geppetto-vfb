@@ -1095,7 +1095,7 @@
       description="Show connectivity to regions from $NAME"
       queryChain="//@dataSources.0/@queries.15">
     <matchingCriteria
-        type="//@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.43"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ref_neuron_neuron_connectivity_query"
@@ -1103,6 +1103,6 @@
       description="Show synaptic connectivity from $NAME"
       queryChain="//@dataSources.0/@queries.16">
     <matchingCriteria
-        type="//@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.42"/>
   </queries>
 </gep:GeppettoModel>
