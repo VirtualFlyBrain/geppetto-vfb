@@ -34,7 +34,7 @@ var queryResultsColMeta = [
     "actions": "window.addVfbId('$entity$');",
     "entityIndex": 0,
     "entityDelimiter": "----",
-    "displayName": "Neuron A",
+    "displayName": "Neuron_A",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -163,7 +163,7 @@ var queryResultsColMeta = [
     "actions": "window.addVfbId('$entity$');",
     "entityIndex": 1,
     "entityDelimiter": "----",
-    "displayName": "Neuron B",
+    "displayName": "Neuron_B",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
