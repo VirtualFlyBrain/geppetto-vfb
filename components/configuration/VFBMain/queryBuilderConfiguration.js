@@ -168,6 +168,32 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "region",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Region",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "traget",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Target",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "license",
     "order": 8,
     "locked": false,
@@ -241,7 +267,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'neuron_A', 'type', 'parent', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'downstream', 'tbars', 'upstream', 'weight', 'neuron_B', 'license', 'template', 'technique', 'controls', 'images', 'score','image_count'];
+var queryResultsColumns = ['name', 'neuron_A', 'type', 'parent', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'downstream', 'tbars', 'upstream', 'weight', 'neuron_B', 'region', 'target', 'license', 'template', 'technique', 'controls', 'images', 'score','image_count'];
 
 var queryResultsControlConfig = {
   "Common": {
