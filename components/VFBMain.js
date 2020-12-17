@@ -823,7 +823,7 @@ class VFBMain extends React.Component {
           this.restoreUIComponent("vfbCircuitBrowser");
         }
         this.setState({ UIUpdated: false });
-        break;    
+        break;
       case 'treeBrowserVisible':
         if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
           this.restoreUIComponent("treeBrowser");
