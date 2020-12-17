@@ -53,12 +53,12 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "parent",
-    "order": 2,
+    "order": 12,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
+    "entityIndex": 2,
     "entityDelimiter": "----",
     "displayName": "Parent",
     "cssClassName": "query-results-type-column",
@@ -129,7 +129,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "tbars",
-    "order": 7,
+    "order": 8,
     "locked": false,
     "visible": true,
     "displayName": "Tbars",
@@ -138,7 +138,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "upstream",
-    "order": 7,
+    "order": 9,
     "locked": false,
     "visible": true,
     "displayName": "Upstream",
@@ -147,7 +147,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "weight",
-    "order": 7,
+    "order": 10,
     "locked": false,
     "visible": true,
     "displayName": "Weight",
@@ -156,7 +156,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "neuron_B",
-    "order": 2,
+    "order": 11,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
