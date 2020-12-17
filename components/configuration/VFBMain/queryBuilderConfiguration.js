@@ -169,7 +169,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "region",
-    "order": 2,
+    "order": 11,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
@@ -182,7 +182,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "traget",
-    "order": 2,
+    "order": 11,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
