@@ -74,7 +74,7 @@ then
 
     # check for any memory issues:
     match="java.lang.OutOfMemoryError"
-    while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; kill 17; kill 18; kill 19; kill 20; kill 21; exit 0; fi; done &
+    while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; pkill -u developer; exit 0; fi; done &
 
     # start virgo server
     $SERVER_HOME/bin/startup.sh
