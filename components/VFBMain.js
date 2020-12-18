@@ -1176,6 +1176,12 @@ class VFBMain extends React.Component {
         this.quickHelpRender = <VFBQuickHelp id="quickHelp" closeQuickHelp={this.closeQuickHelp} />;
       }
     }
+    
+    setTimeout(function () {
+      if (window.templateID == undefined) {
+        window.location.reload(true);
+      }
+    }, 20000);
   }
 
   componentWillUnmount () {

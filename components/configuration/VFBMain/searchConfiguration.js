@@ -84,7 +84,7 @@ var searchStyle = {
 };
 
 var datasourceConfiguration = {
-  "url": "https://solr.p2.virtualflybrain.org/solr/ontology/select",
+  "url": "https://solr.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
