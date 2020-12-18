@@ -58,9 +58,9 @@ export const instanceAdded = instance => ({
   data: instance
 });
 
-export const instanceDeleted = (type, instance) => ({
+export const instanceDeleted = (type, id) => ({
   type: type,
-  data: instance
+  data: id
 });
 
 export const instanceSelected = instance => ({

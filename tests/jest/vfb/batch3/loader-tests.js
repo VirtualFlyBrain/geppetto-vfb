@@ -34,7 +34,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check Page was loaded by checking on the page title
 		it('Test Landing Page', async () => {
 			const title = await page.title();
-			expect(title).toBe("Virtual Fly Brain");
+			expect(title).toMatch("Virtual Fly Brain");
 		})
 
 		// Check for appearance of Loading component on top right corner
@@ -52,7 +52,7 @@ describe('VFB Loader Component Tests', () => {
 	})
 
 	// Once Loader is done, check all is correctly loaded
-	describe('Loader Finished, Test 1 Instance was Loaded', () => {				
+	describe('Loader Finished, Test 1 Instance was Loaded', () => {
 		// Check that progress bar has disappeared
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
@@ -90,7 +90,7 @@ describe('VFB Loader Component Tests', () => {
 
 		it('Test Landing Page', async () => {
 			const title = await page.title();
-			expect(title).toBe("Virtual Fly Brain");
+			expect(title).toMatch("Virtual Fly Brain");
 		})
 
 		// Check that the Loading component appears in top right corner
@@ -107,7 +107,7 @@ describe('VFB Loader Component Tests', () => {
 	})
 
 	// 2 instances are finished loading, check they were loaded in other components too
-	describe('Loader Finished, Test 2 Instances were Loaded', () => {				
+	describe('Loader Finished, Test 2 Instances were Loaded', () => {
 		// Check that the progress bar is gone after 2 instances are done loading
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
@@ -149,7 +149,7 @@ describe('VFB Loader Component Tests', () => {
 		// Test landing page was reached by checking title
 		it('Test Landing Page', async () => {
 			const title = await page.title();
-			expect(title).toBe("Virtual Fly Brain");
+			expect(title).toMatch("Virtual Fly Brain");
 		})
 
 		// Check the existence of a loading bar in top right corner
@@ -166,13 +166,13 @@ describe('VFB Loader Component Tests', () => {
 	})
 
 	// Once 3 instances are done loading, check all components are loaded with them
-	describe('Loader Finished, Test 3 Instances Were Loaded', () => {				
+	describe('Loader Finished, Test 3 Instances Were Loaded', () => {
 		// Check that the progress bar is gone, which means instances have loaded
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 300000 });
 		})
 
-		// Check Term Info has loaded the last instance added 
+		// Check Term Info has loaded the last instance added
 		it('Term info component created and populated after load with FBbt_00003678', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 60000 })
 			let element = await findElementByText(page, "ellipsoid body");

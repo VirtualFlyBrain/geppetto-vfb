@@ -5,6 +5,7 @@ import {
   vfbUIUpdated,
   instanceAdded,
   instanceSelected,
+  instanceDeleted,
   instanceVisibilityChanged,
   setTermInfo,
   vfbGraph,
@@ -22,6 +23,7 @@ const mapDispatchToProps = dispatch => ({
   vfbCircuitBrowser: (type, path, visible) => dispatch (vfbCircuitBrowser(type, path, visible)),
   instanceAdded: instance => dispatch(instanceAdded(instance)),
   instanceSelected : instance => dispatch(instanceSelected(instance)),
+  instanceDeleted : (type, instanceID) => dispatch(instanceDeleted(type, instanceID)),
   instanceVisibilityChanged : instance => dispatch(instanceVisibilityChanged(instance)),
   setTermInfo: (instance, visible) => dispatch (setTermInfo(instance, visible))
 });

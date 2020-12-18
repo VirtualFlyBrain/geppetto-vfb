@@ -75,13 +75,17 @@ const conf = [
         return t.type.getInitialValue().value
       })[0].html;
 
+      let htmlLabels = instance.getTypes().map(function (t) {
+        return t.label.getInitialValue().value
+      })[0].html;
+
       // Extract HTML element anchor from html string
       var matchAnchor = /<a[^>]*>([\s\S]*?)<\/a>/g
         , type = html.match(matchAnchor);
 
       // Extract HTML element anchor from html string
       var matchSpan = /<span[^>]*>([\s\S]*?)<\/span>/g
-        , tags = html.match(matchSpan);
+        , tags = htmlLabels.match(matchSpan);
 
       var matchID = /data-instancepath\=\"([A-Za-z0-9 _]*)\"/
         , classID = type[0].match(matchID)[1];
