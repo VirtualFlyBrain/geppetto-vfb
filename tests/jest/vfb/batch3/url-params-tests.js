@@ -22,7 +22,7 @@ const testLandingPage = function(){
 
 	it('VFB Title shows up', async () => {
 		const title = await page.title();
-		expect(title).toBe("Virtual Fly Brain");
+		expect(title).toMatch("Virtual Fly Brain");
 	})
 };
 
