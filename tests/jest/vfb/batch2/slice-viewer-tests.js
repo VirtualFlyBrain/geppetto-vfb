@@ -28,7 +28,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
-			expect(title).toBe("Virtual Fly Brain");
+			expect(title).toMatch("Virtual Fly Brain");
 		})
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {

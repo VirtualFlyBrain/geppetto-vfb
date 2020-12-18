@@ -191,26 +191,26 @@ describe('VFB Layer Component Tests', () => {
 		it('Color Picker Appears for VFB_jrchk4wj', async () => {
 			await openControls(page, "PVLP142_R - 5812987602");
 			await clickLayerControlsElement(page, 'Color');
-			await wait4selector(page, 'div.slider-picker', { visible: true, timeout : 500000 })
+			await wait4selector(page, 'div.chrome-picker', { visible: true, timeout : 500000 })
 		})
 
 		// Chance color of VFB_jrchk4wj instance using controls
 		it('Use color picker to change color of VFB_jrchk4wj', async () => {
 			// Retrieve old color in mesh
-			let originalColor = await page.evaluate(async () => {
+			let meshColor = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
 			});
-			// Select color in color picker box, index 17 belongs to last available color in picker
-			await page.evaluate(async () => document.querySelectorAll("div.slider-picker div")[16].click());
-			// Wait couple of seconds for mesh to reflect new color
-			await page.waitFor(20000);
+			
+			expect(meshColor).toEqual("ffcc00");
+			
+			await expect(page).toFill('input[value="#00FF00"]', '#f542e6')
+			await page.waitFor(15000);
 			// Retrieve new color in mesh
 			let newColor = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
 			});
 
-			// Compare RGB's of original color and new color
-			expect(originalColor).not.toEqual(newColor);
+			expect(newColor).toEqual('f542e6');
 		})
 
 		// Click on control's option to delete VFB_jrchk4wj instance and check is now gone

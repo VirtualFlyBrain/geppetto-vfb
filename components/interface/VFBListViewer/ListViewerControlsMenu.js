@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Menu from "@geppettoengine/geppetto-ui/menu/Menu";
 import { connect } from 'react-redux';
-import { SliderPicker } from 'react-color';
+import { ChromePicker } from 'react-color';
 import { setTermInfo, SHOW_LIST_VIEWER, INSTANCE_DELETED } from './../../../actions/generals';
 
 const controlsConfiguration = require('../../configuration/VFBListViewer/controlsMenuConfiguration').default;
@@ -62,7 +62,6 @@ class ListViewerControlsMenu extends Component {
       break;
     case ACTIONS.DELETE:
       this.props.instance.delete();   
-      this.props.instanceDeleted(INSTANCE_DELETED, this.props.instance);
       break;
     case ACTIONS.INFO:
       var self = this;
@@ -228,7 +227,7 @@ class ListViewerControlsMenu extends Component {
             className="btnBar-color-picker"
             ref={ref => this.colorPickerContainer = ref}
             style={{ left: this.state.pickerPosition }}>
-            <SliderPicker
+            <ChromePicker
               color={ this.props.instance.getColor() }
               onChangeComplete={ (color, event) => {
                 this.props.instance.setColor(color.hex);
@@ -247,10 +246,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return {
-    setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )),
-    instanceDeleted : ( type, instance ) => dispatch({ type : type , instance : instance })
-  }
+  return { setTermInfo: (instance, visible) => dispatch(setTermInfo(instance, visible )) }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ListViewerControlsMenu);
