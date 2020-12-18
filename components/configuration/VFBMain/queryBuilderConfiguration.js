@@ -26,6 +26,19 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "neuron_A",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 0,
+    "entityDelimiter": "----",
+    "displayName": "Neuron_A",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "type",
     "order": 2,
     "locked": false,
@@ -35,6 +48,19 @@ var queryResultsColMeta = [
     "entityIndex": 1,
     "entityDelimiter": "----",
     "displayName": "Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "parent",
+    "order": 12,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 2,
+    "entityDelimiter": "----",
+    "displayName": "Parent",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -90,6 +116,81 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Stage",
     "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "downstream",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Downstream",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "tbars",
+    "order": 8,
+    "locked": false,
+    "visible": true,
+    "displayName": "Tbars",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "upstream",
+    "order": 9,
+    "locked": false,
+    "visible": true,
+    "displayName": "Upstream",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "weight",
+    "order": 10,
+    "locked": false,
+    "visible": true,
+    "displayName": "Weight",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "neuron_B",
+    "order": 11,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Neuron_B",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "region",
+    "order": 11,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Region",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "traget",
+    "order": 11,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Target",
+    "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
@@ -166,7 +267,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'type', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score','image_count'];
+var queryResultsColumns = ['name', 'neuron_A', 'type', 'downstream', 'tbars', 'upstream', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count'];
 
 var queryResultsControlConfig = {
   "Common": {
@@ -330,6 +431,10 @@ var queryBuilderDatasourceConfig = {
 };
 
 var sorterColumns = [
+  {
+    column: "downstream",
+    order: "DESC"
+  },
   {
     column: "score",
     order: "DESC"

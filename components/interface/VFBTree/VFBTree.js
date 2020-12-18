@@ -1,6 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import React from 'react';
-import { SliderPicker } from 'react-color';
+import { ChromePicker } from 'react-color';
 import Tree from '@geppettoengine/geppetto-ui/tree-viewer/Tree';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -396,7 +396,7 @@ class VFBTree extends React.Component {
           ? <div
             id="tree-color-picker"
             ref={ref => this.colorPickerContainer = ref}>
-            <SliderPicker
+            <ChromePicker
               color={Instances[rowInfo.node.instanceId].getColor()}
               onChangeComplete={ (color, event) => {
                 Instances[rowInfo.node.instanceId].setColor(color.hex);
