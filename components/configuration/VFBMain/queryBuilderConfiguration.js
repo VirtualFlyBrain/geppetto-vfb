@@ -40,7 +40,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "type",
-    "order": 2,
+    "order": 3,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
@@ -53,12 +53,12 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "parent",
-    "order": 12,
+    "order": 3,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 2,
+    "entityIndex": 1,
     "entityDelimiter": "----",
     "displayName": "Parent",
     "cssClassName": "query-results-type-column",
@@ -123,7 +123,7 @@ var queryResultsColMeta = [
     "order": 7,
     "locked": false,
     "visible": true,
-    "displayName": "Downstream",
+    "displayName": "#_Downstream_Synapses",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -132,7 +132,7 @@ var queryResultsColMeta = [
     "order": 8,
     "locked": false,
     "visible": true,
-    "displayName": "Tbars",
+    "displayName": "#_Tbars",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -141,7 +141,7 @@ var queryResultsColMeta = [
     "order": 9,
     "locked": false,
     "visible": true,
-    "displayName": "Upstream",
+    "displayName": "#_Upstream_Synapses",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -156,14 +156,14 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "neuron_B",
-    "order": 11,
+    "order": 1,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
+    "entityIndex": 2,
     "entityDelimiter": "----",
-    "displayName": "Neuron_B",
+    "displayName": "Partner_Neuron",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
