@@ -251,6 +251,20 @@ var searchConfiguration = {
     if (b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
       return -1;
     }
+    // also with + ignored
+    if (a.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) > -1) {
+      return 1;
+    }
+    if (b.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) > -1) {
+      return -1;
+    }
+    // also with - ignored
+    if (a.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) > -1) {
+      return 1;
+    }
+    if (b.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) > -1) {
+      return -1;
+    }
     // if not found in one then advance the other
     if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
       return 1;
