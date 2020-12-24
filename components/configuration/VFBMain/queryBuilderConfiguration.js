@@ -169,7 +169,7 @@ var queryResultsColMeta = [
   },
   {
     "columnName": "region",
-    "order": 11,
+    "order": 2,
     "locked": false,
     "visible": true,
     "customComponent": QueryLinkComponent,
