@@ -377,7 +377,7 @@ var toolbarMenu = {
               }
             },
             {
-              label: "R library",
+              label: "R wrapper",
               icon: "",
               trailerIcon: "fa fa-external-link",
               action: {
