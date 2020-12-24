@@ -251,18 +251,11 @@ var searchConfiguration = {
     if (b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
       return -1;
     }
-    // also with + ignored
-    if (a.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) > -1) {
+    // pick up any match without non alpha numeric join character match
+    if (a.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) > -1) {
       return 1;
     }
-    if (b.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('+', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('+', ' ')) > -1) {
-      return -1;
-    }
-    // also with - ignored
-    if (a.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) > -1) {
-      return 1;
-    }
-    if (b.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('-', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('-', ' ')) > -1) {
+    if (b.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) > -1) {
       return -1;
     }
     // if not found in one then advance the other
