@@ -360,6 +360,32 @@ var toolbarMenu = {
               ]
             }
           ]
+        },
+        {
+          label: "VFB CONNECT (API)",
+          icon: "",
+          action: "",
+          position: "right-start",
+          list: [
+            {
+              label: "Python (PyPi)",
+              icon: "",
+              trailerIcon: "fa fa-external-link",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["https://pypi.org/project/vfb-connect/"]
+              }
+            },
+            {
+              label: "R wrapper",
+              icon: "",
+              trailerIcon: "fa fa-external-link",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["https://github.com/jefferis/vfbconnectr"]
+              }
+            }
+          ]
         }
       ]
     },
