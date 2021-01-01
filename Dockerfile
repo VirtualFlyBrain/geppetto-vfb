@@ -1,6 +1,6 @@
 FROM metacell/java-virgo-maven:development
 
-MAINTAINER Robert Court "rcourt@ed.ac.uk"
+LABEL maintainer="rcourt@ed.ac.uk"
 
 ARG targetBranch=development
 ARG originBranch=development
