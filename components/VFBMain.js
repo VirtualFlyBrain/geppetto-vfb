@@ -1273,6 +1273,11 @@ class VFBMain extends React.Component {
           link.setAttribute('rel', 'amphtml');
           link.setAttribute('href', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html');
           document.head.appendChild(link);
+          var conlink = !!document.querySelector("link[rel='canonical']");
+          conlink = conlink ? document.querySelector("link[rel='canonical']") : document.createElement('link');
+          conlink.setAttribute('rel', 'canonical');
+          conlink.setAttribute('href', 'https://virtualflybrain.org/reports/' + this.idFromURL);
+          document.head.appendChild(conlink);
         } catch (err) {
           console.error(err);
         }
