@@ -1259,7 +1259,7 @@ class VFBMain extends React.Component {
     // Loading ids passed through the browser's url
     var idsList = "";
     var idList = this.props.location.search;
-    idList = idList.replace("?","").replaceAll(":","_").split("&");
+    idList = idList.replace("?","").split("&");
     for (let list in idList) {
       if (idList[list].indexOf("id=") > -1) {
         this.idFromURL = idList[list].replace("id=","");
@@ -1283,7 +1283,7 @@ class VFBMain extends React.Component {
                   }
                 }
               } catch (err) {
-                console.error(err);
+                console.log(err);
               }
             }
             xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
@@ -1351,7 +1351,7 @@ class VFBMain extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
     });
-    
+
     GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {
       let id = instancePath.split(".")[0];
       that.props.instanceDeleted(ACTIONS.INSTANCE_DELETED, id);
