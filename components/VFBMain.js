@@ -1258,7 +1258,7 @@ class VFBMain extends React.Component {
     // Loading ids passed through the browser's url
     var idsList = "";
     var idList = this.props.location.search;
-    idList = idList.replace("?","").split("&");
+    idList = idList.replace("?","").replace(":","_").split("&");
     for (let list in idList) {
       if (idList[list].indexOf("id=") > -1) {
         this.idFromURL = idList[list].replace("id=","");
