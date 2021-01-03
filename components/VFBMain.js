@@ -1272,12 +1272,18 @@ class VFBMain extends React.Component {
           if ( window.XMLHttpRequest ) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
-              if (this.responseXML.title.indexOf("404 Not Found") < 0) {
-                document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
-                document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
-                document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
-                document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
-                document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML
+              try {
+                if (this.responseXML.title.indexOf("404 Not Found") < 0) {
+                  document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
+                  document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
+                  document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
+                  document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
+                  if (document.getElementById('metaDesc') != undefined) {
+                    document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
+                  }
+                }
+              } catch (err) {
+                console.error(err);
               }
             }
             xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
