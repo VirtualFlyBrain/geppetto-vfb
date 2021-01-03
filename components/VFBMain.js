@@ -1181,6 +1181,25 @@ class VFBMain extends React.Component {
     document.querySelector('meta[property="og:description"]').setAttribute("content","VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.");
     document.title = "Virtual Fly Brain, a data integrator for Drosophila neurobiology";
     document.querySelector('meta[property="og:title"]').setAttribute("content",document.title);
+    var script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'metaDesc';
+    script.innerHTML = '{"@context": "https://schema.org","@type": "Organization","url": "https://virtualflybrain.org","logo": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png","name":"Virtual Fly Brain",'
+      + '"description":"VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.",'
+      + '"affiliation":['
+      + '{"@type": "Organization","name":"Institute for Adaptive and Neural Computation, School of Informatics, University of Edinburgh","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/InformaticsLogo.gif","url":"https://web.inf.ed.ac.uk/anc"},'
+      + '{"@type": "Organization","name":"Department of Genetics, University of Cambridge","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/CUnibig.png","url":"http://www.gen.cam.ac.uk/"},'
+      + '{"@type": "Organization","name":"Department of Physiology, Development and Neuroscience, University of Cambridge", "url":"https://www.pdn.cam.ac.uk/","logo":"https://www.pdn.cam.ac.uk/images/157071101713274785.png/image_logo"},'
+      + '{"@type": "Organization","name":"FlyBase","url":"https://flybase.org","logo":"http://flybase.org/images/fly_logo.png"},'
+      + '{"@type": "Organization","name":"MRC Laboratory of Molecular Biology, Cambridge","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/MRC-LMB_logo.png","url":"http://www2.mrc-lmb.cam.ac.uk/"},'
+      + '{"@type": "Organization","name":"European Bioinformatics Institute (EMBL-EBI), Cambridge","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/EMBL_EBI_logo_180pixels_RGB.png","url":"http://www.ebi.ac.uk/"}'
+      + '],"funder":{"@type": "Organization","name":"Wellcome Trust","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/wtvm050446.png","url":"https://wellcome.org/"},'
+      + '"sameAs":"https://en.wikipedia.org/wiki/Virtual_Fly_Brain","alternateName":"VFB",'
+      + '"subjectOf":['
+      + '{"@type": "ScholarlyArticle","citation":"http://dx.doi.org/10.1093/bioinformatics/btr677","sameAs":"http://dx.doi.org/10.1093/bioinformatics/btr677","name":"The Virtual Fly Brain browser and query interface","datePublished":"2012","author":[{"@type":"person","name":"Milyaev, N."},{"@type":"person","name":"Osumi-Sutherland, D."},{"@type":"person","name":"Reeve, S."},{"@type":"person","name":"Burton, N."},{"@type":"person","name":"Baldock, R. A."},{"@type":"person","name":"Armstrong, J. D."}],"publisher":"Bioinformatics"},'
+      + '{"@type": "ScholarlyArticle","citation":"http://dx.doi.org/10.1098/rstb.2017.0380","sameAs":"http://dx.doi.org/10.1098/rstb.2017.0380","name":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","author":"Cantarelli, Matteo and Marin, Boris and Quintana, Adrian and Earnshaw, Matt and Court, Robert and Gleeson, Padraig and Dura-Bernal, Salvador and Silver, R. Angus and Idili, Giovanni","publisher": "Philosophical Transactions of the Royal Society B: Biological Sciences","datePublished": "2018"}'
+      + ']}';
+    document.getElementsByTagName('head')[0].appendChild(script);
     setTimeout(function () {
       if (window.templateID == undefined) {
         window.location.reload(true);
@@ -1240,7 +1259,7 @@ class VFBMain extends React.Component {
     // Loading ids passed through the browser's url
     var idsList = "";
     var idList = this.props.location.search;
-    idList = idList.replace("?","").split("&");
+    idList = idList.replace("?","").replace(/:/g, '_').split("&");
     for (let list in idList) {
       if (idList[list].indexOf("id=") > -1) {
         this.idFromURL = idList[list].replace("id=","");
@@ -1253,11 +1272,18 @@ class VFBMain extends React.Component {
           if ( window.XMLHttpRequest ) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
-              if (this.responseXML.title.indexOf("404 Not Found") < 0) {
-                document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
-                document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
-                document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
-                document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
+              try {
+                if (this.responseXML.title.indexOf("404 Not Found") < 0) {
+                  document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
+                  document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
+                  document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
+                  document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
+                  if (document.getElementById('metaDesc') != null && this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
+                    document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
+                  }
+                }
+              } catch (err) {
+                console.log(err);
               }
             }
             xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
@@ -1325,7 +1351,7 @@ class VFBMain extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
     });
-    
+
     GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {
       let id = instancePath.split(".")[0];
       that.props.instanceDeleted(ACTIONS.INSTANCE_DELETED, id);
