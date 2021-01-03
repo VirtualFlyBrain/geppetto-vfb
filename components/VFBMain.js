@@ -1278,7 +1278,7 @@ class VFBMain extends React.Component {
                   document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
                   document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
                   document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
-                  if (document.getElementById('metaDesc') != null && this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
+                  if (false && document.getElementById('metaDesc') != null && this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
                     document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
                   }
                 }
