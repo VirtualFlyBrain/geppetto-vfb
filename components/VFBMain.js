@@ -1277,6 +1277,7 @@ class VFBMain extends React.Component {
                 document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
                 document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
                 document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
+                document.getElementById('metaDesc').innerHTML=this.responseXML.head.getElementsByTagName('script')[1].innerHTML
               }
             }
             xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
