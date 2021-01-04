@@ -46,35 +46,35 @@ RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
 # get geppetto
 RUN mkdir -p workspace &&\
   cd workspace &&\
-  ../copy.sh http://github.com/openworm/org.geppetto.git "${geppettoRelease}" "${geppettoRelease}" "${geppettoRelease}"
+  git clone http://github.com/openworm/org.geppetto.git -q -b "${geppettoRelease}" --single-branch 
 
 WORKDIR $HOME/workspace
-# checkout $targetBranch
-RUN ../copy.sh https://github.com/openworm/org.geppetto.model.git "${geppettoModelRelease}" "${geppettoModelRelease}" "${geppettoModelRelease}" &&\
+
+RUN git clone https://github.com/openworm/org.geppetto.model.git -q -b "${geppettoModelRelease}" --single-branch &&\
   cd org.geppetto.model &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model\e[0m" &&\
   mvn ${mvnOpt} install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/openworm/org.geppetto.core.git "${geppettoCoreRelease}" "${geppettoCoreRelease}" "${geppettoCoreRelease}" &&\
+RUN git clone https://github.com/openworm/org.geppetto.core.git -q -b "${geppettoCoreRelease}" --single-branch &&\
   cd org.geppetto.core &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.core\e[0m" &&\
   mvn ${mvnOpt} install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/openworm/org.geppetto.simulation.git "${geppettoSimulationRelease}" "${geppettoSimulationRelease}" "${geppettoSimulationRelease}" &&\
+RUN git clone https://github.com/openworm/org.geppetto.simulation.git -q -b "${geppettoSimulationRelease}" --single-branch &&\
   cd org.geppetto.simulation &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.simulation\e[0m" &&\
   mvn ${mvnOpt} install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/openworm/org.geppetto.datasources.git "${geppettoDatasourceRelease}" "${geppettoDatasourceRelease}" "${geppettoDatasourceRelease}" &&\
+RUN git clone https://github.com/openworm/org.geppetto.datasources.git -q -b "${geppettoDatasourceRelease}" --single-branch &&\
   cd org.geppetto.datasources &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.datasources\e[0m" &&\
   mvn ${mvnOpt} install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}" "${ukAcVfbGeppettoRelease}"
+RUN git clone https://github.com/VirtualFlyBrain/uk.ac.vfb.geppetto.git -q -b "${ukAcVfbGeppettoRelease}" --single-branch 
 
 RUN export DEBUG=false; if test "$build_type" = "development" ; then export DEBUG=true; fi && \
   echo "DEBUG=$DEBUG" && \
@@ -86,16 +86,16 @@ RUN cd uk.ac.vfb.geppetto &&\
   mvn ${mvnOpt} install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/openworm/org.geppetto.model.swc.git "${geppettoModelSwcRelease}" "${geppettoModelSwcRelease}" "${geppettoModelSwcRelease}" &&\
+RUN git clone https://github.com/openworm/org.geppetto.model.swc.git -q -b "${geppettoModelSwcRelease}" --single-branch &&\
   cd org.geppetto.model.swc &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model.swc\e[0m" &&\
   mvn ${mvnOpt} install &&\
   rm -rf src
 
-RUN ../copy.sh https://github.com/openworm/org.geppetto.frontend.git "${geppettoFrontendRelease}" "${geppettoFrontendRelease}" "${geppettoFrontendRelease}"
+RUN git clone https://github.com/openworm/org.geppetto.frontend.git -q -b "${geppettoFrontendRelease}" --single-branch 
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
-  $HOME/copy.sh https://github.com/VirtualFlyBrain/geppetto-vfb.git "${targetBranch}" "${originBranch}" "${defaultBranch}" &&\
+  git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -q -b "${targetBranch}" --single-branch &&\
   mv geppetto-vfb webapp
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
