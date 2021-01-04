@@ -26,9 +26,11 @@ jobs:
       # Decide based on branch which servers to use
       - name: Pass branch
         id: branch
-        run: echo "::set-output name=value::${GITHUB_REF##*/}";
-          echo "::set-output name=ref::${GITHUB_REF}";
-
+        run: if [[ ${GITHUB_REF##*/} == v* ]]; then
+            echo "::set-output name=value::${GITHUB_REF}";
+          else
+            echo "::set-output name=value::${GITHUB_REF##*/}";
+          fi;
       - name: Setup local servers
         id: local-servers
         shell: bash
@@ -137,8 +139,8 @@ jobs:
             VFB_OWL_SERVER_ARG=${{ steps.local-servers.outputs.VFB_OWL_SERVER }}
             VFB_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_PDB_SERVER }}
             build_type=${{ steps.local-servers.outputs.BUILD_TYPE }} 
-            targetBranch=${{ steps.branch.outputs.ref }} 
-            originBranch=${{ steps.branch.outputs.ref }}
+            targetBranch=${{ steps.branch.outputs.value }} 
+            originBranch=${{ steps.branch.outputs.value }}
             defaultBranch=development
             finalBuild=true
       
