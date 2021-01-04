@@ -1184,6 +1184,7 @@ class VFBMain extends React.Component {
     document.querySelector('meta[property="og:title"]').setAttribute("content",document.title);
     var viewport = !!document.querySelector("meta[name='viewport']");
     viewport = viewport ? document.querySelector("meta[name='viewport']") : document.createElement('meta');
+    viewport.setAttribute('name', 'viewport');
     viewport.setAttribute('content', 'width=device-width, initial-scale=1');
     document.head.appendChild(viewport);
     var conlink = !!document.querySelector("link[rel='canonical']");
@@ -1304,6 +1305,7 @@ class VFBMain extends React.Component {
                   }
                   var viewport = !!document.querySelector("meta[name='viewport']");
                   viewport = viewport ? document.querySelector("meta[name='viewport']") : document.createElement('meta');
+                  viewport.setAttribute('name', 'viewport');
                   viewport.setAttribute('content', 'width=device-width, initial-scale=1');
                   document.head.appendChild(viewport);
                 }
