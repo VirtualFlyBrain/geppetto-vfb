@@ -26,11 +26,7 @@ jobs:
       # Decide based on branch which servers to use
       - name: Pass branch
         id: branch
-        run: if [[ ${GITHUB_REF##*/} == v* ]]; then
-            echo "::set-output name=value::${GITHUB_REF}";
-          else
-            echo "::set-output name=value::${GITHUB_REF##*/}";
-          fi;
+        run: echo "::set-output name=value::${GITHUB_REF##*/}";
       - name: Setup local servers
         id: local-servers
         shell: bash
