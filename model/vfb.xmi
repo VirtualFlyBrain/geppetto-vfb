@@ -367,6 +367,7 @@
         description="Get JSON for anat_2_ep query">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
+          id="ep_2_anat_query"
           name="Test Query for Anatomy from Exp"
           description="Get JSON for ep_2_anat query"
           returnType="//@libraries.3/@types.1"
