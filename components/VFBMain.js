@@ -1289,8 +1289,8 @@ class VFBMain extends React.Component {
                   document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
                   document.body.style.font = "x-large";
                   document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
-                  document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.innerText);
-                  document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.innerText);
+                  document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.body.getElementById('json').innerText.substring(0, 4900));
+                  document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.body.getElementById('json').innerText.substring(0, 4900));
                   if (document.getElementById('metaDesc') != null) {
                     if (this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
                       document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
