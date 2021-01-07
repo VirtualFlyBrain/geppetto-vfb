@@ -1447,7 +1447,7 @@ class VFBMain extends React.Component {
     window.console.logs = [];
     console.log = function () {
       if (Array.from(arguments).join("\n").indexOf('Pixi.js') < 0 && Array.from(arguments).join("\n") != 'unmount') {
-        //window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
+        // window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
         window.console.logs.push('+ ' + Array.from(arguments).join('\n'));
         window.console.stdlog.apply(console, arguments);
       }
