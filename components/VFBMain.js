@@ -1195,7 +1195,7 @@ class VFBMain extends React.Component {
     var script = document.createElement('script');
     script.type = 'application/ld+json';
     script.id = 'metaDesc';
-    script.innerHTML = '{"@context": "https://schema.org","@type": "Organization","url": "https://virtualflybrain.org","logo": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png","name":"Virtual Fly Brain",'
+    script.innerHTML = '{"@context": "https://schema.org","@type": "Organization","url": "https://virtualflybrain.org","logo": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png","brand":"Virtual Fly Brain","name":"Virtual Fly Brain",'
       + '"description":"VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.",'
       + '"headline":"A hub for fruit fly (Drosophila melanogaster) neuronal anatomy, connectivity & imaging data",'
       + '"affiliation":['
@@ -1447,7 +1447,7 @@ class VFBMain extends React.Component {
     window.console.logs = [];
     console.log = function () {
       if (Array.from(arguments).join("\n").indexOf('Pixi.js') < 0 && Array.from(arguments).join("\n") != 'unmount') {
-        window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
+        // window.ga('vfb.send', 'event', 'log', Array.from(arguments).join("\n"));
         window.console.logs.push('+ ' + Array.from(arguments).join('\n'));
         window.console.stdlog.apply(console, arguments);
       }
