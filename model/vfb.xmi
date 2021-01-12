@@ -1093,7 +1093,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ref_neuron_region_connectivity_query"
       name="Show connectivity to regions from Neuron X"
-      description="Show connectivity to regions from $NAME"
+      description="Show connectivety per region for $NAME"
       queryChain="//@dataSources.0/@queries.15">
     <matchingCriteria
         type="//@libraries.3/@types.43"/>
@@ -1101,7 +1101,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ref_neuron_neuron_connectivity_query"
       name="Show connectivity to neurons from Neuron X"
-      description="Show synaptic connectivity from $NAME"
+      description="Show neurons connected to $NAME"
       queryChain="//@dataSources.0/@queries.16">
     <matchingCriteria
         type="//@libraries.3/@types.42"/>
