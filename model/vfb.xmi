@@ -894,6 +894,17 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ImagesNeuronsClustered"
+      name="Images of neurons with some part here (clustered)"
+      description="Images of neurons with some part in $NAME (clustered)"
+      returnType="//@libraries.3/@types.22"
+      queryChain="//@dataSources.3/@queries.0 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
       id="NeuronsPartHere"
       name="Neurons with any part here"
       description="Neurons with some part in $NAME"
