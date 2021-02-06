@@ -1281,6 +1281,7 @@ class VFBMain extends React.Component {
         idsList += this.idFromURL;
         // populate page meta for this term for indexing
         try {
+          window.ga('vfb.send', 'pageview', window.location.href );
           if ( window.XMLHttpRequest ) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
