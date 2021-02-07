@@ -144,8 +144,8 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
-          "key": "Individual",
-          "filter_name": "Image",
+          "key": "has_image",
+          "filter_name": "Has Image",
           "enabled": "disabled",
         },
         {
@@ -156,6 +156,11 @@ var searchConfiguration = {
         {
           "key": "Neuron",
           "filter_name": "Neuron",
+          "enabled": "disabled",
+        },
+        {
+          "key": "DataSet",
+          "filter_name": "Dataset",
           "enabled": "disabled",
         },
         {
