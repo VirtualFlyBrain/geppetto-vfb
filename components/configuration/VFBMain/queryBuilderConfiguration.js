@@ -123,7 +123,7 @@ var queryResultsColMeta = [
     "order": 7,
     "locked": false,
     "visible": true,
-    "displayName": "#_Downstream_Synapses",
+    "displayName": "Outputs",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -132,7 +132,7 @@ var queryResultsColMeta = [
     "order": 8,
     "locked": false,
     "visible": true,
-    "displayName": "#_Tbars",
+    "displayName": "Outputs (Tbars)",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -141,7 +141,7 @@ var queryResultsColMeta = [
     "order": 9,
     "locked": false,
     "visible": true,
-    "displayName": "#_Upstream_Synapses",
+    "displayName": "Inputs",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
