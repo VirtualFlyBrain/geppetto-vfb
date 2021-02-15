@@ -7,11 +7,11 @@
     flex-direction: column;
     .listviewer-container {
         display: flex;
-        flex-direction: column;
         flex-wrap: wrap;
-        overflow: none;
+        overflow: unset;
         > div {
             flex-grow: 2;
+            overflow : auto !important;
         }    
     }
 
@@ -19,6 +19,7 @@
         padding: 0.5em;
         background-color : #4f4f4f;
         border : none !important;
+        width : 100%;
      }
      
     .griddle-filter::placeholder {
