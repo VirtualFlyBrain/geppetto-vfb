@@ -1,5 +1,5 @@
 var locationCypherQuery = ( instances, hops , weight ) => ({
-	statements: [
+  statements: [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
       + " WITH neurons[0] as root, neurons[1..] AS neurons"

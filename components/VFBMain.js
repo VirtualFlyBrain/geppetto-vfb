@@ -1022,11 +1022,11 @@ class VFBMain extends React.Component {
     } else if (component === "vfbCircuitBrowser") {
       let circuitBrowserVisibility = node.isVisible();
       node.setEventListener("close", () => {
-    	self.setState({
+        self.setState({
           UIUpdated: true,
           circuitBrowserVisible: false
         });
-    	self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
+        self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
       });
       
       // Event listener fired when circuit browser component is resized
