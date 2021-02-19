@@ -1214,11 +1214,6 @@ class VFBMain extends React.Component {
       + '{"@type": "ScholarlyArticle","citation":"http://dx.doi.org/10.1098/rstb.2017.0380","sameAs":"http://dx.doi.org/10.1098/rstb.2017.0380","headline":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","name":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","author":"Cantarelli, Matteo and Marin, Boris and Quintana, Adrian and Earnshaw, Matt and Court, Robert and Gleeson, Padraig and Dura-Bernal, Salvador and Silver, R. Angus and Idili, Giovanni","publisher": "Philosophical Transactions of the Royal Society B: Biological Sciences","datePublished": "2018"}'
       + ']}';
     document.getElementsByTagName('head')[0].appendChild(script);
-    setTimeout(function () {
-      if (window.templateID == undefined) {
-        window.location.reload(true);
-      }
-    }, 20000);
   }
 
   componentWillUnmount () {
