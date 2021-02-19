@@ -56,7 +56,7 @@ class VFBCircuitBrowser extends Component {
       loading : true,
       queryLoaded : false,
       dropDownAnchorEl : null,
-      neurons : ["", ""],
+      neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
       reload : false
     }
@@ -118,12 +118,17 @@ class VFBCircuitBrowser extends Component {
    */
   queriesUpdated (neurons) {
     // Check if new list of neurons is the same as the ones already rendered on last update
-    var is_same = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
-      return element === neurons[index]; 
+    var matched = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
+      console.log("1st " + element.id);
+      console.log("2nd " + neurons[index].id);
+      return element.id === neurons[index].id; 
     });
     
+    console.log("Is same " + matched);
+    console.log("this.state.loading " + this.state.loading);
+    
     // Request graph update if the list of new neurons is not the same
-    if ( !this.state.loading && !is_same ) {
+    if ( !this.state.loading && !matched ) {
       this.updateGraph(neurons, this.state.hops);
     }
   }
@@ -182,7 +187,7 @@ class VFBCircuitBrowser extends Component {
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
       // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
-      this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops, 70));
+      this.queryResults(cypherQuery(neurons.map(a => `'${a.id}'`).join(","), hops, 70));
     }
   }    
 
@@ -268,7 +273,7 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
-    if ( this.state.neurons[0] != "" && this.state.neurons[1] != "" ){
+    if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
       errorMessage = "Graph not available for " + this.state.neurons.join(",");
     }
     return (
@@ -374,7 +379,6 @@ class VFBCircuitBrowser extends Component {
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
                 circuitQuerySelected={this.circuitQuerySelected}
-                datasource="SOLR"
                 legend = {self.state.legend}
               />
             }
