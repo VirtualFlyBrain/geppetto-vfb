@@ -209,9 +209,13 @@ class Controls extends Component {
     return true;
   }
   
+  /**
+   * Receives SOLR results and creates an map with those results that match the input text
+   */
   handleResults (status, data, value) {
     let results = {};
     data?.map(result => {
+      // Match results by short_form id
       if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
         results[result?.label] = result;
       } else if ( result?.label?.toLowerCase().includes(value?.toLowerCase()) ){
@@ -244,11 +248,19 @@ class Controls extends Component {
     setTimeout(this.typingTimeout, 500, event.target);
   }
   
+  /**
+   * Handle SOLR result selection, activated by selecting from drop down menu under textfield 
+   */
   resultSelectedChanged (event, value) {
+    // Copy neurons and add selection to correct array index
     let neurons = this.state.neuronFields;
     neurons[this.setInputValue] = { id : this.state.filteredResults?.[value].short_form, label : value };
+    
+    // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    
+    // If text fields contain valid ids, perform query
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
       this.props.queriesUpdated(neurons);
@@ -279,7 +291,7 @@ class Controls extends Component {
       if ( !fieldExists) { 
         for ( var j = 0 ; j < neuronFields.length ; j++ ) {
           if ( this.state.neuronFields?.[j].id === "" ) {
-            neuronFields[j] = { id : this.props.circuitQuerySelected[i], label : "test" };
+            neuronFields[j] = { id : this.props.circuitQuerySelected[i], label : "" };
             added = true;
             break;
           }
@@ -287,7 +299,7 @@ class Controls extends Component {
         
         if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists) {
           if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
-            neuronFields.push({ id : this.props.circuitQuerySelected[i], label : "test" });
+            neuronFields.push({ id : this.props.circuitQuerySelected[i], label : "" });
           } 
         }
       }

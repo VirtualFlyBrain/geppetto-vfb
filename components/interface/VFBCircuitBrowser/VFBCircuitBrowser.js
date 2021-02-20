@@ -119,13 +119,8 @@ class VFBCircuitBrowser extends Component {
   queriesUpdated (neurons) {
     // Check if new list of neurons is the same as the ones already rendered on last update
     var matched = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
-      console.log("1st " + element.id);
-      console.log("2nd " + neurons[index].id);
       return element.id === neurons[index].id; 
     });
-    
-    console.log("Is same " + matched);
-    console.log("this.state.loading " + this.state.loading);
     
     // Request graph update if the list of new neurons is not the same
     if ( !this.state.loading && !matched ) {
@@ -238,7 +233,6 @@ class VFBCircuitBrowser extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -274,7 +268,7 @@ class VFBCircuitBrowser extends Component {
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
     if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
-      errorMessage = "Graph not available for " + this.state.neurons.join(",");
+      errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
       this.state.loading
