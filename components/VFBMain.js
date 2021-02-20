@@ -162,16 +162,15 @@ class VFBMain extends React.Component {
       window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
         for (var singleId = 0; idsList.length > singleId; singleId++) {
-          if (singleId < 10) {
-            if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
-              this.vfbLoadBuffer.push(idsList[singleId]);
-            }
-            if (Instances.getInstance(idsList[singleId]) !== undefined) {
-              this.handleSceneAndTermInfoCallback(idsList[singleId]);
-              idsList.splice($.inArray(idsList[singleId], idsList), 1);
-              this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
-            }
+          if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
+            this.vfbLoadBuffer.push(idsList[singleId]);
           }
+          if (Instances.getInstance(idsList[singleId]) !== undefined) {
+            this.handleSceneAndTermInfoCallback(idsList[singleId]);
+            idsList.splice($.inArray(idsList[singleId], idsList), 1);
+            this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
+          }
+          await new Promise(r => setTimeout(r, 2000));
         }
         if (idsList.length > 0) {
           this.props.vfbLoadId(idsList);
