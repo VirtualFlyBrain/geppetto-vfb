@@ -144,7 +144,7 @@ class VFBMain extends React.Component {
     this.refs.querybuilderRef.open();
   }
 
-  async addVfbId (idsList) {
+  addVfbId (idsList) {
     if (this.state.modelLoaded === true) {
       if (typeof (idsList) == "string") {
         if (idsList.indexOf(',') > -1) {
@@ -170,7 +170,6 @@ class VFBMain extends React.Component {
             idsList.splice($.inArray(idsList[singleId], idsList), 1);
             this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
           }
-          await new Promise(r => setTimeout(r, 2000));
         }
         if (idsList.length > 0) {
           this.props.vfbLoadId(idsList);
