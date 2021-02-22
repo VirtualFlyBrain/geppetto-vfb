@@ -1332,7 +1332,7 @@ class VFBMain extends React.Component {
           console.error(err);
         }
       } else if (idList[list].indexOf("i=") > -1) {
-        document.getElementById('vfbterminfowidget').innerText="Loading requested terms....\n\nIt might take time to load all requested items before they are displayed";
+        document.getElementById('vfbterminfowidget').innerText = "Loading requested terms....\n\nIt might take time to load all requested items before they are displayed";
         if (idsList.length > 0) {
           idsList = "," + idsList;
         }
