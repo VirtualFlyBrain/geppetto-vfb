@@ -160,7 +160,7 @@ export default class VFBToolBar extends React.Component {
     ).replace(
       /\+/g,'%2B'
     );
-    while (limitedLog.length > 1000 && logLength < 0) {
+    while (limitedLog.length < 1000 && logLength < 0) {
       logLength += 1;
       limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
         /\&/g,escape('&')
