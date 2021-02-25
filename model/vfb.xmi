@@ -1076,7 +1076,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyTo"
       name="has_similar_morphology_to"
-      description="Neurons with similar morphology to $NAME"
+      description="Neurons with similar morphology to $NAME [using NBLAST mean score]"
       returnType="//@libraries.3/@types.2"
       queryChain="//@dataSources.0/@queries.17">
     <matchingCriteria
