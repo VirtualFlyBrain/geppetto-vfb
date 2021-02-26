@@ -1493,12 +1493,11 @@ class VFBMain extends React.Component {
       if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
         window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
         console.log("Reloading websocket connection by reloading page");
-        GEPPETTO.MessageSocket.reconnect();
-        setTimeout(() => {
-          if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
-            window.location.reload();
-          }
-        }, 10000);
+        if (GEPPETTO.MessageSocket.attempts > 3) {
+          window.location.reload();
+        } else {
+          GEPPETTO.MessageSocket.reconnect();
+        }
       } else {
         console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
       }
@@ -1584,7 +1583,7 @@ class VFBMain extends React.Component {
       }
     }
   }
-  
+
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
