@@ -16,7 +16,7 @@ const openControls = async (page, text) => {
 		let elems = Array.from(document.querySelectorAll('.vfbListViewer .griddle-row'));
 		for (var i = 0; i < elems.length; i++) {
 			if (elems[i].innerText.includes(text)) {
-				elems[1].querySelector(".fa-eye").click()
+				elems[1].querySelector(".fa-angle-down").click()
 				break;
 			}
 		}

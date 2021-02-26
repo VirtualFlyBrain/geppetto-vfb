@@ -1490,15 +1490,16 @@ class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
-        window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
-        console.log("Reloading websocket connection by reloading page");
-
-        setTimeout(() => {
-          window.location.reload(true);
-        }, 5000);
-      } else {
-        console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
+      window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+      if (GEPPETTO.MessageSocket.socketStatus != GEPPETTO.Resources.SocketStatus.OPEN) {
+        if (GEPPETTO.MessageSocket.attempts < 10) {
+          window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
+          GEPPETTO.MessageSocket.reconnect();
+        } else {
+          window.ga('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
+          console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
+          window.location.reload();
+        }
       }
     });
   }
@@ -1582,7 +1583,7 @@ class VFBMain extends React.Component {
       }
     }
   }
-  
+
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
       this.tutorialRender = <TutorialWidget tutorialHandler={this.tutorialHandler} ref="tutorialWidgetRef" />
