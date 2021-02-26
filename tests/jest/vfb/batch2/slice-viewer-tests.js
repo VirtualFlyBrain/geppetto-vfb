@@ -13,7 +13,7 @@ const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
  */
 describe('VFB Slice Viewer Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(60000); 
+		jest.setTimeout(60000);
 		await page.goto(PROJECT_URL);
 
 	});
@@ -42,7 +42,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 		})
-		
+
 		it('Term info component correctly populated at startup', async () => {
 			await page.waitFor(3000);
 			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
@@ -94,11 +94,11 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
 			await click(page, 'button[id=run-query-btn]');
-			await wait4selector(page, '#VFB_00030624-image-container', { visible: true, timeout : 60000 })
+			await wait4selector(page, '#id=VFB_00030624----FBbt_00003748-image-container', { visible: true, timeout : 180000 })
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
-			await page.evaluate(async selector =>   $("#VFB_00030624-image-container").find("img").click());
+			await page.evaluate(async selector =>   $("#id=VFB_00030624----FBbt_00003748-image-container").find("img").click());
 			closeModalWindow(page);
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
 			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
