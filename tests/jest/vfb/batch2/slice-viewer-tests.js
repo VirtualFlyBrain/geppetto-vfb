@@ -98,7 +98,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
-			await page.evaluate(async selector =>   $("#id=VFB_00030624----FBbt_00003748-image-container").find("img").click());
+			await page.evaluate(async selector =>   $("#VFB_00030624----FBbt_00003748-image-container").find("img").click());
 			closeModalWindow(page);
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
 			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
