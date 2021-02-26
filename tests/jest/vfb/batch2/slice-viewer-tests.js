@@ -94,7 +94,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
 			await click(page, 'button[id=run-query-btn]');
-			await wait4selector(page, '#id=VFB_00030624----FBbt_00003748-image-container', { visible: true, timeout : 180000 })
+			await wait4selector(page, '#VFB_00030624----FBbt_00003748-image-container', { visible: true, timeout : 180000 })
 		})
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
