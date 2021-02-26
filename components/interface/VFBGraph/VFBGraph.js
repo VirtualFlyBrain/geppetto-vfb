@@ -367,7 +367,6 @@ class VFBGraph extends Component {
    */
   queryResults (requestQuery, instance) {
     if ( this.queryRequests.includes(instance.id) ) {
-      alert("yo")
       return;
     }
 
