@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ListViewer from '@geppettoengine/geppetto-ui/list-viewer/ListViewer';
 import listViewerConf from '../../configuration/VFBListViewer/listViewerConfiguration';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from 'react-redux';
 
 require('../../../css/VFBListViewer.less');
