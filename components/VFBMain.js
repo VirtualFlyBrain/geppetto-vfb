@@ -1493,10 +1493,12 @@ class VFBMain extends React.Component {
       if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
         window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
         console.log("Reloading websocket connection by reloading page");
-
+        GEPPETTO.MessageSocket.reconnect();
         setTimeout(() => {
-          window.location.reload(true);
-        }, 5000);
+          if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.CLOSE) {
+            window.location.reload();
+          }
+        }, 10000);
       } else {
         console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
       }
