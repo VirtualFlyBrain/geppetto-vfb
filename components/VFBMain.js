@@ -1494,9 +1494,11 @@ class VFBMain extends React.Component {
         window.ga('vfb.send', 'event', 'reload', 'websocket-disconnect', (window.location.pathname + window.location.search));
         console.log("Reloading websocket connection by reloading page");
         if (GEPPETTO.MessageSocket.attempts > 3) {
+          window.ga('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
           window.location.reload();
         } else {
           GEPPETTO.MessageSocket.reconnect();
+          window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
         }
       } else {
         console.log("%c Websocket reconnection in progress... ", 'background: #444; color: #bada55');
