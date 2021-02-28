@@ -1491,7 +1491,7 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
       window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
-      if (GEPPETTO.MessageSocket.socketStatus != GEPPETTO.Resources.SocketStatus.OPEN) {
+      if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
         if (GEPPETTO.MessageSocket.attempts < 10) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
           GEPPETTO.MessageSocket.reconnect();
@@ -1502,11 +1502,11 @@ class VFBMain extends React.Component {
         }
       } else {
         setTimeout(() => {
-          if (GEPPETTO.MessageSocket.socketStatus != GEPPETTO.Resources.SocketStatus.OPEN) {
+          if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
             window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
             GEPPETTO.MessageSocket.reconnect();
           }
-        }, 2000);
+        }, 3000);
       }
     });
   }
