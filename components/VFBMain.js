@@ -1500,6 +1500,13 @@ class VFBMain extends React.Component {
           console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
           window.location.reload();
         }
+      } else {
+        setTimeout(() => {
+          if (GEPPETTO.MessageSocket.socketStatus != GEPPETTO.Resources.SocketStatus.OPEN) {
+            window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
+            GEPPETTO.MessageSocket.reconnect();
+          }
+        }, 2000);
       }
     });
   }
