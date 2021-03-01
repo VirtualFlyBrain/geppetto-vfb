@@ -3,6 +3,7 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionActions from '@material-ui/core/AccordionActions';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
@@ -24,6 +25,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
+import { DatasourceTypes } from '@geppettoengine/geppetto-ui/search/datasources/datasources';
+import { getResultsSOLR } from "@geppettoengine/geppetto-ui/search/datasources/SOLRclient";
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -97,6 +100,9 @@ const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBro
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
 
+const searchConfiguration = require('./../../configuration/VFBMain/searchConfiguration').searchConfiguration;
+const datasourceConfiguration = require('./../../configuration/VFBMain/searchConfiguration').datasourceConfiguration;
+
 /**
  * Create custom marks for Hops slider.
  * Only show the label for the minimum and maximum hop, hide the rest
@@ -124,7 +130,8 @@ class Controls extends Component {
     this.state = {
       typingTimeout: 0,
       expanded : true,
-      neuronFields : ["", ""]
+      neuronFields : [{ id : "", label : "" } , { id : "", label : "" }],
+      filteredResults : {}
     };
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
@@ -133,6 +140,8 @@ class Controls extends Component {
     this.fieldsValidated = this.fieldsValidated.bind(this);
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
+    this.handleResults = this.handleResults.bind(this);
+    this.resultSelectedChanged = this.resultSelectedChanged.bind(this);
     this.circuitQuerySelected = this.props.circuitQuerySelected;
   }
   
@@ -140,6 +149,7 @@ class Controls extends Component {
     let neurons = [...this.props.neurons];
     this.setState( { expanded : !this.props.resultsAvailable(), neuronFields : neurons } );
     this.circuitQuerySelected = this.props.circuitQuerySelected;
+    this.setInputValue = {};
   }
   
   componentDidUpdate () {}
@@ -159,7 +169,7 @@ class Controls extends Component {
     
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     
-    // Update state with one less neuron textfield
+    // Update state with one fewer neuron textfield
     this.setState( { neuronFields : neurons } );
     
     // If neuron fields are validated, let the VFBCircuitBrowser component know, it will do a graph update
@@ -174,7 +184,7 @@ class Controls extends Component {
   addNeuron () {
     let neuronFields = this.state.neuronFields;
     // Add emptry string for now to text field
-    neuronFields.push("");
+    neuronFields.push({ id : "", label : "" });
     // User has added the maximum number of neurons allowed in query search
     if ( configuration.maxNeurons <= neuronFields.length ) {
       this.setState({ neuronFields : neuronFields });
@@ -189,9 +199,9 @@ class Controls extends Component {
   fieldsValidated (neurons) {
     var pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
     for ( var i = 0 ; i < neurons.length ; i++ ){
-      if ( neurons[i] === "" ) {
+      if ( neurons?.[i].id == "" ) {
         return false;
-      } else if ( !neurons[i].match(pattern) ) {
+      } else if ( !neurons?.[i].id?.match(pattern) ) {
         return false;
       }
     }
@@ -200,32 +210,61 @@ class Controls extends Component {
   }
   
   /**
+   * Receives SOLR results and creates an map with those results that match the input text
+   */
+  handleResults (status, data, value) {
+    let results = {};
+    data?.map(result => {
+      // Match results by short_form id
+      if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
+        results[result?.label] = result;
+      } else if ( result?.label?.toLowerCase().includes(value?.toLowerCase()) ){
+        results[result?.label] = result;
+      }
+    });
+      
+    this.setState({ filteredResults : results })
+  }
+  
+  /**
    * Waits some time before performing new search, this to avoid performing search everytime
    * enters a new character in neuron fields
    */
   typingTimeout (target) {
-    let neurons = this.state.neuronFields;
-    neurons[target.id] = target.value;
-    this.circuitQuerySelected = neurons;
-    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
-    if ( this.fieldsValidated(neurons) ) {
-      this.setState( { neuronFields : neurons } );
-      this.props.queriesUpdated(neurons);
-    }
+    this.setInputValue = target.id;
+    getResultsSOLR( target.value, this.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
   
   /**
    * Neuron text field has been modified.
    */
   neuronTextfieldModified (event) {
-    const self = this;
+    this.resultsHeight = event.target.offsetTop + 15;
     // Remove old typing timeout interval
-    if (self.state.typingTimeout) {
+    if (this.state.typingTimeout) {
       clearTimeout(this.typingTimeout);
     }
-    let target = event.target;
     // Create a setTimeout interval, to avoid performing searches on every stroke
-    setTimeout(this.typingTimeout, 500, target);
+    setTimeout(this.typingTimeout, 500, event.target);
+  }
+  
+  /**
+   * Handle SOLR result selection, activated by selecting from drop down menu under textfield 
+   */
+  resultSelectedChanged (event, value) {
+    // Copy neurons and add selection to correct array index
+    let neurons = this.state.neuronFields;
+    neurons[this.setInputValue] = { id : this.state.filteredResults?.[value].short_form, label : value };
+    
+    // Keep track of query selected, and send an event to redux store that circuit has been updated
+    this.circuitQuerySelected = neurons;
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    
+    // If text fields contain valid ids, perform query
+    if ( this.fieldsValidated(neurons) ) {
+      this.setState( { neuronFields : neurons } );
+      this.props.queriesUpdated(neurons);
+    }
   }
   
   /**
@@ -245,18 +284,22 @@ class Controls extends Component {
     let neuronFields = this.state.neuronFields;
     let added = false;
     for ( var i = 0; i < this.props.circuitQuerySelected.length; i++ ){
-      if ( !this.state.neuronFields.includes(this.props.circuitQuerySelected[i])) { 
+      var fieldExists = this.state.neuronFields.filter(entry =>
+        entry.id === this.props.circuitQuerySelected[i]
+      );
+
+      if ( !fieldExists) { 
         for ( var j = 0 ; j < neuronFields.length ; j++ ) {
-          if ( this.state.neuronFields[j] === "" ) {
-            neuronFields[j] = this.props.circuitQuerySelected[i];
+          if ( this.state.neuronFields?.[j].id === "" ) {
+            neuronFields[j] = { id : this.props.circuitQuerySelected[i], label : "" };
             added = true;
             break;
           }
         }
         
-        if ( this.props.circuitQuerySelected.length > neuronFields.length && !this.state.neuronFields.includes(this.circuitQuerySelected[i])) {
+        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists) {
           if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
-            neuronFields.push(this.props.circuitQuerySelected[i]);
+            neuronFields.push({ id : this.props.circuitQuerySelected[i], label : "" });
           } 
         }
       }
@@ -325,21 +368,31 @@ class Controls extends Component {
                   </div>
                 </Grid>
                 <Grid item sm={11}>
-                  { neuronFields.map((value, index) => {
+                  { neuronFields.map((field, index) => {
                     let label = "Neuron " + (index + 1) .toString();
                     return <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
-                        <TextField
+                        <Autocomplete
+                          freeSolo
                           fullWidth
-                          margin="dense"
-                          defaultValue={value}
-                          placeholder={label}
-                          key={value}
-                          onChange={this.neuronTextfieldModified}
+                          disableClearable
+                          autoHighlight
+                          value={field.label}
                           id={index.toString()}
-                          inputProps={{ style: { color: "white" } }}
-                          InputLabelProps={{ style: { color: "white" } }}
-                        /></Grid>
+                          onChange={this.resultSelectedChanged}
+                          options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label={"Neuron " + ( index + 1 ).toString()}
+                              key={field.id}
+                              onChange={this.neuronTextfieldModified}
+                              inputProps={{ ...params.inputProps, style: { color: "white" , paddingLeft : "10px" } }}
+                              InputLabelProps={{ ...params.inputProps,style: { color: "white" } }}
+                            />
+                          )}
+                        />
+                      </Grid>
                       { deleteIconVisible ? <Grid item sm={1}>
                         <IconButton
                           key={"TextFieldIcon-" + index}
