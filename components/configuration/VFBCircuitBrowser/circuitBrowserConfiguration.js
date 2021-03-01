@@ -1,10 +1,16 @@
-var locationCypherQuery = ( instances, hops ) => ({
-  "statements": [
+var locationCypherQuery = ( instances, hops , weight ) => ({
+  statements: [
     {
-      "statement" : "WITH [" + instances + "] AS neurons" 
-      + " MATCH p=(x:Class)-[:synapsed_to*.." + hops.toString() + "]->(y:Class)"
-      + " WHERE x.short_form in neurons and y.short_form in neurons" 
-      + " RETURN p, neurons",
+      "statement" : "WITH [" + instances + "] AS neurons"
+      + " WITH neurons[0] as root, neurons[1..] AS neurons"
+      + " MATCH p=(x:Neuron {short_form: root})-[:synapsed_to*.." + hops.toString() + "]->(y:Neuron)"
+      + " WHERE y.short_form IN neurons AND"
+      + " ALL(rel in relationships(p) WHERE exists(rel.weight) AND rel.weight[0] > " + weight.toString() + ")"
+      + " WITH root, relationships(p) as fu"
+      + " UNWIND fu as r"
+      + " WITH root, startNode(r) AS a, endNode(r) AS b"
+      + " MATCH p=(a)-[:synapsed_to]-(b)"
+      + " RETURN p, root",
       "resultDataContents": ["graph"]
     }
   ]

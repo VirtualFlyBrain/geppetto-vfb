@@ -181,8 +181,8 @@ class VFBCircuitBrowser extends Component {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
-      // Perform cypher query
-      this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
+      // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
+      this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops, 70));
     }
   }    
 
@@ -352,6 +352,7 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             dagLevelDistance = {100}
+            onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
             ref={this.graphRef}
