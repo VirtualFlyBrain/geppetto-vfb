@@ -56,7 +56,7 @@ class VFBCircuitBrowser extends Component {
       loading : true,
       queryLoaded : false,
       dropDownAnchorEl : null,
-      neurons : ["", ""],
+      neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
       reload : false
     }
@@ -118,12 +118,12 @@ class VFBCircuitBrowser extends Component {
    */
   queriesUpdated (neurons) {
     // Check if new list of neurons is the same as the ones already rendered on last update
-    var is_same = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
-      return element === neurons[index]; 
+    var matched = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
+      return element.id === neurons[index].id; 
     });
     
     // Request graph update if the list of new neurons is not the same
-    if ( !this.state.loading && !is_same ) {
+    if ( !this.state.loading && !matched ) {
       this.updateGraph(neurons, this.state.hops);
     }
   }
@@ -181,8 +181,8 @@ class VFBCircuitBrowser extends Component {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
-      // Perform cypher query
-      this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
+      // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
+      this.queryResults(cypherQuery(neurons.map(a => `'${a.id}'`).join(","), hops, 70));
     }
   }    
 
@@ -233,7 +233,6 @@ class VFBCircuitBrowser extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -268,8 +267,8 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
-    if ( this.state.neurons[0] != "" && this.state.neurons[1] != "" ){
-      errorMessage = "Graph not available for " + this.state.neurons.join(",");
+    if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
+      errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
       this.state.loading
@@ -352,6 +351,7 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             dagLevelDistance = {100}
+            onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
             ref={this.graphRef}
@@ -373,7 +373,6 @@ class VFBCircuitBrowser extends Component {
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
                 circuitQuerySelected={this.circuitQuerySelected}
-                datasource="SOLR"
                 legend = {self.state.legend}
               />
             }

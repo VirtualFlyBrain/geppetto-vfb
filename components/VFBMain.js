@@ -37,7 +37,7 @@ class VFBMain extends React.Component {
       canvasVisible: true,
       listViewerVisible: true,
       graphVisible : true,
-      circuitBrowserVisible : false,
+      circuitBrowserVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -1022,6 +1022,10 @@ class VFBMain extends React.Component {
     } else if (component === "vfbCircuitBrowser") {
       let circuitBrowserVisibility = node.isVisible();
       node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: false
+        });
         self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
       });
       
