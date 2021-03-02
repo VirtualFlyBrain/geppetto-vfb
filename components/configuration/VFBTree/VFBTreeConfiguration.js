@@ -11,7 +11,7 @@ var treeCypherQuery = instance => ({
       + "Individual)-[r:INSTANCEOF]->(anat:Class:Nervous_system) WHERE exists(ie.index) WITH root, anat,r,image"
       + " MATCH p=allshortestpaths((root)<-[:SUBCLASSOF|part_of*..]-(anat)) "
       + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
-      + " AS image_nodes, id(root) AS root, collect(p)",
+      + " AS image_nodes, id(root) AS root, p",
       "resultDataContents": ["row", "graph"]
     }
   ]
