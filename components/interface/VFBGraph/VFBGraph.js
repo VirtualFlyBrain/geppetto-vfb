@@ -266,7 +266,7 @@ class VFBGraph extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
-    window.addVfbId(node.title)
+    window.addVfbId(node.title);
   }
 
   /**
