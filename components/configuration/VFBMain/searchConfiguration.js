@@ -145,7 +145,7 @@ var searchConfiguration = {
         },
         {
           "key": "has_image",
-          "filter_name": "Has Image",
+          "filter_name": "Image",
           "enabled": "disabled",
         },
         {

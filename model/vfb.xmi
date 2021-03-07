@@ -1060,7 +1060,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ref_neuron_region_connectivity_query"
       name="Show connectivity to regions from Neuron X"
-      description="Show connectivety per region for $NAME"
+      description="Show connectivity per region for $NAME"
       queryChain="//@dataSources.0/@queries.15">
     <matchingCriteria
         type="//@libraries.3/@types.43"/>
