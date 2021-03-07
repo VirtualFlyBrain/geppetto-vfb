@@ -71,7 +71,7 @@ describe('VFB Layer Component Tests', () => {
 		// Open controls menu
 		it('Open Controls Menu', async () => {
 			await page.waitFor(3000);
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 		})
 
 		// Check VFB_jrchk4wj neuron is selected by default, should be the case since it was last one to load
@@ -94,7 +94,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to hide VFB_jrchk4wj instance and check is now hidden
 		it('Hide VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Hide');
 			await page.waitFor(2000);
 			const visible = await page.evaluate(async () => {
@@ -105,7 +105,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to show VFB_jrchk4wj instance and check is now visible
 		it('Show VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Show');
 			await page.waitFor(2000);
 			const visible = await page.evaluate(async () => {
@@ -116,7 +116,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to zoom to VFB_jrchk4wj instance and check is now zoom in
 		it('Zoom To VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Zoom To');
 			await page.waitFor(2000);
 			const zoomTo = await page.evaluate(async () => {
@@ -128,7 +128,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to disable VFB_jrchk4wj skeleton and check is now hidden
 		it('Disable Skeleton For VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Disable 3D Skeleton');
 			await page.waitFor(2000);
 			const disableVolume = await page.evaluate(async () => {
@@ -139,7 +139,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to enable VFB_jrchk4wj skeleton and check is now visible
 		it('Enable Skeleton For VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Enable 3D Skeleton');
 			await page.waitFor(2000);
 			const enableVolume = await page.evaluate(async () => {
@@ -150,7 +150,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to enable VFB_jrchk4wj 3d Volume and check is now visible
 		it('Enable 3D Volume For VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Enable 3D Volume');
 			await page.waitFor(10000);
 			const enableVolume = await page.evaluate(async () => {
@@ -161,7 +161,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to disable VFB_jrchk4wj 3d Volume and check is now hidden
 		it('Disable 3D Volume For VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Disable 3D Volume');
 			await page.waitFor(10000);
 			const disableVolume = await page.evaluate(async () => {
@@ -172,7 +172,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to show info for VFB_jrchk4wj instance and check term info opens up with instance
 		it('Show Info For VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Show Info');
 			await page.waitFor(2000);
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
@@ -189,7 +189,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Open color picker to change color of VFB_jrchk4wj
 		it('Color Picker Appears for VFB_jrchk4wj', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Color');
 			await wait4selector(page, 'div.chrome-picker', { visible: true, timeout : 500000 })
 		})
@@ -215,7 +215,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Click on control's option to delete VFB_jrchk4wj instance and check is now gone
 		it('Delete VFB_jrchk4wj Instance', async () => {
-			await openControls(page, "PVLP142_R - 5812987602");
+			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Delete');
 			await page.waitFor(2000);
 

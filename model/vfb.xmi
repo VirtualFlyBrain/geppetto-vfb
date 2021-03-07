@@ -521,6 +521,23 @@
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        name="All referenced Entities from a pub"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch all entities for pub"
+          description="Fetch all entities that have reference to pub"
+          returnType="//@libraries.3/@types.0"
+          query="&quot;statement&quot;: &quot;MATCH (p:pub)&lt;-[:has_reference]-(primary) WHERE p.short_form in [{ID}] WITH distinct primary CALL apoc.cypher.run('WITH primary OPTIONAL MATCH (primary)&lt;-[:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual) WHERE primary:Class WITH coalesce(i,primary) as i OPTIONAL MATCH (i)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]-> (template_anat:Individual)  RETURN template, channel, template_anat, i, irw limit 5', {primary:primary}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, primary OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,primary RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), symbol: coalesce(primary.symbol[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'm_bac066c' AS version, 'pub_from_anatomy_query' AS query, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (p:pub)&lt;-[:has_reference]-(primary) WHERE p.short_form in [{ID}] WITH distinct primary RETURN count(primary) AS count&quot;, &quot;parameters&quot; : { &quot;ID&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Images"
+          returnType="//@libraries.3/@types.0"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -1081,5 +1098,14 @@
       queryChain="//@dataSources.0/@queries.17">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="TermsForPub"
+      name="has_reference_to_pub"
+      description="List all terms that reference $NAME"
+      returnType="//@libraries.3/@types.36"
+      queryChain="//@dataSources.0/@queries.18">
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.16"/>
   </queries>
 </gep:GeppettoModel>
