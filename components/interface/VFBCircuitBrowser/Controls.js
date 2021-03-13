@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';
 import Slider from '@material-ui/core/Slider';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import ImportExportIcon from '@material-ui/icons/ImportExport';
@@ -137,6 +138,7 @@ class Controls extends Component {
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
     this.typingTimeout = this.typingTimeout.bind(this);
     this.sliderChange = this.sliderChange.bind(this);
+    this.weightChange = this.weightChange.bind(this);
     this.fieldsValidated = this.fieldsValidated.bind(this);
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
@@ -276,6 +278,15 @@ class Controls extends Component {
       this.props.updateHops(value);
     }    
   }
+  
+  weightChange (event ) {
+    if (event.key === 'Enter') {
+      // Request new queries results with updated hops only if textfields contain valid neuron IDs
+      if ( this.fieldsValidated(this.state.neuronFields) ) {
+        this.props.updateWeight(event.target.value);
+      } 
+    }
+  }
 
   /**
    * Update neuron fields if there's a query preselected.
@@ -388,7 +399,7 @@ class Controls extends Component {
                               key={field.id}
                               onChange={this.neuronTextfieldModified}
                               inputProps={{ ...params.inputProps, style: { color: "white" , paddingLeft : "10px" } }}
-                              InputLabelProps={{ ...params.inputProps,style: { color: "white" } }}
+                              InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
                             />
                           )}
                         />
@@ -425,23 +436,33 @@ class Controls extends Component {
             </AccordionDetails>
             <Divider />
             <AccordionActions>
-              <Grid container spacing={1}>
-                <Grid item sm={2}>
-                  <Typography>Hops</Typography>
+              <Grid container justify="center" alignItems="center" >
+                <Grid container spacing={1}>
+                  <Grid item sm={2}>
+                    <Typography>Hops</Typography>
+                  </Grid>
+                  <Grid item sm={10}>
+                    <Slider
+                      aria-labelledby="discrete-slider-always"
+                      defaultValue={this.props.hops}
+                      onChangeCommitted={this.sliderChange}
+                      step={1}
+                      marks={customMarks()}
+                      valueLabelDisplay="auto"
+                      min={configuration.minHops}
+                      max={configuration.maxHops}
+                    />  
+                  </Grid>
                 </Grid>
-                <Grid item sm={10}>
-                  <Slider
-                    aria-labelledby="discrete-slider-always"
-                    defaultValue={this.props.hops}
-                    onChangeCommitted={this.sliderChange}
-                    step={1}
-                    marks={customMarks()}
-                    valueLabelDisplay="auto"
-                    min={configuration.minHops}
-                    max={configuration.maxHops}
-                  />  
+                <Grid container spacing={1}>
+                  <Grid item sm={2}>
+                    <Typography>Weight</Typography>
+                  </Grid>
+                  <Grid item sm={3}>
+                    <Input defaultValue={this.props.weight} onKeyPress={this.weightChange} inputProps={{ 'aria-label': 'description' }} />
+                  </Grid>
                 </Grid>
-              </Grid> 
+              </Grid>
             </AccordionActions>
           </Accordion>
         </div>

@@ -28,11 +28,13 @@ export function queryParser (e) {
 
       // Only keep track of new links, avoid duplicates
       if ( newLink ) {
-        linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
+        linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
       }
 
     });
   });
+
+  console.log("LinksMap ", linksMap);
 
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
@@ -84,25 +86,31 @@ export function queryParser (e) {
         let targetNode = nodesMap.get(n[i].target);
 
         if (targetNode !== undefined) {
-          // Create new link for graph
-          let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
-          links.push( link );
+          let match = links.find( link => link.target === targetNode && link.source === sourceNode);
+          let reverse = links.find( link => link.target === sourceNode && link.source === targetNode);
+          if ( !match ) {
+            // Create new link for graph
+            let link = { source: sourceNode, label : n[i].weight, weight : n[i].weight, target: targetNode, targetNode: targetNode, curvature: .5 };
+            links.push( link );
 
-          // Assign neighbors to nodes and links
-          !sourceNode.neighbors && (sourceNode.neighbors = []);
-          !targetNode.neighbors && (targetNode.neighbors = []);
-          sourceNode.neighbors.push(targetNode);
-          targetNode.neighbors.push(sourceNode);
+            // Assign neighbors to nodes and links
+            !sourceNode.neighbors && (sourceNode.neighbors = []);
+            !targetNode.neighbors && (targetNode.neighbors = []);
+            sourceNode.neighbors.push(targetNode);
+            targetNode.neighbors.push(sourceNode);
 
-          // Assign links to nodes
-          !sourceNode.links && (sourceNode.links = []);
-          !targetNode.links && (targetNode.links = []);
-          sourceNode.links.push(link);
-          targetNode.links.push(link);
+            // Assign links to nodes
+            !sourceNode.links && (sourceNode.links = []);
+            !targetNode.links && (targetNode.links = []);
+            sourceNode.links.push(link);
+            targetNode.links.push(link);
+          }
         }
       }
     }
   });
+  
+  console.log("Links ", links);
 
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
