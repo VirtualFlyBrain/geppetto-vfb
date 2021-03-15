@@ -356,7 +356,7 @@ class VFBCircuitBrowser extends Component {
               
               // draw text label (with background rect)
               ctx.save();
-              ctx.translate(textPos.x, yPos - 5);
+              ctx.translate(textPos.x, yPos - 10);
               ctx.rotate(textAngle);
               
               
@@ -417,7 +417,7 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             dagLevelDistance = {100}
-            onDagError={loopNodeIds => console.log("Node IDS " , loopNodeIds)}
+            onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
             ref={this.graphRef}
@@ -428,8 +428,8 @@ class VFBCircuitBrowser extends Component {
             // Width of links
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
             linkCurvature='curvature'
-            linkDirectionalArrowLength={link => Math.log(link.weight) * 3 }
-            linkDirectionalArrowRelPos={.5 }
+            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 3 : .5}
+            linkDirectionalArrowRelPos={.25}
             controls = {
               <Controls
                 queriesUpdated={self.queriesUpdated}

@@ -8,10 +8,10 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + " ALL(rel in relationships(p) WHERE exists(rel.weight) AND rel.weight[0] > " + weight.toString() + ")"
       + " WITH root, relationships(p) as fu, p AS pp"
       + " UNWIND fu as r"
-      + " WITH root, startNode(r) AS a, endNode(r) AS b, pp"
+      + " WITH root, startNode(r) AS a, endNode(r) AS b, pp, id(r) as id"
       + " MATCH p=(a)<-[:synapsed_to]-(b)"
-      + " RETURN pp, p, root",
-      "resultDataContents": ["graph"]
+      + " RETURN root, collect(distinct pp) as pp, collect(distinct p) as p, collect(distinct id) as fr",
+      "resultDataContents": ["row", "graph"]
     }
   ]
 });
