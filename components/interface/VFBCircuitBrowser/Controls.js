@@ -134,6 +134,8 @@ class Controls extends Component {
       neuronFields : [{ id : "", label : "" } , { id : "", label : "" }],
       filteredResults : {}
     };
+    this.weight = this.props.weight;
+    this.hops = this.props.hops;
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
     this.typingTimeout = this.typingTimeout.bind(this);
@@ -173,11 +175,6 @@ class Controls extends Component {
     
     // Update state with one fewer neuron textfield
     this.setState( { neuronFields : neurons } );
-    
-    // If neuron fields are validated, let the VFBCircuitBrowser component know, it will do a graph update
-    if ( this.fieldsValidated(neurons) ) {
-      this.props.queriesUpdated(neurons);
-    }
   }
   
   /**
@@ -265,7 +262,6 @@ class Controls extends Component {
     // If text fields contain valid ids, perform query
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
-      this.props.queriesUpdated(neurons);
     }
   }
   
@@ -273,19 +269,11 @@ class Controls extends Component {
    * Hops slider has been dragged, value has changed
    */
   sliderChange (event, value ) {
-    // Request new queries results with updated hops only if textfields contain valid neuron IDs
-    if ( this.fieldsValidated(this.state.neuronFields) ) {
-      this.props.updateHops(value);
-    }    
+    this.hops = value;
   }
   
   weightChange (event ) {
-    if (event.key === 'Enter') {
-      // Request new queries results with updated hops only if textfields contain valid neuron IDs
-      if ( this.fieldsValidated(this.state.neuronFields) ) {
-        this.props.updateWeight(event.target.value);
-      } 
-    }
+    this.weight = event.target.value;
   }
 
   /**
@@ -315,10 +303,6 @@ class Controls extends Component {
         }
       }
     }
-    
-    if ( this.fieldsValidated(neuronFields) ) {
-      this.props.queriesUpdated(neuronFields);
-    } 
     
     return neuronFields;
   }
@@ -444,7 +428,7 @@ class Controls extends Component {
                   <Grid item sm={10}>
                     <Slider
                       aria-labelledby="discrete-slider-always"
-                      defaultValue={this.props.hops}
+                      defaultValue={this.hops}
                       onChangeCommitted={this.sliderChange}
                       step={1}
                       marks={customMarks()}
@@ -458,8 +442,16 @@ class Controls extends Component {
                   <Grid item sm={2}>
                     <Typography>Weight</Typography>
                   </Grid>
-                  <Grid item sm={3}>
-                    <Input defaultValue={this.props.weight} onKeyPress={this.weightChange} inputProps={{ 'aria-label': 'description' }} />
+                  <Grid item sm={4}>
+                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description' }} />
+                  </Grid>
+                  <Grid item container justify="flex-end" sm={6}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      size="small"
+                      onClick={() => this.props.updateGraph(this.state.neuronFields, this.hops, this.weight)}
+                    >Refresh Graph</Button>  
                   </Grid>
                 </Grid>
               </Grid>

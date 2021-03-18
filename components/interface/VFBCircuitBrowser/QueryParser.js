@@ -33,6 +33,7 @@ export function queryParser (e) {
           linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
         }        
       } else {
+        // Keep track of reverse links
         if (reverseMap.get(startNode) === undefined) {
           reverseMap.set(startNode, new Array());
         }
@@ -93,9 +94,12 @@ export function queryParser (e) {
           let match = links.find( link => link.target === targetNode && link.source === sourceNode);
           let reverse = reverseMap.get(targetNode.id.toString())?.find( node => node.target === sourceNode.id.toString());
           if ( !match ) {
-            const label = reverse ? n[i].weight + "[" + reverse.weight + "]" : n[i].weight;
+            // Create tooltip label for link and weight
+            const tooltip = "Label  : " + n[i].label + '<br/>' 
+              + "Weight : " + (reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight);
+            const weightLabel = reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight;
             // Create new link for graph
-            let link = { source: sourceNode, label : label, weight : n[i].weight, target: targetNode, targetNode: targetNode, curvature: .5 };
+            let link = { source: sourceNode, label : tooltip, weightLabel : weightLabel, weight : n[i].weight, target: targetNode, targetNode: targetNode, curvature: .75 };
             links.push( link );
 
             // Assign neighbors to nodes and links
