@@ -175,7 +175,7 @@ var searchConfiguration = {
     var InputString = window.spotlightString;
     var scoreA = 0;
     var scoreB = 0;
-    # Remove label/ID from synonyms for ordering
+    // Remove label/ID from synonyms for ordering
     split = a.split(' (');
     split.pop(split.length);
     a = split.join(' (');
