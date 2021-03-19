@@ -178,10 +178,10 @@ var searchConfiguration = {
     // Remove label from synonyms for ordering
     var s = a.split(' (');
     s.pop(s.length);
-    a = s.join(' (');
+    a.label = s.join(' (');
     s = b.split(' (');
     s.pop(s.length);
-    b = s.join(' (');
+    b.label = s.join(' (');
     // move down results with no label
     if (a.label == undefined) {
       return 1;
