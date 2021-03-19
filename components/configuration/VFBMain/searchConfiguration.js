@@ -175,12 +175,12 @@ var searchConfiguration = {
     var InputString = window.spotlightString;
     var scoreA = 0;
     var scoreB = 0;
-    // Remove label or ID from synonyms for ordering
+    // Remove label from synonyms for ordering
     var s = a.split(' (');
-    s.pop(split.length);
+    s.pop(s.length);
     a = s.join(' (');
     s = b.split(' (');
-    s.pop(split.length);
+    s.pop(s.length);
     b = s.join(' (');
     // move down results with no label
     if (a.label == undefined) {
