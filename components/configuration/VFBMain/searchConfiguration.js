@@ -178,42 +178,42 @@ var searchConfiguration = {
       return -1;
     }
     if (InputString == b.label) {
-        return 1;
+      return 1;
     }
     // close match without case matching
     if (InputString.toLowerCase() == a.label.toLowerCase()) {
-        return -1;
+      return -1;
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
-        return 1;
+      return 1;
     }
     // match ignoring joinging nonwords
     if (InputString.toLowerCase().split(/\W+/).join(' ') == a.label.toLowerCase().split(/\W+/).join(' ')) {
-        return -1;
+      return -1;
     }
     if (InputString.toLowerCase().split(/\W+/).join(' ') == b.label.toLowerCase().split(/\W+/).join(' ')) {
-        return 1;
+      return 1;
     }
     // match against id
     if (InputString.toLowerCase() == a.id.toLowerCase()) {
-        return -1;
+      return -1;
     }
     if (InputString.toLowerCase() == b.id.toLowerCase()) {
-        return 1;
+      return 1;
     }
     // pick up any match without nonword join character match
     if (a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) > -1) {
-        return 1;
+      return 1;
     }
     if (b.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) > -1) {
-        return -1;
+      return -1;
     }
     // also with underscores ignored
     if (a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
-        return 1;
+      return 1;
     }
     if (b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
-        return -1;
+      return -1;
     }
     // find all matching spaced words
     if (InputString.toLowerCase().indexOf(' ') > -1) {
@@ -268,32 +268,32 @@ var searchConfiguration = {
     }
     // if not found in one then advance the other
     if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-        return 1;
+      return 1;
     }
     if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-        return -1;
+      return -1;
     }
     // if the match is closer to start than the other move up
     if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.label.toLowerCase().indexOf(InputString.toLowerCase()) < b.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-        return -1;
+      return -1;
     }
     if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
-        return 1;
+      return 1;
     }
     // if the match in the id is closer to start then move up
     if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-        return -1;
+      return -1;
     }
     if (b.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.id.toLowerCase().indexOf(InputString.toLowerCase()) < a.id.toLowerCase().indexOf(InputString.toLowerCase())) {
-        return 1;
+      return 1;
     }
     // move the shorter synonyms to the top
     if (a.label < b.label) {
-        return -1;
+      return -1;
     } else if (a.label > b.label) {
-        return 1;
+      return 1;
     } else {
-        return 0;
+      return 0;
     } // if nothing found then do nothing.
   },
   "clickHandler": function (id) {
