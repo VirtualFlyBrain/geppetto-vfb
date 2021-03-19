@@ -173,15 +173,6 @@ var searchConfiguration = {
   ],
   "sorter": function (a, b) {
     var InputString = window.spotlightString;
-    var scoreA = 0;
-    var scoreB = 0;
-    // Remove label from synonyms for ordering
-    var s = a.split(' (');
-    s.pop(s.length);
-    a.label = s.join(' (');
-    s = b.split(' (');
-    s.pop(s.length);
-    b.label = s.join(' (');
     // move down results with no label
     if (a.label == undefined) {
       return 1;
@@ -189,18 +180,17 @@ var searchConfiguration = {
     if (b.label == undefined) {
       return -1;
     }
+    var aLabel = a.label.split(' (');
+    var aEnd = aLabel.pop(aLabel.length);
+    aLabel = aLabel.join(' (');
+    var bLabel = b.label.split(' (');
+    var bEnd = bLabel.pop(bLabel.length);
+    bLabel = bLabel.join(' (');
     // move exact matches to top
-    if (InputString == a.label) {
+    if (InputString == aLabel) {
       return -1;
     }
-    if (InputString == b.label) {
-      return 1;
-    }
-    // move exact matches to top ['XX ('ID/Label)]
-    if (a.label.indexOf(InputString ) == 0) {
-      return -1;
-    }
-    if (b.label.indexOf(InputString) == 0) {
+    if (InputString == bLabel) {
       return 1;
     }
     // close match without case matching
