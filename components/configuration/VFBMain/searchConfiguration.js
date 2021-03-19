@@ -213,8 +213,8 @@ var searchConfiguration = {
     if (InputString.toLowerCase().indexOf(' ') > -1) {
       var lcInputStingFac = InputString.toLowerCase().split(' ');
       var compare = (a1, a2) => a1.filter(v => a2.includes(v)).length;
-      var cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
-      var cB = compare(lcInputStingFac, b.label.toLowerCase().split(' '));
+      var cA = compare(lcInputStingFac, a.label.toLowerCase().split(/\W+/).join(' ').split(' '));
+      var cB = compare(lcInputStingFac, b.label.toLowerCase().split(/\W+/).join(' ').split(' '));
       if (cA > 0 || cB > 0) {
         if (cA > cB) {
           return -1;
