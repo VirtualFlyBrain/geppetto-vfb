@@ -175,13 +175,13 @@ var searchConfiguration = {
     var InputString = window.spotlightString;
     var scoreA = 0;
     var scoreB = 0;
-    // Remove label/ID from synonyms for ordering
-    split = a.split(' (');
-    split.pop(split.length);
-    a = split.join(' (');
-    split = b.split(' (');
-    split.pop(split.length);
-    b = split.join(' (');
+    // Remove label or ID from synonyms for ordering
+    var s = a.split(' (');
+    s.pop(split.length);
+    a = s.join(' (');
+    s = b.split(' (');
+    s.pop(split.length);
+    b = s.join(' (');
     // move down results with no label
     if (a.label == undefined) {
       return 1;
@@ -222,12 +222,6 @@ var searchConfiguration = {
         if (cA < cB) {
           return 1;
         }
-        // if (a.label.length < b.label.length) {
-        //   return -1;
-        // }
-        // if (a.label.length > b.label.length) {
-        //   return 1;
-        // }
       }
     }
     // close match without case matching ['xx ('ID/Label)]
