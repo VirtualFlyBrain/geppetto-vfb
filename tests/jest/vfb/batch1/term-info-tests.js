@@ -98,7 +98,7 @@ describe('VFB Term Info Component Tests', () => {
 					if ( tabs[i].innerText === "Term Info" ) {
 						tabs[i].click();
 					}
-				}				
+				}
 			});
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 		})
@@ -125,7 +125,7 @@ describe('VFB Term Info Component Tests', () => {
 					if ( tabs[i].innerText === "Term Info" ) {
 						tabs[i].click();
 					}
-				}				
+				}
 			});
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
