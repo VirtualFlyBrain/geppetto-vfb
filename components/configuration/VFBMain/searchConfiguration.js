@@ -173,13 +173,6 @@ var searchConfiguration = {
   ],
   "sorter": function (a, b) {
     var InputString = window.spotlightString;
-    // move down results with no label
-    if (a.label == undefined) {
-      return 1;
-    }
-    if (b.label == undefined) {
-      return -1;
-    }
     // move exact matches to top
     if (InputString == a.label) {
       return -1;
@@ -187,45 +180,11 @@ var searchConfiguration = {
     if (InputString == b.label) {
       return 1;
     }
-    // move exact matches to top ['XX ('ID/Label)]
-    if (a.label.indexOf(InputString + " (") == 0) {
-      return -1;
-    }
-    if (b.label.indexOf(InputString + " (") == 0) {
-      return 1;
-    }
     // close match without case matching
     if (InputString.toLowerCase() == a.label.toLowerCase()) {
       return -1;
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
-      return 1;
-    }
-    if (InputString.toLowerCase().indexOf(' ') > -1) {
-      var lcInputStingFac = InputString.toLowerCase().split(' ');
-      var compare = (a1, a2) => a1.filter(v => a2.includes(v)).length;
-      var cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
-      var cB = compare(lcInputStingFac, b.label.toLowerCase().split(' '));
-      if (cA > 0 || cB > 0) {
-        if (cA > cB) {
-          return -1;
-        }
-        if (cA < cB) {
-          return 1;
-        }
-        if (a.label.length < b.label.length) {
-          return -1;
-        }
-        if (a.label.length > b.label.length) {
-          return 1;
-        }
-      }
-    }
-    // close match without case matching ['xx ('ID/Label)]
-    if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
-      return -1;
-    }
-    if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) == 0) {
       return 1;
     }
     // match ignoring joinging nonwords
@@ -256,12 +215,56 @@ var searchConfiguration = {
     if (b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
       return -1;
     }
-    // pick up any match without non alpha numeric join character match
-    if (a.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) > -1) {
-      return 1;
+    // find all matching spaced words
+    if (InputString.toLowerCase().indexOf(' ') > -1) {
+      var lcInputStingFac = InputString.toLowerCase().split(' ');
+      var compare = (a1, a2) => a1.filter(v => a2.includes(v)).length;
+      var cA = compare(lcInputStingFac, a.label.toLowerCase().split(' '));
+      var cB = compare(lcInputStingFac, b.label.toLowerCase().split(' '));
+      if (cA > 0 || cB > 0) {
+        if (cA > cB) {
+          return -1;
+        }
+        if (cA < cB) {
+          return 1;
+        }
+      }
     }
-    if (b.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace(/[\W_]+/g,' ')) > -1) {
-      return -1;
+    // find all tokenised word matches
+    if (InputString.split(/\W+/).length > 1) {
+      var lcInputStingFac = InputString.toLowerCase().split(/\W+/);
+      var compare = (a1, a2) => a1.filter(v => a2.includes(v)).length;
+      var cA = compare(lcInputStingFac, a.label.toLowerCase().split(/\W+/));
+      var cB = compare(lcInputStingFac, b.label.toLowerCase().split(/\W+/));
+      if (cA > 0 || cB > 0) {
+        if (cA > cB) {
+          return -1;
+        }
+        if (cA < cB) {
+          return 1;
+        }
+      }
+    }
+    // prioritise matches in the primary label
+    if (InputString.split(/\W+/).length > 1) {
+      var lcInputStingFac = InputString.toLowerCase().split(/\W+/);
+      var compare = (a1, a2) => a1.filter(v => a2.includes(v)).length;
+      var aLabel = a.label.split(' (');
+      var aEnd = aLabel.pop(aLabel.length);
+      aLabel = aLabel.join(' (');
+      var bLabel = b.label.split(' (');
+      var bEnd = bLabel.pop(bLabel.length);
+      bLabel = bLabel.join(' (');
+      var cA = compare(lcInputStingFac, aLabel.toLowerCase().split(/\W+/));
+      var cB = compare(lcInputStingFac, bLabel.toLowerCase().split(/\W+/));
+      if (cA > 0 || cB > 0) {
+        if (cA > cB) {
+          return -1;
+        }
+        if (cA < cB) {
+          return 1;
+        }
+      }
     }
     // if not found in one then advance the other
     if (a.label.toLowerCase().indexOf(InputString.toLowerCase()) < 0 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
