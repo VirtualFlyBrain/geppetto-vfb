@@ -56,8 +56,9 @@ class VFBCircuitBrowser extends Component {
       loading : true,
       queryLoaded : false,
       dropDownAnchorEl : null,
-      neurons : ["", ""],
+      neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      weight : 70,
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
@@ -68,6 +69,7 @@ class VFBCircuitBrowser extends Component {
     this.zoomOut = this.zoomOut.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updateHops = this.updateHops.bind(this);
+    this.updateWeight = this.updateWeight.bind(this);
     this.resize = this.resize.bind(this);
     
     this.highlightNodes = new Set();
@@ -86,7 +88,7 @@ class VFBCircuitBrowser extends Component {
   componentDidMount () {
     let self = this;
     this.__isMounted = true;
-    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxHops - configuration.minHops) / 2));
+    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxHops - configuration.minHops) / 2), this.state.weight);
     const { circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
   }
@@ -118,13 +120,13 @@ class VFBCircuitBrowser extends Component {
    */
   queriesUpdated (neurons) {
     // Check if new list of neurons is the same as the ones already rendered on last update
-    var is_same = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
-      return element === neurons[index]; 
+    var matched = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
+      return element.id === neurons[index].id; 
     });
     
     // Request graph update if the list of new neurons is not the same
-    if ( !this.state.loading && !is_same ) {
-      this.updateGraph(neurons, this.state.hops);
+    if ( !this.state.loading && !matched ) {
+      this.updateGraph(neurons, this.state.hops, this.state.weight);
     }
   }
   
@@ -133,7 +135,10 @@ class VFBCircuitBrowser extends Component {
    */
   updateHops (hops) {
     this.setState({ hops : hops });
-    this.updateGraph(this.state.neurons, hops);
+  }
+  
+  updateWeight (weight) {
+    this.setState({ weight : weight });
   }
 
   resetCamera () {
@@ -177,12 +182,12 @@ class VFBCircuitBrowser extends Component {
   /**
    * Re-render graph with a new instance
    */
-  updateGraph (neurons, hops) {
+  updateGraph (neurons, hops, weight) {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
-      // Perform cypher query
-      this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
+      this.setState({ loading : true , neurons : neurons ? neurons : this.state.neurons, hops : hops ? hops : this.state.hops, weight : weight ? weight : this.state.weight, queryLoaded : false });
+      // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
+      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, hops ? hops : this.state.hops, weight ? weight : this.state.weight));
     }
   }    
 
@@ -233,7 +238,6 @@ class VFBCircuitBrowser extends Component {
       worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -259,6 +263,14 @@ class VFBCircuitBrowser extends Component {
     }
     context.fillText(line, x, y);
   }
+  
+  // Calculate link middle point
+  getQuadraticXY (t, sx, sy, cp1x, cp1y, ex, ey) {
+    return {
+      x: (1 - t) * (1 - t) * sx + 2 * (1 - t) * t * cp1x + t * t * ex,
+      y: (1 - t) * (1 - t) * sy + 2 * (1 - t) * t * cp1y + t * t * ey,
+    };
+  }
 
   render () {
     let self = this;
@@ -268,8 +280,8 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
-    if ( this.state.neurons[0] != "" && this.state.neurons[1] != "" ){
-      errorMessage = "Graph not available for " + this.state.neurons.join(",");
+    if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
+      errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
       this.state.loading
@@ -279,11 +291,13 @@ class VFBCircuitBrowser extends Component {
           ? <div>
             <h4 className={classes.errorMessage}>{errorMessage}</h4>
             <Controls
-              queriesUpdated={self.queriesUpdated}
+              updateGraph={self.updateGraph}
               updateHops={self.updateHops}
+              updateWeight={self.updateWeight}
               neurons={this.state.neurons}
               queryLoaded={this.state.queryLoaded}
               hops={this.state.hops}
+              weight={this.state.weight}
               resultsAvailable={ () => this.state.graph.nodes.length > 0 }
               resetCamera={self.resetCamera}
               zoomIn={self.zoomIn}
@@ -299,12 +313,149 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            // Node label, used in tooltip when hovering over Node
             nodeLabel={node => node.path}
+            // Relationship label, placed in Link
+            linkLabel={link => link.label}
+            // Width of links, log(weight)
+            linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
+            linkCurvature='curvature'
+            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 3 : .5}
+            linkDirectionalArrowRelPos={.75}
+            linkCanvasObject={(link, ctx) => {
+              const MAX_FONT_SIZE = 5;
+              const LABEL_NODE_MARGIN = 1 * 1.5;
+
+              const start = link.source;
+              const end = link.target;
+
+              // ignore unbound links
+              if (typeof start !== 'object' || typeof end !== 'object') {
+                return;
+              }
+                
+              // calculate label positioning
+              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
+
+              
+              if (link?.curvature && link?.__controlPoints ) {
+                // Get mid point of link, save as position of weight label text
+                textPos = this.getQuadraticXY(
+                  .5,
+                  start.x,
+                  start.y,
+                  link?.__controlPoints[0],
+                  link?.__controlPoints[1],
+                  end.x,
+                  end.y
+                );
+              }
+              const relLink = { x: end.x - start.x, y: end.y - start.y };
+
+              const maxTextLength = Math.sqrt(Math.pow(relLink.x, 2) + Math.pow(relLink.y, 2)) - LABEL_NODE_MARGIN * 2;
+
+              let textAngle = Math.atan2(relLink.y, relLink.x);
+              // maintain label vertical orientation for legibility
+              if (textAngle > Math.PI / 2) {
+                textAngle = -(Math.PI - textAngle);
+              }
+              if (textAngle < -Math.PI / 2) {
+                textAngle = -(-Math.PI - textAngle);
+              }
+
+              const label = link.weightLabel;
+
+              // estimate fontSize to fit in link length
+              ctx.font = '1px Sans-Serif';
+              const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
+              ctx.font = `${fontSize}px Sans-Serif`;
+              const textWidth = ctx.measureText(label).width;
+              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+              // draw text label (with background rect)
+              ctx.save();
+              ctx.translate(textPos.x,textPos.y);
+              ctx.rotate(textAngle);
+              // draw black rectangle
+              ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+              ctx.fillRect(- bckgDimensions[0] / 2, - bckgDimensions[1] / 2, ...bckgDimensions);
+              // draw weight label text
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillStyle = stylingConfiguration.defaultLinkColor;
+              ctx.setLineDash([5, 5]);
+              ctx.fillText(label, 0, 0);
+              ctx.restore();
+            }}
+            // Node label, used in tooltip when hovering over Node
+            linkCanvasObjectMode={() => "after"}
+            linkCanvasObject={(link, ctx) => {
+              const MAX_FONT_SIZE = 5;
+              const LABEL_NODE_MARGIN = 1 * 1.5;
+
+              const start = link.source;
+              const end = link.target;
+
+              if ( start.y < end.y && !link.modified ) {
+                link.curvature = -1 * link.curvature;
+                link.modified = true;
+              }
+              
+              // ignore unbound links
+              if (typeof start !== 'object' || typeof end !== 'object') {
+                return;
+              }
+              
+              // calculate label positioning
+              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
+
+              if (link?.__controlPoints ) {
+                textPos = this.getQuadraticXY(
+                  .5,
+                  start.x,
+                  start.y,
+                  link?.__controlPoints[0],
+                  link?.__controlPoints[1],
+                  end.x,
+                  end.y
+                );
+              }
+              const relLink = { x: end.x - start.x, y: end.y - start.y };
+
+              const maxTextLength = Math.sqrt(Math.pow(relLink.x, 2) + Math.pow(relLink.y, 2)) - LABEL_NODE_MARGIN * 2;
+
+              let textAngle = Math.atan2(relLink.y, relLink.x);
+              // maintain label vertical orientation for legibility
+              if (textAngle > Math.PI / 2) {
+                textAngle = -(Math.PI - textAngle);
+              }
+              if (textAngle < -Math.PI / 2) {
+                textAngle = -(-Math.PI - textAngle);
+              }
+
+              const label = link.weightLabel;
+
+              // estimate fontSize to fit in link length
+              ctx.font = '1px Sans-Serif';
+              const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
+              ctx.font = `${fontSize}px Sans-Serif`;
+              const textWidth = ctx.measureText(label).width;
+              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+              // draw text label (with background rect)
+              ctx.save();
+              ctx.translate(textPos.x,textPos.y);
+              ctx.rotate(textAngle);
+              ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+              ctx.fillRect(- bckgDimensions[0] / 2, - bckgDimensions[1] / 2, ...bckgDimensions);
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillStyle = 'white';
+              ctx.setLineDash([5, 5]);
+              ctx.fillText(label, 0, 0);
+              ctx.restore();
+            }}
             nodeRelSize={20}
             nodeSize={30}
-            // Relationship label, placed in Link
-            linkLabel={link => link.name}
             // Assign background color to Canvas
             backgroundColor = {stylingConfiguration.canvasColor}
             // Assign color to Links connecting Nodes
@@ -352,6 +503,7 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             dagLevelDistance = {100}
+            onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
             ref={this.graphRef}
@@ -359,21 +511,20 @@ class VFBCircuitBrowser extends Component {
             enableNodeDrag={false}
             // Allow camera pan and zoom with mouse
             enableZoomPanInteraction={true}
-            // Width of links
-            linkWidth={1.25}
             controls = {
               <Controls
-                queriesUpdated={self.queriesUpdated}
+                updateGraph={self.updateGraph}
                 updateHops={self.updateHops}
+                updateWeight={self.updateWeight}
                 neurons={this.state.neurons}
                 queryLoaded={this.state.queryLoaded}
                 hops={this.state.hops}
+                weight={this.state.weight}
                 resultsAvailable={ () => this.state.graph.nodes.length > 0 }
                 resetCamera={self.resetCamera}
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
                 circuitQuerySelected={this.circuitQuerySelected}
-                datasource="SOLR"
                 legend = {self.state.legend}
               />
             }

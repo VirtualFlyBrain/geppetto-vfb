@@ -7,30 +7,38 @@ export function queryParser (e) {
   let data = graphData.results[0].data;
   let nodes = [], links = [];
   let linksMap = new Map();
+  let reverseMap = new Map();
   let nodesMap = new Map();
   let presentColorLabels = new Array();
 
   // Creates links map from Relationships, avoid duplicates
-  data.forEach(({ graph }) => {
-    graph.relationships.forEach(({ startNode, endNode, properties }) => {
-      if (linksMap.get(startNode) === undefined) {
-        linksMap.set(startNode, new Array());
-      }
-
-      let newLink = true;
-      linksMap.get(startNode).find( function ( ele ) {
-        if ( ele.target !== endNode ) {
-          newLink = true;
-        } else {
-          newLink = false;
+  data.forEach(({ graph, row }) => {
+    graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
+      if ( row[3].includes(parseInt(id)) ) {
+        if (linksMap.get(startNode) === undefined) {
+          linksMap.set(startNode, new Array());
         }
-      });
+        
+        let newLink = true;
+        linksMap.get(startNode).find( function ( ele ) {
+          if ( ele.target !== endNode ) {
+            newLink = true;
+          } else {
+            newLink = false;
+          }
+        });
 
-      // Only keep track of new links, avoid duplicates
-      if ( newLink ) {
-        linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label] });
+        // Only keep track of new links, avoid duplicates
+        if ( newLink ) {
+          linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
+        }        
+      } else {
+        // Keep track of reverse links
+        if (reverseMap.get(startNode) === undefined) {
+          reverseMap.set(startNode, new Array());
+        }
+        reverseMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
       }
-
     });
   });
 
@@ -82,28 +90,35 @@ export function queryParser (e) {
     if (n !== undefined){
       for (var i = 0 ; i < n.length; i++){
         let targetNode = nodesMap.get(n[i].target);
-
         if (targetNode !== undefined) {
-          // Create new link for graph
-          let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
-          links.push( link );
+          let match = links.find( link => link.target === targetNode && link.source === sourceNode);
+          let reverse = reverseMap.get(targetNode.id.toString())?.find( node => node.target === sourceNode.id.toString());
+          if ( !match ) {
+            // Create tooltip label for link and weight
+            const tooltip = "Label  : " + n[i].label + '<br/>' 
+              + "Weight : " + (reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight);
+            const weightLabel = reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight;
+            // Create new link for graph
+            let link = { source: sourceNode, label : tooltip, weightLabel : weightLabel, weight : n[i].weight, target: targetNode, targetNode: targetNode, curvature: .75 };
+            links.push( link );
 
-          // Assign neighbors to nodes and links
-          !sourceNode.neighbors && (sourceNode.neighbors = []);
-          !targetNode.neighbors && (targetNode.neighbors = []);
-          sourceNode.neighbors.push(targetNode);
-          targetNode.neighbors.push(sourceNode);
+            // Assign neighbors to nodes and links
+            !sourceNode.neighbors && (sourceNode.neighbors = []);
+            !targetNode.neighbors && (targetNode.neighbors = []);
+            sourceNode.neighbors.push(targetNode);
+            targetNode.neighbors.push(sourceNode);
 
-          // Assign links to nodes
-          !sourceNode.links && (sourceNode.links = []);
-          !targetNode.links && (targetNode.links = []);
-          sourceNode.links.push(link);
-          targetNode.links.push(link);
+            // Assign links to nodes
+            !sourceNode.links && (sourceNode.links = []);
+            !targetNode.links && (targetNode.links = []);
+            sourceNode.links.push(link);
+            targetNode.links.push(link);
+          }
         }
       }
     }
   });
-
+  
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
 }
