@@ -101,6 +101,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Expand node "adult cerebral ganglion"', async () => {
 			// Click on third node of tree browser, 'adult cerebrum'
 			await expandTreeNode(page, "adult central brain");
+			await page.waitFor(5000);
 			// Check tree now expanded with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult cerebrum");
 			expect(element).toEqual("adult cerebrum");
@@ -109,6 +110,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Expand node "adult cerebrum"', async () => {
 			// Click on third node of tree browser, 'adult cerebral ganglion'
 			await expandTreeNode(page, "adult cerebrum");
+			await page.waitFor(5000);
 			// Test node for 'adult central brain' exists
 			let element = await findElementByText(page, "adult deutocerebrum");
 			expect(element).toEqual("adult deutocerebrum");
@@ -116,6 +118,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 		it('Click on Node "adult deutocerebrum"', async () => {
 			await clickTreeNode(page, "adult deutocerebrum");
+			await page.waitFor(5000);
 			// Check Term Info is now populated with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult deutocerebrum");
 			expect(element).toBe("adult deutocerebrum");
