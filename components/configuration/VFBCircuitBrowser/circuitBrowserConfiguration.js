@@ -76,7 +76,6 @@ var styling = {
     "Sensory_neuron" : "#ff3a3a",
     "Peptidergic_neuron" : "#5f6a3a",
     "Glial_cell" : "#ff3a6a",
-    "Cell" : "#ff6a3a",
     "Clone" : "#d6007d",
     "Synaptic_neuropil" : "#00a2aa",
     "License" : "#0164d8",
@@ -90,6 +89,7 @@ var styling = {
     "DataSet" : "#b700b5",
     "Ganglion" : "#d6007d",
     "Neuromere" : "#d6507d",
+    "Cell" : "#ff6a3a",
     "Property" : "#005f1d",
     "Anatomy" : "#00a2aa",
     "_Class" : "#0164d8"
