@@ -1,4 +1,4 @@
-var locationCypherQuery = ( instances, hops, weight ) => ({
+var locationCypherQuery = ( instances, hops, weight, limit = 25 ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
@@ -7,13 +7,13 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + " WHERE y.short_form IN neurons AND"
       + " ALL(rel in relationships(p) WHERE exists(rel.weight) AND rel.weight[0] > " + weight.toString() + ")"
       + " AND none(rel in relationships(p) WHERE endNode(rel) = x OR startNode(rel) = y)"
-      + " WITH root, relationships(p) as fu, p AS pp LIMIT 25"
+      + " WITH root, relationships(p) as fu, p AS pp, length(p) as l ORDER BY l Asc LIMIT " + limit.toString()
       + " UNWIND fu as r"
       + " WITH root, startNode(r) AS a, endNode(r) AS b, pp, id(r) as id"
       + " MATCH p=(a)<-[:synapsed_to]-(b)"
-      + " RETURN root, collect(distinct pp) as pp, collect(distinct p) as p, collect(distinct id) as fr",
+      + " RETURN root, collect(distinct pp) as pp, collect(distinct p) as p, collect(distinct id) as fr,"
+      + " count(pp) >= "  + limit.toString() + " as limited",
       "resultDataContents": ["row", "graph"]
-    
     }
   ]
 });
