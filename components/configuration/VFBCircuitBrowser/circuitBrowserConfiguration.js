@@ -12,7 +12,7 @@ var locationCypherQuery = ( instances, hops, weight, limit = 25 ) => ({
       + " WITH root, startNode(r) AS a, endNode(r) AS b, pp, id(r) as id"
       + " MATCH p=(a)<-[:synapsed_to]-(b)"
       + " RETURN root, collect(distinct pp) as pp, collect(distinct p) as p, collect(distinct id) as fr,"
-      + " count(pp) >= "  + limit.toString() + " as limited",
+      + " count(pp) >= " + limit.toString() + " as limited",
       "resultDataContents": ["row", "graph"]
     }
   ]
