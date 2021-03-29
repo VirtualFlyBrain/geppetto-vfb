@@ -48,7 +48,7 @@ var styling = {
   canvasColor : "black",
   // Color for links between nodes
   defaultLinkColor : "white",
-  // Color apply to links while hovering over them 
+  // Color apply to links while hovering over them
   defaultLinkHoverColor : "#11bffe",
   // Color apply to target and source nodes when hovering over a link or a node.
   defaultNeighborNodesHoverColor : "orange",
@@ -59,39 +59,39 @@ var styling = {
   // Node border color
   defaultBorderColor : "black",
   // When hovering over a node, the node's border color changes to create a halo effect
-  defaultNodeHoverBoderColor : "red", 
+  defaultNodeHoverBoderColor : "red",
   // Title bar (in node) background color
   defaultNodeTitleBackgroundColor : "#11bffe",
   // Description area (in node) background color
   defaultNodeDescriptionBackgroundColor : "white",
   nodeColorsByLabel : {
     "Template" : "#ff6cc8",
-    "Ganglion" : "#d6007d",
-    "Neuromere" : "#d6007d",
     "GABAergic" : "#9551ff",
-    "Dopaminergic" : "#9551ff",
-    "Cholinergic" : "#9551ff",
-    "Glutamatergic" : "#9551ff",
-    "Octopaminergic" : "#9551ff",
-    "Serotonergic" : "#9551ff",
-    "Motor_neuron" : "#ff6a3a",
-    "Sensory_neuron" : "#ff6a3a",
-    "Peptidergic_neuron" : "#ff6a3a",
-    "Glial_cell" : "#ff6a3a",
+    "Dopaminergic" : "#3551ff",
+    "Cholinergic" : "#95515f",
+    "Glutamatergic" : "#95f1ff",
+    "Octopaminergic" : "#f3511f",
+    "Serotonergic" : "#9501f0",
+    "Motor_neuron" : "#fffa30",
+    "Sensory_neuron" : "#ff3a3a",
+    "Peptidergic_neuron" : "#5f6a3a",
+    "Glial_cell" : "#ff3a6a",
     "Cell" : "#ff6a3a",
     "Clone" : "#d6007d",
     "Synaptic_neuropil" : "#00a2aa",
     "License" : "#0164d8",
     "Person" : "#023f00",
     "Neuron" : "#7f2100",
-    "Neuron_projection_bundle" : "#d6007d",
+    "Neuron_projection_bundle" : "#d6327d",
     "Resource" : "#005f1d",
     "Site" : "#005f1d",
     "Expression_pattern" : "#534700",
     "Split" : "#e012e3",
     "DataSet" : "#b700b5",
-    "Anatomy" : "#00a2aa",
+    "Ganglion" : "#d6007d",
+    "Neuromere" : "#d6507d",
     "Property" : "#005f1d",
+    "Anatomy" : "#00a2aa",
     "_Class" : "#0164d8"
   },
   controlIcons : {
