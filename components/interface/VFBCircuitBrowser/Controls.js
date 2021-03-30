@@ -91,9 +91,7 @@ const styles = theme => ({
     height : "2vh",
     width : "2vh"
   },
-  weightInput : {
-    color : "white !important"
-  }
+  weightInput : { color : "white !important" }
 });
 
 /**
