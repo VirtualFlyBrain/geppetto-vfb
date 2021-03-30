@@ -90,6 +90,9 @@ const styles = theme => ({
     marginRight : "5vh",
     height : "2vh",
     width : "2vh"
+  },
+  weightInput : {
+    color : "white !important"
   }
 });
 
@@ -438,12 +441,12 @@ class Controls extends Component {
                     />  
                   </Grid>
                 </Grid>
-                <Grid container spacing={1}>
+                <Grid container alignItems="flex-end">
                   <Grid item sm={2}>
                     <Typography>Weight</Typography>
                   </Grid>
                   <Grid item sm={4}>
-                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description' }} />
+                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', className : classes.weightInput }} />
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
