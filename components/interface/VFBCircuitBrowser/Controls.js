@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';
 import Slider from '@material-ui/core/Slider';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import ImportExportIcon from '@material-ui/icons/ImportExport';
@@ -89,7 +90,8 @@ const styles = theme => ({
     marginRight : "5vh",
     height : "2vh",
     width : "2vh"
-  }
+  },
+  weightInput : { color : "white !important" }
 });
 
 /**
@@ -133,10 +135,13 @@ class Controls extends Component {
       neuronFields : [{ id : "", label : "" } , { id : "", label : "" }],
       filteredResults : {}
     };
+    this.weight = this.props.weight;
+    this.hops = this.props.hops;
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
     this.typingTimeout = this.typingTimeout.bind(this);
     this.sliderChange = this.sliderChange.bind(this);
+    this.weightChange = this.weightChange.bind(this);
     this.fieldsValidated = this.fieldsValidated.bind(this);
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
@@ -171,11 +176,6 @@ class Controls extends Component {
     
     // Update state with one fewer neuron textfield
     this.setState( { neuronFields : neurons } );
-    
-    // If neuron fields are validated, let the VFBCircuitBrowser component know, it will do a graph update
-    if ( this.fieldsValidated(neurons) ) {
-      this.props.queriesUpdated(neurons);
-    }
   }
   
   /**
@@ -263,7 +263,6 @@ class Controls extends Component {
     // If text fields contain valid ids, perform query
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
-      this.props.queriesUpdated(neurons);
     }
   }
   
@@ -271,10 +270,11 @@ class Controls extends Component {
    * Hops slider has been dragged, value has changed
    */
   sliderChange (event, value ) {
-    // Request new queries results with updated hops only if textfields contain valid neuron IDs
-    if ( this.fieldsValidated(this.state.neuronFields) ) {
-      this.props.updateHops(value);
-    }    
+    this.hops = value;
+  }
+  
+  weightChange (event ) {
+    this.weight = event.target.value;
   }
 
   /**
@@ -304,10 +304,6 @@ class Controls extends Component {
         }
       }
     }
-    
-    if ( this.fieldsValidated(neuronFields) ) {
-      this.props.queriesUpdated(neuronFields);
-    } 
     
     return neuronFields;
   }
@@ -388,7 +384,7 @@ class Controls extends Component {
                               key={field.id}
                               onChange={this.neuronTextfieldModified}
                               inputProps={{ ...params.inputProps, style: { color: "white" , paddingLeft : "10px" } }}
-                              InputLabelProps={{ ...params.inputProps,style: { color: "white" } }}
+                              InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
                             />
                           )}
                         />
@@ -425,23 +421,41 @@ class Controls extends Component {
             </AccordionDetails>
             <Divider />
             <AccordionActions>
-              <Grid container spacing={1}>
-                <Grid item sm={2}>
-                  <Typography>Hops</Typography>
+              <Grid container justify="center" alignItems="center" >
+                <Grid container spacing={1}>
+                  <Grid item sm={2}>
+                    <Typography>Hops</Typography>
+                  </Grid>
+                  <Grid item sm={10}>
+                    <Slider
+                      aria-labelledby="discrete-slider-always"
+                      defaultValue={this.hops}
+                      onChangeCommitted={this.sliderChange}
+                      step={1}
+                      marks={customMarks()}
+                      valueLabelDisplay="auto"
+                      min={configuration.minHops}
+                      max={configuration.maxHops}
+                    />  
+                  </Grid>
                 </Grid>
-                <Grid item sm={10}>
-                  <Slider
-                    aria-labelledby="discrete-slider-always"
-                    defaultValue={this.props.hops}
-                    onChangeCommitted={this.sliderChange}
-                    step={1}
-                    marks={customMarks()}
-                    valueLabelDisplay="auto"
-                    min={configuration.minHops}
-                    max={configuration.maxHops}
-                  />  
+                <Grid container alignItems="flex-end">
+                  <Grid item sm={2}>
+                    <Typography>Weight</Typography>
+                  </Grid>
+                  <Grid item sm={4}>
+                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', className : classes.weightInput }} />
+                  </Grid>
+                  <Grid item container justify="flex-end" sm={6}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      size="small"
+                      onClick={() => this.props.updateGraph(this.state.neuronFields, this.hops, this.weight)}
+                    >Refresh Graph</Button>  
+                  </Grid>
                 </Grid>
-              </Grid> 
+              </Grid>
             </AccordionActions>
           </Accordion>
         </div>
