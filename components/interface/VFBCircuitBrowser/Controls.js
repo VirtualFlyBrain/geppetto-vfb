@@ -232,6 +232,24 @@ class Controls extends Component {
    */
   typingTimeout (target) {
     this.setInputValue = target.id;
+    const match = this.state.neuronFields?.find(x => x.id === target.value || x.label === target.value );
+    let neurons = this.state.neuronFields;
+    if (!match) {
+      let index = neurons?.findIndex(x => x.id === "" );
+      if ( index >= 0) {
+        neurons[index] = { id : target.value, label : target.value };
+      } else {
+        if ( neurons[parseInt(target.id)] ) {
+          neurons[parseInt(target.id)] = { id : target.value, label : target.value };
+        } else {
+          neurons.push({ id : target.value, label : target.value });
+        }
+      }
+      
+      if ( this.fieldsValidated(neurons) ) {
+        this.setState( { neuronFields : neurons } );
+      }
+    }
     getResultsSOLR( target.value, this.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
   
@@ -284,14 +302,14 @@ class Controls extends Component {
     let neuronFields = this.state.neuronFields;
     let added = false;
     for ( var i = 0; i < this.props.circuitQuerySelected.length; i++ ){
-      var fieldExists = this.state.neuronFields.filter(entry =>
-        entry.id === this.props.circuitQuerySelected[i]
+      var fieldExists = this.state.neuronFields.find(entry =>
+        entry.id === this.props.circuitQuerySelected[i] || entry.id === this.props.circuitQuerySelected?.[i]?.id
       );
 
       if ( !fieldExists) { 
         for ( var j = 0 ; j < neuronFields.length ; j++ ) {
           if ( this.state.neuronFields?.[j].id === "" ) {
-            neuronFields[j] = { id : this.props.circuitQuerySelected[i], label : "" };
+            neuronFields[j] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
             added = true;
             break;
           }
@@ -299,7 +317,7 @@ class Controls extends Component {
         
         if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists) {
           if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
-            neuronFields.push({ id : this.props.circuitQuerySelected[i], label : "" });
+            neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] });
           } 
         }
       }
@@ -382,6 +400,7 @@ class Controls extends Component {
                               {...params}
                               label={"Neuron " + ( index + 1 ).toString()}
                               key={field.id}
+                              id={index}
                               onChange={this.neuronTextfieldModified}
                               inputProps={{ ...params.inputProps, style: { color: "white" , paddingLeft : "10px" } }}
                               InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}

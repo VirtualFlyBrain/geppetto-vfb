@@ -144,7 +144,7 @@ const linksConfiguration = {
   "CircuitBrowser": {
     "title": "Circuit browser For",
     "visibility": true,
-    "superType": "hasSynapses"
+    "superType": "Neuron"
   }
 }
 

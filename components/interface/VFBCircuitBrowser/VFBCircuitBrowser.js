@@ -93,18 +93,7 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
   }
 
-  componentDidUpdate () {
-    let self = this;
-    if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
-      setTimeout( function () {
-        self.resetCamera();
-        self.focused = true;
-        self.graphResized = false;
-      }, (self.objectsLoaded * 20));
-    } else if ( !this.props.visible ) {
-      this.focused = false;
-    }
-    
+  componentDidUpdate () {    
     if ( this.circuitQuerySelected !== this.props.circuitQuerySelected ) {
       this.circuitQuerySelected = this.props.circuitQuerySelected;
     }
