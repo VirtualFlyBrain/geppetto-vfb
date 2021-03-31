@@ -308,14 +308,15 @@ class Controls extends Component {
 
       if ( !fieldExists) { 
         for ( var j = 0 ; j < neuronFields.length ; j++ ) {
-          if ( this.state.neuronFields?.[j].id === "" ) {
+          if ( neuronFields?.[j].id === "" ) {
             neuronFields[j] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
             added = true;
+            fieldExists = true;
             break;
           }
         }
         
-        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists) {
+        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && this.props.circuitQuerySelected?.[i]?.id != "") {
           if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
             neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] });
           } 
