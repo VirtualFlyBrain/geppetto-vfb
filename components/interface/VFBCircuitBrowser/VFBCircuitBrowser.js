@@ -175,6 +175,10 @@ class VFBCircuitBrowser extends Component {
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
+    window.addVfbId(node.title);
+  }
+  
+  handleNodeRightClick (node, event) {
     this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
     this.graphRef.current.ggv.current.zoom(2, 1000);
   }
@@ -506,6 +510,8 @@ class VFBCircuitBrowser extends Component {
             onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
+            // Handles clicking event on an individual node
+            onNodeRightClick = { (node,event) => this.handleNodeRightClick(node,event) }
             ref={this.graphRef}
             // Disable dragging of nodes
             enableNodeDrag={false}
