@@ -151,6 +151,7 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 			}
 		}
 		await page.waitFor(delay);
+		elems = Array.from(document.querySelectorAll('*'));
 	}
 	return found;
 }, text);
