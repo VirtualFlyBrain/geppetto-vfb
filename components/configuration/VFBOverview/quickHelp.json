@@ -4,7 +4,7 @@
     "width": "900",
 	"steps": [{
 		"title": "Welcome to Virtual Fly Brain",
-		"image" : "geppetto/build/VFBqHelpMain.jpg",
+		"image" : "https://VirtualFlyBrain.org/data/VFB/screencaps/VFB_3D_400x400.jpg",
 		"instructions": [{
 			"icon" : "fa fa-question-circle-o",
 			"label" : "Hi, we are currently running a VFB User Survey, once you have used the site please consider completing this survey to help us improve it by clicking User Survey in the Help menu above."
