@@ -94,13 +94,13 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Wait for 'fa-eye-slashh' icon, means Tree Browser nodes were expanded
 			await wait4selector(page, 'i.fa-eye-slash', {visible: true, timeout : 5000});
 			// Test node for 'adult central brain' exists
-			let element = await findElementByText(page, "adult central brain");
-			expect(element).toBe("adult central brain");
+			let element = await findElementByText(page, "adult cerebral ganglion");
+			expect(element).toBe("adult cerebral ganglion");
 		})
 
 		it('Expand node "adult cerebral ganglion"', async () => {
 			// Click on third node of tree browser, 'adult cerebrum'
-			await expandTreeNode(page, "adult central brain");
+			await expandTreeNode(page, "adult cerebral ganglion");
 			await page.waitFor(5000);
 			// Check tree now expanded with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult cerebrum");
