@@ -145,13 +145,12 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 				if (elems[i].innerText !== undefined ) {
 					if (elems[i].innerText === text) {
 						found = elems[i].innerText;
-						break;
+						return found;
 					}
 				}
 			}
 		}
-		await page.waitFor(delay);;
+		await page.waitFor(delay);
 	}
-
 	return found;
 }, text);
