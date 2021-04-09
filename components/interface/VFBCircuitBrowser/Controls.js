@@ -277,7 +277,8 @@ class Controls extends Component {
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
-    
+    this.setState({ filteredResults : {} })
+
     // If text fields contain valid ids, perform query
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
