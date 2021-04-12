@@ -40,7 +40,7 @@ var configuration = {
   // Minimum amount of neurons allowed
   minNeurons : 2,
   // Maximum amount of neurons allowed
-  maxNeurons : 5
+  maxNeurons : 2
 }
 
 var styling = {
