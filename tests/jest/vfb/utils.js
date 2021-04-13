@@ -133,25 +133,20 @@ export const flexWindowClick = async (title, selector) => {
 /**
  * Find an element by using text as search pattern
  */
-export const findElementByText = async (page, text) => page.evaluate(async (text ) => {
+ export const findElementByText = async (page, text) => page.evaluate(async (text ) => {
 	let elems = Array.from(document.querySelectorAll('*'));
 	let found = "";
-	let runs = 5;
-	let delay = 1000;
 
-	for (var r = 1; r > runs; r++) {
-		for (var i = 0; i < elems.length; i++) {
-			if (elems[i] !== undefined ) {
-				if (elems[i].innerText !== undefined ) {
-					if (elems[i].innerText === text) {
-						found = elems[i].innerText;
-						return found;
-					}
+	for (var i = 0; i < elems.length; i++) {
+		if (elems[i] !== undefined ) {
+			if (elems[i].innerText !== undefined ) {
+				if (elems[i].innerText === text) {
+					found = elems[i].innerText;
+					break;
 				}
 			}
 		}
-		await page.waitFor(delay);
-		elems = Array.from(document.querySelectorAll('*'));
 	}
+
 	return found;
 }, text);
