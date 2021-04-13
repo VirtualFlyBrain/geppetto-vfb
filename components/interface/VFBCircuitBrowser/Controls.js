@@ -90,7 +90,8 @@ const styles = theme => ({
     marginRight : "5vh",
     height : "2vh",
     width : "2vh"
-  }
+  },
+  weightInput : { color : "white !important" }
 });
 
 /**
@@ -231,6 +232,24 @@ class Controls extends Component {
    */
   typingTimeout (target) {
     this.setInputValue = target.id;
+    const match = this.state.neuronFields?.find(x => x.id === target.value || x.label === target.value );
+    let neurons = this.state.neuronFields;
+    if (!match) {
+      let index = neurons?.findIndex(x => x.id === "" );
+      if ( index >= 0) {
+        neurons[index] = { id : target.value, label : target.value };
+      } else {
+        if ( neurons[parseInt(target.id)] ) {
+          neurons[parseInt(target.id)] = { id : target.value, label : target.value };
+        } else {
+          neurons.push({ id : target.value, label : target.value });
+        }
+      }
+      
+      if ( this.fieldsValidated(neurons) ) {
+        this.setState( { neuronFields : neurons } );
+      }
+    }
     getResultsSOLR( target.value, this.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
   
@@ -258,7 +277,8 @@ class Controls extends Component {
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
-    
+    this.setState({ filteredResults : {} })
+
     // If text fields contain valid ids, perform query
     if ( this.fieldsValidated(neurons) ) {
       this.setState( { neuronFields : neurons } );
@@ -283,22 +303,23 @@ class Controls extends Component {
     let neuronFields = this.state.neuronFields;
     let added = false;
     for ( var i = 0; i < this.props.circuitQuerySelected.length; i++ ){
-      var fieldExists = this.state.neuronFields.filter(entry =>
-        entry.id === this.props.circuitQuerySelected[i]
+      var fieldExists = this.state.neuronFields.find(entry =>
+        entry.id === this.props.circuitQuerySelected[i] || entry.id === this.props.circuitQuerySelected?.[i]?.id
       );
 
       if ( !fieldExists) { 
         for ( var j = 0 ; j < neuronFields.length ; j++ ) {
-          if ( this.state.neuronFields?.[j].id === "" ) {
-            neuronFields[j] = { id : this.props.circuitQuerySelected[i], label : "" };
+          if ( neuronFields?.[j].id === "" ) {
+            neuronFields[j] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
             added = true;
+            fieldExists = true;
             break;
           }
         }
         
-        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists) {
+        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && this.props.circuitQuerySelected?.[i]?.id != "") {
           if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
-            neuronFields.push({ id : this.props.circuitQuerySelected[i], label : "" });
+            neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] });
           } 
         }
       }
@@ -381,6 +402,7 @@ class Controls extends Component {
                               {...params}
                               label={"Neuron " + ( index + 1 ).toString()}
                               key={field.id}
+                              id={index}
                               onChange={this.neuronTextfieldModified}
                               inputProps={{ ...params.inputProps, style: { color: "white" , paddingLeft : "10px" } }}
                               InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
@@ -438,12 +460,12 @@ class Controls extends Component {
                     />  
                   </Grid>
                 </Grid>
-                <Grid container spacing={1}>
+                <Grid container alignItems="flex-end">
                   <Grid item sm={2}>
                     <Typography>Weight</Typography>
                   </Grid>
                   <Grid item sm={4}>
-                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description' }} />
+                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', className : classes.weightInput }} />
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
