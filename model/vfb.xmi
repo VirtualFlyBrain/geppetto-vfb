@@ -158,7 +158,7 @@
       id="neo4JDataSourceService"
       name="neo4j Data Source"
       dataSourceService="neo4jDataSource"
-      url="http://pdb.ug.virtualflybrain.org/db/neo4j/tx"
+      url="http://pdb.virtualflybrain.org/db/neo4j/tx"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <libraryConfigurations
