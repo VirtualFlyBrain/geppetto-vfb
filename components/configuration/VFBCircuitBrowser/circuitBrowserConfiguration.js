@@ -16,8 +16,10 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + "  path: true"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
-      + " MATCH p=(source)-[:synapsed_to*..]-(target) WHERE ALL(n in nodes(p) WHERE id(n) IN nodeIds)"
-      + " RETURN index, sourceNode as root, targetNode, p ORDER BY index",
+      + " OPTIONAL MATCH p=(source)-[r:synapsed_to*..]->(target) WHERE ALL(n in nodes(p) WHERE id(n) IN nodeIds)"
+      + " UNWIND r as sr WITH *, collect(id(sr)) as id OPTIONAL MATCH cp=(source)-[r:synapsed_to*..]-(target)"
+      + " WHERE ALL(n in nodes(cp) WHERE id(n) IN nodeIds) UNWIND ids as id"
+      + " RETURN distinct sourceNode as root, collect(cp), collect(distinct id) as fr ",
       "resultDataContents": ["row", "graph"]
     }
   ]
