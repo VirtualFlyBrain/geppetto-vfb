@@ -136,7 +136,7 @@ export const flexWindowClick = async (title, selector) => {
 export const findElementByText = async (page, text) => page.evaluate(async (text ) => {
 	let elems = Array.from(document.querySelectorAll('*'));
 	let found = "";
-	let runs = 10;
+	let runs = 5;
 	let delay = 1000;
 
 	for (var r = 1; r > runs; r++) {
