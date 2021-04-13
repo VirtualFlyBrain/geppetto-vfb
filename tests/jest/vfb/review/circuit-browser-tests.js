@@ -37,7 +37,7 @@ describe('VFB Circuit Browser Tests', () => {
 		})
 		
 		it('Set Neuron 1 , VFB_jrchjrch', async () => {
-			await page.waitFor(ONE_SECOND);
+			await page.waitFor(5 * ONE_SECOND);
 			await setTextFieldValue("neuron1", "VFB_jrchjrch")
 			
 			await wait4selector(page, 'ul.MuiAutocomplete-listbox', { visible: true, timeout : 30 * ONE_SECOND });
