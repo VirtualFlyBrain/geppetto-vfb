@@ -171,11 +171,10 @@ class Controls extends Component {
     // remove neuron textfield
     let neurons = this.state.neuronFields;
     neurons.splice(id,1);
-    
-    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    this?.props?.circuitQuerySelected?.splice(id, 1);
     
     // Update state with one fewer neuron textfield
-    this.setState( { neuronFields : neurons } );
+    this.setState( { neuronFields : neurons } );    
   }
   
   /**
@@ -272,7 +271,9 @@ class Controls extends Component {
   resultSelectedChanged (event, value) {
     // Copy neurons and add selection to correct array index
     let neurons = this.state.neuronFields;
-    neurons[this.setInputValue] = { id : this.state.filteredResults?.[value].short_form, label : value };
+    let shortForm = this.state.filteredResults?.[value].short_form;
+    let index = neurons.findIndex((neuron) => neuron.id === shortForm);
+    index > -1 ? neurons[index] = { id : shortForm, label : value } : null
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -355,7 +356,7 @@ class Controls extends Component {
             <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
           </div>
           { this.props.resultsAvailable()
-            ? <ul className={classes.legend}>
+            ? <ul className={classes.legend} id="circuitBrowserLegend">
               { this.props.legend.map((label, index) => (
                 <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li> 
               ))
@@ -383,7 +384,7 @@ class Controls extends Component {
                     <RoomIcon />
                   </div>
                 </Grid>
-                <Grid item sm={11}>
+                <Grid id="neuronFieldsGrid" item sm={11}>
                   { neuronFields.map((field, index) => {
                     let label = "Neuron " + (index + 1) .toString();
                     return <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
@@ -400,11 +401,11 @@ class Controls extends Component {
                           renderInput={params => (
                             <TextField
                               {...params}
-                              label={"Neuron " + ( index + 1 ).toString()}
+                              label={label}
                               key={field.id}
-                              id={index}
+                              id={label.replace(/ +/g, "").toLowerCase()}
                               onChange={this.neuronTextfieldModified}
-                              inputProps={{ ...params.inputProps, style: { color: "white" , paddingLeft : "10px" } }}
+                              inputProps={{ ...params.inputProps, id: label.replace(/ +/g, "").toLowerCase(), style: { color: "white" , paddingLeft : "10px" } }}
                               InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
                             />
                           )}
@@ -415,6 +416,7 @@ class Controls extends Component {
                           key={"TextFieldIcon-" + index}
                           onClick={self.deleteNeuronField}
                           fontSize="small"
+                          id={"deleteNeuron" + ( index ).toString()}
                           classes = {{ root : classes.deleteNeuron }}>
                           <DeleteIcon id={index.toString()}/>
                         </IconButton>
@@ -428,6 +430,7 @@ class Controls extends Component {
                   { addNeuronDisabled 
                     ? null
                     : <Button
+                      id="addNeuron"
                       color="inherit"
                       classes={{ root : classes.addNeuron }}
                       size="small"
@@ -465,13 +468,14 @@ class Controls extends Component {
                     <Typography>Weight</Typography>
                   </Grid>
                   <Grid item sm={4}>
-                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', className : classes.weightInput }} />
+                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
                       color="primary"
                       variant="contained"
                       size="small"
+                      id="refreshCircuitBrowser"
                       onClick={() => this.props.updateGraph(this.state.neuronFields, this.hops, this.weight)}
                     >Refresh Graph</Button>  
                   </Grid>
