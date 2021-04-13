@@ -2,18 +2,25 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
-      + " WITH neurons[0] as root, neurons[1..] AS neurons"
-      + " MATCH p=(x:Neuron {short_form: root})-[:synapsed_to*.." + hops.toString() + "]->(y:Neuron)"
-      + " WHERE y.short_form IN neurons AND"
-      + " ALL(rel in relationships(p) WHERE exists(rel.weight) AND rel.weight[0] > " + weight.toString() + ")"
-      + " AND none(rel in relationships(p) WHERE endNode(rel) = x OR startNode(rel) = y)"
-      + " WITH root, relationships(p) as fu, p AS pp"
-      + " UNWIND fu as r"
-      + " WITH root, startNode(r) AS a, endNode(r) AS b, pp, id(r) as id"
-      + " MATCH p=(a)<-[:synapsed_to]-(b)"
-      + " RETURN root, collect(distinct pp) as pp, collect(distinct p) as p, collect(distinct id) as fr",
+      + " WITH neurons[0] as a, neurons[1] AS b"
+      + " MATCH (source:has_neuron_connectivity {short_form: a}), (target:Neuron {short_form: b})"
+      + " CALL gds.beta.shortestPath.yens.stream({"
+      + "  nodeQuery: 'MATCH (n:has_neuron_connectivity) RETURN id(n) AS id',"
+      + "  relationshipQuery: 'MATCH (a:has_neuron_connectivity)-[r:synapsed_to]->(b:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] > "
+      + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
+      + "  sourceNode: id(source),"
+      + "  targetNode: id(target),"
+      + "  k: " + hops.toString() + ","
+      + "  relationshipWeightProperty: 'weight_p',"
+      + "  relationshipTypes: ['*'],"
+      + "  path: true"
+      + "})"
+      + " YIELD index, sourceNode, targetNode, nodeIds, path"
+      + " OPTIONAL MATCH fp=(source)-[r:synapsed_to*..]->(target) WHERE ALL(n in nodes(fp) WHERE id(n) IN nodeIds)"
+      + " UNWIND r as sr WITH *, collect(id(sr)) as ids OPTIONAL MATCH cp=(source)-[r:synapsed_to*..]-(target)"
+      + " WHERE ALL(n in nodes(cp) WHERE id(n) IN nodeIds) UNWIND ids as id"
+      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id) as fr ",
       "resultDataContents": ["row", "graph"]
-    
     }
   ]
 });
@@ -40,7 +47,7 @@ var configuration = {
   // Minimum amount of neurons allowed
   minNeurons : 2,
   // Maximum amount of neurons allowed
-  maxNeurons : 5
+  maxNeurons : 2
 }
 
 var styling = {
@@ -48,7 +55,7 @@ var styling = {
   canvasColor : "black",
   // Color for links between nodes
   defaultLinkColor : "white",
-  // Color apply to links while hovering over them 
+  // Color apply to links while hovering over them
   defaultLinkHoverColor : "#11bffe",
   // Color apply to target and source nodes when hovering over a link or a node.
   defaultNeighborNodesHoverColor : "orange",
@@ -59,39 +66,39 @@ var styling = {
   // Node border color
   defaultBorderColor : "black",
   // When hovering over a node, the node's border color changes to create a halo effect
-  defaultNodeHoverBoderColor : "red", 
+  defaultNodeHoverBoderColor : "red",
   // Title bar (in node) background color
   defaultNodeTitleBackgroundColor : "#11bffe",
   // Description area (in node) background color
   defaultNodeDescriptionBackgroundColor : "white",
   nodeColorsByLabel : {
     "Template" : "#ff6cc8",
-    "Ganglion" : "#d6007d",
-    "Neuromere" : "#d6007d",
     "GABAergic" : "#9551ff",
-    "Dopaminergic" : "#9551ff",
-    "Cholinergic" : "#9551ff",
-    "Glutamatergic" : "#9551ff",
-    "Octopaminergic" : "#9551ff",
-    "Serotonergic" : "#9551ff",
-    "Motor_neuron" : "#ff6a3a",
-    "Sensory_neuron" : "#ff6a3a",
-    "Peptidergic_neuron" : "#ff6a3a",
-    "Glial_cell" : "#ff6a3a",
-    "Cell" : "#ff6a3a",
+    "Dopaminergic" : "#3551ff",
+    "Cholinergic" : "#95515f",
+    "Glutamatergic" : "#95f1ff",
+    "Octopaminergic" : "#f3511f",
+    "Serotonergic" : "#9501f0",
+    "Motor_neuron" : "#fffa30",
+    "Sensory_neuron" : "#ff3a3a",
+    "Peptidergic_neuron" : "#5f6a3a",
+    "Glial_cell" : "#ff3a6a",
     "Clone" : "#d6007d",
     "Synaptic_neuropil" : "#00a2aa",
     "License" : "#0164d8",
     "Person" : "#023f00",
     "Neuron" : "#7f2100",
-    "Neuron_projection_bundle" : "#d6007d",
+    "Neuron_projection_bundle" : "#d6327d",
     "Resource" : "#005f1d",
     "Site" : "#005f1d",
     "Expression_pattern" : "#534700",
     "Split" : "#e012e3",
     "DataSet" : "#b700b5",
-    "Anatomy" : "#00a2aa",
+    "Ganglion" : "#d6007d",
+    "Neuromere" : "#d6507d",
+    "Cell" : "#ff6a3a",
     "Property" : "#005f1d",
+    "Anatomy" : "#00a2aa",
     "_Class" : "#0164d8"
   },
   controlIcons : {
@@ -102,7 +109,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb.virtualflybrain.org/db/neo4j/tx/commit",
   contentType: "application/json"
 };
 

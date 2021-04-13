@@ -1,5 +1,5 @@
 var restPostConfig = {
-  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb.virtualflybrain.org/db/neo4j/tx/commit",
   contentType: "application/json"
 };
 
@@ -10,8 +10,10 @@ var treeCypherQuery = instance => ({
       + "<-[:depicts]-(tc:Template)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:"
       + "Individual)-[r:INSTANCEOF]->(anat:Class:Nervous_system) WHERE exists(ie.index) WITH root, anat,r,image"
       + " MATCH p=allshortestpaths((root)<-[:SUBCLASSOF|part_of*..]-(anat)) "
+      + "UNWIND nodes(p) as n UNWIND nodes(p) as m WITH * WHERE id(n) < id(m) "
+      + "MATCH path = allShortestPaths( (n)-[:SUBCLASSOF|part_of*..1]-(m) ) "
       + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
-      + " AS image_nodes, id(root) AS root, p",
+      + " AS image_nodes, id(root) AS root, collect(path)",
       "resultDataContents": ["row", "graph"]
     }
   ]

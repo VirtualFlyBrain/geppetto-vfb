@@ -142,9 +142,9 @@ const linksConfiguration = {
   },
   // CircuitBrowser Links configuration, name of key "CircuitBrowser" must not be changed
   "CircuitBrowser": {
-    "title": "Circuit browser For",
+    "title": "Add Neuron to Circuit Browser",
     "visibility": true,
-    "superType": "Neuron"
+    "superType": "has_neuron_connectivity"
   }
 }
 
