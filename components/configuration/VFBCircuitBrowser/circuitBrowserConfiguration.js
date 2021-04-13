@@ -2,16 +2,21 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
-      + " WITH neurons[0] as root, neurons[1..] AS neurons"
-      + " MATCH p=(x:Neuron {short_form: root})-[:synapsed_to*.." + hops.toString() + "]->(y:Neuron)"
-      + " WHERE y.short_form IN neurons AND"
-      + " ALL(rel in relationships(p) WHERE exists(rel.weight) AND rel.weight[0] > " + weight.toString() + ")"
-      + " AND none(rel in relationships(p) WHERE endNode(rel) = x OR startNode(rel) = y)"
-      + " WITH root, relationships(p) as fu, p AS pp"
-      + " UNWIND fu as r"
-      + " WITH root, startNode(r) AS a, endNode(r) AS b, pp, id(r) as id"
-      + " MATCH p=(a)<-[:synapsed_to]-(b)"
-      + " RETURN root, collect(distinct pp) as pp, collect(distinct p) as p, collect(distinct id) as fr",
+      + " WITH neurons[0] as a, neurons[1] AS b"
+      + " MATCH (source:has_neuron_connectivity {short_form: a}), (target:Neuron {short_form: b})"
+      + " CALL gds.beta.shortestPath.yens.stream({"
+      + "  nodeQuery: 'MATCH (n:has_neuron_connectivity) RETURN id(n) AS id',"
+      + "  relationshipQuery: 'MATCH (a:has_neuron_connectivity)-[r:synapsed_to]->(b:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] > 0 RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
+      + "  sourceNode: id(source),"
+      + "  targetNode: id(target),"
+      + "  k: 5,"
+      + "  relationshipWeightProperty: 'weight_p',"
+      + "  relationshipTypes: ['*'],"
+      + "  path: true"
+      + "})"
+      + " YIELD index, sourceNode, targetNode, nodeIds, path"
+      + " MATCH p=(source)-[:synapsed_to*..]-(target) WHERE ALL(n in nodes(p) WHERE id(n) IN nodeIds)"
+      + " RETURN index, sourceNode as root, targetNode, p ORDER BY index",
       "resultDataContents": ["row", "graph"]
     }
   ]
