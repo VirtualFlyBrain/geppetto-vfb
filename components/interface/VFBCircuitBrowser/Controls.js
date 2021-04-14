@@ -272,9 +272,7 @@ class Controls extends Component {
     // Copy neurons and add selection to correct array index
     let neurons = this.state.neuronFields;
     let shortForm = this.state.filteredResults?.[value].short_form;
-    let index = neurons.findIndex(neuron => {
-        return neuron.id === shortForm;
-    });
+    let index = neurons.findIndex((neuron) => neuron.id === shortForm);
     index > -1 ? neurons[index] = { id : shortForm, label : value } : null
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
@@ -350,146 +348,144 @@ class Controls extends Component {
     let addNeuronDisabled = neuronFields.length >= configuration.maxNeurons;
     
     return (
-        <ThemeProvider theme={theme}>
-          <div>
-            <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
-              <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.controlIcons.home} onClick={self.props.resetCamera }></i>
-              <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomIn} onClick={self.props.zoomIn }></i>
-              <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
-            </div>
-            { this.props.resultsAvailable()
-              ? <ul className={classes.legend} id="circuitBrowserLegend">
-                { this.props.legend.map((label, index) => (
-                  <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li> 
-                ))
-                }
-              </ul>
-              : null
-            }
-            <Accordion className={classes.root} defaultExpanded={expanded} >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon fontSize="large" />}
-                onClick={() => self.setState({ expanded : !expanded })}
-                classes={{ expanded: classes.expanded }}
-                IconButtonProps={{ style: { padding : "0px", margin : "0px" } }}
-              >
-                <div className={classes.column}>
-                  <Typography >Configure circuit</Typography>
-                </div>
-              </AccordionSummary>
-              <AccordionDetails classes={{ root : classes.details }}>
-                <Grid container justify="center" alignItems="center" >
-                  <Grid item sm={1} >
-                    <div>
-                      <AdjustIcon />
-                      <MoreVertIcon classes={{ root : classes.dottedIcon }}/>
-                      <RoomIcon />
-                    </div>
-                  </Grid>
-                  <Grid id="neuronFieldsGrid" item sm={11}>
-                    { neuronFields.map((field, index) => {
-                      let label = "Neuron " + (index + 1) .toString();
-                      return (
-                          <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
-                            <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
-                              <Autocomplete
-                                freeSolo
-                                fullWidth
-                                disableClearable
-                                autoHighlight
-                                value={field.label}
-                                id={index.toString()}
-                                onChange={this.resultSelectedChanged}
-                                options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
-                                renderInput={params => (
-                                  <TextField
-                                    {...params}
-                                    label={label}
-                                    key={field.id}
-                                    id={label.replace(/ +/g, "").toLowerCase()}
-                                    onChange={this.neuronTextfieldModified}
-                                    inputProps={{ ...params.inputProps, id: label.replace(/ +/g, "").toLowerCase(), style: { color: "white" , paddingLeft : "10px" } }}
-                                    InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
-                                  />
-                                )}
-                              />
-                            </Grid>
-                            { deleteIconVisible ? <Grid item sm={1}>
-                              <IconButton
-                                key={"TextFieldIcon-" + index}
-                                onClick={self.deleteNeuronField}
-                                fontSize="small"
-                                id={"deleteNeuron" + ( index ).toString()}
-                                classes = {{ root : classes.deleteNeuron }}>
-                                <DeleteIcon id={index.toString()}/>
-                              </IconButton>
-                            </Grid>
-                              : null
-                            }
-                          </Grid>
-                      );
-                    })}
-                  </Grid>
-                  <Grid item sm={12}>
-                    { addNeuronDisabled 
-                      ? null
-                      : <Button
-                        id="addNeuron"
-                        color="inherit"
-                        classes={{ root : classes.addNeuron }}
-                        size="small"
-                        onClick={this.addNeuron}
-                        startIcon={<AddCircleOutlineIcon />}
-                      >
-                    Add Neuron
-                      </Button>
-                    }
-                  </Grid>
-                </Grid>
-              </AccordionDetails>
-              <Divider />
-              <AccordionActions>
-                <Grid container justify="center" alignItems="center" >
-                  <Grid container spacing={1}>
-                    <Grid item sm={2}>
-                      <Typography>Hops</Typography>
-                    </Grid>
-                    <Grid item sm={10}>
-                      <Slider
-                        aria-labelledby="discrete-slider-always"
-                        defaultValue={this.hops}
-                        onChangeCommitted={this.sliderChange}
-                        step={1}
-                        marks={customMarks()}
-                        valueLabelDisplay="auto"
-                        min={configuration.minHops}
-                        max={configuration.maxHops}
-                      />  
-                    </Grid>
-                  </Grid>
-                  <Grid container alignItems="flex-end">
-                    <Grid item sm={2}>
-                      <Typography>Weight</Typography>
-                    </Grid>
-                    <Grid item sm={4}>
-                      <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
-                    </Grid>
-                    <Grid item container justify="flex-end" sm={6}>
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        size="small"
-                        id="refreshCircuitBrowser"
-                        onClick={() => this.props.updateGraph(this.state.neuronFields, this.hops, this.weight)}
-                      >Refresh Graph</Button>  
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </AccordionActions>
-            </Accordion>
+      <ThemeProvider theme={theme}>
+        <div>
+          <div style={ { position: "absolute", width: "2vh", height: "100px",zIndex: "100" } }>
+            <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.controlIcons.home} onClick={self.props.resetCamera }></i>
+            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomIn} onClick={self.props.zoomIn }></i>
+            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
           </div>
-        </ThemeProvider>
-    );
+          { this.props.resultsAvailable()
+            ? <ul className={classes.legend} id="circuitBrowserLegend">
+              { this.props.legend.map((label, index) => (
+                <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li> 
+              ))
+              }
+            </ul>
+            : null
+          }
+          <Accordion className={classes.root} defaultExpanded={expanded} >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon fontSize="large" />}
+              onClick={() => self.setState({ expanded : !expanded })}
+              classes={{ expanded: classes.expanded }}
+              IconButtonProps={{ style: { padding : "0px", margin : "0px" } }}
+            >
+              <div className={classes.column}>
+                <Typography >Configure circuit</Typography>
+              </div>
+            </AccordionSummary>
+            <AccordionDetails classes={{ root : classes.details }}>
+              <Grid container justify="center" alignItems="center" >
+                <Grid item sm={1} >
+                  <div>
+                    <AdjustIcon />
+                    <MoreVertIcon classes={{ root : classes.dottedIcon }}/>
+                    <RoomIcon />
+                  </div>
+                </Grid>
+                <Grid id="neuronFieldsGrid" item sm={11}>
+                  { neuronFields.map((field, index) => {
+                    let label = "Neuron " + (index + 1) .toString();
+                    return <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
+                      <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
+                        <Autocomplete
+                          freeSolo
+                          fullWidth
+                          disableClearable
+                          autoHighlight
+                          value={field.label}
+                          id={index.toString()}
+                          onChange={this.resultSelectedChanged}
+                          options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label={label}
+                              key={field.id}
+                              id={label.replace(/ +/g, "").toLowerCase()}
+                              onChange={this.neuronTextfieldModified}
+                              inputProps={{ ...params.inputProps, id: label.replace(/ +/g, "").toLowerCase(), style: { color: "white" , paddingLeft : "10px" } }}
+                              InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      { deleteIconVisible ? <Grid item sm={1}>
+                        <IconButton
+                          key={"TextFieldIcon-" + index}
+                          onClick={self.deleteNeuronField}
+                          fontSize="small"
+                          id={"deleteNeuron" + ( index ).toString()}
+                          classes = {{ root : classes.deleteNeuron }}>
+                          <DeleteIcon id={index.toString()}/>
+                        </IconButton>
+                      </Grid>
+                        : null
+                      }
+                    </Grid>
+                  })}
+                </Grid>
+                <Grid item sm={12}>
+                  { addNeuronDisabled 
+                    ? null
+                    : <Button
+                      id="addNeuron"
+                      color="inherit"
+                      classes={{ root : classes.addNeuron }}
+                      size="small"
+                      onClick={this.addNeuron}
+                      startIcon={<AddCircleOutlineIcon />}
+                    >
+                  Add Neuron
+                    </Button>
+                  }
+                </Grid>
+              </Grid>
+            </AccordionDetails>
+            <Divider />
+            <AccordionActions>
+              <Grid container justify="center" alignItems="center" >
+                <Grid container spacing={1}>
+                  <Grid item sm={2}>
+                    <Typography>Hops</Typography>
+                  </Grid>
+                  <Grid item sm={10}>
+                    <Slider
+                      aria-labelledby="discrete-slider-always"
+                      defaultValue={this.hops}
+                      onChangeCommitted={this.sliderChange}
+                      step={1}
+                      marks={customMarks()}
+                      valueLabelDisplay="auto"
+                      min={configuration.minHops}
+                      max={configuration.maxHops}
+                    />  
+                  </Grid>
+                </Grid>
+                <Grid container alignItems="flex-end">
+                  <Grid item sm={2}>
+                    <Typography>Weight</Typography>
+                  </Grid>
+                  <Grid item sm={4}>
+                    <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
+                  </Grid>
+                  <Grid item container justify="flex-end" sm={6}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      size="small"
+                      id="refreshCircuitBrowser"
+                      onClick={() => this.props.updateGraph(this.state.neuronFields, this.hops, this.weight)}
+                    >Refresh Graph</Button>  
+                  </Grid>
+                </Grid>
+              </Grid>
+            </AccordionActions>
+          </Accordion>
+        </div>
+      </ThemeProvider>
+    )
   }
 }
 
