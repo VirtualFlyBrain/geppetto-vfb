@@ -27,6 +27,7 @@ jobs:
       - name: Pass branch
         id: branch
         run: echo "::set-output name=value::${GITHUB_REF#refs/heads/}";
+            echo "::set-output name=clean::$(echo ${GITHUB_REF#refs/heads/} | sed 's@[/\\]@-@g')";
       - name: Setup local servers
         id: local-servers
         shell: bash
@@ -127,7 +128,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-local.wss"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-local.wss"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
@@ -146,7 +147,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.remote-servers.outputs.SOLR_SERVER }}
@@ -167,7 +168,7 @@ jobs:
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       - name: Start VFB server
-        run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote";
+        run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
       - name: Wait for VFB server to spin up
         run: |  
           export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
