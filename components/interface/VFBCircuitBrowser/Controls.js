@@ -445,7 +445,7 @@ class Controls extends Component {
               <Grid container justify="center" alignItems="center" >
                 <Grid container spacing={1}>
                   <Grid item sm={2}>
-                    <Typography>Hops</Typography>
+                    <Typography>Paths</Typography>
                   </Grid>
                   <Grid item sm={10}>
                     <Slider
