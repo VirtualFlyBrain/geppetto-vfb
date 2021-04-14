@@ -58,7 +58,7 @@ class VFBCircuitBrowser extends Component {
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
-      weight : 70,
+      weight : 0,
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);

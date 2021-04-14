@@ -445,7 +445,7 @@ class Controls extends Component {
               <Grid container justify="center" alignItems="center" >
                 <Grid container spacing={1}>
                   <Grid item sm={2}>
-                    <Typography>Paths</Typography>
+                    <Typography># Paths</Typography>
                   </Grid>
                   <Grid item sm={10}>
                     <Slider
@@ -462,7 +462,7 @@ class Controls extends Component {
                 </Grid>
                 <Grid container alignItems="flex-end">
                   <Grid item sm={2}>
-                    <Typography>Weight</Typography>
+                    <Typography>Min Weight</Typography>
                   </Grid>
                   <Grid item sm={4}>
                     <Input label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', className : classes.weightInput }} />
