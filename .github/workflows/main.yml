@@ -5,7 +5,7 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push only. ToDo: handle pull requests for testing only
 on:
   push:
-    branches: '*'
+    branches: '**'
     tags: 'v*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
