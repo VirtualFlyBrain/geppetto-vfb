@@ -171,7 +171,7 @@ jobs:
         run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
             sleep 100;
             docker logs testServer;
-            if [ $(docker logs testServer | grep "fixable with the `--fix` option" | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
+            if [ $(docker logs testServer | grep "fixable with the " | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
       - name: Wait for VFB server to spin up
         run: |  
           export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
