@@ -100,7 +100,7 @@ jobs:
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
           fi
-        
+      
       # Output the chosen servers
       - name: Used remote servers
         run: |
@@ -164,7 +164,7 @@ jobs:
         run: |
           echo "local:${{ steps.docker_build_local.outputs.digest }}"
           echo "remote:${{ steps.docker_build_remote.outputs.digest }}"
-                
+      
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       - name: Start VFB server
