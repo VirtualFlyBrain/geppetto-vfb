@@ -272,7 +272,7 @@ class Controls extends Component {
     // Copy neurons and add selection to correct array index
     let neurons = this.state.neuronFields;
     let shortForm = this.state.filteredResults?.[value].short_form;
-    let index = neurons.findIndex((neuron) => neuron.id === shortForm);
+    let index = neurons.findIndex(neuron => neuron.id === shortForm);
     index > -1 ? neurons[index] = { id : shortForm, label : value } : null
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
