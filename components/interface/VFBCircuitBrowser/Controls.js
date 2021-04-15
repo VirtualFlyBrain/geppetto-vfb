@@ -390,7 +390,7 @@ class Controls extends Component {
                           autoHighlight
                           value={field.label}
                           id={index.toString()}
-                          ListboxProps={{ style: { maxHeight: "10rem" }}}
+                          ListboxProps={{ style: { maxHeight: "10rem" } }}
                           onChange={this.resultSelectedChanged}
                           options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
                           renderInput={params => (
