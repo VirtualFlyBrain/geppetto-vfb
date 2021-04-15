@@ -65,7 +65,7 @@ describe('VFB Circuit Browser Tests', () => {
 		
 		it('Set weight field to 20', async () => {
 			await page.waitFor(ONE_SECOND);
-			await setTextFieldValue("weightField", 20)
+			await setTextFieldValue("#weightField", 20)
 			await page.waitFor(ONE_SECOND);
 			
    		    await page.click('#refreshCircuitBrowser');
@@ -78,7 +78,7 @@ describe('VFB Circuit Browser Tests', () => {
 		
 		it('Set weight field to 50', async () => {
 			await page.waitFor(ONE_SECOND);
-			await setTextFieldValue("weightField", 50)
+			await setTextFieldValue("#weightField", 50)
 			await page.waitFor(ONE_SECOND);
 			
    		    await page.click('#refreshCircuitBrowser');
