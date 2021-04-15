@@ -105,10 +105,10 @@ export const closeModalWindow = async (page) => {
 	});
 }
 
-export const setTextFieldValue = async(id, value) => {
-  await page.evaluate( (id, value) =>
+export const setTextFieldValue = async(selector, value) => {
+  await page.evaluate( (selector, value) =>
     {
-      var element = document.getElementById(id);
+      var element = document.querySelector(selector);
       let lastValue = element.value;
       element.value = value;
       let event = new Event('input', { bubbles: true });
@@ -118,7 +118,7 @@ export const setTextFieldValue = async(id, value) => {
         tracker.setValue(lastValue);
       }
       element.dispatchEvent(event);
-    }, id, value)
+    }, selector, value)
 }
 
 export const flexWindowClick = async (title, selector) => {

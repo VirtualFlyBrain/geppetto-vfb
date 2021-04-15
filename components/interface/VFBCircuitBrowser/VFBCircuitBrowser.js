@@ -398,11 +398,6 @@ class VFBCircuitBrowser extends Component {
 
               const start = link.source;
               const end = link.target;
-
-              if ( start.y < end.y && !link.modified ) {
-                link.curvature = -1 * link.curvature;
-                link.modified = true;
-              }
               
               // ignore unbound links
               if (typeof start !== 'object' || typeof end !== 'object') {

@@ -460,7 +460,10 @@ class VFBGraph extends Component {
   getErrorLabel () {
     let self = this;
     if ( this.selectedDropDownQuery == -1 ) {
-      return this.querySelection.label(self.state.currentQuery.id);
+      if ( this.querySelection?.label ){
+        return this.querySelection?.label(self.state.currentQuery.id);
+      }
+      return null;
     }
     return stylingConfiguration.dropDownQueries.map((item, index) => {
       if ( self.selectedDropDownQuery === index ) {

@@ -172,6 +172,7 @@ class Controls extends Component {
     let neurons = this.state.neuronFields;
     neurons.splice(id,1);
     this?.props?.circuitQuerySelected?.splice(id, 1);
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     
     // Update state with one fewer neuron textfield
     this.setState( { neuronFields : neurons } );    
@@ -231,24 +232,16 @@ class Controls extends Component {
    */
   typingTimeout (target) {
     this.setInputValue = target.id;
-    const match = this.state.neuronFields?.find(x => x.id === target.value || x.label === target.value );
     let neurons = this.state.neuronFields;
-    if (!match) {
-      let index = neurons?.findIndex(x => x.id === "" );
-      if ( index >= 0) {
-        neurons[index] = { id : target.value, label : target.value };
-      } else {
-        if ( neurons[parseInt(target.id)] ) {
-          neurons[parseInt(target.id)] = { id : target.value, label : target.value };
-        } else {
-          neurons.push({ id : target.value, label : target.value });
-        }
-      }
-      
-      if ( this.fieldsValidated(neurons) ) {
-        this.setState( { neuronFields : neurons } );
-      }
+
+    if ( neurons[parseInt(target.id)] ) {
+      neurons[parseInt(target.id)] = { id : target.value, label : target.value };
+    } else {
+      neurons.push({ id : target.value, label : target.value });
     }
+      
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    this.setState( { neuronFields : neurons } );
     getResultsSOLR( target.value, this.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
   
@@ -390,12 +383,14 @@ class Controls extends Component {
                     return <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <Autocomplete
-                          freeSolo
                           fullWidth
+                          freeSolo
                           disableClearable
+                          disablePortal
                           autoHighlight
                           value={field.label}
                           id={index.toString()}
+                          ListboxProps={{ style: { maxHeight: "10rem" }}}
                           onChange={this.resultSelectedChanged}
                           options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
                           renderInput={params => (
@@ -403,9 +398,9 @@ class Controls extends Component {
                               {...params}
                               label={label}
                               key={field.id}
-                              id={label.replace(/ +/g, "").toLowerCase()}
+                              className={label.replace(/ +/g, "").toLowerCase()}
                               onChange={this.neuronTextfieldModified}
-                              inputProps={{ ...params.inputProps, id: label.replace(/ +/g, "").toLowerCase(), style: { color: "white" , paddingLeft : "10px" } }}
+                              inputProps={{ ...params.inputProps, id: index, style: { color: "white" , paddingLeft : "10px" } }}
                               InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
                             />
                           )}
