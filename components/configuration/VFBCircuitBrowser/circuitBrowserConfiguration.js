@@ -6,7 +6,7 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + " MATCH (source:has_neuron_connectivity {short_form: a}), (target:Neuron {short_form: b})"
       + " CALL gds.beta.shortestPath.yens.stream({"
       + "  nodeQuery: 'MATCH (n:has_neuron_connectivity) RETURN id(n) AS id',"
-      + "  relationshipQuery: 'MATCH (a:has_neuron_connectivity)-[r:synapsed_to]->(b:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] > "
+      + "  relationshipQuery: 'MATCH (a:has_neuron_connectivity)-[r:synapsed_to]->(b:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] >= "
       + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
@@ -16,10 +16,11 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + "  path: true"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
+      + " WITH * ORDER BY index DESC"
      + " OPTIONAL MATCH fp=(source)-[r:synapsed_to*..]->(target) WHERE ALL(n in nodes(fp) WHERE id(n) IN nodeIds)"
-      + " UNWIND r as sr WITH *, collect(id(sr)) as ids OPTIONAL MATCH cp=(source)-[r:synapsed_to*..]-(target)"
+      + " UNWIND r as sr WITH *, collect(id(sr)) as ids, toString(id(sr))+":"+toString(index) as relY OPTIONAL MATCH cp=(source)-[r:synapsed_to*..]-(target)"
       + " WHERE ALL(n in nodes(cp) WHERE id(n) IN nodeIds) UNWIND ids as id"
-      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id) as fr ",
+      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id) as fr, sourceNode as source, targetNode as target, max(length(fp)) as maxHops, collect(distinct relY) as relationshipY ",
       "resultDataContents": ["row", "graph"]
     }
   ]
