@@ -33,14 +33,14 @@ describe('VFB Circuit Browser Tests', () => {
 			await selectTab(page, "Circuit Browser");
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 30 * ONE_SECOND });
+			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 		})
 		
 		it('Set Neuron 1 , VFB_jrchjrch', async () => {
 			await page.waitFor(5 * ONE_SECOND);
 			await setTextFieldValue(".neuron1 input", "VFB_jrchjrch")
 			
-			await wait4selector(page, 'ul.MuiAutocomplete-listbox', { visible: true, timeout : 30 * ONE_SECOND });
+			await wait4selector(page, 'ul.MuiAutocomplete-listbox', { visible: true, timeout : 90 * ONE_SECOND });
 
    		    await page.click('ul.MuiAutocomplete-listbox li');
 		})
@@ -49,7 +49,7 @@ describe('VFB Circuit Browser Tests', () => {
 			await page.waitFor(ONE_SECOND);
 			await setTextFieldValue(".neuron2 input", "VFB_jrchjsfu")
 
-			await wait4selector(page, 'ul.MuiAutocomplete-listbox', { visible: true, timeout : 30 * ONE_SECOND });
+			await wait4selector(page, 'ul.MuiAutocomplete-listbox', { visible: true, timeout : 90 * ONE_SECOND });
 			
   		    await page.click('ul.MuiAutocomplete-listbox li');
 		})
@@ -64,7 +64,7 @@ describe('VFB Circuit Browser Tests', () => {
 		})
 		
 		it('Set weight field to 20', async () => {
-			await page.waitFor(ONE_SECOND);
+			await page.waitFor(5 * ONE_SECOND);
 			await setTextFieldValue("#weightField", 20)
 			await page.waitFor(ONE_SECOND);
 			
@@ -75,7 +75,7 @@ describe('VFB Circuit Browser Tests', () => {
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
 		    expect(legendLabels).toBe(3);
 		})
-		
+
 		it('Set weight field to 50', async () => {
 			await page.waitFor(ONE_SECOND);
 			await setTextFieldValue("#weightField", 50)
@@ -83,7 +83,7 @@ describe('VFB Circuit Browser Tests', () => {
 			
    		    await page.click('#refreshCircuitBrowser');
 			await page.waitFor(10 * ONE_SECOND);
-			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 30 * ONE_SECOND });
+			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 90 * ONE_SECOND });
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
 		    expect(legendLabels).toBe(2);

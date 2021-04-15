@@ -122,6 +122,64 @@ const customMarks = () => {
   return marks;
 }
 
+class AutocompleteResults extends Component {
+  constructor (props) {
+    super(props);
+    this.state = { filteredResults: {} };
+    this.handleResults = this.handleResults.bind(this);
+  }
+  
+  /**
+   * Receives SOLR results and creates an map with those results that match the input text
+   */
+  handleResults (status, data, value){
+    let results = {};
+    data?.map(result => {
+      // Match results by short_form id
+      if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
+        results[result?.label] = result;
+      } else if ( result?.label?.toLowerCase().includes(value?.toLowerCase()) ){
+        results[result?.label] = result;
+      }
+    });
+      
+    this.setState({ filteredResults : results });
+  }
+  
+  getFilteredResults (){
+    return this.state.filteredResults;
+  }
+  
+  render () {
+    const label = "Neuron " + (this.props.index + 1) .toString();
+    return (
+      <Autocomplete
+        fullWidth
+        freeSolo
+        disableClearable
+        disablePortal
+        autoHighlight
+        value={this.props.field.label}
+        id={this.props.index.toString()}
+        ListboxProps={{ style: { maxHeight: "10rem" } }}
+        onChange={this.props.resultSelectedChanged}
+        options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
+        renderInput={params => (
+          <TextField
+            {...params}
+            label={label}
+            key={this.props.field.id}
+            className={label.replace(/ +/g, "").toLowerCase()}
+            onChange={this.props.neuronTextfieldModified}
+            inputProps={{ ...params.inputProps, id: this.props.index, style: { color: "white" , paddingLeft : "10px" } }}
+            InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
+          />
+        )}
+      />
+    )
+  }
+}
+
 /**
  * Controls component used in VFBCircuitBrowser.
  */
@@ -131,9 +189,7 @@ class Controls extends Component {
     super(props);
     this.state = {
       typingTimeout: 0,
-      expanded : true,
-      neuronFields : [{ id : "", label : "" } , { id : "", label : "" }],
-      filteredResults : {}
+      expanded : true
     };
     this.weight = this.props.weight;
     this.hops = this.props.hops;
@@ -145,14 +201,24 @@ class Controls extends Component {
     this.fieldsValidated = this.fieldsValidated.bind(this);
     this.deleteNeuronField = this.deleteNeuronField.bind(this);
     this.getUpdatedNeuronFields = this.getUpdatedNeuronFields.bind(this);
-    this.handleResults = this.handleResults.bind(this);
     this.resultSelectedChanged = this.resultSelectedChanged.bind(this);
     this.circuitQuerySelected = this.props.circuitQuerySelected;
+    this.autoCompleteInput = React.createRef();
+    this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
+    this.createRefs = this.createRefs.bind(this);
+    this.createRefs();
+  }
+  
+  createRefs () { 
+    this.autocompleteRef = {};
+    for ( var i = 0 ; i < configuration.minNeurons; i++ ){
+      this.autocompleteRef[i.toString()] = React.createRef();
+    }
   }
   
   componentDidMount () {
-    let neurons = [...this.props.neurons];
-    this.setState( { expanded : !this.props.resultsAvailable(), neuronFields : neurons } );
+    this.neuronFields = [...this.props.neurons];
+    this.setState( { expanded : !this.props.resultsAvailable() } );
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     this.setInputValue = {};
   }
@@ -169,28 +235,26 @@ class Controls extends Component {
     }
     
     // remove neuron textfield
-    let neurons = this.state.neuronFields;
+    let neurons = this.neuronFields;
     neurons.splice(id,1);
     this?.props?.circuitQuerySelected?.splice(id, 1);
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
-    
-    // Update state with one fewer neuron textfield
-    this.setState( { neuronFields : neurons } );    
+    delete this.autocompleteRef[id.toString()];
+    this.neuronFields = neurons;
+    this.forceUpdate();
   }
   
   /**
    * Add neuron textfield
    */
   addNeuron () {
-    let neuronFields = this.state.neuronFields;
+    let neuronFields = this.neuronFields;
     // Add emptry string for now to text field
     neuronFields.push({ id : "", label : "" });
     // User has added the maximum number of neurons allowed in query search
-    if ( configuration.maxNeurons <= neuronFields.length ) {
-      this.setState({ neuronFields : neuronFields });
-    } else {
-      this.setState({ neuronFields : neuronFields });
-    }
+    this.neuronFields = neuronFields;
+    this.autocompleteRef[(neuronFields.length - 1).toString()] = React.createRef();
+    this.forceUpdate();
   }
 
   /**
@@ -210,29 +274,15 @@ class Controls extends Component {
   }
   
   /**
-   * Receives SOLR results and creates an map with those results that match the input text
-   */
-  handleResults (status, data, value) {
-    let results = {};
-    data?.map(result => {
-      // Match results by short_form id
-      if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
-        results[result?.label] = result;
-      } else if ( result?.label?.toLowerCase().includes(value?.toLowerCase()) ){
-        results[result?.label] = result;
-      }
-    });
-      
-    this.setState({ filteredResults : results })
-  }
-  
-  /**
    * Waits some time before performing new search, this to avoid performing search everytime
    * enters a new character in neuron fields
    */
   typingTimeout (target) {
     this.setInputValue = target.id;
-    let neurons = this.state.neuronFields;
+    if ( target.id === "" ) {
+      this.setInputValue = target.parentElement.id;
+    }
+    let neurons = this.neuronFields;
 
     if ( neurons[parseInt(target.id)] ) {
       neurons[parseInt(target.id)] = { id : target.value, label : target.value };
@@ -240,9 +290,9 @@ class Controls extends Component {
       neurons.push({ id : target.value, label : target.value });
     }
       
-    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
-    this.setState( { neuronFields : neurons } );
-    getResultsSOLR( target.value, this.handleResults,searchConfiguration.sorter,datasourceConfiguration );
+    // this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    this.neuronFields = neurons;
+    getResultsSOLR( target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
   
   /**
@@ -263,19 +313,19 @@ class Controls extends Component {
    */
   resultSelectedChanged (event, value) {
     // Copy neurons and add selection to correct array index
-    let neurons = this.state.neuronFields;
-    let shortForm = this.state.filteredResults?.[value].short_form;
+    let neurons = this.neuronFields;
+    let textFieldId = event.target.id.toString().split("-")[0];
+    let shortForm = this.autocompleteRef[textFieldId].current.getFilteredResults()[value] && this.autocompleteRef[textFieldId].current.getFilteredResults()[value].short_form;
     let index = neurons.findIndex(neuron => neuron.id === shortForm);
     index > -1 ? neurons[index] = { id : shortForm, label : value } : null
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
-    this.setState({ filteredResults : {} })
 
     // If text fields contain valid ids, perform query
     if ( this.fieldsValidated(neurons) ) {
-      this.setState( { neuronFields : neurons } );
+      this.neuronFields = neurons;
     }
   }
   
@@ -294,10 +344,10 @@ class Controls extends Component {
    * Update neuron fields if there's a query preselected.
    */
   getUpdatedNeuronFields () {
-    let neuronFields = this.state.neuronFields;
+    let neuronFields = this.neuronFields;
     let added = false;
     for ( var i = 0; i < this.props.circuitQuerySelected.length; i++ ){
-      var fieldExists = this.state.neuronFields.find(entry =>
+      var fieldExists = this.neuronFields.find(entry =>
         entry.id === this.props.circuitQuerySelected[i] || entry.id === this.props.circuitQuerySelected?.[i]?.id
       );
 
@@ -326,8 +376,8 @@ class Controls extends Component {
     let self = this;
     const { classes } = this.props;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
-    let neuronFields = this.getUpdatedNeuronFields()
-    
+    let neuronFields = this.getUpdatedNeuronFields();
+
     let expanded = this.state.expanded;
     if ( this.props.resultsAvailable() ){
       expanded = true;
@@ -378,32 +428,15 @@ class Controls extends Component {
                   </div>
                 </Grid>
                 <Grid id="neuronFieldsGrid" item sm={11}>
-                  { neuronFields.map((field, index) => {
-                    let label = "Neuron " + (index + 1) .toString();
-                    return <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
+                  { neuronFields.map((field, index) => (
+                    <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
-                        <Autocomplete
-                          fullWidth
-                          freeSolo
-                          disableClearable
-                          disablePortal
-                          autoHighlight
-                          value={field.label}
-                          id={index.toString()}
-                          ListboxProps={{ style: { maxHeight: "10rem" } }}
-                          onChange={this.resultSelectedChanged}
-                          options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label={label}
-                              key={field.id}
-                              className={label.replace(/ +/g, "").toLowerCase()}
-                              onChange={this.neuronTextfieldModified}
-                              inputProps={{ ...params.inputProps, id: index, style: { color: "white" , paddingLeft : "10px" } }}
-                              InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
-                            />
-                          )}
+                        <AutocompleteResults
+                          field={field}
+                          index={index}
+                          neuronTextfieldModified={this.neuronTextfieldModified}
+                          resultSelectedChanged={this.resultSelectedChanged}
+                          ref={this.autocompleteRef[index.toString()]}
                         />
                       </Grid>
                       { deleteIconVisible ? <Grid item sm={1}>
@@ -419,7 +452,7 @@ class Controls extends Component {
                         : null
                       }
                     </Grid>
-                  })}
+                  ))}
                 </Grid>
                 <Grid item sm={12}>
                   { addNeuronDisabled 
@@ -471,7 +504,7 @@ class Controls extends Component {
                       variant="contained"
                       size="small"
                       id="refreshCircuitBrowser"
-                      onClick={() => this.props.updateGraph(this.state.neuronFields, this.hops, this.weight)}
+                      onClick={() => this.props.updateGraph(this.neuronFields, this.hops, this.weight)}
                     >Refresh Graph</Button>  
                   </Grid>
                 </Grid>
