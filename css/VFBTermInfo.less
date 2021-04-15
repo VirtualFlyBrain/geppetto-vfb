@@ -935,10 +935,18 @@
     }
 }
 
-details > summary::before {
-    content: '&#xf138';
+details > summary > i.fa-chevron-circle-right {
+    display: inline-block;
 }
 
-details[open] > summary::before {
-    content: '&#xf13a';
+details > summary > i.fa-chevron-circle-down {
+    display: none;
+}
+
+details[open] > summary > i.fa-chevron-circle-down {
+    display: inline-block;
+}
+
+details[open] > summary > i.fa-chevron-circle-right {
+    display: none;
 }
