@@ -934,3 +934,11 @@
         transition: all 0.50s;
     }
 }
+
+details > summary::before {
+    content: '▶️';
+}
+
+details[open] > summary::before {
+    content: '🔽';
+}
