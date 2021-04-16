@@ -104,6 +104,8 @@ describe('VFB Term Context Component Tests', () => {
 		it("Snapshot Comparison of Term Context After Medulla Loaded, Graph Remains the Same", async () => {
 			// Wait 5 seconds so nodes in Term Context stop moving
 			await page.waitFor(5000);
+			await click(page, 'i.fa-home');
+			await page.waitFor(2000);
 			const image = await page.screenshot();
 			// This will fail if Adult Brain is not still loaded.
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
@@ -112,8 +114,12 @@ describe('VFB Term Context Component Tests', () => {
 		it('Snapshot Comparison of Term Context After Sync Trigger, Graph Displays Medulla', async () => {
 			// Click on sync button
 			await click(page, 'i.fa-refresh');
+			await page.waitFor(2000)
 			// Wait 10 seconds so nodes in Term Context stop moving
 			await page.waitFor(10000);
+			// reset camera to center, to make snapshots for tests be taken when camera is centered
+			await click(page, 'i.fa-home');
+			await page.waitFor(2000);
 			// Take screenshot, and compared to stored image of page.
 			const image = await page.screenshot();
 			// This will fail if Medulla didn't load in Term Context, since snapshot comparison will show differences
