@@ -110,7 +110,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb-dev.virtualflybrain.org/db/neo4j/tx/commit",
+  url: "https://pdb.virtualflybrain.org/db/neo4j/tx/commit",
   contentType: "application/json"
 };
 
