@@ -106,11 +106,11 @@ const searchConfiguration = require('./../../configuration/VFBMain/searchConfigu
 const datasourceConfiguration = require('./../../configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
 /**
- * Create custom marks for Hops slider.
- * Only show the label for the minimum and maximum hop, hide the rest
+ * Create custom marks for Paths slider.
+ * Only show the label for the minimum and maximum paths, hide the rest
  */
 const customMarks = () => {
-  let marks = new Array(configuration.maxHops);
+  let marks = new Array(configuration.maxPaths);
   for ( var i = 0; i < marks.length; i++ ) {
     if ( i == 0 || i == marks.length - 1 ) {
       marks[i] = { value : i + 1, label : (i + 1).toString() };
@@ -192,7 +192,7 @@ class Controls extends Component {
       expanded : true
     };
     this.weight = this.props.weight;
-    this.hops = this.props.hops;
+    this.paths = this.props.paths;
     this.addNeuron = this.addNeuron.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
     this.typingTimeout = this.typingTimeout.bind(this);
@@ -330,10 +330,10 @@ class Controls extends Component {
   }
   
   /**
-   * Hops slider has been dragged, value has changed
+   * Paths slider has been dragged, value has changed
    */
   sliderChange (event, value ) {
-    this.hops = value;
+    this.paths = value;
   }
   
   weightChange (event ) {
@@ -476,18 +476,18 @@ class Controls extends Component {
               <Grid container justify="center" alignItems="center" >
                 <Grid container spacing={1}>
                   <Grid item sm={2}>
-                    <Typography>Hops</Typography>
+                    <Typography>Paths</Typography>
                   </Grid>
                   <Grid item sm={10}>
                     <Slider
                       aria-labelledby="discrete-slider-always"
-                      defaultValue={this.hops}
+                      defaultValue={this.paths}
                       onChangeCommitted={this.sliderChange}
                       step={1}
                       marks={customMarks()}
                       valueLabelDisplay="auto"
-                      min={configuration.minHops}
-                      max={configuration.maxHops}
+                      min={configuration.minPaths}
+                      max={configuration.maxPaths}
                     />  
                   </Grid>
                 </Grid>
@@ -504,7 +504,7 @@ class Controls extends Component {
                       variant="contained"
                       size="small"
                       id="refreshCircuitBrowser"
-                      onClick={() => this.props.updateGraph(this.neuronFields, this.hops, this.weight)}
+                      onClick={() => this.props.updateGraph(this.neuronFields, this.paths, this.weight)}
                     >Refresh Graph</Button>  
                   </Grid>
                 </Grid>
