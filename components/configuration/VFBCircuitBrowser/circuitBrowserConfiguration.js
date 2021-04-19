@@ -6,7 +6,7 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + " MATCH (source:has_neuron_connectivity {short_form: a}), (target:Neuron {short_form: b})"
       + " CALL gds.beta.shortestPath.yens.stream({"
       + "  nodeQuery: 'MATCH (n:has_neuron_connectivity) RETURN id(n) AS id',"
-      + "  relationshipQuery: 'MATCH (a:has_neuron_connectivity)-[r:synapsed_to]->(b:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] >= "
+      + "  relationshipQuery: 'MATCH (a:has_neuron_connectivity)-[r:synapsed_to]->(b:neuron WHERE exists(r.weight) AND r.weight[0] >= "
       + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
