@@ -711,9 +711,9 @@ class VFBTermInfoWidget extends React.Component {
         // Show Graph
         const { vfbGraph } = this.props;
         /*
-        * Path contains the instance and the index of the drop down query options
-        * Path is of type : "instance_path, query_index"
-        */
+         * Path contains the instance and the index of the drop down query options
+         * Path is of type : "instance_path, query_index"
+         */
         vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
         
         // Notify VFBMain UI needs to be updated
@@ -724,8 +724,8 @@ class VFBTermInfoWidget extends React.Component {
         // Show Circuit Browser
         const { vfbCircuitBrowser } = this.props;
         /*
-        * Path contains the instancE ID passed to the circuit browser
-        */
+         * Path contains the instancE ID passed to the circuit browser
+         */
         vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], true);
         
         // Notify VFBMain UI needs to be updated
