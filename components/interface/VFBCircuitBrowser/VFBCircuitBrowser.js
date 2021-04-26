@@ -57,7 +57,7 @@ class VFBCircuitBrowser extends Component {
       queryLoaded : false,
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
-      hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
       weight : 70,
       reload : false
     }
@@ -68,7 +68,7 @@ class VFBCircuitBrowser extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
-    this.updateHops = this.updateHops.bind(this);
+    this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
     this.resize = this.resize.bind(this);
     
@@ -88,7 +88,7 @@ class VFBCircuitBrowser extends Component {
   componentDidMount () {
     let self = this;
     this.__isMounted = true;
-    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxHops - configuration.minHops) / 2), this.state.weight);
+    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxPaths - configuration.minPaths) / 2), this.state.weight);
     const { circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
   }
@@ -126,15 +126,15 @@ class VFBCircuitBrowser extends Component {
     
     // Request graph update if the list of new neurons is not the same
     if ( !this.state.loading && !matched ) {
-      this.updateGraph(neurons, this.state.hops, this.state.weight);
+      this.updateGraph(neurons, this.state.paths, this.state.weight);
     }
   }
   
   /**
-   * Hops in controls component have been updated, request new graph with updated amount of hops
+   * Paths in controls component have been updated, request new graph with updated amount of paths
    */
-  updateHops (hops) {
-    this.setState({ hops : hops });
+  updatePaths (paths) {
+    this.setState({ paths : paths });
   }
   
   updateWeight (weight) {
@@ -186,12 +186,12 @@ class VFBCircuitBrowser extends Component {
   /**
    * Re-render graph with a new instance
    */
-  updateGraph (neurons, hops, weight) {
+  updateGraph (neurons, paths, weight) {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true , neurons : neurons ? neurons : this.state.neurons, hops : hops ? hops : this.state.hops, weight : weight ? weight : this.state.weight, queryLoaded : false });
+      this.setState({ loading : true , neurons : neurons ? neurons : this.state.neurons, paths : paths ? paths : this.state.paths, weight : weight ? weight : this.state.weight, queryLoaded : false });
       // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
-      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, hops ? hops : this.state.hops, weight ? weight : this.state.weight));
+      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, paths ? paths : this.state.paths, weight ? weight : this.state.weight));
     }
   }    
 
@@ -296,11 +296,11 @@ class VFBCircuitBrowser extends Component {
             <h4 className={classes.errorMessage}>{errorMessage}</h4>
             <Controls
               updateGraph={self.updateGraph}
-              updateHops={self.updateHops}
+              updatePaths={self.updatePaths}
               updateWeight={self.updateWeight}
               neurons={this.state.neurons}
               queryLoaded={this.state.queryLoaded}
-              hops={this.state.hops}
+              paths={this.state.paths}
               weight={this.state.weight}
               resultsAvailable={ () => this.state.graph.nodes.length > 0 }
               resetCamera={self.resetCamera}
@@ -515,11 +515,11 @@ class VFBCircuitBrowser extends Component {
             controls = {
               <Controls
                 updateGraph={self.updateGraph}
-                updateHops={self.updateHops}
+                updatePaths={self.updatePaths}
                 updateWeight={self.updateWeight}
                 neurons={this.state.neurons}
                 queryLoaded={this.state.queryLoaded}
-                hops={this.state.hops}
+                paths={this.state.paths}
                 weight={this.state.weight}
                 resultsAvailable={ () => this.state.graph.nodes.length > 0 }
                 resetCamera={self.resetCamera}
