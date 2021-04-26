@@ -10,7 +10,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
-     + "  k: " + pathss.toString() + ","
+     + "  k: " + paths.toString() + ","
       + "  relationshipWeightProperty: 'weight_p',"
       + "  relationshipTypes: ['*'],"
       + "  path: true"
