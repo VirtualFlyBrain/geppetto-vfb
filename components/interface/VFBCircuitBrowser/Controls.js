@@ -70,9 +70,9 @@ const styles = theme => ({
   },
   expanded: { minHeight : "15px !important", margin : "0px !important" },
   // Override default padding in Add Neuron button
-  addNeuron : { padding : "8px 5px 0px 2px" },
+  addNeuron : { padding : "2vh 2vh 0px 2px" },
   // Override default padding in Delete Neuron button
-  deleteNeuron : { padding : "4px 0px 0px 4px" },
+  deleteNeuron : { padding : "2vh 0px 0px 4px" },
   dottedIcon : { margin : "1rem 0 1rem 0 " },
   legend : {
     padding: "2vh",
@@ -91,7 +91,7 @@ const styles = theme => ({
     height : "2vh",
     width : "2vh"
   },
-  weightInput : { color : "white !important" }
+  weightInput : { color : "white !important", height : "20px", border : "none !important", backgroundColor: "#80808040 !important", paddingLeft : "10px !important" }
 });
 
 /**
@@ -152,6 +152,7 @@ class AutocompleteResults extends Component {
   
   render () {
     const label = "Neuron " + (this.props.index + 1) .toString();
+
     return (
       <Autocomplete
         fullWidth
@@ -171,7 +172,7 @@ class AutocompleteResults extends Component {
             key={this.props.field.id}
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
-            inputProps={{ ...params.inputProps, id: this.props.index, style: { color: "white" , paddingLeft : "10px" } }}
+            inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
           />
         )}
@@ -419,15 +420,15 @@ class Controls extends Component {
               </div>
             </AccordionSummary>
             <AccordionDetails classes={{ root : classes.details }}>
-              <Grid container justify="center" alignItems="center" >
-                <Grid item sm={1} >
+              <Grid container justify="center" alignItems="center">
+                <Grid container style={ { margin : "2vh 2vh 0 0" } } item sm={1} justify="center" alignItems="center">
                   <div>
                     <AdjustIcon />
                     <MoreVertIcon classes={{ root : classes.dottedIcon }}/>
                     <RoomIcon />
                   </div>
                 </Grid>
-                <Grid id="neuronFieldsGrid" item sm={11}>
+                <Grid id="neuronFieldsGrid" item sm={10}>
                   { neuronFields.map((field, index) => (
                     <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
@@ -454,19 +455,23 @@ class Controls extends Component {
                     </Grid>
                   ))}
                 </Grid>
-                <Grid item sm={12}>
+                <Grid item sm={2} classes={{ root : classes.addNeuron }}>
                   { addNeuronDisabled 
                     ? null
-                    : <Button
+                    : <IconButton
                       id="addNeuron"
                       color="inherit"
-                      classes={{ root : classes.addNeuron }}
                       size="small"
                       onClick={this.addNeuron}
-                      startIcon={<AddCircleOutlineIcon />}
                     >
-                  Add Neuron
-                    </Button>
+                      <AddCircleOutlineIcon />
+                    </IconButton>
+                  }
+                </Grid>
+                <Grid item sm={10} classes={{ root : classes.addNeuron }}>
+                  { addNeuronDisabled 
+                    ? null
+                    : <Typography>Add Neuron</Typography>
                   }
                 </Grid>
               </Grid>
