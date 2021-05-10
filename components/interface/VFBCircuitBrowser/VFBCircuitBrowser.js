@@ -238,8 +238,15 @@ class VFBCircuitBrowser extends Component {
         }
       };
 
+      let params = {
+        results: response.data,
+        configuration : configuration,
+        styling : stylingConfiguration,
+        NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
+      }
+      
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: params });
     })
       .catch( function (error) {
         self.setState( { loading : false } );
@@ -322,78 +329,13 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkCurvature='curvature'
-            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 3 : .5}
+            linkCurvature={.075}
+            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 4}
             linkDirectionalArrowRelPos={.75}
-            linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 5;
-              const LABEL_NODE_MARGIN = 1 * 1.5;
-
-              const start = link.source;
-              const end = link.target;
-
-              // ignore unbound links
-              if (typeof start !== 'object' || typeof end !== 'object') {
-                return;
-              }
-                
-              // calculate label positioning
-              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
-
-              
-              if (link?.curvature && link?.__controlPoints ) {
-                // Get mid point of link, save as position of weight label text
-                textPos = this.getQuadraticXY(
-                  .5,
-                  start.x,
-                  start.y,
-                  link?.__controlPoints[0],
-                  link?.__controlPoints[1],
-                  end.x,
-                  end.y
-                );
-              }
-              const relLink = { x: end.x - start.x, y: end.y - start.y };
-
-              const maxTextLength = Math.sqrt(Math.pow(relLink.x, 2) + Math.pow(relLink.y, 2)) - LABEL_NODE_MARGIN * 2;
-
-              let textAngle = Math.atan2(relLink.y, relLink.x);
-              // maintain label vertical orientation for legibility
-              if (textAngle > Math.PI / 2) {
-                textAngle = -(Math.PI - textAngle);
-              }
-              if (textAngle < -Math.PI / 2) {
-                textAngle = -(-Math.PI - textAngle);
-              }
-
-              const label = link.weightLabel;
-
-              // estimate fontSize to fit in link length
-              ctx.font = '1px Sans-Serif';
-              const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
-              ctx.font = `${fontSize}px Sans-Serif`;
-              const textWidth = ctx.measureText(label).width;
-              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-              // draw text label (with background rect)
-              ctx.save();
-              ctx.translate(textPos.x,textPos.y);
-              ctx.rotate(textAngle);
-              // draw black rectangle
-              ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-              ctx.fillRect(- bckgDimensions[0] / 2, - bckgDimensions[1] / 2, ...bckgDimensions);
-              // draw weight label text
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.fillStyle = stylingConfiguration.defaultLinkColor;
-              ctx.setLineDash([5, 5]);
-              ctx.fillText(label, 0, 0);
-              ctx.restore();
-            }}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
             linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 5;
+              const MAX_FONT_SIZE = 10;
               const LABEL_NODE_MARGIN = 1 * 1.5;
 
               const start = link.source;
@@ -434,7 +376,6 @@ class VFBCircuitBrowser extends Component {
               const label = link.weightLabel;
 
               // estimate fontSize to fit in link length
-              ctx.font = '1px Sans-Serif';
               const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
               ctx.font = `${fontSize}px Sans-Serif`;
               const textWidth = ctx.measureText(label).width;
@@ -501,7 +442,11 @@ class VFBCircuitBrowser extends Component {
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
-            dagLevelDistance = {100}
+            nodeVal = { node => {
+              node.fx = node.level == 0 ? node.positionX : node.fx ? node.fx : 0 ;
+              node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
+            }}
+            dagLevelDistance = {25}
             onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }

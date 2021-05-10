@@ -4,12 +4,34 @@
 export function queryParser (e) {
   let graphData = e.data.params.results;
   console.log("Results ", e);
+  // Reads graph data
   let data = graphData.results[0].data;
+  // Read source and target node ids
+  let sourceNode = data[0]?.row[4];
+  let targetNode = data[0]?.row[5];
+  // Read relationship max hops
+  let relationshipsHops = data[0]?.row[7];
+  
+  // The nodes and links arrays used for the graph
   let nodes = [], links = [];
+  // Keeps track of links
   let linksMap = new Map();
+  // Keeps track of reverse links
   let reverseMap = new Map();
+  // Keeps track of nodes in map
   let nodesMap = new Map();
+  
+  // Colors for labels
   let presentColorLabels = new Array();
+  // maps of links with their max hop
+  let linksMaxHops = {};
+  let levels = {};
+  
+  relationshipsHops?.forEach( rel => {
+    let split = rel.split(":");
+    // Map link id to highest hop
+    linksMaxHops[split[0]] = parseInt(split[1]) + 1;
+  })
 
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
@@ -39,6 +61,8 @@ export function queryParser (e) {
         }
         reverseMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
       }
+
+      linksMaxHops[id] ? levels[endNode] = linksMaxHops[id] : null;
     });
   });
 
@@ -66,14 +90,30 @@ export function queryParser (e) {
       }
       let n = null;
       if (nodesMap.get(id) === undefined) {
+        let level = 1;
+        let positionX = 0;
+
+        if ( id == targetNode ){
+          level = 0;
+          positionX = 300;
+        } else if ( id == sourceNode ) {
+          level = 0;
+          positionX = -300;
+        } else {
+          level = levels[id];
+        }
+        
         n = {
           path :  label,
           id : parseInt(id),
           title : title,
+          level : level,
+          positionX : positionX,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT,
           color : color,
         };
+        
         nodesMap.set(id, n);
         nodes.push(n);
       }
