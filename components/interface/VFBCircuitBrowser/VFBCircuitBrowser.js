@@ -67,6 +67,7 @@ class VFBCircuitBrowser extends Component {
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.clearGraph = this.clearGraph.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updateHops = this.updateHops.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
@@ -77,6 +78,7 @@ class VFBCircuitBrowser extends Component {
     this.hoverNode = null;
 
     this.graphRef = React.createRef();
+    this.controlsRef = React.createRef();
     this.__isMounted = false;
     this.objectsLoaded = 0;
     this.focused = false;
@@ -170,6 +172,11 @@ class VFBCircuitBrowser extends Component {
     }
     this.graphRef.current.ggv.current.zoom(zoom - out , 100);
   }
+  
+  clearGraph () {
+    this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
+    this.controlsRef.current.setNeurons()
+  }
 
   /**
    * Handle Left click on Nodes
@@ -238,8 +245,15 @@ class VFBCircuitBrowser extends Component {
         }
       };
 
+      let params = {
+        results: response.data,
+        configuration : configuration,
+        styling : stylingConfiguration,
+        NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
+      }
+      
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: params });
     })
       .catch( function (error) {
         self.setState( { loading : false } );
@@ -309,6 +323,8 @@ class VFBCircuitBrowser extends Component {
               circuitQuerySelected={this.circuitQuerySelected}
               datasource="SOLR"
               legend = {self.state.legend}
+              ref={self.controlsRef}
+              clearGraph={self.clearGraph}
             />
           </div>
           : <GeppettoGraphVisualization
@@ -322,8 +338,8 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkCurvature='curvature'
-            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 3 : .5}
+            linkCurvature={.075}
+            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 4}
             linkDirectionalArrowRelPos={.75}
             linkCanvasObject={(link, ctx) => {
               const MAX_FONT_SIZE = 5;
@@ -501,7 +517,11 @@ class VFBCircuitBrowser extends Component {
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
-            dagLevelDistance = {100}
+            nodeVal = { node => {
+              node.fx = node.level == 0 ? node.positionX : node.fx ? node.fx : 0 ;
+              node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
+            }}
+            dagLevelDistance = {25}
             onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
@@ -525,8 +545,10 @@ class VFBCircuitBrowser extends Component {
                 resetCamera={self.resetCamera}
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
+                clearGraph={self.clearGraph}
                 circuitQuerySelected={this.circuitQuerySelected}
                 legend = {self.state.legend}
+                ref={self.controlsRef}
               />
             }
             // Function triggered when hovering over a nodeoptions
