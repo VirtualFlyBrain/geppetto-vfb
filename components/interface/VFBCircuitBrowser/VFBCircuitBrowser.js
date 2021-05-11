@@ -339,7 +339,7 @@ class VFBCircuitBrowser extends Component {
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
             linkCurvature={.075}
-            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 4}
+            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 2}
             linkDirectionalArrowRelPos={.75}
             linkCanvasObject={(link, ctx) => {
               const MAX_FONT_SIZE = 5;
