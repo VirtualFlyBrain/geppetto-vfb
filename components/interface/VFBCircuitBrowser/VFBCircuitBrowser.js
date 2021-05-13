@@ -67,6 +67,7 @@ class VFBCircuitBrowser extends Component {
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.clearGraph = this.clearGraph.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updateHops = this.updateHops.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
@@ -77,6 +78,7 @@ class VFBCircuitBrowser extends Component {
     this.hoverNode = null;
 
     this.graphRef = React.createRef();
+    this.controlsRef = React.createRef();
     this.__isMounted = false;
     this.objectsLoaded = 0;
     this.focused = false;
@@ -169,6 +171,11 @@ class VFBCircuitBrowser extends Component {
       out = .2;
     }
     this.graphRef.current.ggv.current.zoom(zoom - out , 100);
+  }
+  
+  clearGraph () {
+    this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
+    this.controlsRef.current.setNeurons()
   }
 
   /**
@@ -316,6 +323,8 @@ class VFBCircuitBrowser extends Component {
               circuitQuerySelected={this.circuitQuerySelected}
               datasource="SOLR"
               legend = {self.state.legend}
+              ref={self.controlsRef}
+              clearGraph={self.clearGraph}
             />
           </div>
           : <GeppettoGraphVisualization
@@ -329,7 +338,12 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
+<<<<<<< HEAD
             linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 4}
+=======
+            linkCurvature={.075}
+            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 2}
+>>>>>>> refs/remotes/origin/development
             linkDirectionalArrowRelPos={.75}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
@@ -469,8 +483,10 @@ class VFBCircuitBrowser extends Component {
                 resetCamera={self.resetCamera}
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
+                clearGraph={self.clearGraph}
                 circuitQuerySelected={this.circuitQuerySelected}
                 legend = {self.state.legend}
+                ref={self.controlsRef}
               />
             }
             // Function triggered when hovering over a nodeoptions
