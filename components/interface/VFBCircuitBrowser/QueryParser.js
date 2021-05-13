@@ -2,13 +2,14 @@
  * Converts graph data received from cypher query into a readable format for react-force-graph-2d
  */
 export function queryParser (e) {
+  var start = Date.now();
   let graphData = e.data.params.results;
   console.log("Results ", e);
   // Reads graph data
   let data = graphData.results[0].data;
   // Read source and target node ids
-  let sourceNode = data[0]?.row[4];
-  let targetNode = data[0]?.row[5];
+  let sourceNodeID = data[0]?.row[4];
+  let targetNodeID = data[0]?.row[5];
   // Read relationship max hops
   let relationshipsHops = data[0]?.row[7];
   
@@ -25,47 +26,27 @@ export function queryParser (e) {
   let presentColorLabels = new Array();
   // maps of links with their max hop
   let linksMaxHops = {};
-  let levels = {};
+  let nodesPerLevel = new Array(7).fill(0);
+  let maxHops = 2;
+  let levels = new Array(7).fill(0);
   
   relationshipsHops?.forEach( rel => {
     let split = rel.split(":");
+    let level = parseInt(split[1]) + 1;
+    level > maxHops ? maxHops = level : null;
     // Map link id to highest hop
-    linksMaxHops[split[0]] = parseInt(split[1]) + 1;
+    linksMaxHops[split[0]] = level;
   })
+  
+  console.log("Reverse Map : ", reverseMap)
 
-  // Creates links map from Relationships, avoid duplicates
+    // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
-      if ( row[3].includes(parseInt(id)) ) {
-        if (linksMap.get(startNode) === undefined) {
-          linksMap.set(startNode, new Array());
-        }
-        
-        let newLink = true;
-        linksMap.get(startNode).find( function ( ele ) {
-          if ( ele.target !== endNode ) {
-            newLink = true;
-          } else {
-            newLink = false;
-          }
-        });
-
-        // Only keep track of new links, avoid duplicates
-        if ( newLink ) {
-          linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
-        }        
-      } else {
-        // Keep track of reverse links
-        if (reverseMap.get(startNode) === undefined) {
-          reverseMap.set(startNode, new Array());
-        }
-        reverseMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
-      }
-
-      linksMaxHops[id] ? levels[endNode] = linksMaxHops[id] : null;
+      linksMaxHops[id] ? nodesPerLevel[endNode] = linksMaxHops[id] : null;
     });
   });
-
+  
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
     graph.nodes.forEach(({ id, labels, properties }) => {
@@ -90,25 +71,20 @@ export function queryParser (e) {
       }
       let n = null;
       if (nodesMap.get(id) === undefined) {
-        let level = 1;
-        let positionX = 0;
-
-        if ( id == targetNode ){
-          level = 0;
-          positionX = 300;
-        } else if ( id == sourceNode ) {
-          level = 0;
-          positionX = -300;
-        } else {
-          level = levels[id];
+        let level = 0;
+        if ( id != targetNodeID && id != sourceNodeID){
+          level = parseInt(nodesPerLevel[id]);
         }
+        
+        console.log("Level ", level);
+        console.log("nodesPerLevel[level] ", levels[level]);
+        level > 0 ? levels[level] = levels[level] + 1 : null;
         
         n = {
           path :  label,
           id : parseInt(id),
           title : title,
           level : level,
-          positionX : positionX,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT,
           color : color,
@@ -119,7 +95,50 @@ export function queryParser (e) {
       }
     });
   });
+  
+  // Creates links map from Relationships, avoid duplicates
+  data.forEach(({ graph, row }) => {
+    graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
+      let matchingStartNode = nodes.find((node) => node.id === parseInt(startNode));
+      let matchingEndNode = nodes.find((node) => node.id === parseInt(endNode));
+      
+      console.log("matchingStartNode ", matchingStartNode);
+      console.log("matchingEndNode ", matchingEndNode);
+      if ( matchingStartNode?.level <= matchingEndNode?.level ) {
+        if (linksMap.get(startNode) === undefined) {
+          linksMap.set(startNode, new Array());
+        }
+        
+        let newLink = true;
+        linksMap.get(startNode).find( function ( ele ) {
+          if ( ele.target !== endNode ) {
+            newLink = true;
+          } else {
+            newLink = false;
+          }
+        });
 
+        // Only keep track of new links, avoid duplicates
+        if ( newLink ) {
+          linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
+        }        
+      } else {
+        // Keep track of reverse links
+        if (reverseMap.get(startNode) === undefined) {
+          reverseMap.set(startNode, new Array());
+        }
+        reverseMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
+      }      
+    });
+  });
+  
+  console.log("Nodes per level ", levels);
+  let maxNodesPerLevel = levels.reduce(function (a, b) {
+    return Math.max(a, b);
+  });
+  console.log("Max Nodes per level ", maxNodesPerLevel);
+  console.log("Hops ", maxHops);
+  
   // Creates Links array with nodes
   nodes.forEach( sourceNode => {
     let id = sourceNode.id;
@@ -157,8 +176,32 @@ export function queryParser (e) {
         }
       }
     }
+    
+    let positionX = 0;
+    if ( sourceNode.level === 0 ){
+      if ( sourceNode.id == targetNodeID ){
+        sourceNode.positionX = maxNodesPerLevel * 200;
+      } else if ( sourceNode.id == sourceNodeID ) {
+        sourceNode.positionX = maxNodesPerLevel * -200;
+      } 
+    } else if ( sourceNode.level > 1 ) {
+      levels[sourceNode.level] == 1 ? positionX = ((maxNodesPerLevel * -200) + 100) : positionX = (maxNodesPerLevel * -200) + levels[sourceNode.level] * 100;
+      levels[sourceNode.level]-- 
+      sourceNode.positionX = positionX;
+    }
+    console.log("Source Node ", sourceNode);
+    console.log("PositonX ", sourceNode.positionX);
+    console.log("Level ", sourceNode.level);
   });
+  
+  var end = Date.now();
+  var elapsed = end - start;
+  console.log("Elapse time ", elapsed);
   
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
+  
+  end = Date.now();
+  elapsed = end - start;
+  console.log("Elapse time after post message ", elapsed);
 }

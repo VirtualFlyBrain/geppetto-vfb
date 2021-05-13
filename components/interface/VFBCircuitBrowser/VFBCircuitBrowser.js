@@ -329,7 +329,6 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkCurvature={.075}
             linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 4}
             linkDirectionalArrowRelPos={.75}
             // Node label, used in tooltip when hovering over Node
@@ -443,7 +442,7 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             nodeVal = { node => {
-              node.fx = node.level == 0 ? node.positionX : node.fx ? node.fx : 0 ;
+              node.fx = node.positionX ? node.positionX : node.fx ;
               node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
             }}
             dagLevelDistance = {25}
