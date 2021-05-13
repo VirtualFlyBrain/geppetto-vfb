@@ -2,8 +2,6 @@
  * Converts graph data received from cypher query into a readable format for react-force-graph-2d
  */
 export function queryParser (e) {
-  var start = Date.now();
-  console.log("START : ", start);
   let graphData = e.data.params.results;
   console.log("Results ", e);
   // Reads graph data
@@ -39,9 +37,7 @@ export function queryParser (e) {
     linksMaxHops[split[0]] = level;
   })
   
-  console.log("Reverse Map : ", reverseMap)
-
-    // Creates links map from Relationships, avoid duplicates
+  // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
       linksMaxHops[id] ? nodesPerLevel[endNode] = linksMaxHops[id] : null;
@@ -76,9 +72,7 @@ export function queryParser (e) {
         if ( id != targetNodeID && id != sourceNodeID){
           level = parseInt(nodesPerLevel[id]);
         }
-        
-        console.log("Level ", level);
-        console.log("nodesPerLevel[level] ", levels[level]);
+
         level > 0 ? levels[level] = levels[level] + 1 : null;
         
         n = {
@@ -100,12 +94,17 @@ export function queryParser (e) {
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
-      let matchingStartNode = nodes.find((node) => node.id === parseInt(startNode));
-      let matchingEndNode = nodes.find((node) => node.id === parseInt(endNode));
+      let matchingStartNode = nodes.find(node => node.id === parseInt(startNode));
+      let matchingEndNode = nodes.find(node => node.id === parseInt(endNode));
       
-      console.log("matchingStartNode ", matchingStartNode);
-      console.log("matchingEndNode ", matchingEndNode);
-      if ( matchingStartNode?.level <= matchingEndNode?.level ) {
+      let reverseLink = false;
+      linksMap.get(endNode)?.find( function ( ele ) {
+        if ( ele.target === startNode ) {
+          reverseLink = true;
+        } 
+      });
+
+      if ( matchingStartNode?.level <= matchingEndNode?.level && !reverseLink ) {
         if (linksMap.get(startNode) === undefined) {
           linksMap.set(startNode, new Array());
         }
@@ -118,7 +117,7 @@ export function queryParser (e) {
             newLink = false;
           }
         });
-
+        
         // Only keep track of new links, avoid duplicates
         if ( newLink ) {
           linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
@@ -133,12 +132,10 @@ export function queryParser (e) {
     });
   });
   
-  console.log("Nodes per level ", levels);
+  // Calculate what's the maximum nodes a level has
   let maxNodesPerLevel = levels.reduce(function (a, b) {
     return Math.max(a, b);
   });
-  console.log("Max Nodes per level ", maxNodesPerLevel);
-  console.log("Hops ", maxHops);
   
   // Creates Links array with nodes
   nodes.forEach( sourceNode => {
@@ -178,32 +175,22 @@ export function queryParser (e) {
       }
     }
     
+    // Set the X position of each node, this will place them on their corresponding column depending on hops
     let positionX = 0;
     if ( sourceNode.level === 0 ){
       if ( sourceNode.id == targetNodeID ){
-        sourceNode.positionX = maxNodesPerLevel * 200;
+        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * 200 : 100;
       } else if ( sourceNode.id == sourceNodeID ) {
-        sourceNode.positionX = maxNodesPerLevel * -200;
+        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * -200 : -100;
       } 
     } else if ( sourceNode.level > 1 ) {
-      levels[sourceNode.level] == 1 ? positionX = ((maxNodesPerLevel * -200) + 100) : positionX = (maxNodesPerLevel * -200) + levels[sourceNode.level] * 100;
+      let space = ((maxNodesPerLevel * 200) * 2) / (maxNodesPerLevel + 1);
+      levels[sourceNode.level] == 1 ? positionX = ((maxNodesPerLevel * -200) + space) : positionX = (maxNodesPerLevel * -200) + levels[sourceNode.level] * space;
       levels[sourceNode.level]-- 
       sourceNode.positionX = positionX;
     }
-    console.log("Source Node ", sourceNode);
-    console.log("PositonX ", sourceNode.positionX);
-    console.log("Level ", sourceNode.level);
   });
-  
-  var end = Date.now();
-  console.log("END : ", end);
-  var elapsed = end - start;
-  console.log("Elapse time ", elapsed);
   
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
-  
-  end = Date.now();
-  elapsed = end - start;
-  console.log("Elapse time after post message ", elapsed);
 }

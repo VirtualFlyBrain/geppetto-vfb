@@ -338,12 +338,7 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-<<<<<<< HEAD
-            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 4}
-=======
-            linkCurvature={.075}
             linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 2}
->>>>>>> refs/remotes/origin/development
             linkDirectionalArrowRelPos={.75}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
@@ -389,7 +384,7 @@ class VFBCircuitBrowser extends Component {
               const label = link.weightLabel;
 
               // estimate fontSize to fit in link length
-              const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
+              const fontSize = MAX_FONT_SIZE;
               ctx.font = `${fontSize}px Sans-Serif`;
               const textWidth = ctx.measureText(label).width;
               const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
