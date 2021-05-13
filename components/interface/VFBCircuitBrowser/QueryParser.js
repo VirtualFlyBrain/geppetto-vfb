@@ -3,6 +3,7 @@
  */
 export function queryParser (e) {
   var start = Date.now();
+  console.log("START : ", start);
   let graphData = e.data.params.results;
   console.log("Results ", e);
   // Reads graph data
@@ -195,6 +196,7 @@ export function queryParser (e) {
   });
   
   var end = Date.now();
+  console.log("END : ", end);
   var elapsed = end - start;
   console.log("Elapse time ", elapsed);
   
