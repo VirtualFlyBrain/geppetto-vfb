@@ -48,7 +48,9 @@ var configuration = {
   // Minimum amount of neurons allowed
   minNeurons : 2,
   // Maximum amount of neurons allowed
-  maxNeurons : 2
+  maxNeurons : 2,
+  // Curvature of lines, 0 is a straight line
+  linkCurvature : 0
 }
 
 var styling = {

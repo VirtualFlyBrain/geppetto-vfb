@@ -338,7 +338,8 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 5 : 2}
+            linkCurvature={configuration.linkCurvature}
+            linkDirectionalArrowLength={link => link.weight ? Math.max(10, Math.log(link.weight) * 5) : 2}
             linkDirectionalArrowRelPos={.75}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
@@ -451,7 +452,7 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             nodeVal = { node => {
-              node.fx = node.positionX ? node.positionX : node.fx ;
+              node.fx = node.positionX;
               node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
             }}
             dagLevelDistance = {25}
@@ -487,15 +488,15 @@ class VFBCircuitBrowser extends Component {
             // Function triggered when hovering over a nodeoptions
             onNodeHover={node => {
             // Reset maps of hover nodes and links
-              self.highlightNodes.clear();
-              self.highlightLinks.clear();
+              self.highlightNodes?.clear();
+              self.highlightLinks?.clear();
 
               // We found the node that we are hovering over
               if (node) {
               // Keep track of hover node, its neighbors and links
-                self.highlightNodes.add(node);
-                node.neighbors.forEach(neighbor => self.highlightNodes.add(neighbor));
-                node.links.forEach(link => self.highlightLinks.add(link));
+                self.highlightNodes?.add(node);
+                node?.neighbors?.forEach(neighbor => self?.highlightNodes?.add(neighbor));
+                node?.links?.forEach(link => self?.highlightLinks?.add(link));
               }
 
               // Keep track of hover node

@@ -40,10 +40,10 @@ export function queryParser (e) {
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
-      linksMaxHops[id] ? nodesPerLevel[endNode] = linksMaxHops[id] : null;
+      linksMaxHops[id] ? nodesPerLevel[endNode] ? nodesPerLevel[endNode] = Math.max(linksMaxHops[id], nodesPerLevel[endNode]) : nodesPerLevel[endNode] = linksMaxHops[id] : null;
     });
   });
-  
+    
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
     graph.nodes.forEach(({ id, labels, properties }) => {
@@ -90,27 +90,55 @@ export function queryParser (e) {
       }
     });
   });
+    
+  // Calculate what's the maximum nodes a level has
+  let maxNodesPerLevel = levels.reduce( function (a, b) {
+    return Math.max(a, b);
+  });
+  
+  
+  // Creates Links array with nodes
+  nodes.forEach( sourceNode => {
+    let id = sourceNode.id;
+    if ( typeof id === "number" ) {
+      id = sourceNode.id.toString();
+    }
+    let n = linksMap.get(id);
+    
+    // Set the X position of each node, this will place them on their corresponding column depending on hops
+    let positionX = 0;
+    if ( sourceNode.level === 0 ){
+      if ( sourceNode.id == targetNodeID ){
+        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * 200 : 100;
+      } else if ( sourceNode.id == sourceNodeID ) {
+        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * -200 : -100;
+      } 
+    } else if ( sourceNode.level >= 1 ) {
+      let space = ((maxNodesPerLevel * 200) * 2) / (maxNodesPerLevel + 1);
+      levels[sourceNode.level] == 1 ? positionX = ((maxNodesPerLevel * -200) + space) : positionX = (maxNodesPerLevel * -200 ) + (levels[sourceNode.level] * space);
+      levels[sourceNode.level]-- 
+      sourceNode.positionX = positionX;
+    }
+  });
   
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
       let matchingStartNode = nodes.find(node => node.id === parseInt(startNode));
       let matchingEndNode = nodes.find(node => node.id === parseInt(endNode));
-      
       let reverseLink = false;
-      linksMap.get(endNode)?.find( function ( ele ) {
-        if ( ele.target === startNode ) {
-          reverseLink = true;
-        } 
-      });
-
-      if ( matchingStartNode?.level <= matchingEndNode?.level && !reverseLink ) {
+      
+      if ( matchingStartNode.positionX >= matchingEndNode.positionX ){
+        reverseLink = true 
+      }
+      
+      if ( !reverseLink ) {
         if (linksMap.get(startNode) === undefined) {
           linksMap.set(startNode, new Array());
         }
         
         let newLink = true;
-        linksMap.get(startNode).find( function ( ele ) {
+        linksMap.get(startNode).find( ele => {
           if ( ele.target !== endNode ) {
             newLink = true;
           } else {
@@ -132,11 +160,23 @@ export function queryParser (e) {
     });
   });
   
-  // Calculate what's the maximum nodes a level has
-  let maxNodesPerLevel = levels.reduce(function (a, b) {
-    return Math.max(a, b);
+  reverseMap.forEach( (value, key) => {
+    let linkInMap = value.find( valueNode => {
+      let found = linksMap?.get(valueNode.target)?.find( ele => {
+        if ( ele.target === key ) {
+          return ele;
+        }
+      });
+
+      if ( !found ) {
+        if (linksMap.get(key) === undefined) {
+          linksMap.set(key, new Array());
+        }
+        linksMap?.get(key)?.push( { target : valueNode?.target, label : valueNode?.label, weight : valueNode?.weight });
+      }
+    })
   });
-  
+    
   // Creates Links array with nodes
   nodes.forEach( sourceNode => {
     let id = sourceNode.id;
@@ -173,21 +213,6 @@ export function queryParser (e) {
           }
         }
       }
-    }
-    
-    // Set the X position of each node, this will place them on their corresponding column depending on hops
-    let positionX = 0;
-    if ( sourceNode.level === 0 ){
-      if ( sourceNode.id == targetNodeID ){
-        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * 200 : 100;
-      } else if ( sourceNode.id == sourceNodeID ) {
-        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * -200 : -100;
-      } 
-    } else if ( sourceNode.level > 1 ) {
-      let space = ((maxNodesPerLevel * 200) * 2) / (maxNodesPerLevel + 1);
-      levels[sourceNode.level] == 1 ? positionX = ((maxNodesPerLevel * -200) + space) : positionX = (maxNodesPerLevel * -200) + levels[sourceNode.level] * space;
-      levels[sourceNode.level]-- 
-      sourceNode.positionX = positionX;
     }
   });
   
