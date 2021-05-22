@@ -27,19 +27,21 @@ export function queryParser (e) {
   let presentColorLabels = new Array();
   // maps of links with their max hop
   let linksMaxHops = {};
+  // Keeps track of what level nodes belong
   let nodesInLevel = new Array();
   
+  // Read relationshipY:index values
   relationshipsHops?.forEach( rel => {
     let split = rel.split(":");
-    let level = parseInt(split[1]) + 1;
-    // Map link id to highest hop
-    linksMaxHops[split[0]] = level;
+    // Map link id to highest index
+    linksMaxHops[split[0]] = parseInt(split[1]) + 1;
   })
   
-  // Creates links map from Relationships, avoid duplicates
+  // Creates map from Relationships for easy access. 
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
-      linksMaxHops[id] ? nodesInLevel[endNode] ? nodesInLevel[endNode] = Math.max(linksMaxHops[id], nodesInLevel[endNode]) : nodesInLevel[endNode] = linksMaxHops[id] : null;
+      // Keep track of the level where the node will be placed
+      linksMaxHops[id] ? nodesInLevel[endNode] ? nodesInLevel[endNode] = linksMaxHops[id] : nodesInLevel[endNode] = linksMaxHops[id] : null;
       if (allRelationships.get(parseInt(startNode)) === undefined) {
         allRelationships.set(parseInt(startNode), new Array());
       }
@@ -77,6 +79,7 @@ export function queryParser (e) {
           level = parseInt(nodesInLevel[id]);
         }
         
+        // Assign hop to source and target node
         let hop = 1;
         if ( parseID === targetNodeID ) {
           hop = maxHops + 1;
@@ -101,6 +104,7 @@ export function queryParser (e) {
     });
   });
   
+  // Helper function to assign hops to nodes, this will determine the X position
   function hopAssignment (startNodeID, endNodeID, relationshipsMap, currentHops, nodesHopsMap){
     let neighbors = relationshipsMap?.get(startNodeID);
   
@@ -115,9 +119,10 @@ export function queryParser (e) {
     return nodesHopsMap;
   }
   
+  // assign hops to nodes
   let hopsMap = hopAssignment(sourceNodeID, targetNodeID, allRelationships, 0, {});  
   
-  // Creates Links array with nodes
+  // Loop through nodes and assign X position based on hops
   nodes.forEach( sourceNode => {
     let id = sourceNode.id;
     if ( typeof id === "number" ) {
@@ -129,9 +134,9 @@ export function queryParser (e) {
     let positionX = 0;
     if ( sourceNode.level === 0 ){
       if ( sourceNode.id == targetNodeID ){
-        sourceNode.positionX = maxHops > 0 ? maxHops * 100 : 75;
+        sourceNode.positionX = maxHops > 0 ? maxHops * 100 : 100;
       } else if ( sourceNode.id == sourceNodeID ) {
-        sourceNode.positionX = maxHops > 0 ? maxHops * -100 : -75;
+        sourceNode.positionX = maxHops > 0 ? maxHops * -100 : -100;
       } 
     } else if ( sourceNode.level >= 1 ) {
       sourceNode.hop = hopsMap[sourceNode?.id];
@@ -148,7 +153,7 @@ export function queryParser (e) {
       let matchingEndNode = nodes.find(node => node.id === parseInt(endNode));
       let reverseLink = false;
       
-      if ( matchingStartNode.positionX > matchingEndNode.positionX ){
+      if ( matchingStartNode.positionX >= matchingEndNode.positionX ){
         reverseLink = true 
       }
       
