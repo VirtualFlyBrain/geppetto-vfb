@@ -338,7 +338,7 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkCurvature={configuration.linkCurvature}
+            linkCurvature={ configuration.linkCurvature }
             linkDirectionalArrowLength={link => link.weight ? Math.max(10, Math.log(link.weight) * 5) : 2}
             linkDirectionalArrowRelPos={.75}
             // Node label, used in tooltip when hovering over Node

@@ -9,6 +9,7 @@ export function queryParser (e) {
   // Read source and target node ids
   let sourceNodeID = data[0]?.row[4];
   let targetNodeID = data[0]?.row[5];
+  let maxHops = Math.ceil(data[0]?.row[6] / 2) + 1;
   // Read relationship max hops
   let relationshipsHops = data[0]?.row[7];
   
@@ -16,6 +17,7 @@ export function queryParser (e) {
   let nodes = [], links = [];
   // Keeps track of links
   let linksMap = new Map();
+  let allRelationships = new Map();
   // Keeps track of reverse links
   let reverseMap = new Map();
   // Keeps track of nodes in map
@@ -25,14 +27,11 @@ export function queryParser (e) {
   let presentColorLabels = new Array();
   // maps of links with their max hop
   let linksMaxHops = {};
-  let nodesPerLevel = new Array(7).fill(0);
-  let maxHops = 2;
-  let levels = new Array(7).fill(0);
+  let nodesInLevel = new Array();
   
   relationshipsHops?.forEach( rel => {
     let split = rel.split(":");
     let level = parseInt(split[1]) + 1;
-    level > maxHops ? maxHops = level : null;
     // Map link id to highest hop
     linksMaxHops[split[0]] = level;
   })
@@ -40,7 +39,11 @@ export function queryParser (e) {
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
-      linksMaxHops[id] ? nodesPerLevel[endNode] ? nodesPerLevel[endNode] = Math.max(linksMaxHops[id], nodesPerLevel[endNode]) : nodesPerLevel[endNode] = linksMaxHops[id] : null;
+      linksMaxHops[id] ? nodesInLevel[endNode] ? nodesInLevel[endNode] = Math.max(linksMaxHops[id], nodesInLevel[endNode]) : nodesInLevel[endNode] = linksMaxHops[id] : null;
+      if (allRelationships.get(parseInt(startNode)) === undefined) {
+        allRelationships.set(parseInt(startNode), new Array());
+      }
+      allRelationships?.get(parseInt(startNode))?.push( { target : parseInt(endNode), label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
     });
   });
     
@@ -69,17 +72,24 @@ export function queryParser (e) {
       let n = null;
       if (nodesMap.get(id) === undefined) {
         let level = 0;
-        if ( id != targetNodeID && id != sourceNodeID){
-          level = parseInt(nodesPerLevel[id]);
+        let parseID = parseInt(id);
+        if ( parseID != targetNodeID && parseID != sourceNodeID){
+          level = parseInt(nodesInLevel[id]);
         }
-
-        level > 0 ? levels[level] = levels[level] + 1 : null;
+        
+        let hop = 1;
+        if ( parseID === targetNodeID ) {
+          hop = maxHops + 1;
+        } else if ( parseID === sourceNodeID) {
+          hop = 0;
+        }
         
         n = {
           path :  label,
-          id : parseInt(id),
+          id : parseID,
           title : title,
           level : level,
+          hop : hop,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT,
           color : color,
@@ -90,12 +100,22 @@ export function queryParser (e) {
       }
     });
   });
-    
-  // Calculate what's the maximum nodes a level has
-  let maxNodesPerLevel = levels.reduce( function (a, b) {
-    return Math.max(a, b);
-  });
   
+  function hopAssignment (startNodeID, endNodeID, relationshipsMap, currentHops, nodesHopsMap){
+    let neighbors = relationshipsMap?.get(startNodeID);
+  
+    for ( let i = 0; i < neighbors?.length; i++ ) {
+      let currentID = neighbors[i]?.target;
+      if ( currentID != endNodeID && currentID != sourceNodeID && nodesHopsMap[currentID] === undefined ) {
+        nodesHopsMap[currentID] = currentHops + 1;
+        hopAssignment(currentID, endNodeID, relationshipsMap, currentHops + 1, nodesHopsMap)
+      }
+    }
+ 
+    return nodesHopsMap;
+  }
+  
+  let hopsMap = hopAssignment(sourceNodeID, targetNodeID, allRelationships, 0, {});  
   
   // Creates Links array with nodes
   nodes.forEach( sourceNode => {
@@ -109,14 +129,14 @@ export function queryParser (e) {
     let positionX = 0;
     if ( sourceNode.level === 0 ){
       if ( sourceNode.id == targetNodeID ){
-        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * 200 : 100;
+        sourceNode.positionX = maxHops > 0 ? maxHops * 100 : 75;
       } else if ( sourceNode.id == sourceNodeID ) {
-        sourceNode.positionX = maxNodesPerLevel > 0 ? maxNodesPerLevel * -200 : -100;
+        sourceNode.positionX = maxHops > 0 ? maxHops * -100 : -75;
       } 
     } else if ( sourceNode.level >= 1 ) {
-      let space = ((maxNodesPerLevel * 200) * 2) / (maxNodesPerLevel + 1);
-      levels[sourceNode.level] == 1 ? positionX = ((maxNodesPerLevel * -200) + space) : positionX = (maxNodesPerLevel * -200 ) + (levels[sourceNode.level] * space);
-      levels[sourceNode.level]-- 
+      sourceNode.hop = hopsMap[sourceNode?.id];
+      let space = ((maxHops * 100 * 2) / (maxHops + 1)) * sourceNode.hop;
+      positionX = (maxHops * -100 ) + space
       sourceNode.positionX = positionX;
     }
   });
@@ -128,7 +148,7 @@ export function queryParser (e) {
       let matchingEndNode = nodes.find(node => node.id === parseInt(endNode));
       let reverseLink = false;
       
-      if ( matchingStartNode.positionX >= matchingEndNode.positionX ){
+      if ( matchingStartNode.positionX > matchingEndNode.positionX ){
         reverseLink = true 
       }
       
@@ -155,11 +175,13 @@ export function queryParser (e) {
         if (reverseMap.get(startNode) === undefined) {
           reverseMap.set(startNode, new Array());
         }
+        
         reverseMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
       }      
     });
   });
   
+  // Loop through reverse map and find reverse links 
   reverseMap.forEach( (value, key) => {
     let linkInMap = value.find( valueNode => {
       let found = linksMap?.get(valueNode.target)?.find( ele => {
@@ -177,7 +199,7 @@ export function queryParser (e) {
     })
   });
     
-  // Creates Links array with nodes
+  // Creates Links array with nodes, assign node neighbors that are connected by links
   nodes.forEach( sourceNode => {
     let id = sourceNode.id;
     if ( typeof id === "number" ) {
@@ -193,10 +215,10 @@ export function queryParser (e) {
           if ( !match ) {
             // Create tooltip label for link and weight
             const tooltip = "Label  : " + n[i].label + '<br/>' 
-              + "Weight : " + (reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight);
-            const weightLabel = reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight;
+              + "Weight : " + (reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight + "[0]");
+            const weightLabel = reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight + "[0]";
             // Create new link for graph
-            let link = { source: sourceNode, label : tooltip, weightLabel : weightLabel, weight : n[i].weight, target: targetNode, targetNode: targetNode, curvature: .75 };
+            let link = { source: sourceNode, label : tooltip, weightLabel : weightLabel, weight : n[i].weight, target: targetNode, targetNode: targetNode };
             links.push( link );
 
             // Assign neighbors to nodes and links
@@ -215,6 +237,9 @@ export function queryParser (e) {
       }
     }
   });
+  
+  console.log("Nodes ", nodes);
+  console.log("Links ", links);
   
   // Worker is done, notify main thread
   this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
