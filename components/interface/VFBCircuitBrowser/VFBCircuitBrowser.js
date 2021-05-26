@@ -249,6 +249,7 @@ class VFBCircuitBrowser extends Component {
         results: response.data,
         configuration : configuration,
         styling : stylingConfiguration,
+        hops : self.state.hops,
         NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
       }
       
@@ -344,7 +345,7 @@ class VFBCircuitBrowser extends Component {
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
             linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 10;
+              const MAX_FONT_SIZE = 8;
               const LABEL_NODE_MARGIN = 1 * 1.5;
 
               const start = link.source;
@@ -360,7 +361,7 @@ class VFBCircuitBrowser extends Component {
 
               if (link?.__controlPoints ) {
                 textPos = this.getQuadraticXY(
-                  .5,
+                  .3,
                   start.x,
                   start.y,
                   link?.__controlPoints[0],

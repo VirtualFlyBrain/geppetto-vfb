@@ -120,7 +120,8 @@ export function queryParser (e) {
   }
   
   // assign hops to nodes
-  let hopsMap = hopAssignment(sourceNodeID, targetNodeID, allRelationships, 0, {});  
+  let hopsMap = hopAssignment(sourceNodeID, targetNodeID, allRelationships, 0, {});
+  maxHops = Math.max.apply(null, Object.keys(hopsMap)?.map( key => parseInt(hopsMap[key])));
   
   // Loop through nodes and assign X position based on hops
   nodes.forEach( sourceNode => {
@@ -132,16 +133,17 @@ export function queryParser (e) {
     
     // Set the X position of each node, this will place them on their corresponding column depending on hops
     let positionX = 0;
+    let spaceBetween = maxHops > 2 ? 100 : 200;
     if ( sourceNode.level === 0 ){
       if ( sourceNode.id == targetNodeID ){
-        sourceNode.positionX = maxHops > 0 ? maxHops * 100 : 100;
+        sourceNode.positionX = maxHops > 0 ? maxHops * spaceBetween : spaceBetween;
       } else if ( sourceNode.id == sourceNodeID ) {
-        sourceNode.positionX = maxHops > 0 ? maxHops * -100 : -100;
+        sourceNode.positionX = maxHops > 0 ? maxHops * (-1 * spaceBetween) : (-1 * spaceBetween);
       } 
     } else if ( sourceNode.level >= 1 ) {
       sourceNode.hop = hopsMap[sourceNode?.id];
-      let space = ((maxHops * 100 * 2) / (maxHops + 1)) * sourceNode.hop;
-      positionX = (maxHops * -100 ) + space
+      let space = ((maxHops * spaceBetween * 2) / (maxHops + 1)) * sourceNode.hop;
+      positionX = (maxHops * (-1 * spaceBetween) ) + space
       sourceNode.positionX = positionX;
     }
   });
