@@ -10,17 +10,16 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
-     + "  k: " + hops.toString() + ","
+      + "  k: " + hops.toString() + ","
       + "  relationshipWeightProperty: 'weight_p',"
       + "  relationshipTypes: ['*'],"
       + "  path: true"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
       + " WITH * ORDER BY index DESC"
-     + " OPTIONAL MATCH fp=(source)-[r:synapsed_to*..]->(target) WHERE ALL(n in nodes(fp) WHERE id(n) IN nodeIds)"
-      + " UNWIND r as sr WITH *, collect(id(sr)) as ids, toString(id(sr))+':'+toString(index) as relY OPTIONAL MATCH cp=(source)-[r:synapsed_to*..]-(target)"
-      + " WHERE ALL(n in nodes(cp) WHERE id(n) IN nodeIds) UNWIND ids as id"
-      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id) as fr, sourceNode as source, targetNode as target, max(length(fp)) as maxHops, collect(distinct relY) as relationshipY ",
+      + " UNWIND relationships(path) as sr"
+      + " OPTIONAL MATCH cp=(x)-[:synapsed_to]-(y) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y)"
+      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY ",
       "resultDataContents": ["row", "graph"]
     }
   ]
