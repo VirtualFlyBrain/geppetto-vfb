@@ -57,7 +57,7 @@ describe('VFB Circuit Browser Tests', () => {
 		it('Refresh Graph with VFB_jrchjrch and VFB_jrchjsfu', async () => {
   		    await page.waitFor(ONE_SECOND);
    		    await page.click('#refreshCircuitBrowser');
-			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 90 * ONE_SECOND });
+			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 240 * ONE_SECOND });
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
 		    expect(legendLabels).toBe(2);
@@ -70,10 +70,10 @@ describe('VFB Circuit Browser Tests', () => {
 			
    		    await page.click('#refreshCircuitBrowser');
 			await page.waitFor(10 * ONE_SECOND);
-			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 90 * ONE_SECOND });
+			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 240 * ONE_SECOND });
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
-		    expect(legendLabels).toBe(3);
+		    expect(legendLabels).toBe(2);
 		})
 
 		it('Set weight field to 50', async () => {
@@ -83,7 +83,7 @@ describe('VFB Circuit Browser Tests', () => {
 			
    		    await page.click('#refreshCircuitBrowser');
 			await page.waitFor(10 * ONE_SECOND);
-			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 90 * ONE_SECOND });
+			await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout : 240 * ONE_SECOND });
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
 		    expect(legendLabels).toBe(2);

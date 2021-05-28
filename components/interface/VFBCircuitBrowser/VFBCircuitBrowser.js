@@ -57,8 +57,8 @@ class VFBCircuitBrowser extends Component {
       queryLoaded : false,
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
-      paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
-      weight : 70,
+      hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      weight : 0,
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
@@ -67,6 +67,7 @@ class VFBCircuitBrowser extends Component {
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.clearGraph = this.clearGraph.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
@@ -77,6 +78,7 @@ class VFBCircuitBrowser extends Component {
     this.hoverNode = null;
 
     this.graphRef = React.createRef();
+    this.controlsRef = React.createRef();
     this.__isMounted = false;
     this.objectsLoaded = 0;
     this.focused = false;
@@ -170,6 +172,11 @@ class VFBCircuitBrowser extends Component {
     }
     this.graphRef.current.ggv.current.zoom(zoom - out , 100);
   }
+  
+  clearGraph () {
+    this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
+    this.controlsRef.current.setNeurons()
+  }
 
   /**
    * Handle Left click on Nodes
@@ -238,8 +245,16 @@ class VFBCircuitBrowser extends Component {
         }
       };
 
+      let params = {
+        results: response.data,
+        configuration : configuration,
+        styling : stylingConfiguration,
+        hops : self.state.hops,
+        NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
+      }
+      
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: params });
     })
       .catch( function (error) {
         self.setState( { loading : false } );
@@ -309,6 +324,8 @@ class VFBCircuitBrowser extends Component {
               circuitQuerySelected={this.circuitQuerySelected}
               datasource="SOLR"
               legend = {self.state.legend}
+              ref={self.controlsRef}
+              clearGraph={self.clearGraph}
             />
           </div>
           : <GeppettoGraphVisualization
@@ -322,78 +339,13 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(weight)
             linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkCurvature='curvature'
-            linkDirectionalArrowLength={link => link.weight ? Math.log(link.weight) * 3 : .5}
+            linkCurvature={ configuration.linkCurvature }
+            linkDirectionalArrowLength={link => link.weight ? Math.max(10, Math.log(link.weight) * 5) : 2}
             linkDirectionalArrowRelPos={.75}
-            linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 5;
-              const LABEL_NODE_MARGIN = 1 * 1.5;
-
-              const start = link.source;
-              const end = link.target;
-
-              // ignore unbound links
-              if (typeof start !== 'object' || typeof end !== 'object') {
-                return;
-              }
-                
-              // calculate label positioning
-              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
-
-              
-              if (link?.curvature && link?.__controlPoints ) {
-                // Get mid point of link, save as position of weight label text
-                textPos = this.getQuadraticXY(
-                  .5,
-                  start.x,
-                  start.y,
-                  link?.__controlPoints[0],
-                  link?.__controlPoints[1],
-                  end.x,
-                  end.y
-                );
-              }
-              const relLink = { x: end.x - start.x, y: end.y - start.y };
-
-              const maxTextLength = Math.sqrt(Math.pow(relLink.x, 2) + Math.pow(relLink.y, 2)) - LABEL_NODE_MARGIN * 2;
-
-              let textAngle = Math.atan2(relLink.y, relLink.x);
-              // maintain label vertical orientation for legibility
-              if (textAngle > Math.PI / 2) {
-                textAngle = -(Math.PI - textAngle);
-              }
-              if (textAngle < -Math.PI / 2) {
-                textAngle = -(-Math.PI - textAngle);
-              }
-
-              const label = link.weightLabel;
-
-              // estimate fontSize to fit in link length
-              ctx.font = '1px Sans-Serif';
-              const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
-              ctx.font = `${fontSize}px Sans-Serif`;
-              const textWidth = ctx.measureText(label).width;
-              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-              // draw text label (with background rect)
-              ctx.save();
-              ctx.translate(textPos.x,textPos.y);
-              ctx.rotate(textAngle);
-              // draw black rectangle
-              ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-              ctx.fillRect(- bckgDimensions[0] / 2, - bckgDimensions[1] / 2, ...bckgDimensions);
-              // draw weight label text
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.fillStyle = stylingConfiguration.defaultLinkColor;
-              ctx.setLineDash([5, 5]);
-              ctx.fillText(label, 0, 0);
-              ctx.restore();
-            }}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
             linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 5;
+              const MAX_FONT_SIZE = 8;
               const LABEL_NODE_MARGIN = 1 * 1.5;
 
               const start = link.source;
@@ -409,7 +361,7 @@ class VFBCircuitBrowser extends Component {
 
               if (link?.__controlPoints ) {
                 textPos = this.getQuadraticXY(
-                  .5,
+                  .3,
                   start.x,
                   start.y,
                   link?.__controlPoints[0],
@@ -434,8 +386,7 @@ class VFBCircuitBrowser extends Component {
               const label = link.weightLabel;
 
               // estimate fontSize to fit in link length
-              ctx.font = '1px Sans-Serif';
-              const fontSize = Math.min(MAX_FONT_SIZE, maxTextLength / ctx.measureText(label).width);
+              const fontSize = MAX_FONT_SIZE;
               ctx.font = `${fontSize}px Sans-Serif`;
               const textWidth = ctx.measureText(label).width;
               const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
@@ -501,7 +452,11 @@ class VFBCircuitBrowser extends Component {
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
-            dagLevelDistance = {100}
+            nodeVal = { node => {
+              node.fx = node.positionX;
+              node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
+            }}
+            dagLevelDistance = {25}
             onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
@@ -525,22 +480,24 @@ class VFBCircuitBrowser extends Component {
                 resetCamera={self.resetCamera}
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
+                clearGraph={self.clearGraph}
                 circuitQuerySelected={this.circuitQuerySelected}
                 legend = {self.state.legend}
+                ref={self.controlsRef}
               />
             }
             // Function triggered when hovering over a nodeoptions
             onNodeHover={node => {
             // Reset maps of hover nodes and links
-              self.highlightNodes.clear();
-              self.highlightLinks.clear();
+              self.highlightNodes?.clear();
+              self.highlightLinks?.clear();
 
               // We found the node that we are hovering over
               if (node) {
               // Keep track of hover node, its neighbors and links
-                self.highlightNodes.add(node);
-                node.neighbors.forEach(neighbor => self.highlightNodes.add(neighbor));
-                node.links.forEach(link => self.highlightLinks.add(link));
+                self.highlightNodes?.add(node);
+                node?.neighbors?.forEach(neighbor => self?.highlightNodes?.add(neighbor));
+                node?.links?.forEach(link => self?.highlightLinks?.add(link));
               }
 
               // Keep track of hover node
