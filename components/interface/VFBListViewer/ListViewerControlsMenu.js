@@ -210,9 +210,9 @@ class ListViewerControlsMenu extends Component {
         button.list = list;
       }
       if (self.props.instance.isVisible()) {
-        button.icon.props.className = "fa fa-eye";
-      } else {
         button.icon.props.className = "fa fa-eye-slash";
+      } else {
+        button.icon.props.className = "fa fa-eye";
       }
     });
         
