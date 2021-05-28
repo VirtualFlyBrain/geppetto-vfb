@@ -1,4 +1,4 @@
-var locationCypherQuery = ( instances, hops, weight ) => ({
+var locationCypherQuery = ( instances, paths, weight ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
@@ -40,9 +40,9 @@ var configuration = {
       "tooltip" : "label"
     }
   },
-  // Minimum amount of hops allowed
+  // Minimum amount of paths allowed
   minHops : 1,
-  // Maximum amount of hops allowed
+  // Maximum amount of paths allowed
   maxHops : 6,
   // Minimum amount of neurons allowed
   minNeurons : 2,
