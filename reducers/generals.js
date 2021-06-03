@@ -242,9 +242,11 @@ function generalReducer (state, action) {
     };
   case UPDATE_CIRCUIT_QUERY:
     var newQueryMap = [];
+    // Instance is array
     if ( Array.isArray(action.data.instance) ) {
       newQueryMap = action.data.instance;
     } else {
+      // Instance is object
       !state.ui.circuitBrowser.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
     }
     
