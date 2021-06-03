@@ -330,7 +330,7 @@ class Controls extends Component {
       clearTimeout(this.typingTimeout);
     }
     // Create a setTimeout interval, to avoid performing searches on every stroke
-    setTimeout(this.typingTimeout, 500, event.target);
+    setTimeout(this.typingTimeout, 10, event.target);
   }
   
   /**
@@ -580,7 +580,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return { vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }), }
+  return { vfbCircuitBrowser: (type, neurons) => dispatch ( { type : type, data : { instance : neurons } }), }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(withStyles(styles)(Controls));
