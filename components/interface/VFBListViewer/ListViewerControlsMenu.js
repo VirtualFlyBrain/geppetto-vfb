@@ -47,9 +47,11 @@ class ListViewerControlsMenu extends Component {
     switch (action.handlerAction){
     case ACTIONS.SHOW:
       this.props.instance.show();
+      StackViewer1?.updateStackWidget();
       break;
     case ACTIONS.HIDE:
       this.props.instance.hide();
+      StackViewer1?.updateStackWidget();
       break;
     case ACTIONS.SELECT:
       this.props.instance.select();
