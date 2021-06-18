@@ -19,6 +19,21 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
+class CollapsibleTitle extends React.Component {
+  handleClick (event) {
+    event.stopPropagation();
+    event.preventDefault()
+  }
+  
+  render () {
+    return (
+      <p className="collapsibleTitle" onClick={this.handleClick}>
+        {this.props.title}
+      </p>
+    );
+  }
+}
+
 class VFBTermInfo extends React.Component {
 
   constructor (props) {
@@ -217,7 +232,7 @@ class VFBTermInfo extends React.Component {
       if (counter !== undefined) {
         prevCounter = counter;
       }
-      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={<CollapsibleTitle title={this.contentTermInfo.keys[prevCounter]}/>}>
         <div>
           <HTMLViewer id={id} content={value.html} />
         </div>
@@ -228,7 +243,7 @@ class VFBTermInfo extends React.Component {
       if (counter !== undefined) {
         prevCounter = counter;
       }
-      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={<CollapsibleTitle title={this.contentTermInfo.keys[prevCounter]}/>}>
         <div>
           <HTMLViewer id={id} content={anchorme(value.text, anchorOptions)} />
         </div>
@@ -268,7 +283,7 @@ class VFBTermInfo extends React.Component {
             lazyLoad: "progressive",
             afterChange: current => (this.hookupImages(current))
           };
-          this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+          this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={<CollapsibleTitle title={this.contentTermInfo.keys[prevCounter]}/>}>
             <Slider {...settings}>
               {elements.map((element, key) => {
                 var Element = React.cloneElement(element);
@@ -285,7 +300,7 @@ class VFBTermInfo extends React.Component {
         } else if (value.eClass == GEPPETTO.Resources.IMAGE) {
           // otherwise we just show an image
           var image = value;
-          this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+          this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={<CollapsibleTitle title={this.contentTermInfo.keys[prevCounter]}/>}>
             <div className="popup-image">
               <a href={location.protocol + '//' + location.host + location.pathname + "/" + image.reference} onClick={event => {
                 event.stopPropagation();
@@ -315,7 +330,7 @@ class VFBTermInfo extends React.Component {
         );
       }
       
-      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={<CollapsibleTitle title={this.contentTermInfo.keys[prevCounter]}/>}>
         {graphs.map((graph, key) => {
           var Element = React.cloneElement(graph);
           /*
@@ -344,7 +359,7 @@ class VFBTermInfo extends React.Component {
         );
       }
         
-      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
+      this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={<CollapsibleTitle title={this.contentTermInfo.keys[prevCounter]}/>}>
         {graphs.map((graph, key) => {
           var Element = React.cloneElement(graph);
           /*
