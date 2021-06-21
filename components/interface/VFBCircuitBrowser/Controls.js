@@ -143,6 +143,9 @@ class AutocompleteResults extends Component {
    */
   handleResults (status, data, value){
     let results = {};
+    console.log("Status ", status)
+    console.log("Data ", data)
+    console.log("Value ", value)
     data?.map(result => {
       // Match results by short_form id
       if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
@@ -151,6 +154,8 @@ class AutocompleteResults extends Component {
         results[result?.label] = result;
       }
     });
+    
+    console.log("Results ", results)
       
     this.setState({ filteredResults : results });
   }
@@ -330,19 +335,18 @@ class Controls extends Component {
       clearTimeout(this.typingTimeout);
     }
     // Create a setTimeout interval, to avoid performing searches on every stroke
-    setTimeout(this.typingTimeout, 500, event.target);
+    setTimeout(this.typingTimeout, 10, event.target);
   }
   
   /**
    * Handle SOLR result selection, activated by selecting from drop down menu under textfield 
    */
-  resultSelectedChanged (event, value) {
+  resultSelectedChanged (event, value, index) {
     // Copy neurons and add selection to correct array index
     let neurons = this.neuronFields;
     let textFieldId = event.target.id.toString().split("-")[0];
     let shortForm = this.autocompleteRef[textFieldId].current.getFilteredResults()[value] && this.autocompleteRef[textFieldId].current.getFilteredResults()[value].short_form;
-    let index = neurons.findIndex(neuron => neuron.id === shortForm);
-    index > -1 ? neurons[index] = { id : shortForm, label : value } : null
+    neurons[indexx] = { id : shortForm, label : value };
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -467,7 +471,7 @@ class Controls extends Component {
                           field={field}
                           index={index}
                           neuronTextfieldModified={this.neuronTextfieldModified}
-                          resultSelectedChanged={this.resultSelectedChanged}
+                          resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
                           ref={this.autocompleteRef[index.toString()]}
                         />
                       </Grid>
@@ -580,7 +584,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return { vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }), }
+  return { vfbCircuitBrowser: (type, neurons) => dispatch ( { type : type, data : { instance : neurons } }), }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(withStyles(styles)(Controls));

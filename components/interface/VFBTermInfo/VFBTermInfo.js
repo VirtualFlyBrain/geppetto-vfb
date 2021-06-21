@@ -336,7 +336,7 @@ class VFBTermInfo extends React.Component {
       let graphs = new Array();
       for (var j = 0; j < values.length; j++) {
         graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
-          <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.id + "," + values[j].index }> 
+          <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.name + "," + values[j].instance.parent.id + "," + values[j].index }>
             { "Show Circuit Browser for " + values[j].instance.parent.name }
           </a>
           <br/>
@@ -723,10 +723,11 @@ class VFBTermInfoWidget extends React.Component {
       if (path.indexOf(CIRCUIT_BROWSER) === 0 ) {
         // Show Circuit Browser
         const { vfbCircuitBrowser } = this.props;
+        const selectedQuery = { label : path.split(',')[1] + "(" + path.split(',')[2] + ")" , id : path.split(',')[2] };
         /*
          * Path contains the instancE ID passed to the circuit browser
          */
-        vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], true);
+        vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], selectedQuery, true);
         
         // Notify VFBMain UI needs to be updated
         this.props.uiUpdated();
@@ -886,7 +887,7 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return { 
-    vfbCircuitBrowser: (type, path, visible) => dispatch ( { type : type, data : { instance : path, visible : visible } }),
+    vfbCircuitBrowser: (type, instance, visible) => dispatch ( { type : type, data : { instance : instance, visible : visible } }),
     vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } })
   }
 }
