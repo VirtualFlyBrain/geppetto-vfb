@@ -1,4 +1,4 @@
-var locationCypherQuery = ( instances, hops, weight ) => ({
+var locationCypherQuery = ( instances, paths, weight ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
@@ -7,20 +7,19 @@ var locationCypherQuery = ( instances, hops, weight ) => ({
       + " CALL gds.beta.shortestPath.yens.stream({"
       + "  nodeQuery: 'MATCH (n:Neuron) RETURN id(n) AS id',"
       + "  relationshipQuery: 'MATCH (a:Neuron:has_neuron_connectivity)-[r:synapsed_to]->(b:Neuron) WHERE exists(r.weight) AND r.weight[0] >= "
-      + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
+      + weight?.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
-     + "  k: " + hops.toString() + ","
+      + "  k: " + paths?.toString() + ","
       + "  relationshipWeightProperty: 'weight_p',"
       + "  relationshipTypes: ['*'],"
       + "  path: true"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
       + " WITH * ORDER BY index DESC"
-     + " OPTIONAL MATCH fp=(source)-[r:synapsed_to*..]->(target) WHERE ALL(n in nodes(fp) WHERE id(n) IN nodeIds)"
-      + " UNWIND r as sr WITH *, collect(id(sr)) as ids, toString(id(sr))+':'+toString(index) as relY OPTIONAL MATCH cp=(source)-[r:synapsed_to*..]-(target)"
-      + " WHERE ALL(n in nodes(cp) WHERE id(n) IN nodeIds) UNWIND ids as id"
-      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id) as fr, sourceNode as source, targetNode as target, max(length(fp)) as maxHops, collect(distinct relY) as relationshipY ",
+      + " UNWIND relationships(path) as sr"
+      + " OPTIONAL MATCH cp=(x)-[:synapsed_to]-(y) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y)"
+      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY ",
       "resultDataContents": ["row", "graph"]
     }
   ]
@@ -41,14 +40,16 @@ var configuration = {
       "tooltip" : "label"
     }
   },
-  // Minimum amount of hops allowed
-  minHops : 1,
-  // Maximum amount of hops allowed
-  maxHops : 6,
+  // Minimum amount of paths allowed
+  minPaths : 1,
+  // Maximum amount of paths allowed
+  maxPaths : 6,
   // Minimum amount of neurons allowed
   minNeurons : 2,
   // Maximum amount of neurons allowed
-  maxNeurons : 2
+  maxNeurons : 2,
+  // Curvature of lines, 0 is a straight line
+  linkCurvature : 0
 }
 
 var styling = {
@@ -110,7 +111,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb.virtualflybrain.org/db/neo4j/tx/commit",
+  url: "https://pdb-dev.virtualflybrain.org/db/neo4j/tx/commit",
   contentType: "application/json"
 };
 

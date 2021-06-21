@@ -115,11 +115,11 @@ const searchConfiguration = require('./../../configuration/VFBMain/searchConfigu
 const datasourceConfiguration = require('./../../configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
 /**
- * Create custom marks for Hops slider.
- * Only show the label for the minimum and maximum hop, hide the rest
+ * Create custom marks for Paths slider.
+ * Only show the label for the minimum and maximum paths, hide the rest
  */
 const customMarks = () => {
-  let marks = new Array(configuration.maxHops);
+  let marks = new Array(configuration.maxPaths);
   for ( var i = 0; i < marks.length; i++ ) {
     if ( i == 0 || i == marks.length - 1 ) {
       marks[i] = { value : i + 1, label : (i + 1).toString() };
@@ -203,7 +203,7 @@ class Controls extends Component {
       key : 1
     };
     this.weight = this.props.weight;
-    this.hops = this.props.hops;
+    this.paths = this.props.paths;
     this.addNeuron = this.addNeuron.bind(this);
     this.reverseNeurons = this.reverseNeurons.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
@@ -330,7 +330,7 @@ class Controls extends Component {
       clearTimeout(this.typingTimeout);
     }
     // Create a setTimeout interval, to avoid performing searches on every stroke
-    setTimeout(this.typingTimeout, 500, event.target);
+    setTimeout(this.typingTimeout, 10, event.target);
   }
   
   /**
@@ -355,10 +355,10 @@ class Controls extends Component {
   }
   
   /**
-   * Hops slider has been dragged, value has changed
+   * Paths slider has been dragged, value has changed
    */
   sliderChange (event, value ) {
-    this.hops = value;
+    this.paths = value;
   }
   
   weightChange (event ) {
@@ -528,13 +528,13 @@ class Controls extends Component {
                   <Grid item sm={9}>
                     <Slider
                       aria-labelledby="discrete-slider-always"
-                      defaultValue={this.hops}
+                      defaultValue={this.paths}
                       onChangeCommitted={this.sliderChange}
                       step={1}
                       marks={customMarks()}
                       valueLabelDisplay="auto"
-                      min={configuration.minHops}
-                      max={configuration.maxHops}
+                      min={configuration.minPaths}
+                      max={configuration.maxPaths}
                     />  
                   </Grid>
                 </Grid>
@@ -580,7 +580,7 @@ function mapStateToProps (state) {
 }
 
 function mapDispatchToProps (dispatch) {
-  return { vfbCircuitBrowser: (type, path) => dispatch ( { type : type, data : { instance : path } }), }
+  return { vfbCircuitBrowser: (type, neurons) => dispatch ( { type : type, data : { instance : neurons } }), }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef : true } )(withStyles(styles)(Controls));

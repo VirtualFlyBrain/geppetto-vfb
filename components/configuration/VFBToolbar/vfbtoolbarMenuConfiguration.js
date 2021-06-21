@@ -632,14 +632,6 @@ var toolbarMenu = {
       position: "bottom-start",
       list: [
         {
-          label: "User Survey",
-          icon: "",
-          trailerIcon: "fa fa-external-link",
-          action: {
-            handlerAction: "openNewTab",
-            parameters: ["https://www.surveymonkey.co.uk/r/5HDZZRR"]
-          }
-        },{
           label: "F.A.Q.",
           icon: "",
           trailerIcon: "fa fa-external-link",
