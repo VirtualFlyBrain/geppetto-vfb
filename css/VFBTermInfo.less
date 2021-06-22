@@ -934,3 +934,19 @@
         transition: all 0.50s;
     }
 }
+
+details > summary > i.fa-chevron-circle-right {
+    display: inline-block;
+}
+
+details > summary > i.fa-chevron-circle-down {
+    display: none;
+}
+
+details[open] > summary > i.fa-chevron-circle-down {
+    display: inline-block;
+}
+
+details[open] > summary > i.fa-chevron-circle-right {
+    display: none;
+}
