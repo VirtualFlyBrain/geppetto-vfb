@@ -732,12 +732,12 @@ class VFBTermInfoWidget extends React.Component {
       return;
     }
     var Query = require('@geppettoengine/geppetto-core/model/Query');
-    var n = window[path];
     var otherId;
     var otherName;
     var target = widget;
     var that = this;
     var meta = path + "." + path + "_meta";
+    var n = window[meta];
     if (n != undefined) {
       var metanode = Instances.getInstance(meta);
       if ((this.data.length > 0) && (this.data[0] == metanode)) {
