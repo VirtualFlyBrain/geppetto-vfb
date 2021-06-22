@@ -12,7 +12,7 @@ var locationCypherQuery = instance => ({
 var whatCypherQuery = instance => ({
   "statements": [
     {
-      "statement": "MATCH (n:Entity {short_form:'" + instance + "'}) OPTIONAL MATCH p=(n)-[:INSTANCEOF|:SUBCLASSOF*..]->(x) "
+      "statement": "MATCH (n:Entity {short_form:'" + instance + "'}) OPTIONAL MATCH p=(n)-[:INSTANCEOF|SUBCLASSOF*..]->(x) "
       + "WHERE ('Anatomy' IN  labels(x)) OR (('Cell' IN  labels(x)) OR ('synaptic neuropil' IN labels(x))) "
       + " OR (('Ganglion' IN  labels(x)) OR ('Neuron_projection_bundle' IN labels(x))) "
       + "RETURN  n,p, n.short_form as root",
@@ -84,7 +84,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb.virtualflybrain.org/db/data/transaction/commit",
+  url: "https://pdb-dev.virtualflybrain.org/db/neo4j/tx/commit",
   contentType: "application/json"
 };
 

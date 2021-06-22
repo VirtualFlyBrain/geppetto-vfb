@@ -44,14 +44,14 @@ const buttonBarConfiguration = {
       "condition": "(function() { var visible = false; if ($instance$.isVisible != undefined) {visible=$instance$.isVisible(); } return visible; })()",
       "false": {
         "id": "visibility",
-        "actions": ["$instance$.show(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 1000)"],
+        "actions": ["$instance$.show();StackViewer1?.updateStackWidget()"],
         "icon": "fa-eye-slash",
         "label": "Hidden",
         "tooltip": "Show"
       },
       "true": {
         "id": "visibility",
-        "actions": ["$instance$.hide(); setTimeout(() => {if (StackViewer1!=undefined && StackViewer1.updateStackWidget!=undefined) { StackViewer1.updateStackWidget(); }}, 1000)"],
+        "actions": ["$instance$.hide(); StackViewer1?.updateStackWidget()"],
         "icon": "fa-eye",
         "label": "Visible",
         "tooltip": "Hide"
@@ -142,9 +142,9 @@ const linksConfiguration = {
   },
   // CircuitBrowser Links configuration, name of key "CircuitBrowser" must not be changed
   "CircuitBrowser": {
-    "title": "Circuit browser For",
+    "title": "Add Neuron to Circuit Browser",
     "visibility": true,
-    "superType": "hasSynapses"
+    "superType": "has_neuron_connectivity"
   }
 }
 
