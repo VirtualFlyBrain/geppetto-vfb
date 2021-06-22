@@ -12,7 +12,8 @@ import {
   UPDATE_CIRCUIT_QUERY,
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
-  VFB_LOAD_TERM_INFO
+  VFB_LOAD_TERM_INFO,
+  INVALID_ID
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -242,9 +243,11 @@ function generalReducer (state, action) {
     };
   case UPDATE_CIRCUIT_QUERY:
     var newQueryMap = [];
+    // Instance is array
     if ( Array.isArray(action.data.instance) ) {
       newQueryMap = action.data.instance;
     } else {
+      // Instance is object
       !state.ui.circuitBrowser.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
     }
     
@@ -321,10 +324,69 @@ function generalReducer (state, action) {
       instanceOnFocus : action.data.instance
     }
   case SHOW_LIST_VIEWER:
-    ui.layers.listViewerInfoVisible = true; 
+    ui.layers.listViewerInfoVisible = true;
     return {
       ...state,
       ui : ui
-    }    
+    }
+  case INVALID_ID:
+    var loading = false;
+    var stepsToLoad = 0;
+    var stepsLoaded = 0;
+    var idsLoaded = state.idsLoaded;
+    var newMap = { ...state.idsMap };
+
+    if (newMap[action.data.id] !== undefined){
+      idsLoaded++;
+      delete newMap[action.data.id];
+    }
+
+    for (let singleId in newMap) {
+      var instanceLoaded = true;
+      if (Object.keys(newMap[singleId].components).length === 0) {
+        stepsToLoad++;
+        loading = true;
+        instanceLoaded = false;
+      }
+
+      for (let singleComponent in newMap[singleId].components) {
+        if (newMap[singleId].components[singleComponent].loaded) {
+          stepsToLoad++;
+          stepsLoaded++;
+        } else {
+          stepsToLoad++;
+          loading = true;
+          instanceLoaded = false;
+        }
+      }
+
+      if (instanceLoaded) {
+        idsLoaded++;
+        delete newMap[action.data.id];
+      }
+    }
+
+    if (loading) {
+      return {
+        ...state,
+        idsMap: newMap,
+        loading: loading,
+        idsLoaded: idsLoaded,
+        stepsToLoad: stepsToLoad,
+        stepsLoaded: stepsLoaded
+      };
+    } else {
+      return {
+        ...state,
+        idsToLoad: 0,
+        idsLoaded: 0,
+        stepsToLoad: 0,
+        stepsLoaded: 0,
+        idsMap: newMap,
+        loading: loading,
+        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
+        idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
+      };
+    }
   }
 }

@@ -149,6 +149,11 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
+          "key": "has_neuron_connectivity",
+          "filter_name": "Neurons with Connectivity",
+          "enabled": "disabled",
+        },
+        {
           "key": "Synaptic_neuropil_domain",
           "filter_name": "Synaptic Neuropil",
           "enabled": "disabled",

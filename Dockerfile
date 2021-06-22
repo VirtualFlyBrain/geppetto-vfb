@@ -21,8 +21,8 @@ ARG ukAcVfbGeppettoRelease=pipeline2
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
-ARG VFB_PDB_SERVER_ARG=http://pdb.virtualflybrain.org
-ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.virtualflybrain.org
+ARG VFB_PDB_SERVER_ARG=http://pdb.v4.virtualflybrain.org
+ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.v4.virtualflybrain.org
 ARG VFB_OWL_SERVER_ARG=http://owl.virtualflybrain.org/kbs/vfb/
 ARG VFB_R_SERVER_ARG=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select

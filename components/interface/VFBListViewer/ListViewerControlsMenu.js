@@ -47,9 +47,15 @@ class ListViewerControlsMenu extends Component {
     switch (action.handlerAction){
     case ACTIONS.SHOW:
       this.props.instance.show();
+      if ( window["StackViewer1"] !== null ) {
+        window["StackViewer1"]?.updateStackWidget();
+      }
       break;
     case ACTIONS.HIDE:
       this.props.instance.hide();
+      if ( window["StackViewer1"] !== null ) {
+        window["StackViewer1"]?.updateStackWidget();
+      }
       break;
     case ACTIONS.SELECT:
       this.props.instance.select();
@@ -210,9 +216,9 @@ class ListViewerControlsMenu extends Component {
         button.list = list;
       }
       if (self.props.instance.isVisible()) {
-        button.icon.props.className = "fa fa-eye";
-      } else {
         button.icon.props.className = "fa fa-eye-slash";
+      } else {
+        button.icon.props.className = "fa fa-eye";
       }
     });
         
