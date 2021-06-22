@@ -7,10 +7,10 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " CALL gds.beta.shortestPath.yens.stream({"
       + "  nodeQuery: 'MATCH (n:Neuron) RETURN id(n) AS id',"
       + "  relationshipQuery: 'MATCH (a:Neuron:has_neuron_connectivity)-[r:synapsed_to]->(b:Neuron) WHERE exists(r.weight) AND r.weight[0] >= "
-      + weight.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
+      + weight?.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
-      + "  k: " + paths.toString() + ","
+      + "  k: " + paths?.toString() + ","
       + "  relationshipWeightProperty: 'weight_p',"
       + "  relationshipTypes: ['*'],"
       + "  path: true"
@@ -41,9 +41,9 @@ var configuration = {
     }
   },
   // Minimum amount of paths allowed
-  minHops : 1,
+  minPaths : 1,
   // Maximum amount of paths allowed
-  maxHops : 6,
+  maxPaths : 6,
   // Minimum amount of neurons allowed
   minNeurons : 2,
   // Maximum amount of neurons allowed

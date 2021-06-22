@@ -2,10 +2,18 @@
  * Converts graph data received from cypher query into a readable format for react-force-graph-2d
  */
 export function queryParser (e) {
+  // The nodes and links arrays used for the graph
+  let nodes = [], links = [];
   let graphData = e.data.params.results;
   console.log("Results ", e);
   // Reads graph data
-  let data = graphData.results[0].data;
+  let data = graphData?.results[0]?.data;
+  
+  if (data === undefined) {
+    this.postMessage({ resultMessage: "OK", params: { results: { nodes, links } } });
+    return;
+  }
+  
   // Read source and target node ids
   let sourceNodeID = data[0]?.row[4];
   let targetNodeID = data[0]?.row[5];
@@ -13,8 +21,6 @@ export function queryParser (e) {
   // Read relationship max hops
   let relationshipsHops = data[0]?.row[7];
   
-  // The nodes and links arrays used for the graph
-  let nodes = [], links = [];
   // Keeps track of links
   let linksMap = new Map();
   let allRelationships = new Map();
