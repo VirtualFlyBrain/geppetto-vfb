@@ -98,7 +98,7 @@ describe('VFB Term Info Component Tests', () => {
 					if ( tabs[i].innerText === "Term Info" ) {
 						tabs[i].click();
 					}
-				}				
+				}
 			});
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 		})
@@ -125,7 +125,7 @@ describe('VFB Term Info Component Tests', () => {
 					if ( tabs[i].innerText === "Term Info" ) {
 						tabs[i].click();
 					}
-				}				
+				}
 			});
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
@@ -155,9 +155,11 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
+			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
+			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
 			await page.evaluate(async () => document.querySelector(".terminfo-source a").click());
 			await page.waitFor(15000);
-			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
+			element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
 			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
 		})
 	})

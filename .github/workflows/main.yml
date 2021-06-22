@@ -5,7 +5,7 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push only. ToDo: handle pull requests for testing only
 on:
   push:
-    branches: '*'
+    branches: '**'
     tags: 'v*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -26,19 +26,20 @@ jobs:
       # Decide based on branch which servers to use
       - name: Pass branch
         id: branch
-        run: echo "::set-output name=value::${GITHUB_REF##*/}";
+        run: echo "::set-output name=value::${GITHUB_REF#refs/heads/}";
+            echo "::set-output name=clean::$(echo ${GITHUB_REF#refs/heads/} | sed 's@[/\\]@-@g')";
       - name: Setup local servers
         id: local-servers
         shell: bash
-        run: if [ "${GITHUB_REF##*/}" == master ] ; then
+        run: if [ "${GITHUB_REF#refs/heads/}" == master ] ; then
             echo "::debug::Set to master setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
-          elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] ; then
+          elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] ; then
             echo "::debug::Set to dev setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
@@ -46,7 +47,7 @@ jobs:
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::development";
-          elif [ "${GITHUB_REF##*/}" == alpha ] ; then
+          elif [ "${GITHUB_REF#refs/heads/}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
@@ -59,22 +60,22 @@ jobs:
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
           fi
       - name: Setup remote servers
         id: remote-servers
         shell: bash
-        run: if [ "${GITHUB_REF##*/}" == master ] ; then
+        run: if [ "${GITHUB_REF#refs/heads/}" == master ] ; then
             echo "::debug::Set to master setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb.virtualflybrain.org";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
-          elif [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] ; then
+          elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] ; then
             echo "::debug::Set to dev setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb-dev.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl-dev.virtualflybrain.org/kbs/vfb/";
@@ -82,7 +83,7 @@ jobs:
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
-          elif [ "${GITHUB_REF##*/}" == alpha ] ; then
+          elif [ "${GITHUB_REF#refs/heads/}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb-alpha.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl-alpha.virtualflybrain.org/kbs/vfb/";
@@ -92,14 +93,14 @@ jobs:
             echo "::set-output name=BUILD_TYPE::release";
           else 
             echo "::debug::Set to default setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.virtualflybrain.org";
+            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
           fi
-        
+      
       # Output the chosen servers
       - name: Used remote servers
         run: |
@@ -127,7 +128,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-local.wss"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-local.wss"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
@@ -146,7 +147,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.remote-servers.outputs.SOLR_SERVER }}
@@ -163,11 +164,14 @@ jobs:
         run: |
           echo "local:${{ steps.docker_build_local.outputs.digest }}"
           echo "remote:${{ steps.docker_build_remote.outputs.digest }}"
-                
+      
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       - name: Start VFB server
-        run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.value }}-remote";
+        run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
+            sleep 100;
+            docker logs testServer;
+            if [ $(docker logs testServer | grep "fixable with the " | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
       - name: Wait for VFB server to spin up
         run: |  
           export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
@@ -182,7 +186,7 @@ jobs:
       - name: Test under review  
         continue-on-error: true
         run: |
-          if [ "${GITHUB_REF##*/}" == debug ] || [ "${GITHUB_REF##*/}" == pipeline2 ] || [ "${GITHUB_REF##*/}" == vfb_geppetto_application ] || [ "${GITHUB_REF##*/}" == development ] || [[ "${GITHUB_REF##*/}" =~ ^(fix|feature).* ]] ; then
+          if [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [[ "${GITHUB_REF#refs/heads/}" =~ ^(fix|feature).* ]] ; then
             npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/review/.*js';
           fi
       - name: Stop VFB server   

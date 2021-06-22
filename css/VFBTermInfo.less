@@ -166,6 +166,7 @@
     background: transparent;
     cursor: pointer;
     font-family: 'Barlow Condensed', 'Khand', sans-serif;
+    pointer-events: none !important;
 }
 
 .Collapsible__trigger:after {
@@ -176,6 +177,7 @@
     top: 10px;
     display: block;
     transition: transform 300ms;
+    pointer-events: auto !important;
 }
 
 .Collapsible__trigger.is-open:after {

@@ -336,7 +336,7 @@ class VFBTermInfo extends React.Component {
       let graphs = new Array();
       for (var j = 0; j < values.length; j++) {
         graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
-          <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.id + "," + values[j].index }> 
+          <a style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.name + "," + values[j].instance.parent.id + "," + values[j].index }> 
             { "Show Circuit Browser for " + values[j].instance.parent.name }
           </a>
           <br/>
@@ -677,150 +677,160 @@ class VFBTermInfoWidget extends React.Component {
 
 
   customHandler (node, path, widget) {
-    // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
-    if (path.indexOf("[") == 0) {
-      var templateID = path.split(',')[0].replace('[','');
-      var instanceID = path.split(',')[1].replace(']','');
-      if (templateID != window.templateID) {
-        // open new window with the new template and the instance ID
-        window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
-        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-          if (window.EMBEDDED) {
-            var curHost = parent.document.location.host;
-            var curProto = parent.document.location.protocol;
+    try {
+      // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
+      if (path.indexOf("[") == 0) {
+        var templateID = path.split(',')[0].replace('[','');
+        var instanceID = path.split(',')[1].replace(']','');
+        if (templateID != window.templateID) {
+          // open new window with the new template and the instance ID
+          window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
+          if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+            if (window.EMBEDDED) {
+              var curHost = parent.document.location.host;
+              var curProto = parent.document.location.protocol;
+            } else {
+              var curHost = document.location.host;
+              var curProto = document.location.protocol;
+            }
+            var targetWindow = '_blank';
+            var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, instanceID).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);  
+            window.ga('vfb.send', 'event', 'opening', 'newtemplate', path);
+            window.open(newUrl, targetWindow);
           } else {
-            var curHost = document.location.host;
-            var curProto = document.location.protocol;
+            window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', path);
           }
-          var targetWindow = '_blank';
-          var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, instanceID).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);  
-          window.ga('vfb.send', 'event', 'opening', 'newtemplate', path);
-          window.open(newUrl, targetWindow);
+          // passing only the instance ID for processing 
+          path = instanceID;
         } else {
-          window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', path);
-        }
-        // passing only the instance ID for processing 
-        path = instanceID;
-      } else {
-        // as same template pass only the instance ID for processing 
-        path = instanceID;
-      }
-    }
-    if (path.indexOf(GRAPHS) === 0 ) {
-      // Show Graph
-      const { vfbGraph } = this.props;
-      /*
-       * Path contains the instance and the index of the drop down query options
-       * Path is of type : "instance_path, query_index"
-       */
-      vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
-      
-      // Notify VFBMain UI needs to be updated
-      this.props.uiUpdated();
-      return;
-    }
-    if (path.indexOf(CIRCUIT_BROWSER) === 0 ) {
-      // Show Circuit Browser
-      const { vfbCircuitBrowser } = this.props;
-      /*
-       * Path contains the instancE ID passed to the circuit browser
-       */
-      vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, path.split(',')[1], true);
-      
-      // Notify VFBMain UI needs to be updated
-      this.props.uiUpdated();
-      return;
-    }
-    var Query = require('@geppettoengine/geppetto-core/model/Query');
-    var otherId;
-    var otherName;
-    var target = widget;
-    var that = this;
-    var meta = path + "." + path + "_meta";
-    var n = window[meta];
-    if (n != undefined) {
-      var metanode = Instances.getInstance(meta);
-      if ((this.data.length > 0) && (this.data[0] == metanode)) {
-        for ( var i = 0, nodePresent = false; i < this.data.length; i++) {
-          if (this.data[i].getId() === metanode.getId()) {
-            nodePresent = true;
-            this.data.unshift(this.data.splice(i, 1)[0]);
-          }
-        }
-        if (nodePresent === false) {
-          this.data.unshift(metanode);
+          // as same template pass only the instance ID for processing 
+          path = instanceID;
         }
       }
-      this.setTermInfo(metanode, metanode.name);
-      window.resolve3D(path);
-    } else {
-      // check for passed ID:
-      if (path.indexOf(',') > -1) {
-        otherId = path.split(',')[1];
-        otherName = path.split(',')[2];
-        path = path.split(',')[0];
-      } else {
-        if (this.data.length) {
-          otherId = this.data[0].getParent();
-        } else {
-          otherId = this.data.getParent();
-        }
-        otherName = otherId.name;
-        otherId = otherId.id;
+      if (path.indexOf(GRAPHS) === 0 ) {
+        // Show Graph
+        const { vfbGraph } = this.props;
+        /*
+         * Path contains the instance and the index of the drop down query options
+         * Path is of type : "instance_path, query_index"
+         */
+        vfbGraph(SHOW_GRAPH, Instances.getInstance(path.split(',')[1]), path.split(',')[2], true, true);
+        
+        // Notify VFBMain UI needs to be updated
+        this.props.uiUpdated();
+        return;
       }
-      // try to evaluate as path in Model
-      var entity = Model[path];
-      if (typeof (entity) != 'undefined' && entity instanceof Query) {
-        // clear query builder unless ctrl pressed them add to compound.
-        console.log('Query requested: ' + path + " " + otherName);
-        GEPPETTO.trigger('spin_logo');
+      if (path.indexOf(CIRCUIT_BROWSER) === 0 ) {
+        // Show Circuit Browser
+        const { vfbCircuitBrowser } = this.props;
+        const selectedQuery = { label : path.split(',')[1] + " (" + path.split(',')[2] + ")" , id : path.split(',')[2] };
+        /*
+         * Path contains the instancE ID passed to the circuit browser
+         */
+        vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, selectedQuery, true);
+        
+        // Notify VFBMain UI needs to be updated
+        this.props.uiUpdated();
+        return;
+      }
+      var Query = require('@geppettoengine/geppetto-core/model/Query');
+      var otherId;
+      var otherName;
+      var target = widget;
+      var that = this;
+      var meta = path + "." + path + "_meta";
+      var n = window[meta];
 
-        this.props.queryBuilder.open();
-        this.props.queryBuilder.switchView(false, false);
-        if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
-          console.log('Query stacking requested.');
+      if (n != undefined) {
+        var metanode = Instances.getInstance(meta);
+        if ((this.data.length > 0) && (this.data[0] == metanode)) {
+          for ( var i = 0, nodePresent = false; i < this.data.length; i++) {
+            if (this.data[i].getId() === metanode.getId()) {
+              nodePresent = true;
+              this.data.unshift(this.data.splice(i, 1)[0]);
+            }
+          }
+          if (nodePresent === false) {
+            this.data.unshift(metanode);
+          }
+        }
+        this.setTermInfo(metanode, metanode.name);
+        window.resolve3D(path);
+      } else {
+        // check for passed ID:
+        if (path.indexOf(',') > -1) {
+          otherId = path.split(',')[1];
+          otherName = path.split(',')[2];
+          path = path.split(',')[0];
         } else {
-          this.props.queryBuilder.clearAllQueryItems();
+          if (this.data.length) {
+            otherId = this.data[0].getParent();
+          } else {
+            otherId = this.data.getParent();
+          }
+          otherName = otherId.name;
+          otherId = otherId.id;
+        }
+        // try to evaluate as path in Model
+        var entity = Model[path];
+        if (typeof (entity) != 'undefined' && entity instanceof Query) {
+          // clear query builder unless ctrl pressed them add to compound.
+          console.log('Query requested: ' + path + " " + otherName);
+          GEPPETTO.trigger('spin_logo');
+
+          this.props.queryBuilder.open();
+          this.props.queryBuilder.switchView(false, false);
+          if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
+            console.log('Query stacking requested.');
+          } else {
+            this.props.queryBuilder.clearAllQueryItems();
+            $('#add-new-query-container')[0].hidden = true;
+            $('#query-builder-items-container')[0].hidden = true;
+          }
+          $("body").css("cursor", "progress");
+
+
           $('#add-new-query-container')[0].hidden = true;
           $('#query-builder-items-container')[0].hidden = true;
-        }
-        $("body").css("cursor", "progress");
 
-
-        $('#add-new-query-container')[0].hidden = true;
-        $('#query-builder-items-container')[0].hidden = true;
-
-        var callback = function () {
-          // check if any results with count flag
-          if (that.props.queryBuilder.props.model.count > 0) {
-            // runQuery if any results
-            that.props.queryBuilder.runQuery();
+          var callback = function () {
+            // check if any results with count flag
+            if (that.props.queryBuilder.props.model.count > 0) {
+              // runQuery if any results
+              that.props.queryBuilder.runQuery();
+            } else {
+              that.props.queryBuilder.switchView(false);
+            }
+            // show query component
+            that.props.queryBuilder.open();
+            $("body").css("cursor", "default");
+            GEPPETTO.trigger('stop_spin_logo');
+          };
+          // add query item + selection
+          if (window[otherId] == undefined) {
+            window.fetchVariableThenRun(otherId, function () {
+              that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
+            });
           } else {
-            that.props.queryBuilder.switchView(false);
+            setTimeout(function () {
+              that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
+            }, 100);
           }
-          // show query component
-          that.props.queryBuilder.open();
-          $("body").css("cursor", "default");
-          GEPPETTO.trigger('stop_spin_logo');
-        };
-        // add query item + selection
-        if (window[otherId] == undefined) {
-          window.fetchVariableThenRun(otherId, function () {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
-          });
         } else {
-          setTimeout(function () {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
-          }, 100);
+          Model.getDatasources()[0].fetchVariable(path, function () {
+            var m = Instances.getInstance(meta);
+            this.setTermInfo(m, m.name);
+            window.addVfbId(path);
+          }.bind(this));
         }
-      } else {
-        Model.getDatasources()[0].fetchVariable(path, function () {
-          var m = Instances.getInstance(meta);
-          this.setTermInfo(m, m.name);
-          window.addVfbId(path);
-        }.bind(this));
       }
+    } catch (e) {
+      // error handling link
+      console.error("Issue loading: " + path);
+      console.error(e.message);
+      console.trace();
     }
+    return;
   }
 
   componentDidUpdate () {
@@ -877,7 +887,7 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return { 
-    vfbCircuitBrowser: (type, path, visible) => dispatch ( { type : type, data : { instance : path, visible : visible } }),
+    vfbCircuitBrowser: (type, instance, visible) => dispatch ( { type : type, data : { instance : instance, visible : visible } }),
     vfbGraph: (type, path, index, visible, sync) => dispatch ( { type : type, data : { instance : path, queryIndex : index, visible : visible, sync : sync } })
   }
 }

@@ -105,6 +105,22 @@ export const closeModalWindow = async (page) => {
 	});
 }
 
+export const setTextFieldValue = async(selector, value) => {
+  await page.evaluate( (selector, value) =>
+    {
+      var element = document.querySelector(selector);
+      let lastValue = element.value;
+      element.value = value;
+      let event = new Event('input', { bubbles: true });
+      event.simulated = true;
+      let tracker = element._valueTracker;
+      if (tracker) {
+        tracker.setValue(lastValue);
+      }
+      element.dispatchEvent(event);
+    }, selector, value)
+}
+
 export const flexWindowClick = async (title, selector) => {
 	await page.evaluate((title, selector) => {
 		if (document.getElementsByClassName("flexlayout__tab_button_content")  != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length > 0) {
