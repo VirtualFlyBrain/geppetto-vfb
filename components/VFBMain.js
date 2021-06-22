@@ -37,7 +37,7 @@ class VFBMain extends React.Component {
       canvasVisible: true,
       listViewerVisible: true,
       graphVisible : true,
-      circuitBrowserVisible : false,
+      circuitBrowserVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -230,7 +230,8 @@ class VFBMain extends React.Component {
         meta = Instances.getInstance(variableIds[singleId] + '.' + variableIds[singleId] + '_meta');
       } catch (e) {
         console.log('Instance for ' + variableIds[singleId] + '.' + variableIds[singleId] + '_meta' + ' does not exist in the current model');
-        this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+        this.props.invalidIdLoaded(variableIds[singleId])
+        // this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
       if (this.hasVisualType(variableIds[singleId])) {
@@ -1022,6 +1023,10 @@ class VFBMain extends React.Component {
     } else if (component === "vfbCircuitBrowser") {
       let circuitBrowserVisibility = node.isVisible();
       node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          circuitBrowserVisible: false
+        });
         self.props.vfbCircuitBrowser(ACTIONS.UPDATE_CIRCUIT_QUERY,null,false);
       });
       

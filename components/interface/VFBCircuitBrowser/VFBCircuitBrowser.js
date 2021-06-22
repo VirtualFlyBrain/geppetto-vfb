@@ -56,8 +56,9 @@ class VFBCircuitBrowser extends Component {
       loading : true,
       queryLoaded : false,
       dropDownAnchorEl : null,
-      neurons : ["", ""],
+      neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      weight : 0,
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
@@ -66,8 +67,10 @@ class VFBCircuitBrowser extends Component {
     this.resetCamera = this.resetCamera.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.clearGraph = this.clearGraph.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
-    this.updateHops = this.updateHops.bind(this);
+    this.updatePaths = this.updatePaths.bind(this);
+    this.updateWeight = this.updateWeight.bind(this);
     this.resize = this.resize.bind(this);
     
     this.highlightNodes = new Set();
@@ -75,6 +78,7 @@ class VFBCircuitBrowser extends Component {
     this.hoverNode = null;
 
     this.graphRef = React.createRef();
+    this.controlsRef = React.createRef();
     this.__isMounted = false;
     this.objectsLoaded = 0;
     this.focused = false;
@@ -86,7 +90,7 @@ class VFBCircuitBrowser extends Component {
   componentDidMount () {
     let self = this;
     this.__isMounted = true;
-    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxHops - configuration.minHops) / 2));
+    this.updateGraph(this.state.neurons , Math.ceil((configuration.maxPaths - configuration.minPaths) / 2), this.state.weight);
     const { circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
   }
@@ -118,22 +122,25 @@ class VFBCircuitBrowser extends Component {
    */
   queriesUpdated (neurons) {
     // Check if new list of neurons is the same as the ones already rendered on last update
-    var is_same = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
-      return element === neurons[index]; 
+    var matched = (this.state.neurons.length == neurons.length) && this.state.neurons.every(function (element, index) {
+      return element.id === neurons[index].id; 
     });
     
     // Request graph update if the list of new neurons is not the same
-    if ( !this.state.loading && !is_same ) {
-      this.updateGraph(neurons, this.state.hops);
+    if ( !this.state.loading && !matched ) {
+      this.updateGraph(neurons, this.state.paths, this.state.weight);
     }
   }
   
   /**
-   * Hops in controls component have been updated, request new graph with updated amount of hops
+   * Paths in controls component have been updated, request new graph with updated amount of paths
    */
-  updateHops (hops) {
-    this.setState({ hops : hops });
-    this.updateGraph(this.state.neurons, hops);
+  updatePaths (paths) {
+    this.setState({ paths : paths });
+  }
+  
+  updateWeight (weight) {
+    this.setState({ weight : weight });
   }
 
   resetCamera () {
@@ -165,11 +172,20 @@ class VFBCircuitBrowser extends Component {
     }
     this.graphRef.current.ggv.current.zoom(zoom - out , 100);
   }
+  
+  clearGraph () {
+    this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
+    this.controlsRef.current.setNeurons()
+  }
 
   /**
    * Handle Left click on Nodes
    */
   handleNodeLeftClick (node, event) {
+    window.addVfbId(node.title);
+  }
+  
+  handleNodeRightClick (node, event) {
     this.graphRef.current.ggv.current.centerAt(node.x , node.y, 1000);
     this.graphRef.current.ggv.current.zoom(2, 1000);
   }
@@ -177,12 +193,12 @@ class VFBCircuitBrowser extends Component {
   /**
    * Re-render graph with a new instance
    */
-  updateGraph (neurons, hops) {
+  updateGraph (neurons, paths, weight) {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true , neurons : neurons, hops : hops, queryLoaded : false });
-      // Perform cypher query
-      this.queryResults(cypherQuery(neurons.map(d => `'${d}'`).join(','), hops));
+      this.setState({ loading : true , neurons : neurons ? neurons : this.state.neurons, paths : paths ? paths : this.state.paths, weight : weight ? weight : this.state.weight, queryLoaded : false });
+      // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
+      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, paths ? paths : this.state.paths, weight ? weight : this.state.weight));
     }
   }    
 
@@ -229,11 +245,18 @@ class VFBCircuitBrowser extends Component {
         }
       };
 
+      let params = {
+        results: response.data,
+        configuration : configuration,
+        styling : stylingConfiguration,
+        hops : self.state.hops,
+        NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
+      }
+      
       // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: { results: response.data, configuration : configuration, styling : stylingConfiguration, NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT } });
+      worker.postMessage({ message: "refine", params: params });
     })
       .catch( function (error) {
-        console.log("HTTP Request Error: ", error);
         self.setState( { loading : false } );
       })
   }
@@ -259,6 +282,14 @@ class VFBCircuitBrowser extends Component {
     }
     context.fillText(line, x, y);
   }
+  
+  // Calculate link middle point
+  getQuadraticXY (t, sx, sy, cp1x, cp1y, ex, ey) {
+    return {
+      x: (1 - t) * (1 - t) * sx + 2 * (1 - t) * t * cp1x + t * t * ex,
+      y: (1 - t) * (1 - t) * sy + 2 * (1 - t) * t * cp1y + t * t * ey,
+    };
+  }
 
   render () {
     let self = this;
@@ -268,8 +299,8 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
-    if ( this.state.neurons[0] != "" && this.state.neurons[1] != "" ){
-      errorMessage = "Graph not available for " + this.state.neurons.join(",");
+    if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
+      errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
       this.state.loading
@@ -279,11 +310,13 @@ class VFBCircuitBrowser extends Component {
           ? <div>
             <h4 className={classes.errorMessage}>{errorMessage}</h4>
             <Controls
-              queriesUpdated={self.queriesUpdated}
-              updateHops={self.updateHops}
+              updateGraph={self.updateGraph}
+              updatePaths={self.updatePaths}
+              updateWeight={self.updateWeight}
               neurons={this.state.neurons}
               queryLoaded={this.state.queryLoaded}
-              hops={this.state.hops}
+              paths={this.state.paths}
+              weight={this.state.weight}
               resultsAvailable={ () => this.state.graph.nodes.length > 0 }
               resetCamera={self.resetCamera}
               zoomIn={self.zoomIn}
@@ -291,6 +324,8 @@ class VFBCircuitBrowser extends Component {
               circuitQuerySelected={this.circuitQuerySelected}
               datasource="SOLR"
               legend = {self.state.legend}
+              ref={self.controlsRef}
+              clearGraph={self.clearGraph}
             />
           </div>
           : <GeppettoGraphVisualization
@@ -299,12 +334,78 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            // Node label, used in tooltip when hovering over Node
             nodeLabel={node => node.path}
+            // Relationship label, placed in Link
+            linkLabel={link => link.label}
+            // Width of links, log(weight)
+            linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
+            linkCurvature={ configuration.linkCurvature }
+            linkDirectionalArrowLength={link => link.weight ? Math.max(10, Math.log(link.weight) * 5) : 2}
+            linkDirectionalArrowRelPos={.75}
+            // Node label, used in tooltip when hovering over Node
+            linkCanvasObjectMode={() => "after"}
+            linkCanvasObject={(link, ctx) => {
+              const MAX_FONT_SIZE = 8;
+              const LABEL_NODE_MARGIN = 1 * 1.5;
+
+              const start = link.source;
+              const end = link.target;
+              
+              // ignore unbound links
+              if (typeof start !== 'object' || typeof end !== 'object') {
+                return;
+              }
+              
+              // calculate label positioning
+              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
+
+              if (link?.__controlPoints ) {
+                textPos = this.getQuadraticXY(
+                  .3,
+                  start.x,
+                  start.y,
+                  link?.__controlPoints[0],
+                  link?.__controlPoints[1],
+                  end.x,
+                  end.y
+                );
+              }
+              const relLink = { x: end.x - start.x, y: end.y - start.y };
+
+              const maxTextLength = Math.sqrt(Math.pow(relLink.x, 2) + Math.pow(relLink.y, 2)) - LABEL_NODE_MARGIN * 2;
+
+              let textAngle = Math.atan2(relLink.y, relLink.x);
+              // maintain label vertical orientation for legibility
+              if (textAngle > Math.PI / 2) {
+                textAngle = -(Math.PI - textAngle);
+              }
+              if (textAngle < -Math.PI / 2) {
+                textAngle = -(-Math.PI - textAngle);
+              }
+
+              const label = link.weightLabel;
+
+              // estimate fontSize to fit in link length
+              const fontSize = MAX_FONT_SIZE;
+              ctx.font = `${fontSize}px Sans-Serif`;
+              const textWidth = ctx.measureText(label).width;
+              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+              // draw text label (with background rect)
+              ctx.save();
+              ctx.translate(textPos.x,textPos.y);
+              ctx.rotate(textAngle);
+              ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+              ctx.fillRect(- bckgDimensions[0] / 2, - bckgDimensions[1] / 2, ...bckgDimensions);
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillStyle = 'white';
+              ctx.setLineDash([5, 5]);
+              ctx.fillText(label, 0, 0);
+              ctx.restore();
+            }}
             nodeRelSize={20}
             nodeSize={30}
-            // Relationship label, placed in Link
-            linkLabel={link => link.name}
             // Assign background color to Canvas
             backgroundColor = {stylingConfiguration.canvasColor}
             // Assign color to Links connecting Nodes
@@ -351,44 +452,52 @@ class VFBCircuitBrowser extends Component {
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
-            dagLevelDistance = {100}
+            nodeVal = { node => {
+              node.fx = node.positionX;
+              node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
+            }}
+            dagLevelDistance = {25}
+            onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
+            // Handles clicking event on an individual node
+            onNodeRightClick = { (node,event) => this.handleNodeRightClick(node,event) }
             ref={this.graphRef}
             // Disable dragging of nodes
             enableNodeDrag={false}
             // Allow camera pan and zoom with mouse
             enableZoomPanInteraction={true}
-            // Width of links
-            linkWidth={1.25}
             controls = {
               <Controls
-                queriesUpdated={self.queriesUpdated}
-                updateHops={self.updateHops}
+                updateGraph={self.updateGraph}
+                updatePaths={self.updatePaths}
+                updateWeight={self.updateWeight}
                 neurons={this.state.neurons}
                 queryLoaded={this.state.queryLoaded}
-                hops={this.state.hops}
+                paths={this.state.paths}
+                weight={this.state.weight}
                 resultsAvailable={ () => this.state.graph.nodes.length > 0 }
                 resetCamera={self.resetCamera}
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
+                clearGraph={self.clearGraph}
                 circuitQuerySelected={this.circuitQuerySelected}
-                datasource="SOLR"
                 legend = {self.state.legend}
+                ref={self.controlsRef}
               />
             }
             // Function triggered when hovering over a nodeoptions
             onNodeHover={node => {
             // Reset maps of hover nodes and links
-              self.highlightNodes.clear();
-              self.highlightLinks.clear();
+              self.highlightNodes?.clear();
+              self.highlightLinks?.clear();
 
               // We found the node that we are hovering over
               if (node) {
               // Keep track of hover node, its neighbors and links
-                self.highlightNodes.add(node);
-                node.neighbors.forEach(neighbor => self.highlightNodes.add(neighbor));
-                node.links.forEach(link => self.highlightLinks.add(link));
+                self.highlightNodes?.add(node);
+                node?.neighbors?.forEach(neighbor => self?.highlightNodes?.add(neighbor));
+                node?.links?.forEach(link => self?.highlightLinks?.add(link));
               }
 
               // Keep track of hover node
