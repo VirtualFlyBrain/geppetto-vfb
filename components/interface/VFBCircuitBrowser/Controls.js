@@ -320,7 +320,6 @@ class Controls extends Component {
       neurons.push({ id : target.value, label : target.value });
     }
       
-    // this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     this.neuronFields = neurons;
     getResultsSOLR( target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
@@ -346,7 +345,7 @@ class Controls extends Component {
     let neurons = this.neuronFields;
     let textFieldId = event.target.id.toString().split("-")[0];
     let shortForm = this.autocompleteRef[textFieldId].current.getFilteredResults()[value] && this.autocompleteRef[textFieldId].current.getFilteredResults()[value].short_form;
-    neurons[indexx] = { id : shortForm, label : value };
+    neurons[index] = { id : shortForm, label : value };
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -374,6 +373,7 @@ class Controls extends Component {
     while (this?.props?.circuitQuerySelected.length > 0) {
       this?.props?.circuitQuerySelected.pop();
     }
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, [])
     this.setState({ key: Math.random() });
   }
   /**
@@ -398,7 +398,7 @@ class Controls extends Component {
         }
         
         if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && this.props.circuitQuerySelected?.[i]?.id != "") {
-          if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
+          if ( this.props.circuitQuerySelected !== "" ) {
             neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] });
           } 
         }

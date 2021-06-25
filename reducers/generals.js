@@ -247,11 +247,10 @@ function generalReducer (state, action) {
       newQueryMap = action.data.instance;
     } else {
       // Instance is object
-      !state.ui.circuitBrowser.circuitQuerySelected.includes(action.data.instance)
-        ? 
-        newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance]
-        :
-        newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
+      let match = state.ui.circuitBrowser.circuitQuerySelected?.find( query => query.id === action.data.instance.id );
+      match
+        ? newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected]
+        : newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance]
     }
     
     ui.circuitBrowser.circuitQuerySelected = newQueryMap;
