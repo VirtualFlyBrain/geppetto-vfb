@@ -723,7 +723,7 @@ class VFBTermInfoWidget extends React.Component {
       if (path.indexOf(CIRCUIT_BROWSER) === 0 ) {
         // Show Circuit Browser
         const { vfbCircuitBrowser } = this.props;
-        const selectedQuery = { label : path.split(',')[1] + "(" + path.split(',')[2] + ")" , id : path.split(',')[2] };
+        const selectedQuery = { label : path.split(',')[1] + " (" + path.split(',')[2] + ")" , id : path.split(',')[2] };
         /*
          * Path contains the instancE ID passed to the circuit browser
          */
