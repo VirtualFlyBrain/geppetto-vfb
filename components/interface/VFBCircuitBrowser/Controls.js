@@ -186,6 +186,7 @@ class AutocompleteResults extends Component {
             key={this.props.field.id}
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
+            onDelete={this.props.neuronTextfieldModified}
             inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
           />
@@ -328,13 +329,31 @@ class Controls extends Component {
    * Neuron text field has been modified.
    */
   neuronTextfieldModified (event) {
+    console.log(event.key);
     this.resultsHeight = event.target.offsetTop + 15;
     // Remove old typing timeout interval
     if (this.state.typingTimeout) {
       clearTimeout(this.typingTimeout);
     }
-    // Create a setTimeout interval, to avoid performing searches on every stroke
-    setTimeout(this.typingTimeout, 10, event.target);
+    
+    this.setInputValue = event.target.id;
+    if ( event.target.id.id === "" ) {
+      this.setInputValue = event.target.parentElement.id;
+    }
+    let neurons = this.neuronFields;
+
+    if ( neurons[parseInt(event.target.id)] ) {
+      neurons[parseInt(event.target.id)] = { id : event.target.value, label : event.target.value };
+    } else {
+      neurons.push({ id : event.target.value, label : event.target.value });
+    }
+    
+    if ( event?.nativeEvent?.inputType === "deleteContentBackward" && neurons?.find( (neuron, index) => neuron.id === "" && index.toString() === event.target.id )){
+      this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    } else {
+      getResultsSOLR( event.target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
+    }
+    this.neuronFields = neurons;
   }
   
   /**
@@ -388,13 +407,15 @@ class Controls extends Component {
       );
 
       if ( !fieldExists) { 
-        for ( var j = 0 ; j < neuronFields.length ; j++ ) {
-          if ( neuronFields?.[j].id === "" ) {
-            neuronFields[j] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
-            added = true;
-            fieldExists = true;
-            break;
-          }
+        const emptyIndex = neuronFields.findIndex( field => field.id === "");
+        if ( emptyIndex >= 0 ) {
+          neuronFields[emptyIndex] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
+          added = true;
+          fieldExists = true;
+          break;
+        } else {
+          neuronFields.pop();
+          neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] })
         }
         
         if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && this.props.circuitQuerySelected?.[i]?.id != "") {
