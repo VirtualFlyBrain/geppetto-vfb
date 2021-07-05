@@ -299,7 +299,7 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
-    if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
+    if ( this.state.neurons?.[0]?.id != "" && this.state.neurons?.[1]?.id != "" ){
       errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
@@ -321,11 +321,12 @@ class VFBCircuitBrowser extends Component {
               resetCamera={self.resetCamera}
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
-              circuitQuerySelected={this.circuitQuerySelected}
+              circuitQuerySelected={circuitQuerySelected}
               datasource="SOLR"
               legend = {self.state.legend}
               ref={self.controlsRef}
               clearGraph={self.clearGraph}
+              key="controls"
             />
           </div>
           : <GeppettoGraphVisualization
