@@ -1344,7 +1344,7 @@ class VFBMain extends React.Component {
       } else if (idList[list].indexOf("q=") > -1) {
         const multipleQueries = idList[list].replace("q=","").replace("%20", " ").split(";");
         let that = this;
-        multipleQueries?.forEach((query) => { 
+        multipleQueries?.forEach( query => { 
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
         });
@@ -1402,19 +1402,23 @@ class VFBMain extends React.Component {
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
-        if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0) {
-        	// runQuery if any results
-            that.refs.querybuilderRef.runQuery();
-        }
-        // check if any results with count flag
-        else if (that.urlQueryLoader.length > 0 && that.refs.querybuilderRef.props.model.count > 0) {
+        if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
+          // runQuery if any results
+          that.refs.querybuilderRef.runQuery();
+        } else if (that.urlQueryLoader.length > 0 && that.refs.querybuilderRef.props.model.count > 0) {
+          // Remove query from stack, and perform the next query
           that.urlQueryLoader.shift();
           const query = that.urlQueryLoader[0];
+          // Fetch variable and addQuery, if no more queries left then run query.
           query
-            ? window.fetchVariableThenRun(query.id, function () {
+            ? window[query.id] === undefined 
+              ? window.fetchVariableThenRun(query.id, function () {
                 that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
               })
-            : that.refs.querybuilderRef.runQuery();
+              : that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
+            : that.refs.querybuilderRef.props.model.count > 0
+              ? that.refs.querybuilderRef.runQuery()
+              : null
         } else {
           that.refs.querybuilderRef.switchView(false);
         }
