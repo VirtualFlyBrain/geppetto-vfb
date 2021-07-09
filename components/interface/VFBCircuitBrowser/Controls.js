@@ -104,12 +104,12 @@ const styles = theme => ({
   refreshButton : {
     backgroundColor : "#0AB7FE",
     flexBasis: "100%",
-    fontWeight : 600
+    fontWeight : 600,
   },
   clearButton : {
     backgroundColor : "#E53935",
     flexBasis: "100%",
-    fontWeight : 600
+    fontWeight : 600,
   }
 });
 
@@ -583,6 +583,7 @@ class Controls extends Component {
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
                       variant="contained"
+                      color="primary"
                       classes={{ root : classes.refreshButton }}
                       id="refreshCircuitBrowser"
                       onClick={() => this.props.updateGraph(this.neuronFields, this.hops, this.weight)}
@@ -591,6 +592,7 @@ class Controls extends Component {
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
                       variant="contained"
+                      color="secondary"
                       classes={{ root : classes.clearButton }}
                       id="clearCircuitBrowser"
                       onClick={() => this.props.clearGraph()}
