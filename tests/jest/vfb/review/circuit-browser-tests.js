@@ -39,7 +39,7 @@ describe('VFB Circuit Browser Tests', () => {
 			await selectTab(page, "Term Info");
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 90 * ONE_SECOND });
+			await wait4selector(page, '#circuitBrowserLink', { visible: true, timeout : 150 * ONE_SECOND });
 		})
 		
 		it('Open Circuit Browser from Term Info with ID : VFB_jrchjrch', async () => {
@@ -50,7 +50,7 @@ describe('VFB Circuit Browser Tests', () => {
 
 			await page.waitFor(ONE_SECOND);
 			const neuron1Input =  await page.evaluate( () => document.querySelector(".neuron1 input").value)
-		    expect(neuron1Input).toBe("5-HTPLP01_R (FlyEM-HB:1324365879)(VFB_jrchjrch)");
+		    expect(neuron1Input).toBe("5-HTPLP01_R (FlyEM-HB:1324365879) (VFB_jrchjrch)");
 		})
 		
 		it('Set Neuron 2, VFB_jrchjsfu', async () => {
