@@ -100,7 +100,17 @@ const styles = theme => ({
     backgroundColor: "#80808040 !important",
     paddingLeft : "10px !important"
   },
-  weightInputDiv : { width : "100% !important" }
+  weightInputDiv : { width : "100% !important" },
+  refreshButton : {
+    backgroundColor : "#0AB7FE",
+    flexBasis: "100%",
+    fontWeight : 600,
+  },
+  clearButton : {
+    backgroundColor : "#E53935",
+    flexBasis: "100%",
+    fontWeight : 600,
+  }
 });
 
 /**
@@ -572,18 +582,18 @@ class Controls extends Component {
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
-                      color="primary"
                       variant="contained"
-                      className="MuiGrid-grid-sm-12"
+                      color="primary"
+                      classes={{ root : classes.refreshButton }}
                       id="refreshCircuitBrowser"
                       onClick={() => this.props.updateGraph(this.neuronFields, this.hops, this.weight)}
                     >Refresh</Button>  
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
-                      color="secondary"
                       variant="contained"
-                      className="MuiGrid-grid-sm-12"
+                      color="secondary"
+                      classes={{ root : classes.clearButton }}
                       id="clearCircuitBrowser"
                       onClick={() => this.props.clearGraph()}
                     >Clear</Button>  
