@@ -57,7 +57,7 @@ class VFBCircuitBrowser extends Component {
       queryLoaded : false,
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
-      hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
       weight : 0,
       reload : false
     }
@@ -249,7 +249,7 @@ class VFBCircuitBrowser extends Component {
         results: response.data,
         configuration : configuration,
         styling : stylingConfiguration,
-        hops : self.state.hops,
+        paths : self.state.paths,
         NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
       }
       
