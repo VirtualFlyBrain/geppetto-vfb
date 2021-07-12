@@ -1431,12 +1431,12 @@ class VFBMain extends React.Component {
       // Initial queries specified on URL
       if (that.urlQueryLoader !== undefined) {
         if (window[that.urlQueryLoader[0]] == undefined) {
-          window.fetchVariableThenRun(that.urlQueryLoader[0].id, function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0].id, queryObj: Model[that.urlQueryLoader[0].selection] }, callback)
+          that.urlQueryLoader[0]?.id && window.fetchVariableThenRun(that.urlQueryLoader[0]?.id, function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
           });
         } else {
           setTimeout(function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0].id, queryObj: Model[that.urlQueryLoader[0].selection] }, callback);
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
           }, 100);
         }
       }
