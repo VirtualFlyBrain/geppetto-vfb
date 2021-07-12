@@ -586,7 +586,7 @@ class Controls extends Component {
                       color="primary"
                       classes={{ root : classes.refreshButton }}
                       id="refreshCircuitBrowser"
-                      onClick={() => this.props.updateGraph(this.neuronFields, this.hops, this.weight)}
+                      onClick={() => this.props.updateGraph(this.neuronFields, this.paths, this.weight)}
                     >Refresh</Button>  
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
