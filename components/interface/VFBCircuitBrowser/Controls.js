@@ -471,7 +471,7 @@ class Controls extends Component {
                 <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li>
               ))
               }
-              <li>WEIGHT -Forward [Reverse]&#rarr;</li>
+              <li>WEIGHT -Forward [Reverse]→</li>
             </ul>
             : null
           }
