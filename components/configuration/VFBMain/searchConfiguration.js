@@ -139,6 +139,11 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
+          "key": "Split",
+          "filter_name": "Split",
+          "enabled": "disabled",
+        },
+        {
           "key": "Expression_pattern",
           "filter_name": "Expression Pattern",
           "enabled": "disabled",
