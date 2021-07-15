@@ -337,7 +337,7 @@ class VFBTermInfo extends React.Component {
       for (var j = 0; j < values.length; j++) {
         graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
           <a id="circuitBrowserLink" style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.name + "," + values[j].instance.parent.id + "," + values[j].index }>
-            { "Show Circuit Browser for " + values[j].instance.parent.name }
+            { "Add " + values[j].instance.parent.name + " to Circuit Browser Query" }
           </a>
           <br/>
         </div>
