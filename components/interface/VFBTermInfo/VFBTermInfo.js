@@ -792,7 +792,7 @@ class VFBTermInfoWidget extends React.Component {
            *  Fire event to set the Shift key as not pressed, this is needed since the presence of the 
            *  confirm() dialog prevents the DOM to un-set the 'shift' key.
            */
-          var e = new KeyboardEvent('keyup',  {bubbles : true, cancelable : true, shiftKey : false});
+          var e = new KeyboardEvent('keyup', { bubbles : true, cancelable : true, shiftKey : false });
           document.querySelector("body").dispatchEvent(e);
           
           $("body").css("cursor", "progress");
