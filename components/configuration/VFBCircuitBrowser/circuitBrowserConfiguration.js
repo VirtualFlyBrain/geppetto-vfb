@@ -18,7 +18,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
-      + " OPTIONAL MATCH cp=(x)-[:synapsed_to]-(y) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
+      + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
       + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY ",
       "resultDataContents": ["row", "graph"]
     }
