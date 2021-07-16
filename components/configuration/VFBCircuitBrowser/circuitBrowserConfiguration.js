@@ -24,6 +24,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     }
   ]
 });
+// See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
 
 var configuration = {
   resultsMapping:
