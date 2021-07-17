@@ -110,7 +110,8 @@ const styles = theme => ({
     backgroundColor : "#E53935",
     flexBasis: "100%",
     fontWeight : 600,
-  }
+  },
+  slider : { color: '#0AB7FE' }
 });
 
 /**
@@ -571,6 +572,7 @@ class Controls extends Component {
                       valueLabelDisplay="auto"
                       min={configuration.minPaths}
                       max={configuration.maxPaths}
+                      classes={{ root : classes.slider }}
                     />  
                   </Grid>
                 </Grid>
