@@ -250,6 +250,7 @@ class VFBCircuitBrowser extends Component {
         configuration : configuration,
         styling : stylingConfiguration,
         paths : self.state.paths,
+        weight : self.state.weight,
         NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
       }
       
@@ -455,7 +456,7 @@ class VFBCircuitBrowser extends Component {
             dagMode="lr"
             nodeVal = { node => {
               node.fx = node.positionX;
-              node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
+              node.fy = -100 * node.level
             }}
             dagLevelDistance = {25}
             onDagError={loopNodeIds => {}}

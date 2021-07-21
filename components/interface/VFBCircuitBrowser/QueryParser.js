@@ -5,6 +5,7 @@ export function queryParser (e) {
   // The nodes and links arrays used for the graph
   let nodes = [], links = [];
   let graphData = e.data.params.results;
+  let weight = e.data.params.weight;
   console.log("Results ", e);
   // Reads graph data
   let data = graphData?.results[0]?.data;
@@ -129,6 +130,7 @@ export function queryParser (e) {
   let hopsMap = hopAssignment(sourceNodeID, targetNodeID, allRelationships, 0, {});
   maxHops = Math.max.apply(null, Object.keys(hopsMap)?.map( key => parseInt(hopsMap[key])));
   
+  let positionArray = [];
   // Loop through nodes and assign X position based on hops
   nodes.forEach( sourceNode => {
     let id = sourceNode.id;
@@ -152,24 +154,27 @@ export function queryParser (e) {
       positionX = (maxHops * (-1 * spaceBetween) ) + space
       sourceNode.positionX = positionX;
     }
+    
+    
+    if ( positionArray.some(row => row[0] == sourceNode.level && row[1] == sourceNode.hop ) ) {
+      sourceNode.level = sourceNode.level + 1 ;
+    } else {
+      positionArray.push([sourceNode.level, sourceNode.hop]);
+    }
   });
   
+    
   // Creates links map from Relationships, avoid duplicates
   data.forEach(({ graph, row }) => {
     graph.relationships.forEach(({ startNode, endNode, properties, id }) => {
       let matchingStartNode = nodes.find(node => node.id === parseInt(startNode));
       let matchingEndNode = nodes.find(node => node.id === parseInt(endNode));
-      let reverseLink = false;
       
-      if ( matchingStartNode.positionX >= matchingEndNode.positionX ){
-        reverseLink = true 
-      }
-      
-      if ( !reverseLink ) {
+      if ( row[3].includes(parseInt(id)) ) {
         if (linksMap.get(startNode) === undefined) {
           linksMap.set(startNode, new Array());
         }
-        
+
         let newLink = true;
         linksMap.get(startNode).find( ele => {
           if ( ele.target !== endNode ) {
@@ -178,7 +183,7 @@ export function queryParser (e) {
             newLink = false;
           }
         });
-        
+
         // Only keep track of new links, avoid duplicates
         if ( newLink ) {
           linksMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
@@ -188,30 +193,11 @@ export function queryParser (e) {
         if (reverseMap.get(startNode) === undefined) {
           reverseMap.set(startNode, new Array());
         }
-        
         reverseMap.get(startNode).push( { target : endNode, label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
-      }      
+      }
     });
   });
   
-  // Loop through reverse map and find reverse links 
-  reverseMap.forEach( (value, key) => {
-    let linkInMap = value.find( valueNode => {
-      let found = linksMap?.get(valueNode.target)?.find( ele => {
-        if ( ele.target === key ) {
-          return ele;
-        }
-      });
-
-      if ( !found ) {
-        if (linksMap.get(key) === undefined) {
-          linksMap.set(key, new Array());
-        }
-        linksMap?.get(key)?.push( { target : valueNode?.target, label : valueNode?.label, weight : valueNode?.weight });
-      }
-    })
-  });
-    
   // Creates Links array with nodes, assign node neighbors that are connected by links
   nodes.forEach( sourceNode => {
     let id = sourceNode.id;
@@ -227,7 +213,8 @@ export function queryParser (e) {
           let reverse = reverseMap.get(targetNode.id.toString())?.find( node => node.target === sourceNode.id.toString());
           if ( !match ) {
             // Create tooltip label for link and weight
-            const tooltip = "Label  : " + n[i].label + '<br/>' 
+            const labelWeight = n[i].weight >= weight ? n[i].weight : 0; 
+            const tooltip = "Label  : " + n[i].label + '<br/>'
               + "Weight : " + (reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight + "[0]");
             const weightLabel = reverse ? n[i].weight + " [" + reverse.weight + "]" : n[i].weight + "[0]";
             // Create new link for graph
