@@ -914,7 +914,7 @@ class VFBMain extends React.Component {
             self.setState({ UIUpdated: true })
           }}
           focusTermRef={this.focusTermReference}
-          exclude={["ClassQueriesFrom", "Debug"]}
+          exclude={["ClassQueriesFrom", "Debug", "DownloadMeta"]}
           order={['Symbol',
                   'Title',
                   'Name',
@@ -934,7 +934,9 @@ class VFBMain extends React.Component {
                   'Related Individuals',
                   'Relationships',
                   'Query for',
-                  'Graph for',
+                  'Graphs For',
+                  'Graphs for',
+                  'Add Neuron to Circuit Browser Query',
                   'Circuit Browser for',
                   'Description',
                   'Cross References',
@@ -1058,7 +1060,7 @@ class VFBMain extends React.Component {
     if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
       if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
         if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
-          this.instanceOnFocus == nextProps.generals.instanceOnFocus;
+          this.instanceOnFocus = nextProps.generals.instanceOnFocus;
         }
       }
     }
@@ -1379,6 +1381,13 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
+    });
+    
+    GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
+      // Set template Instance to be not clickable in 3D viewer
+      if ( instances[0]?.id?.includes(window.templateID) ) {
+        that.canvasReference.engine.meshes ? that.canvasReference.engine.meshes[window.templateID + "." + instances[0]?.id].children[0].clickThrough = true : null;
+      }
     });
 
     GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {

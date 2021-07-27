@@ -100,7 +100,17 @@ const styles = theme => ({
     backgroundColor: "#80808040 !important",
     paddingLeft : "10px !important"
   },
-  weightInputDiv : { width : "100% !important" }
+  weightInputDiv : { width : "100% !important" },
+  refreshButton : {
+    backgroundColor : "#0AB7FE",
+    flexBasis: "100%",
+    fontWeight : 600,
+  },
+  clearButton : {
+    backgroundColor : "#E53935",
+    flexBasis: "100%",
+    fontWeight : 600,
+  }
 });
 
 /**
@@ -143,6 +153,9 @@ class AutocompleteResults extends Component {
    */
   handleResults (status, data, value){
     let results = {};
+    console.log("Status ", status)
+    console.log("Data ", data)
+    console.log("Value ", value)
     data?.map(result => {
       // Match results by short_form id
       if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
@@ -151,6 +164,8 @@ class AutocompleteResults extends Component {
         results[result?.label] = result;
       }
     });
+    
+    console.log("Results ", results)
       
     this.setState({ filteredResults : results });
   }
@@ -181,6 +196,7 @@ class AutocompleteResults extends Component {
             key={this.props.field.id}
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
+            onDelete={this.props.neuronTextfieldModified}
             inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
           />
@@ -315,7 +331,6 @@ class Controls extends Component {
       neurons.push({ id : target.value, label : target.value });
     }
       
-    // this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     this.neuronFields = neurons;
     getResultsSOLR( target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
@@ -324,25 +339,42 @@ class Controls extends Component {
    * Neuron text field has been modified.
    */
   neuronTextfieldModified (event) {
+    console.log(event.key);
     this.resultsHeight = event.target.offsetTop + 15;
     // Remove old typing timeout interval
     if (this.state.typingTimeout) {
       clearTimeout(this.typingTimeout);
     }
-    // Create a setTimeout interval, to avoid performing searches on every stroke
-    setTimeout(this.typingTimeout, 10, event.target);
+    
+    this.setInputValue = event.target.id;
+    if ( event.target.id.id === "" ) {
+      this.setInputValue = event.target.parentElement.id;
+    }
+    let neurons = this.neuronFields;
+
+    if ( neurons[parseInt(event.target.id)] ) {
+      neurons[parseInt(event.target.id)] = { id : event.target.value, label : event.target.value };
+    } else {
+      neurons.push({ id : event.target.value, label : event.target.value });
+    }
+    
+    if ( event?.nativeEvent?.inputType === "deleteContentBackward" && neurons?.find( (neuron, index) => neuron.id === "" && index.toString() === event.target.id )){
+      this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
+    } else {
+      getResultsSOLR( event.target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
+    }
+    this.neuronFields = neurons;
   }
   
   /**
    * Handle SOLR result selection, activated by selecting from drop down menu under textfield 
    */
-  resultSelectedChanged (event, value) {
+  resultSelectedChanged (event, value, index) {
     // Copy neurons and add selection to correct array index
     let neurons = this.neuronFields;
     let textFieldId = event.target.id.toString().split("-")[0];
     let shortForm = this.autocompleteRef[textFieldId].current.getFilteredResults()[value] && this.autocompleteRef[textFieldId].current.getFilteredResults()[value].short_form;
-    let index = neurons.findIndex(neuron => neuron.id === shortForm);
-    index > -1 ? neurons[index] = { id : shortForm, label : value } : null
+    neurons[index] = { id : shortForm, label : value };
     
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -370,6 +402,7 @@ class Controls extends Component {
     while (this?.props?.circuitQuerySelected.length > 0) {
       this?.props?.circuitQuerySelected.pop();
     }
+    this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, [])
     this.setState({ key: Math.random() });
   }
   /**
@@ -384,17 +417,19 @@ class Controls extends Component {
       );
 
       if ( !fieldExists) { 
-        for ( var j = 0 ; j < neuronFields.length ; j++ ) {
-          if ( neuronFields?.[j].id === "" ) {
-            neuronFields[j] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
-            added = true;
-            fieldExists = true;
-            break;
-          }
+        const emptyIndex = neuronFields.findIndex( field => field.id === "");
+        if ( emptyIndex >= 0 ) {
+          neuronFields[emptyIndex] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
+          added = true;
+          fieldExists = true;
+          break;
+        } else {
+          neuronFields.pop();
+          neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] })
         }
         
         if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && this.props.circuitQuerySelected?.[i]?.id != "") {
-          if ( neuronFields.length < configuration.maxNeurons && this.props.circuitQuerySelected !== "" ) {
+          if ( this.props.circuitQuerySelected !== "" ) {
             neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] });
           } 
         }
@@ -433,9 +468,10 @@ class Controls extends Component {
           { this.props.resultsAvailable()
             ? <ul className={classes.legend} id="circuitBrowserLegend">
               { this.props.legend.map((label, index) => (
-                <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li> 
+                <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li>
               ))
               }
+              <li>WEIGHT -Forward [Reverse]→</li>
             </ul>
             : null
           }
@@ -467,7 +503,7 @@ class Controls extends Component {
                           field={field}
                           index={index}
                           neuronTextfieldModified={this.neuronTextfieldModified}
-                          resultSelectedChanged={this.resultSelectedChanged}
+                          resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
                           ref={this.autocompleteRef[index.toString()]}
                         />
                       </Grid>
@@ -547,18 +583,18 @@ class Controls extends Component {
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
-                      color="primary"
                       variant="contained"
-                      className="MuiGrid-grid-sm-12"
+                      color="primary"
+                      classes={{ root : classes.refreshButton }}
                       id="refreshCircuitBrowser"
-                      onClick={() => this.props.updateGraph(this.neuronFields, this.hops, this.weight)}
+                      onClick={() => this.props.updateGraph(this.neuronFields, this.paths, this.weight)}
                     >Refresh</Button>  
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
-                      color="secondary"
                       variant="contained"
-                      className="MuiGrid-grid-sm-12"
+                      color="secondary"
+                      classes={{ root : classes.clearButton }}
                       id="clearCircuitBrowser"
                       onClick={() => this.props.clearGraph()}
                     >Clear</Button>  
