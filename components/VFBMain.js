@@ -914,7 +914,7 @@ class VFBMain extends React.Component {
             self.setState({ UIUpdated: true })
           }}
           focusTermRef={this.focusTermReference}
-          exclude={["ClassQueriesFrom", "Debug", "DownloadMeta"]}
+          exclude={["ClassQueriesFrom", "Debug"]}
           order={['Symbol',
                   'Title',
                   'Name',
