@@ -117,7 +117,7 @@ class VFBDownloadContents extends React.Component {
       link.setAttribute('download', self.configuration.zipName);
       document.body.appendChild(link);
       link.click();
-      setTimeout( () => self.setState( { downloading : false , open : false} ), 1000);
+      setTimeout( () => self.setState( { downloading : false , open : false } ), 1000);
     }).catch( function (error) {
       self.setState( { downloading : false } );
     })
