@@ -1,0 +1,13 @@
+{
+	"postURL":"https://zip.virtualflybrain.org/download",
+	"contentType": "application/json",
+	"zipName" : "VFB Files.zip",
+	"options" :{
+		"png": "Image files (aligned to JRC2018Unisex)",
+		"obj": "Mesh/Pointcloud (OBJ)",
+		"swc": "Skeleton (SWC)",
+		"wlz": "Slices (Woolz)",
+		"nrrd": "Signal (NRRD)",
+		"bibtex": "Remember to cite"
+	}
+}

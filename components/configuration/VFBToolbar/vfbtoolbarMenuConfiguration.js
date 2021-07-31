@@ -254,6 +254,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "Download Contents",
+          icon: "fa fa-download",
+          action: {
+            handlerAction: "downloadContentsVisible",
+            parameters: []
+          }
+        },
+        {
           label: "NBLAST",
           icon: "",
           action: "",

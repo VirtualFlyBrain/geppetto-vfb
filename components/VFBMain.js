@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
 import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
@@ -51,6 +52,7 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
+      downloadContentsVisible : true
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -524,6 +526,9 @@ class VFBMain extends React.Component {
       return historyList;
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
+      break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
       break;
     case 'triggerRunQuery':
       GEPPETTO.trigger('spin_logo');
@@ -1728,6 +1733,7 @@ class VFBMain extends React.Component {
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
+        <VFBDownloadContents ref="downloadContentsRef" open={false} />
         {this.htmlToolbarRender}
       </div>
     );
