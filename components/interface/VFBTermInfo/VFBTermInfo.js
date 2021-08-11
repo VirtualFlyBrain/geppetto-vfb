@@ -787,6 +787,14 @@ class VFBTermInfoWidget extends React.Component {
             $('#add-new-query-container')[0].hidden = true;
             $('#query-builder-items-container')[0].hidden = true;
           }
+          
+          /**
+           *  Fire event to set the Shift key as not pressed, this is needed since the presence of the 
+           *  confirm() dialog prevents the DOM to un-set the 'shift' key.
+           */
+          var e = new KeyboardEvent('keyup', { bubbles : true, cancelable : true, shiftKey : false });
+          document.querySelector("body").dispatchEvent(e);
+          
           $("body").css("cursor", "progress");
 
 
