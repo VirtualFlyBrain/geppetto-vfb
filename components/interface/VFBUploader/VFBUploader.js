@@ -19,14 +19,15 @@ import { withStyles } from '@material-ui/styles';
 import axios from 'axios';
 import { DropzoneArea } from 'material-ui-dropzone'
 
-const PERMISSIONS = "Permissions to store";
+const PERMISSIONS = "Permissions to store URL in browser history";
 const styles = theme => ({ 
   listItemText: { fontSize:'1em' },
   templateSelection: {
-    float: "right !important",
-    width : "20% !important",
-    fontSize : "1 rem !important"
-  }
+    width : "30% !important",
+    height : "5rem"
+  },
+  templateContent : { fontSize : "14px" },
+  dialogActions : { justifyContent : "space-evenly" }
 });
 
 class VFBUploader extends React.Component {
@@ -36,15 +37,17 @@ class VFBUploader extends React.Component {
     this.state = {
       open: false,
       uploading : false,
+      nblastEnabled : false,
       files : [],
-      template : ""
+      permissionsChecked : false,
+      templateSelected : ""
     }
 
     this.configuration = require('../../configuration/VFBUploader/configuration');
     this.handleCloseDialog = this.handleCloseDialog.bind(this);
     this.openDialog = this.openDialog.bind(this);
     this.handlePermissionsCheck = this.handlePermissionsCheck.bind(this);
-    this.handleUpload = this.handleUpload.bind(this);
+    this.handleNBLASTAction = this.handleNBLASTAction.bind(this);
     this.requestUpload = this.requestUpload.bind(this);
   }
 
@@ -52,23 +55,20 @@ class VFBUploader extends React.Component {
     this.setState({ open : false });
   }
   
-  handleChange (files){
+  handleDropZoneChange (files){
     this.setState({ files: files });
+  }
+  
+  handleTemplateChange (event) {
+    this.setState({ templateSelected : event.target.value })
   }
   
   openDialog () {
     this.setState({ open : true });
   }
  
-  handleUpload () {
-    let json = { "entries" : [] };
-    
-    this.state.selectedVariables.map( variable => {
-      const filemeta = this.extractVariableFileMeta(variable);
-      json.entries = json.entries.concat(filemeta);
-    });
-        
-    json.entries.length > 0 ? this.requestZipDownload(json) : this.setState( { downloadError : true });
+  handleNBLASTAction () {
+    this.requestUpload({});
   }
   
   /**
@@ -77,42 +77,28 @@ class VFBUploader extends React.Component {
   requestUpload (jsonRequest) {
     let self = this;
 
-    this.setState( { downloadEnabled : false, downloading : true } );
+    this.setState( { uploading : true } );
     // Axios HTTP Post request with post query
     axios({
       method: 'post',
-      url: this.configuration.blastURL,
+      url: this.configuration.nblastURL,
       headers: { 'content-type': this.configuration.contentType },
       data: jsonRequest,
       responseType: "arraybuffer"
     }).then( function (response) {
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', self.configuration.zipName);
-      document.body.appendChild(link);
-      link.click();
-      setTimeout( () => self.setState( { downloadEnabled : true, downloading : false, open : false } ), 500);
+      setTimeout( () => self.setState( { nblastEnabled : true, uploading : false } ), 500);
     }).catch( function (error) {
       self.downloadErrorMessage = error?.message;
-      self.setState( { downloadEnabled : true, dowloadError : true, downloading : false } );
+      self.setState( { nblastEnabled : true, uploading : false } );
     })
   }
   
   /**
    * Handle checkbox selection of different types to download
    */
-  handlePermissionsCheck (value) {
-    const currentIndex = this.state.typesChecked.indexOf(value);
-    const newTypesChecked = [...this.state.typesChecked];
-
-    if (currentIndex === -1) {
-      newTypesChecked.push(value);
-    } else {
-      newTypesChecked.splice(currentIndex, 1);
-    }
-
-    this.setState({ typesChecked : newTypesChecked, downloadEnabled : newTypesChecked.length > 0 , downloadError : false });
+  handlePermissionsCheck (event) {
+    this.setState({ permissionsChecked : event.target.checked });
   }
   
   render () {
@@ -123,55 +109,58 @@ class VFBUploader extends React.Component {
       <Dialog
         fullWidth={true}
         maxWidth={'sm'}
-        titleStyle={{ textAlign: "center" }}
-        open={this.state.open}
-        onClose={this.handleCloseDialog}
+        open={self.state.open}
+        onClose={self.handleCloseDialog}
         aria-labelledby="max-width-dialog-title"
       >
-        <DialogTitle id="max-width-dialog-title" onClose={this.handleCloseDialog} ><h3>NBLAST Uploader</h3></DialogTitle>
+        <DialogTitle id="max-width-dialog-title" onClose={self.handleCloseDialog} ><h2>NBLAST Uploader</h2></DialogTitle>
         <DialogContent>
           <FormControl className={classes.templateSelection}>
-            <InputLabel variant="h2" htmlFor="template-selection">Choose Template:</InputLabel>
+            <InputLabel className={classes.templateContent} htmlFor="template-selection">Choose Template:</InputLabel>
             <Select
               native
-              value={this.state.template}
+              className={classes.templateContent}
+              value={self.state.templateSelected}
+              onChange={self.handleTemplateChange.bind(self)}
               inputProps={{
-                name: 'age',
+                name: 'template',
                 id: 'template-selection',
               }}
             >
               <option aria-label="None" value="" />" +
               {
-                this.configuration.templates.map( template => {
+                self.configuration.templates.map( template => (
                   <option value={Object.keys(template)[0]}>{Object.keys(template)[0]}</option>
-                })
+                ))
               }
             </Select>
           </FormControl>
           <DropzoneArea
-            onChange={this.handleChange.bind(this)}
-            acceptedFiles={['swc']}
-            dropzoneText={"Drag and drop a SWC file here or click"}
+            onChange={self.handleDropZoneChange.bind(self)}
+            acceptedFiles={self.configuration.acceptedFiles}
+            maxFileSize={self.configuration.maxFileSize}
+            filesLimit={self.configuration.filesLimit}
+            dropzoneText={self.configuration.dropZoneMessage}
           />
         </DialogContent>
-        <DialogActions>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={true}
-                edge="start"
-                onChange={() => self.handlePermissionsCheck()}
-              />
-            }
-            label={<Typography variant="h5" color="textPrimary">{PERMISSIONS}</Typography>}
-          />
+        <DialogActions className={classes.dialogActions}>
+          <div>
+            <Typography variant="h5">--- NBLAST Text Updates --- </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={self.permissionsChecked}
+                  edge="start"
+                  onChange={event => self.handlePermissionsCheck(event)}
+                />
+              }
+              label={<Typography variant="body1" color="textPrimary">{PERMISSIONS}</Typography>}
+            />
+          </div>
           {
-            this.state.downloading ? <CircularProgress align="left" size={24} /> : null
+            self.state.uploading ? <CircularProgress align="left" size={24} /> : null
           }
-          {
-            this.state.downloadError ? <Typography color="error">{ self.dowloadErrorMessage }</Typography> : null
-          }
-          <Button disabled={!this.state.downloadEnabled} onClick={this.handleDownload} variant="contained" color="primary">
+          <Button disabled={!self.state.nblastEnabled} onClick={self.handleNBLASTAction} variant="contained" color="primary">
             NBLAST Upload
           </Button>
         </DialogActions>

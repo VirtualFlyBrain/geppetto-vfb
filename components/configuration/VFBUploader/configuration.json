@@ -1,7 +1,12 @@
 {
 	"nblastURL" : "https://zip.virtualflybrain.org/download",
+	"contentType" : "",
 	"templates" : [
 	  { "VFB_00101567" : "VFB_00101567 Template" },
 	  { "VFB_00000001" : "VFB_00000001 Template" }
-	]
+	],
+	"acceptedFiles" : [".swc"],
+	"filesLimit" : 10,
+	"maxFileSize" : 3000000,
+	"dropZoneMessage" : "Drag and drop a SWC file here or click"
 }
