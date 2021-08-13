@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
 import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
@@ -51,6 +52,7 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
+      uploaderContentsVisible : true
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -524,6 +526,9 @@ class VFBMain extends React.Component {
       return historyList;
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
+      break;
+    case 'uploaderContentsVisible':
+      this.refs.uploaderContentsRef?.openDialog();
       break;
     case 'triggerRunQuery':
       GEPPETTO.trigger('spin_logo');
@@ -1747,6 +1752,7 @@ class VFBMain extends React.Component {
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
+        <VFBUploader ref="uploaderContentsRef" open={false} />
         {this.htmlToolbarRender}
       </div>
     );

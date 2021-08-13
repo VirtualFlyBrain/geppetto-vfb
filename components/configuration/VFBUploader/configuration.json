@@ -1,0 +1,7 @@
+{
+	"nblastURL" : "https://zip.virtualflybrain.org/download",
+	"templates" : [
+	  { "VFB_00101567" : "VFB_00101567 Template" },
+	  { "VFB_00000001" : "VFB_00000001 Template" }
+	]
+}
