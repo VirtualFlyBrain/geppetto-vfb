@@ -88,8 +88,8 @@ class VFBDownloadContents extends React.Component {
    * Extract filemeta from geppetto model, using variable id to find it
    */
   extractVariableFileMeta (variable) {
-    let filemetaText = variable.filemeta.values[0].value.text;
-    filemetaText = filemetaText.replace(/'/g, '"');
+    let filemetaText = variable.filemeta?.values[0]?.value?.text;
+    filemetaText = filemetaText?.replace(/'/g, '"');
 
     const filemetaObject = JSON.parse(filemetaText);
     let filesArray = [];

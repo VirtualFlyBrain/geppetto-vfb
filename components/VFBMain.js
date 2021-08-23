@@ -10,6 +10,7 @@ import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
+import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
 import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
@@ -52,7 +53,8 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
-      downloadContentsVisible : true
+      downloadContentsVisible : true,
+      uploaderContentsVisible : true
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -529,6 +531,9 @@ class VFBMain extends React.Component {
       break;
     case 'downloadContentsVisible':
       this.refs.downloadContentsRef?.openDialog();
+      break;
+    case 'uploaderContentsVisible':
+      this.refs.uploaderContentsRef?.openDialog();
       break;
     case 'triggerRunQuery':
       GEPPETTO.trigger('spin_logo');
@@ -1753,6 +1758,9 @@ class VFBMain extends React.Component {
           datasourceConfiguration={this.datasourceConfiguration} />
 
         <VFBDownloadContents ref="downloadContentsRef" open={false} />
+
+        <VFBUploader ref="uploaderContentsRef" open={false} />
+        
         {this.htmlToolbarRender}
       </div>
     );
