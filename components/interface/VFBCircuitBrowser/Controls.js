@@ -27,8 +27,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
-import { DatasourceTypes } from '@geppettoengine/geppetto-ui/search/datasources/datasources';
-import { getResultsSOLR } from "@geppettoengine/geppetto-ui/search/datasources/SOLRclient";
+import { DatasourceTypes } from '../../configuration/VFBCircuitBrowser/datasources/datasources';
+import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
 
 /**
  * Create a local theme to override some default values in material-ui components
