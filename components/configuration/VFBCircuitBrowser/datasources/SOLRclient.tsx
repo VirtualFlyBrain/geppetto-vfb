@@ -13,6 +13,7 @@ const globalConfiguration:any = {
         "fq": [
             "type:class OR type:individual OR type:property",
             "ontology_name:(vfb)",
+            "facets_annotation:has_neuron_connectivity",
             "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
         ],
         "rows": "100",
