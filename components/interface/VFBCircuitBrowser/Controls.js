@@ -123,7 +123,7 @@ const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowse
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
 
 const searchConfiguration = require('./../../configuration/VFBMain/searchConfiguration').searchConfiguration;
-const datasourceConfiguration = require('./../../configuration/VFBMain/searchConfiguration').datasourceConfiguration;
+const datasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
 
 /**
  * Create custom marks for Paths slider.
