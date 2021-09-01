@@ -27,7 +27,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
-import { DatasourceTypes } from '../../configuration/VFBCircuitBrowser/datasources/datasources';
 import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
 
 /**
@@ -122,8 +121,8 @@ const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBro
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
 
-const searchConfiguration = require('./../../configuration/VFBMain/searchConfiguration').searchConfiguration;
-const datasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').globalConfiguration;
+const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
+const datasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
 
 /**
  * Create custom marks for Paths slider.
