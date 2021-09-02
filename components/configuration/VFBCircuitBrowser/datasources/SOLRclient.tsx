@@ -208,6 +208,7 @@ export const datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
+        "facets_annotation:has_neuron_connectivity",
         "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
       ],
       "rows": "100",
