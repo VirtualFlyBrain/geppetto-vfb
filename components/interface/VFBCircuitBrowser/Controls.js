@@ -153,20 +153,10 @@ class AutocompleteResults extends Component {
    */
   handleResults (status, data, value){
     let results = {};
-    console.log("Status ", status)
-    console.log("Data ", data)
-    console.log("Value ", value)
     data?.map(result => {
-      // Match results by short_form id
-      if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
-        results[result?.label] = result;
-      } else if ( result?.label?.toLowerCase().includes(value?.toLowerCase()) ){
-        results[result?.label] = result;
-      }
+      results[result?.label] = result;
     });
-    
-    console.log("Results ", results)
-      
+          
     this.setState({ filteredResults : results });
   }
   
@@ -176,6 +166,7 @@ class AutocompleteResults extends Component {
   
   render () {
     const label = "Neuron " + (this.props.index + 1) .toString();
+    console.log("Results ", this.state.filteredResults)
 
     return (
       <Autocomplete
