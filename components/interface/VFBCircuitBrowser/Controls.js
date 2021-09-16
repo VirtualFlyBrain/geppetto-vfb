@@ -166,8 +166,8 @@ class AutocompleteResults extends Component {
   
   render () {
     const label = "Neuron " + (this.props.index + 1) .toString();
-    console.log("Results ", this.state.filteredResults)
-
+    const options = Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label);
+    
     return (
       <Autocomplete
         fullWidth
@@ -330,7 +330,6 @@ class Controls extends Component {
    * Neuron text field has been modified.
    */
   neuronTextfieldModified (event) {
-    console.log(event.key);
     this.resultsHeight = event.target.offsetTop + 15;
     // Remove old typing timeout interval
     if (this.state.typingTimeout) {
@@ -435,7 +434,7 @@ class Controls extends Component {
     const { classes } = this.props;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     let neuronFields = this.getUpdatedNeuronFields();
-
+    
     let expanded = this.state.expanded;
     if ( this.props.resultsAvailable() ){
       expanded = true;
