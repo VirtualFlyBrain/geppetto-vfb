@@ -1,12 +1,13 @@
 {
-	"nblastURL" : "https://zip.virtualflybrain.org/download",
-	"contentType" : "",
-	"templates" : [
-	  { "VFB_00101567" : "VFB_00101567 Template" },
-	  { "VFB_00000001" : "VFB_00000001 Template" }
-	],
-	"acceptedFiles" : [".swc"],
-	"filesLimit" : 10,
+	"nblastURL" : "http://upload.virtualflybrain.org/files/UNIQUE_ID?token=bec3a40f0ab377c39103",
+	"contentType" : "multipart/form-data",
+	"templates" : [{"short_form":"VFB_00101567","label":"JRC2018Unisex"},{"short_form":"VFB_00200000","label":"JRC2018UnisexVNC"}] ,
+	"acceptedFiles" : [".swc", ".nrrd"],
+	"filesLimit" : 1,
 	"maxFileSize" : 3000000,
-	"dropZoneMessage" : "Drag and drop a SWC file here or click"
+	"dialogTitle" : "Upload Data File",
+	"dialogSubtitle" : "File should be swc",
+	"blastButtonText" : "Generate a nblast query link",
+	"dropZoneMessage" : "Click or Drag & Drop your file here",
+	"infoMessage" : "Generating a nblast query can take up to 30 min. Save this link to find the result of your query."
 }
