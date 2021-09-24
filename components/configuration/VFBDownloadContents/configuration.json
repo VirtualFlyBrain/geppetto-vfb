@@ -3,11 +3,20 @@
 	"contentType": "application/json",
 	"zipName" : "VFB Files.zip",
 	"options" :{
-		"png": "Image files (aligned to JRC2018Unisex)",
-		"obj": "Mesh/Pointcloud (OBJ)",
-		"swc": "Skeleton (SWC)",
-		"wlz": "Slices (Woolz)",
-		"nrrd": "Signal (NRRD)",
-		"bibtex": "Remember to cite"
+		"images": { 
+		  "label" : "Images"
+		},
+		"obj": { 
+		  "label" : "OBJ"
+		},
+		"swc": { 
+		  "label" : "SWC"
+		},
+		"nrrd": { 
+		  "label" : "NRRD"
+		},
+		"reference": { 
+		  "label" : "References"
+		}
 	}
 }
