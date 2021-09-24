@@ -146,6 +146,7 @@ class AutocompleteResults extends Component {
     super(props);
     this.state = { filteredResults: {} };
     this.handleResults = this.handleResults.bind(this);
+    this.fieldLabel = this.props.field.label;
   }
   
   /**
@@ -164,6 +165,11 @@ class AutocompleteResults extends Component {
     return this.state.filteredResults;
   }
   
+  shouldComponentUpdate(nextProps, nextState) {
+    this.fieldLabel = nextProps.getLatestNeuronFields()[this.props.index].label;
+    return true;
+  }
+  
   render () {
     const label = "Neuron " + (this.props.index + 1) .toString();
     const options = Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label);
@@ -175,7 +181,7 @@ class AutocompleteResults extends Component {
         disableClearable
         disablePortal
         autoHighlight
-        value={this.props.field.label}
+        value={this.fieldLabel}
         id={this.props.index.toString()}
         ListboxProps={{ style: { maxHeight: "10rem" } }}
         onChange={this.props.resultSelectedChanged}
@@ -493,6 +499,7 @@ class Controls extends Component {
                           field={field}
                           index={index}
                           neuronTextfieldModified={this.neuronTextfieldModified}
+                          getLatestNeuronFields={this.getUpdatedNeuronFields}
                           resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
                           ref={this.autocompleteRef[index.toString()]}
                         />
