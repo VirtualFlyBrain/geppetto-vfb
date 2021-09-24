@@ -3,9 +3,6 @@
 	"contentType": "application/json",
 	"zipName" : "VFB Files.zip",
 	"options" :{
-		"images": { 
-		  "label" : "Images"
-		},
 		"obj": { 
 		  "label" : "OBJ"
 		},
