@@ -254,6 +254,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "NBLAST Uploader",
+          icon: "fa fa-upload",
+          action: {
+            handlerAction: "uploaderContentsVisible",
+            parameters: []
+          }
+        },
+        {
           label: "NBLAST",
           icon: "",
           action: "",
@@ -448,6 +456,14 @@ var toolbarMenu = {
               },
               list: [
                 {
+                  label: "Adult Head (McKellar)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00110000"]
+                  }
+                },
+                {
                   label: "Adult Brain (JFRC2/2010)",
                   icon: "",
                   action: {
@@ -560,6 +576,14 @@ var toolbarMenu = {
                 parameters: ["undefinedAction"]
               },
               list: [
+                {
+                  label: "Adult Head (McKellar)",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00110000,adult head template McKellar"]
+                  }
+                },
                 {
                   label: "Adult Brain (JFRC2/2010)",
                   icon: "",
