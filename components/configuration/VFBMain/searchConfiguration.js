@@ -139,8 +139,8 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
-          "key": "Expression_pattern",
-          "filter_name": "Expression Pattern",
+          "key": "Neuron",
+          "filter_name": "Neuron",
           "enabled": "disabled",
         },
         {
@@ -149,18 +149,38 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
+          "key": "Split",
+          "filter_name": "Split Expression",
+          "enabled": "disabled",
+        },
+        {
+          "key": "Expression_pattern",
+          "filter_name": "Expression Pattern",
+          "enabled": "disabled",
+        },
+        {
+          "key": "Expression_pattern_fragment",
+          "filter_name": "Expression Pattern Fragment",
+          "enabled": "disabled",
+        },
+        {
           "key": "has_neuron_connectivity",
-          "filter_name": "Neurons with Connectivity",
+          "filter_name": "Neuron with Connectivity",
+          "enabled": "disabled",
+        },
+        {
+          "key": "NBLAST",
+          "filter_name": "Neuron Similarity (NBLAST)",
+          "enabled": "disabled",
+        },
+        {
+          "key": "NBLASTexp",
+          "filter_name": "Expression Similarity (NBLAST)",
           "enabled": "disabled",
         },
         {
           "key": "Synaptic_neuropil_domain",
           "filter_name": "Synaptic Neuropil",
-          "enabled": "disabled",
-        },
-        {
-          "key": "Neuron",
-          "filter_name": "Neuron",
           "enabled": "disabled",
         },
         {

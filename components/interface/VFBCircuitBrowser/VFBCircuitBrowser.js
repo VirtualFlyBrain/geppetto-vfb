@@ -57,7 +57,7 @@ class VFBCircuitBrowser extends Component {
       queryLoaded : false,
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
-      hops : Math.ceil((configuration.maxHops - configuration.minHops) / 2),
+      paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
       weight : 0,
       reload : false
     }
@@ -249,7 +249,8 @@ class VFBCircuitBrowser extends Component {
         results: response.data,
         configuration : configuration,
         styling : stylingConfiguration,
-        hops : self.state.hops,
+        paths : self.state.paths,
+        weight : self.state.weight,
         NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
       }
       
@@ -299,7 +300,7 @@ class VFBCircuitBrowser extends Component {
     this.circuitQuerySelected = circuitQuerySelected;
     
     let errorMessage = "Not enough input queries to create a graph, needs 2.";
-    if ( this.state.neurons?.[0].id != "" && this.state.neurons?.[1].id != "" ){
+    if ( this.state.neurons?.[0]?.id != "" && this.state.neurons?.[1]?.id != "" ){
       errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
@@ -321,11 +322,12 @@ class VFBCircuitBrowser extends Component {
               resetCamera={self.resetCamera}
               zoomIn={self.zoomIn}
               zoomOut={self.zoomOut}
-              circuitQuerySelected={this.circuitQuerySelected}
+              circuitQuerySelected={circuitQuerySelected}
               datasource="SOLR"
               legend = {self.state.legend}
               ref={self.controlsRef}
               clearGraph={self.clearGraph}
+              key="controls"
             />
           </div>
           : <GeppettoGraphVisualization
@@ -454,7 +456,7 @@ class VFBCircuitBrowser extends Component {
             dagMode="lr"
             nodeVal = { node => {
               node.fx = node.positionX;
-              node.fy = node.level > 0 ? -100 * node.level : node.fy ? node.fy : 0 ;
+              node.fy = -100 * node.level
             }}
             dagLevelDistance = {25}
             onDagError={loopNodeIds => {}}

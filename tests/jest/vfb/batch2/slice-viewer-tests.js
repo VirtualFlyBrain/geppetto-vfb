@@ -69,7 +69,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('Typing medu in the query builder search bar', async () => {
 			await page.focus('input#query-typeahead');
-			await page.keyboard.type('medu');
+			await page.keyboard.type('med');
+			await page.keyboard.type('ulla');
 			await page.keyboard.press(String.fromCharCode(13))
 
 			await wait4selector(page, 'div.tt-suggestion', { visible: true , timeout : 10000})

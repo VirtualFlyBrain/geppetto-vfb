@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
 import * as FlexLayout from '@geppettoengine/geppetto-ui/flex-layout/src/index';
@@ -51,6 +52,7 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
+      uploaderContentsVisible : true
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -85,7 +87,7 @@ class VFBMain extends React.Component {
     this.instanceOnFocus = undefined;
     this.idFromURL = undefined;
     this.idsFromURL = [];
-    this.urlQueryLoader = undefined;
+    this.urlQueryLoader = [];
     this.quickHelpRender = undefined;
     this.firstLoad = true;
     this.quickHelpOpen = true;
@@ -525,6 +527,9 @@ class VFBMain extends React.Component {
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
       break;
+    case 'uploaderContentsVisible':
+      this.refs.uploaderContentsRef?.openDialog();
+      break;
     case 'triggerRunQuery':
       GEPPETTO.trigger('spin_logo');
       var that = this;
@@ -914,7 +919,7 @@ class VFBMain extends React.Component {
             self.setState({ UIUpdated: true })
           }}
           focusTermRef={this.focusTermReference}
-          exclude={["ClassQueriesFrom", "Debug"]}
+          exclude={["ClassQueriesFrom", "Debug", "DownloadMeta"]}
           order={['Symbol',
                   'Title',
                   'Name',
@@ -934,7 +939,9 @@ class VFBMain extends React.Component {
                   'Related Individuals',
                   'Relationships',
                   'Query for',
-                  'Graph for',
+                  'Graphs For',
+                  'Graphs for',
+                  'Add Neuron to Circuit Browser Query',
                   'Circuit Browser for',
                   'Description',
                   'Cross References',
@@ -1058,7 +1065,7 @@ class VFBMain extends React.Component {
     if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
       if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
         if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
-          this.instanceOnFocus == nextProps.generals.instanceOnFocus;
+          this.instanceOnFocus = nextProps.generals.instanceOnFocus;
         }
       }
     }
@@ -1342,10 +1349,15 @@ class VFBMain extends React.Component {
         }
         idsList = idList[list].replace("i=","") + idsList;
       } else if (idList[list].indexOf("q=") > -1) {
-        this.urlQueryLoader = idList[list].replace("q=","").replace("%20", " ").split(",");
+        const multipleQueries = idList[list].replace("q=","").replace("%20", " ").split(";");
+        let that = this;
+        multipleQueries?.forEach( query => { 
+          const querySplit = query.split(",");
+          that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
+        });
         // if no other ids are loaded the query target is added.
         if (idsList.length == 0 && this.urlQueryLoader.length > 1) {
-          idsList = this.urlQueryLoader[0];
+          idsList = this.urlQueryLoader[0].id;
         }
       }
     }
@@ -1380,6 +1392,13 @@ class VFBMain extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
     });
+    
+    GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
+      // Set template Instance to be not clickable in 3D viewer
+      if ( instances[0]?.id?.includes(window.templateID) ) {
+        that.canvasReference.engine.meshes ? that.canvasReference.engine.meshes[window.templateID + "." + instances[0]?.id].children[0].clickThrough = true : null;
+      }
+    });
 
     GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (instancePath) {
       let id = instancePath.split(".")[0];
@@ -1390,10 +1409,23 @@ class VFBMain extends React.Component {
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
-        // check if any results with count flag
-        if (that.refs.querybuilderRef.props.model.count > 0) {
+        if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
           // runQuery if any results
           that.refs.querybuilderRef.runQuery();
+        } else if (that.urlQueryLoader.length > 0 && that.refs.querybuilderRef.props.model.count > 0) {
+          // Remove query from stack, and perform the next query
+          that.urlQueryLoader.shift();
+          const query = that.urlQueryLoader[0];
+          // Fetch variable and addQuery, if no more queries left then run query.
+          query
+            ? window[query.id] === undefined 
+              ? window.fetchVariableThenRun(query.id, function () {
+                that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
+              })
+              : that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
+            : that.refs.querybuilderRef.props.model.count > 0
+              ? that.refs.querybuilderRef.runQuery()
+              : null
         } else {
           that.refs.querybuilderRef.switchView(false);
         }
@@ -1403,14 +1435,15 @@ class VFBMain extends React.Component {
         GEPPETTO.trigger('stop_spin_logo');
       };
 
+      // Initial queries specified on URL
       if (that.urlQueryLoader !== undefined) {
         if (window[that.urlQueryLoader[0]] == undefined) {
-          window.fetchVariableThenRun(that.urlQueryLoader[0], function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback)
+          that.urlQueryLoader[0]?.id && window.fetchVariableThenRun(that.urlQueryLoader[0]?.id, function () {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
           });
         } else {
           setTimeout(function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0], queryObj: Model[that.urlQueryLoader[1]] }, callback);
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
           }, 100);
         }
       }
@@ -1719,6 +1752,7 @@ class VFBMain extends React.Component {
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
+        <VFBUploader ref="uploaderContentsRef" open={false} />
         {this.htmlToolbarRender}
       </div>
     );
