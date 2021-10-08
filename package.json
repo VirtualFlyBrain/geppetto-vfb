@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --verbose",
+    "update-tests-snapshots": "jest --updateSnapshot",
     "prebuild": "eslint . --color",
     "build": "webpack -p --progress",
     "prebuild-dev": "eslint . --color",
