@@ -95,7 +95,7 @@ var datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
+        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR facets_annotation:DataSet OR facets_annotation:pub"
       ],
       "rows": "100",
       "wt": "json",
