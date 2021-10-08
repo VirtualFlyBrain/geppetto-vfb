@@ -490,6 +490,9 @@ class VFBMain extends React.Component {
         [buttonState]: !this.state[buttonState]
       });
       break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
+      break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
         this.setState({

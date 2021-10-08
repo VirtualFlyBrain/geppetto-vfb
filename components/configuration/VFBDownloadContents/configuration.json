@@ -1,5 +1,5 @@
 {
-	"postURL":"https://zip.virtualflybrain.org/download",
+	"postURL":"https://zip.virtualflybrain.org/downlodad",
 	"contentType": "application/json",
 	"zipName" : "VFB Files.zip",
 	"options" :{

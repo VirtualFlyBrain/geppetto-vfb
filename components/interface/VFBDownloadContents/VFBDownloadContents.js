@@ -7,7 +7,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import ListItemText from "@material-ui/core/ListItemText";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Checkbox, Divider, IconButton } from "@material-ui/core";
@@ -22,6 +21,7 @@ import OBJIcon from "../../configuration/VFBDownloadContents/obj.png";
 import SWCIcon from "../../configuration/VFBDownloadContents/swc.png";
 import ReferenceIcon from "../../configuration/VFBDownloadContents/reference.png";
 import CloseIcon from "@material-ui/icons/Close";
+import { connect } from "react-redux";
 
 const iconsMap = {
   obj: OBJIcon,
@@ -33,8 +33,14 @@ const iconsMap = {
 const ALL_INSTANCES = { id: "ALL_INSTANCES", name: "All Instances" };
 
 const styles = theme => ({
-  customButton: { backgroundColor: "#0AB7FE" },
+  downloadButton: { backgroundColor: "#0AB7FE", color: "white !important" },
+  downloadErrorButton: { backgroundColor: "#FCE7E7", color: "#E53935", border : "1px solid #E53935" },
+  error: { color: "#E53935" },
+  errorMessage: { wordWrap: "break-word" },
+  downloadButtonText: { color: "white !important" },
+  checkedBox: { borderColor: "#0AB7FE" },
   footer: { backgroundColor: "#EEF9FF" },
+  errorFooter: { backgroundColor: "#FCE7E7" },
   listItemText: { fontSize: "1em" },
   customizedButton: {
     position: "absolute",
@@ -47,12 +53,12 @@ const styles = theme => ({
     overflowY: "unset",
     margin: "0 auto",
   },
-  dialogContent : { overflow : "hidden" },
-  checked: { '&$checked': { color: '#0AB7FE' } },
+  dialogContent: { overflow: "hidden" },
+  checked: { "&$checked": { color: "#0AB7FE" } },
   "@global": {
     ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "white" },
     ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "white" }
-  }
+  },
 });
 
 const theme = createMuiTheme({
@@ -61,17 +67,53 @@ const theme = createMuiTheme({
       fontSize: 22,
       fontWeight: 400,
       fontStyle: "normal",
-      color: "black",
-      fontFamily: "Barlow Condensed, Khand, sans-serif",
+      lineHeight: "26.4px",
+      color: "#181818",
+      fontFamily: "Barlow",
     },
     h5: {
       fontSize: 11,
       fontWeight: 500,
-      fontStyle: "medium",
-      fontFamily: "Barlow Condensed, Khand, sans-serif",
-      color: "Gray / Dark",
+      fontStyle: "normal",
+      lineHeight: "13.2px",
+      fontFamily: "Barlow",
+      color: "rgba(0, 0, 0, 0.54)",
     },
-  }
+    subtitle2: {
+      fontSize: 11,
+      fontWeight: 500,
+      fontStyle: "normal",
+      lineHeight: "13.2px",
+      fontFamily: "Barlow",
+      color: "rgba(0, 0, 0, 0.24)",
+    },
+    error: {
+      fontSize: 11,
+      fontWeight: 500,
+      fontStyle: "normal",
+      lineHeight: "13.2px",
+      fontFamily: "Barlow",
+      color: "#E53935",
+    },
+    button: {
+      fontSize: 11,
+      fontWeight: 600,
+      fontStyle: "normal",
+      lineHeight: "13.2px",
+      fontFamily: "Barlow",
+      color: "#0AB7FE",
+    },
+  },
+  Button: {
+    "&:hover": {
+      backgroundColor: "#0AB7FE",
+      boxShadow: "none",
+    },
+    "&:active": {
+      boxShadow: "none",
+      backgroundColor: "#0AB7FE",
+    },
+  },
 });
 
 /**
@@ -84,7 +126,7 @@ class VFBDownloadContents extends React.Component {
     this.state = {
       open: false,
       typesChecked: [],
-      downloadEnabled: false,
+      downloadError: false,
       downloading: false,
       instances: [ALL_INSTANCES],
       selectedVariables: [],
@@ -114,10 +156,16 @@ class VFBDownloadContents extends React.Component {
       instances: variables,
       selectedVariables: variables,
       open: true,
+      downloadError : false,
+      downloading : false
     });
   }
 
   handleDownload () {
+    if ( this.state.downloading ) { 
+      return;
+    }
+
     let json = { entries: [] };
 
     this.state.selectedVariables.map( variable => {
@@ -139,7 +187,7 @@ class VFBDownloadContents extends React.Component {
     let filesArray = [];
 
     this.state.typesChecked.map( check => {
-      filemetaObject[check]
+      filemetaObject[check] 
         && filesArray.push({
           Url: filemetaObject[check]?.url,
           ZipPath: filemetaObject[check]?.local,
@@ -174,7 +222,7 @@ class VFBDownloadContents extends React.Component {
   requestZipDownload (jsonRequest) {
     let self = this;
 
-    this.setState({ downloadEnabled: false, downloading: true });
+    this.setState({ downloading: true });
     // Axios HTTP Post request with post query
     axios({
       method: "post",
@@ -193,7 +241,6 @@ class VFBDownloadContents extends React.Component {
         setTimeout(
           () =>
             self.setState({
-              downloadEnabled: true,
               downloading: false,
               open: false,
             }),
@@ -201,8 +248,8 @@ class VFBDownloadContents extends React.Component {
         );
       })
       .catch(function (error) {
-        self.setState( {
-          downloadEnabled: true,
+        self.setState({
+          downloadError: true,
           downloading: false,
         });
       });
@@ -221,10 +268,7 @@ class VFBDownloadContents extends React.Component {
       newTypesChecked.splice(currentIndex, 1);
     }
 
-    this.setState({
-      typesChecked: newTypesChecked,
-      downloadEnabled: newTypesChecked.length > 0,
-    });
+    this.setState({ typesChecked: newTypesChecked });
   }
 
   /**
@@ -284,114 +328,152 @@ class VFBDownloadContents extends React.Component {
           >
             <Typography variant="h2">Download Data</Typography>
           </DialogTitle>
-          <DialogContent classes={{ root: self.props.classes.dialogContent }}>
-            <Grid container textAlign="center" spacing={2}>
-              <Grid item xs={12}>
-                <Typography align="left" variant="h5">
-                  Please select the desired types
-                </Typography>
-              </Grid>
+          <DialogContent key="dialog-contents" classes={{ root: self.props.classes.dialogContent }}>
+            { !this.state.downloadError ? (
               <Grid container textAlign="center" spacing={2}>
-                {Object.keys(this.configurationOptions).map(key => {
-                  const option = this.configurationOptions[key];
-                  const labelId = `checkbox-list-secondary-label-${key}`;
-                  return (
-                    <Grid item xs={3}>
-                      <Box textAlign="center" border={1} key={option.label}>
-                        <img src={iconsMap[key]} alt="" />
-                        <ListItemText
-                          align="center"
-                          variant="h5"
-                          classes={{ primary: self.props.classes.listItemText }}
-                          id={labelId}
-                          primary={`${option.label}`}
-                        />
-                        <Checkbox
-                          onChange={() => self.handleTypeSelection(key)}
-                          checked={this.state.typesChecked.indexOf(key) !== -1}
-                          inputProps={{ "aria-labelledby": labelId }}
-                          disabled={this.state.downloading}
-                          disableRipple
-                          className={self.props.classes.checked}
-                        />
-                      </Box>
-                    </Grid>
-                  );
-                })}
-                <Divider fullWidth />
                 <Grid item xs={12}>
-                  <Typography variant="h5">Please select Variables:</Typography>
+                  <Typography align="left" variant="subtitle2">
+                    Please select the desired types
+                  </Typography>
                 </Grid>
-                <Grid item xs={12}>
-                  <TreeView
-                    defaultCollapseIcon={<ExpandMoreIcon />}
-                    defaultExpanded={["0"]}
-                    defaultExpandIcon={<ChevronRightIcon />}
-                  >
-                    <TreeItem
-                      key={ALL_INSTANCES.id}
-                      nodeId={ALL_INSTANCES.id}
-                      label={
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              onClick={ e => e.stopPropagation()}
-                              checked={self.state.allVariablesSelectedFlag}
-                              onChange={event =>
-                                self.toggleVariable(
-                                  event.currentTarget.checked,
-                                  ALL_INSTANCES
-                                )
-                              }
-                              disableRipple
-                              className={self.props.classes.checked}
-                            />
+                <Grid container textAlign="center" spacing={2}>
+                  {Object.keys(this.configurationOptions).map(key => {
+                    const option = this.configurationOptions[key];
+                    const labelId = `checkbox-list-secondary-label-${key}`;
+                    return (
+                      <Grid item xs={3}>
+                        <Box
+                          textAlign="center"
+                          className={
+                            this.state.typesChecked.indexOf(key) !== -1
+                              ? self.props.classes.checkedBox
+                              : null
                           }
-                          label={
-                            <Typography variant="h5" color="textPrimary">
-                              {ALL_INSTANCES.name}
-                            </Typography>
-                          }
-                          key={ALL_INSTANCES.id}
-                        />
-                      }
-                    >
-                      {this.state.instances.map(node => (
-                        <TreeItem
-                          key={node.id}
-                          nodeId={node.id}
-                          label={
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  onClick={ e => e.stopPropagation()}
-                                  checked={self.state.selectedVariables.some(
-                                    item => item.id === node.id
-                                  )}
-                                  onChange={event =>
-                                    self.toggleVariable(
-                                      event.currentTarget.checked,
-                                      node
-                                    )
-                                  }
-                                  className={self.props.classes.checked}
-                                />
-                              }
-                              label={
-                                <Typography variant="h5" color="textPrimary">
-                                  {node.name}
-                                </Typography>
-                              }
-                              key={node.id}
-                            />
-                          }
-                        />
-                      ))}
-                    </TreeItem>
-                  </TreeView>
+                          p={2}
+                          border={1}
+                          borderColor="#E5E5E5"
+                          key={option.label}
+                        >
+                          <img src={iconsMap[key]} alt="" />
+                          <Typography
+                            align="center"
+                            variant="h5"
+                            id={labelId}
+                          >
+                            {`${option.label}`}
+                          </Typography>
+                          <Checkbox
+                            onChange={() => self.handleTypeSelection(key)}
+                            checked={this.state.typesChecked.indexOf(key) !== -1}
+                            inputProps={{ "aria-labelledby": labelId }}
+                            disabled={this.state.downloading}
+                            disableRipple
+                            className={self.props.classes.checked}
+                          />
+                        </Box>
+                      </Grid>
+                    );
+                  })}
+                  <Divider fullWidth />
+                  {this.state.instances.length > 0 ? (
+                    <>
+                      <Grid item xs={12}>
+                        <Typography variant="subtitle2">
+                          Please select Variables:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TreeView
+                          defaultCollapseIcon={<ExpandMoreIcon />}
+                          defaultExpanded={[ALL_INSTANCES.id]}
+                          defaultExpandIcon={<ChevronRightIcon />}
+                        >
+                          <TreeItem
+                            key={ALL_INSTANCES.id}
+                            nodeId={ALL_INSTANCES.id}
+                            label={
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    onClick={e => e.stopPropagation()}
+                                    checked={self.state.allVariablesSelectedFlag}
+                                    onChange={event =>
+                                      self.toggleVariable(
+                                        event.currentTarget.checked,
+                                        ALL_INSTANCES
+                                      )
+                                    }
+                                    disableRipple
+                                    className={self.props.classes.checked}
+                                  />
+                                }
+                                label={
+                                  <Typography variant="h5">
+                                    {ALL_INSTANCES.name}
+                                  </Typography>
+                                }
+                                key={ALL_INSTANCES.id}
+                              />
+                            }
+                          >
+                            {this.state.instances.map(node => (
+                              <TreeItem
+                                key={node.id}
+                                nodeId={node.id}
+                                label={
+                                  <FormControlLabel
+                                    control={
+                                      <Checkbox
+                                        onClick={e => e.stopPropagation()}
+                                        checked={self.state.selectedVariables.some(
+                                          item => item.id === node.id
+                                        )}
+                                        onChange={event =>
+                                          self.toggleVariable(
+                                            event.currentTarget.checked,
+                                            node
+                                          )
+                                        }
+                                        className={self.props.classes.checked}
+                                      />
+                                    }
+                                    label={
+                                      <Typography variant="h5">
+                                        {node.name}
+                                      </Typography>
+                                    }
+                                    key={node.id}
+                                  />
+                                }
+                              />
+                            ))}
+                          </TreeItem>
+                        </TreeView>
+                      </Grid>
+                    </>
+                  ) : (
+                    <Grid item xs={12}>
+                      <Typography variant="h5">No loaded variables</Typography>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
-            </Grid>
+            )
+              : (
+                <Grid className={self.props.classes.error} container textAlign="center" spacing={2}>
+                  <Grid align="center" item xs={12}>
+                    <i className="fa fa-info-circle"/>
+                  </Grid>  
+                  <Grid item xs={12}>
+                    <Typography className={self.props.classes.errorMessage} align="left" variant="error">
+                      Something went wrong...
+                      We were not able to download the data.
+                      Please try again.
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )
+            }
           </DialogContent>
           <DialogActions>
             <IconButton
@@ -403,34 +485,61 @@ class VFBDownloadContents extends React.Component {
             >
               <CloseIcon />
             </IconButton>
-            <Grid
-              container
-              classes={{ root: self.props.classes.footer }}
-              spacing={2}
-            >
-              <Grid item xs={6}>
-                <Button
-                  fullWidth
-                  disabled={!this.state.downloadEnabled}
-                  onClick={this.handleCloseDialog}
-                  color="primary"
-                >
-                  Cancel
-                </Button>
+            { !this.state.downloadError ? (
+              <Grid
+                container
+                classes={{ root: self.props.classes.footer }}
+                spacing={2}
+              >
+                <Grid item xs={6}>
+                  <Button
+                    fullWidth
+                    onClick={this.handleCloseDialog}
+                    color="primary"
+                  >
+                    <Typography variant="button">Cancel</Typography>
+                  </Button>
+                </Grid>
+                <Grid item xs={6}>
+                  <Button
+                    fullWidth
+                    classes={{ root: self.props.classes.downloadButton }}
+                    onClick={this.handleDownload}
+                    variant="contained"
+                  >
+                    {self.state.downloading ? (
+                      <i className="fa fa-spinner"></i>
+                    ) : (
+                      <Typography
+                        classes={{ root: self.props.classes.downloadButtonText }}
+                        variant="button"
+                      >
+                        Download
+                      </Typography>
+                    )}
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Button
-                  fullWidth
-                  classes={{ root: self.props.classes.customButton }}
-                  disabled={!this.state.downloadEnabled}
-                  onClick={this.handleDownload}
-                  variant="contained"
-                  color="primary"
+            )
+              : ( 
+                <Grid
+                  container
+                  classes={{ root: self.props.classes.errorFooter }}
+                  spacing={12}
                 >
-                  Download
-                </Button>
-              </Grid>
-            </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      fullWidth
+                      classes={{ root: self.props.classes.downloadErrorButton }}
+                      onClick={() => self.setState({ downloadError : false })}
+                      color="primary"
+                    >
+                      <Typography classes={{ root: self.props.classes.error }} variant="button"><i className="fa fa-refresh"/>   Try Again</Typography>
+                    </Button>
+                  </Grid>
+                </Grid>
+              )
+            }
           </DialogActions>
         </Dialog>
       </ThemeProvider>
@@ -438,4 +547,8 @@ class VFBDownloadContents extends React.Component {
   }
 }
 
-export default withStyles(styles)(VFBDownloadContents);
+function mapStateToProps (state) {
+  return { ...state }
+}
+
+export default connect(mapStateToProps, null, null, { forwardRef : true } )(withStyles(styles)(VFBDownloadContents));
