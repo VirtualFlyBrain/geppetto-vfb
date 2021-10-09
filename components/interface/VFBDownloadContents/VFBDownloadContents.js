@@ -7,6 +7,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import CircularProgress from '@material-ui/core/CircularProgress';
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Checkbox, Divider, IconButton } from "@material-ui/core";
@@ -50,7 +51,7 @@ const styles = theme => ({
     color: "gray",
   },
   dialog: {
-    overflowY: "unset",
+    overflow: "unset",
     margin: "0 auto",
   },
   dialogContent: { overflow: "hidden" },
@@ -128,9 +129,9 @@ class VFBDownloadContents extends React.Component {
       typesChecked: [],
       downloadError: false,
       downloading: false,
-      instances: [ALL_INSTANCES],
       selectedVariables: [],
-      allVariablesSelectedFlag: true,
+      allVariablesSelectedFlag: false,
+      errorMessage : ""
     };
 
     this.configuration = require("../../configuration/VFBDownloadContents/configuration");
@@ -144,6 +145,7 @@ class VFBDownloadContents extends React.Component {
     this.requestZipDownload = this.requestZipDownload.bind(this);
     this.getVariableById = this.getVariableById.bind(this);
     this.toggleVariable = this.toggleVariable.bind(this);
+    this.variables = [ALL_INSTANCES];
   }
 
   handleCloseDialog () {
@@ -151,13 +153,12 @@ class VFBDownloadContents extends React.Component {
   }
 
   openDialog () {
-    const variables = this.getAllLoadedVariables();
+    this.variables = this.getAllLoadedVariables();
     this.setState({
-      instances: variables,
-      selectedVariables: variables,
       open: true,
       downloadError : false,
-      downloading : false
+      downloading : false,
+      downloadEnabled : this.state.typesChecked.length > 0 && this.state.selectedVariables.length > 0 
     });
   }
 
@@ -173,7 +174,7 @@ class VFBDownloadContents extends React.Component {
       json.entries = json.entries.concat(filemeta);
     });
 
-    json.entries.length > 0 && this.requestZipDownload(json);
+    json.entries.length > 0 ? this.requestZipDownload(json) : this.setState({ downloadError : true, errorMessage : this.configuration.text.noEntriesFound });
   }
 
   /**
@@ -222,7 +223,7 @@ class VFBDownloadContents extends React.Component {
   requestZipDownload (jsonRequest) {
     let self = this;
 
-    this.setState({ downloading: true });
+    this.setState({ downloading: true, downloadEnabled : false });
     // Axios HTTP Post request with post query
     axios({
       method: "post",
@@ -243,6 +244,7 @@ class VFBDownloadContents extends React.Component {
             self.setState({
               downloading: false,
               open: false,
+              downloadEnabled : true
             }),
           500
         );
@@ -251,6 +253,7 @@ class VFBDownloadContents extends React.Component {
         self.setState({
           downloadError: true,
           downloading: false,
+          errorMessage : this.props.classes.errorMessage
         });
       });
   }
@@ -268,7 +271,7 @@ class VFBDownloadContents extends React.Component {
       newTypesChecked.splice(currentIndex, 1);
     }
 
-    this.setState({ typesChecked: newTypesChecked });
+    this.setState({ typesChecked: newTypesChecked, downloadEnabled : newTypesChecked.length > 0 && this.state.selectedVariables.length > 0 });
   }
 
   /**
@@ -294,28 +297,30 @@ class VFBDownloadContents extends React.Component {
    * Toggle variable selection from checklist
    */
   toggleVariable (checked, node) {
-    const allNode = this.getVariableById(this.state.instances, node.id);
-    let array = checked
+    const allNode = this.getVariableById(this.variables, node.id);
+    let updatedVariables = checked
       ? [...this.state.selectedVariables, ...allNode]
       : this.state.selectedVariables.filter(
-        value => !allNode.includes(value)
+        value => !allNode.find( node => node.id === value.id )
       );
 
-    array = array.filter((v, i) => array.indexOf(v) === i);
-
+    updatedVariables = updatedVariables.filter((v, i) => updatedVariables.indexOf(v) === i);
+    
     this.setState({
-      selectedVariables: array,
-      allVariablesSelectedFlag: array.length > 0,
+      selectedVariables: updatedVariables,
+      allVariablesSelectedFlag: updatedVariables.length > 0,
+      downloadEnabled : this.state.typesChecked.length > 0 && updatedVariables.length > 0
     });
   }
 
   render () {
     let self = this;
+    const { idsMap } = this.props;
+    this.variables = this.getAllLoadedVariables();
+    
     return (
       <ThemeProvider theme={theme}>
         <Dialog
-          fullWidth={this.state.fullWidth}
-          maxWidth={this.state.maxWidth}
           open={this.state.open}
           onClose={this.handleCloseDialog}
           aria-labelledby="max-width-dialog-title"
@@ -326,14 +331,14 @@ class VFBDownloadContents extends React.Component {
             align="center"
             onClose={this.handleCloseDialog}
           >
-            <Typography variant="h2">Download Data</Typography>
+            <Typography variant="h2">{this.configuration.text.title}</Typography>
           </DialogTitle>
           <DialogContent key="dialog-contents" classes={{ root: self.props.classes.dialogContent }}>
             { !this.state.downloadError ? (
               <Grid container textAlign="center" spacing={2}>
                 <Grid item xs={12}>
                   <Typography align="left" variant="subtitle2">
-                    Please select the desired types
+                    {this.configuration.text.typesSubtitle}
                   </Typography>
                 </Grid>
                 <Grid container textAlign="center" spacing={2}>
@@ -375,11 +380,11 @@ class VFBDownloadContents extends React.Component {
                     );
                   })}
                   <Divider fullWidth />
-                  {this.state.instances.length > 0 ? (
+                  {this.variables.length > 0 ? (
                     <>
                       <Grid item xs={12}>
                         <Typography variant="subtitle2">
-                          Please select Variables:
+                          {this.configuration.text.variablesSubtitle}
                         </Typography>
                       </Grid>
                       <Grid item xs={12}>
@@ -416,7 +421,7 @@ class VFBDownloadContents extends React.Component {
                               />
                             }
                           >
-                            {this.state.instances.map(node => (
+                            {this.variables.map(node => (
                               <TreeItem
                                 key={node.id}
                                 nodeId={node.id}
@@ -453,22 +458,20 @@ class VFBDownloadContents extends React.Component {
                     </>
                   ) : (
                     <Grid item xs={12}>
-                      <Typography variant="h5">No loaded variables</Typography>
+                      <Typography variant="h5">{this.configuration.text.noVariablesSubtitle}</Typography>
                     </Grid>
                   )}
                 </Grid>
               </Grid>
             )
               : (
-                <Grid className={self.props.classes.error} container textAlign="center" spacing={2}>
+                <Grid className={self.props.classes.error} container textAlign="center" spacing={4}>
                   <Grid align="center" item xs={12}>
                     <i className="fa fa-info-circle"/>
                   </Grid>  
                   <Grid item xs={12}>
                     <Typography className={self.props.classes.errorMessage} align="left" variant="error">
-                      Something went wrong...
-                      We were not able to download the data.
-                      Please try again.
+                      {this.state.errorMessage}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -497,24 +500,25 @@ class VFBDownloadContents extends React.Component {
                     onClick={this.handleCloseDialog}
                     color="primary"
                   >
-                    <Typography variant="button">Cancel</Typography>
+                    <Typography variant="button">{this.configuration.text.cancelButton}</Typography>
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
                   <Button
                     fullWidth
                     classes={{ root: self.props.classes.downloadButton }}
+                    disabled={!this.state.downloadEnabled}
                     onClick={this.handleDownload}
                     variant="contained"
                   >
                     {self.state.downloading ? (
-                      <i className="fa fa-spinner"></i>
+                      <CircularProgress size={18} />
                     ) : (
                       <Typography
                         classes={{ root: self.props.classes.downloadButtonText }}
                         variant="button"
                       >
-                        Download
+                        {this.configuration.text.downloadButton}
                       </Typography>
                     )}
                   </Button>
@@ -534,7 +538,7 @@ class VFBDownloadContents extends React.Component {
                       onClick={() => self.setState({ downloadError : false })}
                       color="primary"
                     >
-                      <Typography classes={{ root: self.props.classes.error }} variant="button"><i className="fa fa-refresh"/>   Try Again</Typography>
+                      <Typography classes={{ root: self.props.classes.error }} variant="button"><i className="fa fa-refresh"/>  {this.configuration.text.tryAgainButton}</Typography>
                     </Button>
                   </Grid>
                 </Grid>
@@ -548,7 +552,12 @@ class VFBDownloadContents extends React.Component {
 }
 
 function mapStateToProps (state) {
-  return { ...state }
+  return { 
+    instanceDeleted : state.generals.ui.canvas.instanceDeleted,
+    instanceOnFocus : state.generals.instanceOnFocus,
+    idsMap : state.generals.idsMap,
+    idsList : state.generals.idsList
+  }
 }
 
 export default connect(mapStateToProps, null, null, { forwardRef : true } )(withStyles(styles)(VFBDownloadContents));
