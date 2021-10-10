@@ -207,10 +207,10 @@ class VFBDownloadContents extends React.Component {
 
     for (var i = 0; i < entities.length; i++) {
       if ( entities[i].metaType === "VisualType" || entities[i].metaType === "CompositeVisualType" ) {
-        const variable = entities[i].path.split(".")[0];
+        const variable = entities[i]?.path?.split(".")[0];
         const instance = window.Instances[variable];
-        const filemeta = instance[variable + "_meta"].variable.types[0].filemeta;
-        visuals.push({ id: variable, name: instance.name, filemeta: filemeta });
+        const filemeta = instance[variable + "_meta"]?.variable?.types[0]?.filemeta;
+        visuals.push({ id: variable, name: instance?.name, filemeta: filemeta });
       }
     }
 
