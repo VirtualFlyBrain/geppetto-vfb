@@ -25,6 +25,7 @@ import { withStyles } from "@material-ui/styles";
 import axios from "axios";
 import { DropzoneArea } from "material-ui-dropzone";
 import UploadIcon from "../../configuration/VFBUploader/upload-icon.png";
+import { nanoid } from 'nanoid';
 
 const styles = theme => ({
   dropzoneArea: { minHeight: "20vh !important" },
@@ -115,11 +116,12 @@ class VFBUploader extends React.Component {
 
   handleNBLASTAction () {
     this.setState({ nblastEnabled: true });
-    let unique_id = Math.floor(10000000 + Math.random() * 90000000).toString();
-    unique_id = unique_id + "." + this.state.files[0].name.split(".")[1];
-    let url = this.configuration.nblastURL.replace(UNIQUE_ID, unique_id);
+    let newId = "VFBu_" + nanoid(8);
+    let url = this.configuration.nblastURL.replace(UNIQUE_ID, this.state.templateSelected + "&" + newId);
     var formData = new FormData();
     formData.append("file", this.state.files[0]);
+    formData.append("vfbID", newId);
+    formData.append("templateID", this.state.templateSelected);
     this.requestUpload(formData, url);
   }
 
@@ -128,8 +130,10 @@ class VFBUploader extends React.Component {
    */
   requestUpload (formData, url) {
     let self = this;
+    let _id = formData.get("vfbID");
+    let newURL = window.location.origin + window.location.pathname + "&q=" + _id + "," + this.configuration.queryType;
 
-    this.setState({ fileNBLASTURL: url });
+    this.setState({ fileNBLASTURL: newURL });
     
     axios.put(url,
       formData, { headers: { 'Content-Type': this.configuration.contentType } }

@@ -9,5 +9,6 @@
 	"dialogSubtitle" : "File should be swc",
 	"blastButtonText" : "Generate a nblast query link",
 	"dropZoneMessage" : "Click or Drag & Drop your file here",
-	"infoMessage" : "Generating a nblast query can take up to 30 min. Save this link to find the result of your query."
+	"infoMessage" : "Generating a nblast query can take up to 30 min. Save this link to find the result of your query.",
+	"queryType": "uploaderQuery"
 }
