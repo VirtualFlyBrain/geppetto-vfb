@@ -1,0 +1,30 @@
+{
+	"postURL":"https://zip.virtualflybrain.org/download",
+	"contentType": "application/json",
+	"zipName" : "VFB Files.zip",
+	"options" :{
+		"obj": { 
+		  "label" : "OBJ"
+		},
+		"swc": { 
+		  "label" : "SWC"
+		},
+		"nrrd": { 
+		  "label" : "NRRD"
+		},
+		"reference": { 
+		  "label" : "References"
+		}
+	},
+	"text" : {
+		"title" : "Download Data",
+		"typesSubtitle" : "Please select the desired types",
+		"variablesSubtitle" : "Please select Variables:",
+		"noVariablesSubtitle" : "No loaded variables",
+		"errorMessage" : "Something went wrong...  We were not able to download the data.  Please try again.",
+		"noEntriesFound" : "No entries found for the types and variables selected.",
+		"cancelButton" : "Cancel",
+		"downloadButton" : "Download",
+		"tryAgainButton" : "Try Again"
+	}
+}
