@@ -337,6 +337,38 @@ var toolbarMenu = {
                     handlerAction: "openNewTab",
                     parameters: ["https://l1em.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
                   }
+                },
+                {
+                  label: "Larval (L3VNC)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://l3vnc.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
+                  }
+                },
+                {
+                  label: "Larval (ABD1.5)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://abd1-5.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
+                  }
+                },
+                {
+                  label: "Larval Mutant (IAV-Robo)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://iav-robo.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
+                  }
+                },
+                {
+                  label: "Larval Mutant (IAV-TNT)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://iav-tnt.catmaid.virtualflybrain.org/?pid=1&zp=108250&yp=82961.59999999999&xp=54210.799999999996&tool=tracingtool&sid0=1&s0=2.4999999999999996&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
+                  }
                 }
               ]
             },
@@ -372,6 +404,38 @@ var toolbarMenu = {
                     handlerAction: "openNewTab",
                     parameters: ["https://l1em.catmaid.virtualflybrain.org/apis/"]
                   }
+                },
+                {
+                  label: "Larval (L3VNC)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://l3vnc.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Larval (ABD1.5)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://abd1-5.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Larval Mutant (IAV-Robo)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://iav-robo.catmaid.virtualflybrain.org/apis/"]
+                  }
+                },
+                {
+                  label: "Larval Mutant (IAV-TNT)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://iav-tnt.catmaid.virtualflybrain.org/apis/"]
+                  }
                 }
               ]
             }
@@ -384,12 +448,12 @@ var toolbarMenu = {
           position: "right-start",
           list: [
             {
-              label: "Python (PyPi)",
+              label: "Python",
               icon: "",
               trailerIcon: "fa fa-external-link",
               action: {
                 handlerAction: "openNewTab",
-                parameters: ["https://pypi.org/project/vfb-connect/"]
+                parameters: ["https://vfb-connect.readthedocs.io/"]
               }
             },
             {
