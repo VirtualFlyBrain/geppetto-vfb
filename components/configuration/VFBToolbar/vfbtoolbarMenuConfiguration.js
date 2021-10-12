@@ -479,12 +479,21 @@ var toolbarMenu = {
           position: "right-start",
           list: [
             {
-              label: "Python",
+              label: "VFB_connect: A library for querying VFB",
               icon: "",
               trailerIcon: "fa fa-external-link",
               action: {
                 handlerAction: "openNewTab",
                 parameters: ["https://vfb-connect.readthedocs.io/"]
+              }
+            },
+            {
+              label: "Python (PiPy)",
+              icon: "",
+              trailerIcon: "fa fa-external-link",
+              action: {
+                handlerAction: "openNewTab",
+                parameters: ["https://pypi.org/project/vfb-connect/"]
               }
             },
             {
