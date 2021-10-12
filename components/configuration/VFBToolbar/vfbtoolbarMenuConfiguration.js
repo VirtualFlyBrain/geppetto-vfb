@@ -247,7 +247,7 @@ var toolbarMenu = {
         },
         {
           label: "Circuit Browser",
-          icon: "fa fa-cogs",
+          icon: "fa fa-connectdevelop",
           action: {
             handlerAction: "UIElementHandler",
             parameters: ["circuitBrowserVisible"]
@@ -777,7 +777,7 @@ var toolbarMenu = {
         },
         {
           label: "Circuit Browser Query (Shortest Weighted Path Algorithm)",
-          icon: "",
+          icon: "fa fa-connectdevelop",
           trailerIcon: "fa fa-external-link",
           action: {
             handlerAction: "openNewTab",
