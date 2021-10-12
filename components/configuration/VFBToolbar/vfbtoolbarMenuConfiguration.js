@@ -239,7 +239,7 @@ var toolbarMenu = {
         },
         {
           label: "Term Context",
-          icon: "fas fa-sitemap",
+          icon: "fa fa-sitemap",
           action: {
             handlerAction: "UIElementHandler",
             parameters: ["graphVisible"]
