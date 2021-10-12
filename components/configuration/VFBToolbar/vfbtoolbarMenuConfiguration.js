@@ -761,25 +761,32 @@ var toolbarMenu = {
       list: [
         {
           label: "F.A.Q.",
-          icon: "",
-          trailerIcon: "fa fa-external-link",
+          icon: "fa fa-comments-o",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://groups.google.com/forum/embed/?place=forum/vfb-suport#!forum/vfb-suport"]
+            parameters: ["https://groups.google.com/g/vfb-suport"]
           }
         },
         {
           label: "Support Forum",
+          icon: "fa fa-medkit",
+          action: {
+            handlerAction: "openNewTab",
+            parameters: ["https://groups.google.com/g/vfb-suport"]
+          }
+        },
+        {
+          label: "Circuit Browser Query (Shortest Weighted Path Algorithm)",
           icon: "",
           trailerIcon: "fa fa-external-link",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://groups.google.com/forum/#!forum/vfb-suport"]
+            parameters: ["https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md"]
           }
         },
         {
           label: "Report an issue",
-          icon: "",
+          icon: "fa fa-bug",
           action: {
             handlerAction: "clickFeedback",
             parameters: []

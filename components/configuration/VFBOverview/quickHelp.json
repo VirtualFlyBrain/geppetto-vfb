@@ -87,5 +87,43 @@
 			"icon" : "fa fa-quora",
 			"label" : "Run term related queries"
 		}]
+	},{
+		"title": "This is the Term Context tab",
+		"image" : "geppetto/build/term-context.png",
+		"instructions": [{
+			"icon" : "",
+			"label" : "Term Context displays grapical information on the currently selected term's location or classification"
+		},{
+			"icon" : "fa fa-home",
+			"label" : "Home resets your view"
+		},{
+			"icon" : "fa fa-search-plus",
+			"label" : "Use the zoom icons or scroll with the mouse to zoom in/out"
+		},{
+			"icon" : "fa fa-refresh",
+			"label" : "Click to refresh to the current focus term"
+		},{
+			"icon" : "fa fa-bars",
+			"label" : "Select either the location or the classification for the current term"
+		}]
+	},{
+		"title": "This is the Circuit Browser tab",
+		"image" : "geppetto/build/circuit1.png",
+		"instructions": [{
+			"icon" : "",
+			"label" : "The Circuit Browser allows you to find the strongest paths from one neuron to another."
+		},{
+			"icon" : "fa fa-dot-circle-o",
+			"label" : "The source neuron to start from"
+		},{
+			"icon" : "fa fa-map-marker",
+			"label" : "The destination neuron. Note: query is directional"
+		},{
+			"icon" : "fa fa-arrows-h",
+			"label" : "Max number of paths to return. Stongest-weakest routes are arranged bottom-top."
+		},{
+			"icon" : "fa fa-balance-scale",
+			"label" : "A minimum acceptable weight can be applied. strongest paths are the shortest/highest weighted paths. A detailed explanation can be found under help."
+		}]
 	}]
 }
