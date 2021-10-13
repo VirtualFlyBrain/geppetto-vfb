@@ -111,19 +111,19 @@
 		"image" : "geppetto/build/circuit1.png",
 		"instructions": [{
 			"icon" : "",
-			"label" : "The Circuit Browser allows you to find the strongest paths from one neuron to another."
+			"label" : "The Circuit Browser allows you to find the strongest paths from one neuron (the source neuron) to another (the target neuron). The 'strongest' paths are the shortest/highest weighted paths. Paths are arranged from the 'strongest' at the bottom to the 'weakest' at the top. A detailed explanation for the algorithm used to determine path strengths can be found under help."
 		},{
 			"icon" : "fa fa-dot-circle-o",
-			"label" : "The source neuron to start from"
+			"label" : "Search for the source neuron to start from (Note: query is directional)"
 		},{
 			"icon" : "fa fa-map-marker",
-			"label" : "The destination neuron. Note: query is directional"
+			"label" : "Search for the target neuron"
 		},{
 			"icon" : "fa fa-arrows-h",
-			"label" : "Max number of paths to return. Stongest-weakest routes are arranged bottom-top."
+			"label" : "Maximum number of paths to return (only the 'strongest' paths will be returned)"
 		},{
 			"icon" : "fa fa-balance-scale",
-			"label" : "A minimum acceptable weight can be applied. strongest paths are the shortest/highest weighted paths. A detailed explanation can be found under help."
+			"label" : "A minimum weight for the synapse count of each connection can be applied, paths containing individual connections below this minimum will not be returned"
 		}]
 	}]
 }
