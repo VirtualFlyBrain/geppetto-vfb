@@ -192,6 +192,7 @@ jobs:
       - name: Stop VFB server   
         run: docker stop testServer
       - uses: actions/upload-artifact@v2
+        if: ${{ fail() }}
         with:
           name: test_fails
           path: |
