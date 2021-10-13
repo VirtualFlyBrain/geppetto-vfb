@@ -191,3 +191,10 @@ jobs:
           fi
       - name: Stop VFB server   
         run: docker stop testServer
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test_fails
+          path: |
+            tests/jest/vfb/snapshots/*/*/__diff_output__/*.png
+            tests/jest/vfb/snapshots/*/*/*.png
+          retention-days: 5
