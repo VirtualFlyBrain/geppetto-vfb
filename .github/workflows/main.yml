@@ -182,7 +182,7 @@ jobs:
       - name: Test batch 2   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch2/.*js'
       - name: Test batch 3   
-        run: npm test -- --verbose --colors --forceExit --updateSnapshot --testPathPattern='geppetto-vfb/tests/jest/vfb/batch3/.*js'
+        run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch3/.*js'
       - name: Test under review  
         continue-on-error: true
         run: |
