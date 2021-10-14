@@ -136,13 +136,13 @@ const buttonBarControls = {
 const linksConfiguration = {
   // Graph Links configuration, name of key "Graph" must not be changed
   "Graph": {
-    "title": "Graphs For",
+    "title": "Graphs for",
     "visibility": true,
     "superType": "Anatomy"
   },
   // CircuitBrowser Links configuration, name of key "CircuitBrowser" must not be changed
   "CircuitBrowser": {
-    "title": "Add Neuron to Circuit Browser",
+    "title": "Add Neuron to Circuit Browser Query",
     "visibility": true,
     "superType": "has_neuron_connectivity"
   }

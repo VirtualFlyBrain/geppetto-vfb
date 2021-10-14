@@ -17,6 +17,7 @@ import {
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
+const configuration = require('../components/configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
 
 export const GENERAL_DEFAULT_STATE = {
   error: undefined,
@@ -42,7 +43,7 @@ export const GENERAL_DEFAULT_STATE = {
     termInfo : { termInfoVisible : false },
     layers : { listViewerInfoVisible : true },
     circuitBrowser : {
-      circuitQuerySelected : [],
+      circuitQuerySelected : [{ id : "", label : "" } , { id : "", label : "" }],
       visible : true
     },
     layout: {
@@ -248,7 +249,21 @@ function generalReducer (state, action) {
       newQueryMap = action.data.instance;
     } else {
       // Instance is object
-      !state.ui.circuitBrowser.circuitQuerySelected.includes(action.data.instance) ? newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected, action.data.instance] : newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
+      let match = state.ui.circuitBrowser.circuitQuerySelected?.find( query => query.id === action.data.instance.id );
+      if ( match ) {
+        newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected]
+      } else {
+        const maxedOut = state.ui.circuitBrowser?.circuitQuerySelected?.find( query => query.id === "" );
+        const emptyIndex = state.ui.circuitBrowser?.circuitQuerySelected?.findIndex( field => field.id === "");
+        if ( emptyIndex >= 0 ) {
+          newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected]
+          newQueryMap[emptyIndex] = action.data.instance;
+        } else {
+          newQueryMap = [...state.ui.circuitBrowser.circuitQuerySelected];
+          newQueryMap.pop();
+          newQueryMap.push(action.data.instance);
+        }
+      }
     }
     
     ui.circuitBrowser.circuitQuerySelected = newQueryMap;
