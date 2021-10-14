@@ -52,7 +52,9 @@ export function queryParser (e) {
       if (allRelationships.get(parseInt(startNode)) === undefined) {
         allRelationships.set(parseInt(startNode), new Array());
       }
-      allRelationships?.get(parseInt(startNode))?.push( { target : parseInt(endNode), label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
+      if ( data[0]?.row[3].includes(parseInt(id)) ) {
+        allRelationships?.get(parseInt(startNode))?.push( { target : parseInt(endNode), label : properties[e.data.params.configuration.resultsMapping.link.label], weight : properties[e.data.params.configuration.resultsMapping.link.weight] });
+      }
     });
   });
     

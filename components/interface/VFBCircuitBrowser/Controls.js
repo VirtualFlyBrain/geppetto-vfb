@@ -27,8 +27,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
-import { DatasourceTypes } from '@geppettoengine/geppetto-ui/search/datasources/datasources';
-import { getResultsSOLR } from "@geppettoengine/geppetto-ui/search/datasources/SOLRclient";
+import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -110,7 +109,8 @@ const styles = theme => ({
     backgroundColor : "#E53935",
     flexBasis: "100%",
     fontWeight : 600,
-  }
+  },
+  slider : { color: '#0AB7FE' }
 });
 
 /**
@@ -121,8 +121,8 @@ const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBro
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
 
-const searchConfiguration = require('./../../configuration/VFBMain/searchConfiguration').searchConfiguration;
-const datasourceConfiguration = require('./../../configuration/VFBMain/searchConfiguration').datasourceConfiguration;
+const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
+const datasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
 
 /**
  * Create custom marks for Paths slider.
@@ -146,6 +146,7 @@ class AutocompleteResults extends Component {
     super(props);
     this.state = { filteredResults: {} };
     this.handleResults = this.handleResults.bind(this);
+    this.fieldLabel = this.props.field.label;
   }
   
   /**
@@ -153,20 +154,10 @@ class AutocompleteResults extends Component {
    */
   handleResults (status, data, value){
     let results = {};
-    console.log("Status ", status)
-    console.log("Data ", data)
-    console.log("Value ", value)
     data?.map(result => {
-      // Match results by short_form id
-      if ( result?.short_form?.toLowerCase().includes(value?.toLowerCase()) ){
-        results[result?.label] = result;
-      } else if ( result?.label?.toLowerCase().includes(value?.toLowerCase()) ){
-        results[result?.label] = result;
-      }
+      results[result?.label] = result;
     });
-    
-    console.log("Results ", results)
-      
+          
     this.setState({ filteredResults : results });
   }
   
@@ -174,9 +165,15 @@ class AutocompleteResults extends Component {
     return this.state.filteredResults;
   }
   
+  shouldComponentUpdate(nextProps, nextState) {
+    this.fieldLabel = nextProps.getLatestNeuronFields()[this.props.index].label;
+    return true;
+  }
+  
   render () {
     const label = "Neuron " + (this.props.index + 1) .toString();
-
+    const options = Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label);
+    
     return (
       <Autocomplete
         fullWidth
@@ -184,7 +181,7 @@ class AutocompleteResults extends Component {
         disableClearable
         disablePortal
         autoHighlight
-        value={this.props.field.label}
+        value={this.fieldLabel}
         id={this.props.index.toString()}
         ListboxProps={{ style: { maxHeight: "10rem" } }}
         onChange={this.props.resultSelectedChanged}
@@ -339,7 +336,6 @@ class Controls extends Component {
    * Neuron text field has been modified.
    */
   neuronTextfieldModified (event) {
-    console.log(event.key);
     this.resultsHeight = event.target.offsetTop + 15;
     // Remove old typing timeout interval
     if (this.state.typingTimeout) {
@@ -444,7 +440,7 @@ class Controls extends Component {
     const { classes } = this.props;
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     let neuronFields = this.getUpdatedNeuronFields();
-
+    
     let expanded = this.state.expanded;
     if ( this.props.resultsAvailable() ){
       expanded = true;
@@ -503,6 +499,7 @@ class Controls extends Component {
                           field={field}
                           index={index}
                           neuronTextfieldModified={this.neuronTextfieldModified}
+                          getLatestNeuronFields={this.getUpdatedNeuronFields}
                           resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
                           ref={this.autocompleteRef[index.toString()]}
                         />
@@ -571,6 +568,7 @@ class Controls extends Component {
                       valueLabelDisplay="auto"
                       min={configuration.minPaths}
                       max={configuration.maxPaths}
+                      classes={{ root : classes.slider }}
                     />  
                   </Grid>
                 </Grid>
@@ -588,7 +586,7 @@ class Controls extends Component {
                       classes={{ root : classes.refreshButton }}
                       id="refreshCircuitBrowser"
                       onClick={() => this.props.updateGraph(this.neuronFields, this.paths, this.weight)}
-                    >Refresh</Button>  
+                    >Run Query</Button>  
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
                     <Button
