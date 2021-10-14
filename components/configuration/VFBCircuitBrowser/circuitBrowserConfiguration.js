@@ -3,10 +3,10 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     {
       "statement" : "WITH [" + instances + "] AS neurons"
       + " WITH neurons[0] as a, neurons[1] AS b"
-      + " MATCH (source:has_neuron_connectivity {short_form: a}), (target:Neuron {short_form: b})"
+      + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a}), (target:Neuron:has_neuron_connectivity {short_form: b})"
       + " CALL gds.beta.shortestPath.yens.stream({"
-      + "  nodeQuery: 'MATCH (n:Neuron) RETURN id(n) AS id',"
-      + "  relationshipQuery: 'MATCH (a:Neuron:has_neuron_connectivity)-[r:synapsed_to]->(b:Neuron) WHERE exists(r.weight) AND r.weight[0] >= "
+      + "  nodeQuery: 'MATCH (n:Neuron:has_neuron_connectivity) RETURN id(n) AS id',"
+      + "  relationshipQuery: 'MATCH (a:Neuron:has_neuron_connectivity)-[r:synapsed_to]->(b:Neuron:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] >= "
       + weight?.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
@@ -18,12 +18,13 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
-      + " OPTIONAL MATCH cp=(x)-[:synapsed_to]-(y) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y)"
+      + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
       + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY ",
       "resultDataContents": ["row", "graph"]
     }
   ]
 });
+// See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
 
 var configuration = {
   resultsMapping:
