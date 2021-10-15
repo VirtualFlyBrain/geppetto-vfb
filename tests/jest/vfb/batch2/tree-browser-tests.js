@@ -62,7 +62,7 @@ const clickNodeIcon = async (page, text, icon) => page.evaluate(async (text, ico
 describe('VFB Tree Browser Component Tests', () => {
 	beforeAll(async () => {
 		//increases timeout to ~8 minutes
-		jest.setTimeout(500000);
+		jest.setTimeout(800000);
 		await page.goto(projectURL);
 	});
 
