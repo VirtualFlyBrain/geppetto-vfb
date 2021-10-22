@@ -165,7 +165,7 @@ class AutocompleteResults extends Component {
     return this.state.filteredResults;
   }
   
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate (nextProps, nextState) {
     this.fieldLabel = nextProps.getLatestNeuronFields()[this.props.index].label;
     return true;
   }

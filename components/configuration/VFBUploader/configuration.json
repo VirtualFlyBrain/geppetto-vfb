@@ -5,10 +5,23 @@
 	"acceptedFiles" : [".swc", ".nrrd"],
 	"filesLimit" : 1,
 	"maxFileSize" : 3000000,
-	"dialogTitle" : "Upload Data File",
-	"dialogSubtitle" : "File should be swc",
-	"blastButtonText" : "Generate a nblast query link",
-	"dropZoneMessage" : "Click or Drag & Drop your file here",
-	"infoMessage" : "Generating a nblast query can take up to 30 min. Save this link to find the result of your query.",
-	"queryType": "uploaderQuery"
+	"queryType": "uploaderQuery",
+	"cookieStorageDays" : 100,
+	"cookiesLearnLink" : "https://en.wikipedia.org/wiki/HTTP_cookie",
+	"text" : {
+		"dialogTitle" : "Upload Data File",
+		"dialogSubtitle" : "Generate a nblast query from your own data.",
+		"selectTemplate" : "1. Select a Template",
+		"select" : "Select",
+		"addYourFile" : "2. Add your file (Please use a .swc)",
+		"dropZoneMessage" : "Click or Drag & Drop your file here",
+		"agreeTerms" : "I agree to the use of cookies to store the NBLAST QUERY URL. ",
+		"learnMore" : "Learn More",
+		"blastButtonText" : "Generate a nblast query link",
+		"restartButtonText" : "Restart",
+		"copyButtonText" : "Copy",
+		"infoMessage" : "Generating a nblast query can take up to 30 min. Save this link to find the result of your query.",
+		"errorDialog" : "Something went wrong... We were not able to generate a nblast query link from your data. Please try again.",
+		"errorButtonText" : "Try Again"
+	}
 }
