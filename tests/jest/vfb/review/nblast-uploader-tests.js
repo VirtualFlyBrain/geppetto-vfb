@@ -5,7 +5,7 @@ import { getUrlFromProjectId } from '../cmdline.js';
 import { wait4selector, click, closeModalWindow, findElementByText } from '../utils';
 import * as ST from '../selectors';
 
-const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
+const baseURL = process.env.url ||  'http://localhost:8081/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?id=VFB_00017894";
 
 /**
@@ -39,14 +39,36 @@ describe('VFB Uploader Tests', () => {
 	})
 
 	describe('Tests NBLAST Uploader', () => {
-		it('Upload File', async () => {
+		it('Open Uploader', async () => {
 			await page.click('#fa-upload');			  
 			
-			await page.waitForSelector('input[type=file]');
-			const fileInput  = await page.$('.MuiDropzoneArea-root > input[type=file]');
-			await fileInput.uploadFile("./../../resources/volume.nrrd");
+			await page.waitForSelector('div.MuiDialog-root');
+		})
+		
+		it('Templates Populated', async () => {
+			await page.evaluate(async () => {
+				var dropdown = document.getElementById('mui-component-select-template');
+			    var event = document.createEvent('MouseEvents');
+			    event.initMouseEvent('mousedown', true, true, window);
+			    dropdown.dispatchEvent(event);
+			});			  
 			
-			await page.waitForSelector('#upload');
+			await page.waitForSelector('li.MuiListItem-root');
+			
+			const list = await page.evaluate(async () => {
+				document.querySelectorAll('.MuiListItem-root')[1].click();
+				return document.querySelectorAll('.MuiListItem-root').length;
+			});
+			
+			expect(list).toBe(3);
+		})
+		
+		it('Template Selected', async () => {
+			const selection = await page.evaluate(async () => {
+				return document.getElementById("template-selection").value;
+			});
+			
+			expect(selection).toBe("JRC2018Unisex");
 		})
 		
 	})

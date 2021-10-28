@@ -5,7 +5,7 @@ import { getUrlFromProjectId } from '../cmdline.js';
 import { wait4selector, click, closeModalWindow, findElementByText } from '../utils';
 import * as ST from '../selectors';
 
-const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
+const baseURL = process.env.url ||  'http://localhost:8081/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?id=VFB_00102107&i=VFB_00101567,VFB_00102271,VFB_00102107";
 
 /**
