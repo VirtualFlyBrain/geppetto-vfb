@@ -325,6 +325,7 @@ class VFBDownloadContents extends React.Component {
           onClose={this.handleCloseDialog}
           aria-labelledby="max-width-dialog-title"
           classes={{ root: self.props.classes.dialog }}
+          id="downloadContents"
         >
           <DialogTitle
             id="max-width-dialog-title"
@@ -374,6 +375,7 @@ class VFBDownloadContents extends React.Component {
                             disabled={this.state.downloading}
                             disableRipple
                             className={self.props.classes.checked}
+                            id={option.id}
                           />
                         </Box>
                       </Grid>
@@ -410,6 +412,7 @@ class VFBDownloadContents extends React.Component {
                                     }
                                     disableRipple
                                     className={self.props.classes.checked}
+                                    id={ALL_INSTANCES.id}
                                   />
                                 }
                                 label={
@@ -440,6 +443,7 @@ class VFBDownloadContents extends React.Component {
                                           )
                                         }
                                         className={self.props.classes.checked}
+                                        id={"Download_" + node.id}
                                       />
                                     }
                                     label={
@@ -510,6 +514,7 @@ class VFBDownloadContents extends React.Component {
                     disabled={!this.state.downloadEnabled}
                     onClick={this.handleDownload}
                     variant="contained"
+                    id="downloadContentsButton"
                   >
                     {self.state.downloading ? (
                       <CircularProgress size={18} />
