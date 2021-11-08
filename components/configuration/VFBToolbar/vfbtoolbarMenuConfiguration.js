@@ -254,6 +254,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "NBLAST Uploader",
+          icon: "fa fa-upload",
+          action: {
+            handlerAction: "uploaderContentsVisible",
+            parameters: []
+          }
+        },
+        {
           label: "NBLAST",
           icon: "",
           action: "",
