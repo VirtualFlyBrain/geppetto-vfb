@@ -576,7 +576,7 @@ var toolbarMenu = {
                   }
                 },
                 {
-                  label: "Adult VNS (Court2017)",
+                  label: "Adult VNS (Court2018)",
                   icon: "",
                   action: {
                     handlerAction: "openNewTab",
