@@ -697,7 +697,7 @@ var toolbarMenu = {
                   }
                 },
                 {
-                  label: "Adult VNS",
+                  label: "Adult VNS (Court2018)",
                   icon: "",
                   action: {
                     handlerAction: "triggerRunQuery",
