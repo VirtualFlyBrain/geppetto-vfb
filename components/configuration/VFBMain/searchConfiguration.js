@@ -110,6 +110,7 @@ var searchConfiguration = {
       "id": "short_form",
       "labels" : "facets_annotation"
     },
+  "label_manipulation" : label => label,
   "filters_expanded": true,
   "filter_positive" : "^100",
   "filter_negative" : "^0.001",
