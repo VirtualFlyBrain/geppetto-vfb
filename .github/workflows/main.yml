@@ -26,8 +26,8 @@ jobs:
       # Decide based on branch which servers to use
       - name: Pass branch
         id: branch
-        run: echo "::set-output name=value::${GITHUB_REF#refs/heads/}";
-            echo "::set-output name=clean::$(echo ${GITHUB_REF#refs/heads/} | sed 's@[/\\]@-@g')";
+        run: echo "::set-output name=value::$(echo ${GITHUB_REF} | sed 's@refs/heads/@@g' | sed 's@refs/tags/@@g' )";
+            echo "::set-output name=clean::$(echo ${GITHUB_REF} | sed 's@refs/heads/@@g' | sed 's@refs/tags/@@g' | sed 's@[/\\]@-@g')";
       - name: Setup local servers
         id: local-servers
         shell: bash
@@ -191,3 +191,11 @@ jobs:
           fi
       - name: Stop VFB server   
         run: docker stop testServer
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: test_fails
+          path: |
+            tests/jest/vfb/snapshots/*/*/__diff_output__/*.png
+            tests/jest/vfb/snapshots/*/*/*.png
+          retention-days: 5
