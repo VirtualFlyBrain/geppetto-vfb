@@ -4,16 +4,20 @@
 	"zipName" : "VFB Files.zip",
 	"options" :{
 		"obj": { 
-		  "label" : "OBJ"
+		  "label" : "OBJ",
+		  "tooltip" : "Download OBJ"
 		},
 		"swc": { 
-		  "label" : "SWC"
+		  "label" : "SWC",
+		  "tooltip" : "Download SWC"
 		},
 		"nrrd": { 
-		  "label" : "NRRD"
+		  "label" : "NRRD",
+		  "tooltip" : "Download NRRD"
 		},
 		"reference": { 
-		  "label" : "References"
+		  "label" : "References",
+		  "tooltip" : "Download References"
 		}
 	},
 	"text" : {
