@@ -349,7 +349,7 @@ class VFBDownloadContents extends React.Component {
                     const labelId = `checkbox-list-secondary-label-${key}`;
                     return (
                       <Grid item xs={3}>
-                        <Tooltip title={<h6>{`${option.tooltip}`}</h6>} classes={{popper: "light"}} placement="top-start" arrow>
+                        <Tooltip title={ <h6>{`${option.tooltip}`}</h6> } classes={ { popper: "light" } } placement="top-start" arrow>
                           <Box
                             textAlign="center"
                             className={
