@@ -28,6 +28,7 @@ const styles = theme => ({
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
 const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
+const autosuggestFormat = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').autosuggestFormat;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
 
 /**
@@ -197,8 +198,10 @@ class VFBCircuitBrowser extends Component {
     if (this.__isMounted){
       // Show loading spinner while cypher query search occurs
       this.setState({ loading : true , neurons : neurons ? neurons : this.state.neurons, paths : paths ? paths : this.state.paths, weight : weight ? weight : this.state.weight, queryLoaded : false });
+      let suggestion = this.state.neurons.find( neuron => neuron.id != "" )?.id;
+      console.log("Suggestion ", suggestion);
       // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
-      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, paths ? paths : this.state.paths, weight ? weight : this.state.weight));
+      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, paths ? paths : this.state.paths, weight ? weight : this.state.weight, autosuggestFormat(suggestion)));
     }
   }    
 

@@ -1,4 +1,4 @@
-var locationCypherQuery = ( instances, paths, weight ) => ({
+var locationCypherQuery = ( instances, paths, weight, autosuggest ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
@@ -14,6 +14,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + "  relationshipWeightProperty: 'weight_p',"
       + "  relationshipTypes: ['*'],"
       + "  path: true"
+      + "  fq: ['shortform_autosuggest:" + autosuggest + "']"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
       + " WITH * ORDER BY index DESC"
@@ -24,6 +25,21 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     }
   ]
 });
+
+var autosuggestFormat = query => {
+	if ( query?.startsWith("VFB") ){
+		return "shortform_autosuggest:VFB*";
+	} else if ( query?.startsWith("FB") ){
+		return "shortform_autosuggest:FB*"; 
+	} else if ( query?.startsWith("DataSet") ){
+		return "facets_annotation:DataSet";
+	} else if ( query?.startsWith("pub") ){
+		return "facets_annotation:pub";
+	}
+	
+	return "";
+};
+
 // See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
 
 var configuration = {
@@ -120,5 +136,6 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  locationCypherQuery
+  locationCypherQuery,
+  autosuggestFormat
 };
