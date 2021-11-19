@@ -1,4 +1,4 @@
-var locationCypherQuery = ( instances, paths, weight, autosuggest ) => ({
+var locationCypherQuery = ( instances, paths, weight ) => ({
   "statements": [
     {
       "statement" : "WITH [" + instances + "] AS neurons"
@@ -14,7 +14,6 @@ var locationCypherQuery = ( instances, paths, weight, autosuggest ) => ({
       + "  relationshipWeightProperty: 'weight_p',"
       + "  relationshipTypes: ['*'],"
       + "  path: true"
-      + "  fq: ['shortform_autosuggest:" + autosuggest + "']"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
       + " WITH * ORDER BY index DESC"
@@ -26,19 +25,11 @@ var locationCypherQuery = ( instances, paths, weight, autosuggest ) => ({
   ]
 });
 
-var autosuggestFormat = query => {
-	if ( query?.startsWith("VFB") ){
-		return "shortform_autosuggest:VFB*";
-	} else if ( query?.startsWith("FB") ){
-		return "shortform_autosuggest:FB*"; 
-	} else if ( query?.startsWith("DataSet") ){
-		return "facets_annotation:DataSet";
-	} else if ( query?.startsWith("pub") ){
-		return "facets_annotation:pub";
-	}
-	
-	return "";
-};
+var Neo4jLabels = {
+  FAFB : "FAFB",
+  L1EM : "L1EM",
+  FlyEM_HB : "FlyEM_HB"
+}
 
 // See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
 
@@ -137,5 +128,5 @@ module.exports = {
   styling,
   restPostConfig,
   locationCypherQuery,
-  autosuggestFormat
+  Neo4jLabels
 };
