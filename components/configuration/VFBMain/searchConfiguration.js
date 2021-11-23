@@ -306,10 +306,10 @@ var searchConfiguration = {
       return 1;
     }
     // move up expression (VFBexp) terms
-    if (a.id.indexOf(VFBexp) > -1 && b.id.indexOf(VFBexp) < 0) {
+    if (a.id.indexOf("VFBexp") > -1 && b.id.indexOf("VFBexp") < 0) {
       return -1;
     }
-    if (b.id.indexOf(VFBexp) > -1 && a.id.indexOf(VFBexp) < 0) {
+    if (b.id.indexOf("VFBexp") > -1 && a.id.indexOf("VFBexp") < 0) {
       return 1;
     }
     // if the match in the id is closer to start then move up
