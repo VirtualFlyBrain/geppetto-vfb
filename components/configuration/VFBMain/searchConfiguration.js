@@ -305,6 +305,13 @@ var searchConfiguration = {
     if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
       return 1;
     }
+    // move up expression (VFBexp) terms
+    if (a.id.indexOf(VFBexp) > -1 && b.id.indexOf(VFBexp) < 0) {
+      return -1;
+    }
+    if (b.id.indexOf(VFBexp) > -1 && a.id.indexOf(VFBexp) < 0) {
+      return 1;
+    }
     // if the match in the id is closer to start then move up
     if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
       return -1;
