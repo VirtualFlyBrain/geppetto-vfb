@@ -99,7 +99,7 @@ var datasourceConfiguration = {
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
+      "bq": "shortform_autosuggest:VFBexp*^10.0 shortform_autosuggest:VFB*^100.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
