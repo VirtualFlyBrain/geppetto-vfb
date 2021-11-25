@@ -5,6 +5,7 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -348,36 +349,38 @@ class VFBDownloadContents extends React.Component {
                     const labelId = `checkbox-list-secondary-label-${key}`;
                     return (
                       <Grid item xs={3}>
-                        <Box
-                          textAlign="center"
-                          className={
-                            this.state.typesChecked.indexOf(key) !== -1
-                              ? self.props.classes.checkedBox
-                              : null
-                          }
-                          p={2}
-                          border={1}
-                          borderColor="#E5E5E5"
-                          key={option.label}
-                        >
-                          <img src={iconsMap[key]} alt="" />
-                          <Typography
-                            align="center"
-                            variant="h5"
-                            id={labelId}
+                        <Tooltip title={ <h6>{`${option.tooltip}`}</h6> } classes={ { popper: "light" } } placement="top-start" arrow>
+                          <Box
+                            textAlign="center"
+                            className={
+                              this.state.typesChecked.indexOf(key) !== -1
+                                ? self.props.classes.checkedBox
+                                : null
+                            }
+                            p={2}
+                            border={1}
+                            borderColor="#E5E5E5"
+                            key={option.label}
                           >
-                            {`${option.label}`}
-                          </Typography>
-                          <Checkbox
-                            onChange={() => self.handleTypeSelection(key)}
-                            checked={this.state.typesChecked.indexOf(key) !== -1}
-                            inputProps={{ "aria-labelledby": labelId }}
-                            disabled={this.state.downloading}
-                            disableRipple
-                            className={self.props.classes.checked}
-                            id={option.id}
-                          />
-                        </Box>
+                            <img src={iconsMap[key]} alt="" />
+                            <Typography
+                              align="center"
+                              variant="h5"
+                              id={labelId}
+                            >
+                              {`${option.label}`}
+                            </Typography>
+                            <Checkbox
+                              onChange={() => self.handleTypeSelection(key)}
+                              checked={this.state.typesChecked.indexOf(key) !== -1}
+                              inputProps={{ "aria-labelledby": labelId }}
+                              disabled={this.state.downloading}
+                              disableRipple
+                              className={self.props.classes.checked}
+                              id={option.id}
+                            />
+                          </Box>
+                        </Tooltip>
                       </Grid>
                     );
                   })}
