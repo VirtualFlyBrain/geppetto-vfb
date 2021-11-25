@@ -60,7 +60,7 @@ var searchStyle = {
   singleResult: {
     "color": "white",
     "fontSize": "18px",
-
+    "whiteSpace" : "normal",
     ":hover": {
       "color": "#11bffe",
       "background-color": "#252323",
@@ -107,9 +107,13 @@ var searchConfiguration = {
   "resultsMapping":
     {
       "name": "label",
-      "id": "short_form"
+      "id": "short_form",
+      "labels" : "facets_annotation"
     },
+  "label_manipulation" : label => label,
   "filters_expanded": true,
+  "filter_positive" : "^100",
+  "filter_negative" : "^0.001",
   "filters": [
     {
       "key": "facets_annotation",
