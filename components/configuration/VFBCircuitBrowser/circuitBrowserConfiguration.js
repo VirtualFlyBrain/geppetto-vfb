@@ -24,6 +24,13 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     }
   ]
 });
+
+var Neo4jLabels = {
+  FAFB : "FAFB",
+  L1EM : "L1EM",
+  FlyEM_HB : "FlyEM_HB"
+}
+
 // See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
 
 var configuration = {
@@ -120,5 +127,6 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  locationCypherQuery
+  locationCypherQuery,
+  Neo4jLabels
 };
