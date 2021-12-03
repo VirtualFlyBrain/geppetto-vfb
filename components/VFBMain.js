@@ -33,7 +33,6 @@ class VFBMain extends React.Component {
 
   constructor (props) {
     super(props);
-    this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
     this.state = {
       canvasAvailable: false,
@@ -55,8 +54,7 @@ class VFBMain extends React.Component {
       UIUpdated: true,
       wireframeVisible: false,
       downloadContentsVisible : true,
-      uploaderContentsVisible : true,
-      searchDataSourceConfiguration : this.datasourceConfiguration
+      uploaderContentsVisible : true
     };
 
     this.addVfbId = this.addVfbId.bind(this);
@@ -74,7 +72,6 @@ class VFBMain extends React.Component {
     this.handlerInstanceUpdate = this.handlerInstanceUpdate.bind(this);
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
     this.instancesFromDifferentTemplates = this.instancesFromDifferentTemplates.bind(this);
-    this.filterSelection = this.filterSelection.bind(this);
 
     this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
@@ -103,6 +100,7 @@ class VFBMain extends React.Component {
 
     this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
     this.queryResultsColumns = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColumns;
@@ -1641,45 +1639,6 @@ class VFBMain extends React.Component {
       }
     }
   }
-  
-  lookupFilter (item, bq, filterValue){
-    let lookup = "facets_annotation:" + item.key;
-    let re = new RegExp(lookup, 'g');
-    let found = bq.match(re);
-    if ( found ){
-      return bq.replace(found[0] + filterValue, "");
-    }
-    return bq;
-  }
-  
-  filterSelection (item) {    
-    let bq = this.state.searchDataSourceConfiguration.query_settings.bq;
-    
-    switch (item.enabled) {
-    case "disabled":
-      bq = this.lookupFilter(item, bq, this.searchConfiguration.filter_positive);
-      bq = this.lookupFilter(item, bq, this.searchConfiguration.filter_negative);
-      break;
-    case "positive":
-      bq = this.lookupFilter(item, bq, this.searchConfiguration.filter_negative);
-      bq += " facets_annotation:" + item.key + "^100";
-      break;
-    case "negative":
-      bq = this.lookupFilter(item, bq, this.searchConfiguration.filter_positive);
-      bq += " facets_annotation:" + item.key + "^0.001";
-      break;
-    default:
-      break;
-    }
-    let updatedConfiguration = Object.assign(this.state.searchDataSourceConfiguration, {
-      query_settings : {
-        ...this.state.searchDataSourceConfiguration.query_settings,
-        bq : bq
-      }
-    });
-    this.setState({ searchDataSourceConfiguration : updatedConfiguration })
-    
-  }
 
   render () {
     if ((this.state.tutorialWidgetVisible == true) && (this.tutorialRender == undefined)) {
@@ -1800,10 +1759,9 @@ class VFBMain extends React.Component {
 
         <Search ref="searchRef"
           datasource="SOLR"
-          filtersListener={this.filterSelection}
           searchStyle={this.searchStyle}
           searchConfiguration={this.searchConfiguration}
-          datasourceConfiguration={this.state.searchDataSourceConfiguration} />
+          datasourceConfiguration={this.datasourceConfiguration} />
 
         <VFBDownloadContents ref="downloadContentsRef" open={false} />
 
