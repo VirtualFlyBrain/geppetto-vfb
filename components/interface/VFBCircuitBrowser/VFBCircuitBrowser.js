@@ -39,8 +39,8 @@ const defaultHTTPConfiguration = {
 }
 
 const COMPONENT_ID = "VFBCircuitBrowser";
-const NODE_WIDTH = 55;
-const NODE_HEIGHT = 40;
+const NODE_WIDTH = 120;
+const NODE_HEIGHT = 80;
 const NODE_BORDER_THICKNESS = 2;
 
 /**
@@ -72,6 +72,7 @@ class VFBCircuitBrowser extends Component {
     this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
     this.resize = this.resize.bind(this);
+    this.nodeRendering = this.nodeRendering.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -291,7 +292,59 @@ class VFBCircuitBrowser extends Component {
       y: (1 - t) * (1 - t) * sy + 2 * (1 - t) * t * cp1y + t * t * ey,
     };
   }
+  
+  nodeRendering (node, ctx, globalScale) {
+    let cardWidth = NODE_WIDTH;
+    let cardHeight = NODE_HEIGHT;
+    let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
+    // Node border color
+    ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
+    // Create Border
+    ctx.fillRect(node.x - cardWidth / 2 - (borderThickness),  node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
+
+    // Assign color to Description Area background in Node
+    ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
+    // Create Description Area in Node
+    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
+
+    ctx.fillStyle = stylingConfiguration.defaultNodeTitleBackgroundColor;
+    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight/2 - ( borderThickness * 2) );
+
+    // Assign color to Title Bar background in Node
+    ctx.fillStyle = "#95f1ff";
+    // Create Title Bar in Node
+    ctx.fillRect(node.x - cardWidth / 2 ,node.y - (cardHeight / 20), cardWidth / 3 , cardHeight / 10);
+
+    // Assign color to Title Bar background in Node
+    ctx.fillStyle = "#fffa30";
+    // Create Title Bar in Node
+    ctx.fillRect((node.x - cardWidth / 2) + (cardWidth / 3) ,node.y - (cardHeight / 20), cardWidth / 3, cardHeight / 10);
+    
+    // Assign color to Title Bar background in Node
+    ctx.fillStyle = "#d6007d";
+    // Create Title Bar in Node
+    ctx.fillRect((node.x - cardWidth / 2) + (2 * (cardWidth / 3)) ,node.y - (cardHeight / 20), cardWidth / 3 - (borderThickness*2), cardHeight / 10);
+    
+    // Assign font to text in Node
+    ctx.font = stylingConfiguration.defaultNodeFont;
+    // Assign color to text in Node
+    ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
+    // Text in font to be centered
+    ctx.textAlign = "center";
+    ctx.textBaseline = 'middle';
+    
+    // Create Title in Node
+    ctx.fillText(node.title, node.x, node.y - (cardHeight / 2) + 10);
+    ctx.fillText(node.title, node.x, node.y - (cardHeight / 2) + 17.5);
+    ctx.fillText(node.title, node.x, node.y - (cardHeight / 2) + 25);
+    
+    // Add Description text to Node
+    this.wrapText(ctx, node.path, node.x, node.y + 15, cardWidth - (borderThickness * 2) , 5);
+    this.wrapText(ctx, node.path, node.x, node.y + 22.5, cardWidth - (borderThickness * 2) , 5);
+    this.wrapText(ctx, node.path, node.x, node.y + 30, cardWidth - (borderThickness * 2) , 5);
+  }
+  
   render () {
     let self = this;
     
@@ -419,46 +472,16 @@ class VFBCircuitBrowser extends Component {
 
               return color;
             }}
-            nodeCanvasObject={(node, ctx, globalScale) => {
-              let cardWidth = NODE_WIDTH;
-              let cardHeight = NODE_HEIGHT;
-              let borderThickness = self.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
-
-              // Node border color
-              ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
-              // Create Border
-              ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
-
-              // Assign color to Description Area background in Node
-              ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
-              // Create Description Area in Node
-              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
-              // Assign color to Title Bar background in Node
-              ctx.fillStyle = node.color;
-              // Create Title Bar in Node
-              ctx.fillRect(node.x - cardWidth / 2 ,node.y - cardHeight / 2, cardWidth - ( borderThickness * 2 ), cardHeight / 3);
-
-              // Assign font to text in Node
-              ctx.font = stylingConfiguration.defaultNodeFont;
-              // Assign color to text in Node
-              ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
-              // Text in font to be centered
-              ctx.textAlign = "center";
-              ctx.textBaseline = 'middle';
-              // Create Title in Node
-              ctx.fillText(node.title, node.x, node.y - 15);
-              // Add Description text to Node
-              this.wrapText(ctx, node.path, node.x, node.y, cardWidth - (borderThickness * 2) , 5);
-            }}
+            nodeCanvasObject={this.nodeRendering}
             // Overwrite Node Canvas Object
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             nodeVal = { node => {
               node.fx = node.positionX;
-              node.fy = -100 * node.level
+              node.fy = -150 * node.level
             }}
-            dagLevelDistance = {25}
+            dagLevelDistance = {75}
             onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }

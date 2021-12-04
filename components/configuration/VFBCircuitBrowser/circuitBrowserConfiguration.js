@@ -78,7 +78,7 @@ var styling = {
   // When hovering over a node, the node's border color changes to create a halo effect
   defaultNodeHoverBoderColor : "red",
   // Title bar (in node) background color
-  defaultNodeTitleBackgroundColor : "#11bffe",
+  defaultNodeTitleBackgroundColor : "grey",
   // Description area (in node) background color
   defaultNodeDescriptionBackgroundColor : "white",
   nodeColorsByLabel : {

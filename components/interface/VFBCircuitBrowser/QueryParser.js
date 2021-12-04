@@ -31,7 +31,7 @@ export function queryParser (e) {
   let nodesMap = new Map();
   
   // Colors for labels
-  let presentColorLabels = new Array();
+  let legendLabels = new Array();
   // maps of links with their max hop
   let linksMaxHops = {};
   // Keeps track of what level nodes belong
@@ -60,10 +60,12 @@ export function queryParser (e) {
     
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
-    graph.nodes.forEach(({ id, labels, properties }) => {
+    console.log("Results ", graph.nodes);
+	graph.nodes.forEach(({ id, labels, properties }) => {
       let label = properties[e.data.params.configuration.resultsMapping.node.label];
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
       let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;
+      let nodeColorLabels = new Array();
       
       // Retrieve list of Label colors from configuration
       const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
@@ -72,10 +74,10 @@ export function queryParser (e) {
       for (var i = 0; i < colorLabels.length ; i++ ) {
         let index = labels.indexOf(colorLabels[i][0]);
         if ( index > -1 ) {
-          color = colorLabels[i][1];
+          nodeColorLabels.push(colorLabels[i][1]);
           // Add to array of present colors only if array doesn't have it already
-          if ( !presentColorLabels.includes(labels[index]) ) {
-            presentColorLabels.push(labels[index]);
+          if ( !legendLabels.includes(labels[index]) ) {
+            legendLabels.push(labels[index]);
           }
           break;
         }
@@ -104,7 +106,7 @@ export function queryParser (e) {
           hop : hop,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT,
-          color : color,
+          color : nodeColorLabels,
         };
         
         nodesMap.set(id, n);
@@ -143,7 +145,7 @@ export function queryParser (e) {
     
     // Set the X position of each node, this will place them on their corresponding column depending on hops
     let positionX = 0;
-    let spaceBetween = maxHops > 2 ? 100 : 200;
+    let spaceBetween = maxHops > 2 ? 300 : 400;
     if ( sourceNode.level === 0 ){
       if ( sourceNode.id == targetNodeID ){
         sourceNode.positionX = maxHops > 0 ? maxHops * spaceBetween : spaceBetween;
@@ -244,5 +246,5 @@ export function queryParser (e) {
   console.log("Links ", links);
   
   // Worker is done, notify main thread
-  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : presentColorLabels } });
+  this.postMessage({ resultMessage: "OK", params: { results: { nodes, links }, colorLabels : legendLabels } });
 }
