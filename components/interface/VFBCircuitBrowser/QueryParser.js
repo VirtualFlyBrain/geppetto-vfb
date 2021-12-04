@@ -61,7 +61,7 @@ export function queryParser (e) {
   // Loop through nodes from query and create nodes for graph
   data.forEach(({ graph }) => {
     console.log("Results ", graph.nodes);
-	graph.nodes.forEach(({ id, labels, properties }) => {
+    graph.nodes.forEach(({ id, labels, properties }) => {
       let label = properties[e.data.params.configuration.resultsMapping.node.label];
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
       let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;

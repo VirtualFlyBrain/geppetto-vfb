@@ -301,7 +301,7 @@ class VFBCircuitBrowser extends Component {
     // Node border color
     ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
     // Create Border
-    ctx.fillRect(node.x - cardWidth / 2 - (borderThickness),  node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
+    ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
 
     // Assign color to Description Area background in Node
     ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
@@ -309,7 +309,7 @@ class VFBCircuitBrowser extends Component {
     ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
 
     ctx.fillStyle = stylingConfiguration.defaultNodeTitleBackgroundColor;
-    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight/2 - ( borderThickness * 2) );
+    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight / 2 - ( borderThickness * 2) );
 
     // Assign color to Title Bar background in Node
     ctx.fillStyle = "#95f1ff";
@@ -324,7 +324,7 @@ class VFBCircuitBrowser extends Component {
     // Assign color to Title Bar background in Node
     ctx.fillStyle = "#d6007d";
     // Create Title Bar in Node
-    ctx.fillRect((node.x - cardWidth / 2) + (2 * (cardWidth / 3)) ,node.y - (cardHeight / 20), cardWidth / 3 - (borderThickness*2), cardHeight / 10);
+    ctx.fillRect((node.x - cardWidth / 2) + (2 * (cardWidth / 3)) ,node.y - (cardHeight / 20), cardWidth / 3 - (borderThickness * 2), cardHeight / 10);
     
     // Assign font to text in Node
     ctx.font = stylingConfiguration.defaultNodeFont;
