@@ -73,7 +73,7 @@ describe('VFB Term Context Component Tests', () => {
 			await page.evaluate(async () => {
 				let tabs = document.getElementsByClassName('MuiListItem-root ');
 				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "medulla (FBbt_00003748)" ) {
+					if ( tabs[i].innerText.split('\n')[0] === "medulla (FBbt_00003748)" ) {
 						tabs[i].click();
 					}
 				}				
