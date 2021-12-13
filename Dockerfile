@@ -38,6 +38,7 @@ ENV VFB_OWL_SERVER=${VFB_OWL_SERVER_ARG}
 ENV VFB_R_SERVER=${VFB_R_SERVER_ARG}
 ENV SOLR_SERVER=${SOLR_SERVER_ARG}
 ENV googleAnalyticsSiteCode=${googleAnalyticsSiteCode_ARG}
+ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
