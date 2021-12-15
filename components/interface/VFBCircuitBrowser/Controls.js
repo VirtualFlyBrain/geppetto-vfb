@@ -275,7 +275,6 @@ class Controls extends Component {
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     delete this.autocompleteRef[id.toString()];
     this.neuronFields = neurons;
-    
     if ( !this.state.neurons.find( neuron => neuron.id != "") ) {
       // reset configuration of fq to default
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
@@ -306,6 +305,7 @@ class Controls extends Component {
     // User has added the maximum number of neurons allowed in query search
     this.neuronFields = neuronFields;
     this.autocompleteRef[(neuronFields.length - 1).toString()] = React.createRef();
+    datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
     this.forceUpdate();
   }
 
@@ -429,6 +429,12 @@ class Controls extends Component {
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, [])
     this.setState({ key: Math.random() });
   }
+  
+  clearGraph () {
+    datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+    this.props.clearGraph()
+  }
+  
   /**
    * Update neuron fields if there's a query preselected.
    */
@@ -622,7 +628,7 @@ class Controls extends Component {
                       color="secondary"
                       classes={{ root : classes.clearButton }}
                       id="clearCircuitBrowser"
-                      onClick={() => this.props.clearGraph()}
+                      onClick={this.clearGraph.bind(this)}
                     >Clear</Button>  
                   </Grid>
                 </Grid>
