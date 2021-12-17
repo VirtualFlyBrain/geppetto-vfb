@@ -187,7 +187,7 @@ class VFBGraph extends Component {
       let instanceName = self.props.instanceOnFocus.name;
       if ( typeof self.props.instanceOnFocus?.getParent === "function" ) {
         if ( self.props.instanceOnFocus?.getParent() !== null ) {
-    	  idToSearch = self.props.instanceOnFocus.getParent()?.id;
+          idToSearch = self.props.instanceOnFocus.getParent()?.id;
           instanceName = self.props.instanceOnFocus.getParent()?.name;
         }
       }
