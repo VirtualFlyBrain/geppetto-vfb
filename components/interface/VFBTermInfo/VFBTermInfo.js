@@ -135,7 +135,7 @@ class VFBTermInfo extends React.Component {
     
     if ( typeof instanceType?.getVariables !== "function" ) {
       return;
-    };
+    }
     
     // If there are no variables, we have an empty composite node, don't add any links
     if ( instanceType?.getVariables()?.length == 0 ){
