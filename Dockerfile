@@ -100,7 +100,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   mv geppetto-vfb webapp
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
-  git clone https://github.com/openworm/geppetto-client.git -q -b "${geppettoClientRelease}" --single-branch
+  $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
 
 RUN echo "package.json" && cat $HOME/workspace/org.geppetto.frontend/src/main/webapp/package.json
 
