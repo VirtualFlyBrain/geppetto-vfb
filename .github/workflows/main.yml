@@ -75,7 +75,7 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=BUILD_TYPE::release";
-          elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] ; then
+          elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [ "${GITHUB_REF#refs/heads/}" == f* ] ; then
             echo "::debug::Set to dev setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb-dev.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl-dev.virtualflybrain.org/kbs/vfb/";
