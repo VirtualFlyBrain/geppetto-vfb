@@ -190,10 +190,12 @@ describe('VFB Tree Browser Component Tests', () => {
 			   }
 			});
 		    await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
+			// Check Medulla actually loaded
+			let element = await findElementByText(page, "medulla");
+			expect(element).toBe("medulla");
 		})
 
 		it('Open Tree Browser', async () => {
-			await page.waitFor(2000);
 			await selectTab(page, "Template ROI Browser");
 
 			// Check that the Tree Browser is visible
