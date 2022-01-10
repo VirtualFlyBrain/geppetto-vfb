@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
@@ -52,6 +53,7 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
+      downloadContentsVisible : true,
       uploaderContentsVisible : true
     };
 
@@ -488,6 +490,12 @@ class VFBMain extends React.Component {
         [buttonState]: !this.state[buttonState]
       });
       break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
+      break;
+    case 'uploaderContentsVisible':
+      this.refs.uploaderContentsRef?.openDialog();
+      break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
         this.setState({
@@ -526,6 +534,9 @@ class VFBMain extends React.Component {
       return historyList;
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
+      break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
       break;
     case 'uploaderContentsVisible':
       this.refs.uploaderContentsRef?.openDialog();
@@ -1752,7 +1763,10 @@ class VFBMain extends React.Component {
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
+        <VFBDownloadContents ref="downloadContentsRef" open={false} />
+
         <VFBUploader ref="uploaderContentsRef" open={false} />
+        
         {this.htmlToolbarRender}
       </div>
     );

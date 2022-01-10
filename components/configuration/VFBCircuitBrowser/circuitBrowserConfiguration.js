@@ -19,11 +19,20 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
       + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
-      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY ",
+      + " OPTIONAL MATCH (x)-[xio:INSTANCEOF]->(xpc:Class) OPTIONAL MATCH (y)-[yio:INSTANCEOF]->(ypc:Class) WITH *,'\"'+ x.short_form+'\":{\"'+xpc.short_form+'\":\"' + xpc.label + '\"},\"'+ y.short_form+'\":{\"'+ypc.short_form+'\":\"' + ypc.label + '\"}' as Class"
+      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY, "
+      + " apoc.convert.fromJsonMap('{' + apoc.text.join(collect(Class),',') + '}') as class ",
       "resultDataContents": ["row", "graph"]
     }
   ]
 });
+
+var Neo4jLabels = {
+  FAFB : "FAFB",
+  L1EM : "L1EM",
+  FlyEM_HB : "FlyEM_HB"
+}
+
 // See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
 
 var configuration = {
@@ -120,5 +129,6 @@ module.exports = {
   configuration,
   styling,
   restPostConfig,
-  locationCypherQuery
+  locationCypherQuery,
+  Neo4jLabels
 };

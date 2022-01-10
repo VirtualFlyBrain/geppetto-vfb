@@ -120,9 +120,11 @@ const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrow
 const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
+const Neo4jLabels = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').Neo4jLabels;
 
 const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
-const datasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
+const defaultDatasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
+const datasourceConfiguration = JSON.parse(JSON.stringify(defaultDatasourceConfiguration));
 
 /**
  * Create custom marks for Paths slider.
@@ -161,11 +163,15 @@ class AutocompleteResults extends Component {
     this.setState({ filteredResults : results });
   }
   
+  clearResults () {
+    this.setState({ filteredResults : {} });  
+  }
+  
   getFilteredResults (){
     return this.state.filteredResults;
   }
   
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate (nextProps, nextState) {
     this.fieldLabel = nextProps.getLatestNeuronFields()[this.props.index].label;
     return true;
   }
@@ -179,8 +185,10 @@ class AutocompleteResults extends Component {
         fullWidth
         freeSolo
         disableClearable
+        clearOnEscape
         disablePortal
         autoHighlight
+        clearOnBlur
         value={this.fieldLabel}
         id={this.props.index.toString()}
         ListboxProps={{ style: { maxHeight: "10rem" } }}
@@ -267,6 +275,12 @@ class Controls extends Component {
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     delete this.autocompleteRef[id.toString()];
     this.neuronFields = neurons;
+    
+    if ( !this.state.neurons.find( neuron => neuron.id != "") ) {
+      // reset configuration of fq to default
+      datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+    }
+    
     this.forceUpdate();
   }
   
@@ -360,6 +374,12 @@ class Controls extends Component {
       getResultsSOLR( event.target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
     }
     this.neuronFields = neurons;
+    
+    if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
+      // reset configuration of fq to default
+      this.autocompleteRef[this.setInputValue].current.clearResults();
+      datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+    }
   }
   
   /**
@@ -369,9 +389,17 @@ class Controls extends Component {
     // Copy neurons and add selection to correct array index
     let neurons = this.neuronFields;
     let textFieldId = event.target.id.toString().split("-")[0];
-    let shortForm = this.autocompleteRef[textFieldId].current.getFilteredResults()[value] && this.autocompleteRef[textFieldId].current.getFilteredResults()[value].short_form;
+    let result = this.autocompleteRef[textFieldId].current.getFilteredResults()[value];
+    let shortForm = result && result.short_form;
     neurons[index] = { id : shortForm, label : value };
     
+    result.facets_annotation.forEach( annotation => {
+      let facet = "facets_annotation:" + annotation;
+      if ( Object.values(Neo4jLabels).includes(annotation) && !datasourceConfiguration.query_settings.fq.includes(facet) ) {
+        datasourceConfiguration.query_settings.fq.push(facet); 
+      }
+    });
+
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
