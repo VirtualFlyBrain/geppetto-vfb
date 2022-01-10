@@ -1286,63 +1286,6 @@ class VFBMain extends React.Component {
           idsList += ",";
         }
         idsList += this.idFromURL;
-        // populate page meta for this term for indexing
-        try {
-          window.ga('vfb.send', 'pageview', window.location.href );
-          if ( window.XMLHttpRequest ) {
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-              try {
-                if (this.responseXML.title.indexOf("404 Not Found") < 0) {
-                  document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
-                  document.body.style.font = "x-large";
-                  document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
-                  document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.getElementById('json').innerText.substring(0, 4900));
-                  document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.getElementById('json').innerText.substring(0, 4900));
-                  if (document.getElementById('metaDesc') != null) {
-                    if (this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
-                      document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
-                    }
-                  } else {
-                    if (this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
-                      var script = document.createElement('script');
-                      script.type = 'application/ld+json';
-                      script.id = 'metaDesc';
-                      script.innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
-                      document.getElementsByTagName('head')[0].appendChild(script);
-                    }
-                  }
-                  var viewport = !!document.querySelector("meta[name='viewport']");
-                  viewport = viewport ? document.querySelector("meta[name='viewport']") : document.createElement('meta');
-                  viewport.setAttribute('name', 'viewport');
-                  viewport.setAttribute('content', 'width=device-width, initial-scale=1');
-                  document.head.appendChild(viewport);
-                }
-              } catch (err) {
-                console.log(err);
-              }
-            }
-            xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
-            xhr.responseType = 'document';
-            xhr.send();
-          }
-        } catch (err) {
-          console.error(err);
-        }
-        try {
-          var link = !!document.querySelector("link[rel='amphtml']");
-          link = link ? document.querySelector("link[rel='amphtml']") : document.createElement('link');
-          link.setAttribute('rel', 'amphtml');
-          link.setAttribute('href', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html');
-          document.head.appendChild(link);
-          var conlink = !!document.querySelector("link[rel='canonical']");
-          conlink = conlink ? document.querySelector("link[rel='canonical']") : document.createElement('link');
-          conlink.setAttribute('rel', 'canonical');
-          conlink.setAttribute('href', 'https://virtualflybrain.org/reports/' + this.idFromURL);
-          document.head.appendChild(conlink);
-        } catch (err) {
-          console.error(err);
-        }
       } else if (idList[list].indexOf("i=") > -1) {
         if (idsList.length > 0) {
           idsList = "," + idsList;
