@@ -196,11 +196,11 @@ class VFBTree extends React.Component {
     } else {
       innerInstance = instance;
     }
-    var idToSearch = innerInstance.getId();
+    var idToSearch = innerInstance?.getId();
 
     if (this.state.nodeSelected !== undefined
-      && idToSearch !== this.state.nodeSelected.instanceId
-      && idToSearch !== this.state.nodeSelected.classId) {
+      && idToSearch !== this.state.nodeSelected?.instanceId
+      && idToSearch !== this.state.nodeSelected?.classId) {
       if (idToSearch === window.templateID) {
         this.selectNode(this.state.dataTree[0])
         return;
@@ -258,9 +258,9 @@ class VFBTree extends React.Component {
           nodes: nodes,
           nodeSelected: (this.props.instance === undefined
             ? treeData[0]
-            : (this.props.instance.getParent() === null
-              ? { subtitle: this.props.instance.getId() }
-              : { subtitle: this.props.instance.getParent().getId() }))
+            : (this.props.instance?.getParent() === null
+              ? { subtitle: this.props.instance?.getId() }
+              : { subtitle: this.props.instance?.getParent()?.getId() }))
         });
       } else {
         var treeData = [{
@@ -439,7 +439,7 @@ class VFBTree extends React.Component {
               this.colorPickerContainer = undefined;
               let instanceFound = false;
               for (let i = 0; i < Instances.length; i++) {
-                if (Instances[i].getId() === rowInfo.node.instanceId) {
+                if (Instances[i]?.getId() === rowInfo.node.instanceId) {
                   instanceFound = true;
                   break;
                 }
@@ -549,11 +549,11 @@ class VFBTree extends React.Component {
               treeData={treeData}
               activateParentsNodeOnClick={true}
               handleClick={this.nodeClick}
-              style={{ width: this.props.size.width - 10, height: this.props.size.height, float: 'left', clear: 'both' }}
+              style={{ width: this.props.size?.width - 10, height: this.props.size?.height, float: 'left', clear: 'both' }}
               rowHeight={this.styles.row_height}
               getButtons={this.getButtons}
               getNodesProps={this.getNodes}
-              searchQuery={this.state.nodeSelected === undefined ? this.props.instance.getParent().getId() : this.state.nodeSelected.subtitle}
+              searchQuery={this.state.nodeSelected === undefined ? this.props.instance?.getParent()?.getId() : this.state.nodeSelected?.subtitle}
               onlyExpandSearchedNodes={false}
             />
           }
