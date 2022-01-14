@@ -90,9 +90,9 @@ class VFBTree extends React.Component {
     });
   }
 
-  findChildren (parent, key, familyList, label) {
+  findChildren (parent, key, familyList, labels) {
     var childrenList = [];
-    var childKey = this.searchChildren(familyList, key, parent, label);
+    var childKey = this.searchChildren(familyList, key, parent, labels);
     if (childKey !== undefined) {
       childrenList.push(childKey);
       var i = childKey - 1;
@@ -110,7 +110,8 @@ class VFBTree extends React.Component {
   }
 
   insertChildren (nodes, edges, child, imagesMap) {
-    var childrenList = this.findChildren({ from: child.id }, "from", edges, "part of");
+    // Extend the array of relationships from here
+    var childrenList = this.findChildren({ from: child.id }, "from", edges, ["part of", "SUBCLASSOF"]);
     // child.images = this.findChildren({ from: child.id }, "from", edges, "INSTANCEOF");
     var nodesList = [];
     for ( var i = 0; i < childrenList.length; i++) {
