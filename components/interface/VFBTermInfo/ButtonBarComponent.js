@@ -184,7 +184,7 @@ export default class ButtonBarComponent extends React.Component {
     return (
       <div className="buttonBarComponentDiv">
         <MuiThemeProvider theme={this.theme}>
-          {ctrlButtons.map(function (control, id) {
+          {ctrlButtons?.map(function (control, id) {
             // grab attributes to init button attributes
             var controlConfig = that.resolveCondition(control, path);
             var idVal = path.replace(/\./g, '_').replace(/\[/g, '_').replace(/\]/g, '_') + "_" + controlConfig.id + "_buttonBar_btn";
@@ -233,7 +233,7 @@ export default class ButtonBarComponent extends React.Component {
               that.colorPickerActionFn = actionFn;
               // set style val to color tint icon
               if (entity !== undefined) {
-                var colorVal = String(entity.getColor().replace(/0X/i, "#") + "0000").slice(0, 7);
+                var colorVal = String(entity?.getColor().replace(/0X/i, "#") + "0000")?.slice(0, 7);
                 styleVal = { color: colorVal.startsWith('#') ? colorVal : ('#' + colorVal) };
                 classVal += " color-picker-button";
               }
