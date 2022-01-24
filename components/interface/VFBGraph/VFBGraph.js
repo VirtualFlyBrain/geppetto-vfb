@@ -183,18 +183,20 @@ class VFBGraph extends Component {
        * If graph is visible, update contents based on properties passed by redux store
        * Retrieve id and name of selected instance
        */
-      let idToSearch = self.props.instanceOnFocus.id;
+      let idToSearch = self.props.instanceOnFocus?.id;
       let instanceName = self.props.instanceOnFocus.name;
-      if (self.props.instanceOnFocus.getParent() !== null) {
-        idToSearch = self.props.instanceOnFocus.getParent().id;
-        instanceName = self.props.instanceOnFocus.getParent().name;
+      if ( typeof self.props.instanceOnFocus?.getParent === "function" ) {
+        if ( self.props.instanceOnFocus?.getParent() !== null ) {
+          idToSearch = self.props.instanceOnFocus.getParent()?.id;
+          instanceName = self.props.instanceOnFocus.getParent()?.name;
+        }
       }
       /*
        * Update graph with selected query index from configuration dropdown selection
        */
-      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery || idToSearch != this.state.currentQuery.id) {
+      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery || idToSearch != this.state.currentQuery?.id) {
         if ( this.props.sync ) {
-          stylingConfiguration.dropDownQueries.map((item, index) => {
+          stylingConfiguration?.dropDownQueries?.map((item, index) => {
             if ( parseInt(self.props.graphQueryIndex) === index ) {
               self.props.vfbGraph(UPDATE_GRAPH, null, -1, true, false);
               self.instanceFocusChange(self.props.instanceOnFocus);

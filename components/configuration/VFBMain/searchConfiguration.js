@@ -334,11 +334,16 @@ var searchConfiguration = {
   },
   "clickHandler": function (id) {
     window.addVfbId(id);
+  },
+  "Neo4jLabels" : {
+    "FAFB" : "FAFB",
+    "L1EM" : "L1EM",
+    "FlyEM_HB" : "FlyEM_HB"
   }
 };
 
 module.exports = {
   searchStyle,
   searchConfiguration,
-  datasourceConfiguration,
+  datasourceConfiguration
 };
