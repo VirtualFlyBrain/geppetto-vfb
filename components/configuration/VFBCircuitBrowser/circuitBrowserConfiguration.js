@@ -72,7 +72,7 @@ var styling = {
   // Color apply to target and source nodes when hovering over a link or a node.
   defaultNeighborNodesHoverColor : "orange",
   // Font used for text in nodes
-  defaultNodeFont : "5px sans-serif",
+  defaultNodeFont : "8px sans-serif",
   // Color of font in node's text
   defaultNodeFontColor : "black",
   // Node border color

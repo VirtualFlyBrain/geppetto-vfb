@@ -21,6 +21,7 @@ export function queryParser (e) {
   let maxHops = Math.ceil(data[0]?.row[6] / 2) + 1;
   // Read relationship max hops
   let relationshipsHops = data[0]?.row[7];
+  const idClassLabels = data[0]?.row[8];
   
   // Keeps track of links
   let linksMap = new Map();
@@ -69,7 +70,8 @@ export function queryParser (e) {
       
       // Retrieve list of Label colors from configuration
       const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
-      
+      console.log("Labels ", labels);
+      console.log("Color labels, ", colorLabels);
       // Loop through color labels
       for (var i = 0; i < colorLabels.length ; i++ ) {
         let index = labels.indexOf(colorLabels[i][0]);
@@ -79,7 +81,6 @@ export function queryParser (e) {
           if ( !legendLabels.includes(labels[index]) ) {
             legendLabels.push(labels[index]);
           }
-          break;
         }
       }
       let n = null;
@@ -98,15 +99,20 @@ export function queryParser (e) {
           hop = 0;
         }
         
+        const classLabel = idClassLabels[title];
+        console.log("nodeColorLabels ", nodeColorLabels);
+        console.log(" className ", Object.values(classLabel).join());
+
         n = {
-          path :  label,
+          name :  label,
           id : parseID,
           title : title,
           level : level,
           hop : hop,
           width : e.data.params.NODE_WIDTH,
           height : e.data.params.NODE_HEIGHT,
-          color : nodeColorLabels,
+          nodeColorLabels : nodeColorLabels,
+          classLabel : Object.values(classLabel).join()
         };
         
         nodesMap.set(id, n);
