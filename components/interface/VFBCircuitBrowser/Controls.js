@@ -84,7 +84,8 @@ const styles = theme => ({
     height : "20px",
     border : "none !important",
     backgroundColor: "#80808040 !important",
-    paddingLeft : "10px !important"
+    paddingLeft : "10px !important",
+    fontSize : "15px !important"
   },
   weightInputDiv : { width : "100% !important" },
   refreshButton : {
