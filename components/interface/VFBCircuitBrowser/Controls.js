@@ -183,7 +183,7 @@ class AutocompleteResults extends Component {
         clearOnBlur
         value={this.fieldLabel}
         id={this.props.index.toString()}
-        ListboxProps={{ style: { maxHeight: "10rem" } }}
+        ListboxProps={{ style: { maxHeight: "10rem", fontSize: "15px" } }}
         onChange={this.props.resultSelectedChanged}
         options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
         renderInput={params => (
@@ -194,8 +194,8 @@ class AutocompleteResults extends Component {
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
             onDelete={this.props.neuronTextfieldModified}
-            inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", border : "none", backgroundColor: "#80808040" } }}
-            InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "14px" } }}
+            inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px",  fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
+            InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
           />
         )}
       />
