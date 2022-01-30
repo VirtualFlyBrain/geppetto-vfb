@@ -264,16 +264,16 @@ class VFBCircuitBrowser extends Component {
   }
   
   getFontSize (maxWidth, textLength) {
-	  const baseSize = 8;
-	  if (textLength >= baseSize) {
-	    textLength = baseSize - 2
-	  }
-	  let fontSize = maxWidth/textLength;
-	  if ( fontSize > baseSize ){
-		  fontSize = baseSize;
-	  }
-	  return `${fontSize}px sans-serif`
-	}
+    const baseSize = 8;
+    if (textLength >= baseSize) {
+      textLength = baseSize - 2
+    }
+    let fontSize = maxWidth / textLength;
+    if ( fontSize > baseSize ){
+      return stylingConfiguration.defaultNodeFont;
+    }
+    return `${fontSize}px sans-serif`
+  }
 
   /**
    * Breaks Description texts into lines to fit within a certain width value.
@@ -286,12 +286,9 @@ class VFBCircuitBrowser extends Component {
       var testLine = line + words[n] + ' ';
       var metrics = context.measureText(testLine);
       context.font = this.getFontSize(maxWidth, metrics.width);
-      console.log("text ", testLine)
-      console.log("text length ", text.length)
-      console.log("this.getFontSize(text.length); ", this.getFontSize(maxWidth, metrics.width))
       var testWidth = metrics.width;
       if (testWidth > maxWidth ) {
-    	context.fillText(line, x, y);
+        context.fillText(line, x, y);
         line = words[n] + ' ';
         y += lineHeight;
       } else {
