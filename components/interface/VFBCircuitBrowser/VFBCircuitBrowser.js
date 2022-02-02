@@ -263,39 +263,46 @@ class VFBCircuitBrowser extends Component {
       })
   }
   
-  getFontSize (maxWidth, textLength) {
-    const baseSize = 8;
-    if (textLength >= baseSize) {
-      textLength = baseSize - 2
+  getFontSize (context, maxWidth, text, textLength) {
+    let baseSize = 8;
+    let width = context.measureText(text).width;
+    while (width > maxWidth) {
+      baseSize--;
+      context.font = `${baseSize}px sans-serif`
+      width = context.measureText(text).width;
     }
-    let fontSize = maxWidth / textLength;
-    if ( fontSize > baseSize ){
-      return stylingConfiguration.defaultNodeFont;
-    }
-    return `${fontSize}px sans-serif`
+    
+    return baseSize;
   }
 
   /**
    * Breaks Description texts into lines to fit within a certain width value.
    */
-  wrapText (context, text, x, y, maxWidth, lineHeight) {
-    var words = text.split(' ');
-    var line = '';
+  wrapText (context, text, x, y, maxWidth, maxHeight) {
+    let words = text.split(' ');
+    let lines = [];
+    let line = '';
 
-    for (var n = 0; n < words.length; n++) {
-      var testLine = line + words[n] + ' ';
-      var metrics = context.measureText(testLine);
-      context.font = this.getFontSize(maxWidth, metrics.width);
-      var testWidth = metrics.width;
-      if (testWidth > maxWidth ) {
-        context.fillText(line, x, y);
-        line = words[n] + ' ';
-        y += lineHeight;
+    let maxTextLength = text.length < 20 ? text.length / 2 : text.length / 3;
+
+    words.forEach( word => {
+      let testLine = line + word + ' ';
+      if ( line.length >= maxTextLength ) {
+        lines.push(line);
+        line = word + ' ';
       } else {
         line = testLine;
       }
-    }
-    context.fillText(line, x, y);
+    });
+    
+    lines.push(line);
+    
+    const lineHeight = this.getFontSize(context, maxWidth, lines[0], maxTextLength);
+
+    lines.forEach( line => {
+      context.fillText(line, x, y);
+      y += lineHeight;
+    });
   }
   
   // Calculate link middle point
@@ -307,8 +314,10 @@ class VFBCircuitBrowser extends Component {
   }
   
   nodeRendering (node, ctx, globalScale) {
-    let cardWidth = NODE_WIDTH;
-    let cardHeight = NODE_HEIGHT;
+    const cardWidth = NODE_WIDTH;
+    const cardHeight = NODE_HEIGHT;
+    const classnameHeight = cardHeight * .45;
+    const idHeight = cardHeight * .45;
     let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
     // Node border color
@@ -343,10 +352,16 @@ class VFBCircuitBrowser extends Component {
     ctx.textBaseline = 'middle';
     
     // Create Title in Node
-    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, cardWidth * .8 , 10);
+    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, cardWidth * .8 , classnameHeight);
     
-    // Add Description text to Node
-    this.wrapText(ctx, node.name, node.x, node.y + 20, cardWidth * .8 , 10);
+    ctx.font = stylingConfiguration.defaultNodeFont;
+    /* 
+     * Add Description text to Nodes
+     * node.name = text to display
+     * node.x = x coordinate of text
+     * node.y + 20 = y coordinate, adds 20 pixels for padding from upper element
+     */
+    this.wrapText(ctx, node.name, node.x, node.y + 20, cardWidth * .8 , classnameHeight);
   }
   
   render () {
