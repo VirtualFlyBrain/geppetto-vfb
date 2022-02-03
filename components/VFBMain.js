@@ -1483,6 +1483,10 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
       window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+      if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
+        console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
+        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+      }
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
         if (GEPPETTO.MessageSocket.attempts < 10) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
