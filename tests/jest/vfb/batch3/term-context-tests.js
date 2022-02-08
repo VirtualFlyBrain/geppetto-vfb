@@ -13,7 +13,7 @@ const SNAPSHOT_OPTIONS = {
 		customSnapshotsDir : "./tests/jest/vfb/snapshots", 
 		comparisonMethod: 'ssim', 
 		failureThresholdType: 'percent',
-		failureThreshold: 0.05 // This means a 5% difference is allowed between compared snapshots during tests
+		failureThreshold: 0.20 // This means a 20% difference is allowed between compared snapshots during tests
 };
 
 //Import snapshot module
