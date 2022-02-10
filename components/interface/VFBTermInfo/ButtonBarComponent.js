@@ -233,7 +233,7 @@ export default class ButtonBarComponent extends React.Component {
               that.colorPickerActionFn = actionFn;
               // set style val to color tint icon
               if (entity !== undefined) {
-                var colorVal = String(entity?.getColor().replace(/0X/i, "#") + "0000")?.slice(0, 7);
+                var colorVal = String(entity?.getColor()?.replace(/0X/i, "#") + "0000")?.slice(0, 7);
                 styleVal = { color: colorVal.startsWith('#') ? colorVal : ('#' + colorVal) };
                 classVal += " color-picker-button";
               }
@@ -268,7 +268,7 @@ export default class ButtonBarComponent extends React.Component {
                       ref={ref => that.colorPickerContainer = ref}
                       style={{ left: that.state.pickerPosition }}>
                       <ChromePicker
-                        color={ Instances[path].getColor() }
+                        color={ Instances[path]?.getColor() }
                         onChangeComplete={ (color, event) => {
                           Instances[path].setColor(color.hex);
                           that.setState({ displayColorPicker: true });
