@@ -191,7 +191,7 @@ class VFBTree extends React.Component {
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
     var innerInstance = undefined;
-    if (instance.getParent() !== null) {
+    if (instance?.getParent() !== null) {
       innerInstance = instance.getParent();
     } else {
       innerInstance = instance;
@@ -352,10 +352,10 @@ class VFBTree extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          if (Instances[rowInfo.node.instanceId].getParent() !== null) {
-            Instances[rowInfo.node.instanceId].getParent().show();
+          if (Instances[rowInfo.node.instanceId]?.getParent() !== null) {
+            Instances[rowInfo.node.instanceId]?.getParent().show();
           } else {
-            Instances[rowInfo.node.instanceId].show();
+            Instances[rowInfo.node.instanceId]?.show();
           }
           this.setState({ nodeSelected: rowInfo.node });
         }} />);
@@ -366,8 +366,8 @@ class VFBTree extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          if (Instances[rowInfo.node.instanceId].getParent() !== null) {
-            Instances[rowInfo.node.instanceId].getParent().hide();
+          if (Instances[rowInfo.node.instanceId]?.getParent() !== null) {
+            Instances[rowInfo.node.instanceId]?.getParent().hide();
           } else {
             Instances[rowInfo.node.instanceId].hide();
           }
