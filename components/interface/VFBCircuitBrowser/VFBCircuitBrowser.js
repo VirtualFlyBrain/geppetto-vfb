@@ -283,7 +283,7 @@ class VFBCircuitBrowser extends Component {
     let lines = [];
     let line = '';
 
-    let maxTextLength = text.length < 20 ? text.length / 2 : text.length / 3;
+    let maxTextLength = text.length / 3;
 
     words.forEach( word => {
       let testLine = line + word + ' ';
@@ -299,6 +299,9 @@ class VFBCircuitBrowser extends Component {
     
     const lineHeight = this.getFontSize(context, maxWidth, lines[0], maxTextLength);
 
+    let padding = maxHeight / ( lines.length + 1);
+    y = y + padding;
+    // y = maxHeight / ( lines.length + 1 );
     lines.forEach( line => {
       context.fillText(line, x, y);
       y += lineHeight;
@@ -317,7 +320,7 @@ class VFBCircuitBrowser extends Component {
     const cardWidth = NODE_WIDTH;
     const cardHeight = NODE_HEIGHT;
     const classnameHeight = cardHeight * .45;
-    const idHeight = cardHeight * .45;
+    const colorsBarHeight = cardHeight / 10;
     let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
     // Node border color
@@ -331,14 +334,14 @@ class VFBCircuitBrowser extends Component {
     ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - (borderThickness * 2 ));
 
     ctx.fillStyle = stylingConfiguration.defaultNodeTitleBackgroundColor;
-    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight / 2 );
+    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), classnameHeight );
 
     const lastIndex = node.nodeColorLabels.length;
     node.nodeColorLabels.forEach( (color, index) => {
       // Assign color to Title Bar background in Node
       ctx.fillStyle = color;
       const x = (node.x - cardWidth / 2) + (index * (cardWidth / lastIndex));
-      const y = node.y;
+      const y = node.y - (colorsBarHeight / 2);
       // Create Title Bar in Node
       ctx.fillRect(x,y, (cardWidth / lastIndex) - ( index == lastIndex - 1 ? borderThickness * 2 : 0 ) , cardHeight / 10);
     })
@@ -352,7 +355,7 @@ class VFBCircuitBrowser extends Component {
     ctx.textBaseline = 'middle';
     
     // Create Title in Node
-    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, cardWidth * .8 , classnameHeight);
+    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + (borderThickness * 2 ), cardWidth * .8 , classnameHeight);
     
     ctx.font = stylingConfiguration.defaultNodeFont;
     /* 
@@ -361,7 +364,7 @@ class VFBCircuitBrowser extends Component {
      * node.x = x coordinate of text
      * node.y + 20 = y coordinate, adds 20 pixels for padding from upper element
      */
-    this.wrapText(ctx, node.name, node.x, node.y + 20, cardWidth * .8 , classnameHeight);
+    this.wrapText(ctx, node.name, node.x, node.y + (colorsBarHeight / 2), cardWidth * .8 , classnameHeight);
   }
   
   render () {
@@ -408,7 +411,7 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            nodeLabel={node => node.title}
+            nodeLabel={node => node.name + " [" + node.title + "]" }
             // Relationship label, placed in Link
             linkLabel={link => link.label}
             // Width of links, log(weight)
