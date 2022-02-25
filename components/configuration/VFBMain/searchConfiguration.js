@@ -91,7 +91,7 @@ var datasourceConfiguration = {
       "defType": "edismax",
       "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
-      "fl": "short_form,label,synonym,id,facets_annotation",
+      "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
       "start": "0",
       "pf":"true",
       "fq": [
@@ -108,7 +108,7 @@ var searchConfiguration = {
     {
       "name": "label",
       "id": "short_form",
-      "labels" : "facets_annotation"
+      "labels" : "unique_facets"
     },
   "label_manipulation" : label => label,
   "filters_expanded": true,
