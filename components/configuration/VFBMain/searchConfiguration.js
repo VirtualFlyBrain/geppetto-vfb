@@ -60,7 +60,7 @@ var searchStyle = {
   singleResult: {
     "color": "white",
     "fontSize": "18px",
-
+    "whiteSpace" : "normal",
     ":hover": {
       "color": "#11bffe",
       "background-color": "#252323",
@@ -91,7 +91,7 @@ var datasourceConfiguration = {
       "defType": "edismax",
       "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
       "indent": "true",
-      "fl": "short_form,label,synonym,id,facets_annotation",
+      "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
       "start": "0",
       "pf":"true",
       "fq": [
@@ -99,7 +99,7 @@ var datasourceConfiguration = {
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
+      "bq": "shortform_autosuggest:VFBexp*^10.0 shortform_autosuggest:VFB*^100.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
@@ -107,9 +107,13 @@ var searchConfiguration = {
   "resultsMapping":
     {
       "name": "label",
-      "id": "short_form"
+      "id": "short_form",
+      "labels" : "unique_facets"
     },
+  "label_manipulation" : label => label,
   "filters_expanded": true,
+  "filter_positive" : "^100",
+  "filter_negative" : "^0.001",
   "filters": [
     {
       "key": "facets_annotation",
@@ -305,6 +309,13 @@ var searchConfiguration = {
     if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
       return 1;
     }
+    // move up expression (VFBexp) terms
+    if (a.id.indexOf("VFBexp") > -1 && b.id.indexOf("VFBexp") < 0) {
+      return -1;
+    }
+    if (b.id.indexOf("VFBexp") > -1 && a.id.indexOf("VFBexp") < 0) {
+      return 1;
+    }
     // if the match in the id is closer to start then move up
     if (a.id.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && a.id.toLowerCase().indexOf(InputString.toLowerCase()) < b.id.toLowerCase().indexOf(InputString.toLowerCase())) {
       return -1;
@@ -323,11 +334,16 @@ var searchConfiguration = {
   },
   "clickHandler": function (id) {
     window.addVfbId(id);
+  },
+  "Neo4jLabels" : {
+    "FAFB" : "FAFB",
+    "L1EM" : "L1EM",
+    "FlyEM_HB" : "FlyEM_HB"
   }
 };
 
 module.exports = {
   searchStyle,
   searchConfiguration,
-  datasourceConfiguration,
+  datasourceConfiguration
 };

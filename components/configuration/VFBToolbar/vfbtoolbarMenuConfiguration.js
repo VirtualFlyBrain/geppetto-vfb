@@ -110,16 +110,16 @@ var toolbarMenu = {
           label: "About",
           icon: "",
           action: {
-            handlerAction: "clickAbout",
-            parameters: []
+            handlerAction: "openNewTab",
+            parameters: ["https://www.virtualflybrain.org/about/"]
           }
         },
         {
           label: "Contribute",
           icon: "",
           action: {
-            handlerAction: "clickContribute",
-            parameters: []
+            handlerAction: "openNewTab",
+            parameters: ["http://www.virtualflybrain.org/docs/contribution-guidelines/"]
           }
         },
         {
@@ -156,19 +156,11 @@ var toolbarMenu = {
               }
             },
             {
-              label: "Blog",
+              label: "Latest News & Releases",
               icon: "",
               action: {
                 handlerAction: "openNewTab",
-                parameters: ["https://virtualflybrain.tumblr.com/"]
-              }
-            },
-            {
-              label: "Rss",
-              icon: "fa fa-rss",
-              action: {
-                handlerAction: "openNewTab",
-                parameters: ["http://blog.virtualflybrain.org/rss"]
+                parameters: ["https://www.virtualflybrain.org/about/blog"]
               }
             }
           ]
@@ -254,6 +246,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "Download Contents",
+          icon: "fa fa-download",
+          action: {
+            handlerAction: "downloadContentsVisible",
+            parameters: []
+          }
+        },
+        {
           label: "NBLAST Uploader",
           icon: "fa fa-upload",
           action: {
@@ -299,7 +299,7 @@ var toolbarMenu = {
               trailerIcon: "fa fa-external-link",
               action: {
                 handlerAction: "openNewTab",
-                parameters: ["http://catmaid.readthedocs.io/"]
+                parameters: ["https://www.virtualflybrain.org/blog/releases/catmaid/"]
               }
             },
             {
@@ -760,11 +760,11 @@ var toolbarMenu = {
       position: "bottom-start",
       list: [
         {
-          label: "F.A.Q.",
+          label: "Documentation",
           icon: "fa fa-comments-o",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://groups.google.com/g/vfb-suport"]
+            parameters: ["https://www.virtualflybrain.org/docs/"]
           }
         },
         {
@@ -773,6 +773,14 @@ var toolbarMenu = {
           action: {
             handlerAction: "openNewTab",
             parameters: ["https://groups.google.com/g/vfb-suport"]
+          }
+        },
+        {
+          label: "Contribute",
+          icon: "",
+          action: {
+            handlerAction: "openNewTab",
+            parameters: ["http://www.virtualflybrain.org/docs/contribution-guidelines/"]
           }
         },
         {
