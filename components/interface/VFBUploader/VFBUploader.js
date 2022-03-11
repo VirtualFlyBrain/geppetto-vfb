@@ -19,24 +19,28 @@ import { nanoid } from 'nanoid';
 import FileIcon from "../../configuration/VFBUploader/file-icon.png";
 import { CustomStyle, CustomTheme } from "./styles";
 
-const UNIQUE_ID = "UNIQUE_ID";
+const UNIQUE_ID = "UNIQUE_ID", NBLAST = "nblast", GENERIC = "generic";
+
 class VFBUploader extends React.Component {
   constructor (props) {
     super(props);
-
+    const defaultImplementation = GENERIC;
+    this.configuration = require("../../configuration/VFBUploader/configuration");
+    const defaultSelection = this.configuration.implementation[defaultImplementation].templates.find( template => template.short_form == "VFB_00200000" )
+    
     this.state = {
       open: false,
-      fileNBLASTURL: "",
+      fileserverURL: "",
       nblastEnabled: false,
       files: [],
-      templateSelected: "",
+      templateSelected: defaultSelection?.label,
       progress: 100,
       cookies : false,
       error : false,
-      uploading : false
+      uploading : false,
+      implementation : defaultImplementation
     };
 
-    this.configuration = require("../../configuration/VFBUploader/configuration");
     this.handleCloseDialog = this.handleCloseDialog.bind(this);
     this.openDialog = this.openDialog.bind(this);
     this.handleNBLASTAction = this.handleNBLASTAction.bind(this);
@@ -47,6 +51,7 @@ class VFBUploader extends React.Component {
     this.getErrorDialog = this.getErrorDialog.bind(this);
     this.getUploadActions = this.getUploadActions.bind(this);
     this.handleCookieEvent = this.handleCookieEvent.bind(this);
+    this.newId = "";
   }
   
   handleCookieEvent (event) {
@@ -74,11 +79,11 @@ class VFBUploader extends React.Component {
   }
 
   handleNBLASTAction () {
-    let newId = "VFBu_" + nanoid(8);
-    let url = this.configuration.nblastURL.replace(UNIQUE_ID, this.state.templateSelected + "&" + newId);
+    this.newId = "VFBu_" + nanoid(8);
+    let url = this.configuration.implementation[this.state.implementation].serverURL.replace(UNIQUE_ID, this.state.templateSelected + "&" + this.newId);
     var formData = new FormData();
     formData.append("file", this.state.files[0]);
-    formData.append("vfbID", newId);
+    formData.append("vfbID", this.newId);
     formData.append("templateID", this.state.templateSelected);
     this.requestUpload(formData, url);
   }
@@ -91,11 +96,11 @@ class VFBUploader extends React.Component {
     let _id = formData.get("vfbID");
     let newURL = window.location.origin + window.location.pathname + "&q=" + _id + "," + this.configuration.queryType;
 
-    this.setState({ fileNBLASTURL: newURL, uploading : true });
+    this.setState({ fileserverURL: newURL, uploading : true });
     window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
 
     axios.put(url,
-      formData, { headers: { 'Content-Type': this.configuration.contentType } }
+      formData, { headers: { 'Content-Type': this.configuration.implementation[this.state.implementation].contentType } }
     ).then(function (response) {
       console.log('SUCCESS!!', response);
       self.setState({ uploading : false, nblastEnabled: true });
@@ -112,7 +117,13 @@ class VFBUploader extends React.Component {
         <Typography variant="h2">{this.configuration.text.dialogTitle}</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h5">{this.configuration.text.dialogSubtitle}</Typography>
+        <Divider fullWidth />
+      </Grid>
+      <Grid item xs={6}>
+        <Button fullWidth onClick={(event) => this.setState({ implementation : event.currentTarget.value ? GENERIC : NBLAST })} variant={ this.state.implementation === NBLAST ? "contained" : "outlined" }>{this.configuration.text.nblastLabel}</Button>
+      </Grid>
+      <Grid item xs={6}>
+        <Button fullWidth onClick={(event) => this.setState({ implementation : event.currentTarget.value ? NBLAST : GENERIC })} variant={ this.state.implementation === GENERIC ? "contained" : "outlined" }>{this.configuration.text.genericLabel}</Button>
       </Grid>
     </Grid>);
   }
@@ -144,7 +155,7 @@ class VFBUploader extends React.Component {
                 }
                 <ListItemText>Select</ListItemText>
               </MenuItem>
-              {self.configuration.templates.map( template => (
+              {self.configuration.implementation[self.state.implementation].templates.map( template => (
                 <MenuItem value={template.label}>
                   { self.state.templateSelected === template.label
                     ? <ListItemIcon>
@@ -183,7 +194,7 @@ class VFBUploader extends React.Component {
             : <DropzoneArea
               onChange={self.handleDropZoneChange.bind(self)}
               onDelete={self.handleFileDelete.bind(self)}
-              acceptedFiles={self.configuration.acceptedFiles}
+              acceptedFiles={self.configuration.implementation[self.state.implementation].acceptedFiles}
               maxFileSize={self.configuration.maxFileSize}
               filesLimit={self.configuration.filesLimit}
               dropzoneText={self.configuration.text.dropZoneMessage}
@@ -208,15 +219,21 @@ class VFBUploader extends React.Component {
           
   getSuccessComponent () {
     const { classes } = this.props;
+    let self = this;
     return (
       <Grid container>
         <Grid item xs={9}>
           <TextField
-            value={this.state.fileNBLASTURL}
+            value={this.state.implementation === NBLAST ? this.newId : this.state.fileserverURL}
             variant="filled"
             color="primary"
             fullWidth
             InputProps={{ disableUnderline: true, spellCheck: 'false' }}
+            inputProps={{
+              style: {
+                padding: 8
+              }
+           }}
           />
         </Grid>
         <Grid item xs={3}>
@@ -226,7 +243,7 @@ class VFBUploader extends React.Component {
             startIcon={<FileCopyIcon />}
             classes={{ root : classes.nblastButton }}
             onClick={() => { 
-              navigator.clipboard.writeText(this.state.fileNBLASTURL)
+              navigator.clipboard.writeText( this.state.implementation === NBLAST ? this.state.fileserverURL : this.newId );
             }}
           >
             {this.configuration.text.copyButtonText}
@@ -285,7 +302,7 @@ class VFBUploader extends React.Component {
                   variant="contained"
                   classes={{ root : classes.nblastButton }}
                 >
-                  {this.state.uploading ? <CircularProgress color="secondary" size={10} /> : this.configuration.text.blastButtonText}
+                  {this.state.uploading ? <CircularProgress color="secondary" size={10} /> : this.configuration.implementation[this.state.implementation].submitButtonText}
                 </Button>
               </Grid>
             ) : (
@@ -293,7 +310,7 @@ class VFBUploader extends React.Component {
                 <Button
                   fullWidth
                   startIcon={<ReplayIcon color="primary" />}
-                  onClick={() => self.setState({ fileNBLASTURL : "", nblastEnabled : false, files : [], templateSelected: "" }) }
+                  onClick={() => self.setState({ fileserverURL : "", nblastEnabled : false, files : [], templateSelected: "" }) }
                   variant="outlined"
                 >
                   {this.configuration.text.restartButtonText}
@@ -306,7 +323,7 @@ class VFBUploader extends React.Component {
                 variant="outlined"
                 classes={{ root : classes.errorButton }}
                 startIcon={<ReplayIcon color="error" />}
-                onClick={() => self.setState({ fileNBLASTURL : "", error : false, nblastEnabled : false, files : [], templateSelected: "" }) }
+                onClick={() => self.setState({ fileserverURL : "", error : false, nblastEnabled : false, files : [], templateSelected: "" }) }
               >
                 {this.configuration.text.errorButtonText}
               </Button>

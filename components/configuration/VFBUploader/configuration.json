@@ -1,8 +1,20 @@
 {
-	"nblastURL" : "http://upload.virtualflybrain.org/files/UNIQUE_ID?token=bec3a40f0ab377c39103",
-	"contentType" : "multipart/form-data",
-	"templates" : [{"short_form":"VFB_00101567","label":"JRC2018Unisex"},{"short_form":"VFB_00200000","label":"JRC2018UnisexVNC"}] ,
-	"acceptedFiles" : [".swc", ".nrrd"],
+	"implementation" : {
+		"nblast" : {
+			"serverURL" : "http://upload.virtualflybrain.org/files/UNIQUE_ID?token=bec3a40f0ab377c39103",
+			"contentType" : "multipart/form-data",
+			"templates" : [{"short_form":"VFB_00101567","label":"JRC2018Unisex"},{"short_form":"VFB_00200000","label":"JRC2018UnisexVNC"}] ,
+			"acceptedFiles" : [".swc", ".nrrd"],
+			"submitButtonText" : "Generate a nblast query link"
+		},
+		"generic" : {
+			"serverURL" : "http://upload.virtualflybrain.org/files/UNIQUE_ID?token=bec3a40f0ab377c39103",
+			"contentType" : "multipart/form-data",
+			"templates" : [{"short_form":"VFB_00101567","label":"JRC2018Unisex"},{"short_form":"VFB_00200000","label":"JRC2018UnisexVNC"}] ,
+			"acceptedFiles" : [".swc", ".nrrd"],
+			"submitButtonText" : "Upload file"
+		}
+	},
 	"filesLimit" : 1,
 	"maxFileSize" : 3000000,
 	"queryType": "uploaderQuery",
@@ -10,18 +22,19 @@
 	"cookiesLearnLink" : "https://en.wikipedia.org/wiki/HTTP_cookie",
 	"text" : {
 		"dialogTitle" : "Upload Data File",
-		"dialogSubtitle" : "Generate a nblast query from your own data.",
+		"dialogSubtitle" : "Generate a query from your own data.",
 		"selectTemplate" : "1. Select a Template",
 		"select" : "Select",
 		"addYourFile" : "2. Add your file (Please use a .swc)",
 		"dropZoneMessage" : "Click or Drag & Drop your file here",
-		"agreeTerms" : "I agree to the use of cookies to store the NBLAST QUERY URL. ",
+		"agreeTerms" : "I agree to the use of cookies to store the QUERY URL. ",
 		"learnMore" : "Learn More",
-		"blastButtonText" : "Generate a nblast query link",
 		"restartButtonText" : "Restart",
 		"copyButtonText" : "Copy",
-		"infoMessage" : "Generating a nblast query can take up to 30 min. Save this link to find the result of your query.",
-		"errorDialog" : "Something went wrong... We were not able to generate a nblast query link from your data. Please try again.",
-		"errorButtonText" : "Try Again"
+		"infoMessage" : "Generating a query can take up to 30 min. Save this link to find the result of your query.",
+		"errorDialog" : "Something went wrong... We were not able to generate a query link from your data. Please try again.",
+		"errorButtonText" : "Try Again",
+		"nblastLabel" : "NBLAST",
+		"genericLabel" : "GENERIC"
 	}
 }
