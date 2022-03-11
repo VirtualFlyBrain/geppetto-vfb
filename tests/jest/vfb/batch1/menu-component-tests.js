@@ -66,7 +66,7 @@ describe('VFB Menu Component Tests', () => {
     })
   })
 
-  // Tests Menu Components for About and Help Work
+  // Tests Menu Components for Help Work
   describe('Test Menu Components About and Help', () => {
     it('Open Virtual Fly Brain Menu', async () => {
       await page.evaluate(async () => document.getElementById("Virtual Fly Brain").click());
@@ -77,41 +77,19 @@ describe('VFB Menu Component Tests', () => {
       expect(dropDownMenuItems).toEqual(4);
     })
 
-    // Tests modal title bar is populated with expected title for About modal
-    it('About Modal Title Correct', async () => {
-      await page.evaluate(async () => document.getElementById("About").click());
-      await page.waitForFunction('document.getElementById("vfb-content-titlebar").innerText.startsWith("About Virtual Fly Brain")');
-    })
-
-    it('About Modal Title Correct', async () => {
-      // Check for the first line of the About modal to be present
-      await page.waitForFunction('document.getElementById("vfb-content-text").innerText.startsWith("Who we are")');
-    })
-
-    it('About Modal Contains Contents', async () => {
-      // Here we check the contents inside a DIV to match the expected text
-      await page.waitForFunction('document.getElementsByClassName("vfb-content-container")[0].innerText.startsWith("3D Viewer, online tools, server and the website:")');
-    })
-
-    it('About Modal Closed', async () => {
-      // Click on the X on the right corner to close the modal
-      await page.evaluate(async () => document.getElementsByClassName("close-slider")[0].click());
-      await wait4selector(page, '#vfb-content-block', { hidden: true, timeout : 5000 });
-    })
-
     it('Help Menu Appears', async () => {
       await page.evaluate(async () => document.getElementById("Help").click());
       // Wait for drop down menu of 'Help' to show
       await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
       // Check there's four elements in the drop down menu of 'Help'
       const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
-      expect(dropDownMenuItems).toEqual(5);
+      expect(dropDownMenuItems).toEqual(6);
     })
 
-    it('Help Modal FAQ Tab Opened', async () => {
+    it('Help Modal Support Forum Tab Opened', async () => {
       // Checks a new page was opened as a result of clicking on the F.A.Q. menu option
       let pagesOpened = await browser.pages();
-      await page.evaluate(async () => document.getElementById("F.A.Q.").click());
+      await page.evaluate(async () => document.getElementById("Support Forum").click());
       await page.waitFor(2000); // wait for a while
       // New amount of opened pages should be one more than 'pagesOpened'
       let newPagesOpened = await browser.pages();
