@@ -26,7 +26,7 @@ class VFBUploader extends React.Component {
     super(props);
     const defaultImplementation = GENERIC;
     this.configuration = require("../../configuration/VFBUploader/configuration");
-    const defaultSelection = this.configuration.implementation[defaultImplementation].templates.find( template => template.short_form == "VFB_00200000" )
+    const defaultSelection = this.configuration.implementation[defaultImplementation].templates.find( template => template.short_form == window.templateId )
     
     this.state = {
       open: false,
@@ -120,10 +120,10 @@ class VFBUploader extends React.Component {
         <Divider fullWidth />
       </Grid>
       <Grid item xs={6}>
-        <Button fullWidth onClick={(event) => this.setState({ implementation : event.currentTarget.value ? GENERIC : NBLAST })} variant={ this.state.implementation === NBLAST ? "contained" : "outlined" }>{this.configuration.text.nblastLabel}</Button>
+        <Button fullWidth onClick={event => this.setState({ implementation : event.currentTarget.value ? GENERIC : NBLAST })} variant={ this.state.implementation === NBLAST ? "contained" : "outlined" }>{this.configuration.text.nblastLabel}</Button>
       </Grid>
       <Grid item xs={6}>
-        <Button fullWidth onClick={(event) => this.setState({ implementation : event.currentTarget.value ? NBLAST : GENERIC })} variant={ this.state.implementation === GENERIC ? "contained" : "outlined" }>{this.configuration.text.genericLabel}</Button>
+        <Button fullWidth onClick={event => this.setState({ implementation : event.currentTarget.value ? NBLAST : GENERIC })} variant={ this.state.implementation === GENERIC ? "contained" : "outlined" }>{this.configuration.text.genericLabel}</Button>
       </Grid>
     </Grid>);
   }
@@ -224,16 +224,12 @@ class VFBUploader extends React.Component {
       <Grid container>
         <Grid item xs={9}>
           <TextField
-            value={this.state.implementation === NBLAST ? this.newId : this.state.fileserverURL}
+            value={this.state.implementation === NBLAST ? this.state.fileserverURL : this.newId}
             variant="filled"
             color="primary"
             fullWidth
             InputProps={{ disableUnderline: true, spellCheck: 'false' }}
-            inputProps={{
-              style: {
-                padding: 8
-              }
-           }}
+            inputProps={{ style: { padding: 8 } }}
           />
         </Grid>
         <Grid item xs={3}>
