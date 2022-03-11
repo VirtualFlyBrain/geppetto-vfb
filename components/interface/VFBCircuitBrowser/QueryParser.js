@@ -67,7 +67,7 @@ export function queryParser (e) {
       let title = properties[e.data.params.configuration.resultsMapping.node.title];
       let color = e.data.params.styling.defaultNodeDescriptionBackgroundColor;
       let nodeColorLabels = new Array();
-      const labels = sorted(properties.uniqueFacets);
+      const labels = properties.uniqueFacets.sort();
       
       // Retrieve list of Label colors from configuration
       const colorLabels = Object.entries(e.data.params.styling.nodeColorsByLabel);
