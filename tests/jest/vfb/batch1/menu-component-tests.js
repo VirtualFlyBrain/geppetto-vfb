@@ -75,8 +75,12 @@ describe('VFB Menu Component Tests', () => {
       const dropDownMenuItems = await page.evaluate(async () => document.getElementsByClassName("MuiListItem-root").length);
       // Test there's 4 elements as part of the drop down menu for 'Virtual Fly Brain'
       expect(dropDownMenuItems).toEqual(4);
+    })
+
+    it('Close the Virtual Fly Brain Menu', async () => {
       // close the menu
       await page.evaluate(async () => document.getElementById("Virtual Fly Brain").click());
+      await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
     })
 
     it('Help Menu Appears', async () => {
