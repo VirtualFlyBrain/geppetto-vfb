@@ -95,11 +95,11 @@ var datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR facets_annotation:DataSet OR facets_annotation:pub"
+        "short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub"
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "shortform:VFBexp*^10.0 shortform:VFB*^100.0 shortform:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
+      "bq": "short_form:VFBexp*^10.0 short_form:VFB*^100.0 short_form:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
