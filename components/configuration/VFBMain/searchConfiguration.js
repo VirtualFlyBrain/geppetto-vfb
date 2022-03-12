@@ -89,7 +89,7 @@ var datasourceConfiguration = {
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "defType": "edismax",
-      "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
+      "qf": "label^100 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
       "start": "0",
@@ -99,7 +99,7 @@ var datasourceConfiguration = {
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "shortform_autosuggest:VFBexp*^10.0 shortform_autosuggest:VFB*^100.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
+      "bq": "shortform:VFBexp*^10.0 shortform:VFB*^100.0 shortform:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
