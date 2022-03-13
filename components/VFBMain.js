@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
@@ -52,6 +53,7 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
+      downloadContentsVisible : true,
       uploaderContentsVisible : true
     };
 
@@ -488,6 +490,12 @@ class VFBMain extends React.Component {
         [buttonState]: !this.state[buttonState]
       });
       break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
+      break;
+    case 'uploaderContentsVisible':
+      this.refs.uploaderContentsRef?.openDialog();
+      break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
         this.setState({
@@ -526,6 +534,9 @@ class VFBMain extends React.Component {
       return historyList;
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
+      break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
       break;
     case 'uploaderContentsVisible':
       this.refs.uploaderContentsRef?.openDialog();
@@ -1294,7 +1305,7 @@ class VFBMain extends React.Component {
       } else if (idList[list].indexOf("q=") > -1) {
         const multipleQueries = idList[list].replace("q=","").replace("%20", " ").split(";");
         let that = this;
-        multipleQueries?.forEach( query => { 
+        multipleQueries?.forEach( query => {
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
         });
@@ -1335,7 +1346,7 @@ class VFBMain extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
     });
-    
+
     GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
       // Set template Instance to be not clickable in 3D viewer
       if ( instances[0]?.id?.includes(window.templateID) ) {
@@ -1472,6 +1483,10 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
       window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+      if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
+        console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
+        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+      }
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
         if (GEPPETTO.MessageSocket.attempts < 10) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
@@ -1695,7 +1710,10 @@ class VFBMain extends React.Component {
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
+        <VFBDownloadContents ref="downloadContentsRef" open={false} />
+
         <VFBUploader ref="uploaderContentsRef" open={false} />
+        
         {this.htmlToolbarRender}
       </div>
     );

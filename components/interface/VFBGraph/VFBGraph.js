@@ -83,8 +83,8 @@ class VFBGraph extends Component {
     if (this.state.currentQuery.id !== undefined && this.state.currentQuery.id !== "" && this.state.currentQuery.id !== null){
       // Set focusedInstance
       if ( this.props.instance !== null ) {
-        if (this.props.instance.getParent() !== null) {
-          this.focusedInstance = this.props.instance.getParent();
+        if (this.props.instance?.getParent() !== null) {
+          this.focusedInstance = this.props.instance?.getParent();
         } else {
           this.focusedInstance = this.props.instance;
         }
@@ -127,16 +127,16 @@ class VFBGraph extends Component {
     if (this.loading && this.firstLoad) {
       if (this.state.currentQuery.id === undefined || this.state.currentQuery.id === "" || this.state.currentQuery.id === null){
         if (this.props.instance !== null && this.props.instance !== undefined) {
-          if (this.props.instance.getParent() !== null) {
-            this.focusedInstance = this.props.instance.getParent();
+          if (this.props.instance?.getParent() !== null) {
+            this.focusedInstance = this.props.instance?.getParent();
           } else {
             this.focusedInstance = this.props.instance;
           }
           this.firstLoad = false;
           this.updateGraph();
         } else if (this.props.instanceOnFocus !== null && this.props.instanceOnFocus !== undefined) {
-          if (this.props.instanceOnFocus.getParent() !== null) {
-            this.focusedInstance = this.props.instanceOnFocus.getParent();
+          if (this.props.instanceOnFocus?.getParent() !== null) {
+            this.focusedInstance = this.props.instanceOnFocus?.getParent();
           } else {
             this.focusedInstance = this.props.instanceOnFocus;
           }
@@ -159,9 +159,9 @@ class VFBGraph extends Component {
             self.loading = true;
             let idToSearch = self.props.instanceOnFocus.id;
             let instanceName = self.props.instanceOnFocus.name;
-            if (self.props.instanceOnFocus.getParent() !== null) {
-              idToSearch = self.props.instanceOnFocus.getParent().id;
-              instanceName = this.focusedInstance.getParent().name;
+            if (self.props.instanceOnFocus?.getParent() !== null) {
+              idToSearch = self.props.instanceOnFocus?.getParent().id;
+              instanceName = this.focusedInstance?.getParent().name;
             }
             self.queryResults(item.query(idToSearch), { id : idToSearch, name : instanceName } );
           }
@@ -183,18 +183,20 @@ class VFBGraph extends Component {
        * If graph is visible, update contents based on properties passed by redux store
        * Retrieve id and name of selected instance
        */
-      let idToSearch = self.props.instanceOnFocus.id;
+      let idToSearch = self.props.instanceOnFocus?.id;
       let instanceName = self.props.instanceOnFocus.name;
-      if (self.props.instanceOnFocus.getParent() !== null) {
-        idToSearch = self.props.instanceOnFocus.getParent().id;
-        instanceName = self.props.instanceOnFocus.getParent().name;
+      if ( typeof self.props.instanceOnFocus?.getParent === "function" ) {
+        if ( self.props.instanceOnFocus?.getParent() !== null ) {
+          idToSearch = self.props.instanceOnFocus?.getParent()?.id;
+          instanceName = self.props.instanceOnFocus?.getParent()?.name;
+        }
       }
       /*
        * Update graph with selected query index from configuration dropdown selection
        */
-      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery || idToSearch != this.state.currentQuery.id) {
+      if ( parseInt(this.props.graphQueryIndex) !== this.selectedDropDownQuery || idToSearch != this.state.currentQuery?.id) {
         if ( this.props.sync ) {
-          stylingConfiguration.dropDownQueries.map((item, index) => {
+          stylingConfiguration?.dropDownQueries?.map((item, index) => {
             if ( parseInt(self.props.graphQueryIndex) === index ) {
               self.props.vfbGraph(UPDATE_GRAPH, null, -1, true, false);
               self.instanceFocusChange(self.props.instanceOnFocus);
@@ -314,7 +316,7 @@ class VFBGraph extends Component {
   selectedNodeLoaded (instance) {
     var loadedId = instance.id;
     if (instance.getParent() !== null) {
-      loadedId = instance.getParent().id;
+      loadedId = instance.getParent()?.id;
     }
 
     if ( this.nodeSselected ) {
@@ -347,9 +349,9 @@ class VFBGraph extends Component {
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
      */
-    if (this.focusedInstance.getParent() !== null) {
-      idToSearch = this.focusedInstance.getParent().id;
-      instanceName = this.focusedInstance.getParent().name;
+    if (this.focusedInstance?.getParent() !== null) {
+      idToSearch = this.focusedInstance?.getParent()?.id;
+      instanceName = this.focusedInstance?.getParent()?.name;
     }
 
     if (this.__isMounted){

@@ -38,22 +38,44 @@ const styles = {
 class ErrorCatcher extends React.Component {
   constructor (props) {
     super(props);
-    this.state = { 
-      hasError: false, 
+    this.state = {
+      hasError: false,
       open: true,
       error: undefined
     };
   }
-    
     handleClose = () => {
       var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new";
       var customMessage = "Steps to reproduce the problem: \n\nPlease fill the below with the necessary steps to reproduce the problem\n\n\n\nError Information:\n\n"
-      var body = customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n```diff\n" + window.console.logs.slice(-50).join('\n').replace("#",escape("#")) + "\n```\n";
+      // return as much of the log up to the last 10 events < 1000 characters:
+      var logLength = -1;
+      var limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+        /\&/g,escape('&')
+      ).replace(
+        /\#/g,escape('#')
+      ).replace(
+        /\-/g,'%2D'
+      ).replace(
+        /\+/g,'%2B'
+      );
+      while (limitedLog.length < 1000 && logLength > -50) {
+        logLength -= 1;
+        limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
+          /\&/g,escape('&')
+        ).replace(
+          /\#/g,escape('#')
+        ).replace(
+          /\-/g,'%2D'
+        ).replace(
+          /\+/g,'%2B'
+        );
+      }
+      var body = customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n```diff\n" + limitedLog + "\n```\n";
       var form = document.createElement("form");
       form.setAttribute("method", "get");
       form.setAttribute("action", url);
       form.setAttribute("target", "view");
-      var hiddenField = document.createElement("input"); 
+      var hiddenField = document.createElement("input");
       hiddenField.setAttribute("type", "hidden");
       hiddenField.setAttribute("name", "body");
       hiddenField.setAttribute("value", body);
@@ -62,7 +84,7 @@ class ErrorCatcher extends React.Component {
       window.open('', 'view');
       form.submit();
     };
-  
+
     componentDidCatch (error, info) {
       // Report error to GA
       window.ga('vfb.send', 'event', 'error', 'react', error.message + " - " + error.stack.replace("#",escape("#")));
