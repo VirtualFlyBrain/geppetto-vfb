@@ -506,7 +506,7 @@ class Controls extends Component {
               IconButtonProps={{ style: { padding : "0px", margin : "0px" } }}
             >
               <div className={classes.column}>
-                <Typography classes={{ root : classes.typography }}>Configure circuit</Typography>
+                <Typography classes={{ root : classes.typography }}>Connectivety query</Typography>
               </div>
             </AccordionSummary>
             <AccordionDetails classes={{ root : classes.details }}>
