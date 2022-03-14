@@ -81,10 +81,10 @@ describe('VFB Spotlight Tests', () => {
     	await page.evaluate(async () => {
 			let tabs = document.getElementsByClassName('MuiListItem-root ');
 			for ( var i = 0; i < tabs.length ; i ++ ) {
-				if ( tabs[i].innerText === "fru-M-200266 (VFB_00000001)" ) {
+				if ( tabs[i].innerText.split('\n')[0] === "fru-M-200266 (VFB_00000001)" ) {
 					tabs[i].click();
 				}
-			}				
+			}
 		});
     	await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
     })

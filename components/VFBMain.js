@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import VFBListViewer from './interface/VFBListViewer/VFBListViewer';
@@ -52,6 +53,7 @@ class VFBMain extends React.Component {
       quickHelpVisible: undefined,
       UIUpdated: true,
       wireframeVisible: false,
+      downloadContentsVisible : true,
       uploaderContentsVisible : true
     };
 
@@ -488,6 +490,12 @@ class VFBMain extends React.Component {
         [buttonState]: !this.state[buttonState]
       });
       break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
+      break;
+    case 'uploaderContentsVisible':
+      this.refs.uploaderContentsRef?.openDialog();
+      break;
     case 'quickHelpVisible':
       if (this.state[buttonState] === undefined) {
         this.setState({
@@ -526,6 +534,9 @@ class VFBMain extends React.Component {
       return historyList;
     case 'triggerSetTermInfo':
       this.handlerInstanceUpdate(click.value[0]);
+      break;
+    case 'downloadContentsVisible':
+      this.refs.downloadContentsRef?.openDialog();
       break;
     case 'uploaderContentsVisible':
       this.refs.uploaderContentsRef?.openDialog();
@@ -1286,63 +1297,6 @@ class VFBMain extends React.Component {
           idsList += ",";
         }
         idsList += this.idFromURL;
-        // populate page meta for this term for indexing
-        try {
-          window.ga('vfb.send', 'pageview', window.location.href );
-          if ( window.XMLHttpRequest ) {
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-              try {
-                if (this.responseXML.title.indexOf("404 Not Found") < 0) {
-                  document.title = 'Virtual Fly Brain (' + this.responseXML.title + ')';
-                  document.body.style.font = "x-large";
-                  document.querySelector('meta[property="og:title"]').setAttribute("content",this.responseXML.title);
-                  document.querySelector('meta[name="description"]').setAttribute("content",this.responseXML.getElementById('json').innerText.substring(0, 4900));
-                  document.querySelector('meta[property="og:description"]').setAttribute("content",this.responseXML.getElementById('json').innerText.substring(0, 4900));
-                  if (document.getElementById('metaDesc') != null) {
-                    if (this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
-                      document.getElementById('metaDesc').innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
-                    }
-                  } else {
-                    if (this.responseXML.head != undefined && this.responseXML.head.getElementsByTagName('script') != undefined && this.responseXML.head.getElementsByTagName('script') != null && this.responseXML.head.getElementsByTagName('script')[1] != undefined) {
-                      var script = document.createElement('script');
-                      script.type = 'application/ld+json';
-                      script.id = 'metaDesc';
-                      script.innerHTML = this.responseXML.head.getElementsByTagName('script')[1].innerHTML;
-                      document.getElementsByTagName('head')[0].appendChild(script);
-                    }
-                  }
-                  var viewport = !!document.querySelector("meta[name='viewport']");
-                  viewport = viewport ? document.querySelector("meta[name='viewport']") : document.createElement('meta');
-                  viewport.setAttribute('name', 'viewport');
-                  viewport.setAttribute('content', 'width=device-width, initial-scale=1');
-                  document.head.appendChild(viewport);
-                }
-              } catch (err) {
-                console.log(err);
-              }
-            }
-            xhr.open( 'GET', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html')
-            xhr.responseType = 'document';
-            xhr.send();
-          }
-        } catch (err) {
-          console.error(err);
-        }
-        try {
-          var link = !!document.querySelector("link[rel='amphtml']");
-          link = link ? document.querySelector("link[rel='amphtml']") : document.createElement('link');
-          link.setAttribute('rel', 'amphtml');
-          link.setAttribute('href', 'https://virtualflybrain.org/data/VFB/json/' + this.idFromURL + '.html');
-          document.head.appendChild(link);
-          var conlink = !!document.querySelector("link[rel='canonical']");
-          conlink = conlink ? document.querySelector("link[rel='canonical']") : document.createElement('link');
-          conlink.setAttribute('rel', 'canonical');
-          conlink.setAttribute('href', 'https://virtualflybrain.org/reports/' + this.idFromURL);
-          document.head.appendChild(conlink);
-        } catch (err) {
-          console.error(err);
-        }
       } else if (idList[list].indexOf("i=") > -1) {
         if (idsList.length > 0) {
           idsList = "," + idsList;
@@ -1351,7 +1305,7 @@ class VFBMain extends React.Component {
       } else if (idList[list].indexOf("q=") > -1) {
         const multipleQueries = idList[list].replace("q=","").replace("%20", " ").split(";");
         let that = this;
-        multipleQueries?.forEach( query => { 
+        multipleQueries?.forEach( query => {
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
         });
@@ -1392,7 +1346,7 @@ class VFBMain extends React.Component {
     GEPPETTO.on(GEPPETTO.Events.Instance_added, function (instance) {
       that.props.instanceAdded(instance);
     });
-    
+
     GEPPETTO.on(GEPPETTO.Events.Instances_created, function (instances) {
       // Set template Instance to be not clickable in 3D viewer
       if ( instances[0]?.id?.includes(window.templateID) ) {
@@ -1529,6 +1483,10 @@ class VFBMain extends React.Component {
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
       window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+      if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
+        console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
+        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+      }
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
         if (GEPPETTO.MessageSocket.attempts < 10) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
@@ -1752,7 +1710,10 @@ class VFBMain extends React.Component {
           searchConfiguration={this.searchConfiguration}
           datasourceConfiguration={this.datasourceConfiguration} />
 
+        <VFBDownloadContents ref="downloadContentsRef" open={false} />
+
         <VFBUploader ref="uploaderContentsRef" open={false} />
+        
         {this.htmlToolbarRender}
       </div>
     );
