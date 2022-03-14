@@ -48,7 +48,7 @@ const buildDictClassToIndividual = data => {
   return dictionaryIndividuals;
 };
 
-const searchChildren = (array, key, target, label) => {
+const searchChildren = (array, key, target, labels) => {
   // Define Start and End Index
   let startIndex = 0;
   let endIndex = array.length - 1;
@@ -60,7 +60,7 @@ const searchChildren = (array, key, target, label) => {
     // Compare Middle Index with Target for match
     if (isNumber(array[middleIndex][key]) === isNumber(target[key])) {
       // check for target relationship (label)
-      if (array[middleIndex].label === label){
+      if ((labels === undefined) || labels.includes(array[middleIndex].label)){
         return middleIndex;
       } else {
         // move on if not matching target relationship (label)

@@ -37,23 +37,10 @@ const theme = createMuiTheme({
   overrides : {
     MuiSlider: {
       markLabelActive: { color: 'white' },
-      markLabel: { color: 'white' },
-      markActive: { color: 'red' }
-    },
-    MuiButton: {
-      label: {
-        fontSize: '12px',
-        fontFamily: ['Barlow Condensed', 'Khand', "sans-serif"]
-      },
-      button : { padding : "" }
+      markLabel: { color: 'white' }
     }
   },
-  typography: {
-    body1: {
-      fontSize: 15,
-      fontFamily : ['Barlow Condensed', 'Khand', "sans-serif"]
-    }
-  }
+  typography: { body1: { fontFamily : ['Barlow Condensed', 'Khand', "sans-serif"] } }
 });
 
 /**
@@ -97,20 +84,26 @@ const styles = theme => ({
     height : "20px",
     border : "none !important",
     backgroundColor: "#80808040 !important",
-    paddingLeft : "10px !important"
+    paddingLeft : "10px !important",
+    fontSize : "15px !important"
   },
   weightInputDiv : { width : "100% !important" },
   refreshButton : {
     backgroundColor : "#0AB7FE",
     flexBasis: "100%",
     fontWeight : 600,
+    fontSize: '12px',
+    fontFamily: ['Barlow Condensed', 'Khand', "sans-serif"]
   },
   clearButton : {
     backgroundColor : "#E53935",
     flexBasis: "100%",
     fontWeight : 600,
+    fontSize: '12px',
+    fontFamily: ['Barlow Condensed', 'Khand', "sans-serif"]
   },
-  slider : { color: '#0AB7FE' }
+  slider : { color: '#0AB7FE' },
+  typography : { fontSize : "15px" }
 });
 
 /**
@@ -191,7 +184,7 @@ class AutocompleteResults extends Component {
         clearOnBlur
         value={this.fieldLabel}
         id={this.props.index.toString()}
-        ListboxProps={{ style: { maxHeight: "10rem" } }}
+        ListboxProps={{ style: { maxHeight: "10rem", fontSize: "15px" } }}
         onChange={this.props.resultSelectedChanged}
         options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
         renderInput={params => (
@@ -202,8 +195,8 @@ class AutocompleteResults extends Component {
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
             onDelete={this.props.neuronTextfieldModified}
-            inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", border : "none", backgroundColor: "#80808040" } }}
-            InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px" } }}
+            inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
+            InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
           />
         )}
       />
@@ -275,7 +268,6 @@ class Controls extends Component {
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     delete this.autocompleteRef[id.toString()];
     this.neuronFields = neurons;
-    
     if ( !this.state.neurons.find( neuron => neuron.id != "") ) {
       // reset configuration of fq to default
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
@@ -306,6 +298,7 @@ class Controls extends Component {
     // User has added the maximum number of neurons allowed in query search
     this.neuronFields = neuronFields;
     this.autocompleteRef[(neuronFields.length - 1).toString()] = React.createRef();
+    datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
     this.forceUpdate();
   }
 
@@ -429,6 +422,12 @@ class Controls extends Component {
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, [])
     this.setState({ key: Math.random() });
   }
+  
+  clearGraph () {
+    datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+    this.props.clearGraph()
+  }
+  
   /**
    * Update neuron fields if there's a query preselected.
    */
@@ -507,7 +506,7 @@ class Controls extends Component {
               IconButtonProps={{ style: { padding : "0px", margin : "0px" } }}
             >
               <div className={classes.column}>
-                <Typography >Configure circuit</Typography>
+                <Typography classes={{ root : classes.typography }}>Connectivity query</Typography>
               </div>
             </AccordionSummary>
             <AccordionDetails classes={{ root : classes.details }}>
@@ -573,7 +572,7 @@ class Controls extends Component {
                       </IconButton>
                     </Grid>
                     <Grid item sm={10} classes={{ root : classes.addNeuron }}>
-                      <Typography>Add Neuron</Typography>
+                      <Typography classes={{ root : classes.typography }}>Add Neuron</Typography>
                     </Grid>
                   </Grid>
                 }
@@ -584,7 +583,7 @@ class Controls extends Component {
               <Grid container justify="space-between" alignItems="center" >
                 <Grid container spacing={1}>
                   <Grid item sm={3}>
-                    <Typography># Paths</Typography>
+                    <Typography classes={{ root : classes.typography }}># Paths</Typography>
                   </Grid>
                   <Grid item sm={9}>
                     <Slider
@@ -602,7 +601,7 @@ class Controls extends Component {
                 </Grid>
                 <Grid container spacing={1} alignItems="flex-end">
                   <Grid item sm={3}>
-                    <Typography>Min Weight</Typography>
+                    <Typography classes={{ root : classes.typography }}>Min Weight</Typography>
                   </Grid>
                   <Grid item sm={9}>
                     <Input className={classes.weightInputDiv} label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
@@ -622,7 +621,7 @@ class Controls extends Component {
                       color="secondary"
                       classes={{ root : classes.clearButton }}
                       id="clearCircuitBrowser"
-                      onClick={() => this.props.clearGraph()}
+                      onClick={this.clearGraph.bind(this)}
                     >Clear</Button>  
                   </Grid>
                 </Grid>

@@ -39,8 +39,8 @@ const defaultHTTPConfiguration = {
 }
 
 const COMPONENT_ID = "VFBCircuitBrowser";
-const NODE_WIDTH = 55;
-const NODE_HEIGHT = 40;
+const NODE_WIDTH = 120;
+const NODE_HEIGHT = 80;
 const NODE_BORDER_THICKNESS = 2;
 
 /**
@@ -72,6 +72,7 @@ class VFBCircuitBrowser extends Component {
     this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
     this.resize = this.resize.bind(this);
+    this.nodeRendering = this.nodeRendering.bind(this);
     
     this.highlightNodes = new Set();
     this.highlightLinks = new Set();
@@ -261,27 +262,47 @@ class VFBCircuitBrowser extends Component {
         self.setState( { loading : false } );
       })
   }
+  
+  getFontSize (context, maxWidth, text, textLength) {
+    let baseSize = 8;
+    let width = context.measureText(text).width;
+    while (width > maxWidth) {
+      baseSize--;
+      context.font = `${baseSize}px sans-serif`
+      width = context.measureText(text).width;
+    }
+    
+    return baseSize;
+  }
 
   /**
    * Breaks Description texts into lines to fit within a certain width value.
    */
-  wrapText (context, text, x, y, maxWidth, lineHeight) {
-    var words = text.split(' ');
-    var line = '';
+  wrapText (context, text, x, y, maxWidth, maxHeight) {
+    let words = text.split(' ');
+    let lines = [];
+    let line = '';
 
-    for (var n = 0; n < words.length; n++) {
-      var testLine = line + words[n] + ' ';
-      var metrics = context.measureText(testLine);
-      var testWidth = metrics.width;
-      if (testWidth > maxWidth && n > 0) {
-        context.fillText(line, x, y);
-        line = words[n] + ' ';
-        y += lineHeight;
+    let maxTextLength = text.length < 20 ? text.length / 2 : text.length / 3;
+
+    words.forEach( word => {
+      let testLine = line + word + ' ';
+      if ( line.length >= maxTextLength ) {
+        lines.push(line);
+        line = word + ' ';
       } else {
         line = testLine;
       }
-    }
-    context.fillText(line, x, y);
+    });
+    
+    lines.push(line);
+    
+    const lineHeight = this.getFontSize(context, maxWidth, lines[0], maxTextLength);
+
+    lines.forEach( line => {
+      context.fillText(line, x, y);
+      y += lineHeight;
+    });
   }
   
   // Calculate link middle point
@@ -291,7 +312,58 @@ class VFBCircuitBrowser extends Component {
       y: (1 - t) * (1 - t) * sy + 2 * (1 - t) * t * cp1y + t * t * ey,
     };
   }
+  
+  nodeRendering (node, ctx, globalScale) {
+    const cardWidth = NODE_WIDTH;
+    const cardHeight = NODE_HEIGHT;
+    const classnameHeight = cardHeight * .45;
+    const idHeight = cardHeight * .45;
+    let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
+    // Node border color
+    ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
+    // Create Border
+    ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
+
+    // Assign color to Description Area background in Node
+    ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
+    // Create Description Area in Node
+    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - (borderThickness * 2 ));
+
+    ctx.fillStyle = stylingConfiguration.defaultNodeTitleBackgroundColor;
+    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight / 2 );
+
+    const lastIndex = node.nodeColorLabels.length;
+    node.nodeColorLabels.forEach( (color, index) => {
+      // Assign color to Title Bar background in Node
+      ctx.fillStyle = color;
+      const x = (node.x - cardWidth / 2) + (index * (cardWidth / lastIndex));
+      const y = node.y;
+      // Create Title Bar in Node
+      ctx.fillRect(x,y, (cardWidth / lastIndex) - ( index == lastIndex - 1 ? borderThickness * 2 : 0 ) , cardHeight / 10);
+    })
+
+    // Assign font to text in Node
+    ctx.font = stylingConfiguration.defaultNodeFont;
+    // Assign color to text in Node
+    ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
+    // Text in font to be centered
+    ctx.textAlign = "center";
+    ctx.textBaseline = 'middle';
+    
+    // Create Title in Node
+    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, cardWidth * .8 , classnameHeight);
+    
+    ctx.font = stylingConfiguration.defaultNodeFont;
+    /* 
+     * Add Description text to Nodes
+     * node.name = text to display
+     * node.x = x coordinate of text
+     * node.y + 20 = y coordinate, adds 20 pixels for padding from upper element
+     */
+    this.wrapText(ctx, node.name, node.x, node.y + 20, cardWidth * .8 , classnameHeight);
+  }
+  
   render () {
     let self = this;
     
@@ -299,9 +371,9 @@ class VFBCircuitBrowser extends Component {
     const { classes, circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
     
-    let errorMessage = "Not enough input queries to create a graph, needs 2.";
+    let errorMessage = "Enter a root/target neuron below to query connectivity paths";
     if ( this.state.neurons?.[0]?.id != "" && this.state.neurons?.[1]?.id != "" ){
-      errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
+      errorMessage = "No paths found between " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
       this.state.loading
@@ -336,7 +408,7 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            nodeLabel={node => node.path}
+            nodeLabel={node => node.title}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
             // Width of links, log(weight)
@@ -347,7 +419,7 @@ class VFBCircuitBrowser extends Component {
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
             linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 8;
+              const MAX_FONT_SIZE = 16;
               const LABEL_NODE_MARGIN = 1 * 1.5;
 
               const start = link.source;
@@ -419,46 +491,16 @@ class VFBCircuitBrowser extends Component {
 
               return color;
             }}
-            nodeCanvasObject={(node, ctx, globalScale) => {
-              let cardWidth = NODE_WIDTH;
-              let cardHeight = NODE_HEIGHT;
-              let borderThickness = self.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
-
-              // Node border color
-              ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (self.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
-              // Create Border
-              ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
-
-              // Assign color to Description Area background in Node
-              ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
-              // Create Description Area in Node
-              ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - ( borderThickness * 2) );
-              // Assign color to Title Bar background in Node
-              ctx.fillStyle = node.color;
-              // Create Title Bar in Node
-              ctx.fillRect(node.x - cardWidth / 2 ,node.y - cardHeight / 2, cardWidth - ( borderThickness * 2 ), cardHeight / 3);
-
-              // Assign font to text in Node
-              ctx.font = stylingConfiguration.defaultNodeFont;
-              // Assign color to text in Node
-              ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
-              // Text in font to be centered
-              ctx.textAlign = "center";
-              ctx.textBaseline = 'middle';
-              // Create Title in Node
-              ctx.fillText(node.title, node.x, node.y - 15);
-              // Add Description text to Node
-              this.wrapText(ctx, node.path, node.x, node.y, cardWidth - (borderThickness * 2) , 5);
-            }}
+            nodeCanvasObject={this.nodeRendering}
             // Overwrite Node Canvas Object
             nodeCanvasObjectMode={node => 'replace'}
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             nodeVal = { node => {
               node.fx = node.positionX;
-              node.fy = -100 * node.level
+              node.fy = -150 * node.level
             }}
-            dagLevelDistance = {25}
+            dagLevelDistance = {75}
             onDagError={loopNodeIds => {}}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
