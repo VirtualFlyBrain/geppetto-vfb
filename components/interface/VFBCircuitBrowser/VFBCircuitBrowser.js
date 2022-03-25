@@ -408,7 +408,7 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            nodeLabel={node => node.title}
+            nodeLabel={node => node.name + "[" + node.title + "]"}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
             // Width of links, log(weight)
