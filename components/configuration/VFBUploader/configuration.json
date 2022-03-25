@@ -34,7 +34,7 @@
 		"infoMessage" : "Generating a query can take up to 30 min. Save this link to find the result of your query.",
 		"errorDialog" : "Something went wrong... We were not able to generate a query link from your data. Please try again.",
 		"errorButtonText" : "Try Again",
-		"nblastLabel" : "NBLAST",
-		"genericLabel" : "GENERIC"
+		"nblastLabel" : "Nblast upload",
+		"genericLabel" : "Generic File upload"
 	}
 }

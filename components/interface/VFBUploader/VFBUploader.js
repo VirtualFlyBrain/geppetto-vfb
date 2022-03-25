@@ -26,7 +26,7 @@ class VFBUploader extends React.Component {
     super(props);
     const defaultImplementation = GENERIC;
     this.configuration = require("../../configuration/VFBUploader/configuration");
-    const defaultSelection = this.configuration.implementation[defaultImplementation].templates.find( template => template.short_form == window.templateId )
+    const defaultSelection = this.configuration.implementation[defaultImplementation].templates.find( template => template.short_form == window.templateID )
     
     this.state = {
       open: false,
@@ -120,10 +120,10 @@ class VFBUploader extends React.Component {
         <Divider fullWidth />
       </Grid>
       <Grid item xs={6}>
-        <Button fullWidth onClick={event => this.setState({ implementation : event.currentTarget.value ? GENERIC : NBLAST })} variant={ this.state.implementation === NBLAST ? "contained" : "outlined" }>{this.configuration.text.nblastLabel}</Button>
+        <Button className={ this.state.implementation === NBLAST ? "uploaderButton selectedButton" : "uploaderButton" } fullWidth onClick={event => this.setState({ implementation : event.currentTarget.value ? GENERIC : NBLAST })} variant="outlined">{this.configuration.text.nblastLabel}</Button>
       </Grid>
       <Grid item xs={6}>
-        <Button fullWidth onClick={event => this.setState({ implementation : event.currentTarget.value ? NBLAST : GENERIC })} variant={ this.state.implementation === GENERIC ? "contained" : "outlined" }>{this.configuration.text.genericLabel}</Button>
+        <Button className={ this.state.implementation === GENERIC ? "uploaderButton selectedButton" : "uploaderButton" } fullWidth onClick={event => this.setState({ implementation : event.currentTarget.value ? NBLAST : GENERIC })} variant="outlined">{this.configuration.text.genericLabel}</Button>
       </Grid>
     </Grid>);
   }
@@ -145,6 +145,8 @@ class VFBUploader extends React.Component {
               }}
               color="primary"
               disabled={this.state.uploading}
+              className="uploaderButton"
+              disableUnderline
             >
               <MenuItem value="Select">
                 { self.state.templateSelected === self.configuration.text.select
@@ -344,7 +346,7 @@ class VFBUploader extends React.Component {
           classes={{ root: classes.dialog }}
         >
           <DialogTitle
-            align="center"
+            align="start"
             id="max-width-dialog-title"
             onClose={self.handleCloseDialog}
           >
