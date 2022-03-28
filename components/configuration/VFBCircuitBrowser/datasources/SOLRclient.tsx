@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const globalConfiguration:any = {
-    "url": "https://solr-dev.virtualflybrain.org/solr/ontology/select",
+    "url": "https://solr.virtualflybrain.org/solr/ontology/select",
     "query_settings":
     {
         "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
@@ -197,7 +197,7 @@ function refineResults(e) {
 }
 
 export const datasourceConfiguration = {
-  "url": "https://solr-dev.virtualflybrain.org/solr/ontology/select",
+  "url": "https://solr.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
