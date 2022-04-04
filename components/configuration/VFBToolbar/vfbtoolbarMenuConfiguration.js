@@ -160,7 +160,7 @@ var toolbarMenu = {
               icon: "",
               action: {
                 handlerAction: "openNewTab",
-                parameters: ["https://www.virtualflybrain.org/about/blog"]
+                parameters: ["https://www.virtualflybrain.org/blog/"]
               }
             }
           ]

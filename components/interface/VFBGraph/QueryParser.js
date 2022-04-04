@@ -60,21 +60,24 @@ export function queryParser (e) {
         let targetNode = nodesMap.get(n[i].target);
 
         if (targetNode !== undefined) {
-          // Create new link for graph
-          let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
-          links.push( link );
+          let match = links.find( link => ( link.target === sourceNode && link.source === targetNode ) || ( link.target === targetNode && link.source === sourceNode ));
+          if ( !match ){
+            // Create new link for graph
+            let link = { source: sourceNode, name : n[i].label, target: targetNode, targetNode: targetNode };
+            links.push( link );
 
-          // Assign neighbors to nodes and links
-          !sourceNode.neighbors && (sourceNode.neighbors = []);
-          !targetNode.neighbors && (targetNode.neighbors = []);
-          sourceNode.neighbors.push(targetNode);
-          targetNode.neighbors.push(sourceNode);
+            // Assign neighbors to nodes and links
+            !sourceNode.neighbors && (sourceNode.neighbors = []);
+            !targetNode.neighbors && (targetNode.neighbors = []);
+            sourceNode.neighbors.push(targetNode);
+            targetNode.neighbors.push(sourceNode);
 
-          // Assign links to nodes
-          !sourceNode.links && (sourceNode.links = []);
-          !targetNode.links && (targetNode.links = []);
-          sourceNode.links.push(link);
-          targetNode.links.push(link);
+            // Assign links to nodes
+            !sourceNode.links && (sourceNode.links = []);
+            !targetNode.links && (targetNode.links = []);
+            sourceNode.links.push(link);
+            targetNode.links.push(link);
+          }
         }
       }
     }

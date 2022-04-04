@@ -371,9 +371,9 @@ class VFBCircuitBrowser extends Component {
     const { classes, circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
     
-    let errorMessage = "Not enough input queries to create a graph, needs 2.";
+    let errorMessage = "Enter a root/target neuron below to query connectivity paths";
     if ( this.state.neurons?.[0]?.id != "" && this.state.neurons?.[1]?.id != "" ){
-      errorMessage = "Graph not available for " + this.state.neurons.map(a => `'${a.id}'`).join(",");
+      errorMessage = "No paths found between " + this.state.neurons.map(a => `'${a.id}'`).join(",");
     }
     return (
       this.state.loading
@@ -408,7 +408,7 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            nodeLabel={node => node.title}
+            nodeLabel={node => node.name + "[" + node.title + "]"}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
             // Width of links, log(weight)

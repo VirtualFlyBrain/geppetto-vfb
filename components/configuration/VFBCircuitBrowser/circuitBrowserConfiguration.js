@@ -19,7 +19,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
       + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
-      + " OPTIONAL MATCH (x)-[xio:INSTANCEOF]->(xpc:Class) OPTIONAL MATCH (y)-[yio:INSTANCEOF]->(ypc:Class) WITH *,'\"'+ x.short_form+'\":{\"'+xpc.short_form+'\":\"' + xpc.label + '\"},\"'+ y.short_form+'\":{\"'+ypc.short_form+'\":\"' + ypc.label + '\"}' as Class"
+      + " OPTIONAL MATCH (x)-[xio:INSTANCEOF]->(xpc:Class) OPTIONAL MATCH (y)-[yio:INSTANCEOF]->(ypc:Class) WITH *,'\"'+ x.short_form+'\":{\"'+xpc.short_form+'\":\"' + coalesce(xpc.symbol[0], xpc.label) + '\"},\"'+ y.short_form+'\":{\"'+ypc.short_form+'\":\"' + coalesce(ypc.symbol[0], ypc.label) + '\"}' as Class"
       + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY, "
       + " apoc.convert.fromJsonMap('{' + apoc.text.join(collect(Class),',') + '}') as class ",
       "resultDataContents": ["row", "graph"]
@@ -84,34 +84,31 @@ var styling = {
   // Description area (in node) background color
   defaultNodeDescriptionBackgroundColor : "white",
   nodeColorsByLabel : {
-    "Template" : "#ff6cc8",
-    "GABAergic" : "#9551ff",
-    "Dopaminergic" : "#3551ff",
-    "Cholinergic" : "#95515f",
-    "Glutamatergic" : "#95f1ff",
-    "Octopaminergic" : "#f3511f",
-    "Serotonergic" : "#9501f0",
-    "Motor_neuron" : "#fffa30",
-    "Sensory_neuron" : "#ff3a3a",
-    "Peptidergic_neuron" : "#5f6a3a",
-    "Glial_cell" : "#ff3a6a",
-    "Clone" : "#d6007d",
-    "Synaptic_neuropil" : "#00a2aa",
-    "License" : "#0164d8",
-    "Person" : "#023f00",
-    "Neuron" : "#7f2100",
-    "Neuron_projection_bundle" : "#d6327d",
-    "Resource" : "#005f1d",
-    "Site" : "#005f1d",
-    "Expression_pattern" : "#534700",
-    "Split" : "#e012e3",
-    "DataSet" : "#b700b5",
-    "Ganglion" : "#d6007d",
-    "Neuromere" : "#d6507d",
-    "Cell" : "#ff6a3a",
-    "Property" : "#005f1d",
-    "Anatomy" : "#00a2aa",
-    "_Class" : "#0164d8"
+    "Adult" : "#ffffb3",
+    "Anatomy" : "#33a02c",
+    "Cholinergic" : "#bebada",
+    "Clone" : "#cab2d6",
+    "Cluster" : "#ffed6f",
+    "Dopaminergic" : "#fdbf6f",
+    "Expression_pattern" : "#b3de69",
+    "Expression_pattern_fragment" : "#6a3d9a",
+    "GABAergic" : "#1f78b4",
+    "Ganglion" : "#ff7f00",
+    "Glutamatergic" : "#b2df8a",
+    "Larva" : "#ccebc5",
+    "Motor_neuron" : "#e31a1c",
+    "Muscle" : "#a6cee3",
+    "Nervous_system" : "#fdb462",
+    "Neuromere" : "#8dd3c7",
+    "Neuron" : "#b15928",
+    "Neuron_projection_bundle" : "#bc80bd",
+    "Octopaminergic" : "#ffff99",
+    "Peptidergic_neuron" : "#80b1d3",
+    "Sensory_neuron" : "#fb9a99",
+    "Serotonergic" : "#d9d9d9",
+    "Synaptic_neuropil_block" : "#fccde5",
+    "Synaptic_neuropil_domain" : "#fb8072",
+    "Synaptic_neuropil_subdomain" : "#88ffb3"
   },
   controlIcons : {
     home : "fa fa-home",
@@ -121,7 +118,7 @@ var styling = {
 }
 
 var restPostConfig = {
-  url: "https://pdb-dev.virtualflybrain.org/db/neo4j/tx/commit",
+  url: "https://pdb.v4.virtualflybrain.org/db/neo4j/tx/commit",
   contentType: "application/json"
 };
 
