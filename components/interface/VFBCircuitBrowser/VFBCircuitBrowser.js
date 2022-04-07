@@ -268,8 +268,6 @@ class VFBCircuitBrowser extends Component {
     let width = context.measureText(text).width;
     while (width > maxWidth) {
       baseSize--;
-      context.font = `${baseSize}px sans-serif`
-      width = context.measureText(text).width;
     }
     
     return baseSize;
@@ -278,31 +276,36 @@ class VFBCircuitBrowser extends Component {
   /**
    * Breaks Description texts into lines to fit within a certain width value.
    */
-  wrapText (context, text, x, y, maxWidth, maxHeight) {
-    let words = text.split(' ');
-    let lines = [];
-    let line = '';
+  wrapText (context, text, x, y, fontSize, maxWidth, maxHeight) {
+    let lines = new Array();
+    let width = 0, i, j;
+    let result;
 
-    let maxTextLength = text.length < 20 ? text.length / 2 : text.length / 3;
+    while ( text.length ) {
+      for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
 
-    words.forEach( word => {
-      let testLine = line + word + ' ';
-      if ( line.length >= maxTextLength ) {
-        lines.push(line);
-        line = word + ' ';
+      result = text.substr(0,i);
+
+      lines.push( result.substr(0, result.length) );
+      text = text.substr( lines[ lines.length - 1 ].length, text.length );
+    }
+    
+    if ( lines.length == 1 ) { 
+      y = y + (fontSize * (stylingConfiguration.linesText / 2));
+    }
+    if ( lines.length == 2 ) {
+      y = y + (fontSize * ((stylingConfiguration.linesText / 2) - .5));
+    }
+    
+    for ( let i = 0; i < lines.length ; i++ ) {
+      if ( i === stylingConfiguration.linesText - 1 ) {
+        context.fillText( lines[i] + "...", x, y );
+        break;
       } else {
-        line = testLine;
+        context.fillText( lines[i], x, y );
       }
-    });
-    
-    lines.push(line);
-    
-    const lineHeight = this.getFontSize(context, maxWidth, lines[0], maxTextLength);
-
-    lines.forEach( line => {
-      context.fillText(line, x, y);
-      y += lineHeight;
-    });
+      y += fontSize + ( fontSize / lines.length );
+    }
   }
   
   // Calculate link middle point
@@ -316,22 +319,23 @@ class VFBCircuitBrowser extends Component {
   nodeRendering (node, ctx, globalScale) {
     const cardWidth = NODE_WIDTH;
     const cardHeight = NODE_HEIGHT;
-    const classnameHeight = cardHeight * .45;
-    const idHeight = cardHeight * .45;
+    const nodeTitleHeight = cardHeight * stylingConfiguration.nodeTitleHeight;
+    const nodeDescriptionHeight = cardHeight * stylingConfiguration.nodeDescriptionHeight;
+    const colorBarHeight = cardHeight * stylingConfiguration.nodeColorAreaHeight;
     let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
     // Node border color
     ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
     // Create Border
-    ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
+    ctx.fillRect(node.x - (cardWidth / 2) - borderThickness, node.y - (cardHeight / 2) + borderThickness, cardWidth + (borderThickness * 2), cardHeight + (borderThickness * 2));
 
     // Assign color to Description Area background in Node
     ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
     // Create Description Area in Node
-    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - (borderThickness * 2 ));
+    ctx.fillRect(node.x - cardWidth / 2,node.y - nodeDescriptionHeight, cardWidth, cardHeight);
 
     ctx.fillStyle = stylingConfiguration.defaultNodeTitleBackgroundColor;
-    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight / 2 );
+    ctx.fillRect(node.x - cardWidth / 2,node.y - nodeTitleHeight, cardWidth, nodeTitleHeight );
 
     const lastIndex = node.nodeColorLabels.length;
     node.nodeColorLabels.forEach( (color, index) => {
@@ -340,28 +344,39 @@ class VFBCircuitBrowser extends Component {
       const x = (node.x - cardWidth / 2) + (index * (cardWidth / lastIndex));
       const y = node.y;
       // Create Title Bar in Node
-      ctx.fillRect(x,y, (cardWidth / lastIndex) - ( index == lastIndex - 1 ? borderThickness * 2 : 0 ) , cardHeight / 10);
+      ctx.fillRect(x,y, (cardWidth / lastIndex), colorBarHeight);
     })
 
     // Assign font to text in Node
-    ctx.font = stylingConfiguration.defaultNodeFont;
+    ctx.font = `${stylingConfiguration.nodeTitleFontSize}px ${stylingConfiguration.defaultNodeFont}`;
     // Assign color to text in Node
     ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
     // Text in font to be centered
     ctx.textAlign = "center";
     ctx.textBaseline = 'middle';
-    
-    // Create Title in Node
-    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, cardWidth * .8 , classnameHeight);
-    
-    ctx.font = stylingConfiguration.defaultNodeFont;
+
     /* 
      * Add Description text to Nodes
+     * Parameters:
      * node.name = text to display
      * node.x = x coordinate of text
-     * node.y + 20 = y coordinate, adds 20 pixels for padding from upper element
+     * node.y - (cardHeight / 2) + 10 = y coordinate, adds 15 pixels for padding from upper element
+     * cardWidth * .8 = The maximum width the text can take
+     * nodeTitleHeight = The maximum height the text can take 
      */
-    this.wrapText(ctx, node.name, node.x, node.y + 20, cardWidth * .8 , classnameHeight);
+    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, stylingConfiguration.nodeTitleFontSize, cardWidth * .8 , nodeTitleHeight);
+    
+    ctx.font = `${stylingConfiguration.nodeDescriptionFontSize}px ${stylingConfiguration.defaultNodeFont}`;
+    /* 
+     * Add Description text to Nodes
+     * Parameters:
+     * node.name = text to display
+     * node.x = x coordinate of text
+     * node.y + 15 = y coordinate, adds 15 pixels for padding from upper element
+     * cardWidth * .8 = The maximum width the text can take
+     * cardHeight = The maximum height the text can take 
+     */
+    this.wrapText(ctx, node.name, node.x, node.y + 15, stylingConfiguration.nodeDescriptionFontSize, cardWidth * .8 , nodeDescriptionHeight);
   }
   
   render () {
