@@ -290,21 +290,32 @@ class VFBCircuitBrowser extends Component {
       text = text.substr( lines[ lines.length - 1 ].length, text.length );
     }
     
-    if ( lines.length == 1 ) { 
-      y = y + (fontSize * (stylingConfiguration.linesText / 2));
-    }
-    if ( lines.length == 2 ) {
-      y = y + (fontSize * ((stylingConfiguration.linesText / 2) - .5));
-    }
-    
-    for ( let i = 0; i < lines.length ; i++ ) {
-      if ( i === stylingConfiguration.linesText - 1 ) {
-        context.fillText( lines[i] + "...", x, y );
-        break;
-      } else {
-        context.fillText( lines[i], x, y );
+    // If text exceeds max height of node area, we truncate text along a single line 
+    if ( lines.length * fontSize * 2 > maxHeight){
+      for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
+      result = text.substr(0,i) + "...";
+      context.fillText( lines[i] + "...", x, y + (maxHeight / 2) - fontSize / 2 );
+    } else { // Handle text split into lines
+      
+      // Only one line, center it
+      if ( lines.length == 1 ) { 
+        y = y + ( maxHeight / 2 ) - fontSize / 2;
       }
-      y += fontSize + ( fontSize / lines.length );
+      // Tow lines, center them
+      if ( lines.length == 2 ) {
+        y = y + (fontSize * ((stylingConfiguration.linesText / 2) - .5));
+      }
+          
+      // Multiple lines 
+      for ( let i = 0; i < lines.length ; i++ ) {
+        if ( i === stylingConfiguration.linesText - 1 ) {
+          context.fillText( lines[i] + "...", x, y );
+          break;
+        } else {
+          context.fillText( lines[i], x, y );
+        }
+        y += fontSize + ( fontSize / lines.length );
+      }
     }
   }
   
