@@ -292,9 +292,8 @@ class VFBCircuitBrowser extends Component {
     
     // If text exceeds max height of node area, we truncate text along a single line 
     if ( lines.length * fontSize * 2 > maxHeight){
-      for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
-      result = text.substr(0,i) + "...";
-      context.fillText( lines[i] + "...", x, y + (maxHeight / 2) - fontSize / 2 );
+      const line = lines.length > 1 ? lines[0] + "..." : lines[0];
+      context.fillText( line, x, y + (maxHeight / 2) - fontSize / 2 );
     } else { // Handle text split into lines
       
       // Only one line, center it
