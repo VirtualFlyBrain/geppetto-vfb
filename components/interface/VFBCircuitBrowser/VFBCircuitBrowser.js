@@ -279,42 +279,43 @@ class VFBCircuitBrowser extends Component {
   wrapText (context, text, x, y, fontSize, maxWidth, maxHeight) {
     let lines = new Array();
     let width = 0, i, j;
-    let result;
+    let result, tempLine;
 
     while ( text.length ) {
       for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
 
       result = text.substr(0,i);
-
-      lines.push( result.substr(0, result.length) );
-      text = text.substr( lines[ lines.length - 1 ].length, text.length );
+      tempLine = result.substr(0, result.length);
+      
+      // Break line by spaces if avaiable
+      if ( tempLine.indexOf(" ") >= 0 && ( text.charAt(i + 1) != ' ' && text.charAt(i + 1) != "" ) ) {
+        tempLine = tempLine.split(" ")[0];
+        lines.push( tempLine );
+        text = text.substr( tempLine.length + 1, text.length );
+      } else {
+        lines.push( tempLine );
+        text = text.substr( tempLine.length, text.length );
+      }
     }
     
-    // If text exceeds max height of node area, we truncate text along a single line 
-    if ( lines.length * fontSize * 2 > maxHeight){
-      const line = lines.length > 1 ? lines[0] + "..." : lines[0];
-      context.fillText( line, x, y + (maxHeight / 2) - fontSize / 2 );
-    } else { // Handle text split into lines
-      
-      // Only one line, center it
-      if ( lines.length == 1 ) { 
-        y = y + ( maxHeight / 2 ) - fontSize / 2;
+    // Only one line, center it
+    if ( lines.length == 1 ) { 
+      y = y + ( maxHeight / 2 ) - fontSize / 2;
+    }
+    // Tow lines, center them
+    if ( lines.length == 2 ) {
+      y = y + (fontSize * ((stylingConfiguration.linesText / 2) - 1));
+    }
+                
+    // Multiple lines 
+    for ( let i = 0; i < lines.length ; i++ ) {
+      if ( i === stylingConfiguration.linesText - 1 ) {
+        context.fillText( lines.length > i + 1 ? lines[i] + "..." : lines[i], x, y );
+        break;
+      } else {
+        context.fillText( lines[i], x, y );
       }
-      // Tow lines, center them
-      if ( lines.length == 2 ) {
-        y = y + (fontSize * ((stylingConfiguration.linesText / 2) - .5));
-      }
-          
-      // Multiple lines 
-      for ( let i = 0; i < lines.length ; i++ ) {
-        if ( i === stylingConfiguration.linesText - 1 ) {
-          context.fillText( lines[i] + "...", x, y );
-          break;
-        } else {
-          context.fillText( lines[i], x, y );
-        }
-        y += fontSize + ( fontSize / lines.length );
-      }
+      y += fontSize + ( fontSize / lines.length );
     }
   }
   
@@ -335,7 +336,7 @@ class VFBCircuitBrowser extends Component {
     let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
     // Node border color
-    ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
+    ctx.fillStyle = self.hoverNode == node || node?.id === self.hoverNode?.id ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
     // Create Border
     ctx.fillRect(node.x - (cardWidth / 2) - borderThickness, node.y - (cardHeight / 2) + borderThickness, cardWidth + (borderThickness * 2), cardHeight + (borderThickness * 2));
 
@@ -433,7 +434,7 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            nodeLabel={node => node.name + "[" + node.title + "]"}
+            nodeLabel={node => node.name + " [" + node.title + "]"}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
             // Width of links, log(weight)
@@ -503,8 +504,9 @@ class VFBCircuitBrowser extends Component {
               ctx.fillText(label, 0, 0);
               ctx.restore();
             }}
-            nodeRelSize={20}
+            nodeRelSize={50}
             nodeSize={30}
+            enableNodeDrag={true}
             // Assign background color to Canvas
             backgroundColor = {stylingConfiguration.canvasColor}
             // Assign color to Links connecting Nodes
@@ -587,8 +589,8 @@ class VFBCircuitBrowser extends Component {
                 self.highlightNodes.add(link.source);
                 self.highlightNodes.add(link.target);
               }
-            }
-            }
+            }}
+            linkHoverPrecision={10}
           />
     )
   }
