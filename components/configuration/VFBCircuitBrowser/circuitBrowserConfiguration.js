@@ -71,8 +71,19 @@ var styling = {
   defaultLinkHoverColor : "#11bffe",
   // Color apply to target and source nodes when hovering over a link or a node.
   defaultNeighborNodesHoverColor : "orange",
-  // Font used for text in nodes
-  defaultNodeFont : "8px sans-serif",
+  defaultNodeFont : "sans-serif",
+  // Font size in pixels used for text in nodes
+  nodeTitleFontSize : 8,
+  // Percentage of node for title area to take in node, as decimal. Default 45%
+  nodeTitleHeight : .45,
+  // Pixel font size for description text of node
+  nodeDescriptionFontSize : 8,
+  // percentage of node description area to take in node, as decimal. Default 45%
+  nodeDescriptionHeight : .45,
+  // percentage of node color bar area to take in node, as decimal. Default 10%
+  nodeColorAreaHeight : .1,
+  // Max amount of lines to display for title and description 
+  linesText : 3,
   // Color of font in node's text
   defaultNodeFontColor : "black",
   // Node border color
