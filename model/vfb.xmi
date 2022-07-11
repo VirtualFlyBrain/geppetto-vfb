@@ -153,6 +153,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="NBLASTexp"
         name="NBLAST to exp"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="neuronbridge"
+        name="NeuronBridge"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -1156,10 +1159,10 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToNB"
       name="has_similar_morphology_to_nb"
-      description="Neurons with similar morphology to $NAME  [NeuronBridge]"
+      description="Neurons with that overlap with $NAME  [NeuronBridge]"
       returnType="//@libraries.3/@types.2"
       queryChain="//@queries.26">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
+        type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.45"/>
   </queries>
 </gep:GeppettoModel>
