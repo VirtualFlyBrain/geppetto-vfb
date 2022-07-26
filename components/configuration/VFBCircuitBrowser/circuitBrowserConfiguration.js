@@ -19,7 +19,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
       + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
-      + " OPTIONAL MATCH (x)-[xio:INSTANCEOF]->(xpc:Class) OPTIONAL MATCH (y)-[yio:INSTANCEOF]->(ypc:Class) WITH *,'\"'+ x.short_form+'\":{\"'+xpc.short_form+'\":\"' + xpc.label + '\"},\"'+ y.short_form+'\":{\"'+ypc.short_form+'\":\"' + ypc.label + '\"}' as Class"
+      + " OPTIONAL MATCH (x)-[xio:INSTANCEOF]->(xpc:Class) OPTIONAL MATCH (y)-[yio:INSTANCEOF]->(ypc:Class) WITH *,'\"'+ x.short_form+'\":{\"'+xpc.short_form+'\":\"' + coalesce(xpc.symbol[0], xpc.label) + '\"},\"'+ y.short_form+'\":{\"'+ypc.short_form+'\":\"' + coalesce(ypc.symbol[0], ypc.label) + '\"}' as Class"
       + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY, "
       + " apoc.convert.fromJsonMap('{' + apoc.text.join(collect(Class),',') + '}') as class ",
       "resultDataContents": ["row", "graph"]
@@ -71,8 +71,21 @@ var styling = {
   defaultLinkHoverColor : "#11bffe",
   // Color apply to target and source nodes when hovering over a link or a node.
   defaultNeighborNodesHoverColor : "orange",
-  // Font used for text in nodes
-  defaultNodeFont : "8px sans-serif",
+  defaultNodeFont : "sans-serif",
+  // Font size in pixels used for text in nodes
+  nodeTitleFontSize : 8,
+  // Percentage of node for title area to take in node, as decimal. Default 45%
+  nodeTitleHeight : .45,
+  // Pixel font size for description text of node
+  nodeDescriptionFontSize : 8,
+  // Max pixel font size for description text of node
+  nodeMaxFontSize : 36,
+  // percentage of node description area to take in node, as decimal. Default 45%
+  nodeDescriptionHeight : .45,
+  // percentage of node color bar area to take in node, as decimal. Default 10%
+  nodeColorAreaHeight : .1,
+  // Max amount of lines to display for title and description 
+  linesText : 3,
   // Color of font in node's text
   defaultNodeFontColor : "black",
   // Node border color
