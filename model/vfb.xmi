@@ -1163,6 +1163,6 @@
       returnType="//@libraries.3/@types.2"
       queryChain="//@queries.26">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.45"/>
+        type="//@libraries.3/@types.45 //@libraries.3/@types.0"/>
   </queries>
 </gep:GeppettoModel>
