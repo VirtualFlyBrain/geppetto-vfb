@@ -1156,7 +1156,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToNB"
       name="has_similar_morphology_to_nb"
-      description="Neurons with that overlap with $NAME  [NeuronBridge]"
+      description="Neurons that overlap with $NAME  [NeuronBridge]"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.20">
     <matchingCriteria
