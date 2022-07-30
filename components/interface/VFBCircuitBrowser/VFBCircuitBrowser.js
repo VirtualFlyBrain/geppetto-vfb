@@ -68,6 +68,7 @@ class VFBCircuitBrowser extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.clearGraph = this.clearGraph.bind(this);
+    this.clearNeurons = this.clearNeurons.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
@@ -177,6 +178,10 @@ class VFBCircuitBrowser extends Component {
   clearGraph () {
     this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
     this.controlsRef.current.setNeurons()
+  }
+  
+  clearNeurons (neurons) {
+    this.setState({ neurons : neurons });
   }
 
   /**
@@ -431,6 +436,7 @@ class VFBCircuitBrowser extends Component {
               legend = {self.state.legend}
               ref={self.controlsRef}
               clearGraph={self.clearGraph}
+              clearNeurons={self.clearNeurons}
               key="controls"
             />
           </div>
@@ -558,6 +564,7 @@ class VFBCircuitBrowser extends Component {
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
                 clearGraph={self.clearGraph}
+                clearNeurons={self.clearNeurons}
                 circuitQuerySelected={this.circuitQuerySelected}
                 legend = {self.state.legend}
                 ref={self.controlsRef}
