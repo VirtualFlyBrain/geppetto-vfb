@@ -156,6 +156,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="neuronbridge"
         name="NeuronBridge"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="Expression_pattern_fragment"
+        name="Expression Pattern Fragment"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -930,6 +933,8 @@
       queryChain="//@dataSources.0/@queries.10">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.46"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="NeuronClassesFasciculatingHere"
@@ -1161,6 +1166,8 @@
       queryChain="//@dataSources.0/@queries.20">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.27"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.45 //@libraries.3/@types.46"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToNBexp"
@@ -1179,5 +1186,7 @@
       queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.27"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.46"/>
   </queries>
 </gep:GeppettoModel>
