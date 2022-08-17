@@ -68,6 +68,7 @@ class VFBCircuitBrowser extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.clearGraph = this.clearGraph.bind(this);
+    this.clearNeurons = this.clearNeurons.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
@@ -178,6 +179,10 @@ class VFBCircuitBrowser extends Component {
     this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
     this.controlsRef.current.setNeurons()
   }
+  
+  clearNeurons (neurons) {
+    this.setState({ neurons : neurons });
+  }
 
   /**
    * Handle Left click on Nodes
@@ -263,11 +268,14 @@ class VFBCircuitBrowser extends Component {
       })
   }
   
-  getFontSize (context, maxWidth, text, textLength) {
-    let baseSize = 8;
+  getFontSize (context, fontSize, maxWidth, text, textLength) {
+    let baseSize = fontSize;
+    context.font = `${baseSize}px ${stylingConfiguration.defaultNodeFont}`;
     let width = context.measureText(text).width;
     while (width > maxWidth) {
       baseSize--;
+      context.font = `${baseSize}px ${stylingConfiguration.defaultNodeFont}`;
+      width = context.measureText(text).width;
     }
     
     return baseSize;
@@ -279,7 +287,7 @@ class VFBCircuitBrowser extends Component {
   wrapText (context, text, x, y, fontSize, maxWidth, maxHeight) {
     let lines = new Array();
     let width = 0, i, j;
-    let result, tempLine;
+    let result, tempLine, baseFont = fontSize;
 
     while ( text.length ) {
       for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
@@ -300,13 +308,14 @@ class VFBCircuitBrowser extends Component {
     
     // Only one line, center it
     if ( lines.length == 1 ) { 
-      y = y + ( maxHeight / 2 ) - fontSize / 2;
+      y = y + ( maxHeight / 2 ) - baseFont / 2;
+      baseFont = this.getFontSize (context, stylingConfiguration.nodeMaxFontSize, maxWidth, lines[0], lines[0].length)
     }
     // Tow lines, center them
     if ( lines.length == 2 ) {
-      y = y + (fontSize * ((stylingConfiguration.linesText / 2) - 1));
+      y = y + (baseFont * ((stylingConfiguration.linesText / 2) - 1));
     }
-                
+    
     // Multiple lines 
     for ( let i = 0; i < lines.length ; i++ ) {
       if ( i === stylingConfiguration.linesText - 1 ) {
@@ -315,8 +324,9 @@ class VFBCircuitBrowser extends Component {
       } else {
         context.fillText( lines[i], x, y );
       }
-      y += fontSize + ( fontSize / lines.length );
+      y += baseFont + ( baseFont / lines.length );
     }
+                
   }
   
   // Calculate link middle point
@@ -388,6 +398,7 @@ class VFBCircuitBrowser extends Component {
      * cardHeight = The maximum height the text can take 
      */
     this.wrapText(ctx, node.name, node.x, node.y + 15, stylingConfiguration.nodeDescriptionFontSize, cardWidth * .8 , nodeDescriptionHeight);
+    ctx.font = `${stylingConfiguration.nodeDescriptionFontSize}px ${stylingConfiguration.defaultNodeFont}`;
   }
   
   render () {
@@ -425,6 +436,7 @@ class VFBCircuitBrowser extends Component {
               legend = {self.state.legend}
               ref={self.controlsRef}
               clearGraph={self.clearGraph}
+              clearNeurons={self.clearNeurons}
               key="controls"
             />
           </div>
@@ -552,6 +564,7 @@ class VFBCircuitBrowser extends Component {
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
                 clearGraph={self.clearGraph}
+                clearNeurons={self.clearNeurons}
                 circuitQuerySelected={this.circuitQuerySelected}
                 legend = {self.state.legend}
                 ref={self.controlsRef}

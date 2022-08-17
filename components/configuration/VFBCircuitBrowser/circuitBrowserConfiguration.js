@@ -78,6 +78,8 @@ var styling = {
   nodeTitleHeight : .45,
   // Pixel font size for description text of node
   nodeDescriptionFontSize : 8,
+  // Max pixel font size for description text of node
+  nodeMaxFontSize : 36,
   // percentage of node description area to take in node, as decimal. Default 45%
   nodeDescriptionHeight : .45,
   // percentage of node color bar area to take in node, as decimal. Default 10%
