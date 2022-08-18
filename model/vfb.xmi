@@ -1142,12 +1142,12 @@
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToPartOf"
-      name="has_similar_morphology_to_part_of"
+      name="has_similar_morphology_to_part_of_neuron"
       description="Expression patterns with some similar morphology to $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.44"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="TermsForPub"
