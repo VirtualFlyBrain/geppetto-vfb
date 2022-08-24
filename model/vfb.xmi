@@ -556,8 +556,8 @@
           id="NBLAST_anat_image_query_exp"
           name="NBLAST_anat_image_query_exp"
           description="find has_similar_morphology_to relationships"
-          query="&quot;statement&quot;: &quot;MATCH (n:Individual)-[nblast:has_similar_morphology_to_part_of]-(primary:Individual) WHERE n.short_form in [$id] AND EXISTS(n.NBLAST_score) WITH primary, nblast OPTIONAL MATCH (c:Class)&lt;-[:INSTANCEOF]-(primary) OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary, nblast OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary, nblast OPTIONAL MATCH (primary)-[:INSTANCEOF]->(typ:Class) WITH CASE WHEN typ is null THEN [] ELSE collect ({ short_form: typ.short_form, label: coalesce(typ.label,''), iri: typ.iri, types: labels(typ), symbol: coalesce(typ.symbol[0], '')} ) END AS types,primary,channel_image, nblast RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets,[])), symbol: coalesce(primary.symbol[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, nblast.NBLAST_score[0] as score, 'm20220726' AS version, 'NBLASTexp_anat_image_query' AS query, channel_image, types&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-          countQuery="&quot;statement&quot;: &quot;MATCH (n:Individual)-[nblast:has_similar_morphology_to_part_of]-(primary:Individual) WHERE n.short_form in [$id] AND EXISTS(n.NBLAST_score) RETURN count(primary) AS count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+          query="&quot;statement&quot;: &quot;MATCH (n:Individual)-[nblast:has_similar_morphology_to_part_of]-(primary:Individual) WHERE n.short_form in [$id] AND EXISTS(nblast.NBLAST_score) WITH primary, nblast OPTIONAL MATCH (c:Class)&lt;-[:INSTANCEOF]-(primary) OPTIONAL MATCH (primary)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WITH template, channel, template_anat, irw, primary, nblast OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE collect ({ channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }}) END AS channel_image,primary, nblast OPTIONAL MATCH (primary)-[:INSTANCEOF]->(typ:Class) WITH CASE WHEN typ is null THEN [] ELSE collect ({ short_form: typ.short_form, label: coalesce(typ.label,''), iri: typ.iri, types: labels(typ), symbol: coalesce(typ.symbol[0], '')} ) END AS types,primary,channel_image, nblast RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets,[])), symbol: coalesce(primary.symbol[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, nblast.NBLAST_score[0] as score, 'm20220726' AS version, 'NBLASTexp_anat_image_query' AS query, channel_image, types&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (n:Individual)-[nblast:has_similar_morphology_to_part_of]-(primary:Individual) WHERE n.short_form in [$id] AND EXISTS(nblast.NBLAST_score) RETURN count(primary) AS count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           id="vfb_query_schema_processor"
@@ -1142,12 +1142,12 @@
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToPartOf"
-      name="has_similar_morphology_to_part_of"
+      name="has_similar_morphology_to_part_of_neuron"
       description="Expression patterns with some similar morphology to $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.2"/>
+        type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.44"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="TermsForPub"
@@ -1157,6 +1157,15 @@
       queryChain="//@dataSources.0/@queries.18">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.16"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="SimilarMorphologyToPartOfexp"
+      name="has_similar_morphology_to_part_of_exp"
+      description="Neurons with similar morphology to part of $NAME  [NBLAST mean score]"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.0/@queries.19">
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.27 //@libraries.3/@types.44"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToNB"
@@ -1180,13 +1189,11 @@
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToPartOfexp"
-      name="has_similar_morphology_to_part_of_exp"
+      name="has_similar_morphology_to_part_of_exp_frag"
       description="Neurons with similar morphology to part of $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.27"/>
-    <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.46"/>
+        type="//@libraries.3/@types.0 //@libraries.3/@types.46 //@libraries.3/@types.44"/>
   </queries>
 </gep:GeppettoModel>
