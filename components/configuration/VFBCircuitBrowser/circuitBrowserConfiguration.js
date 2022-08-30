@@ -121,7 +121,8 @@ var styling = {
     "Serotonergic" : "#d9d9d9",
     "Synaptic_neuropil_block" : "#fccde5",
     "Synaptic_neuropil_domain" : "#fb8072",
-    "Synaptic_neuropil_subdomain" : "#88ffb3"
+    "Synaptic_neuropil_subdomain" : "#88ffb3",
+    "Thermosensory_system" : "#aa0000"
   },
   controlIcons : {
     home : "fa fa-home",
