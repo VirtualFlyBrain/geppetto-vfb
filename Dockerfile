@@ -15,7 +15,7 @@ ARG geppettoCoreRelease=vfb_20200604_a
 ARG geppettoSimulationRelease=vfb_20200604_a
 ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
-ARG geppettoFrontendRelease=development
+ARG geppettoFrontendRelease=VFBv2.1.0.3
 ARG geppettoClientRelease=VFBv2.2.2
 ARG ukAcVfbGeppettoRelease=download
 
