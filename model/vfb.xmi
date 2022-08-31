@@ -1166,6 +1166,8 @@
       queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.27 //@libraries.3/@types.44"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.46 //@libraries.3/@types.44"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyToNB"
@@ -1186,14 +1188,5 @@
       queryChain="//@dataSources.0/@queries.20">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
-  </queries>
-  <queries xsi:type="gep_2:CompoundRefQuery"
-      id="SimilarMorphologyToPartOfexp"
-      name="has_similar_morphology_to_part_of_exp_frag"
-      description="Neurons with similar morphology to part of $NAME  [NBLAST mean score]"
-      returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.19">
-    <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.46 //@libraries.3/@types.44"/>
   </queries>
 </gep:GeppettoModel>
