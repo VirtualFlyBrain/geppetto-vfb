@@ -20,12 +20,12 @@ var modelJson = {
     "children": [
       {
         "type": "row",
-        "weight": 55,
+        "weight": 40,
         "selected": 0,
         "children": [
           {
             "type": "tabset",
-            "weight": 36,
+            "weight": 40,
             "children": [
               {
                 "type": "tab",
@@ -36,7 +36,7 @@ var modelJson = {
           },
           {
             "type": "tabset",
-            "weight": 64,
+            "weight": 60,
             "children": [
               {
                 "type": "tab",
@@ -49,33 +49,53 @@ var modelJson = {
       },
       {
         "type": "row",
-        "weight": 45,
+        "weight": 30,
+        "selected": 0,
+        "children": [
+          {
+            "type": "tabset",
+            "weight": 60,
+            "selected": 0,
+            "children": [
+              {
+                "type": "tab",
+                "name": "Template ROI Browser",
+                "component": "treeBrowser"
+              },
+              {
+                "type": "tab",
+                "name": "Circuit Browser",
+                "component": "vfbCircuitBrowser"
+              },
+              {
+                "type": "tab",
+                "name": "Term Context",
+                "component": "vfbGraph"
+              }
+            ]
+          },
+          {
+            "type": "tabset",
+            "weight": 40,
+            "children": [
+              {
+                "type": "tab",
+                "name": "Layers",
+                "component": "vfbListViewer"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "tabset",
+        "weight": 30,
         "selected": 0,
         "children": [
           {
             "type": "tab",
             "name": "Term Info",
             "component": "termInfo"
-          },
-          {
-            "type": "tab",
-            "name": "Template ROI Browser",
-            "component": "treeBrowser"
-          },
-          {
-            "type": "tab",
-            "name": "Term Context",
-            "component": "vfbGraph"
-          },
-          {
-            "type": "tab",
-            "name": "Layers",
-            "component": "vfbListViewer"
-          },
-          {
-            "type": "tab",
-            "name": "Circuit Browser",
-            "component": "vfbCircuitBrowser"
           }
         ]
       }

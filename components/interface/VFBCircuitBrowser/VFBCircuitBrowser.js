@@ -68,6 +68,7 @@ class VFBCircuitBrowser extends Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.clearGraph = this.clearGraph.bind(this);
+    this.clearNeurons = this.clearNeurons.bind(this);
     this.queriesUpdated = this.queriesUpdated.bind(this);
     this.updatePaths = this.updatePaths.bind(this);
     this.updateWeight = this.updateWeight.bind(this);
@@ -178,6 +179,10 @@ class VFBCircuitBrowser extends Component {
     this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
     this.controlsRef.current.setNeurons()
   }
+  
+  clearNeurons (neurons) {
+    this.setState({ neurons : neurons });
+  }
 
   /**
    * Handle Left click on Nodes
@@ -263,12 +268,13 @@ class VFBCircuitBrowser extends Component {
       })
   }
   
-  getFontSize (context, maxWidth, text, textLength) {
-    let baseSize = 8;
+  getFontSize (context, fontSize, maxWidth, text, textLength) {
+    let baseSize = fontSize;
+    context.font = `${baseSize}px ${stylingConfiguration.defaultNodeFont}`;
     let width = context.measureText(text).width;
     while (width > maxWidth) {
       baseSize--;
-      context.font = `${baseSize}px sans-serif`
+      context.font = `${baseSize}px ${stylingConfiguration.defaultNodeFont}`;
       width = context.measureText(text).width;
     }
     
@@ -278,31 +284,49 @@ class VFBCircuitBrowser extends Component {
   /**
    * Breaks Description texts into lines to fit within a certain width value.
    */
-  wrapText (context, text, x, y, maxWidth, maxHeight) {
-    let words = text.split(' ');
-    let lines = [];
-    let line = '';
+  wrapText (context, text, x, y, fontSize, maxWidth, maxHeight) {
+    let lines = new Array();
+    let width = 0, i, j;
+    let result, tempLine, baseFont = fontSize;
 
-    let maxTextLength = text.length < 20 ? text.length / 2 : text.length / 3;
+    while ( text.length ) {
+      for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
 
-    words.forEach( word => {
-      let testLine = line + word + ' ';
-      if ( line.length >= maxTextLength ) {
-        lines.push(line);
-        line = word + ' ';
+      result = text.substr(0,i);
+      tempLine = result.substr(0, result.length);
+      
+      // Break line by spaces if avaiable
+      if ( tempLine.indexOf(" ") >= 0 && ( text.charAt(i + 1) != ' ' && text.charAt(i + 1) != "" ) ) {
+        tempLine = tempLine.split(" ")[0];
+        lines.push( tempLine );
+        text = text.substr( tempLine.length + 1, text.length );
       } else {
-        line = testLine;
+        lines.push( tempLine );
+        text = text.substr( tempLine.length, text.length );
       }
-    });
+    }
     
-    lines.push(line);
+    // Only one line, center it
+    if ( lines.length == 1 ) { 
+      y = y + ( maxHeight / 2 ) - baseFont / 2;
+      baseFont = this.getFontSize (context, stylingConfiguration.nodeMaxFontSize, maxWidth, lines[0], lines[0].length)
+    }
+    // Tow lines, center them
+    if ( lines.length == 2 ) {
+      y = y + (baseFont * ((stylingConfiguration.linesText / 2) - 1));
+    }
     
-    const lineHeight = this.getFontSize(context, maxWidth, lines[0], maxTextLength);
-
-    lines.forEach( line => {
-      context.fillText(line, x, y);
-      y += lineHeight;
-    });
+    // Multiple lines 
+    for ( let i = 0; i < lines.length ; i++ ) {
+      if ( i === stylingConfiguration.linesText - 1 ) {
+        context.fillText( lines.length > i + 1 ? lines[i] + "..." : lines[i], x, y );
+        break;
+      } else {
+        context.fillText( lines[i], x, y );
+      }
+      y += baseFont + ( baseFont / lines.length );
+    }
+                
   }
   
   // Calculate link middle point
@@ -316,22 +340,23 @@ class VFBCircuitBrowser extends Component {
   nodeRendering (node, ctx, globalScale) {
     const cardWidth = NODE_WIDTH;
     const cardHeight = NODE_HEIGHT;
-    const classnameHeight = cardHeight * .45;
-    const idHeight = cardHeight * .45;
+    const nodeTitleHeight = cardHeight * stylingConfiguration.nodeTitleHeight;
+    const nodeDescriptionHeight = cardHeight * stylingConfiguration.nodeDescriptionHeight;
+    const colorBarHeight = cardHeight * stylingConfiguration.nodeColorAreaHeight;
     let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
     // Node border color
-    ctx.fillStyle = self.hoverNode == node ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
+    ctx.fillStyle = self.hoverNode == node || node?.id === self.hoverNode?.id ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
     // Create Border
-    ctx.fillRect(node.x - cardWidth / 2 - (borderThickness), node.y - cardHeight / 2 - (borderThickness), cardWidth , cardHeight );
+    ctx.fillRect(node.x - (cardWidth / 2) - borderThickness, node.y - (cardHeight / 2) + borderThickness, cardWidth + (borderThickness * 2), cardHeight + (borderThickness * 2));
 
     // Assign color to Description Area background in Node
     ctx.fillStyle = stylingConfiguration.defaultNodeDescriptionBackgroundColor;
     // Create Description Area in Node
-    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight - (borderThickness * 2 ));
+    ctx.fillRect(node.x - cardWidth / 2,node.y - nodeDescriptionHeight, cardWidth, cardHeight);
 
     ctx.fillStyle = stylingConfiguration.defaultNodeTitleBackgroundColor;
-    ctx.fillRect(node.x - cardWidth / 2,node.y - cardHeight / 2, cardWidth - (borderThickness * 2 ), cardHeight / 2 );
+    ctx.fillRect(node.x - cardWidth / 2,node.y - nodeTitleHeight, cardWidth, nodeTitleHeight );
 
     const lastIndex = node.nodeColorLabels.length;
     node.nodeColorLabels.forEach( (color, index) => {
@@ -340,28 +365,40 @@ class VFBCircuitBrowser extends Component {
       const x = (node.x - cardWidth / 2) + (index * (cardWidth / lastIndex));
       const y = node.y;
       // Create Title Bar in Node
-      ctx.fillRect(x,y, (cardWidth / lastIndex) - ( index == lastIndex - 1 ? borderThickness * 2 : 0 ) , cardHeight / 10);
+      ctx.fillRect(x,y, (cardWidth / lastIndex), colorBarHeight);
     })
 
     // Assign font to text in Node
-    ctx.font = stylingConfiguration.defaultNodeFont;
+    ctx.font = `${stylingConfiguration.nodeTitleFontSize}px ${stylingConfiguration.defaultNodeFont}`;
     // Assign color to text in Node
     ctx.fillStyle = stylingConfiguration.defaultNodeFontColor;
     // Text in font to be centered
     ctx.textAlign = "center";
     ctx.textBaseline = 'middle';
-    
-    // Create Title in Node
-    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, cardWidth * .8 , classnameHeight);
-    
-    ctx.font = stylingConfiguration.defaultNodeFont;
+
     /* 
      * Add Description text to Nodes
+     * Parameters:
      * node.name = text to display
      * node.x = x coordinate of text
-     * node.y + 20 = y coordinate, adds 20 pixels for padding from upper element
+     * node.y - (cardHeight / 2) + 10 = y coordinate, adds 15 pixels for padding from upper element
+     * cardWidth * .8 = The maximum width the text can take
+     * nodeTitleHeight = The maximum height the text can take 
      */
-    this.wrapText(ctx, node.name, node.x, node.y + 20, cardWidth * .8 , classnameHeight);
+    this.wrapText(ctx, node.classLabel, node.x, node.y - (cardHeight / 2) + 10, stylingConfiguration.nodeTitleFontSize, cardWidth * .8 , nodeTitleHeight);
+    
+    ctx.font = `${stylingConfiguration.nodeDescriptionFontSize}px ${stylingConfiguration.defaultNodeFont}`;
+    /* 
+     * Add Description text to Nodes
+     * Parameters:
+     * node.name = text to display
+     * node.x = x coordinate of text
+     * node.y + 15 = y coordinate, adds 15 pixels for padding from upper element
+     * cardWidth * .8 = The maximum width the text can take
+     * cardHeight = The maximum height the text can take 
+     */
+    this.wrapText(ctx, node.name, node.x, node.y + 15, stylingConfiguration.nodeDescriptionFontSize, cardWidth * .8 , nodeDescriptionHeight);
+    ctx.font = `${stylingConfiguration.nodeDescriptionFontSize}px ${stylingConfiguration.defaultNodeFont}`;
   }
   
   render () {
@@ -399,6 +436,7 @@ class VFBCircuitBrowser extends Component {
               legend = {self.state.legend}
               ref={self.controlsRef}
               clearGraph={self.clearGraph}
+              clearNeurons={self.clearNeurons}
               key="controls"
             />
           </div>
@@ -408,7 +446,7 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
-            nodeLabel={node => node.title}
+            nodeLabel={node => node.name + " [" + node.title + "]"}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
             // Width of links, log(weight)
@@ -478,8 +516,9 @@ class VFBCircuitBrowser extends Component {
               ctx.fillText(label, 0, 0);
               ctx.restore();
             }}
-            nodeRelSize={20}
+            nodeRelSize={50}
             nodeSize={30}
+            enableNodeDrag={true}
             // Assign background color to Canvas
             backgroundColor = {stylingConfiguration.canvasColor}
             // Assign color to Links connecting Nodes
@@ -525,6 +564,7 @@ class VFBCircuitBrowser extends Component {
                 zoomIn={self.zoomIn}
                 zoomOut={self.zoomOut}
                 clearGraph={self.clearGraph}
+                clearNeurons={self.clearNeurons}
                 circuitQuerySelected={this.circuitQuerySelected}
                 legend = {self.state.legend}
                 ref={self.controlsRef}
@@ -562,8 +602,8 @@ class VFBCircuitBrowser extends Component {
                 self.highlightNodes.add(link.source);
                 self.highlightNodes.add(link.target);
               }
-            }
-            }
+            }}
+            linkHoverPrecision={10}
           />
     )
   }
