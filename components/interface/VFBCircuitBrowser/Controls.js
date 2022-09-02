@@ -136,6 +136,8 @@ const customMarks = () => {
   return marks;
 }
 
+const pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
+
 class AutocompleteResults extends Component {
   constructor (props) {
     super(props);
@@ -195,6 +197,7 @@ class AutocompleteResults extends Component {
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
             onDelete={this.props.neuronTextfieldModified}
+            onBlur={this.props.textFieldLoseFocus}
             inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
           />
@@ -221,6 +224,7 @@ class Controls extends Component {
     this.addNeuron = this.addNeuron.bind(this);
     this.reverseNeurons = this.reverseNeurons.bind(this);
     this.neuronTextfieldModified = this.neuronTextfieldModified.bind(this);
+    this.textFieldLoseFocus = this.textFieldLoseFocus.bind(this);
     this.typingTimeout = this.typingTimeout.bind(this);
     this.sliderChange = this.sliderChange.bind(this);
     this.weightChange = this.weightChange.bind(this);
@@ -306,7 +310,6 @@ class Controls extends Component {
    * Validates neurons ID's are valid, checks there's at least 8 numbers in it
    */
   fieldsValidated (neurons) {
-    var pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
     for ( var i = 0 ; i < neurons.length ; i++ ){
       if ( neurons?.[i].id == "" ) {
         return false;
@@ -338,6 +341,18 @@ class Controls extends Component {
     this.neuronFields = neurons;
     getResultsSOLR( target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
   }
+  
+  textFieldLoseFocus (event) {
+    var pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
+    console.log("Event ", event.target);
+    
+    const matchNeuron = this.neuronFields[event.target.id];
+    if ( matchNeuron.id == "" || !matchNeuron.id.match(pattern) || ( matchNeuron.id == matchNeuron.label )) {
+      this.neuronFields[event.target.id] = { id : "", label : "" };
+      this.props.clearNeurons(this.neuronFields);
+    }
+  }
+  
   
   /**
    * Neuron text field has been modified.
@@ -473,6 +488,8 @@ class Controls extends Component {
       expanded = true;
     }
     
+    let disabledRun = !self.fieldsValidated(self.neuronFields);
+    
     // Show delete icon on neuron text fields only if there's more than the minimum allowed
     let deleteIconVisible = neuronFields.length > configuration.minNeurons;
     // The grid item size with the neuron textfield will depend on whether or not delete icon is visible
@@ -526,6 +543,7 @@ class Controls extends Component {
                           field={field}
                           index={index}
                           neuronTextfieldModified={this.neuronTextfieldModified}
+                          textFieldLoseFocus={this.textFieldLoseFocus}
                           getLatestNeuronFields={this.getUpdatedNeuronFields}
                           resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
                           ref={this.autocompleteRef[index.toString()]}
@@ -613,6 +631,7 @@ class Controls extends Component {
                       classes={{ root : classes.refreshButton }}
                       id="refreshCircuitBrowser"
                       onClick={() => this.props.updateGraph(this.neuronFields, this.paths, this.weight)}
+                      disabled={disabledRun}
                     >Run Query</Button>  
                   </Grid>
                   <Grid item container justify="flex-end" sm={6}>
