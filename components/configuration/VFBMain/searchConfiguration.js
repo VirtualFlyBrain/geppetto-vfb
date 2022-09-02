@@ -95,7 +95,7 @@ var datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
-        "short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub"
+        "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*"
       ],
       "rows": "100",
       "wt": "json",
