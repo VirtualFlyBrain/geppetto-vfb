@@ -87,7 +87,7 @@ var datasourceConfiguration = {
   "url": "https://solr.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
-      "q": "$SEARCH_TERM$$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
+      "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "q.op": "AND",
       "defType": "edismax",
       "qf": "label^100 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
