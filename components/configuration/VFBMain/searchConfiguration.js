@@ -88,6 +88,7 @@ var datasourceConfiguration = {
   "query_settings":
     {
       "q": "$SEARCH_TERM$",
+      "q.op": "AND",
       "defType": "edismax",
       "qf": "label^100 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
       "indent": "true",
