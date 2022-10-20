@@ -704,6 +704,26 @@
     </fetchVariableQuery>
   </dataSources>
   <dataSources
+      id="SOLRdataSourceService"
+      name="SOLR Data Source"
+      dataSourceService="SOLRdataSource"
+      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
+      dependenciesLibrary="//@libraries.3"
+      targetLibrary="//@libraries.4">
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
+  </dataSources>
+  <dataSources
       id="aberOWLDataSource"
       name="Aber OWL Data Source"
       dataSourceService="aberOWLDataSource"
@@ -919,7 +939,7 @@
       name="Expression overlapping selected anatomy"
       description="Reports of transgene expression in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.14 //@dataSources.0/@queries.8 //@dataSources.2/@queries.16 //@dataSources.2/@queries.12 //@dataSources.0/@queries.11 //@dataSources.2/@queries.0 //@dataSources.2/@queries.13 //@dataSources.0/@queries.14">
+      queryChain="//@dataSources.3/@queries.8 //@dataSources.3/@queries.14 //@dataSources.0/@queries.8 //@dataSources.3/@queries.16 //@dataSources.3/@queries.12 //@dataSources.0/@queries.11 //@dataSources.3/@queries.0 //@dataSources.3/@queries.13 //@dataSources.0/@queries.14">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -941,7 +961,7 @@
       name="Neuron classes fasciculating here"
       description="Neurons fasciculating in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.6 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.6 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.3"/>
   </queries>
@@ -950,7 +970,7 @@
       name="Images of neurons with some part here"
       description="Images of neurons with some part in $NAME"
       returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.3/@queries.1 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+      queryChain="//@dataSources.4/@queries.1 //@dataSources.4/@queries.3 //@dataSources.0/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -960,7 +980,7 @@
       id="NeuronsPartHere"
       name="Neurons with any part here"
       description="Neurons with some part in $NAME"
-      queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.1 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -972,7 +992,7 @@
       id="epFrag"
       name="Images of expression pattern fragments"
       description="Images of fragments of $NAME"
-      queryChain="//@dataSources.3/@queries.2 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+      queryChain="//@dataSources.4/@queries.2 //@dataSources.4/@queries.3 //@dataSources.0/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
   </queries>
@@ -980,7 +1000,7 @@
       id="NeuronsSynaptic"
       name="Neurons Synaptic"
       description="Neurons with synaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.2 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.2 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -992,7 +1012,7 @@
       id="NeuronsPresynapticHere"
       name="Neurons Presynaptic"
       description="Neurons with presynaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.3 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.3 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1004,7 +1024,7 @@
       id="NeuronsPostsynapticHere"
       name="Neurons Postsynaptic"
       description="Neurons with postsynaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.4 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.4 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1044,7 +1064,7 @@
       name="Tracts/nerves innervating synaptic neuropil"
       description="Tracts/nerves innervating $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.7 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.7 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1055,7 +1075,7 @@
       name="Components of"
       description="Components of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.0 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.4"/>
   </queries>
@@ -1064,7 +1084,7 @@
       name="Lineage clones found here"
       description="Lineage clones found in $NAME"
       returnType="//@libraries.3/@types.4"
-      queryChain="//@dataSources.2/@queries.10 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.10 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1084,7 +1104,7 @@
       name="Parts of"
       description="Parts of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.0 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
@@ -1093,7 +1113,7 @@
       name="Subclasses of"
       description="Subclasses of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.3/@queries.8 //@dataSources.3/@queries.5 //@dataSources.0/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
