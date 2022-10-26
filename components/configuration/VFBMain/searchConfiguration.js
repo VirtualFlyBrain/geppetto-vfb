@@ -90,7 +90,7 @@ var datasourceConfiguration = {
       "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
       "q.op": "OR",
       "defType": "edismax",
-      "mm": "80%25",
+      "mm": "80%",
       "qf": "label^100 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
