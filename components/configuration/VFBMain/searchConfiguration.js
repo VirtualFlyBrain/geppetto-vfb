@@ -91,7 +91,7 @@ var datasourceConfiguration = {
       "q.op": "OR",
       "defType": "edismax",
       "mm": "70%",
-      "qf": "label^100 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
+      "qf": "label^110 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
       "start": "0",
@@ -217,6 +217,20 @@ var searchConfiguration = {
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
       return 1;
+    }
+    // split out the [Name (Other)] bracketed part.
+    if (InputString == a.label.split(' (')[0]) {
+      return -1;
+    }
+    if (InputString == b.label.split(' (')[0]) {
+        return 1;
+    }
+    // close match without case matching
+    if (InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase()) {
+        return -1;
+    }
+    if (InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase()) {
+        return 1;
     }
     // match ignoring joinging nonwords
     if (InputString.toLowerCase().split(/\W+/).join(' ') == a.label.toLowerCase().split(/\W+/).join(' ')) {
