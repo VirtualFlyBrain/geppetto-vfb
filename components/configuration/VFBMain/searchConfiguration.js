@@ -204,6 +204,12 @@ var searchConfiguration = {
   ],
   "sorter": function (a, b) {
     var InputString = window.spotlightString;
+    if (a.label == undefined) {
+      return 1;
+    }
+    if (b.label == undefined) {
+        return -1;
+    }
     // move exact matches to top
     if (InputString == a.label) {
       return -1;
