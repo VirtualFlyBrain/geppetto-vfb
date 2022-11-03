@@ -208,7 +208,7 @@ var searchConfiguration = {
       return 1;
     }
     if (b.label == undefined) {
-        return -1;
+      return -1;
     }
     // move exact matches to top
     if (InputString == a.label) {
