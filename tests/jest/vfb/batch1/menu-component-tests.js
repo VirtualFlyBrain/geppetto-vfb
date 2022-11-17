@@ -29,7 +29,8 @@ const clickQueryResult = async (page, text) => page.evaluate(async (text ) => {
  */
 describe('VFB Menu Component Tests', () => {
   beforeAll(async () => {
-    jest.setTimeout(120000);
+    //increases timeout to ~8 minutes
+		jest.setTimeout(500000);
     await page.goto(projectURL);
 
   });
@@ -38,13 +39,13 @@ describe('VFB Menu Component Tests', () => {
   describe('Test Landing Page', () => {
     it('Loading spinner goes away', async () => {
       await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
-      // Close tutorial window
-      closeModalWindow(page);
     })
 
     it('VFB Title shows up', async () => {
       const title = await page.title();
       expect(title).toMatch("Virtual Fly Brain");
+      // Close tutorial window
+      closeModalWindow(page);
     })
 
     it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
