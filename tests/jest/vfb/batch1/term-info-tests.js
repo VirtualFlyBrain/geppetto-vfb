@@ -52,7 +52,7 @@ describe('VFB Term Info Component Tests', () => {
 			// Check 3d viewer is visible again by checking css property 'display : none'
 			//await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: false , timeout : 400000})
 			expect(
-					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[2].style.getPropertyValue("display"))
+					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[6].style.getPropertyValue("display"))
 			).toBe("none");
 		})
 
