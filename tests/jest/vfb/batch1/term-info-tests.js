@@ -136,7 +136,7 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info , run "Query For" from menu option', async () => {
 			// Takes a while for 'Query For' option to show, wait for it 20 seconds
-			await page.waitFor(20000);
+			await page.waitFor(30000);
 			// Click on Term Info Drop Down Menu
 			// await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
 			// await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
