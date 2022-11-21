@@ -174,7 +174,7 @@ describe('VFB Term Info Component Tests', () => {
 		})
 
 		it('Term info, "Query Button" Works', async () => {
-			await page.evaluate(async variableName => $(variableName).click(), "i.fa-quora");
+			await click(page, 'i.fa.fa-quora.arrowStyle');
 			await wait4selector(page, '#query-results-container', { visible: true ,timeout : 50000 });
 			// Close Query Panel
 			closeModalWindow(page);
