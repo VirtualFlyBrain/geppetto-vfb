@@ -105,34 +105,34 @@ describe('VFB Term Info Component Tests', () => {
 	})
 
 	describe('Test Term Info Component Links and Buttons Work', () => {
-		it('Term info closed', async () => {
-			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the third one belongs to the term info
-			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
-			//await page.evaluate(async () =>{
-			//	let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
-			//	document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
-			//});
-			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 50000})
-		})
+// 		it('Term info closed', async () => {
+// 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the third one belongs to the term info
+// 			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
+// 			//await page.evaluate(async () =>{
+// 			//	let flexComponents = document.getElementsByClassName("flexlayout__tab_button_trailing").length;
+// 			//	document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
+// 			//});
+// 			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 50000})
+// 		})
 
-		it('Term info opened', async () => {
-			await page.evaluate(async () => document.getElementById("Tools").click());
-			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
-			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => {
-				let tabs = document.getElementsByClassName('MuiMenuItem-root');
-				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "Term Info" ) {
-						tabs[i].click();
-					}
-				}
-			});
-			// Check term info component is visible again'
-			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
+// 		it('Term info opened', async () => {
+// 			await page.evaluate(async () => document.getElementById("Tools").click());
+// 			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
+// 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
+// 			await page.evaluate(async () => {
+// 				let tabs = document.getElementsByClassName('MuiMenuItem-root');
+// 				for ( var i = 0; i < tabs.length ; i ++ ) {
+// 					if ( tabs[i].innerText === "Term Info" ) {
+// 						tabs[i].click();
+// 					}
+// 				}
+// 			});
+// 			// Check term info component is visible again'
+// 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
-			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+// 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
+// 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+// 		})
 
 		it('Term info , run "Query For" from menu option', async () => {
 			// Takes a while for 'Query For' option to show, wait for it 20 seconds
