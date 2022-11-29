@@ -26,6 +26,19 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "cluster",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 0,
+    "entityDelimiter": "----",
+    "displayName": "Cluster",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "neuron_A",
     "order": 2,
     "locked": false,
@@ -48,6 +61,19 @@ var queryResultsColMeta = [
     "entityIndex": 1,
     "entityDelimiter": "----",
     "displayName": "Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "cell_type",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Cell type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -75,6 +101,19 @@ var queryResultsColMeta = [
     "entityDelimiter": "----",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "dataset",
+    "order": 4,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 3,
+    "entityDelimiter": "----",
+    "displayName": "Dataset",
+    "cssClassName": "query-results-dataset-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
