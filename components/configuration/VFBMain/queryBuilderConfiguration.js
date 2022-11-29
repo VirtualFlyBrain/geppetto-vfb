@@ -306,7 +306,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'neuron_A', 'type', 'downstream', 'tbars', 'upstream', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count'];
+var queryResultsColumns = ['name', 'cluster', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count'];
 
 var queryResultsControlConfig = {
   "Common": {
