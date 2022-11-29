@@ -159,6 +159,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="Expression_pattern_fragment"
         name="Expression Pattern Fragment"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="hasScRNAseq"
+        name="has Single Cell RNA Seq Results"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -592,8 +595,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get JSON for cluster expression query"
           description="Get JSON for cluster expression query"
-          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in $ids WITH primary MATCH (primary)-[e:expresses]->(g:Gene) WITH e.expression_level[0] as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for cluster expression query' AS query, 'a3c0d68' AS version , expression_level, expression_extent, gene, anatomy&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS }"
-          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in $ids WITH primary MATCH (primary)-[e:expresses]->(g:Gene) RETURN count(g) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS }"/>
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene) WITH e.expression_level[0] as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for cluster expression query' AS query, 'a3c0d68' AS version , expression_level, expression_extent, gene, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : $ID }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene) RETURN count(g) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : $ID }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
@@ -1228,14 +1231,14 @@
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.22">
     <matchingCriteria
-        type="//@libraries.3/@types.1 //@libraries.3/@types.28"/>
+        type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.47"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="clusterExpression"
       name="cluster_expression"
       description="Genes expressed in $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.21">
+      queryChain="//@dataSources.0/@queries.21">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
