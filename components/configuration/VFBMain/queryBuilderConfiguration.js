@@ -39,6 +39,19 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
+    "columnName": "gene",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 0,
+    "entityDelimiter": "----",
+    "displayName": "Gene",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "neuron_A",
     "order": 2,
     "locked": false,
@@ -154,6 +167,24 @@ var queryResultsColMeta = [
     "locked": false,
     "visible": true,
     "displayName": "Stage",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "level",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Level",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "extent",
+    "order": 8,
+    "locked": false,
+    "visible": true,
+    "displayName": "Extent",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -295,6 +326,15 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
+    "columnName": "function",
+    "order": 13,
+    "locked": false,
+    "visible": true,
+    "displayName": "Function",
+    "cssClassName": "query-results-score-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
     "columnName": "image_count",
     "order": 14,
     "locked": false,
@@ -306,7 +346,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'cluster', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count'];
+var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count'];
 
 var queryResultsControlConfig = {
   "Common": {
