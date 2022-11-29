@@ -1045,6 +1045,15 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ListClusterMembers"
+      name="Cluster Members"
+      description="Neurons in $NAME"
+      returnType="//@libraries.3/@types.2"
+      queryChain="//@dataSources.0/@queries.5">
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
       id="PaintedDomains"
       name="Show all painted domains for template"
       description="List all painted anatomy available for $NAME"
@@ -1215,7 +1224,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="anatScRNAseqQuery"
       name="anat_scRNAseq_query"
-      description="Single Cell RNAseq expression in $NAME"
+      description="Single cell transcriptomics data for $NAME"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.22">
     <matchingCriteria
@@ -1224,7 +1233,7 @@
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="clusterExpression"
       name="cluster_expression"
-      description="Single Cell RNAseq Cluster expression for $NAME"
+      description="Genes expressed in $NAME"
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.21">
     <matchingCriteria
