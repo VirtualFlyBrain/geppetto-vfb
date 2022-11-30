@@ -1048,15 +1048,6 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ListClusterMembers"
-      name="Cluster Members"
-      description="Neurons in $NAME"
-      returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.0/@queries.5">
-    <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
-  </queries>
-  <queries xsi:type="gep_2:CompoundRefQuery"
       id="PaintedDomains"
       name="Show all painted domains for template"
       description="List all painted anatomy available for $NAME"
