@@ -1072,7 +1072,7 @@
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.6">
     <matchingCriteria
-        type="//@libraries.3/@types.24"/>
+        type="//@libraries.3/@types.24 //@libraries.3/@types.41"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="TractsNervesInnervatingHere"
