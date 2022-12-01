@@ -1229,7 +1229,7 @@
       name="anat_scRNAseq_query"
       description="Single cell transcriptomics data for $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.17 //@dataSources.0/@queries.22">
+      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.12 //@dataSources.0/@queries.22">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.47"/>
   </queries>
