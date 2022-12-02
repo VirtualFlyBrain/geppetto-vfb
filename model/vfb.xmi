@@ -159,6 +159,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="Expression_pattern_fragment"
         name="Expression Pattern Fragment"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="hasScRNAseq"
+        name="has Single Cell RNA Seq Results"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -584,6 +587,41 @@
           description="vfb_query_schema_processor"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="cluster_expression_query_compound"
+        name="cluster_expression_query"
+        description="Get JSON for cluster expression query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          id="cluster_expression_query"
+          name="Get JSON for cluster expression query"
+          description="Get JSON for cluster expression query"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) WITH e.expression_level[0] as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for cluster expression query' AS query, 'a3c0d68' AS version , expression_level, expression_extent, gene, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) RETURN count(g) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="Process genes"
+          description="vfb_query_schema_processor"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="anat_scRNAseq_query_compound"
+        name="anat_scRNAseq_query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get JSON for anat scRNAseq query"
+          description="Get JSON for anat scRNAseq query"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Class:Anatomy) WHERE primary.short_form in $ids OR primary.short_form = $id WITH primary MATCH (primary)&lt;-[:composed_primarily_of]-(c:Cluster)-[:has_source]->(ds:scRNAseq_DataSet)OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) WITH { short_form: c.short_form, label: coalesce(c.label,''), iri: c.iri, types: labels(c), unique_facets: apoc.coll.sort(coalesce(c.uniqueFacets, [])), symbol: coalesce(([]+c.symbol)[0], '')}  AS cluster, { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), unique_facets: apoc.coll.sort(coalesce(ds.uniqueFacets, [])), symbol: coalesce(([]+ds.symbol)[0], '')}  AS dataset, COLLECT({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets, [])), symbol: coalesce(([]+p.symbol)[0], '')} , PubMed: coalesce(([]+p.PMID)[0], ''), FlyBase: coalesce(([]+p.FlyBase)[0], ''), DOI: coalesce(([]+p.DOI)[0], '') }) AS pubs,primary RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for anat scRNAseq query' AS query, 'a3c0d68' AS version , cluster, dataset, pubs&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS , &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Class:Anatomy) WHERE primary.short_form in $ids OR primary.short_form = $id WITH primary MATCH (primary)&lt;-[:composed_primarily_of]-(c:Cluster)-[:has_source]->(ds:scRNAseq_DataSet) RETURN count(c) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS , &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Images"
+          returnType="//@libraries.3/@types.0"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -830,6 +868,12 @@
         description="subClassOf cell overlaps some X"
         query="object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007002%3E%20%20that%20%3Chttp://purl.obolibrary.org/obo/RO_0002131%3E%20some%20%3Chttp://purl.obolibrary.org/obo/$ID%3E&amp;amp;direct=false&amp;amp;includeDeprecated=false&amp;amp;includeEquivalent=false"
         countQuery=""/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassIdListPlusQueryTerm"
+        name="Owlery Pass Plus Query ID"
+        description="Keep nothing slimply pass ids with query term"
+        queryProcessorId="owleryIdOnlyQueryProcessorWithQueryTerm"/>
   </dataSources>
   <dataSources
       id="owleryDataSourceRealise"
@@ -1013,15 +1057,6 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ListClusterMembers"
-      name="Cluster Members"
-      description="Neurons in $NAME"
-      returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.0/@queries.5">
-    <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
-  </queries>
-  <queries xsi:type="gep_2:CompoundRefQuery"
       id="PaintedDomains"
       name="Show all painted domains for template"
       description="List all painted anatomy available for $NAME"
@@ -1037,7 +1072,7 @@
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.6">
     <matchingCriteria
-        type="//@libraries.3/@types.24"/>
+        type="//@libraries.3/@types.24 //@libraries.3/@types.41"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="TractsNervesInnervatingHere"
@@ -1188,5 +1223,23 @@
       queryChain="//@dataSources.0/@queries.20">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="anatScRNAseqQuery"
+      name="anat_scRNAseq_query"
+      description="Single cell transcriptomics data for $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.17 //@dataSources.0/@queries.22">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.47"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="clusterExpression"
+      name="cluster_expression"
+      description="Genes expressed in $NAME"
+      returnType="//@libraries.3/@types.1"
+      queryChain="//@dataSources.0/@queries.21">
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
 </gep:GeppettoModel>

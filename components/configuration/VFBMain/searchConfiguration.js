@@ -87,9 +87,11 @@ var datasourceConfiguration = {
   "url": "https://solr.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
-      "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
+      "q": "$SEARCH_TERM$",
+      "q.op": "OR",
       "defType": "edismax",
-      "qf": "label^100 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
+      "mm": "45%",
+      "qf": "label^110 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
       "start": "0",
@@ -97,7 +99,7 @@ var datasourceConfiguration = {
       "fq": [
         "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*"
       ],
-      "rows": "100",
+      "rows": "150",
       "wt": "json",
       "bq": "short_form:VFBexp*^10.0 short_form:VFB*^100.0 short_form:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
@@ -202,6 +204,12 @@ var searchConfiguration = {
   ],
   "sorter": function (a, b) {
     var InputString = window.spotlightString;
+    if (a.label == undefined) {
+      return 1;
+    }
+    if (b.label == undefined) {
+      return -1;
+    }
     // move exact matches to top
     if (InputString == a.label) {
       return -1;
@@ -214,6 +222,20 @@ var searchConfiguration = {
       return -1;
     }
     if (InputString.toLowerCase() == b.label.toLowerCase()) {
+      return 1;
+    }
+    // split out the [Name (Other)] bracketed part.
+    if (InputString == a.label.split(' (')[0]) {
+      return -1;
+    }
+    if (InputString == b.label.split(' (')[0]) {
+      return 1;
+    }
+    // close match without case matching
+    if (InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase()) {
+      return -1;
+    }
+    if (InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase()) {
       return 1;
     }
     // match ignoring joinging nonwords
@@ -231,18 +253,18 @@ var searchConfiguration = {
       return 1;
     }
     // pick up any match without nonword join character match
-    if (a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) > -1) {
-      return 1;
-    }
-    if (b.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) > -1) {
+    if (a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) > -1 && (a.label.split(' (')[0].length < b.label.split(' (')[0].length || a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) < 0)) {
       return -1;
+    }
+    if (b.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) > -1 && (a.label.split(' (')[0].length > b.label.split(' (')[0].length || a.label.toLowerCase().split(/\W+/).join(' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ')) < 0)) {
+      return 1;
     }
     // also with underscores ignored
-    if (a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
-      return 1;
-    }
-    if (b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0 && a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
+    if ((a.label.split(' (')[0].length < b.label.split(' (')[0].length || b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0) && a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
       return -1;
+    }
+    if ((a.label.split(' (')[0].length > b.label.split(' (')[0].length || a.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) < 0) && b.label.toLowerCase().split(/\W+/).join(' ').replace('_', ' ').indexOf(InputString.toLowerCase().split(/\W+/).join(' ').replace('_', ' ')) > -1) {
+      return 1;
     }
     // find all matching spaced words
     if (InputString.toLowerCase().indexOf(' ') > -1) {
