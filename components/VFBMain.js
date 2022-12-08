@@ -447,6 +447,7 @@ class VFBMain extends React.Component {
     switch (buttonState) {
     case 'termInfoVisible':
       this.UIUpdateItem(buttonState, "termInfo");
+      break;
     case 'canvasVisible':
       this.UIUpdateItem(buttonState, "canvas");
       break;
