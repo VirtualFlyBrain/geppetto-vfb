@@ -217,7 +217,7 @@ describe('VFB Layer Component Tests', () => {
 		it('Delete VFB_jrchk4wj Instance', async () => {
 			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Delete');
-			await page.waitFor(2000);
+			await page.waitFor(3000);
 
 			let instance = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"];
