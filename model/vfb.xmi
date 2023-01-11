@@ -915,39 +915,24 @@
         queryProcessorId="owleryIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
-      id="opencpuDataSourceOld"
-      name="NBLAST Data Source (flycircuit OLD)"
-      dataSourceService="opencpuDataSource"
-      url="http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast/json"
+      id="querycache"
+      name="SOLR Cached Queries"
+      dataSourceService="solrqueryDataSource"
+      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
-    <queries
-        xsi:type="gep_2:SimpleQuery"
-        id="nblastSimilarTo"
-        name="NBLAST similar to"
-        description="Similar to $NAME"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;FlyCircuit&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true,&quot;normalisation&quot;:&quot;mean&quot;"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
-    <queries
-        xsi:type="gep_2:SimpleQuery"
-        id="nblastGal4To"
-        name="NBLAST Transgene for"
-        description="NBLAST for potential GAL4 patterns targetting $NAME"
-        returnType="//@libraries.3/@types.0"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;GMR-Gal4&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
-    <queries
-        xsi:type="gep_2:ProcessQuery"
-        id="nblastPassIdAndScores"
-        name="NBLAST pass ids and scores"
-        description="Keep nothing slimply pass ids and scores"
-        queryProcessorId="nblastQueryProcessor"/>
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
