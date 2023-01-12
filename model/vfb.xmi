@@ -933,6 +933,17 @@
         library="//@libraries.2"
         modelInterpreterId="owlModelInterpreterService"
         format="owl"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="cachedvfbjsoncall"
+        name="Get cached VFB_JSON for Term"
+        description="Get cached VFB_JSON for Term"
+        query="fl=term_info&amp;indent=true&amp;q.op=AND&amp;q=id%3A$ID"
+        countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        name="Process Cached JSON"
+        queryProcessorId="vfbProcessTermInfoCachedJson"/>
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
@@ -1227,4 +1238,9 @@
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="terminfotest"
+      name="Term Info Test"
+      description="Term Info Test"
+      queryChain="//@dataSources.4/@queries.0 //@dataSources.4/@queries.1"/>
 </gep:GeppettoModel>

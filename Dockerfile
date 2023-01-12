@@ -17,7 +17,7 @@ ARG geppettoDatasourceRelease=addingSOLR
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.3
 ARG geppettoClientRelease=VFBv2.2.3
-ARG ukAcVfbGeppettoRelease=download
+ARG ukAcVfbGeppettoRelease=addSOLRcache
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
