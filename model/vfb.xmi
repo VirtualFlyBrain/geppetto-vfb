@@ -1242,5 +1242,10 @@
       id="terminfotest"
       name="Term Info Test"
       description="Term Info Test"
-      queryChain="//@dataSources.4/@queries.0 //@dataSources.4/@queries.1"/>
+      queryChain="//@dataSources.4/@queries.0 //@dataSources.4/@queries.1">
+    <matchingCriteria
+        type="//@libraries.3/@types.0"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.1"/>
+  </queries>
 </gep:GeppettoModel>
