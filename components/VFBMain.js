@@ -858,7 +858,7 @@ class VFBMain extends React.Component {
 
     if ((this.state.canvasAvailable !== prevState.canvasAvailable) && (this.state.canvasAvailable === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
       if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
-        this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+        this.sliceViewerReference?.updateCanvasRef(this.canvasReference);
       }
       /*
        * this.canvasReference.engine.THREE.Points.prototype.raycast.prototype = this.canvasReference.engine.Points.Points.prototype.raycast.prototype;
@@ -878,7 +878,7 @@ class VFBMain extends React.Component {
 
     if ((this.state.sliceViewerVisible !== prevState.sliceViewerVisible) && (this.state.sliceViewerVisible === true) && (this.canvasReference !== undefined && this.canvasReference !== null)) {
       if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
-        this.sliceViewerReference.updateCanvasRef(this.canvasReference);
+        this.sliceViewerReference?.updateCanvasRef(this.canvasReference);
       }
     }
   }
@@ -1471,7 +1471,7 @@ class VFBMain extends React.Component {
         }
       }
       if (window.StackViewer1 != undefined) {
-        this.sliceViewerReference.updateStackWidget();
+        this.sliceViewerReference?.updateStackWidget();
       }
 
       self.props.instanceSelected(instance);
@@ -1562,7 +1562,7 @@ class VFBMain extends React.Component {
 
     // Update the tree browser
     if (this.treeBrowserReference !== undefined && this.treeBrowserReference !== null) {
-      this.treeBrowserReference.updateTree(this.instanceOnFocus);
+      this.treeBrowserReference?.updateTree(this.instanceOnFocus);
     }
   }
 
