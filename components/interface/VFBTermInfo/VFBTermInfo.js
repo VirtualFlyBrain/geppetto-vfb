@@ -829,7 +829,7 @@ class VFBTermInfoWidget extends React.Component {
             }, 100);
           }
         } else {
-          Model.getDatasources()[4].fetchVariable(path, function () {
+          Model.getDatasources()[0].fetchVariable(path, function () {
             var m = Instances.getInstance(meta);
             this.setTermInfo(m, m.name);
             window.addVfbId(path);

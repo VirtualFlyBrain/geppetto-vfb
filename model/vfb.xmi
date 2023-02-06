@@ -938,7 +938,7 @@
         id="cachedvfbjsoncall"
         name="Get cached VFB_JSON for Term"
         description="Get cached VFB_JSON for Term"
-        query="&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;AND&quot;,q:&quot;$ID&quot;"
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
         countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
@@ -948,8 +948,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get term info"
           description="Fetches essential details."
-          query="&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;AND&quot;,q:&quot;$ID&quot;"
-          countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot;"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Cached JSON"
