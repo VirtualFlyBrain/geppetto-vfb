@@ -195,7 +195,7 @@ class VFBMain extends React.Component {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
     if (!variables.length > 0) {
-      Model.getDatasources()[0].fetchVariable(variableId, function () {
+      Model.getDatasources()[4].fetchVariable(variableId, function () {
         if (callback != undefined) {
           callback(variableId, label);
         }
@@ -308,10 +308,8 @@ class VFBMain extends React.Component {
             var anchorElement = domObj.filter('a');
             // extract ID
             var templateID = anchorElement.attr('data-instancepath');
-            this.addVfbId(templateID);
-            setTimeout(function (){
-              window.resolve3D(path);
-            }, 5000);
+            // this.addVfbId(templateID);
+            window.resolve3D(path);
             return; // Don't load until the template has
           }
         }
