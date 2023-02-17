@@ -879,6 +879,54 @@
         description="Keep nothing slimply pass ids and scores"
         queryProcessorId="nblastQueryProcessor"/>
   </dataSources>
+  <dataSources
+      id="querycache"
+      name="SOLR Cached Queries"
+      dataSourceService="solrqueryDataSource"
+      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
+      dependenciesLibrary="//@libraries.3"
+      targetLibrary="//@libraries.4">
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="cachedvfbjsoncall"
+        name="Get cached VFB_JSON for Term"
+        description="Get cached VFB_JSON for Term"
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+        countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <fetchVariableQuery
+        xsi:type="gep_2:CompoundQuery"
+        name="Process Cached JSON"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get term info"
+          description="Fetches essential details."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat:Individual) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot;"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Term Core"
+          description="Process Term Core"
+          queryProcessorId="vfbProcessTermInfoCachedCore"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Cached JSON"
+          description="Process Cached JSON"
+          queryProcessorId="vfbProcessTermInfoCachedJson"/>
+    </fetchVariableQuery>
+  </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
       name="List all available images for class with examples"

@@ -308,8 +308,10 @@ class VFBMain extends React.Component {
             var anchorElement = domObj.filter('a');
             // extract ID
             var templateID = anchorElement.attr('data-instancepath');
-            // this.addVfbId(templateID);
-            window.resolve3D(path);
+            this.addVfbId(templateID);
+            setTimeout(function (){
+              window.resolve3D(path);
+            }, 5000);
             return; // Don't load until the template has
           }
         }
