@@ -189,6 +189,16 @@ module.exports = function (env){
         {
           test: /\.html$/,
           loader: 'raw-loader'
+        },
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto"
+        },
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto"
         }
       ]
     },
