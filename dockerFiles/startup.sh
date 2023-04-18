@@ -40,7 +40,6 @@ then
     # Frontend final build
     cd $HOME/workspace/org.geppetto.frontend
     /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-    npm audit
     mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install
     rm -rf src
 fi
