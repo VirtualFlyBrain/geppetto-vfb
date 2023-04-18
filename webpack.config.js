@@ -194,11 +194,6 @@ module.exports = function (env){
           test: /\.mjs$/,
           include: /node_modules/,
           type: "javascript/auto"
-        },
-        {
-          test: /\.mjs$/,
-          include: /node_modules/,
-          type: "javascript/auto"
         }
       ]
     },
