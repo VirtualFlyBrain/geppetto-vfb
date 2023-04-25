@@ -560,6 +560,14 @@ var toolbarMenu = {
                   }
                 },
                 {
+                  label: "Adult T1 Leg (Kuan)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00120000"]
+                  }
+                },
+                {
                   label: "Adult Brain (JFRC2/2010)",
                   icon: "",
                   action: {
@@ -678,6 +686,14 @@ var toolbarMenu = {
                   action: {
                     handlerAction: "triggerRunQuery",
                     parameters: ["AlignedDatasets,VFB_00110000,adult head template McKellar"]
+                  }
+                },
+                {
+                  label: "Adult T1 Leg (Kuan)",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00120000,adult T1 Leg template Kuan"]
                   }
                 },
                 {
