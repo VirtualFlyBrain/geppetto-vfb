@@ -915,39 +915,52 @@
         queryProcessorId="owleryIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
-      id="opencpuDataSourceOld"
-      name="NBLAST Data Source (flycircuit OLD)"
-      dataSourceService="opencpuDataSource"
-      url="http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast/json"
+      id="querycache"
+      name="SOLR Cached Queries"
+      dataSourceService="solrqueryDataSource"
+      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
-        id="nblastSimilarTo"
-        name="NBLAST similar to"
-        description="Similar to $NAME"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;FlyCircuit&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true,&quot;normalisation&quot;:&quot;mean&quot;"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
-    <queries
-        xsi:type="gep_2:SimpleQuery"
-        id="nblastGal4To"
-        name="NBLAST Transgene for"
-        description="NBLAST for potential GAL4 patterns targetting $NAME"
-        returnType="//@libraries.3/@types.0"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;GMR-Gal4&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
-    <queries
-        xsi:type="gep_2:ProcessQuery"
-        id="nblastPassIdAndScores"
-        name="NBLAST pass ids and scores"
-        description="Keep nothing slimply pass ids and scores"
-        queryProcessorId="nblastQueryProcessor"/>
+        id="cachedvfbjsoncall"
+        name="Get cached VFB_JSON for Term"
+        description="Get cached VFB_JSON for Term"
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+        countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+    <fetchVariableQuery
+        xsi:type="gep_2:CompoundQuery"
+        name="Process Cached JSON"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get term info"
+          description="Fetches essential details."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Term Core"
+          description="Process Term Core"
+          queryProcessorId="vfbProcessTermInfoCachedCore"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Cached JSON"
+          description="Process Cached JSON"
+          queryProcessorId="vfbProcessTermInfoCachedJson"/>
+    </fetchVariableQuery>
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
@@ -1241,5 +1254,15 @@
       queryChain="//@dataSources.0/@queries.21">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="terminfotest"
+      name="Term Info Test"
+      description="Term Info Test"
+      queryChain="//@dataSources.4/@queries.0">
+    <matchingCriteria
+        type="//@libraries.3/@types.0"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.1"/>
   </queries>
 </gep:GeppettoModel>
