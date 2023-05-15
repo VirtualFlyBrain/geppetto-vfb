@@ -952,11 +952,6 @@
           countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
-          name="Process Term Core"
-          description="Process Term Core"
-          queryProcessorId="vfbProcessTermInfoCachedCore"/>
-      <queryChain
-          xsi:type="gep_2:ProcessQuery"
           name="Process Cached JSON"
           description="Process Cached JSON"
           queryProcessorId="vfbProcessTermInfoCachedJson"/>
