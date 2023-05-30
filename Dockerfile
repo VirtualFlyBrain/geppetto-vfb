@@ -13,11 +13,11 @@ ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
 ARG geppettoCoreRelease=VFBv2.2.0
 ARG geppettoSimulationRelease=vfb_20200604_a
-ARG geppettoDatasourceRelease=vfb_20200604_a
+ARG geppettoDatasourceRelease=passingSOLR
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.3
 ARG geppettoClientRelease=VFBv2.2.3
-ARG ukAcVfbGeppettoRelease=download
+ARG ukAcVfbGeppettoRelease=fixingSOLR
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
@@ -26,7 +26,7 @@ ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.v4.virtualflybrain.org
 ARG VFB_OWL_SERVER_ARG=http://owl.virtualflybrain.org/kbs/vfb/
 ARG VFB_R_SERVER_ARG=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select
-ARG googleAnalyticsSiteCode_ARG=UA-18509775-2
+ARG googleAnalyticsSiteCode_ARG=G-8JYPDQDX3B
 ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
