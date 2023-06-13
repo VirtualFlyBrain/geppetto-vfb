@@ -421,6 +421,15 @@ var toolbarMenu = {
                     handlerAction: "openNewTab",
                     parameters: ["https://neuprint.janelia.org/?dataset=hemibrain%3Av1.2.1&qt=findneurons"]
                   }
+                },
+                {
+                  label: "Adult Male VNC (MANC) NeuPRINT+ (FlyEM, Janelia)",
+                  icon: "",
+                  position: "right-start",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://neuprint.janelia.org/?dataset=manc%3Av1.0&qt=findneurons"]
+                  }
                 }
               ]
             },
