@@ -254,14 +254,6 @@ var toolbarMenu = {
           }
         },
         {
-          label: "NBLAST Uploader",
-          icon: "fa fa-upload",
-          action: {
-            handlerAction: "uploaderContentsVisible",
-            parameters: []
-          }
-        },
-        {
           label: "NBLAST",
           icon: "",
           action: "",
@@ -400,6 +392,35 @@ var toolbarMenu = {
                       }
                     }
                   ]
+                }
+              ]
+            },
+            {
+              label: "External EM Data",
+              icon: "",
+              position: "right-start",
+              action: {
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult T1 Leg CATMAID (Harvard)",
+                  icon: "",
+                  trailerIcon: "fa fa-external-link",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://radagast.hms.harvard.edu/catmaidvnc?pid=61&tool=tracingtool&sid0=31&s0=9&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22publication%22%7D%7D,%200.6"]
+                  }
+                },
+                {
+                  label: "Adult Hemibrain NeuPRINT+ (FlyEM, Janelia)",
+                  icon: "",
+                  position: "right-start",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://neuprint.janelia.org/?dataset=hemibrain%3Av1.2.1&qt=findneurons"]
+                  }
                 }
               ]
             },
@@ -568,6 +589,14 @@ var toolbarMenu = {
                   }
                 },
                 {
+                  label: "Adult T1 Leg (Kuan)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00120000"]
+                  }
+                },
+                {
                   label: "Adult Brain (JFRC2/2010)",
                   icon: "",
                   action: {
@@ -686,6 +715,14 @@ var toolbarMenu = {
                   action: {
                     handlerAction: "triggerRunQuery",
                     parameters: ["AlignedDatasets,VFB_00110000,adult head template McKellar"]
+                  }
+                },
+                {
+                  label: "Adult T1 Leg (Kuan)",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00120000,adult T1 Leg template Kuan"]
                   }
                 },
                 {
