@@ -40,11 +40,36 @@ class VFBListViewer extends Component {
     
     const { instanceDeleted, idsMap, idsList } = this.props;
     
+    let id = "", instance = "", meta_instance = "", html = "", htmlLabels = "", matchAnchor = "", matchSpan = "", type, tags;
     // Match Visual Types from ModelFactory
     for (var i = 0; i < entities.length; i++) {
       if (entities[i].metaType === VISUAL_TYPE || entities[i].metaType === COMPOSITE_VISUAL_TYPE ) {
-        if (idsList.includes(entities[i].path.split(".")[0]) && visuals[entities[i].path] === undefined ){
-          visuals[entities[i].path.split(".")[0]] = entities[i];
+        id = entities[i].path.split(".")[0];
+        if (idsList.includes(id) && visuals[entities[i].path] === undefined ){
+          visuals[id] = entities[i];
+          instance = Instances.getInstance(id);
+          visuals[id].name = instance.name;
+          
+          meta_instance = Instances.getInstance(id)[id + "_meta"];
+
+          // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string
+          html = meta_instance.getTypes().map(function (t) {
+            return t.type.getInitialValue().value
+          })[0].html;
+
+          htmlLabels = meta_instance.getTypes().map(function (t) {
+            return t.label.getInitialValue().value
+          })[0].html;
+          
+          // Extract HTML element anchor text from html string
+          visuals[id].types = html?.match(/<a[^>]*>(.*?)<\/a>/g)?.map(function (val){
+            return val?.replace(/<a[^>]*>/g, '').replace(/<\/?a>/g,'');
+          }).join();
+          
+          // Extract HTML element anchor text from html string
+          visuals[id].tags = htmlLabels?.match(/<span[^>]*>(.*?)<\/span>/g)?.map(function (val){
+            return val?.replace(/<span[^>]*>/g, '')?.replace(/<\/?span>/g,'');
+          }).join();
         }
       }
     }
@@ -59,6 +84,7 @@ class VFBListViewer extends Component {
         className = "vfbListViewer"
         handler={this}
         filter={() => true}
+        filterFn={() => console.log("Filtering")}
         columnConfiguration={this.getColumnConfiguration()}
         infiniteScroll={true}
       />
