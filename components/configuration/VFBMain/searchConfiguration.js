@@ -190,6 +190,11 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
+          "key": "hasScRNAseq",
+          "filter_name": "Has scRNAseq data",
+          "enabled": "disabled",
+        },
+        {
           "key": "DataSet",
           "filter_name": "Dataset",
           "enabled": "disabled",
