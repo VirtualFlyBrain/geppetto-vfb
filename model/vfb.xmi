@@ -162,6 +162,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="hasScRNAseq"
         name="has Single Cell RNA Seq Results"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="Gene"
+        name="Gene"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -636,6 +639,25 @@
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
           returnType="//@libraries.3/@types.0"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="expression_cluster_query_compound"
+        name="expression_cluster_query"
+        description="Get JSON for expression in cluster query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          id="cluster_expression_query"
+          name="Get JSON for cluster expression query"
+          description="Get JSON for cluster expression query"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster)-[e:expresses]->(g:Gene:Class) WHERE g.short_form in [$id] WITH e.expression_level[0] as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for expression in cluster query' AS query, 'ma3c0d68' AS version , expression_level, expression_extent, term, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster)-[e:expresses]->(g:Gene:Class) WHERE g.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="Process clusters"
+          description="vfb_query_schema_processor"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
     <fetchVariableQuery
@@ -1266,5 +1288,14 @@
       queryChain="//@dataSources.0/@queries.23">
     <matchingCriteria
         type="//@libraries.3/@types.24 //@libraries.3/@types.47"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="expressionCluster"
+      name="expression_cluster"
+      description="scRNAseq clusters expressing $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.0/@queries.24">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.48"/>
   </queries>
 </gep:GeppettoModel>
