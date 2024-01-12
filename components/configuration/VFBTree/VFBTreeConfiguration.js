@@ -9,7 +9,7 @@ var treeCypherQuery = instance => ({
       "statement": "MATCH (root:Class)<-[:INSTANCEOF]-(t:Template {short_form:'" + instance + "'})"
       + "<-[:depicts]-(tc:Template)<-[ie:in_register_with]-(c:Individual)-[:depicts]->(image:"
       + "Individual)-[r:INSTANCEOF]->(anat:Class:Anatomy) WHERE exists(ie.index) WITH root, anat,r,image"
-      + " MATCH p=allshortestpaths((root)<-[:SUBCLASSOF|part_of*..]-(anat)) "
+      + " MATCH p=allshortestpaths((root)<-[:SUBCLASSOF|part_of*..50]-(anat)) "
       + "UNWIND nodes(p) as n UNWIND nodes(p) as m WITH * WHERE id(n) < id(m) "
       + "MATCH path = allShortestPaths( (n)-[:SUBCLASSOF|part_of*..1]-(m) ) "
       + "RETURN collect(distinct { node_id: id(anat), short_form: anat.short_form, image: image.short_form })"
