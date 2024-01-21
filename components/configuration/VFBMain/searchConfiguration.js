@@ -150,6 +150,11 @@ var searchConfiguration = {
           "enabled": "disabled",
         },
         {
+          "key": "Class",
+          "filter_name": "Type",
+          "enabled": "disabled",
+        },
+        {
           "key": "has_image",
           "filter_name": "Image",
           "enabled": "disabled",
