@@ -364,7 +364,7 @@ class VFBFocusTerm extends React.Component {
             }
           });
         } else {
-            this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
+          this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
         }
       } else {
         this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
