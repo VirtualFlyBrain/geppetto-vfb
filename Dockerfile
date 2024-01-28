@@ -12,7 +12,7 @@ VOLUME /tmp/error
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
 ARG geppettoCoreRelease=VFBv2.2.0
-ARG geppettoSimulationRelease=vfb_20200604_a
+ARG geppettoSimulationRelease=VFBv2.1.0.2
 ARG geppettoDatasourceRelease=vfb_20200604_a
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.3
