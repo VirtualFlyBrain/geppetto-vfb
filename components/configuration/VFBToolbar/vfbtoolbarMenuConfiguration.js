@@ -270,11 +270,10 @@ var toolbarMenu = {
             },
             {
               label: "NBLAST against your own data",
-              icon: "",
-              trailerIcon: "fa fa-external-link",
+              icon: "fa fa-upload",
               action: {
-                handlerAction: "openNewTab",
-                parameters: ["http://nblast.virtualflybrain.org:8080/NBLAST_on-the-fly/?gal4_n=10&all_use_mean=F&all_query=&tab=One%20against%20all&gal4_query="]
+                handlerAction: "uploaderContentsVisible",
+                parameters: []
               }
             }
           ]

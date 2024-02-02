@@ -445,7 +445,7 @@
           name="test_all_datasets_query"
           description="Get JSON for template_2_datasets query"
           returnType="//@libraries.3/@types.24"
-          query="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds CALL apoc.cypher.run('WITH ds OPTIONAL MATCH (ds) &lt;-[:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual) &lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ds:ds}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, ds OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,ds OPTIONAL MATCH (ds)-[rp:has_reference]->(p:pub) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } ) END AS pubs,ds,anatomy_channel_image OPTIONAL MATCH (ds)-[:has_license|license]->(l:License) WITH collect ({ icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l), unique_facets: apoc.coll.sort(coalesce(l.uniqueFacets,[])), symbol: coalesce(l.symbol[0], '')} }) as license,ds,anatomy_channel_image,pubs OPTIONAL MATCH (ds) &lt;-[:has_source]-(i:Individual) WITH i, ds, anatomy_channel_image, pubs, license OPTIONAL MATCH (i)-[:INSTANCEOF]-(c:Class) WITH DISTINCT { images: count(distinct i),types: count(distinct c) } as dataset_counts,ds,anatomy_channel_image,pubs,license RETURN { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), symbol: coalesce(ds.symbol[0], '')} as dataset, 'bac066c' AS version, 'template_2_datasets_query' AS query, anatomy_channel_image, pubs, license, dataset_counts&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds CALL apoc.cypher.run('WITH ds OPTIONAL MATCH (ds) &lt;-[:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual) &lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ds:ds}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, ds OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,ds OPTIONAL MATCH (ds)-[rp:has_reference]->(p:pub) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } ) END AS pubs,ds,anatomy_channel_image OPTIONAL MATCH (ds)-[:has_license|license]->(l:License) WITH collect ({ icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l), unique_facets: apoc.coll.sort(coalesce(l.uniqueFacets,[])), symbol: coalesce(l.symbol[0], '')} }) as license,ds,anatomy_channel_image,pubs OPTIONAL MATCH (ds) &lt;-[:has_source]-(i:Individual) WITH i, ds, anatomy_channel_image, pubs, license OPTIONAL MATCH (i)-[:INSTANCEOF]-(c:Class) WITH DISTINCT { images: count(distinct i),types: count(distinct c) } as dataset_counts,ds,anatomy_channel_image,pubs,license RETURN { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), symbol: coalesce(ds.symbol[0], '')} as dataset, 'bac066c' AS version, 'all_datasets_query' AS query, anatomy_channel_image, pubs, license, dataset_counts&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (ds:DataSet) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -600,7 +600,7 @@
           id="cluster_expression_query"
           name="Get JSON for cluster expression query"
           description="Get JSON for cluster expression query"
-          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) WITH e.expression_level[0] as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for cluster expression query' AS query, 'a3c0d68' AS version , expression_level, expression_extent, gene, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) WITH coalesce(e.expression_level_padded[0], e.expression_level[0]) as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for cluster expression query' AS query, 'a3c0d68' AS version , expression_level, expression_extent, gene, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) RETURN count(g) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -912,6 +912,12 @@
         name="Owlery Pass Plus Query ID"
         description="Keep nothing slimply pass ids with query term"
         queryProcessorId="owleryIdOnlyQueryProcessorWithQueryTerm"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassSolrIdListOnly"
+        name="Owlery Pass solr id list only"
+        description="Keep nothing slimply pass solr ids"
+        queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
       id="owleryDataSourceRealise"
@@ -953,39 +959,63 @@
         queryProcessorId="owleryIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
-      id="opencpuDataSourceOld"
-      name="NBLAST Data Source (flycircuit OLD)"
-      dataSourceService="opencpuDataSource"
-      url="http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast/json"
+      id="querycache"
+      name="SOLR Cached Queries"
+      dataSourceService="solrqueryDataSource"
+      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
-        id="nblastSimilarTo"
-        name="NBLAST similar to"
-        description="Similar to $NAME"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;FlyCircuit&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true,&quot;normalisation&quot;:&quot;mean&quot;"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
+        id="cachedvfbjsoncall"
+        name="Get cached VFB_JSON for Term"
+        description="Get cached VFB_JSON for Term"
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+        countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
     <queries
-        xsi:type="gep_2:SimpleQuery"
-        id="nblastGal4To"
-        name="NBLAST Transgene for"
-        description="NBLAST for potential GAL4 patterns targetting $NAME"
-        returnType="//@libraries.3/@types.0"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;GMR-Gal4&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
+        xsi:type="gep_2:CompoundQuery"
+        name="Get and process example images from SOLR from id list"
+        description=""
+        runForCount="false">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get anat_query"
+          description="Fetches essential details."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ARRAY_ID_RESULTS&quot;,&quot;qf&quot;:&quot;id&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ARRAY_ID_RESULTS&quot;,&quot;qf&quot;:&quot;id&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process images"
+          queryProcessorId="solrQueryProcessor"/>
     </queries>
-    <queries
-        xsi:type="gep_2:ProcessQuery"
-        id="nblastPassIdAndScores"
-        name="NBLAST pass ids and scores"
-        description="Keep nothing slimply pass ids and scores"
-        queryProcessorId="nblastQueryProcessor"/>
+    <fetchVariableQuery
+        xsi:type="gep_2:CompoundQuery"
+        name="Process Cached JSON"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get term info"
+          description="Fetches essential details."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Cached JSON"
+          description="Process Cached JSON"
+          queryProcessorId="vfbProcessTermInfoCachedJson"/>
+    </fetchVariableQuery>
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
@@ -1023,7 +1053,7 @@
       name="Neuron classes fasciculating here"
       description="Neurons fasciculating in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.6 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.6 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.3"/>
   </queries>
@@ -1032,7 +1062,7 @@
       name="Images of neurons with some part here"
       description="Images of neurons with some part in $NAME"
       returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.3/@queries.1 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+      queryChain="//@dataSources.3/@queries.1 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1042,7 +1072,7 @@
       id="NeuronsPartHere"
       name="Neurons with any part here"
       description="Neurons with some part in $NAME"
-      queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1054,7 +1084,7 @@
       id="epFrag"
       name="Images of expression pattern fragments"
       description="Images of fragments of $NAME"
-      queryChain="//@dataSources.3/@queries.2 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+      queryChain="//@dataSources.3/@queries.2 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
   </queries>
@@ -1062,7 +1092,7 @@
       id="NeuronsSynaptic"
       name="Neurons Synaptic"
       description="Neurons with synaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.2 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.2 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1074,7 +1104,7 @@
       id="NeuronsPresynapticHere"
       name="Neurons Presynaptic"
       description="Neurons with presynaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.3 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.3 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1086,7 +1116,7 @@
       id="NeuronsPostsynapticHere"
       name="Neurons Postsynaptic"
       description="Neurons with postsynaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.4 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.4 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1117,7 +1147,7 @@
       name="Tracts/nerves innervating synaptic neuropil"
       description="Tracts/nerves innervating $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.7 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.7 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1128,7 +1158,7 @@
       name="Components of"
       description="Components of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.4"/>
   </queries>
@@ -1137,7 +1167,7 @@
       name="Lineage clones found here"
       description="Lineage clones found in $NAME"
       returnType="//@libraries.3/@types.4"
-      queryChain="//@dataSources.2/@queries.10 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.10 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1157,7 +1187,7 @@
       name="Parts of"
       description="Parts of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
@@ -1166,7 +1196,7 @@
       name="Subclasses of"
       description="Subclasses of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
