@@ -915,7 +915,7 @@
     <queries
         xsi:type="gep_2:ProcessQuery"
         id="owlPassSolrIdListOnly"
-        name="Owlery Pass solr id list only"
+        name="Owlery Class Pass solr id list only"
         description="Keep nothing slimply pass solr ids"
         queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
   </dataSources>
@@ -957,6 +957,12 @@
         description="Keep nothing slimply pass ids"
         returnType="//@libraries.3/@types.0"
         queryProcessorId="owleryIdOnlyQueryProcessor"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassSolrIdListOnly"
+        name="Owlery Ind Pass solr id list only"
+        description="Keep nothing slimply pass solr ids"
+        queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
       id="querycache"
@@ -1062,7 +1068,7 @@
       name="Images of neurons with some part here"
       description="Images of neurons with some part in $NAME"
       returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.3/@queries.1 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
+      queryChain="//@dataSources.3/@queries.1 //@dataSources.3/@queries.4 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
