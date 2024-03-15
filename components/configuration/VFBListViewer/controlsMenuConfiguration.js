@@ -112,12 +112,12 @@ const controlsMenuConf = {
             options : {
               false : {
                 label: "Show",
-                icon: "fa fa-eye",
+                icon: "fa fa-eye-slash",
                 action: { handlerAction: ACTIONS.SHOW, }
               },
               true : {
                 label: "Hide",
-                icon: "fa fa-eye-slash",
+                icon: "fa fa-eye",
                 action: { handlerAction: ACTIONS.HIDE, }
               }
             }
