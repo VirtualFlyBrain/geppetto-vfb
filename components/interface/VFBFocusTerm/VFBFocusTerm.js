@@ -363,6 +363,8 @@ class VFBFocusTerm extends React.Component {
                                                                               { variable: variable2, allQueries: allQueries2 }];
             }
           });
+        } else {
+          this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
         }
       } else {
         this.configuration.buttons[0].dynamicListInjector.parameters = [{ variable: variable, allQueries: allQueries }];
@@ -569,7 +571,7 @@ class VFBFocusTerm extends React.Component {
                   : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
                 }
                 <Tooltip placement="top-end"
-                  title="NBLAST Uploader">
+                  title="NBLAS Uploader">
                   <i id="fa-upload" className="fa fa-upload arrowsStyle"
                     onClick={() => {
                       this.props.UIUpdateManager("uploaderContentsVisible");
