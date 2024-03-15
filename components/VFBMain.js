@@ -195,7 +195,7 @@ class VFBMain extends React.Component {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
     if (!variables.length > 0) {
-      Model.getDatasources()[0].fetchVariable(variableId, function () {
+      Model.getDatasources()[4].fetchVariable(variableId, function () {
         if (callback != undefined) {
           callback(variableId, label);
         }
