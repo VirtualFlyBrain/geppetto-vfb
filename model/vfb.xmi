@@ -1202,7 +1202,7 @@
       name="Subclasses of"
       description="Subclasses of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.4/@queries.1">
+      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.18 //@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
