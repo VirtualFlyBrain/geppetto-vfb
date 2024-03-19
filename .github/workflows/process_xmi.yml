@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'model/*.xmi'
+  workflow_dispatch:
 
 jobs:
   update-readme:
