@@ -5,7 +5,12 @@ def parse_xmi(file_path):
     with open(file_path, 'rb') as file:
         tree = etree.parse(file)
         root = tree.getroot()
-    return root, {'xmi': 'http://www.omg.org/XMI', 'ecore': 'http://www.eclipse.org/emf/2002/Ecore'}
+    namespaces = {
+        'xmi': 'http://www.omg.org/XMI', 
+        'ecore': 'http://www.eclipse.org/emf/2002/Ecore',
+        'xsi': 'http://www.w3.org/2001/XMLSchema-instance'  # Adding the 'xsi' namespace
+    }
+    return root, namespaces
 
 def list_queries_under_data_sources(root, namespaces):
     data_sources = root.findall('.//dataSources', namespaces=namespaces)
