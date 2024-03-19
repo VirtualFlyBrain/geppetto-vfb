@@ -32,8 +32,8 @@ def corrected_debug_list_high_level_queries_with_indices(root, namespaces):
     corrected_queries_info = []
 
     for query in high_level_queries:
-        # Extracting the 'id', 'name', and 'description' attributes of each high-level query.
-        query_id = query.get('{http://www.omg.org/XMI}id')  # Adjust namespace URI as necessary for 'id'
+        # Directly extracting the 'id', 'name', and 'description' attributes of each high-level query.
+        query_id = query.get('id')  # Accessing 'id' directly without namespace
         query_name = query.get('name')
         query_description = query.get('description', 'No description provided')  # Providing a default if missing
 
