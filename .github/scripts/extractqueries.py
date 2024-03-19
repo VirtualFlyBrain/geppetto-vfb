@@ -42,7 +42,7 @@ def generate_markdown_for_queries(queries_info):
         markdown_content += f"## Query ID: {info['queryID']} - {info['queryName']}\n"
         markdown_content += f"Description: {info['queryDescription']}\n"
         markdown_content += f"Data Source: {info['dataSourceName']} (ID: {info['dataSourceID']})\n"
-        markdown_content += f"Query: ```\n{info['query']}\n```\n\n"
+        markdown_content += f"Query: ```text\n{info['query']}\n```\n\n"
 
     return markdown_content
 
