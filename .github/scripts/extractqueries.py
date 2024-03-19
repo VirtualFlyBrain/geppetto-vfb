@@ -8,36 +8,18 @@ def parse_xmi(file_path):
         root = tree.getroot()
     return root
 
-def extract_queries_and_chains(root, namespaces):
-    queries_info = []
-
-    for data_source in root.findall('.//dataSources', namespaces=namespaces):
-        ds_id = data_source.get('id')
-        ds_name = data_source.get('name')
-        ds_url = data_source.get('url', 'No URL provided')
-        
-        process_queries(data_source, "", ds_id, ds_name, ds_url, queries_info, namespaces)
-
-    return queries_info
-
-def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, namespaces, parent_query_name=""):
-    for query in element.findall('.//queries', namespaces=namespaces):
+def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, namespaces, parent_query_name="", parent_info=None):
+    for query in element.findall('.//queries | .//fetchVariableQuery', namespaces=namespaces):
         query_id = query.get('id')
         query_name = query.get('name')
         query_description = query.get('description', '')
         query_type = query.get('{http://www.w3.org/2001/XMLSchema-instance}type')
         query_processor_id = query.get('queryProcessorId', 'Not provided')
-        
-        # Decide content based on query type
-        if query_type == "gep_2:ProcessQuery":
-            query_content = f"Processor ID: {query_processor_id}"
-        elif query_type == "gep_2:CompoundQuery":
-            query_content = "This is a compound query containing the following steps:"
-        else:
-            query_string_encoded = query.get('query', '')  # For simple queries
-            query_content = html.unescape(query_string_encoded)
+        query_string_encoded = query.get('query', '')
+        query_string_decoded = html.unescape(query_string_encoded)
 
-        # Add entry for current query
+        query_content = query_processor_id if query_type == "gep_2:ProcessQuery" else query_string_decoded
+
         query_entry = {
             'indent': indent,
             'dataSourceID': ds_id,
@@ -45,27 +27,36 @@ def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, names
             'dataSourceURL': ds_url,
             'queryID': query_id,
             'queryName': query_name,
-            'parentQueryName': parent_query_name,
             'queryDescription': query_description,
             'queryType': query_type,
-            'query': query_content
+            'query': query_content,
+            'childQueries': []  # Initialize an empty list for child queries
         }
-        queries_info.append(query_entry)
 
-        # If this is a compound query, process its child queries
+        # If there's a parent_info passed, add the current query into its childQueries list
+        if parent_info is not None:
+            parent_info['childQueries'].append(query_entry)
+        else:
+            queries_info.append(query_entry)
+
+        # Recursively process child queries of a compound query
         if query_type == "gep_2:CompoundQuery":
-            process_queries(query, indent + "    ", ds_id, ds_name, ds_url, queries_info, namespaces, query_name)
+            process_queries(query, indent + "    ", ds_id, ds_name, ds_url, queries_info, namespaces, query_name, query_entry)
 
 def generate_markdown_for_all_queries(queries_info):
     markdown_content = "# Queries and Chains Across Data Sources\n\n"
     for info in queries_info:
-        # Include parent query name if present
-        parent_info = f" (Child of: {info['parentQueryName']})" if info['parentQueryName'] else ""
-        markdown_content += f"{info['indent']}## {info['queryName']}{parent_info}\n"
+        markdown_content += f"{info['indent']}## {info['queryName']}\n"
         markdown_content += f"{info['indent']}*DataSource*: {info['dataSourceName']} (ID: {info['dataSourceID']})\n"
         markdown_content += f"{info['indent']}*Description*: {info['queryDescription']}\n"
         markdown_content += f"{info['indent']}*Query Type*: {info['queryType']}\n"
         markdown_content += f"{info['indent']}*Query*: ```\n{info['query']}\n```\n\n"
+
+        # Process child queries if any
+        for child_query in info.get('childQueries', []):
+            markdown_content += f"{child_query['indent']}### {child_query['queryName']}\n"
+            markdown_content += f"{child_query['indent']}*Description*: {child_query['queryDescription']}\n"
+            markdown_content += f"{child_query['indent']}*Query*: ```\n{child_query['query']}\n```\n\n"
 
     return markdown_content
 
@@ -76,7 +67,8 @@ def save_to_file(content, file_path):
 def main(xmi_file_path, output_markdown_path):
     namespaces = {'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
     root = parse_xmi(xmi_file_path)
-    queries_info = extract_queries_and_chains(root, namespaces)
+    queries_info = []
+    process_queries(root, "", None, None, None, queries_info, namespaces)
     markdown_content = generate_markdown_for_all_queries(queries_info)
     save_to_file(markdown_content, output_markdown_path)
 
