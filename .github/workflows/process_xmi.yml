@@ -26,7 +26,7 @@ jobs:
       run: |
         # Adjust this command to call your Python script that processes /model/vfb.xmi
         # and updates or creates /model/README.md with the necessary information.
-        python ./scripts/process_xmi.py ./model/vfb.xmi ./model/README.md
+        python ./.github/scripts/process_xmi.py ./model/vfb.xmi ./model/README.md
 
     - name: Commit README.md
       run: |
