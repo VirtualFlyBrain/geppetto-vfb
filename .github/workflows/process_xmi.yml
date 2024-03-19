@@ -6,6 +6,7 @@ on:
       - 'model/*.xmi'
       - '.github/workflows/process_xmi.yml'
       - '.github/scripts/process_xmi.py'
+      - '.github/scripts/extractqueries.py'
   workflow_dispatch:
 
 jobs:
@@ -27,9 +28,11 @@ jobs:
 
     - name: Process XMI File and Update README
       run: |
-        # Adjust this command to call your Python script that processes /model/vfb.xmi
-        # and updates or creates /model/README.md with the necessary information.
         python ./.github/scripts/process_xmi.py ./model/vfb.xmi ./model/README.md
+    - name: Process XMI File and Update query
+      run: |
+        python ./.github/scripts/extractqueries.py ./model/vfb.xmi ./model/query.md
+
 
     - name: Commit README.md
       run: |
