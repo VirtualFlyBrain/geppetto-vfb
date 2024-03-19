@@ -67,6 +67,6 @@ def main(xmi_file_path, output_markdown_path):
     save_to_file(markdown_content, output_markdown_path)
 
 if __name__ == "__main__":
-    xmi_file_path = "/mnt/data/vfb.xmi"  # Updated to use the provided file path
-    output_markdown_path = "/mnt/data/queries_and_chains.md"  # Where the markdown file will be saved
+    xmi_file_path = sys.argv[1]  # ecore xmi file
+    output_markdown_path = sys.argv[2]  # Where the markdown file will be saved
     main(xmi_file_path, output_markdown_path)
