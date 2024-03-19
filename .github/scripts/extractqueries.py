@@ -1,5 +1,6 @@
 import html
 from lxml import etree
+import sys
 
 def parse_xmi(file_path):
     with open(file_path, 'rb') as file:
