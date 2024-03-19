@@ -1,207 +1,207 @@
 # Queries and Chains Across Data Sources
 
 ## Get and process example images from Neo4j for class list
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Get and process details from Neo4j for list of inds
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Get fellow cluster members
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## All example images for a class
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Find domains for template
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Doamins for template
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Get cluster members
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Find images for dataset
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Images in a dataset
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Find images aligned to a template
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Aligned images for template
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Query for exp from anatomy with no warning
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Test Query for anatomy from expression
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Query for anatomy from expression 
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Get JSON for anat_2_ep query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Test Query for exp from anatomy without warning 2
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Datasets available for Template
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Get JSON for template_2_datasets query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Datasaets available
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Get JSON for template_2_datasets query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Test Query for exp from anatomy without warning 3
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## neuron_region_connectivity_query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: compound query for neo4j neuron_region_connectivity_query 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## neuron_neuron_connectivity_query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: compound query for neo4j neuron_neuron_connectivity_query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## NBLAST similarity neo Query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: NBLAST similarity neo Query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## All referenced Entities from a pub
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## NBLASTexp similarity neo Query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: NBLASTexp similarity neo Query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## NeuronBridge similarity neo Query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: NeuronBridge similarity neo Query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## cluster_expression_query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Get JSON for cluster expression query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## anat_scRNAseq_query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## dataset_scRNAseq_query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## expression_cluster_query
-*DataSource*: neo4j Data Source (ID: neo4JDataSourceService)
+*DataSource*: None (ID: None)
 *Description*: Get JSON for expression in cluster query
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
 ```
 
 ## Owlery Part of
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Part of $NAME
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -209,7 +209,7 @@ object=%3Chttp://purl.obolibrary.org/obo/BFO_0000050%3E%20some%20%3Chttp://purl.
 ```
 
 ## Owlery Neuron class with part here
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Neurons with some part here
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -217,7 +217,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery Neurons Synaptic
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Neurons with synaptic terminals here
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -225,7 +225,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery Neurons Presynaptic
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Neurons with presynaptic terminals here
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -233,7 +233,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery Neurons Postsynaptic
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Neurons with postsynaptic terminals here
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -241,15 +241,15 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery Pass id list only
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryIdOnlyQueryProcessor
+owleryIdOnlyQueryProcessor
 ```
 
 ## Owlery Neuron classes fasciculating here
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Neuron classes fasciculating here
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -257,7 +257,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery tracts in
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: tracts in
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -265,7 +265,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005099%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery Subclasses of
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Subclasses of $NAME
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -273,7 +273,7 @@ object=%3Chttp://purl.obolibrary.org/obo/$ID%3E&direct=false&includeDeprecated=f
 ```
 
 ## Owlery Transgenes expressed in 
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Transgenes expressed in 
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -281,7 +281,7 @@ object=%3Chttp://purl.obolibrary.org/obo/$ID%3E&direct=false&includeDeprecated=f
 ```
 
 ## Owlery Lineage Clones
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Lineage clones found in
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -289,7 +289,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007683%3E%20and%20%3Chttp://purl
 ```
 
 ## subClassOf cell that overlaps some X
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: subClassOf cell that overlaps some X
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -297,31 +297,31 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007002%3E%20and%20(%20%3Chttp://
 ```
 
 ## Owlery Pass 2nd id list only
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass ids to 2nd list
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryIdOnlyQueryProcessor2
+owleryIdOnlyQueryProcessor2
 ```
 
 ## Owlery Pass 3rd id list only
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass ids to 3rd list
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryIdOnlyQueryProcessor2
+owleryIdOnlyQueryProcessor2
 ```
 
 ## Owlery Pass 1st id list only
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass ids to 1st list
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryIdOnlyQueryProcessor2
+owleryIdOnlyQueryProcessor2
 ```
 
 ## subClassOf overlaps some X
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: subClassOf overlaps some X
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -329,7 +329,7 @@ object=%3Chttp://purl.obolibrary.org/obo/RO_0002131%3E%20some%20%3Chttp://purl.o
 ```
 
 ## subClassOf cell overlaps some X
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: subClassOf cell overlaps some X
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -337,23 +337,23 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007002%3E%20%20that%20%3Chttp://
 ```
 
 ## Owlery Pass Plus Query ID
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass ids with query term
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryIdOnlyQueryProcessorWithQueryTerm
+owleryIdOnlyQueryProcessorWithQueryTerm
 ```
 
 ## Owlery Class Pass solr id list only
-*DataSource*: owlery Data Source (subclasses) (ID: owleryDataSourceSubclass)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass solr ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryToSolrIdOnlyQueryProcessor
+owleryToSolrIdOnlyQueryProcessor
 ```
 
 ## Owlery Images of neurons with some part here (clustered)
-*DataSource*: owlery Data Source (instances) (ID: owleryDataSourceRealise)
+*DataSource*: None (ID: None)
 *Description*: Images of neurons with some part here (clustered)
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -361,7 +361,7 @@ object=%3Chttp://purl.obolibrary.org/obo/C888C3DB-AEFA-447F-BD4C-858DFE33DBE7%3E
 ```
 
 ## Owlery Images of neurons with some part here
-*DataSource*: owlery Data Source (instances) (ID: owleryDataSourceRealise)
+*DataSource*: None (ID: None)
 *Description*: Images of neurons with some part here
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -369,7 +369,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 ```
 
 ## Owlery individual parts
-*DataSource*: owlery Data Source (instances) (ID: owleryDataSourceRealise)
+*DataSource*: None (ID: None)
 *Description*: Find individuals that are part of some X (useful for finding expression pattern parts).
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -377,23 +377,23 @@ object=%3Chttp://purl.obolibrary.org/obo/BFO_0000050%3E%20some%20%3Chttp://virtu
 ```
 
 ## Owlery Pass id list only Instances
-*DataSource*: owlery Data Source (instances) (ID: owleryDataSourceRealise)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryIdOnlyQueryProcessor
+owleryIdOnlyQueryProcessor
 ```
 
 ## Owlery Ind Pass solr id list only
-*DataSource*: owlery Data Source (instances) (ID: owleryDataSourceRealise)
+*DataSource*: None (ID: None)
 *Description*: Keep nothing slimply pass solr ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-Processor ID: owleryToSolrIdOnlyQueryProcessor
+owleryToSolrIdOnlyQueryProcessor
 ```
 
 ## Get cached VFB_JSON for Term
-*DataSource*: SOLR Cached Queries (ID: querycache)
+*DataSource*: None (ID: None)
 *Description*: Get cached VFB_JSON for Term
 *Query Type*: gep_2:SimpleQuery
 *Query*: ```
@@ -401,10 +401,266 @@ Processor ID: owleryToSolrIdOnlyQueryProcessor
 ```
 
 ## Get and process example images from SOLR from id list
-*DataSource*: SOLR Cached Queries (ID: querycache)
+*DataSource*: None (ID: None)
 *Description*: 
 *Query Type*: gep_2:CompoundQuery
 *Query*: ```
-This is a compound query containing the following steps:
+
+```
+
+## List all available images for class with examples
+*DataSource*: None (ID: None)
+*Description*: List all available images of $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Expression overlapping selected anatomy
+*DataSource*: None (ID: None)
+*Description*: Reports of transgene expression in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Expression overlapping what anatomy
+*DataSource*: None (ID: None)
+*Description*: Anatomy $NAME is expressed in
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Neuron classes fasciculating here
+*DataSource*: None (ID: None)
+*Description*: Neurons fasciculating in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Images of neurons with some part here
+*DataSource*: None (ID: None)
+*Description*: Images of neurons with some part in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Neurons with any part here
+*DataSource*: None (ID: None)
+*Description*: Neurons with some part in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Images of expression pattern fragments
+*DataSource*: None (ID: None)
+*Description*: Images of fragments of $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Neurons Synaptic
+*DataSource*: None (ID: None)
+*Description*: Neurons with synaptic terminals in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Neurons Presynaptic
+*DataSource*: None (ID: None)
+*Description*: Neurons with presynaptic terminals in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Neurons Postsynaptic
+*DataSource*: None (ID: None)
+*Description*: Neurons with postsynaptic terminals in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show all painted domains for template
+*DataSource*: None (ID: None)
+*Description*: List all painted anatomy available for $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show all images for a dataset
+*DataSource*: None (ID: None)
+*Description*: List all images included in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Tracts/nerves innervating synaptic neuropil
+*DataSource*: None (ID: None)
+*Description*: Tracts/nerves innervating $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Components of
+*DataSource*: None (ID: None)
+*Description*: Components of $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Lineage clones found here
+*DataSource*: None (ID: None)
+*Description*: Lineage clones found in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show all images aligned to template
+*DataSource*: None (ID: None)
+*Description*: List all images aligned to $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Parts of
+*DataSource*: None (ID: None)
+*Description*: Parts of $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Subclasses of
+*DataSource*: None (ID: None)
+*Description*: Subclasses of $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show all datasets aligned to template
+*DataSource*: None (ID: None)
+*Description*: List all datasets aligned to $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show all datasets
+*DataSource*: None (ID: None)
+*Description*: List all datasets
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show connectivity to regions from Neuron X
+*DataSource*: None (ID: None)
+*Description*: Show connectivity per region for $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show connectivity to neurons from Neuron X
+*DataSource*: None (ID: None)
+*Description*: Show neurons connected to $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## has_similar_morphology_to
+*DataSource*: None (ID: None)
+*Description*: Neurons with similar morphology to $NAME  [NBLAST mean score]
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## has_similar_morphology_to_part_of_neuron
+*DataSource*: None (ID: None)
+*Description*: Expression patterns with some similar morphology to $NAME  [NBLAST mean score]
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## has_reference_to_pub
+*DataSource*: None (ID: None)
+*Description*: List all terms that reference $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## has_similar_morphology_to_part_of_exp
+*DataSource*: None (ID: None)
+*Description*: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## has_similar_morphology_to_nb
+*DataSource*: None (ID: None)
+*Description*: Neurons that overlap with $NAME  [NeuronBridge]
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## has_similar_morphology_to_nb_exp
+*DataSource*: None (ID: None)
+*Description*: Expression patterns that overlap with $NAME  [NeuronBridge]
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## anat_scRNAseq_query
+*DataSource*: None (ID: None)
+*Description*: Single cell transcriptomics data for $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## cluster_expression
+*DataSource*: None (ID: None)
+*Description*: Genes expressed in $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## Show all data for a scRNAseq dataset
+*DataSource*: None (ID: None)
+*Description*: List all data for $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
+```
+
+## expression_cluster
+*DataSource*: None (ID: None)
+*Description*: scRNAseq clusters expressing $NAME
+*Query Type*: gep_2:CompoundRefQuery
+*Query*: ```
+
 ```
 
