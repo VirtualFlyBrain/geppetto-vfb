@@ -21,7 +21,7 @@ def extract_queries_and_chains(root, namespaces):
     return queries_info
 
 def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, namespaces, parent_query_type=None):
-    for query in element.findall('.//queries | .//fetchVariableQuery', namespaces=namespaces):
+    for query in element.findall('.//queries', namespaces=namespaces):
         query_id = query.get('id')
         query_name = query.get('name')
         query_description = query.get('description', '')
