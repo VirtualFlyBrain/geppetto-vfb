@@ -38,6 +38,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add model/README.md
+        git add model/*.md
         git commit -m "Update README with XMI structure and query breakdowns" || echo "No changes to commit"
         git push
