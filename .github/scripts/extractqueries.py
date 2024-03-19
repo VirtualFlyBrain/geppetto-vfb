@@ -71,7 +71,7 @@ def generate_markdown_for_all_queries(queries_info):
         markdown_content += f"{info['indent']}Query ID: {info['queryID']} - {info['queryName']}\n"
         markdown_content += f"{info['indent']}Description: {info['queryDescription']}\n"
         markdown_content += f"{info['indent']}Query Type: {info['queryType']}\n"
-        markdown_content += f"{info['indent']}Query: ```text\n{info['indent']}{info['query']}\n{info['indent']}```\n\n"
+        markdown_content += f"{info['indent']}Query: ```text\n{info['indent']}{info['query']}\n{info['indent']}\n```\n\n"
 
     return markdown_content
 
