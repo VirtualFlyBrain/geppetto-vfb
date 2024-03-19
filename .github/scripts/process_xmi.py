@@ -49,13 +49,16 @@ def corrected_debug_list_high_level_queries_with_indices(root, namespaces):
 def create_markdown_with_named_query_chains(high_level_queries, data_sources_with_queries):
     markdown_content = "# High-Level Queries with Named Query Chain Steps\n\n"
     for query in high_level_queries:
-        query_name = query['queryName']
-        markdown_content += f"## {query_name}\n"
+        query_id = query.get('id', 'No ID')  # Fallback to 'No ID' if not present
+        query_description = query.get('description', 'No description provided')  # Fallback to default description
+        markdown_content += f"## {query_id}: {query_description}\n"  # Using ID and description
+        
         for chain_ref in query['queryChainRefs']:
             ds_index = int(chain_ref['dataSourceIndex'])
             q_index = int(chain_ref['queryIndex'])
-            query_name = [q['name'] for q in data_sources_with_queries[ds_index]['queries'] if int(q['index']) == q_index][0]
-            markdown_content += f"- Step: {query_name} (DataSource Index: {ds_index}, Query Index: {q_index})\n"
+            # Extract the name of the step for readability in the markdown.
+            step_name = [q['name'] for q in data_sources_with_queries[ds_index]['queries'] if int(q['index']) == q_index][0]
+            markdown_content += f"- Step: {step_name} (DataSource Index: {ds_index}, Query Index: {q_index})\n"
         markdown_content += "\n"
     return markdown_content
 
