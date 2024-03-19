@@ -16,11 +16,13 @@ def extract_simple_queries_with_data_source(root):
         ds_url = data_source.get('url', 'No URL provided')
         # Find SimpleQuery instances within this dataSource
         for query in data_source.findall('.//queries[@xsi:type="gep_2:SimpleQuery"]', namespaces):
+            query_id = query.get('id')
             query_string_encoded = query.get('queryString', '')
             # Decode HTML entities in the query string
             query_string_decoded = html.unescape(query_string_encoded)
             
             simple_queries_info.append({
+                'id': query_id,
                 'dataSourceURL': ds_url,
                 'query': query_string_decoded
             })
@@ -30,12 +32,16 @@ def extract_simple_queries_with_data_source(root):
 def generate_markdown_for_queries(simple_queries_info):
     markdown_content = "# Simple Queries and Data Source URLs\n\n"
     for info in simple_queries_info:
+        markdown_content += f"## Query ID: {info['id']}\n"
         markdown_content += f"- DataSource URL: {info['dataSourceURL']}\n"
-        markdown_content += f"  Query: `{info['query']}`\n\n"
+        markdown_content += f"  Query: ```cypher\n{info['query']}\n```\n"
+        # Assuming the query can be directly appended to the data source URL
+        full_query_url = f"{info['dataSourceURL']}?query={html.escape(info['query'])}"
+        markdown_content += f"  Runnable Query URL: {full_query_url}\n\n"
     return markdown_content
 
 def save_to_file(content, file_path):
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', encoding='utf-8') as file:
         file.write(content)
 
 def main(xmi_file_path, output_markdown_path):
