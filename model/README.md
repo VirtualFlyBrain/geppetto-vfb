@@ -1,9 +1,9 @@
 # High-Level Queries with Named Query Chain Steps
 
-## No ID: No description provided
+## None: List all available images of $NAME
 - Step: All example images for a class (DataSource Index: 0, Query Index: 3)
 
-## No ID: No description provided
+## None: Reports of transgene expression in $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Pass 1st id list only (DataSource Index: 1, Query Index: 14)
 - Step: Query for exp from anatomy with no warning (DataSource Index: 0, Query Index: 8)
@@ -14,119 +14,119 @@
 - Step: Owlery Pass 3rd id list only (DataSource Index: 1, Query Index: 13)
 - Step: Test Query for exp from anatomy without warning 3 (DataSource Index: 0, Query Index: 14)
 
-## No ID: No description provided
+## None: Anatomy $NAME is expressed in
 - Step: Query for anatomy from expression  (DataSource Index: 0, Query Index: 10)
 
-## No ID: No description provided
+## None: Neurons fasciculating in $NAME
 - Step: Owlery Neuron classes fasciculating here (DataSource Index: 1, Query Index: 6)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Images of neurons with some part in $NAME
 - Step: Owlery Images of neurons with some part here (DataSource Index: 2, Query Index: 1)
 - Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Neurons with some part in $NAME
 - Step: Owlery Neuron class with part here (DataSource Index: 1, Query Index: 1)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Images of fragments of $NAME
 - Step: Owlery individual parts (DataSource Index: 2, Query Index: 2)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Neurons with synaptic terminals in $NAME
 - Step: Owlery Neurons Synaptic (DataSource Index: 1, Query Index: 2)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Neurons with presynaptic terminals in $NAME
 - Step: Owlery Neurons Presynaptic (DataSource Index: 1, Query Index: 3)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Neurons with postsynaptic terminals in $NAME
 - Step: Owlery Neurons Postsynaptic (DataSource Index: 1, Query Index: 4)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: List all painted anatomy available for $NAME
 - Step: Find domains for template (DataSource Index: 0, Query Index: 4)
 
-## No ID: No description provided
+## None: List all images included in $NAME
 - Step: Find images for dataset (DataSource Index: 0, Query Index: 6)
 
-## No ID: No description provided
+## None: Tracts/nerves innervating $NAME
 - Step: Owlery tracts in (DataSource Index: 1, Query Index: 7)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Components of $NAME
 - Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Lineage clones found in $NAME
 - Step: Owlery Lineage Clones (DataSource Index: 1, Query Index: 10)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: List all images aligned to $NAME
 - Step: Find images aligned to a template (DataSource Index: 0, Query Index: 7)
 
-## No ID: No description provided
+## None: Parts of $NAME
 - Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: Subclasses of $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## No ID: No description provided
+## None: List all datasets aligned to $NAME
 - Step: Datasets available for Template (DataSource Index: 0, Query Index: 12)
 
-## No ID: No description provided
+## None: List all datasets
 - Step: Datasaets available (DataSource Index: 0, Query Index: 13)
 
-## No ID: No description provided
+## None: Show connectivity per region for $NAME
 - Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 15)
 
-## No ID: No description provided
+## None: Show neurons connected to $NAME
 - Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 16)
 
-## No ID: No description provided
+## None: Neurons with similar morphology to $NAME  [NBLAST mean score]
 - Step: NBLAST similarity neo Query (DataSource Index: 0, Query Index: 17)
 
-## No ID: No description provided
+## None: Expression patterns with some similar morphology to $NAME  [NBLAST mean score]
 - Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 19)
 
-## No ID: No description provided
+## None: List all terms that reference $NAME
 - Step: All referenced Entities from a pub (DataSource Index: 0, Query Index: 18)
 
-## No ID: No description provided
+## None: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
 - Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 19)
 
-## No ID: No description provided
+## None: Neurons that overlap with $NAME  [NeuronBridge]
 - Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 20)
 
-## No ID: No description provided
+## None: Expression patterns that overlap with $NAME  [NeuronBridge]
 - Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 20)
 
-## No ID: No description provided
+## None: Single cell transcriptomics data for $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Pass Plus Query ID (DataSource Index: 1, Query Index: 17)
 - Step: anat_scRNAseq_query (DataSource Index: 0, Query Index: 22)
 
-## No ID: No description provided
+## None: Genes expressed in $NAME
 - Step: cluster_expression_query (DataSource Index: 0, Query Index: 21)
 
-## No ID: No description provided
+## None: List all data for $NAME
 - Step: dataset_scRNAseq_query (DataSource Index: 0, Query Index: 23)
 
-## No ID: No description provided
+## None: scRNAseq clusters expressing $NAME
 - Step: expression_cluster_query (DataSource Index: 0, Query Index: 24)
 
