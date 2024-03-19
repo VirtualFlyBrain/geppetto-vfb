@@ -245,7 +245,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl
 *Description*: Keep nothing slimply pass ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryIdOnlyQueryProcessor
+Processor ID: owleryIdOnlyQueryProcessor
 ```
 
 ## Owlery Neuron classes fasciculating here
@@ -301,7 +301,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007002%3E%20and%20(%20%3Chttp://
 *Description*: Keep nothing slimply pass ids to 2nd list
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryIdOnlyQueryProcessor2
+Processor ID: owleryIdOnlyQueryProcessor2
 ```
 
 ## Owlery Pass 3rd id list only
@@ -309,7 +309,7 @@ owleryIdOnlyQueryProcessor2
 *Description*: Keep nothing slimply pass ids to 3rd list
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryIdOnlyQueryProcessor2
+Processor ID: owleryIdOnlyQueryProcessor2
 ```
 
 ## Owlery Pass 1st id list only
@@ -317,7 +317,7 @@ owleryIdOnlyQueryProcessor2
 *Description*: Keep nothing slimply pass ids to 1st list
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryIdOnlyQueryProcessor2
+Processor ID: owleryIdOnlyQueryProcessor2
 ```
 
 ## subClassOf overlaps some X
@@ -341,7 +341,7 @@ object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007002%3E%20%20that%20%3Chttp://
 *Description*: Keep nothing slimply pass ids with query term
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryIdOnlyQueryProcessorWithQueryTerm
+Processor ID: owleryIdOnlyQueryProcessorWithQueryTerm
 ```
 
 ## Owlery Class Pass solr id list only
@@ -349,7 +349,7 @@ owleryIdOnlyQueryProcessorWithQueryTerm
 *Description*: Keep nothing slimply pass solr ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryToSolrIdOnlyQueryProcessor
+Processor ID: owleryToSolrIdOnlyQueryProcessor
 ```
 
 ## Owlery Images of neurons with some part here (clustered)
@@ -381,7 +381,7 @@ object=%3Chttp://purl.obolibrary.org/obo/BFO_0000050%3E%20some%20%3Chttp://virtu
 *Description*: Keep nothing slimply pass ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryIdOnlyQueryProcessor
+Processor ID: owleryIdOnlyQueryProcessor
 ```
 
 ## Owlery Ind Pass solr id list only
@@ -389,7 +389,7 @@ owleryIdOnlyQueryProcessor
 *Description*: Keep nothing slimply pass solr ids
 *Query Type*: gep_2:ProcessQuery
 *Query*: ```
-owleryToSolrIdOnlyQueryProcessor
+Processor ID: owleryToSolrIdOnlyQueryProcessor
 ```
 
 ## Get cached VFB_JSON for Term
