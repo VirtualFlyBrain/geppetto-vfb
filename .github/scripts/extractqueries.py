@@ -20,58 +20,52 @@ def extract_queries_and_chains(root, namespaces):
 
     return queries_info
 
-def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, namespaces, parent_query_type=None):
-    for query in element.findall('.//queries', namespaces=namespaces):
+def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, namespaces, parent_query_name=""):
+    for query in element.findall('.//queries | .//fetchVariableQuery', namespaces=namespaces):
         query_id = query.get('id')
         query_name = query.get('name')
         query_description = query.get('description', '')
         query_type = query.get('{http://www.w3.org/2001/XMLSchema-instance}type')
         query_processor_id = query.get('queryProcessorId', 'Not provided')
-        query_string_encoded = query.get('query', '')  # Assume simple queries use 'query' attribute
-        query_string_decoded = html.unescape(query_string_encoded)
-
-        # Handle ProcessQuery type by using queryProcessorId
+        
+        # Decide content based on query type
         if query_type == "gep_2:ProcessQuery":
-            query_content = query_processor_id
+            query_content = f"Processor ID: {query_processor_id}"
+        elif query_type == "gep_2:CompoundQuery":
+            query_content = "This is a compound query containing the following steps:"
         else:
-            query_content = query_string_decoded
+            query_string_encoded = query.get('query', '')  # For simple queries
+            query_content = html.unescape(query_string_encoded)
 
-        # For CompoundQuery types, indent child queries
+        # Add entry for current query
+        query_entry = {
+            'indent': indent,
+            'dataSourceID': ds_id,
+            'dataSourceName': ds_name,
+            'dataSourceURL': ds_url,
+            'queryID': query_id,
+            'queryName': query_name,
+            'parentQueryName': parent_query_name,
+            'queryDescription': query_description,
+            'queryType': query_type,
+            'query': query_content
+        }
+        queries_info.append(query_entry)
+
+        # If this is a compound query, process its child queries
         if query_type == "gep_2:CompoundQuery":
-            queries_info.append({
-                'indent': indent,
-                'dataSourceID': ds_id,
-                'dataSourceName': ds_name,
-                'dataSourceURL': ds_url,
-                'queryID': query_id,
-                'queryName': query_name,
-                'queryDescription': query_description,
-                'queryType': query_type,
-                'query': 'Compound Query - See child steps'
-            })
-            # Recursively process child queries of a compound query
-            process_queries(query, indent + "    ", ds_id, ds_name, ds_url, queries_info, namespaces, query_type)
-        else:
-            queries_info.append({
-                'indent': indent,
-                'dataSourceID': ds_id,
-                'dataSourceName': ds_name,
-                'dataSourceURL': ds_url,
-                'queryID': query_id,
-                'queryName': query_name,
-                'queryDescription': query_description,
-                'queryType': query_type,
-                'query': query_content
-            })
+            process_queries(query, indent + "    ", ds_id, ds_name, ds_url, queries_info, namespaces, query_name)
 
 def generate_markdown_for_all_queries(queries_info):
     markdown_content = "# Queries and Chains Across Data Sources\n\n"
     for info in queries_info:
-        markdown_content += f"{info['indent']}## DataSource: {info['dataSourceName']} (ID: {info['dataSourceID']})\n"
-        markdown_content += f"{info['indent']}Query ID: {info['queryID']} - {info['queryName']}\n"
-        markdown_content += f"{info['indent']}Description: {info['queryDescription']}\n"
-        markdown_content += f"{info['indent']}Query Type: {info['queryType']}\n"
-        markdown_content += f"{info['indent']}Query: ```text\n{info['indent']}{info['query']}\n{info['indent']}\n```\n\n"
+        # Include parent query name if present
+        parent_info = f" (Child of: {info['parentQueryName']})" if info['parentQueryName'] else ""
+        markdown_content += f"{info['indent']}## {info['queryName']}{parent_info}\n"
+        markdown_content += f"{info['indent']}*DataSource*: {info['dataSourceName']} (ID: {info['dataSourceID']})\n"
+        markdown_content += f"{info['indent']}*Description*: {info['queryDescription']}\n"
+        markdown_content += f"{info['indent']}*Query Type*: {info['queryType']}\n"
+        markdown_content += f"{info['indent']}*Query*: ```\n{info['query']}\n```\n\n"
 
     return markdown_content
 
