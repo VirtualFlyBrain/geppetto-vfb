@@ -8,6 +8,41 @@ def parse_xmi(file_path):
         root = tree.getroot()
     return root
 
+def process_child_queries(query_element, indent, ds_id, ds_name, ds_url, namespaces, parent_query_entry):
+    # Iterate through child queries directly under the compound query
+    for child_query in query_element.findall('.//queries', namespaces=namespaces):
+        query_id = child_query.get('id')
+        query_name = child_query.get('name')
+        query_description = child_query.get('description', '')
+        query_type = child_query.get('{http://www.w3.org/2001/XMLSchema-instance}type')
+        query_processor_id = child_query.get('queryProcessorId', 'Not provided')
+        query_string_encoded = child_query.get('query', '')
+        query_string_decoded = html.unescape(query_string_encoded)
+
+        # Decide the content based on query type
+        query_content = query_processor_id if query_type == "gep_2:ProcessQuery" else query_string_decoded
+        
+        child_query_entry = {
+            'indent': indent + "    ",  # Increase indentation for child query
+            'dataSourceID': ds_id,
+            'dataSourceName': ds_name,
+            'dataSourceURL': ds_url,
+            'queryID': query_id,
+            'queryName': query_name,
+            'queryDescription': query_description,
+            'queryType': query_type,
+            'query': query_content
+        }
+        
+        # Append the processed child query details to the parent's childQueries list
+        parent_query_entry['childQueries'].append(child_query_entry)
+        
+        # If the child query is itself a compound query, process its children recursively
+        if query_type == "gep_2:CompoundQuery":
+            child_query_entry['childQueries'] = []  # Initialize for potential child queries
+            process_child_queries(child_query, indent + "    ", ds_id, ds_name, ds_url, namespaces, child_query_entry)
+
+
 def process_queries(element, indent, ds_id, ds_name, ds_url, queries_info, namespaces, parent_query_name="", parent_info=None):
     for query in element.findall('.//queries', namespaces=namespaces):
         query_id = query.get('id')
