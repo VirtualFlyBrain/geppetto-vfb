@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'model/*.xmi'
+      - '.github/workflows/process_xmi.yml'
+      - '.github/scripts/process_xmi.py'
   workflow_dispatch:
 
 jobs:
