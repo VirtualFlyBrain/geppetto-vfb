@@ -1,9 +1,9 @@
 # High-Level Queries with Named Query Chain Steps
 
-## None: List all available images of $NAME
+## ListAllAvailableImages: List all available images of $NAME
 - Step: All example images for a class (DataSource Index: 0, Query Index: 3)
 
-## None: Reports of transgene expression in $NAME
+## TransgeneExpressionHere: Reports of transgene expression in $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Pass 1st id list only (DataSource Index: 1, Query Index: 14)
 - Step: Query for exp from anatomy with no warning (DataSource Index: 0, Query Index: 8)
@@ -14,119 +14,119 @@
 - Step: Owlery Pass 3rd id list only (DataSource Index: 1, Query Index: 13)
 - Step: Test Query for exp from anatomy without warning 3 (DataSource Index: 0, Query Index: 14)
 
-## None: Anatomy $NAME is expressed in
+## ExpressionOverlapsHere: Anatomy $NAME is expressed in
 - Step: Query for anatomy from expression  (DataSource Index: 0, Query Index: 10)
 
-## None: Neurons fasciculating in $NAME
+## NeuronClassesFasciculatingHere: Neurons fasciculating in $NAME
 - Step: Owlery Neuron classes fasciculating here (DataSource Index: 1, Query Index: 6)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Images of neurons with some part in $NAME
+## ImagesNeurons: Images of neurons with some part in $NAME
 - Step: Owlery Images of neurons with some part here (DataSource Index: 2, Query Index: 1)
 - Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Neurons with some part in $NAME
+## NeuronsPartHere: Neurons with some part in $NAME
 - Step: Owlery Neuron class with part here (DataSource Index: 1, Query Index: 1)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Images of fragments of $NAME
+## epFrag: Images of fragments of $NAME
 - Step: Owlery individual parts (DataSource Index: 2, Query Index: 2)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Neurons with synaptic terminals in $NAME
+## NeuronsSynaptic: Neurons with synaptic terminals in $NAME
 - Step: Owlery Neurons Synaptic (DataSource Index: 1, Query Index: 2)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Neurons with presynaptic terminals in $NAME
+## NeuronsPresynapticHere: Neurons with presynaptic terminals in $NAME
 - Step: Owlery Neurons Presynaptic (DataSource Index: 1, Query Index: 3)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Neurons with postsynaptic terminals in $NAME
+## NeuronsPostsynapticHere: Neurons with postsynaptic terminals in $NAME
 - Step: Owlery Neurons Postsynaptic (DataSource Index: 1, Query Index: 4)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: List all painted anatomy available for $NAME
+## PaintedDomains: List all painted anatomy available for $NAME
 - Step: Find domains for template (DataSource Index: 0, Query Index: 4)
 
-## None: List all images included in $NAME
+## DatasetImages: List all images included in $NAME
 - Step: Find images for dataset (DataSource Index: 0, Query Index: 6)
 
-## None: Tracts/nerves innervating $NAME
+## TractsNervesInnervatingHere: Tracts/nerves innervating $NAME
 - Step: Owlery tracts in (DataSource Index: 1, Query Index: 7)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Components of $NAME
+## ComponentsOf: Components of $NAME
 - Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Lineage clones found in $NAME
+## LineageClonesIn: Lineage clones found in $NAME
 - Step: Owlery Lineage Clones (DataSource Index: 1, Query Index: 10)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: List all images aligned to $NAME
+## AllAlignedImages: List all images aligned to $NAME
 - Step: Find images aligned to a template (DataSource Index: 0, Query Index: 7)
 
-## None: Parts of $NAME
+## PartsOf: Parts of $NAME
 - Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: Subclasses of $NAME
+## SubclassesOf: Subclasses of $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
-## None: List all datasets aligned to $NAME
+## AlignedDatasets: List all datasets aligned to $NAME
 - Step: Datasets available for Template (DataSource Index: 0, Query Index: 12)
 
-## None: List all datasets
+## AllDatasets: List all datasets
 - Step: Datasaets available (DataSource Index: 0, Query Index: 13)
 
-## None: Show connectivity per region for $NAME
+## ref_neuron_region_connectivity_query: Show connectivity per region for $NAME
 - Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 15)
 
-## None: Show neurons connected to $NAME
+## ref_neuron_neuron_connectivity_query: Show neurons connected to $NAME
 - Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 16)
 
-## None: Neurons with similar morphology to $NAME  [NBLAST mean score]
+## SimilarMorphologyTo: Neurons with similar morphology to $NAME  [NBLAST mean score]
 - Step: NBLAST similarity neo Query (DataSource Index: 0, Query Index: 17)
 
-## None: Expression patterns with some similar morphology to $NAME  [NBLAST mean score]
+## SimilarMorphologyToPartOf: Expression patterns with some similar morphology to $NAME  [NBLAST mean score]
 - Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 19)
 
-## None: List all terms that reference $NAME
+## TermsForPub: List all terms that reference $NAME
 - Step: All referenced Entities from a pub (DataSource Index: 0, Query Index: 18)
 
-## None: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
+## SimilarMorphologyToPartOfexp: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
 - Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 19)
 
-## None: Neurons that overlap with $NAME  [NeuronBridge]
+## SimilarMorphologyToNB: Neurons that overlap with $NAME  [NeuronBridge]
 - Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 20)
 
-## None: Expression patterns that overlap with $NAME  [NeuronBridge]
+## SimilarMorphologyToNBexp: Expression patterns that overlap with $NAME  [NeuronBridge]
 - Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 20)
 
-## None: Single cell transcriptomics data for $NAME
+## anatScRNAseqQuery: Single cell transcriptomics data for $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Pass Plus Query ID (DataSource Index: 1, Query Index: 17)
 - Step: anat_scRNAseq_query (DataSource Index: 0, Query Index: 22)
 
-## None: Genes expressed in $NAME
+## clusterExpression: Genes expressed in $NAME
 - Step: cluster_expression_query (DataSource Index: 0, Query Index: 21)
 
-## None: List all data for $NAME
+## scRNAdatasetData: List all data for $NAME
 - Step: dataset_scRNAseq_query (DataSource Index: 0, Query Index: 23)
 
-## None: scRNAseq clusters expressing $NAME
+## expressionCluster: scRNAseq clusters expressing $NAME
 - Step: expression_cluster_query (DataSource Index: 0, Query Index: 24)
 
