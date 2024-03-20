@@ -36,7 +36,7 @@ jobs:
 
     - name: Process XMI File and Update query speed check notebook
       run: |
-        python ./.github/scripts/querySpeedTest.py ./model/vfb.xmi ./model/queries_execution_notebook.ipynb'
+        python ./.github/scripts/querySpeedTest.py ./model/vfb.xmi ./model/queries_execution_notebook.ipynb
 
 
 
