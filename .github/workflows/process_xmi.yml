@@ -7,6 +7,7 @@ on:
       - '.github/workflows/process_xmi.yml'
       - '.github/scripts/process_xmi.py'
       - '.github/scripts/extractqueries.py'
+      - '.github/scripts/querySpeedTest.py'
   workflow_dispatch:
 
 jobs:
@@ -24,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install lxml  # Add other dependencies as necessary
+        pip install lxml requests html nbformat
 
     - name: Process XMI File and Update README
       run: |
@@ -32,6 +33,11 @@ jobs:
     - name: Process XMI File and Update query
       run: |
         python ./.github/scripts/extractqueries.py ./model/vfb.xmi ./model/query.md
+
+    - name: Process XMI File and Update query speed check notebook
+      run: |
+        python ./.github/scripts/querySpeedTest.py ./model/vfb.xmi ./model/queries_execution_notebook.ipynb'
+
 
 
     - name: Commit README.md
