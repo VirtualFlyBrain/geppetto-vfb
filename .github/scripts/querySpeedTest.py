@@ -36,6 +36,11 @@ def create_notebook(queries_info, notebook_file_path):
     nb = new_notebook()
     nb.cells.append(new_markdown_cell("# Query Execution Notebook"))
 
+    # Add code cell for installing dependencies
+    dependencies = ["requests", "lxml", "html", "nbformat"]
+    install_dependencies_code = f"%pip install {' '.join(dependencies)}"
+    nb.cells.append(new_code_cell(install_dependencies_code))
+    
     for query in queries_info:
         if query['query'] is None:
             continue
