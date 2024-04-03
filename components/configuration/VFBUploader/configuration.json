@@ -1,10 +1,10 @@
 {
-	"nblastURL" : "http://upload.virtualflybrain.org/files/UNIQUE_ID?token=bec3a40f0ab377c39103",
+	"nblastURL" : "https://upload.virtualflybrain.org/files/UNIQUE_ID?token=bec3a40f0ab377c39103",
 	"contentType" : "multipart/form-data",
 	"templates" : [{"short_form":"VFB_00101567","label":"JRC2018Unisex"},{"short_form":"VFB_00200000","label":"JRC2018UnisexVNC"}] ,
 	"acceptedFiles" : [".swc", ".nrrd"],
 	"filesLimit" : 1,
-	"maxFileSize" : 3000000,
+	"maxFileSize" : 5242880,
 	"queryType": "uploaderQuery",
 	"cookieStorageDays" : 100,
 	"cookiesLearnLink" : "https://en.wikipedia.org/wiki/HTTP_cookie",

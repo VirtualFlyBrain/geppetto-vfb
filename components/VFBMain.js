@@ -195,7 +195,7 @@ class VFBMain extends React.Component {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
     if (!variables.length > 0) {
-      Model.getDatasources()[0].fetchVariable(variableId, function () {
+      Model.getDatasources()[3].fetchVariable(variableId, function () {
         if (callback != undefined) {
           callback(variableId, label);
         }
@@ -1429,7 +1429,7 @@ class VFBMain extends React.Component {
     }
 
     // google analytics vfb specific tracker
-    ga('create', 'UA-18509775-2', 'auto', 'vfb');
+    ga('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
     window.console.stderr = console.error.bind(console);
     window.console.logs = [];
@@ -1487,6 +1487,13 @@ class VFBMain extends React.Component {
         console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
         location.replace(`https:${location.href.substring(location.protocol.length)}`);
       }
+      // Check for IOExecption error message (session unrecoverable so reload needed)
+      if (error.reason && error.reason.includes("An unrecoverable IOExecption occurred so the connection was closed")) {
+        console.error("Specific WebSocket error encountered: ", error.reason);
+        window.location.reload();
+        return;
+      }
+      
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
         if (GEPPETTO.MessageSocket.attempts < 10) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
