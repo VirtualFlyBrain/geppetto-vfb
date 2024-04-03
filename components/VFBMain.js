@@ -1429,7 +1429,7 @@ class VFBMain extends React.Component {
     }
 
     // google analytics vfb specific tracker
-    ga('create', 'UA-18509775-2', 'auto', 'vfb');
+    ga('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
     window.console.stderr = console.error.bind(console);
     window.console.logs = [];
