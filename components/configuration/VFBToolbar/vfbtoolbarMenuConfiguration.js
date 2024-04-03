@@ -254,14 +254,6 @@ var toolbarMenu = {
           }
         },
         {
-          label: "NBLAST Uploader",
-          icon: "fa fa-upload",
-          action: {
-            handlerAction: "uploaderContentsVisible",
-            parameters: []
-          }
-        },
-        {
           label: "NBLAST",
           icon: "",
           action: "",
@@ -274,15 +266,6 @@ var toolbarMenu = {
               action: {
                 handlerAction: "openNewTab",
                 parameters: ["http://flybrain.mrc-lmb.cam.ac.uk/si/nblast/www/"]
-              }
-            },
-            {
-              label: "NBLAST against your own data",
-              icon: "",
-              trailerIcon: "fa fa-external-link",
-              action: {
-                handlerAction: "openNewTab",
-                parameters: ["http://nblast.virtualflybrain.org:8080/NBLAST_on-the-fly/?gal4_n=10&all_use_mean=F&all_query=&tab=One%20against%20all&gal4_query="]
               }
             }
           ]
@@ -400,6 +383,44 @@ var toolbarMenu = {
                       }
                     }
                   ]
+                }
+              ]
+            },
+            {
+              label: "External EM Data",
+              icon: "",
+              position: "right-start",
+              action: {
+                handlerAction: "submenu",
+                parameters: ["undefinedAction"]
+              },
+              list: [
+                {
+                  label: "Adult T1 Leg CATMAID (Harvard)",
+                  icon: "",
+                  trailerIcon: "fa fa-external-link",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://radagast.hms.harvard.edu/catmaidvnc?pid=61&tool=tracingtool&sid0=31&s0=9&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22publication%22%7D%7D,%200.6"]
+                  }
+                },
+                {
+                  label: "Adult Hemibrain NeuPRINT+ (FlyEM, Janelia)",
+                  icon: "",
+                  position: "right-start",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://neuprint.janelia.org/?dataset=hemibrain%3Av1.2.1&qt=findneurons"]
+                  }
+                },
+                {
+                  label: "Adult Male VNC (MANC) NeuPRINT+ (FlyEM, Janelia)",
+                  icon: "",
+                  position: "right-start",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["https://neuprint.janelia.org/?dataset=manc%3Av1.0&qt=findneurons"]
+                  }
                 }
               ]
             },
@@ -568,6 +589,14 @@ var toolbarMenu = {
                   }
                 },
                 {
+                  label: "Adult T1 Leg (Kuan)",
+                  icon: "",
+                  action: {
+                    handlerAction: "openNewTab",
+                    parameters: ["/org.geppetto.frontend/geppetto?i=VFB_00120000"]
+                  }
+                },
+                {
                   label: "Adult Brain (JFRC2/2010)",
                   icon: "",
                   action: {
@@ -686,6 +715,14 @@ var toolbarMenu = {
                   action: {
                     handlerAction: "triggerRunQuery",
                     parameters: ["AlignedDatasets,VFB_00110000,adult head template McKellar"]
+                  }
+                },
+                {
+                  label: "Adult T1 Leg (Kuan)",
+                  icon: "",
+                  action: {
+                    handlerAction: "triggerRunQuery",
+                    parameters: ["AlignedDatasets,VFB_00120000,adult T1 Leg template Kuan"]
                   }
                 },
                 {
