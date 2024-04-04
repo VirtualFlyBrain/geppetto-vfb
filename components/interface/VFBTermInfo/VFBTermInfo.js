@@ -829,7 +829,7 @@ class VFBTermInfoWidget extends React.Component {
             }, 100);
           }
         } else {
-          Model.getDatasources()[0].fetchVariable(path, function () {
+          Model.getDatasources()[3].fetchVariable(path, function () {
             var m = Instances.getInstance(meta);
             this.setTermInfo(m, m.name);
             window.addVfbId(path);
@@ -852,7 +852,17 @@ class VFBTermInfoWidget extends React.Component {
   componentDidMount () {
     window.addEventListener("resize", this.updateDimensions);
     if ((this.props.termInfoName !== undefined) && (this.props.termInfoId !== undefined)) {
-      this.setTermInfo(this.props.termInfoName, this.props.termInfoId);
+      // Whatever the instance is, extract the meta component
+      let instance = this.props.termInfoName;
+      if (instance.getId().indexOf("_meta") === -1 && instance.getParent() !== null) {
+        instance = instance.getParent();
+          
+        let meta = instance[instance.getId() + '_meta'];
+        if ( meta ){
+          instance = meta;
+        }
+      }
+      this.setTermInfo(instance, this.props.termInfoId);
     }
   }
 
