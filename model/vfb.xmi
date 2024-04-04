@@ -159,6 +159,12 @@
     <types xsi:type="gep_1:SimpleType"
         id="Expression_pattern_fragment"
         name="Expression Pattern Fragment"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="hasScRNAseq"
+        name="has Single Cell RNA Seq Results"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="Gene"
+        name="Gene"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -339,7 +345,7 @@
           name="Test Query for Exp from Anatomy"
           description="Get JSON for anat_2_ep query"
           returnType="//@libraries.3/@types.1"
-          query="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in $ids WITH DISTINCT collect(DISTINCT ar.pub) as pubs, anat, ep UNWIND pubs as p MATCH (pub:pub { short_form: p}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub), symbol: coalesce(pub.`symbol`[0], '')} , PubMed: coalesce(pub.PMID[0], ''), FlyBase: coalesce(pub.FlyBase[0], ''), DOI: coalesce(pub.DOI[0], '') }) as pubs CALL apoc.cypher.run('WITH ep OPTIONAL MATCH (ep)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ep:ep}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anat, ep, pubs OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class)  WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep), symbol: coalesce(ep.`symbol`[0], '')}  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, 'de64597' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in $ids WITH DISTINCT collect(DISTINCT ar.pub) as pubs, anat, ep UNWIND pubs as p OPTIONAL MATCH (pub:pub { short_form: []+p[0]}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub), symbol: coalesce(pub.`symbol`[0], '')} , PubMed: coalesce(pub.PMID[0], ''), FlyBase: coalesce(pub.FlyBase[0], ''), DOI: coalesce(pub.DOI[0], '') }) as pubs CALL apoc.cypher.run('WITH ep OPTIONAL MATCH (ep)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ep:ep}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anat, ep, pubs OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class)  WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep), symbol: coalesce(ep.`symbol`[0], '')}  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, 'de64597' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH (anat:Class) WHERE anat.short_form IN $ids OPTIONAL MATCH (ep:Class)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat) RETURN count(ep) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -359,7 +365,7 @@
           name="Query for Anatomy from Exp"
           description="Get JSON for ep_2_anat query"
           returnType="//@libraries.3/@types.1"
-          query="&quot;statement&quot;: &quot;MATCH (ep:Expression_pattern:Class)&lt;-[ar:overlaps|part_of]-(anoni:Individual)-[:INSTANCEOF]->(anat:Class) WHERE ep.short_form in $ids WITH anoni, anat, ar OPTIONAL MATCH (p:pub { short_form: ar.pub}) WITH anat, anoni, { core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } AS pub OPTIONAL MATCH (anoni)-[r:Related]->(o:FBdv) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.iri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[])), symbol: coalesce(o.symbol[0], '')} }) END AS stages ,anoni,anat,pub CALL apoc.cypher.run('WITH anat OPTIONAL MATCH (anat)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 10', {anat:anat}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anoni, anat, pub, stages OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anoni,anat,pub,stages RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.symbol[0], '')} AS anatomy, 'Get JSON for ep_2_anat query' AS query, 'bac066c' AS version , pub, stages, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (ep:Expression_pattern:Class)&lt;-[ar:overlaps|part_of]-(anoni:Individual)-[:INSTANCEOF]->(anat:Class) WHERE ep.short_form in $ids WITH anoni, anat, ar OPTIONAL MATCH (p:pub { short_form: []+ar.pub[0]}) WITH anat, anoni, { core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } AS pub OPTIONAL MATCH (anoni)-[r:Related]->(o:FBdv) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.iri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[])), symbol: coalesce(o.symbol[0], '')} }) END AS stages ,anoni,anat,pub CALL apoc.cypher.run('WITH anat OPTIONAL MATCH (anat)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 10', {anat:anat}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anoni, anat, pub, stages OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anoni,anat,pub,stages RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.symbol[0], '')} AS anatomy, 'Get JSON for ep_2_anat query' AS query, 'bac066c' AS version , pub, stages, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH (ep:Expression_pattern:Class)&lt;-[ar:overlaps|part_of]-(anoni:Individual)-[:INSTANCEOF]->(anat:Class) WHERE ep.short_form in $ids RETURN count(anat) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -380,7 +386,7 @@
           name="Test Query for Anatomy from Exp"
           description="Get JSON for ep_2_anat query"
           returnType="//@libraries.3/@types.1"
-          query="&quot;statement&quot;: &quot;MATCH (ep:Expression_pattern:Class)&lt;-[ar:overlaps|part_of]-(anoni:Individual)-[:INSTANCEOF]->(anat:Class) WHERE ep.short_form in [$id] WITH  anoni, anat, ar OPTIONAL MATCH (p:pub { short_form: ar.pub}) WITH anat, anoni, { core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.`symbol`[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } AS pub OPTIONAL MATCH (anoni)-[r:Related]->(o:FBdv) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.iri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[])), symbol: coalesce(o.`symbol`[0], '')}  }) END AS stages ,anoni,anat,pub CALL apoc.cypher.run('WITH anat OPTIONAL MATCH (anat)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 10', {anat:anat}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anoni, anat, pub, stages OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anoni,anat,pub,stages RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  AS anatomy, 'Get JSON for ep_2_anat query' AS query, '3f881fe' AS version , pub, stages, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot;}"
+          query="&quot;statement&quot;: &quot;MATCH (ep:Expression_pattern:Class)&lt;-[ar:overlaps|part_of]-(anoni:Individual)-[:INSTANCEOF]->(anat:Class) WHERE ep.short_form in [$id] WITH  anoni, anat, ar OPTIONAL MATCH (p:pub { short_form: []+ar.pub[0]}) WITH anat, anoni, { core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.`symbol`[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } AS pub OPTIONAL MATCH (anoni)-[r:Related]->(o:FBdv) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.iri, type: type(r) } , object: { short_form: o.short_form, label: coalesce(o.label,''), iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[])), symbol: coalesce(o.`symbol`[0], '')}  }) END AS stages ,anoni,anat,pub CALL apoc.cypher.run('WITH anat OPTIONAL MATCH (anat)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 10', {anat:anat}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anoni, anat, pub, stages OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anoni,anat,pub,stages RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  AS anatomy, 'Get JSON for ep_2_anat query' AS query, '3f881fe' AS version , pub, stages, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot;}"
           countQuery="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(anoni:Individual)-[:INSTANCEOF]->(anat:Class) WHERE ep.short_form in [$id] RETURN count(anat) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot;}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -399,7 +405,7 @@
           name="Query for Exp from Anatomy"
           description="Get JSON for anat_2_ep query"
           returnType="//@libraries.3/@types.1"
-          query="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in $ids WITH DISTINCT collect(DISTINCT ar.pub) as pubs, anat, ep UNWIND pubs as p MATCH (pub:pub { short_form: p}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub), symbol: coalesce(pub.`symbol`[0], '')} , PubMed: coalesce(pub.PMID[0], ''), FlyBase: coalesce(pub.FlyBase[0], ''), DOI: coalesce(pub.DOI[0], '') }) as pubs CALL apoc.cypher.run('WITH ep OPTIONAL MATCH (ep)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ep:ep}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anat, ep, pubs OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class)  WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep), symbol: coalesce(ep.`symbol`[0], '')}  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, 'de64597' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in $ids WITH DISTINCT collect(DISTINCT ar.pub) as pubs, anat, ep UNWIND pubs as p OPTIONAL MATCH (pub:pub { short_form: []+p[0]}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub), symbol: coalesce(pub.`symbol`[0], '')} , PubMed: coalesce(pub.PMID[0], ''), FlyBase: coalesce(pub.FlyBase[0], ''), DOI: coalesce(pub.DOI[0], '') }) as pubs CALL apoc.cypher.run('WITH ep OPTIONAL MATCH (ep)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ep:ep}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anat, ep, pubs OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class)  WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep), symbol: coalesce(ep.`symbol`[0], '')}  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, 'de64597' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH (anat:Class) WHERE anat.short_form IN $ids OPTIONAL MATCH (ep:Class)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat) RETURN count(ep) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -439,7 +445,7 @@
           name="test_all_datasets_query"
           description="Get JSON for template_2_datasets query"
           returnType="//@libraries.3/@types.24"
-          query="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds CALL apoc.cypher.run('WITH ds OPTIONAL MATCH (ds) &lt;-[:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual) &lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ds:ds}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, ds OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,ds OPTIONAL MATCH (ds)-[rp:has_reference]->(p:pub) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } ) END AS pubs,ds,anatomy_channel_image OPTIONAL MATCH (ds)-[:has_license|license]->(l:License) WITH collect ({ icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l), unique_facets: apoc.coll.sort(coalesce(l.uniqueFacets,[])), symbol: coalesce(l.symbol[0], '')} }) as license,ds,anatomy_channel_image,pubs OPTIONAL MATCH (ds) &lt;-[:has_source]-(i:Individual) WITH i, ds, anatomy_channel_image, pubs, license OPTIONAL MATCH (i)-[:INSTANCEOF]-(c:Class) WITH DISTINCT { images: count(distinct i),types: count(distinct c) } as dataset_counts,ds,anatomy_channel_image,pubs,license RETURN { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), symbol: coalesce(ds.symbol[0], '')} as dataset, 'bac066c' AS version, 'template_2_datasets_query' AS query, anatomy_channel_image, pubs, license, dataset_counts&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds CALL apoc.cypher.run('WITH ds OPTIONAL MATCH (ds) &lt;-[:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual) &lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ds:ds}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, ds OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,ds OPTIONAL MATCH (ds)-[rp:has_reference]->(p:pub) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } ) END AS pubs,ds,anatomy_channel_image OPTIONAL MATCH (ds)-[:has_license|license]->(l:License) WITH collect ({ icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l), unique_facets: apoc.coll.sort(coalesce(l.uniqueFacets,[])), symbol: coalesce(l.symbol[0], '')} }) as license,ds,anatomy_channel_image,pubs OPTIONAL MATCH (ds) &lt;-[:has_source]-(i:Individual) WITH i, ds, anatomy_channel_image, pubs, license OPTIONAL MATCH (i)-[:INSTANCEOF]-(c:Class) WITH DISTINCT { images: count(distinct i),types: count(distinct c) } as dataset_counts,ds,anatomy_channel_image,pubs,license RETURN { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), symbol: coalesce(ds.symbol[0], '')} as dataset, 'bac066c' AS version, 'all_datasets_query' AS query, anatomy_channel_image, pubs, license, dataset_counts&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (ds:DataSet) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -459,7 +465,7 @@
           name="Query for Exp from Anatomy"
           description="Get JSON for anat_2_ep query"
           returnType="//@libraries.3/@types.1"
-          query="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in $ids WITH DISTINCT collect(DISTINCT ar.pub) as pubs, anat, ep UNWIND pubs as p MATCH (pub:pub { short_form: p}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub), symbol: coalesce(pub.`symbol`[0], '')} , PubMed: coalesce(pub.PMID[0], ''), FlyBase: coalesce(pub.FlyBase[0], ''), DOI: coalesce(pub.DOI[0], '') }) as pubs CALL apoc.cypher.run('WITH ep OPTIONAL MATCH (ep)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ep:ep}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anat, ep, pubs OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class)  WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep), symbol: coalesce(ep.`symbol`[0], '')}  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, 'de64597' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
+          query="&quot;statement&quot;: &quot;MATCH (ep:Class:Expression_pattern)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat:Class) WHERE anat.short_form in $ids WITH DISTINCT collect(DISTINCT ar.pub) as pubs, anat, ep UNWIND pubs as p OPTIONAL MATCH (pub:pub { short_form: []+p[0]}) WITH anat, ep, collect({ core: { short_form: pub.short_form, label: coalesce(pub.label,''), iri: pub.iri, types: labels(pub), symbol: coalesce(pub.`symbol`[0], '')} , PubMed: coalesce(pub.PMID[0], ''), FlyBase: coalesce(pub.FlyBase[0], ''), DOI: coalesce(pub.DOI[0], '') }) as pubs CALL apoc.cypher.run('WITH ep OPTIONAL MATCH (ep)&lt;- [:has_source|SUBCLASSOF|INSTANCEOF*]-(i:Individual)&lt;-[:depicts]- (channel:Individual)-[irw:in_register_with] ->(template:Individual)-[:depicts]-> (template_anat:Individual) RETURN template, channel, template_anat, i, irw limit 5', {ep:ep}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, anat, ep, pubs OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class)  WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.`symbol`[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.`symbol`[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.`symbol`[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.`symbol`[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.`symbol`[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,anat,ep,pubs RETURN { short_form: anat.short_form, label: coalesce(anat.label,''), iri: anat.iri, types: labels(anat), symbol: coalesce(anat.`symbol`[0], '')}  as anatomy, { short_form: ep.short_form, label: coalesce(ep.label,''), iri: ep.iri, types: labels(ep), symbol: coalesce(ep.`symbol`[0], '')}  AS expression_pattern, 'Get JSON for anat_2_ep query' AS query, 'de64597' AS version , pubs, anatomy_channel_image&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"
           countQuery="&quot;statement&quot;: &quot;MATCH (anat:Class) WHERE anat.short_form IN $ids OPTIONAL MATCH (ep:Class)&lt;-[ar:overlaps|part_of]-(:Individual)-[:INSTANCEOF]->(anat) RETURN count(ep) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
@@ -584,6 +590,76 @@
           description="vfb_query_schema_processor"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="cluster_expression_query_compound"
+        name="cluster_expression_query"
+        description="Get JSON for cluster expression query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          id="cluster_expression_query"
+          name="Get JSON for cluster expression query"
+          description="Get JSON for cluster expression query"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) WITH coalesce(e.expression_level_padded[0], e.expression_level[0]) as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for cluster expression query' AS query, 'a3c0d68' AS version , expression_level, expression_extent, gene, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster) WHERE primary.short_form in [$id] WITH primary MATCH (primary)-[e:expresses]->(g:Gene:Class) RETURN count(g) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="Process genes"
+          description="vfb_query_schema_processor"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="anat_scRNAseq_query_compound"
+        name="anat_scRNAseq_query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get JSON for anat scRNAseq query"
+          description="Get JSON for anat scRNAseq query"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Class:Anatomy) WHERE primary.short_form in $ids OR primary.short_form = $id WITH primary MATCH (primary)&lt;-[:composed_primarily_of]-(c:Cluster)-[:has_source]->(ds:scRNAseq_DataSet)OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) WITH { short_form: c.short_form, label: coalesce(c.label,''), iri: c.iri, types: labels(c), unique_facets: apoc.coll.sort(coalesce(c.uniqueFacets, [])), symbol: coalesce(([]+c.symbol)[0], '')}  AS cluster, { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), unique_facets: apoc.coll.sort(coalesce(ds.uniqueFacets, [])), symbol: coalesce(([]+ds.symbol)[0], '')}  AS dataset, COLLECT({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets, [])), symbol: coalesce(([]+p.symbol)[0], '')} , PubMed: coalesce(([]+p.PMID)[0], ''), FlyBase: coalesce(([]+p.FlyBase)[0], ''), DOI: coalesce(([]+p.DOI)[0], '') }) AS pubs,primary RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for anat scRNAseq query' AS query, 'a3c0d68' AS version , cluster, dataset, pubs&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS , &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Class:Anatomy) WHERE primary.short_form in $ids OR primary.short_form = $id WITH primary MATCH (primary)&lt;-[:composed_primarily_of]-(c:Cluster)-[:has_source]->(ds:scRNAseq_DataSet) RETURN count(c) as count&quot;, &quot;parameters&quot; : { &quot;ids&quot; : $ARRAY_ID_RESULTS , &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Images"
+          returnType="//@libraries.3/@types.0"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="dataset_scRNAseq_query_compound"
+        name="dataset_scRNAseq_query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get JSON for dataset scRNAseq query"
+          description="Get JSON for dataset scRNAseq query"
+          query="&quot;statement&quot;: &quot;MATCH (c:Individual)-[:has_source]->(ds:scRNAseq_DataSet) WHERE ds.short_form = $id OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) WITH COLLECT({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets, [])), symbol: coalesce(([]+p.symbol)[0], '')} , PubMed: coalesce(([]+p.PMID)[0], ''), FlyBase: coalesce(([]+p.FlyBase)[0], ''), DOI: coalesce(([]+p.DOI)[0], '') }) AS pubs, c RETURN { core : { short_form: c.short_form, label: coalesce(c.label,''), iri: c.iri, types: labels(c), unique_facets: apoc.coll.sort(coalesce(c.uniqueFacets, [])), symbol: coalesce(([]+c.symbol)[0], '')} , description : coalesce(c.description, []), comment : coalesce(c.comment, []) } AS term, 'Get JSON for dataset scRNAseq query' AS query, 'ma3c0d68' AS version, pubs&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (c:Individual)-[:has_source]->(ds:scRNAseq_DataSet) WHERE ds.short_form = $id RETURN count(c) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Images"
+          returnType="//@libraries.3/@types.0"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="expression_cluster_query_compound"
+        name="expression_cluster_query"
+        description="Get JSON for expression in cluster query">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          id="cluster_expression_query"
+          name="Get JSON for cluster expression query"
+          description="Get JSON for cluster expression query"
+          query="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster)-[e:expresses]->(g:Gene:Class) WHERE g.short_form in [$id] WITH e.expression_level[0] as expression_level, e.expression_extent[0] as expression_extent, { short_form: g.short_form, label: coalesce(g.label,''), iri: g.iri, types: labels(g), unique_facets: apoc.coll.sort(coalesce(g.uniqueFacets, [])), symbol: coalesce(([]+g.symbol)[0], '')}  AS gene,primary MATCH (a:Anatomy)&lt;-[:composed_primarily_of]-(primary) WITH { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy,primary,expression_level,expression_extent,gene  RETURN { core : { short_form: primary.short_form, label: coalesce(primary.label,''), iri: primary.iri, types: labels(primary), unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets, [])), symbol: coalesce(([]+primary.symbol)[0], '')} , description : coalesce(primary.description, []), comment : coalesce(primary.comment, []) } AS term, 'Get JSON for expression in cluster query' AS query, 'ma3c0d68' AS version , expression_level, expression_extent, anatomy&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          countQuery="&quot;statement&quot;: &quot;MATCH (primary:Individual:Cluster)-[e:expresses]->(g:Gene:Class) WHERE g.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          id="vfb_query_schema_processor"
+          name="Process clusters"
+          description="vfb_query_schema_processor"
+          queryProcessorId="neo4jQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -603,7 +679,7 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get baseline term info"
           description="Fetches basic term details."
-          query="&quot;statement&quot;: &quot;MATCH (primary {short_form: $id }) WHERE NOT primary:pub AND NOT primary:License AND NOT primary:Individual AND NOT primary:Class AND NOT primary:Template AND NOT primary:DataSet OPTIONAL MATCH (o:Class)&lt;-[r:SUBCLASSOF|INSTANCEOF]-(primary)  WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ short_form: o.short_form, label: o.label, iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[]) } ) END AS parents , primary OPTIONAL MATCH (o:Class)&lt;-[r { type: 'Related' }]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.uri, type: type(r) } , object: { short_form: o.short_form, label: o.label, iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[]) }  }) END AS relationships , parents, primary OPTIONAL MATCH (s:Site)&lt;-[dbx:hasDbXref]-(primary)  WITH CASE WHEN s IS NULL THEN [] ELSE COLLECT({ link: s.link_base + coalesce(dbx.accession, ''), link_text: s.label, site: { short_form: s.short_form, label: s.label, iri: s.iri, types: labels(s), unique_facets: apoc.coll.sort(coalesce(s.uniqueFacets,[]) }, icon: coalesce(s.link_icon_url[0], '') }) END AS xrefs, parents, relationships, primary OPTIONAL MATCH (primary)-[rp:has_reference { typ: 'syn'}]->(p:pub:Individual)  WITH CASE WHEN p is null THEN [] ELSE collect({ pub: { core: { short_form: p.short_form, label: p.label, iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets,[]) } , PubMed: coalesce(p.PMID, ''), FlyBase: coalesce(p.FlyBase, ''), DOI: coalesce(p.DOI, '') } , synonym: { label: coalesce(rp.synonym[0], ''), scope: coalesce(rp.scope, ''), type: coalesce(rp.cat,'') }  }) END AS pub_syn, parents, relationships, xrefs, primary OPTIONAL MATCH (primary)-[rp:has_reference { typ: 'def'}]->(p:pub:Individual) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: p.label, iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets,[]) } , PubMed: coalesce(p.PMID, ''), FlyBase: coalesce(p.FlyBase, ''), DOI: coalesce(p.DOI, '') } ) END AS def_pubs, parents, relationships, xrefs, pub_syn, primary RETURN { core: { short_form: primary.short_form, label: primary.label, iri: primary.iri, types: labels(primary),  unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets,[]) } , description: coalesce(primary.description, []), comment: coalesce(primary.`annotation-comment`, [])} as term ,parents,relationships,xrefs,pub_syn,def_pubs, 'Base' as query, 'manual' AS version&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (primary {short_form: $id }) WHERE NOT primary:pub AND NOT primary:License AND NOT primary:Individual AND NOT primary:Class AND NOT primary:Template AND NOT primary:DataSet OPTIONAL MATCH (o:Class)&lt;-[r:SUBCLASSOF|INSTANCEOF]-(primary)  WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ short_form: o.short_form, label: o.label, iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[])) } ) END AS parents , primary OPTIONAL MATCH (o:Class)&lt;-[r { type: 'Related' }]-(primary) WITH CASE WHEN o IS NULL THEN [] ELSE COLLECT ({ relation: { label: r.label, iri: r.uri, type: type(r) } , object: { short_form: o.short_form, label: o.label, iri: o.iri, types: labels(o), unique_facets: apoc.coll.sort(coalesce(o.uniqueFacets,[])) }  }) END AS relationships , parents, primary OPTIONAL MATCH (s:Site)&lt;-[dbx:hasDbXref]-(primary)  WITH CASE WHEN s IS NULL THEN [] ELSE COLLECT({ link: s.link_base + coalesce(dbx.accession, ''), link_text: s.label, site: { short_form: s.short_form, label: s.label, iri: s.iri, types: labels(s), unique_facets: apoc.coll.sort(coalesce(s.uniqueFacets,[])) }, icon: coalesce(s.link_icon_url[0], '') }) END AS xrefs, parents, relationships, primary OPTIONAL MATCH (primary)-[rp:has_reference { typ: 'syn'}]->(p:pub:Individual)  WITH CASE WHEN p is null THEN [] ELSE collect({ pub: { core: { short_form: p.short_form, label: p.label, iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets,[])) } , PubMed: coalesce(p.PMID, ''), FlyBase: coalesce(p.FlyBase, ''), DOI: coalesce(p.DOI, '') } , synonym: { label: coalesce(rp.synonym[0], ''), scope: coalesce(rp.scope, ''), type: coalesce(rp.cat,'') }  }) END AS pub_syn, parents, relationships, xrefs, primary OPTIONAL MATCH (primary)-[rp:has_reference { typ: 'def'}]->(p:pub:Individual) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: p.label, iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets,[])) } , PubMed: coalesce(p.PMID, ''), FlyBase: coalesce(p.FlyBase, ''), DOI: coalesce(p.DOI, '') } ) END AS def_pubs, parents, relationships, xrefs, pub_syn, primary RETURN { core: { short_form: primary.short_form, label: primary.label, iri: primary.iri, types: labels(primary),  unique_facets: apoc.coll.sort(coalesce(primary.uniqueFacets,[])) } , description: coalesce(primary.description, []), comment: coalesce(primary.`annotation-comment`, [])} as term ,parents,relationships,xrefs,pub_syn,def_pubs, 'Base' as query, 'manual' AS version&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (primary {short_form: $id} ) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:SimpleQuery"
@@ -703,13 +779,6 @@
           queryProcessorId="vfbProcessTermInfoJson"/>
     </fetchVariableQuery>
   </dataSources>
-  <dataSources
-      id="aberOWLDataSource"
-      name="Aber OWL Data Source"
-      dataSourceService="aberOWLDataSource"
-      url="http://owl.virtualflybrain.org/api/runQuery.groovy"
-      dependenciesLibrary="//@libraries.3"
-      targetLibrary="//@libraries.4"/>
   <dataSources
       id="owleryDataSourceSubclass"
       name="owlery Data Source (subclasses)"
@@ -830,6 +899,18 @@
         description="subClassOf cell overlaps some X"
         query="object=%3Chttp://purl.obolibrary.org/obo/FBbt_00007002%3E%20%20that%20%3Chttp://purl.obolibrary.org/obo/RO_0002131%3E%20some%20%3Chttp://purl.obolibrary.org/obo/$ID%3E&amp;amp;direct=false&amp;amp;includeDeprecated=false&amp;amp;includeEquivalent=false"
         countQuery=""/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassIdListPlusQueryTerm"
+        name="Owlery Pass Plus Query ID"
+        description="Keep nothing slimply pass ids with query term"
+        queryProcessorId="owleryIdOnlyQueryProcessorWithQueryTerm"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassSolrIdListOnly"
+        name="Owlery Class Pass solr id list only"
+        description="Keep nothing slimply pass solr ids"
+        queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
   </dataSources>
   <dataSources
       id="owleryDataSourceRealise"
@@ -869,41 +950,71 @@
         description="Keep nothing slimply pass ids"
         returnType="//@libraries.3/@types.0"
         queryProcessorId="owleryIdOnlyQueryProcessor"/>
-  </dataSources>
-  <dataSources
-      id="opencpuDataSourceOld"
-      name="NBLAST Data Source (flycircuit OLD)"
-      dataSourceService="opencpuDataSource"
-      url="http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast/json"
-      dependenciesLibrary="//@libraries.3"
-      targetLibrary="//@libraries.4">
-    <queries
-        xsi:type="gep_2:SimpleQuery"
-        id="nblastSimilarTo"
-        name="NBLAST similar to"
-        description="Similar to $NAME"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;FlyCircuit&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true,&quot;normalisation&quot;:&quot;mean&quot;"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
-    <queries
-        xsi:type="gep_2:SimpleQuery"
-        id="nblastGal4To"
-        name="NBLAST Transgene for"
-        description="NBLAST for potential GAL4 patterns targetting $NAME"
-        returnType="//@libraries.3/@types.0"
-        query="&quot;query&quot;:&quot;$ID&quot;,&quot;target&quot;:&quot;GMR-Gal4&quot;,&quot;n&quot;:25,&quot;vfb_ids&quot;:true"
-        countQuery="">
-      <matchingCriteria
-          type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
-    </queries>
     <queries
         xsi:type="gep_2:ProcessQuery"
-        id="nblastPassIdAndScores"
-        name="NBLAST pass ids and scores"
-        description="Keep nothing slimply pass ids and scores"
-        queryProcessorId="nblastQueryProcessor"/>
+        id="owlPassSolrIdListOnly"
+        name="Owlery Ind Pass solr id list only"
+        description="Keep nothing slimply pass solr ids"
+        queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
+  </dataSources>
+  <dataSources
+      id="querycache"
+      name="SOLR Cached Queries"
+      dataSourceService="solrqueryDataSource"
+      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
+      dependenciesLibrary="//@libraries.3"
+      targetLibrary="//@libraries.4">
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="cachedvfbjsoncall"
+        name="Get cached VFB_JSON for Term"
+        description="Get cached VFB_JSON for Term"
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+        countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        name="Get and process example images from SOLR from id list"
+        description=""
+        runForCount="false">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get anat_query"
+          description="Fetches essential details."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process images"
+          queryProcessorId="solrQueryProcessor"/>
+    </queries>
+    <fetchVariableQuery
+        xsi:type="gep_2:CompoundQuery"
+        name="Process Cached JSON"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get term info"
+          description="Fetches essential details."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;term_info&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process Cached JSON"
+          description="Process Cached JSON"
+          queryProcessorId="vfbProcessTermInfoCachedJson"/>
+    </fetchVariableQuery>
   </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
@@ -919,7 +1030,7 @@
       name="Expression overlapping selected anatomy"
       description="Reports of transgene expression in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.14 //@dataSources.0/@queries.8 //@dataSources.2/@queries.16 //@dataSources.2/@queries.12 //@dataSources.0/@queries.11 //@dataSources.2/@queries.0 //@dataSources.2/@queries.13 //@dataSources.0/@queries.14">
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.14 //@dataSources.0/@queries.8 //@dataSources.1/@queries.16 //@dataSources.1/@queries.12 //@dataSources.0/@queries.11 //@dataSources.1/@queries.0 //@dataSources.1/@queries.13 //@dataSources.0/@queries.14">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -941,7 +1052,7 @@
       name="Neuron classes fasciculating here"
       description="Neurons fasciculating in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.6 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.6 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.3"/>
   </queries>
@@ -950,7 +1061,7 @@
       name="Images of neurons with some part here"
       description="Images of neurons with some part in $NAME"
       returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.3/@queries.1 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+      queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.4 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -960,7 +1071,7 @@
       id="NeuronsPartHere"
       name="Neurons with any part here"
       description="Neurons with some part in $NAME"
-      queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.1 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -972,7 +1083,7 @@
       id="epFrag"
       name="Images of expression pattern fragments"
       description="Images of fragments of $NAME"
-      queryChain="//@dataSources.3/@queries.2 //@dataSources.3/@queries.3 //@dataSources.0/@queries.1">
+      queryChain="//@dataSources.2/@queries.2 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
   </queries>
@@ -980,7 +1091,7 @@
       id="NeuronsSynaptic"
       name="Neurons Synaptic"
       description="Neurons with synaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.2 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.2 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -992,7 +1103,7 @@
       id="NeuronsPresynapticHere"
       name="Neurons Presynaptic"
       description="Neurons with presynaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.3 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.3 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1004,22 +1115,13 @@
       id="NeuronsPostsynapticHere"
       name="Neurons Postsynaptic"
       description="Neurons with postsynaptic terminals in $NAME"
-      queryChain="//@dataSources.2/@queries.4 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.4 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.26"/>
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.23"/>
-  </queries>
-  <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ListClusterMembers"
-      name="Cluster Members"
-      description="Neurons in $NAME"
-      returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.0/@queries.5">
-    <matchingCriteria
-        type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="PaintedDomains"
@@ -1037,14 +1139,14 @@
       returnType="//@libraries.3/@types.0"
       queryChain="//@dataSources.0/@queries.6">
     <matchingCriteria
-        type="//@libraries.3/@types.24"/>
+        type="//@libraries.3/@types.24 //@libraries.3/@types.41"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="TractsNervesInnervatingHere"
       name="Tracts/nerves innervating synaptic neuropil"
       description="Tracts/nerves innervating $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.7 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.7 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1055,7 +1157,7 @@
       name="Components of"
       description="Components of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.0 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.4"/>
   </queries>
@@ -1064,7 +1166,7 @@
       name="Lineage clones found here"
       description="Lineage clones found in $NAME"
       returnType="//@libraries.3/@types.4"
-      queryChain="//@dataSources.2/@queries.10 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.10 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1084,7 +1186,7 @@
       name="Parts of"
       description="Parts of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.0 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.0 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
@@ -1093,7 +1195,7 @@
       name="Subclasses of"
       description="Subclasses of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.2/@queries.8 //@dataSources.2/@queries.5 //@dataSources.0/@queries.0">
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
@@ -1188,5 +1290,41 @@
       queryChain="//@dataSources.0/@queries.20">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="anatScRNAseqQuery"
+      name="anat_scRNAseq_query"
+      description="Single cell transcriptomics data for $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.17 //@dataSources.0/@queries.22">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.47"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="clusterExpression"
+      name="cluster_expression"
+      description="Genes expressed in $NAME"
+      returnType="//@libraries.3/@types.1"
+      queryChain="//@dataSources.0/@queries.21">
+    <matchingCriteria
+        type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="scRNAdatasetData"
+      name="Show all data for a scRNAseq dataset"
+      description="List all data for $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.0/@queries.23">
+    <matchingCriteria
+        type="//@libraries.3/@types.24 //@libraries.3/@types.47"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="expressionCluster"
+      name="expression_cluster"
+      description="scRNAseq clusters expressing $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.0/@queries.24">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.48 //@libraries.3/@types.47"/>
   </queries>
 </gep:GeppettoModel>
