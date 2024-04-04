@@ -1488,7 +1488,7 @@ class VFBMain extends React.Component {
         location.replace(`https:${location.href.substring(location.protocol.length)}`);
       }
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-        if (GEPPETTO.MessageSocket.attempts < 10) {
+        if (GEPPETTO.MessageSocket.attempts < 2) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
           GEPPETTO.MessageSocket.reconnect();
         } else {
