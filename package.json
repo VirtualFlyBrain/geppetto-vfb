@@ -37,7 +37,7 @@
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "imports-loader": "^0.7.1",
-    "jest": "^25.0.0",
+    "jest": "^28.0.0",
     "jest-image-snapshot": "^4.1.0",
     "jest-puppeteer": "^4.3.0",
     "less-loader": "^5.0.0",
