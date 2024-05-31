@@ -961,7 +961,7 @@
       id="querycache"
       name="SOLR Cached Queries"
       dataSourceService="solrqueryDataSource"
-      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
+      url="https://solr.virtualflybrain.org/solr/vfb_json/select"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <libraryConfigurations
