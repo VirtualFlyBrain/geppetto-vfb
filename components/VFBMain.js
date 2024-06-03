@@ -195,7 +195,7 @@ class VFBMain extends React.Component {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
     if (!variables.length > 0) {
-      Model.getDatasources()[0].fetchVariable(variableId, function () {
+      Model.getDatasources()[3].fetchVariable(variableId, function () {
         if (callback != undefined) {
           callback(variableId, label);
         }
@@ -1318,7 +1318,7 @@ class VFBMain extends React.Component {
 
     if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
       this.urlIdsLoaded = true;
-      if (!idsList.includes("VFB_")) {
+      if (!idsList.includes("VFB_") && !idsList.includes("VFBu_")) {
         idsList = "VFB_00101567," + idsList;
       }
       this.idsFromURL = idsList.split(",");
@@ -1429,7 +1429,7 @@ class VFBMain extends React.Component {
     }
 
     // google analytics vfb specific tracker
-    ga('create', 'UA-18509775-2', 'auto', 'vfb');
+    ga('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
     window.console.stderr = console.error.bind(console);
     window.console.logs = [];
@@ -1488,7 +1488,7 @@ class VFBMain extends React.Component {
         location.replace(`https:${location.href.substring(location.protocol.length)}`);
       }
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-        if (GEPPETTO.MessageSocket.attempts < 10) {
+        if (GEPPETTO.MessageSocket.attempts < 2) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
           GEPPETTO.MessageSocket.reconnect();
         } else {
