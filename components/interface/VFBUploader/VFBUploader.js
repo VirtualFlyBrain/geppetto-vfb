@@ -19,7 +19,7 @@ import { customAlphabet } from 'nanoid';
 import FileIcon from "../../configuration/VFBUploader/file-icon.png";
 import { CustomStyle, CustomTheme } from "./styles";
 
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8);
+const cnanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8);
 const UNIQUE_ID = "UNIQUE_ID";
 class VFBUploader extends React.Component {
   constructor (props) {
@@ -75,7 +75,7 @@ class VFBUploader extends React.Component {
   }
 
   handleNBLASTAction () {
-    let newId = "VFBu_" + nanoid();
+    let newId = "VFBu_" + cnanoid();
     let url = this.configuration.nblastURL.replace(UNIQUE_ID, this.state.templateSelected + "&" + newId);
     var formData = new FormData();
     formData.append("file", this.state.files[0]);
