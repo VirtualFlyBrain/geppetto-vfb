@@ -12,6 +12,6 @@ import { customRandom } from './customRandom';
  *
  * @returns {string} A unique ID based on the alphabet provided.
  */
-export function customAlphabet(alphabet, size) {
+export function customAlphabet (alphabet, size) {
   return customRandom(random, alphabet, size);
 }
