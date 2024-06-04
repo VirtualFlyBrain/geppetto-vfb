@@ -8,9 +8,9 @@ import { customRandom } from './customRandom';
  * will not be secure.
  *
  * @param {string} alphabet The alphabet that will be used to generate IDs.
- * @param {number} size The size(length) of the IDs that will be generated.
+ * @param {number} size The size (length) of the IDs that will be generated.
  *
- * @returns A unique ID based on the alphabet provided.
+ * @returns {string} A unique ID based on the alphabet provided.
  */
 export function customAlphabet(alphabet, size) {
   return customRandom(random, alphabet, size);
