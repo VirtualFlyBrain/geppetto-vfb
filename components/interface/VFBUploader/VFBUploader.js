@@ -15,7 +15,7 @@ import { withStyles } from "@material-ui/styles";
 import axios from "axios";
 import { DropzoneArea } from "material-ui-dropzone";
 import UploadIcon from "../../configuration/VFBUploader/upload-icon.png";
-import { customAlphabet } from "https://deno.land/x/nanoid/customAlphabet.ts";
+import { customAlphabet } from '../utils/customAlphabet';
 import FileIcon from "../../configuration/VFBUploader/file-icon.png";
 import { CustomStyle, CustomTheme } from "./styles";
 
