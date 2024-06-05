@@ -15,11 +15,11 @@ import { withStyles } from "@material-ui/styles";
 import axios from "axios";
 import { DropzoneArea } from "material-ui-dropzone";
 import UploadIcon from "../../configuration/VFBUploader/upload-icon.png";
-import { customAlphabet } from 'nanoid';
+import { customAlphabet } from '../utils/customAlphabet';
 import FileIcon from "../../configuration/VFBUploader/file-icon.png";
 import { CustomStyle, CustomTheme } from "./styles";
 
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8)
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8);
 const UNIQUE_ID = "UNIQUE_ID";
 class VFBUploader extends React.Component {
   constructor (props) {
