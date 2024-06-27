@@ -824,6 +824,30 @@ Query: ```
     solrQueryProcessor
 ```
 
+## Query Name: Get user NBLAST results
+ID: None
+Description: No description provided
+Type: gep_2:CompoundQuery
+Query: ```
+
+```
+
+    ## Query Name: Get user NBLAST results
+    ID: None
+    Description: Fetches user NBLAST results
+    Type: gep_2:SimpleQuery
+    Query: ```
+    "params":{"defType":"edismax","fl":"upload_nblast_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+```
+
+    ## Query Name: Process user data NBLAST
+    ID: None
+    Description: No description provided
+    Type: gep_2:ProcessQuery
+    Query: ```
+    cachedUploadNBLASTQueryProcessor
+```
+
 ## Query Name: List all available images for class with examples
 ID: ListAllAvailableImages
 Description: List all available images of $NAME
@@ -1075,6 +1099,14 @@ No query provided
 ## Query Name: expression_cluster
 ID: expressionCluster
 Description: scRNAseq clusters expressing $NAME
+Type: gep_2:CompoundRefQuery
+Query: ```
+No query provided
+```
+
+## Query Name: has_similar_morphology_to_userdata
+ID: SimilarMorphologyToUserData
+Description: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
 Type: gep_2:CompoundRefQuery
 Query: ```
 No query provided

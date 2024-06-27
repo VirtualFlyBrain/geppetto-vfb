@@ -130,3 +130,6 @@
 ## expressionCluster: scRNAseq clusters expressing $NAME
 - Step: expression_cluster_query (DataSource Index: 0, Query Index: 24)
 
+## SimilarMorphologyToUserData: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
+- Step: Get user NBLAST results (DataSource Index: 3, Query Index: 2)
+
