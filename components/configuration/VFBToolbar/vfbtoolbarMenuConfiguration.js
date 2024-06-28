@@ -267,6 +267,14 @@ var toolbarMenu = {
                 handlerAction: "openNewTab",
                 parameters: ["http://flybrain.mrc-lmb.cam.ac.uk/si/nblast/www/"]
               }
+            },
+            {
+              label: "NBLAST against your own data",
+              icon: "fa fa-upload",
+              action: {
+                handlerAction: "uploaderContentsVisible",
+                parameters: []
+              }
             }
           ]
         },
