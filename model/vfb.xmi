@@ -1014,7 +1014,8 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process user data NBLAST"
-          queryProcessorId="cachedUploadNBLASTQueryProcessor"/>
+          description="Process user data NBLAST"
+          queryProcessorId="cachedUploadNblastQueryProcessor"/>
     </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
