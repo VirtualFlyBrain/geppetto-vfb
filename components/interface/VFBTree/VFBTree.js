@@ -224,27 +224,55 @@ class VFBTree extends React.Component {
     }
   }
 
-  async initTree(instance) {
+  async initTree (instance) {
     // This function is the core and starting point of the component itself
     var that = this;
     this.setState({
-        loading: true,
-        errors: undefined,
+      loading: true,
+      errors: undefined,
     });
 
     const cacheKey = `treeData_${instance}`;
     const cachedData = localStorage.getItem(cacheKey);
 
     if (cachedData) {
-        const parsedData = JSON.parse(cachedData);
-        const dataTree = this.parseGraphResultData(parsedData);
-        const vertix = this.findRoot(parsedData);
-        const imagesMap = this.buildDictClassToIndividual(parsedData);
-        const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-        const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-        const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-        
-        this.setState({
+      const parsedData = JSON.parse(cachedData);
+      const dataTree = this.parseGraphResultData(parsedData);
+      const vertix = this.findRoot(parsedData);
+      const imagesMap = this.buildDictClassToIndividual(parsedData);
+      const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
+      const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
+      const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
+      
+      this.setState({
+        loading: false,
+        errors: undefined,
+        dataTree: treeData,
+        root: vertix,
+        edges: edges,
+        nodes: nodes,
+        nodeSelected: (this.props.instance === undefined
+          ? treeData[0]
+          : (this.props.instance?.getParent() === null
+            ? { subtitle: this.props.instance?.getId() }
+            : { subtitle: this.props.instance?.getParent()?.getId() }))
+      });
+    } else {
+      this.restPost(treeCypherQuery(instance)).done(data => {
+        if (data.errors.length > 0) {
+          console.log("-- ERROR TREE COMPONENT --");
+          console.log(data.errors);
+          this.setState({ errors: "Error retrieving the data - check the console for additional information" });
+        }
+        if (data.results.length > 0 && data.results[0].data.length > 0) {
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+          const dataTree = this.parseGraphResultData(data);
+          const vertix = this.findRoot(data);
+          const imagesMap = this.buildDictClassToIndividual(data);
+          const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
+          const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
+          const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
+          this.setState({
             loading: false,
             errors: undefined,
             dataTree: treeData,
@@ -252,58 +280,27 @@ class VFBTree extends React.Component {
             edges: edges,
             nodes: nodes,
             nodeSelected: (this.props.instance === undefined
-                ? treeData[0]
-                : (this.props.instance?.getParent() === null
-                    ? { subtitle: this.props.instance?.getId() }
-                    : { subtitle: this.props.instance?.getParent()?.getId() }))
-        });
-    } else {
-        this.restPost(treeCypherQuery(instance)).done(data => {
-            if (data.errors.length > 0) {
-                console.log("-- ERROR TREE COMPONENT --");
-                console.log(data.errors);
-                this.setState({ errors: "Error retrieving the data - check the console for additional information" });
-            }
-
-            if (data.results.length > 0 && data.results[0].data.length > 0) {
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-
-                const dataTree = this.parseGraphResultData(data);
-                const vertix = this.findRoot(data);
-                const imagesMap = this.buildDictClassToIndividual(data);
-                const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-                const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-                const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-                
-                this.setState({
-                    loading: false,
-                    errors: undefined,
-                    dataTree: treeData,
-                    root: vertix,
-                    edges: edges,
-                    nodes: nodes,
-                    nodeSelected: (this.props.instance === undefined
-                        ? treeData[0]
-                        : (this.props.instance?.getParent() === null
-                            ? { subtitle: this.props.instance?.getId() }
-                            : { subtitle: this.props.instance?.getParent()?.getId() }))
-                });
-            } else {
-                var treeData = [{
-                    title: "No data available.",
-                    subtitle: null,
-                    children: []
-                }];
-                this.setState({
-                    dataTree: treeData,
-                    root: undefined,
-                    loading: false,
-                    errors: undefined,
-                });
-            }
-        });
+              ? treeData[0]
+              : (this.props.instance?.getParent() === null
+                ? { subtitle: this.props.instance?.getId() }
+                : { subtitle: this.props.instance?.getParent()?.getId() }))
+          });
+        } else {
+          var treeData = [{
+            title: "No data available.",
+            subtitle: null,
+            children: []
+          }];
+          this.setState({
+            dataTree: treeData,
+            root: undefined,
+            loading: false,
+            errors: undefined,
+          });
+        }
+      });
     }
-}
+  }
 
 
   nodeClick (event, rowInfo) {
