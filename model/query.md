@@ -842,10 +842,10 @@ Query: ```
 
     ## Query Name: Process user data NBLAST
     ID: None
-    Description: No description provided
+    Description: Process user data NBLAST
     Type: gep_2:ProcessQuery
     Query: ```
-    cachedUploadNBLASTQueryProcessor
+    cachedUploadNblastQueryProcessor
 ```
 
 ## Query Name: List all available images for class with examples
