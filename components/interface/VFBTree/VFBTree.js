@@ -291,7 +291,11 @@ class VFBTree extends React.Component {
               }))
             }))
           };
-          localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+          } catch (e) {
+            console.error('Error saving to localStorage:', e);
+          }
           const dataTree = this.parseGraphResultData(data);
           const vertix = this.findRoot(data);
           const imagesMap = this.buildDictClassToIndividual(data);
