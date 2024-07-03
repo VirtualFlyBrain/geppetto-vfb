@@ -267,7 +267,9 @@ class VFBTree extends React.Component {
         if (data.results.length > 0 && data.results[0].data.length > 0) {
           const filteredData = {
             results: data.results.map(result => ({
+              columns: result.columns,
               data: result.data.map(row => ({
+                row: row.row,
                 graph: {
                   nodes: row.graph.nodes.map(node => ({
                     id: node.id,
