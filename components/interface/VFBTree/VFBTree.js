@@ -291,7 +291,20 @@ class VFBTree extends React.Component {
               }))
             }))
           };
-          localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+          } catch (e) {
+            console.error('Error saving to localStorage:', e);
+            if (e.name === 'QuotaExceededError') {
+              console.warn('LocalStorage is full, clearing all data');
+              localStorage.clear();
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+              } catch (e) {
+                console.error('Error saving to localStorage after clearing:', e);
+              }
+            }
+          }
           const dataTree = this.parseGraphResultData(data);
           const vertix = this.findRoot(data);
           const imagesMap = this.buildDictClassToIndividual(data);
