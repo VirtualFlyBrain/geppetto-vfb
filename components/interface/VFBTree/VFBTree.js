@@ -265,41 +265,15 @@ class VFBTree extends React.Component {
           this.setState({ errors: "Error retrieving the data - check the console for additional information" });
         }
         if (data.results.length > 0 && data.results[0].data.length > 0) {
-          const filteredData = {
-            results: data.results.map(result => ({
-              columns: result.columns,
-              data: result.data.map(row => ({
-                row: row.row,
-                graph: {
-                  nodes: row.graph.nodes.map(node => ({
-                    id: node.id,
-                    labels: node.labels,
-                    properties: {
-                      short_form: node.properties.short_form,
-                      title: node.properties.title,
-                      info: node.properties.info
-                    }
-                  })),
-                  relationships: row.graph.relationships.map(rel => ({
-                    id: rel.id,
-                    startNode: rel.startNode,
-                    endNode: rel.endNode,
-                    type: rel.type,
-                    properties: rel.properties
-                  }))
-                }
-              }))
-            }))
-          };
           try {
-            localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+            localStorage.setItem(cacheKey, JSON.stringify(data));
           } catch (e) {
             console.error('Error saving to localStorage:', e);
             if (e.name === 'QuotaExceededError') {
               console.warn('LocalStorage is full, clearing all data');
               localStorage.clear();
               try {
-                localStorage.setItem(cacheKey, JSON.stringify(filteredData));
+                localStorage.setItem(cacheKey, JSON.stringify(data));
               } catch (e) {
                 console.error('Error saving to localStorage after clearing:', e);
               }
