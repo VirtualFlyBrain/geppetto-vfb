@@ -265,7 +265,31 @@ class VFBTree extends React.Component {
           this.setState({ errors: "Error retrieving the data - check the console for additional information" });
         }
         if (data.results.length > 0 && data.results[0].data.length > 0) {
-          localStorage.setItem(cacheKey, JSON.stringify(data));
+          const filteredData = {
+            results: data.results.map(result => ({
+              data: result.data.map(row => ({
+                graph: {
+                  nodes: row.graph.nodes.map(node => ({
+                    id: node.id,
+                    labels: node.labels,
+                    properties: {
+                      short_form: node.properties.short_form,
+                      title: node.properties.title,
+                      info: node.properties.info
+                    }
+                  })),
+                  relationships: row.graph.relationships.map(rel => ({
+                    id: rel.id,
+                    startNode: rel.startNode,
+                    endNode: rel.endNode,
+                    type: rel.type,
+                    properties: rel.properties
+                  }))
+                }
+              }))
+            }))
+          };
+          localStorage.setItem(cacheKey, JSON.stringify(filteredData));
           const dataTree = this.parseGraphResultData(data);
           const vertix = this.findRoot(data);
           const imagesMap = this.buildDictClassToIndividual(data);
