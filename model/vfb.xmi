@@ -1009,8 +1009,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get user NBLAST results"
           description="Fetches user NBLAST results"
-          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upload_nblast_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
-          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upload_nblast_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upload_nblast_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;99&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upload_nblast_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;99&quot;}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process user data NBLAST"
