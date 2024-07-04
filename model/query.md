@@ -837,7 +837,7 @@ Query: ```
     Description: Fetches user NBLAST results
     Type: gep_2:SimpleQuery
     Query: ```
-    "params":{"defType":"edismax","fl":"upload_nblast_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+    "params":{"defType":"edismax","fl":"upload_nblast_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"99"}
 ```
 
     ## Query Name: Process user data NBLAST
