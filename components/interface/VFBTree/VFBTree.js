@@ -224,7 +224,7 @@ class VFBTree extends React.Component {
     }
   }
 
-  async initTree (instance) {
+  initTree (instance) {
     // This function is the core and starting point of the component itself
     var that = this;
     this.setState({
