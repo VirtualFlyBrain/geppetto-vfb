@@ -90,7 +90,7 @@ class VFBUploader extends React.Component {
   requestUpload (formData, url) {
     let self = this;
     let _id = formData.get("vfbID");
-    let newURL = window.location.origin + window.location.pathname + "&q=" + _id + "," + this.configuration.queryType;
+    let newURL = window.location.origin + window.location.pathname + "?q=" + _id + "," + this.configuration.queryType;
 
     this.setState({ fileNBLASTURL: newURL, uploading : true });
     window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
