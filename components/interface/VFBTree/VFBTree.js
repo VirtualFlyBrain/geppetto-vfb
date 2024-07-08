@@ -231,52 +231,90 @@ class VFBTree extends React.Component {
       loading: true,
       errors: undefined,
     });
-    this.restPost(treeCypherQuery(instance)).done(data => {
-      /*
-       * we take the data provided by the cypher query and consume the until we obtain the treeData that can be given
-       * to the react-sortable-tree since it understands this data structure
-       */
-      if (data.errors.length > 0) {
-        console.log("-- ERROR TREE COMPONENT --");
-        console.log(data.errors);
-        this.setState({ errors: "Error retrieving the data - check the console for additional information" });
-      }
 
-      if (data.results.length > 0 && data.results[0].data.length > 0) {
-        var dataTree = this.parseGraphResultData(data);
-        var vertix = this.findRoot(data);
-        var imagesMap = this.buildDictClassToIndividual(data);
-        var nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-        var edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-        var treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-        this.setState({
-          loading: false,
-          errors: undefined,
-          dataTree: treeData,
-          root: vertix,
-          edges: edges,
-          nodes: nodes,
-          nodeSelected: (this.props.instance === undefined
-            ? treeData[0]
-            : (this.props.instance?.getParent() === null
-              ? { subtitle: this.props.instance?.getId() }
-              : { subtitle: this.props.instance?.getParent()?.getId() }))
-        });
-      } else {
-        var treeData = [{
-          title: "No data available.",
-          subtitle: null,
-          children: []
-        }];
-        this.setState({
-          dataTree: treeData,
-          root: undefined,
-          loading: false,
-          errors: undefined,
-        });
-      }
-    });
+    const cacheKey = `treeData_${instance}`;
+    const cachedData = localStorage.getItem(cacheKey);
+
+    if (cachedData) {
+      const parsedData = JSON.parse(cachedData);
+      const dataTree = this.parseGraphResultData(parsedData);
+      const vertix = this.findRoot(parsedData);
+      const imagesMap = this.buildDictClassToIndividual(parsedData);
+      const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
+      const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
+      const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
+      
+      this.setState({
+        loading: false,
+        errors: undefined,
+        dataTree: treeData,
+        root: vertix,
+        edges: edges,
+        nodes: nodes,
+        nodeSelected: (this.props.instance === undefined
+          ? treeData[0]
+          : (this.props.instance?.getParent() === null
+            ? { subtitle: this.props.instance?.getId() }
+            : { subtitle: this.props.instance?.getParent()?.getId() }))
+      });
+    } else {
+      this.restPost(treeCypherQuery(instance)).done(data => {
+        if (data.errors.length > 0) {
+          console.log("-- ERROR TREE COMPONENT --");
+          console.log(data.errors);
+          this.setState({ errors: "Error retrieving the data - check the console for additional information" });
+        }
+        if (data.results.length > 0 && data.results[0].data.length > 0) {
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(data));
+          } catch (e) {
+            console.error('Error saving to localStorage:', e);
+            if (e.name === 'QuotaExceededError') {
+              console.warn('LocalStorage is full, clearing all data');
+              localStorage.clear();
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+              } catch (e) {
+                console.error('Error saving to localStorage after clearing:', e);
+              }
+            }
+          }
+          const dataTree = this.parseGraphResultData(data);
+          const vertix = this.findRoot(data);
+          const imagesMap = this.buildDictClassToIndividual(data);
+          const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
+          const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
+          const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
+          this.setState({
+            loading: false,
+            errors: undefined,
+            dataTree: treeData,
+            root: vertix,
+            edges: edges,
+            nodes: nodes,
+            nodeSelected: (this.props.instance === undefined
+              ? treeData[0]
+              : (this.props.instance?.getParent() === null
+                ? { subtitle: this.props.instance?.getId() }
+                : { subtitle: this.props.instance?.getParent()?.getId() }))
+          });
+        } else {
+          var treeData = [{
+            title: "No data available.",
+            subtitle: null,
+            children: []
+          }];
+          this.setState({
+            dataTree: treeData,
+            root: undefined,
+            loading: false,
+            errors: undefined,
+          });
+        }
+      });
+    }
   }
+
 
   nodeClick (event, rowInfo) {
     if (event.target.getAttribute("type") !== "button" && (event.target.getAttribute("aria-label") !== "Collapse" || event.target.getAttribute("aria-label") !== "Expand")) {

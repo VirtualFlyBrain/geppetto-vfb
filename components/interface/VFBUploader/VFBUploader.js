@@ -15,10 +15,11 @@ import { withStyles } from "@material-ui/styles";
 import axios from "axios";
 import { DropzoneArea } from "material-ui-dropzone";
 import UploadIcon from "../../configuration/VFBUploader/upload-icon.png";
-import { nanoid } from 'nanoid';
+import { customAlphabet } from '../utils/customAlphabet';
 import FileIcon from "../../configuration/VFBUploader/file-icon.png";
 import { CustomStyle, CustomTheme } from "./styles";
 
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8);
 const UNIQUE_ID = "UNIQUE_ID";
 class VFBUploader extends React.Component {
   constructor (props) {
@@ -74,7 +75,7 @@ class VFBUploader extends React.Component {
   }
 
   handleNBLASTAction () {
-    let newId = "VFBu_" + nanoid(8);
+    let newId = "VFBu_" + nanoid();
     let url = this.configuration.nblastURL.replace(UNIQUE_ID, this.state.templateSelected + "&" + newId);
     var formData = new FormData();
     formData.append("file", this.state.files[0]);

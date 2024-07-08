@@ -1318,7 +1318,7 @@ class VFBMain extends React.Component {
 
     if ((idsList.length > 0) && (this.state.modelLoaded == true) && (this.urlIdsLoaded == false)) {
       this.urlIdsLoaded = true;
-      if (!idsList.includes("VFB_")) {
+      if (!idsList.includes("VFB_") && !idsList.includes("VFBu_")) {
         idsList = "VFB_00101567," + idsList;
       }
       this.idsFromURL = idsList.split(",");

@@ -165,6 +165,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="Gene"
         name="Gene"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="UNBLAST"
+        name="user data NBLAST results"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -961,7 +964,7 @@
       id="querycache"
       name="SOLR Cached Queries"
       dataSourceService="solrqueryDataSource"
-      url="https://solr.VirtualFlyBrain.org/solr/vfb_json/select"
+      url="https://solr.virtualflybrain.org/solr/vfb_json/select"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <libraryConfigurations
@@ -998,6 +1001,21 @@
           xsi:type="gep_2:ProcessQuery"
           name="Process images"
           queryProcessorId="solrQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        name="Get user NBLAST results">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get user NBLAST results"
+          description="Fetches user NBLAST results"
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upload_nblast_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;99&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upload_nblast_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;99&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process user data NBLAST"
+          description="Process user data NBLAST"
+          queryProcessorId="cachedUploadNblastQueryProcessor"/>
     </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
@@ -1326,5 +1344,14 @@
       queryChain="//@dataSources.0/@queries.24">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.48 //@libraries.3/@types.47"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="SimilarMorphologyToUserData"
+      name="has_similar_morphology_to_userdata"
+      description="Neurons with similar morphology to your upload $NAME  [NBLAST mean score]"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.3/@queries.2">
+    <matchingCriteria
+        type="//@libraries.3/@types.49 //@libraries.3/@types.0"/>
   </queries>
 </gep:GeppettoModel>

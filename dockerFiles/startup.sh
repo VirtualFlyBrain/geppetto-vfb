@@ -28,6 +28,9 @@ then
     echo "Client SOLR Server: $SOLR_SERVER"
     grep -rls https://solr.*virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/
     grep -rls https://solr.*virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/ | xargs sed -i "s@https://solr.*virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g"
+    echo "Client SOLR query cache Server: ${SOLR_SERVER/ontology/vfb_json}"
+    grep -rls https://solr.*virtualflybrain.org/solr/vfb_json/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi
+    grep -rls https://solr.*virtualflybrain.org/solr/vfb_json/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@https://solr.*virtualflybrain.org/solr/vfb_json/select@${SOLR_SERVER/ontology/vfb_json}@g"
     echo "Google Analytics code: ${googleAnalyticsSiteCode}"
     grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/
     grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g"
