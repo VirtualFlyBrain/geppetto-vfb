@@ -1308,6 +1308,17 @@ class VFBMain extends React.Component {
         multipleQueries?.forEach( query => {
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
+          if (querySplit[1].trim() == "") {
+            let url = that.props.location.href;
+            setTimeout(function (querySplit, url) {
+              if (window[querySplit[0].trim()] == "SimilarMorphologyToUserData") {
+                if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
+                  window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
+                  window.open(url, "_self");
+                }
+              }
+            }, 2000);
+          }
         });
         // if no other ids are loaded the query target is added.
         if (idsList.length == 0 && this.urlQueryLoader.length > 1) {
