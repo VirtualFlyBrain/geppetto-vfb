@@ -1309,7 +1309,7 @@ class VFBMain extends React.Component {
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
           if (querySplit[1].trim() == "SimilarMorphologyToUserData") {
-            let url = that.props.location.href;
+            let url = window.location.origin + window.location.pathname + "?q=" + query;
             setTimeout(function (querySplit, url) {
               if (window[querySplit[0].trim()] == undefined) {
                 if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
