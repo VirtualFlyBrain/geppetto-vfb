@@ -1311,14 +1311,17 @@ class VFBMain extends React.Component {
           if (querySplit[1].trim() == "SimilarMorphologyToUserData") {
             // if a user data query is called and the VFBu_ id is not loaded after timeout then it must still be being analysed
             let url = window.location.origin + window.location.pathname + "?q=" + query;
-            setTimeout(function (querySplit, url) {
-              if (window[querySplit[0].trim()] == undefined) {
-                if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
-                  window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
-                  window.open(url, "_self");
+            // Use an IIFE (Immediately Invoked Function Expression) to create a closure and capture the variables
+            (function(querySplit, url) {
+              setTimeout(function() {
+                if (window[querySplit[0].trim()] == undefined) {
+                  if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
+                    window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
+                    window.open(url, "_self");
+                  }
                 }
-              }
-            }, 20000);
+              }, 20000);
+            })(querySplit, url);
           }
         });
         // if no other ids are loaded the query target is added.
