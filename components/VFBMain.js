@@ -1309,6 +1309,7 @@ class VFBMain extends React.Component {
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
           if (querySplit[1].trim() == "SimilarMorphologyToUserData") {
+            // if a user data query is called and the VFBu_ id is not loaded after timeout then it must still be being analysed
             let url = window.location.origin + window.location.pathname + "?q=" + query;
             setTimeout(function (querySplit, url) {
               if (window[querySplit[0].trim()] == undefined) {
