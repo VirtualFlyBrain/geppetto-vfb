@@ -1308,16 +1308,20 @@ class VFBMain extends React.Component {
         multipleQueries?.forEach( query => {
           const querySplit = query.split(",");
           that.urlQueryLoader.push({ id : querySplit[0].trim(), selection : querySplit[1].trim() });
-          if (querySplit[1].trim() == "") {
-            let url = that.props.location.href;
-            setTimeout(function (querySplit, url) {
-              if (window[querySplit[0].trim()] == "SimilarMorphologyToUserData") {
-                if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
-                  window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
-                  window.open(url, "_self");
+          if (querySplit[1].trim() == "SimilarMorphologyToUserData") {
+            // if a user data query is called and the VFBu_ id is not loaded after timeout then it must still be being analysed
+            let url = window.location.origin + window.location.pathname + "?q=" + query;
+            // Use an IIFE (Immediately Invoked Function Expression) to create a closure and capture the variables
+            (function(querySplit, url) {
+              setTimeout(function() {
+                if (window[querySplit[0].trim()] == undefined) {
+                  if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
+                    window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
+                    window.open(url, "_self");
+                  }
                 }
-              }
-            }, 2000);
+              }, 10000);
+            })(querySplit, url);
           }
         });
         // if no other ids are loaded the query target is added.
