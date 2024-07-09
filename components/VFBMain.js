@@ -1318,7 +1318,7 @@ class VFBMain extends React.Component {
                   window.open(url, "_self");
                 }
               }
-            }, 2000);
+            }, 20000);
           }
         });
         // if no other ids are loaded the query target is added.
