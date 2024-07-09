@@ -1320,7 +1320,7 @@ class VFBMain extends React.Component {
                     window.open(url, "_self");
                   }
                 }
-              }, 20000);
+              }, 10000);
             })(querySplit, url);
           }
         });
