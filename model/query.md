@@ -1088,9 +1088,9 @@ Query: ```
 No query provided
 ```
 
-## Query Name: Show all data for a scRNAseq dataset
+## Query Name: Show all Clusters for a scRNAseq dataset
 ID: scRNAdatasetData
-Description: List all data for $NAME
+Description: List all Clusters for $NAME
 Type: gep_2:CompoundRefQuery
 Query: ```
 No query provided
