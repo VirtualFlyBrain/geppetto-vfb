@@ -565,7 +565,7 @@ Query: ```
     Description: Get JSON for dataset scRNAseq query
     Type: gep_2:SimpleQuery
     Query: ```
-    "statement": "MATCH (c:Individual)-[:has_source]->(ds:scRNAseq_DataSet) WHERE ds.short_form = $id OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) WITH COLLECT({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets, [])), symbol: coalesce(([]+p.symbol)[0], '')} , PubMed: coalesce(([]+p.PMID)[0], ''), FlyBase: coalesce(([]+p.FlyBase)[0], ''), DOI: coalesce(([]+p.DOI)[0], '') }) AS pubs, c RETURN { core : { short_form: c.short_form, label: coalesce(c.label,''), iri: c.iri, types: labels(c), unique_facets: apoc.coll.sort(coalesce(c.uniqueFacets, [])), symbol: coalesce(([]+c.symbol)[0], '')} , description : coalesce(c.description, []), comment : coalesce(c.comment, []) } AS term, 'Get JSON for dataset scRNAseq query' AS query, 'ma3c0d68' AS version, pubs", "parameters" : { "id" : "$ID" }
+    "statement": "MATCH (c:Individual:Cluster)-[:has_source]->(ds:scRNAseq_DataSet) WHERE ds.short_form = $id MATCH (a:Class:Anatomy)<-[:composed_primarily_of]-(c) WITH *, { short_form: a.short_form, label: coalesce(a.label,''), iri: a.iri, types: labels(a), unique_facets: apoc.coll.sort(coalesce(a.uniqueFacets, [])), symbol: coalesce(([]+a.symbol)[0], '')}  AS anatomy OPTIONAL MATCH (ds)-[:has_reference]->(p:pub) WITH COLLECT({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), unique_facets: apoc.coll.sort(coalesce(p.uniqueFacets, [])), symbol: coalesce(([]+p.symbol)[0], '')} , PubMed: coalesce(([]+p.PMID)[0], ''), FlyBase: coalesce(([]+p.FlyBase)[0], ''), DOI: coalesce(([]+p.DOI)[0], '') }) AS pubs, c, anatomy RETURN { core : { short_form: c.short_form, label: coalesce(c.label,''), iri: c.iri, types: labels(c), unique_facets: apoc.coll.sort(coalesce(c.uniqueFacets, [])), symbol: coalesce(([]+c.symbol)[0], '')} , description : coalesce(c.description, []), comment : coalesce(c.comment, []) } AS term, anatomy, 'Get JSON for dataset scRNAseq query' AS query, 'm20240712' AS version, pubs", "parameters" : { "id" : "$ID" }
 ```
 
     ## Query Name: Process Images
@@ -1088,9 +1088,9 @@ Query: ```
 No query provided
 ```
 
-## Query Name: Show all data for a scRNAseq dataset
+## Query Name: Show all Clusters for a scRNAseq dataset
 ID: scRNAdatasetData
-Description: List all data for $NAME
+Description: List all Clusters for $NAME
 Type: gep_2:CompoundRefQuery
 Query: ```
 No query provided
