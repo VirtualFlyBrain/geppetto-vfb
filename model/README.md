@@ -124,7 +124,7 @@
 ## clusterExpression: Genes expressed in $NAME
 - Step: cluster_expression_query (DataSource Index: 0, Query Index: 21)
 
-## scRNAdatasetData: List all data for $NAME
+## scRNAdatasetData: List all Clusters for $NAME
 - Step: dataset_scRNAseq_query (DataSource Index: 0, Query Index: 23)
 
 ## expressionCluster: scRNAseq clusters expressing $NAME
