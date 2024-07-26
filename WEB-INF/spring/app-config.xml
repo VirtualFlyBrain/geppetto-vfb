@@ -90,7 +90,7 @@ http://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium/gemini-bluep
 		<property name="queuingEnabled" value="true" />
 		<property name="maxQueueSize" value="5" />
 		<property name="discardMessagesIfQueueFull" value="false" />
-		<property name="compressionEnabled" value="true" />
+		<property name="compressionEnabled" value="false" />
 		<property name="minMessageLengthForCompression" value="20000" />
 
 		<!-- <property name="queuedMessageTypes"> <set> <value type="org.geppetto.frontend.messages.OutboundMessages">EXPERIMENT_UPDATE</value> 
