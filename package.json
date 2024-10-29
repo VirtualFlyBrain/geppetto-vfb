@@ -27,12 +27,16 @@
   },
   "overrides": {
     "three": "0.167.0",
+    "**/three": "0.167.0",
     "three-render-objects": "1.29.4",
     "three-forcegraph": "1.41.14"
   },
+  "imports": {
+    "three/examples/js/shaders/FocusShader": "./node_modules/three/examples/jsm/shaders/FocusShader.js",
+    "three/webgpu": "./node_modules/three/examples/jsm/renderers/webgpu/WebGPURenderer.js"
+  },
   "dependencies": {
     "three": "0.167.0",
-    "three-examples": "0.167.0",
     "@types/three": "0.167.0",
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
@@ -93,6 +97,10 @@
   "alias": {
     "three/examples/js/shaders/FocusShader": "three-examples/shaders/FocusShader",
     "three/webgpu": "three/src/renderers/webgpu/WebGPURenderer"
+  },
+  "browser": {
+    "three/examples/js/shaders/FocusShader": "./node_modules/three/examples/jsm/shaders/FocusShader.js",
+    "three/webgpu": "./node_modules/three/examples/jsm/renderers/webgpu/WebGPURenderer.js"
   },
   "buildOptions": {
     "emitEntryPoint": true,
