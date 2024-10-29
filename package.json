@@ -19,6 +19,8 @@
     "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
   },
   "dependencies": {
+    "three": "0.137.5",
+    "three-examples": "0.137.5",
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.4.5",
@@ -74,6 +76,10 @@
     "typedoc": "^0.11.1",
     "typescript": "^2.0.0",
     "webpack-dev-server": "^3.7.2"
+  },
+  "alias": {
+    "three/examples/js/shaders/FocusShader": "three-examples/shaders/FocusShader",
+    "three/webgpu": "three/src/renderers/webgpu/WebGPURenderer"
   },
   "buildOptions": {
     "emitEntryPoint": true,
