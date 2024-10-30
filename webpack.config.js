@@ -142,9 +142,28 @@ module.exports = function (env){
         '@geppettoengine/geppetto-core': path.resolve(__dirname, geppetto_base_path + '/geppetto-core/src'),
         geppetto: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/GEPPETTO.js'),
         '@geppettoengine/geppetto-client-initialization': path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/main'),
-        handlebars: 'handlebars/dist/handlebars.js'
+        handlebars: 'handlebars/dist/handlebars.js',
+        'three/examples/js/loaders/ColladaLoader': path.resolve(__dirname, 'node_modules/three/examples/jsm/loaders/ColladaLoader.js'),
+        'three/examples/js/loaders/OBJLoader': path.resolve(__dirname, 'node_modules/three/examples/jsm/loaders/OBJLoader.js'),
+        'three/examples/js/postprocessing/BloomPass': path.resolve(__dirname, 'node_modules/three/examples/jsm/postprocessing/BloomPass.js'),
+        'three/examples/js/postprocessing/EffectComposer': path.resolve(__dirname, 'node_modules/three/examples/jsm/postprocessing/EffectComposer.js'),
+        'three/examples/js/postprocessing/FilmPass': path.resolve(__dirname, 'node_modules/three/examples/jsm/postprocessing/FilmPass.js'),
+        'three/examples/js/postprocessing/MaskPass': path.resolve(__dirname, 'node_modules/three/examples/jsm/postprocessing/MaskPass.js'),
+        'three/examples/js/postprocessing/RenderPass': path.resolve(__dirname, 'node_modules/three/examples/jsm/postprocessing/RenderPass.js'),
+        'three/examples/js/postprocessing/ShaderPass': path.resolve(__dirname, 'node_modules/three/examples/jsm/postprocessing/ShaderPass.js'),
+        'three/examples/js/shaders/ConvolutionShader': path.resolve(__dirname, 'node_modules/three/examples/jsm/shaders/ConvolutionShader.js'),
+        'three/examples/js/shaders/CopyShader': path.resolve(__dirname, 'node_modules/three/examples/jsm/shaders/CopyShader.js'),
+        'three/examples/js/shaders/FilmShader': path.resolve(__dirname, 'node_modules/three/examples/jsm/shaders/FilmShader.js'),
+        'three/examples/js/shaders/FocusShader': path.resolve(__dirname, 'node_modules/three/examples/jsm/shaders/FocusShader.js'),
+        'three/webgpu': path.resolve(__dirname, 'node_modules/three/examples/jsm/renderers/webgpu/WebGPURenderer.js')
       },
       extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx'],
+      fallback: {
+        fs: 'empty',
+        child_process: 'empty',
+        module: 'empty',
+        'three/webgpu': false
+      }
     },
 
     module: {
