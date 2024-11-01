@@ -203,26 +203,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Setup package.json and install dependencies
+      - name: Install Test Dependencies
         run: |
-          # Create package.json if it doesn't exist
-          if [ ! -f package.json ]; then
-            echo '{
-              "name": "vfb-testing",
-              "version": "1.0.0",
-              "private": true,
-              "resolutions": {
-                "three": "0.115.0"
-              },
-              "overrides": {
-                "three": "0.115.0"
-              }
-            }' > package.json
-          else
-            # Add resolutions to existing package.json
-            npm pkg set resolutions.three="0.115.0"
-            npm pkg set overrides.three="0.115.0"
-          fi
+          # Create minimal package.json just for testing
+          echo '{
+            "name": "vfb-testing",
+            "private": true
+          }' > package.json
 
       - name: Install Chrome dependencies
         run: |
