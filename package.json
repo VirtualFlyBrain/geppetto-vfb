@@ -31,6 +31,21 @@
     "three-render-objects": "1.29.4",
     "three-forcegraph": "1.41.14"
   },
+  "browser": {
+    "three/webgpu": "./node_modules/three/examples/jsm/renderers/webgpu/WebGPURenderer.js",
+    "three/examples/js/loaders/ColladaLoader": "./node_modules/three/examples/jsm/loaders/ColladaLoader.js",
+    "three/examples/js/loaders/OBJLoader": "./node_modules/three/examples/jsm/loaders/OBJLoader.js",
+    "three/examples/js/postprocessing/BloomPass": "./node_modules/three/examples/jsm/postprocessing/BloomPass.js",
+    "three/examples/js/postprocessing/EffectComposer": "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js",
+    "three/examples/js/postprocessing/FilmPass": "./node_modules/three/examples/jsm/postprocessing/FilmPass.js",
+    "three/examples/js/postprocessing/MaskPass": "./node_modules/three/examples/jsm/postprocessing/MaskPass.js",
+    "three/examples/js/postprocessing/RenderPass": "./node_modules/three/examples/jsm/postprocessing/RenderPass.js",
+    "three/examples/js/postprocessing/ShaderPass": "./node_modules/three/examples/jsm/postprocessing/ShaderPass.js",
+    "three/examples/js/shaders/ConvolutionShader": "./node_modules/three/examples/jsm/shaders/ConvolutionShader.js",
+    "three/examples/js/shaders/CopyShader": "./node_modules/three/examples/jsm/shaders/CopyShader.js",
+    "three/examples/js/shaders/FilmShader": "./node_modules/three/examples/jsm/shaders/FilmShader.js",
+    "three/examples/js/shaders/FocusShader": "./node_modules/three/examples/jsm/shaders/FocusShader.js"
+  },
   "dependencies": {
     "three": "0.167.0",
     "@types/three": "0.167.0",
