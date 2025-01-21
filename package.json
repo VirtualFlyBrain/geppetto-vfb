@@ -18,22 +18,9 @@
     "prestart": "eslint . --color",
     "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
   },
-  "resolutions": {
-    "three": "0.167.0",
-    "**/three": "0.167.0",
-    "three-render-objects": "1.29.4",
-    "**/three-render-objects": "1.29.4",
-    "three-forcegraph": "1.41.14"
-  },
-  "overrides": {
-    "three": "0.167.0",
-    "three-render-objects": "1.29.4",
-    "three-forcegraph": "1.41.14"
-  },
   "dependencies": {
-    "three": "0.167.0",
-    "three-examples": "0.167.0",
-    "@types/three": "0.167.0",
+    "three": "0.137.5",
+    "three-examples": "0.137.5",
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.4.5",
