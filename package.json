@@ -19,13 +19,15 @@
     "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
   },
   "dependencies": {
+    "three": "^0.87.1",
+    "three-stdlib": "^2.4.0",
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/runtime": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.4.5",
-    "@geppettoengine/geppetto-client": "openworm/geppetto-client#VFBv2.2.5",
+    "@geppettoengine/geppetto-client": "file:./geppetto-client",
     "@material-ui/icons": "^4.0.0",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@types/react-rnd": "^8.0.0",
