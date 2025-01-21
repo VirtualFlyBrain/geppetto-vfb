@@ -157,7 +157,13 @@ module.exports = function (env){
         'three/examples/js/shaders/FocusShader': path.resolve(__dirname, 'node_modules/three/examples/jsm/shaders/FocusShader.js'),
         'three/webgpu': path.resolve(__dirname, 'node_modules/three/examples/jsm/renderers/webgpu/WebGPURenderer.js')
       },
-      extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx']
+      extensions: ['*', '.js', '.json', '.ts', '.tsx', '.jsx'],
+      fallback: {
+        fs: 'empty',
+        child_process: 'empty',
+        module: 'empty',
+        'three/webgpu': false
+      }
     },
 
     module: {
@@ -211,10 +217,9 @@ module.exports = function (env){
       ]
     },
     node: {
-      fs: false,
-      child_process: false,
-      module: false,
-      'three/webgpu': false,
+      fs: 'empty',
+      child_process: 'empty',
+      module: 'empty'
     }
   }
 };
