@@ -571,7 +571,7 @@ class VFBFocusTerm extends React.Component {
                   : <i className="fa fa-chevron-right arrowsStyle isDisabled" /> 
                 }
                 <Tooltip placement="top-end"
-                  title="NBLAS Uploader">
+                  title="NBLAST Uploader">
                   <i id="fa-upload" className="fa fa-upload arrowsStyle"
                     onClick={() => {
                       this.props.UIUpdateManager("uploaderContentsVisible");

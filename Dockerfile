@@ -13,11 +13,11 @@ ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
 ARG geppettoCoreRelease=VFBv2.2.0
 ARG geppettoSimulationRelease=VFBv2.1.0.2
-ARG geppettoDatasourceRelease=passingSOLR
+ARG geppettoDatasourceRelease=VFBv2.2.0
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.3
-ARG geppettoClientRelease=VFBv2.2.5
-ARG ukAcVfbGeppettoRelease=v2.2.4.3
+ARG geppettoClientRelease=VFBv2.2.7
+ARG ukAcVfbGeppettoRelease=v2.2.4.4
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
