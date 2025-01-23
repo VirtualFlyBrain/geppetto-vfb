@@ -19,7 +19,7 @@ jobs:
   # Deploy the local and remote versions of geppetto-vfb
   deploy-test:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     # total job timeout:
     timeout-minutes: 590
 
