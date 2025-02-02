@@ -32,7 +32,7 @@
     "axios": "^0.19.2",
     "acorn": "^6.0.0",
     "canvas": "2.11.1",
-    "three": "0.163.0",
+    "three": "0.118.x",
     "three-render-objects": "1.27.x",
     "babel-loader": "8.2.x",
     "copy-webpack-plugin": "^4.6.0",
