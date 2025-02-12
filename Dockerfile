@@ -15,7 +15,7 @@ ARG geppettoCoreRelease=VFBv2.2.0
 ARG geppettoSimulationRelease=VFBv2.1.0.2
 ARG geppettoDatasourceRelease=VFBv2.2.0
 ARG geppettoModelSwcRelease=v1.0.1
-ARG geppettoFrontendRelease=VFBv2.1.0.4
+ARG geppettoFrontendRelease=VFBv2.1.0.5
 ARG geppettoClientRelease=VFBv2.2.7
 ARG ukAcVfbGeppettoRelease=v2.2.4.4
 
