@@ -44,6 +44,11 @@ RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
 
+# clear out the geppetto maven cache
+RUN rm -rv /home/developer/.m2/repository/org/geppetto
+
+RUN rm -rf /home/developer/geppetto
+
 # get geppetto
 RUN mkdir -p workspace &&\
   cd workspace &&\
