@@ -13,9 +13,9 @@ ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
 ARG geppettoCoreRelease=VFBv2.2.0
 ARG geppettoSimulationRelease=VFBv2.1.0.2
-ARG geppettoDatasourceRelease=VFBv2.2.0
+ARG geppettoDatasourceRelease=VFBv2.3.0
 ARG geppettoModelSwcRelease=v1.0.1
-ARG geppettoFrontendRelease=VFBv2.1.0.3
+ARG geppettoFrontendRelease=VFBv2.1.0.6
 ARG geppettoClientRelease=VFBv2.2.7
 ARG ukAcVfbGeppettoRelease=v2.2.4.4
 
@@ -43,6 +43,11 @@ ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
+
+# clear out the geppetto maven cache
+RUN rm -rv /home/developer/.m2/repository/org/geppetto
+
+RUN rm -rf /home/developer/geppetto
 
 # get geppetto
 RUN mkdir -p workspace &&\
