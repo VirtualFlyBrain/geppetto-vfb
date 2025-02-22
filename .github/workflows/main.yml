@@ -176,14 +176,14 @@ jobs:
       - name: Start VFB server
         timeout-minutes: 490
         run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
-            sleep 400;
+            sleep 600;
             docker logs testServer;
             if [ $(docker logs testServer | grep "fixable with the " | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
       - name: Wait for VFB server to spin up
         timeout-minutes: 490
         run: |  
           export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
-          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 50; Test; fi; else echo "$(date) - connected successfully"; fi; }
+          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 500; Test; fi; else echo "$(date) - connected successfully"; fi; }
           Test;
       - name: Test batch 1   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch1/.*js'
