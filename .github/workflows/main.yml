@@ -174,16 +174,16 @@ jobs:
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       - name: Start VFB server
-        timeout-minutes: 290
+        timeout-minutes: 490
         run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
-            sleep 200;
+            sleep 400;
             docker logs testServer;
             if [ $(docker logs testServer | grep "fixable with the " | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
       - name: Wait for VFB server to spin up
-        timeout-minutes: 290
+        timeout-minutes: 490
         run: |  
           export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
-          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 10; Test; fi; else echo "$(date) - connected successfully"; fi; }
+          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 50; Test; fi; else echo "$(date) - connected successfully"; fi; }
           Test;
       - name: Test batch 1   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch1/.*js'
