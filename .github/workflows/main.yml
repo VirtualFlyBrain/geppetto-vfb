@@ -60,7 +60,7 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::staging";
+            echo "::set-output name=BUILD_TYPE::release";
           else 
             echo "::debug::Set to default setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
