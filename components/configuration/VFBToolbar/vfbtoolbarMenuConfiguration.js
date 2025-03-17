@@ -379,7 +379,7 @@ var toolbarMenu = {
                       icon: "",
                       action: {
                         handlerAction: "openNewTab",
-                        parameters: ["https://iav-robo.catmaid.virtualflybrain.org/?pid=1&zp=18360&yp=25383.555362060197&xp=40676.497110038756&tool=tracingtool&sid0=1&s0=4&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
+                        parameters: ["https://iav-robo.catmaid.virtualflybrain.org/?pid=2&zp=18360&yp=25383.555362060197&xp=40676.497110038756&tool=tracingtool&sid0=1&s0=4&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
                       }
                     },
                     {
@@ -387,7 +387,7 @@ var toolbarMenu = {
                       icon: "",
                       action: {
                         handlerAction: "openNewTab",
-                        parameters: ["https://iav-tnt.catmaid.virtualflybrain.org/?pid=2&zp=0&yp=28633&xp=45094.6&sid0=2&s0=4&tool=tracingtool&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
+                        parameters: ["https://iav-tnt.catmaid.virtualflybrain.org/?pid=4&zp=0&yp=28633&xp=45094.6&sid0=2&s0=4&tool=tracingtool&help=true&layout=h(XY,%20%7B%20type:%20%22neuron-search%22,%20id:%20%22neuron-search-1%22,%20options:%20%7B%22annotation-name%22:%20%22papers%22%7D%7D,%200.6)"]
                       }
                     }
                   ]
