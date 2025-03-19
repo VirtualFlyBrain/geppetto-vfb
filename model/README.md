@@ -75,6 +75,7 @@
 
 ## AllAlignedImages: List all images aligned to $NAME
 - Step: Find images aligned to a template (DataSource Index: 0, Query Index: 7)
+- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## PartsOf: Parts of $NAME
 - Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
