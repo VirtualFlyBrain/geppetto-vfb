@@ -331,13 +331,14 @@
           name="Find images aligned to template id"
           description="Find images aligned to template id"
           returnType="//@libraries.3/@types.0"
-          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder[0],'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
           countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
-          name="Process Images"
-          returnType="//@libraries.3/@types.0"
-          queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
+          id="neo4jPassSolrIdListOnly"
+          name="neo4j Pass solr id list only"
+          description="Keep nothing slimply pass solr ids"
+          queryProcessorId="neo4jToSOLRidQueryProcessor"/>
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
@@ -1195,7 +1196,7 @@
       name="Show all images aligned to template"
       description="List all images aligned to $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.7">
+      queryChain="//@dataSources.0/@queries.7 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
