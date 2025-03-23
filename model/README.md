@@ -6,16 +6,16 @@
 ## TransgeneExpressionHere: Reports of transgene expression in $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Pass 1st id list only (DataSource Index: 1, Query Index: 14)
-- Step: Query for exp from anatomy with no warning (DataSource Index: 0, Query Index: 8)
+- Step: Query for exp from anatomy with no warning (DataSource Index: 0, Query Index: 7)
 - Step: subClassOf cell overlaps some X (DataSource Index: 1, Query Index: 16)
 - Step: Owlery Pass 2nd id list only (DataSource Index: 1, Query Index: 12)
-- Step: Test Query for exp from anatomy without warning 2 (DataSource Index: 0, Query Index: 11)
+- Step: Test Query for exp from anatomy without warning 2 (DataSource Index: 0, Query Index: 10)
 - Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
 - Step: Owlery Pass 3rd id list only (DataSource Index: 1, Query Index: 13)
-- Step: Test Query for exp from anatomy without warning 3 (DataSource Index: 0, Query Index: 14)
+- Step: Test Query for exp from anatomy without warning 3 (DataSource Index: 0, Query Index: 13)
 
 ## ExpressionOverlapsHere: Anatomy $NAME is expressed in
-- Step: Query for anatomy from expression  (DataSource Index: 0, Query Index: 10)
+- Step: Query for anatomy from expression  (DataSource Index: 0, Query Index: 9)
 
 ## NeuronClassesFasciculatingHere: Neurons fasciculating in $NAME
 - Step: Owlery Neuron classes fasciculating here (DataSource Index: 1, Query Index: 6)
@@ -74,7 +74,8 @@
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## AllAlignedImages: List all images aligned to $NAME
-- Step: Find images aligned to a template (DataSource Index: 0, Query Index: 7)
+- Step: Find images aligned to template id (DataSource Index: 0, Query Index: 24)
+- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 25)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## PartsOf: Parts of $NAME
@@ -88,48 +89,48 @@
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## AlignedDatasets: List all datasets aligned to $NAME
-- Step: Datasets available for Template (DataSource Index: 0, Query Index: 12)
+- Step: Datasets available for Template (DataSource Index: 0, Query Index: 11)
 
 ## AllDatasets: List all datasets
-- Step: Datasaets available (DataSource Index: 0, Query Index: 13)
+- Step: Datasaets available (DataSource Index: 0, Query Index: 12)
 
 ## ref_neuron_region_connectivity_query: Show connectivity per region for $NAME
-- Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 15)
+- Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 14)
 
 ## ref_neuron_neuron_connectivity_query: Show neurons connected to $NAME
-- Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 16)
+- Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 15)
 
 ## SimilarMorphologyTo: Neurons with similar morphology to $NAME  [NBLAST mean score]
-- Step: NBLAST similarity neo Query (DataSource Index: 0, Query Index: 17)
+- Step: NBLAST similarity neo Query (DataSource Index: 0, Query Index: 16)
 
 ## SimilarMorphologyToPartOf: Expression patterns with some similar morphology to $NAME  [NBLAST mean score]
-- Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 19)
+- Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 18)
 
 ## TermsForPub: List all terms that reference $NAME
-- Step: All referenced Entities from a pub (DataSource Index: 0, Query Index: 18)
+- Step: All referenced Entities from a pub (DataSource Index: 0, Query Index: 17)
 
 ## SimilarMorphologyToPartOfexp: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
-- Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 19)
+- Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 18)
 
 ## SimilarMorphologyToNB: Neurons that overlap with $NAME  [NeuronBridge]
-- Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 20)
+- Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 19)
 
 ## SimilarMorphologyToNBexp: Expression patterns that overlap with $NAME  [NeuronBridge]
-- Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 20)
+- Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 19)
 
 ## anatScRNAseqQuery: Single cell transcriptomics data for $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
 - Step: Owlery Pass Plus Query ID (DataSource Index: 1, Query Index: 17)
-- Step: anat_scRNAseq_query (DataSource Index: 0, Query Index: 22)
+- Step: anat_scRNAseq_query (DataSource Index: 0, Query Index: 21)
 
 ## clusterExpression: Genes expressed in $NAME
-- Step: cluster_expression_query (DataSource Index: 0, Query Index: 21)
+- Step: cluster_expression_query (DataSource Index: 0, Query Index: 20)
 
 ## scRNAdatasetData: List all Clusters for $NAME
-- Step: dataset_scRNAseq_query (DataSource Index: 0, Query Index: 23)
+- Step: dataset_scRNAseq_query (DataSource Index: 0, Query Index: 22)
 
 ## expressionCluster: scRNAseq clusters expressing $NAME
-- Step: expression_cluster_query (DataSource Index: 0, Query Index: 24)
+- Step: expression_cluster_query (DataSource Index: 0, Query Index: 23)
 
 ## SimilarMorphologyToUserData: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
 - Step: Get user NBLAST results (DataSource Index: 3, Query Index: 2)
