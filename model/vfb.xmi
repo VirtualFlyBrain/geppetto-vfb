@@ -989,7 +989,7 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get anat_query"
           description="Fetches essential details."
-          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;500000&quot;}"
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;300000&quot;}"
           countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;anat_query,anat_image_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
