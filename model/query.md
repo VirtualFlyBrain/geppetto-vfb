@@ -805,7 +805,7 @@ Query: ```
     Description: Fetches essential details.
     Type: gep_2:SimpleQuery
     Query: ```
-    "params":{"defType":"edismax","fl":"anat_query,anat_image_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"50000"}
+    "params":{"defType":"edismax","fl":"anat_query,anat_image_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"500000"}
 ```
 
     ## Query Name: Process images
