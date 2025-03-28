@@ -11,12 +11,12 @@ VOLUME /tmp/error
 #SET TAG/BRANCH to use:
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
-ARG geppettoCoreRelease=VFBv2.2.1
+ARG geppettoCoreRelease=VFBv2.2.0
 ARG geppettoSimulationRelease=VFBv2.1.0.2
-ARG geppettoDatasourceRelease=v2.3.2
+ARG geppettoDatasourceRelease=VFBv2.3.1
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=VFBv2.1.0.7
-ARG geppettoClientRelease=VFBv2.3.0
+ARG geppettoClientRelease=VFBv2.2.7
 ARG ukAcVfbGeppettoRelease=v2.2.4.6
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
