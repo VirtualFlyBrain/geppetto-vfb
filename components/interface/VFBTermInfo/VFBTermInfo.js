@@ -801,6 +801,7 @@ class VFBTermInfoWidget extends React.Component {
           
           $("body").css("cursor", "progress");
 
+
           $('#add-new-query-container')[0].hidden = true;
           $('#query-builder-items-container')[0].hidden = true;
 
@@ -809,21 +810,6 @@ class VFBTermInfoWidget extends React.Component {
             if (that.props.queryBuilder.props.model.count > 0) {
               // runQuery if any results
               that.props.queryBuilder.runQuery();
-              
-              // Get query builder configuration to access timeout settings
-              const queryBuilderConfig = require('../../configuration/VFBMain/queryBuilderConfiguration');
-              const longQueryTimeout = queryBuilderConfig.longQueryTimeout || 5000;
-              const longQueryMessage = queryBuilderConfig.longQueryMessage || "Large query (~2 min). Click anywhere to run in background.";
-              
-              // Set timeout to show message for long-running queries AFTER query runs
-              if (queryBuilderConfig.enableLongQueryMessage) {
-                setTimeout(function() {
-                  // Display the long query message only if spinner is still active (query not complete)
-                  if ($("body").css("cursor") === "progress") {
-                    GEPPETTO.Console.createMessage(GEPPETTO.Resources.QUERY_RUNNING, longQueryMessage);
-                  }
-                }, longQueryTimeout);
-              }
             } else {
               that.props.queryBuilder.switchView(false);
             }
@@ -832,7 +818,6 @@ class VFBTermInfoWidget extends React.Component {
             $("body").css("cursor", "default");
             GEPPETTO.trigger('stop_spin_logo');
           };
-          
           // add query item + selection
           if (window[otherId] == undefined) {
             window.fetchVariableThenRun(otherId, function () {
