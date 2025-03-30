@@ -817,6 +817,9 @@ class VFBTermInfoWidget extends React.Component {
             that.props.queryBuilder.open();
             $("body").css("cursor", "default");
             GEPPETTO.trigger('stop_spin_logo');
+            setTimeout(function () {
+              $("#query-error-message").text("Large query (~2 min). Click anywhere to run in background.").show();
+            }, 5000);
           };
           // add query item + selection
           if (window[otherId] == undefined) {
