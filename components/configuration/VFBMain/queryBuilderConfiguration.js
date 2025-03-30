@@ -369,10 +369,7 @@ var queryResultsControlConfig = {
       "label": "FlyBase",
       "tooltip": "FlyBase Term"
     }
-  },
-  enableLongQueryMessage: true,
-  longQueryTimeout: 5000, // Time in ms (5 seconds) before showing the message
-  longQueryMessage: "Large query (~2 min). Click anywhere to run in background."
+  }
 };
 
 var queryBuilderDatasourceConfig = {
