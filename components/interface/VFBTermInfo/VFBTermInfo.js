@@ -804,6 +804,12 @@ class VFBTermInfoWidget extends React.Component {
 
           $('#add-new-query-container')[0].hidden = true;
           $('#query-builder-items-container')[0].hidden = true;
+          $("#query-builder-footer").show();
+          $("#run-query-btn").hide();
+          
+          setTimeout(function () {
+            $("#query-error-message").text("Large query (~2 min). Click anywhere to run in background.").show();
+          }, 5000);
 
           var callback = function () {
             // check if any results with count flag
