@@ -817,35 +817,6 @@ class VFBTermInfoWidget extends React.Component {
             that.props.queryBuilder.open();
             $("body").css("cursor", "default");
             GEPPETTO.trigger('stop_spin_logo');
-            $("#query-builder-footer").show();
-            $("#run-query-btn").hide();
-            $("#query-results-label").text(that.props.queryBuilder.props.model.count + " results").show();
-            
-            // Store the count value outside the timeout
-            const modelCount = that.props.queryBuilder.props.model.count;
-            setTimeout(function () {
-              // Calculate estimated time (in seconds) based on count
-              const estimatedSeconds = (modelCount / 320000) * 120;
-              
-              // Format the time string
-              let timeString;
-              if (estimatedSeconds < 60) {
-                // Less than a minute, show in seconds
-                timeString = Math.round(estimatedSeconds) + " sec";
-              } else {
-                // More than a minute, show in minutes
-                const minutes = estimatedSeconds / 60;
-                if (minutes === Math.round(minutes)) {
-                  // Exact minute (no decimal)
-                  timeString = Math.round(minutes) + " min";
-                } else {
-                  // Round to 1 decimal place
-                  timeString = minutes.toFixed(1) + " min";
-                }
-              }
-              
-              $("#query-error-message").text("Large query (~" + timeString + "). Click anywhere to run in background.").show();
-            }, 5000);
           };
           // add query item + selection
           if (window[otherId] == undefined) {
