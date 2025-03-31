@@ -321,26 +321,6 @@
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
-        id="imagesForTempId"
-        name="Find images aligned to a template"
-        description="Aligned images for template"
-        returnType="//@libraries.3/@types.0">
-      <queryChain
-          xsi:type="gep_2:SimpleQuery"
-          id="imagesForTempQuery"
-          name="Find images aligned to template id"
-          description="Find images aligned to template id"
-          returnType="//@libraries.3/@types.0"
-          query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder[0],'http:','https:') + '/thumbnailT.png' as file&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-          countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
-      <queryChain
-          xsi:type="gep_2:ProcessQuery"
-          name="Process Images"
-          returnType="//@libraries.3/@types.0"
-          queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
-    </queries>
-    <queries
-        xsi:type="gep_2:CompoundQuery"
         name="Query for exp from anatomy with no warning"
         description="">
       <queryChain
@@ -663,6 +643,20 @@
           description="vfb_query_schema_processor"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="imagesForTempQuery"
+        name="Find images aligned to template id"
+        description="Find images aligned to template id"
+        returnType="//@libraries.3/@types.0"
+        query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="neo4jPassSolrIdListOnly"
+        name="neo4j Pass solr id list only"
+        description="Keep nothing slimply pass solr ids"
+        queryProcessorId="neo4jToSOLRidQueryProcessor"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -1048,7 +1042,7 @@
       name="Expression overlapping selected anatomy"
       description="Reports of transgene expression in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.14 //@dataSources.0/@queries.8 //@dataSources.1/@queries.16 //@dataSources.1/@queries.12 //@dataSources.0/@queries.11 //@dataSources.1/@queries.0 //@dataSources.1/@queries.13 //@dataSources.0/@queries.14">
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.14 //@dataSources.0/@queries.7 //@dataSources.1/@queries.16 //@dataSources.1/@queries.12 //@dataSources.0/@queries.10 //@dataSources.1/@queries.0 //@dataSources.1/@queries.13 //@dataSources.0/@queries.13">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1059,7 +1053,7 @@
       name="Expression overlapping what anatomy"
       description="Anatomy $NAME is expressed in"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.0/@queries.10">
+      queryChain="//@dataSources.0/@queries.9">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
     <matchingCriteria
@@ -1195,7 +1189,7 @@
       name="Show all images aligned to template"
       description="List all images aligned to $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.7">
+      queryChain="//@dataSources.0/@queries.24 //@dataSources.0/@queries.25 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
@@ -1222,7 +1216,7 @@
       name="Show all datasets aligned to template"
       description="List all datasets aligned to $NAME"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.12">
+      queryChain="//@dataSources.0/@queries.11">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
@@ -1231,7 +1225,7 @@
       name="Show all datasets"
       description="List all datasets"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.13">
+      queryChain="//@dataSources.0/@queries.12">
     <matchingCriteria
         type="//@libraries.3/@types.20"/>
   </queries>
@@ -1239,7 +1233,7 @@
       id="ref_neuron_region_connectivity_query"
       name="Show connectivity to regions from Neuron X"
       description="Show connectivity per region for $NAME"
-      queryChain="//@dataSources.0/@queries.15">
+      queryChain="//@dataSources.0/@queries.14">
     <matchingCriteria
         type="//@libraries.3/@types.43"/>
   </queries>
@@ -1247,7 +1241,7 @@
       id="ref_neuron_neuron_connectivity_query"
       name="Show connectivity to neurons from Neuron X"
       description="Show neurons connected to $NAME"
-      queryChain="//@dataSources.0/@queries.16">
+      queryChain="//@dataSources.0/@queries.15">
     <matchingCriteria
         type="//@libraries.3/@types.42"/>
   </queries>
@@ -1256,7 +1250,7 @@
       name="has_similar_morphology_to"
       description="Neurons with similar morphology to $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.17">
+      queryChain="//@dataSources.0/@queries.16">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
   </queries>
@@ -1265,7 +1259,7 @@
       name="has_similar_morphology_to_part_of_neuron"
       description="Expression patterns with some similar morphology to $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.19">
+      queryChain="//@dataSources.0/@queries.18">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.44"/>
   </queries>
@@ -1274,7 +1268,7 @@
       name="has_reference_to_pub"
       description="List all terms that reference $NAME"
       returnType="//@libraries.3/@types.36"
-      queryChain="//@dataSources.0/@queries.18">
+      queryChain="//@dataSources.0/@queries.17">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.16"/>
   </queries>
@@ -1283,7 +1277,7 @@
       name="has_similar_morphology_to_part_of_exp"
       description="Neurons with similar morphology to part of $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.19">
+      queryChain="//@dataSources.0/@queries.18">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.27 //@libraries.3/@types.44"/>
     <matchingCriteria
@@ -1294,7 +1288,7 @@
       name="has_similar_morphology_to_nb"
       description="Neurons that overlap with $NAME  [NeuronBridge]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.20">
+      queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.27"/>
     <matchingCriteria
@@ -1305,7 +1299,7 @@
       name="has_similar_morphology_to_nb_exp"
       description="Expression patterns that overlap with $NAME  [NeuronBridge]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.20">
+      queryChain="//@dataSources.0/@queries.19">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
   </queries>
@@ -1314,7 +1308,7 @@
       name="anat_scRNAseq_query"
       description="Single cell transcriptomics data for $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.17 //@dataSources.0/@queries.22">
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.17 //@dataSources.0/@queries.21">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.47"/>
   </queries>
@@ -1323,7 +1317,7 @@
       name="cluster_expression"
       description="Genes expressed in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.0/@queries.21">
+      queryChain="//@dataSources.0/@queries.20">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
@@ -1332,7 +1326,7 @@
       name="Show all Clusters for a scRNAseq dataset"
       description="List all Clusters for $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.23">
+      queryChain="//@dataSources.0/@queries.22">
     <matchingCriteria
         type="//@libraries.3/@types.24 //@libraries.3/@types.47"/>
   </queries>
@@ -1341,7 +1335,7 @@
       name="expression_cluster"
       description="scRNAseq clusters expressing $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.24">
+      queryChain="//@dataSources.0/@queries.23">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.48 //@libraries.3/@types.47"/>
   </queries>

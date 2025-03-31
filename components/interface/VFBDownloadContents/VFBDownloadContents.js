@@ -55,7 +55,10 @@ const styles = theme => ({
     overflow: "unset",
     margin: "0 auto",
   },
-  dialogContent: { overflow: "hidden" },
+  dialogContent: { 
+    overflowY: "auto", 
+    maxHeight: "calc(100vh - 200px)" 
+  },
   checked: { "&$checked": { color: "#0AB7FE" } },
   "@global": {
     ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "white" },

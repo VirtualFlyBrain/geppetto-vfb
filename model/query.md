@@ -168,30 +168,6 @@ Query: ```
     neo4jQueryProcessor
 ```
 
-## Query Name: Find images aligned to a template
-ID: imagesForTempId
-Description: Aligned images for template
-Type: gep_2:CompoundQuery
-Query: ```
-
-```
-
-    ## Query Name: Find images aligned to template id
-    ID: imagesForTempQuery
-    Description: Find images aligned to template id
-    Type: gep_2:SimpleQuery
-    Query: ```
-    "statement": "MATCH (n:Template {short_form:$id})<-[:depicts]-(:Template)<-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) OPTIONAL MATCH (di)-[:INSTANCEOF]->(d:Class) RETURN distinct di.short_form as id, di.label as name, coalesce(di.description[0],d.description[0]) as def, COLLECT(DISTINCT d.label) as type, replace(r.folder[0],'http:','https:') + '/thumbnailT.png' as file", "parameters" : { "id" : "$ID" }
-```
-
-    ## Query Name: Process Images
-    ID: None
-    Description: No description provided
-    Type: gep_2:ProcessQuery
-    Query: ```
-    vfbCreateResultListForIndividualsForQueryResultsQueryProcessor
-```
-
 ## Query Name: Query for exp from anatomy with no warning
 ID: None
 Description: 
@@ -598,6 +574,22 @@ Query: ```
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
+```
+
+## Query Name: Find images aligned to template id
+ID: imagesForTempQuery
+Description: Find images aligned to template id
+Type: gep_2:SimpleQuery
+Query: ```
+"statement": "MATCH (n:Template {short_form:$id})<-[:depicts]-(:Template)<-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
+```
+
+## Query Name: neo4j Pass solr id list only
+ID: neo4jPassSolrIdListOnly
+Description: Keep nothing slimply pass solr ids
+Type: gep_2:ProcessQuery
+Query: ```
+neo4jToSOLRidQueryProcessor
 ```
 
 ## Query Name: Owlery Part of
