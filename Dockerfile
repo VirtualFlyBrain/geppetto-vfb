@@ -130,8 +130,8 @@ RUN if test "${runtime_build}" = "false" ; then \
     find $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/ -name vfb.xmi -exec grep -l http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast {} \; | xargs -r sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" && \
     echo "Client SOLR Server: $SOLR_SERVER" && \
     find $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/ -type f -exec grep -l "https://solr.*virtualflybrain.org/solr/ontology/select" {} \; | xargs -r sed -i "s@https://solr.*virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" && \
-    echo "Client SOLR query cache Server: ${SOLR_SERVER/ontology/vfb_json}" && \
-    find $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/ -name vfb.xmi -exec grep -l "https://solr.*virtualflybrain.org/solr/vfb_json/select" {} \; | xargs -r sed -i "s@https://solr.*virtualflybrain.org/solr/vfb_json/select@${SOLR_SERVER/ontology/vfb_json}@g" && \
+    echo "Client SOLR query cache Server: $(echo $SOLR_SERVER | sed 's/ontology/vfb_json/g')" && \
+    find $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/ -name vfb.xmi -exec grep -l "https://solr.*virtualflybrain.org/solr/vfb_json/select" {} \; | xargs -r sed -i "s@https://solr.*virtualflybrain.org/solr/vfb_json/select@$(echo $SOLR_SERVER | sed 's/ontology/vfb_json/g')@g" && \
     echo "Google Analytics code: ${googleAnalyticsSiteCode}" && \
     find $HOME/workspace/org.geppetto.frontend/ -type f -exec grep -l "ga('create', 'UA-" {} \; | xargs -r sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" && \
     echo "useSSL:${USESSL}" && \
