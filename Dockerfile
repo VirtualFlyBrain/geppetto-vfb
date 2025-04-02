@@ -31,6 +31,8 @@ ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
 ARG build_type=production
+ARG runtime_build=false
+ENV RUNTIME_BUILD=${runtime_build}
 
 ENV VFB_PDB_SERVER=${VFB_PDB_SERVER_ARG}
 ENV VFB_TREE_PDB_SERVER=${VFB_TREE_PDB_SERVER_ARG}
@@ -107,7 +109,38 @@ COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
-RUN if test ! "${build_type}" = "development" ; then /startup.sh || true; fi
+RUN if test "${runtime_build}" = "false" ; then \
+    echo "Configuring server URLs and compiling frontend..." && \
+    # Check for non-standard servers
+    echo "Any non-standard servers in use:" && \
+    grep -rls dev.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/ || true && \
+    grep -rls alpha.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/ || true && \
+    # Configure server URLs
+    echo "Using Servers:" && \
+    echo "Client Tree Browser Server: $VFB_TREE_PDB_SERVER" && \
+    grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBTree/VFBTreeConfiguration.js | xargs sed -i "s@https://pdb.*virtualflybrain.org@$VFB_TREE_PDB_SERVER@g" && \
+    grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBCircuitBrowser/circuitBrowserConfiguration.js | xargs sed -i "s@https://pdb.*virtualflybrain.org@$VFB_TREE_PDB_SERVER@g" && \
+    grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBGraph/graphConfiguration.js | xargs sed -i "s@https://pdb.*virtualflybrain.org@$VFB_TREE_PDB_SERVER@g" && \
+    echo "Server PDB: $VFB_PDB_SERVER" && \
+    grep -rls "http://pdb.*virtualflybrain.org" $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://pdb.*virtualflybrain.org@$VFB_PDB_SERVER@g" && \
+    echo "Server OWL: $VFB_OWL_SERVER" && \
+    grep -rls http://owl.virtualflybrain.org/kbs/vfb/ $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://owl.*virtualflybrain.org/kbs/vfb/@$VFB_OWL_SERVER@g" && \
+    echo "Server OCPU R server: $VFB_R_SERVER" && \
+    grep -rls http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast@$VFB_R_SERVER@g" && \
+    echo "Client SOLR Server: $SOLR_SERVER" && \
+    grep -rls https://solr.*virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/ | xargs sed -i "s@https://solr.*virtualflybrain.org/solr/ontology/select@$SOLR_SERVER@g" && \
+    echo "Client SOLR query cache Server: ${SOLR_SERVER/ontology/vfb_json}" && \
+    grep -rls https://solr.*virtualflybrain.org/solr/vfb_json/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/model/vfb.xmi | xargs sed -i "s@https://solr.*virtualflybrain.org/solr/vfb_json/select@${SOLR_SERVER/ontology/vfb_json}@g" && \
+    echo "Google Analytics code: ${googleAnalyticsSiteCode}" && \
+    grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" && \
+    echo "useSSL:${USESSL}" && \
+    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g" && \
+    # Compile frontend
+    cd $HOME/workspace/org.geppetto.frontend && \
+    /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m" && \
+    mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install && \
+    rm -rf src; \
+fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
