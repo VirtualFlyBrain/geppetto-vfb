@@ -25,7 +25,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/runtime": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.4.5",
-    "@geppettoengine/geppetto-client": "file:./geppetto-client",
+    "@geppettoengine/geppetto-client": "openworm/geppetto-client#VFBv2.2.5",
     "@material-ui/icons": "^4.0.0",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@types/react-rnd": "^8.0.0",
@@ -74,6 +74,26 @@
     "typedoc": "^0.11.1",
     "typescript": "^2.0.0",
     "webpack-dev-server": "^3.7.2"
+  },
+  "overrides": {
+    "@geppettoengine/geppetto-client": {
+      "ami.js": {
+        "three": "0.167.0"
+      },
+      "react-force-graph-3d": {
+        "3d-force-graph": {
+          "three": "0.167.0"
+        }
+      }
+    },
+    "ami.js": {
+        "three": "0.167.0"
+    },
+    "react-force-graph-3d": {
+        "3d-force-graph": {
+          "three": "0.167.0"
+        }
+      }
   },
   "buildOptions": {
     "emitEntryPoint": true,

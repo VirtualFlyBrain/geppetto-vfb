@@ -19,7 +19,7 @@ jobs:
   # Deploy the local and remote versions of geppetto-vfb
   deploy-test:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     # total job timeout:
     timeout-minutes: 590
 
@@ -27,7 +27,7 @@ jobs:
     steps:
       
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       
       # Decide based on branch which servers to use
       - name: Pass branch
@@ -60,7 +60,7 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::staging";
+            echo "::set-output name=BUILD_TYPE::release";
           else 
             echo "::debug::Set to default setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
@@ -174,15 +174,16 @@ jobs:
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
       - name: Start VFB server
+        timeout-minutes: 490
         run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
-            sleep 100;
+            sleep 600;
             docker logs testServer;
             if [ $(docker logs testServer | grep "fixable with the " | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
       - name: Wait for VFB server to spin up
-        timeout-minutes: 290
+        timeout-minutes: 490
         run: |  
           export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
-          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 1; Test; fi; else echo "$(date) - connected successfully"; fi; }
+          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 500; Test; fi; else echo "$(date) - connected successfully"; fi; }
           Test;
       - name: Test batch 1   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch1/.*js'
@@ -198,7 +199,7 @@ jobs:
           fi
       - name: Stop VFB server   
         run: docker stop testServer
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: test_fails

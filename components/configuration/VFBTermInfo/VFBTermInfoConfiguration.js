@@ -93,24 +93,6 @@ const buttonBarConfiguration = {
         "tooltip": "Disable 3D Skeleton"
       }
     },
-    "geometryType_swc": {
-      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_swc')",
-      "condition": "(function() { if ($instance$.getType().$instance$_swc != undefined && $instance$.geometryType === \"CYLINDERS\" ) { return true; } else { return false; } })()",
-      "false": {
-        "id": "cylynders_swc",
-        "actions": ["var instance = Instances.getInstance('$instance$.$instance$_swc'); instance.setGeometryType('cylinders'); $instance$.geometryType = \"CYLINDERS\" "],
-        "icon": "fa-plus-circle",
-        "label": "Cylinder",
-        "tooltip": "Cylinder 3D Skeleton"
-      },
-      "true": {
-        "id": "cylynders_swc",
-        "actions": ["var instance = Instances.getInstance('$instance$.$instance$_swc'); instance.setGeometryType('lines'); $instance$.geometryType = \"LINES\" "],
-        "icon": "fa-minus-circle",
-        "label": "Lines",
-        "tooltip": "Lines 3D Skeleton"
-      }
-    },
     "delete": {
       "showCondition": "$instance$.getId()!=window.templateID",
       "id": "delete",
