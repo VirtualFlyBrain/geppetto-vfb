@@ -31,6 +31,8 @@ ENV MAXSIZE=2G
 ARG finalBuild=false
 ENV USESSL=${finalBuild}
 ARG build_type=production
+ARG runtime_build=false
+ENV RUNTIME_BUILD=${runtime_build}
 
 ENV VFB_PDB_SERVER=${VFB_PDB_SERVER_ARG}
 ENV VFB_TREE_PDB_SERVER=${VFB_TREE_PDB_SERVER_ARG}
@@ -107,7 +109,7 @@ COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
-RUN if test ! "${build_type}" = "development" ; then /startup.sh || true; fi
+RUN if test "${runtime_build}" = "false" ; then /startup.sh || true; fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
