@@ -39,8 +39,8 @@ grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/ || true
 grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g" || true
 
 echo "useSSL:${USESSL}"
-grep -rls "\"useSsl\":" $HOME/workspace/org.geppetto.frontend/ || true
-grep -rls "\"useSsl\":" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g" || true
+grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/
+grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\"[[:space:]]*:[[:space:]]*\(true\|false\)@\"useSsl\": ${USESSL}@g"
 
 set -e
 
