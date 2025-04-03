@@ -42,12 +42,33 @@ echo "useSSL:${USESSL}"
 grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/
 grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\"[[:space:]]*:[[:space:]]*\(true\|false\)@\"useSsl\": ${USESSL}@g"
 
-set -e
+# Temporarily disable exit on error so we can check for npm logs if the build fails
+set +e
 
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
-# Add --debug flag to get more information if the build fails
-export MAVEN_OPTS="$MAVEN_OPTS -Dnpm.executable=$NPM_PATH/npm"
-mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} -X install -e 
+echo "mvnOpt: ${mvnOpt}"
+mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} -X install -e
+BUILD_STATUS=$?
+
+# If build failed, check for npm logs
+if [ $BUILD_STATUS -ne 0 ]; then
+  echo -e "\e[91mBuild failed. Checking for npm logs...\e[0m"
+  if [ -d "/home/developer/.npm/_logs/" ] && [ "$(ls -A /home/developer/.npm/_logs/)" ]; then
+    echo -e "\e[93mFound npm logs:\e[0m"
+    cat /home/developer/.npm/_logs/*
+  else
+    echo "No npm logs found in /home/developer/.npm/_logs/"
+  fi
+fi
+
+# Re-enable exit on error
+set -e
+
+# Exit with the original build status if it failed
+if [ $BUILD_STATUS -ne 0 ]; then
+  exit $BUILD_STATUS
+fi
+
 rm -rf src
