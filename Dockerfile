@@ -110,9 +110,6 @@ COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup
 COPY dockerFiles/startup.sh /
 COPY dockerFiles/build.sh /
 
-# Set bash as the default shell for remaining RUN commands
-SHELL ["/bin/bash", "-c"]
-
 # Make build script executable
 RUN chmod +x /build.sh
 
