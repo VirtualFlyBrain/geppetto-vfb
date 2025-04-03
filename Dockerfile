@@ -103,7 +103,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
 
-RUN echo "package.json" && cat $HOME/workspace/org.geppetto.frontend/src/main/webapp/package.json
+RUN echo "package-lock.json" && cat $HOME/workspace/org.geppetto.frontend/src/main/webapp/package-lock.json
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
