@@ -44,6 +44,11 @@ grep -rls "\"useSsl\":" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s
 
 set -e
 
+# Add npm bin folder to PATH
+echo "Adding npm bin folder to PATH..."
+export PATH=$PATH:$HOME/workspace/org.geppetto.frontend/target/frontend-1.0.1/node/node_modules/npm/bin/
+echo $PATH
+
 # Configure npm properly before building
 cd $HOME/workspace/org.geppetto.frontend/src/main/webapp
 echo "Configuring npm registry..."
