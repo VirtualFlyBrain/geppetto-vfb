@@ -109,7 +109,10 @@ COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
 
-RUN /bin/bash -c 'if test "${runtime_build}" = "false" ; then \
+# Set bash as the default shell for remaining RUN commands
+SHELL ["/bin/bash", "-c"]
+
+RUN if test "${runtime_build}" = "false" ; then \
     # Note dev/alpha servers in code: \
     echo "Any non-standard servers in use:" && \
     grep -rls dev.virtualflybrain.org/solr/ontology/select $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/ && \
@@ -153,7 +156,7 @@ RUN /bin/bash -c 'if test "${runtime_build}" = "false" ; then \
     /bin/echo -e "\\e[96mMaven install org.geppetto.frontend\\e[0m" && \
     mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install && \
     rm -rf src; \
-fi'
+fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
