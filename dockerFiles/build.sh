@@ -54,5 +54,5 @@ npm config get registry
 cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
 # Add --debug flag to get more information if the build fails
-mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install
+mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=${finalBuild} install
 rm -rf src
