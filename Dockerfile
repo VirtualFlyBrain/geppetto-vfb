@@ -110,9 +110,6 @@ COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup
 COPY dockerFiles/startup.sh /
 COPY dockerFiles/build.sh /
 
-# Make build script executable
-RUN chmod +x /build.sh
-
 # Run build script if not in runtime mode
 RUN if test "${runtime_build}" = "false" ; then /build.sh; fi
 
