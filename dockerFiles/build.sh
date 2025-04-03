@@ -42,14 +42,6 @@ echo "useSSL:${USESSL}"
 grep -rls "\"useSsl\":" $HOME/workspace/org.geppetto.frontend/ || true
 grep -rls "\"useSsl\":" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g" || true
 
-# Setup npm path to ensure it's found during build
-echo "Setting up npm location for build..."
-NPM_PATH="$HOME/workspace/org.geppetto.frontend/src/main/webapp/node/node_modules/npm/bin"
-NODE_PATH="$HOME/workspace/org.geppetto.frontend/src/main/webapp/node"
-export PATH="$NPM_PATH:$NODE_PATH:$PATH"
-which npm || echo "Warning: npm not found in path!"
-npm -v || echo "Warning: npm version command failed!"
-
 set -e
 
 # Frontend final build
