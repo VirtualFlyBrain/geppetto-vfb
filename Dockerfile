@@ -123,7 +123,6 @@ RUN if test "${runtime_build}" = "false" ; then \
     echo "Client Tree Browser Server: $VFB_TREE_PDB_SERVER" && \
     grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBTree/VFBTreeConfiguration.js || true && \
     grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBTree/VFBTreeConfiguration.js | xargs sed -i "s@https://pdb.*virtualflybrain.org@$VFB_TREE_PDB_SERVER@g" || true && \
-    grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBCircuitBrowser/circuitBrowserConfiguration.js || true && \
     grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBCircuitBrowser/circuitBrowserConfiguration.js | xargs sed -i "s@https://pdb.*virtualflybrain.org@$VFB_TREE_PDB_SERVER@g" || true && \
     grep -rls url $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/configuration/VFBGraph/graphConfiguration.js | xargs sed -i "s@https://pdb.*virtualflybrain.org@$VFB_TREE_PDB_SERVER@g" || true && \
     echo "Server PDB: $VFB_PDB_SERVER" && \
@@ -151,9 +150,16 @@ RUN if test "${runtime_build}" = "false" ; then \
     \
     set -e && \
     \
+    # Configure npm properly before building
+    cd $HOME/workspace/org.geppetto.frontend/src/main/webapp && \
+    echo "Configuring npm registry..." && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config get registry && \
+    \
     # Frontend final build \
     cd $HOME/workspace/org.geppetto.frontend && \
     /bin/echo -e "\\e[96mMaven install org.geppetto.frontend\\e[0m" && \
+    # Add --debug flag to get more information if the build fails
     mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=false install && \
     rm -rf src; \
 fi
