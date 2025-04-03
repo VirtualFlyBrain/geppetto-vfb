@@ -49,5 +49,5 @@ cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
 # Add --debug flag to get more information if the build fails
 export MAVEN_OPTS="$MAVEN_OPTS -Dnpm.executable=$NPM_PATH/npm"
-mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} install -e 
+mvn ${mvnOpt} -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} -X install -e 
 rm -rf src
