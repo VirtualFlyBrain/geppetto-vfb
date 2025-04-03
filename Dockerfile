@@ -108,8 +108,11 @@ COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup
 COPY dockerFiles/startup.sh /
 COPY dockerFiles/build.sh /
 
+USER developer
 # Run build script if not in runtime mode
 RUN if test "${runtime_build}" = "false" ; then /build.sh; fi
+
+USER root
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr
