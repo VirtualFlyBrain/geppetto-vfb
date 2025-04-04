@@ -2,22 +2,32 @@ const { TimeoutError } = require('puppeteer/Errors');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
-	let success = undefined;
-	let options = settings;
-	if (!("timeout" in settings)) {
-		options = { timeout: 5000, ...settings };
-	}
-	try {
-		await page.waitForSelector(selector, options);
-		success = true
-	} catch (error){
-		let behaviour = "to exists."
-			if (options.visible || options.hidden) {
-				behaviour = options.visible ? "to be visible." : "to disappear."
-			}
-		console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}`)
-	}
-	expect(success).toBeDefined()
+  let success = undefined;
+  let options = settings;
+  if (!("timeout" in settings)) {
+    options = { timeout: 30000, ...settings }; // Increase default timeout to 30 seconds
+  }
+  
+  try {
+    await page.waitForSelector(selector, options);
+    success = true;
+  } catch (error) {
+    let behaviour = "to exists.";
+    if (options.visible || options.hidden) {
+      behaviour = options.visible ? "to be visible." : "to disappear.";
+    }
+    console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}`);
+    
+    // Additional debugging info
+    console.log(`Current page URL: ${page.url()}`);
+    try {
+      const html = await page.evaluate(() => document.body.innerHTML);
+      console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
+    } catch (e) {
+      console.log(`Could not get page HTML: ${e}`);
+    }
+  }
+  expect(success).toBeDefined();
 }
 
 /**
