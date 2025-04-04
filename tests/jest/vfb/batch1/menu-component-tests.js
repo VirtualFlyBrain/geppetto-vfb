@@ -119,7 +119,7 @@ describe('VFB Menu Component Tests', () => {
       await page.evaluate(async () => document.getElementById("All Available Datasets").click());
       // Wait for results to appear, this means datasets were returned
       await wait4selector(page, '#querybuilder', { visible: true , timeout : 500000 });
-      await wait4selector(page, '#Xu2020NeuronsV1point1----VFBlicense_CC_BY_4_0----doi_10_1101_2020_01_21_911859-image-container', { visible: true , timeout : 500000 });
+      await wait4selector(page, '#Xu2020NeuronsV1point2point1----VFBlicense_CC_BY_4_0----doi_10_1101_2020_01_21_911859-image-container', { visible: true , timeout : 500000 });
     })
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
