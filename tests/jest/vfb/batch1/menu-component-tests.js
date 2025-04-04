@@ -123,12 +123,12 @@ describe('VFB Menu Component Tests', () => {
     })
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
-      await await clickQueryResult(page, "JRC_FlyEM_Hemibrain neurons Version 1.1")
+      await await clickQueryResult(page, "JRC_FlyEM_Hemibrain neurons Version 1.2.1")
       await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
       await page.waitFor(3000);
       await wait4selector(page, '#slider_image_0', { visible: true , timeout : 500000 });
-      let element = await findElementByText(page, "JRC_FlyEM_Hemibrain neurons Version 1.1");
-      expect(element).toBe("JRC_FlyEM_Hemibrain neurons Version 1.1");
+      let element = await findElementByText(page, "JRC_FlyEM_Hemibrain neurons Version 1.2.1");
+      expect(element).toBe("JRC_FlyEM_Hemibrain neurons Version 1.2.1");
     })
   })
 
