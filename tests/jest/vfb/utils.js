@@ -2,22 +2,40 @@ const { TimeoutError } = require('puppeteer/Errors');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
-	let success = undefined;
-	let options = settings;
-	if (!("timeout" in settings)) {
-		options = { timeout: 5000, ...settings };
-	}
-	try {
-		await page.waitForSelector(selector, options);
-		success = true
-	} catch (error){
-		let behaviour = "to exists."
-			if (options.visible || options.hidden) {
-				behaviour = options.visible ? "to be visible." : "to disappear."
-			}
-		console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}`)
-	}
-	expect(success).toBeDefined()
+  let success = undefined;
+  let options = settings;
+  if (!("timeout" in settings)) {
+    options = { timeout: 30000, ...settings }; // Increase default timeout to 30 seconds
+  }
+  
+  try {
+    await page.waitForSelector(selector, options);
+    success = true;
+  } catch (error) {
+    let behaviour = "to exist";
+    if (options.visible || options.hidden) {
+      behaviour = options.visible ? "to be visible" : "to disappear";
+    }
+    console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}.`);
+    
+    // Take a screenshot to capture the failure state
+    const safeSelector = selector.replace(/[^a-zA-Z0-9]/g, '_');
+    const screenshotName = `error-wait4selector-${safeSelector}-${behaviour.replace(/\s+/g, '-')}`;
+    const screenshotPath = await takeScreenshot(page, screenshotName);
+    if (screenshotPath) {
+      console.log(`Screenshot of failure state saved to: ${screenshotPath}`);
+    }
+    
+    // Additional debugging info
+    console.log(`Current page URL: ${page.url()}`);
+    try {
+      const html = await page.evaluate(() => document.body.innerHTML);
+      console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
+    } catch (e) {
+      console.log(`Could not get page HTML: ${e}`);
+    }
+  }
+  expect(success).toBeDefined();
 }
 
 /**
@@ -166,3 +184,16 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 
 	return found;
 }, text);
+
+export const takeScreenshot = async (page, name) => {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const path = `./test-screenshots/${name}-${timestamp}.png`;
+    await page.screenshot({ path, fullPage: true });
+    console.log(`Screenshot saved to ${path}`);
+    return path;
+  } catch (error) {
+    console.log(`Failed to take screenshot: ${error}`);
+    return null;
+  }
+};

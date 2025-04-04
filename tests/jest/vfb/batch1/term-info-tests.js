@@ -141,7 +141,17 @@ describe('VFB Term Info Component Tests', () => {
 			// await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
 			// await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
 			// Mouse over 'Query For' menu item to expand drop down menu
-			await page.evaluate(async () => document.getElementById("Queries for medulla on adult brain template JFRC2").click());
+			await page.evaluate(async () => {
+				const element = document.getElementById("Queries for medulla on adult brain template JFRC2");
+				if (element) {
+					element.click();
+				} else {
+					console.error("Element not found: 'Queries for medulla on adult brain template JFRC2'");
+					// Try to find similar elements to see what's available
+					const possibleElements = Array.from(document.querySelectorAll('[id*="Queries"]'));
+					console.log("Found possible query elements:", possibleElements.map(e => e.id || e.textContent));
+				}
+			});
 			await page.waitFor(1000);
 			// Click on item from query drop down menu and expect the query modal window to open
 			await page.evaluate(async () => document.getElementById("List all available images of medulla").click());

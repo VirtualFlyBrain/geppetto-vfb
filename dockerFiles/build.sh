@@ -49,7 +49,7 @@ set +e
 cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
 echo "mvnOpt: ${mvnOpt}"
-mvn -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} -X install -e
+mvn -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} install -e
 BUILD_STATUS=$?
 
 # If build failed, check for npm logs
