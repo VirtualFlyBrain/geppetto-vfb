@@ -176,3 +176,16 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 
 	return found;
 }, text);
+
+export const takeScreenshot = async (page, name) => {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const path = `./test-screenshots/${name}-${timestamp}.png`;
+    await page.screenshot({ path, fullPage: true });
+    console.log(`Screenshot saved to ${path}`);
+    return path;
+  } catch (error) {
+    console.log(`Failed to take screenshot: ${error}`);
+    return null;
+  }
+};
