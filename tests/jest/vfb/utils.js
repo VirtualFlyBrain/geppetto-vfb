@@ -12,11 +12,19 @@ export const wait4selector = async (page, selector, settings = {}) => {
     await page.waitForSelector(selector, options);
     success = true;
   } catch (error) {
-    let behaviour = "to exists.";
+    let behaviour = "to exist";
     if (options.visible || options.hidden) {
-      behaviour = options.visible ? "to be visible." : "to disappear.";
+      behaviour = options.visible ? "to be visible" : "to disappear";
     }
-    console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}`);
+    console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}.`);
+    
+    // Take a screenshot to capture the failure state
+    const safeSelector = selector.replace(/[^a-zA-Z0-9]/g, '_');
+    const screenshotName = `error-wait4selector-${safeSelector}-${behaviour.replace(/\s+/g, '-')}`;
+    const screenshotPath = await takeScreenshot(page, screenshotName);
+    if (screenshotPath) {
+      console.log(`Screenshot of failure state saved to: ${screenshotPath}`);
+    }
     
     // Additional debugging info
     console.log(`Current page URL: ${page.url()}`);
