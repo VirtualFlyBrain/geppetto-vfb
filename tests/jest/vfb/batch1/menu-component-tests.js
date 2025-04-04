@@ -8,21 +8,25 @@ import * as ST from '../selectors';
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 
-const clickQueryResult = async (page, text) => page.evaluate(async (text ) => {
-	let elems = Array.from(document.querySelectorAll('.query-results-name-column'));
-	let found = "";
-
-	for (var i = 0; i < elems.length; i++) {
-		if (elems[i] !== undefined ) {
-			if (elems[i].innerText!== undefined ) {
-				if (elems[i].innerText === text) {
-					elems[i].getElementsByTagName("a")[0].click();
-					break;
-				}
-			}
-		}
-	}
-}, text);
+const clickQueryResult = async (page, text) => {
+  await page.evaluate(async (text) => {
+    let elems = Array.from(document.querySelectorAll('.query-results-name-column'));
+    
+    for (var i = 0; i < elems.length; i++) {
+      if (elems[i]?.innerText === text) {
+        elems[i].getElementsByTagName("a")[0].click();
+        return true; // Indicate we found and clicked the element
+      }
+    }
+    return false; // Indicate we didn't find the element
+  }, text);
+  
+  // Add a wait to ensure navigation completes
+  await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 }).catch(() => {
+    // Sometimes navigation doesn't trigger, which is fine
+    console.log('Navigation completed or timeout reached');
+  });
+}
 
 /**
  * Tests Menu Components
