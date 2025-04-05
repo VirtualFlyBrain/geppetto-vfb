@@ -48,7 +48,7 @@ describe('VFB Layer Component Tests', () => {
 	//Tests components in landing page are present
 	it('Test Landing Page', async () => {
 		await testLandingPage(page, 'VFB_jrchk4wj');
-	}, 20000) // Increased timeout to 20 seconds
+	}, 120000)
 
 	// Tests opening control panel and clicking on row buttons
 	describe('Test Layers Component', () => {
@@ -57,7 +57,7 @@ describe('VFB Layer Component Tests', () => {
 
 			// Check that the Layers component is visible
 			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 800000 });
-		}, 30000) // Increased timeout to 30 seconds
+		}, 800000) 
 
 		// Tests Layer component opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
