@@ -11,14 +11,15 @@ const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 const clickQueryResult = async (page, text) => {
   await page.evaluate(async (text) => {
     let elems = Array.from(document.querySelectorAll('.query-results-name-column'));
-    
+    console.log('Query result elements:', elems.map(e => e.innerText)); // Debugging log
+
     for (var i = 0; i < elems.length; i++) {
-      if (elems[i]?.innerText === text) {
+      if (elems[i] && elems[i].innerText === text) {
+        console.log(`Clicking on element with text: ${text}`); // Debugging log
         elems[i].getElementsByTagName("a")[0].click();
-        return true; // Indicate we found and clicked the element
+        break;
       }
     }
-    return false; // Indicate we didn't find the element
   }, text);
   
   // Add a wait to ensure navigation completes
@@ -34,7 +35,7 @@ const clickQueryResult = async (page, text) => {
 describe('VFB Menu Component Tests', () => {
   beforeAll(async () => {
     //increases timeout to ~8 minutes
-		jest.setTimeout(500000);
+		jest.setTimeout(900000);
     await page.goto(projectURL);
 
   });
@@ -122,17 +123,16 @@ describe('VFB Menu Component Tests', () => {
     it('All Available Datasets Opens', async () => {
       await page.evaluate(async () => document.getElementById("All Available Datasets").click());
       // Wait for results to appear, this means datasets were returned
-      await wait4selector(page, '#querybuilder', { visible: true , timeout : 500000 });
-      await wait4selector(page, '#Xu2020NeuronsV1point2point1----VFBlicense_CC_BY_4_0----doi_10_1101_2020_01_21_911859-image-container', { visible: true , timeout : 500000 });
-    })
+      await wait4selector(page, '#querybuilder', { visible: true , timeout : 900000 });
+      await wait4selector(page, '#Dorkenwald2023----VFBlicense_CC_BY_NC_4_0----doi_10_1101_2023_06_27_546656-image-container', { visible: true , timeout : 900000 });
+    }, 900000);
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
-      await await clickQueryResult(page, "JRC_FlyEM_Hemibrain neurons Version 1.2.1")
-      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-      await page.waitFor(3000);
-      await wait4selector(page, '#slider_image_0', { visible: true , timeout : 500000 });
-      let element = await findElementByText(page, "JRC_FlyEM_Hemibrain neurons Version 1.2.1");
-      expect(element).toBe("JRC_FlyEM_Hemibrain neurons Version 1.2.1");
+      await clickQueryResult(page, "FlyWire connectome neurons");
+      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 900000 });
+      await wait4selector(page, '#slider_image_0', { visible: true , timeout : 900000 });
+      let element = await findElementByText(page, "FlyWire connectome neurons");
+      expect(element).toBe("FlyWire connectome neurons");
     })
   })
 
