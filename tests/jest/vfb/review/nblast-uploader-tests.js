@@ -51,7 +51,7 @@ describe('VFB Uploader Tests', () => {
 			    var event = document.createEvent('MouseEvents');
 			    event.initMouseEvent('mousedown', true, true, window);
 			    dropdown.dispatchEvent(event);
-			}, 120000);			  
+			}, 120000);
 			
 			await page.waitForSelector('li.MuiListItem-root');
 			
@@ -60,7 +60,7 @@ describe('VFB Uploader Tests', () => {
 				return document.querySelectorAll('.MuiListItem-root').length;
 			});
 			
-			expect(list).toBe(3);
+			expect(list).toBe(4);
 		}, 120000)
 		
 		it('Template Selected', async () => {
