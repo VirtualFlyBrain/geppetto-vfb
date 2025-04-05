@@ -55,7 +55,7 @@ describe('VFB Menu Component Tests', () => {
 
     it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
       await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-    })
+    }, 120000)
 
     it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
       await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })

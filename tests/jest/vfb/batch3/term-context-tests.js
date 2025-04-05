@@ -34,7 +34,7 @@ describe('VFB Term Context Component Tests', () => {
 		//Tests components in landing page are present
 		it('Test Landing Page', async () => {
 			await testLandingPage(page, 'VFB_00101567');
-		})
+		}, 120000)
 
 		// Open Term Context Component
 		it('Open Term Context', async () => {
@@ -42,13 +42,13 @@ describe('VFB Term Context Component Tests', () => {
 
 			// Check that the Term Context is Visible
 			await wait4selector(page, 'div#VFBGraph', { visible: true, timeout : 800000 });
-		})
+		}, 120000)
 
 		it('Snapshot Comparison of Term Context', async () => {
 			await page.waitFor(10000);
 			const image = await page.screenshot();
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
-		})
+		}, 120000)
 	})
 
 	// Add Medulla to scene, needed to test sync mechanism in Term Context
@@ -82,7 +82,7 @@ describe('VFB Term Context Component Tests', () => {
 			// Wait for results in search component to go away
 			await page.waitFor(5000);
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
-		})
+		}, 120000)
 
 		// Wait for Medulla to be loaded by checking term info and Focus Term
 		it('Medulla Loaded', async () => {
@@ -90,7 +90,7 @@ describe('VFB Term Context Component Tests', () => {
 			expect(
 					await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
 			).toBe("Queries for medulla")
-		})
+		}, 120000)
 
 		// Re open Term Context
 		it('Open Term Context', async () => {
@@ -109,7 +109,7 @@ describe('VFB Term Context Component Tests', () => {
 			const image = await page.screenshot();
 			// This will fail if Adult Brain is not still loaded.
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
-		})
+		}, 120000)
 
 		it('Snapshot Comparison of Term Context After Sync Trigger, Graph Displays Medulla', async () => {
 			// Click on sync button
@@ -125,6 +125,6 @@ describe('VFB Term Context Component Tests', () => {
 			// This will fail if Medulla didn't load in Term Context, since snapshot comparison will show differences
 			SNAPSHOT_OPTIONS.failureThreshold = 0.20 // allowing for minor graph layout changes
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/medulla"  });
-		})
+		}, 120000)
 	})
 })

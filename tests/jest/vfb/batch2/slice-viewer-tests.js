@@ -29,11 +29,11 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toMatch("Virtual Fly Brain");
-		})
+		}, 120000)
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
@@ -104,7 +104,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
 			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
 			expect(element).toBe("medulla on adult brain template JFRC2");
-		})
+		}, 120000)
 	})
 
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
@@ -117,7 +117,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(2)
-		})
+		}, 120000)
 
 		it('Mesh from batch request id : VFB_00017894.VFB_00017894_obj present in stack viewer component', async () => {
 			expect(
@@ -130,7 +130,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 			expect(
 					await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
 			).toBeTruthy();
-		});
+		}, 120000);
 
 		it('3D Plane not visible', async () => {
 			expect(

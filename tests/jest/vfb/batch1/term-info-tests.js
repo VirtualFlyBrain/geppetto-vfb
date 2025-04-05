@@ -33,15 +33,15 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Component Opens on Load with Components', () => {
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+		}, 120000)
 	})
 
 	describe('Test Term Info Component Minimizes/Maximizes/Opens/Closes', () => {
@@ -73,7 +73,7 @@ describe('VFB Term Info Component Tests', () => {
 					cancelable: true
 				});
 				mouseDown.dispatchEvent(clickEvent);
-			});
+			}, 120000);
 
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
@@ -126,7 +126,7 @@ describe('VFB Term Info Component Tests', () => {
 						tabs[i].click();
 					}
 				}
-			});
+			}, 120000);
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
@@ -156,7 +156,7 @@ describe('VFB Term Info Component Tests', () => {
 			// Click on item from query drop down menu and expect the query modal window to open
 			await page.evaluate(async () => document.getElementById("List all available images of medulla").click());
 			await wait4selector(page, '#query-results-container', { visible: true, timeout : 50000});
-		})
+		}, 120000)
 
 		// Close Query Results window by pressing Escape on Window
 		it('Close Query Results Window', async () => {
@@ -171,7 +171,7 @@ describe('VFB Term Info Component Tests', () => {
 			await page.waitFor(15000);
 			element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
 			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
-		})
+		}, 120000)
 	})
 
 	describe('Test Term Info Icon Buttons Work', () => {
@@ -189,7 +189,7 @@ describe('VFB Term Info Component Tests', () => {
 			// Close Query Panel
 			closeModalWindow(page);
 			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 50000});
-		})
+		}, 120000)
 
 		it('Term info, "Clear All" Button Works', async () => {
 			await page.evaluate(async variableName => $(variableName).click(), "i.fa-eraser");

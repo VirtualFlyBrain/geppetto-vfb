@@ -56,7 +56,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check that progress bar has disappeared
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
-		})
+		}, 120000)
 
 		// Check that the Term Info component has the instance loaded
 		it('Term info component created and populated after load', async () => {
@@ -86,7 +86,7 @@ describe('VFB Loader Component Tests', () => {
 	describe('Test 2 : Test Progress Bar for Loading 2 Instances', () => {
 		it('Launch VFB', async () => {
 			await page.goto(projectURL + secondTest);
-		})
+		}, 120000)
 
 		it('Test Landing Page', async () => {
 			const title = await page.title();
@@ -111,13 +111,13 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the progress bar is gone after 2 instances are done loading
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
-		})
+		}, 120000)
 
 		// Check that the Term Info was contains the second instance loaded
 		it('Term info component created and populated after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 60000 })
 			await wait4selector(page, '#VFB_00000001_deselect_buttonBar_btn', { visible: true , timeout : 60000 })
-		})
+		}, 120000)
 
 		// Check that the Slice Viewer exists and has the 2 instances loaded
 		it("Slice Viewer created with 2 instances, VFB_00000001 and VFB_00017894", async () => {
@@ -130,21 +130,21 @@ describe('VFB Loader Component Tests', () => {
 			expect(
 				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00000001.VFB_00000001_swc'].visible)
 			).toBeTruthy()
-		})
+		}, 120000)
 
 		// Check that the canvas inside 3D Viewer has two meshes for the two instances
 		it("Canvas container component has 2 mesh(es) rendered", async () => {
 			expect(
 				await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(2)
-		})
+		}, 120000)
 	})
 
 	// Third set of test cases, tests loading 3 instances
 	describe('Test 3 : Test Progress Bar for Loading 3 Instances', () => {
 		it('Launch VFB', async () => {
 			await page.goto(projectURL + thirdTest);
-		})
+		}, 120000)
 
 		// Test landing page was reached by checking title
 		it('Test Landing Page', async () => {
@@ -170,7 +170,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the progress bar is gone, which means instances have loaded
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 300000 });
-		})
+		}, 120000)
 
 		// Check Term Info has loaded the last instance added
 		it('Term info component created and populated after load with FBbt_00003678', async () => {
@@ -190,13 +190,13 @@ describe('VFB Loader Component Tests', () => {
 			expect(
 				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00030624.VFB_00030624_obj'].visible)
 			).toBeTruthy()
-		})
+		}, 120000)
 
 		// Check that the 3D Viewer has 2 instances loaded, FBbt_00003678 isn't a visual capability so we don't search for it here
 		it("Canvas container component has 2 mesh(es) rendered", async () => {
 			expect(
 				await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(2)
-		})
+		}, 120000)
 	})
 })

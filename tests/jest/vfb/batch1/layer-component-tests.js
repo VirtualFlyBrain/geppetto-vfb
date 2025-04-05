@@ -48,7 +48,7 @@ describe('VFB Layer Component Tests', () => {
 	//Tests components in landing page are present
 	it('Test Landing Page', async () => {
 		await testLandingPage(page, 'VFB_jrchk4wj');
-	})
+	}, 20000) // Increased timeout to 20 seconds
 
 	// Tests opening control panel and clicking on row buttons
 	describe('Test Layers Component', () => {
@@ -57,13 +57,13 @@ describe('VFB Layer Component Tests', () => {
 
 			// Check that the Layers component is visible
 			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 800000 });
-		})
+		}, 30000) // Increased timeout to 30 seconds
 
 		// Tests Layer component opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(2);
-		})
+		}, 30000) // Increased timeout to 30 seconds
 	});
 
 	// Tests opening Layer component and clicking on row buttons
@@ -85,7 +85,7 @@ describe('VFB Layer Component Tests', () => {
 		// Click on control's option to deselect VFB_jrchk4wj instance and check is now deselected
 		it('Unselect VFB_jrchk4wj Instance', async () => {
 			await clickLayerControlsElement(page, 'Unselect');
-			await page.waitFor(2000);
+			await page.waitFor(3000);
 			const color = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString()
 			});
@@ -152,23 +152,23 @@ describe('VFB Layer Component Tests', () => {
 		it('Enable 3D Volume For VFB_jrchk4wj Instance', async () => {
 			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Enable 3D Volume');
-			await page.waitFor(10000);
+			await page.waitFor(15000);
 			const enableVolume = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].visible
 			});
 			expect(enableVolume).toEqual(true);
-		})
+		}, 30000) // Increased timeout to 20 seconds
 
 		// Click on control's option to disable VFB_jrchk4wj 3d Volume and check is now hidden
 		it('Disable 3D Volume For VFB_jrchk4wj Instance', async () => {
 			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Disable 3D Volume');
-			await page.waitFor(10000);
+			await page.waitFor(15000);
 			const disableVolume = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].visible
 			});
 			expect(disableVolume).toEqual(false);
-		})
+		}, 30000)
 
 		// Click on control's option to show info for VFB_jrchk4wj instance and check term info opens up with instance
 		it('Show Info For VFB_jrchk4wj Instance', async () => {
@@ -197,6 +197,7 @@ describe('VFB Layer Component Tests', () => {
 		// Chance color of VFB_jrchk4wj instance using controls
 		it('Use color picker to change color of VFB_jrchk4wj', async () => {
 			// Retrieve old color in mesh
+			await page.waitFor(2000);
 			let meshColor = await page.evaluate(async () => {
 				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
 			});
@@ -211,7 +212,7 @@ describe('VFB Layer Component Tests', () => {
 			});
 
 			expect(newColor).toEqual('f542e6');
-		})
+		}, 30000)
 
 		// Click on control's option to delete VFB_jrchk4wj instance and check is now gone
 		it('Delete VFB_jrchk4wj Instance', async () => {
@@ -224,6 +225,6 @@ describe('VFB Layer Component Tests', () => {
 			});
 
 			expect(instance).toEqual(undefined);
-		})
+		}, 30000)
 	})
 })

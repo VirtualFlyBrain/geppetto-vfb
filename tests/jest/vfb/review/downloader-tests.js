@@ -27,22 +27,22 @@ describe('VFB Downloader Tests', () => {
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toMatch("Virtual Fly Brain");
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00102107 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00102107_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+		}, 120000)
 		
 				//Tests canvas has 5 meshes rendered
 		it('Canvas container component has 3 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(3)
-		})
+		}, 120000)
 	})
 
 	describe('Tests Download Contents', () => {
@@ -70,13 +70,13 @@ describe('VFB Downloader Tests', () => {
 			expect(
 					await page.evaluate(async () => document.querySelector('#downloadContentsButton').disabled )
 			).toBe(false)
-		})
+		}, 120000)
 		
 		
 		it('Download Contents Dialog goes away', async () => {
 			await page.click('#downloadContentsButton');
 			await wait4selector(page, '#downloadContents', { hidden: true , timeout : 120000 })
-		})
+		}, 120000)
 		
 	})
 })

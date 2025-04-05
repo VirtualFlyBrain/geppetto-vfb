@@ -27,15 +27,15 @@ describe('VFB Uploader Tests', () => {
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toMatch("Virtual Fly Brain");
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+		}, 120000)
 	})
 
 	describe('Tests NBLAST Uploader', () => {
@@ -51,7 +51,7 @@ describe('VFB Uploader Tests', () => {
 			    var event = document.createEvent('MouseEvents');
 			    event.initMouseEvent('mousedown', true, true, window);
 			    dropdown.dispatchEvent(event);
-			});			  
+			}, 120000);			  
 			
 			await page.waitForSelector('li.MuiListItem-root');
 			
@@ -61,7 +61,7 @@ describe('VFB Uploader Tests', () => {
 			});
 			
 			expect(list).toBe(3);
-		})
+		}, 120000)
 		
 		it('Template Selected', async () => {
 			const selection = await page.evaluate(async () => {

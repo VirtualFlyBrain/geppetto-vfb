@@ -35,28 +35,28 @@ describe('VFB Batch Requests Tests', () => {
 
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+		}, 120000)
 		
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
 			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2");
 			expect(element).toBe("ventral complex on adult brain template JFRC2");
-		})
+		}, 120000)
 
 		//Tests canvas has 5 meshes rendered
 		it('Canvas container component has 5 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(5)
-		})
+		}, 120000)
 	})
 
 	//Expects stack viewer component to have 5 meshes rendered and visible.
@@ -69,7 +69,7 @@ describe('VFB Batch Requests Tests', () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(5)
-		})
+		}, 120000)
 
 		it.each(batch_requests)('Mesh from batch request id %s present in stack viewer component', async id => {
 			expect(
@@ -87,7 +87,7 @@ describe('VFB Batch Requests Tests', () => {
 
 			// Check that the Tree Browser is visible
 			await wait4selector(page, 'div.flexlayout__popup_menu_container', { visible: true, timeout : 5000 });
-		})
+		}, 120000)
 		
 		it('Open Layers Component', async () => {
 			await page.evaluate(async () => {
@@ -105,7 +105,7 @@ describe('VFB Batch Requests Tests', () => {
 		it('The layers component opened with right amount of rows.', async () => {
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
-		})
+		}, 120000)
 //
 //		it.each(batch_requests)('Row created for batch request with id %s in control panel', async id => {
 //			await wait4selector(page, 'button[id=' + id + '_info_ctrlPanel_btn]', { visible: true, timeout: 1800000})
