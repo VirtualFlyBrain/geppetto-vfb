@@ -160,6 +160,7 @@ describe('VFB Term Info Component Tests', () => {
 					console.error("Element not found: 'List all available images of medulla'");
 				}
 			});
+			await page.waitFor(8000);
 			await wait4selector(page, '#query-results-container', { visible: true, timeout : 120000});
 		}, 120000)
 
