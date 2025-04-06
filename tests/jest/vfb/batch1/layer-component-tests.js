@@ -54,9 +54,9 @@ describe('VFB Layer Component Tests', () => {
 	describe('Test Layers Component', () => {
 		it('Open Layers Component', async () => {
 			await selectTab(page, "Layers");
-
+			await page.waitFor(1000); // Give the DOM time to update
 			// Check that the Layers component is visible
-			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 800000 });
+			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 120000 });
 		}, 800000) 
 
 		// Tests Layer component opens up and that is populated with expected 2 rows
@@ -177,22 +177,22 @@ describe('VFB Layer Component Tests', () => {
 			await page.waitFor(2000);
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 			await wait4selector(page, '#VFB_jrchk4wj_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		// Re open layers component
 		it('Open Layers Component', async () => {
 			await selectTab(page, "Layers");
-
+			await page.waitFor(1000); // Give the DOM time to update
 			// Check that the Layers component is visible
-			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 800000 });
-		})
+			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 120000 });
+		}, 120000)
 
 		// Open color picker to change color of VFB_jrchk4wj
 		it('Color Picker Appears for VFB_jrchk4wj', async () => {
 			await openControls(page, "PVLP142_R (FlyEM-HB:5812987602)");
 			await clickLayerControlsElement(page, 'Color');
 			await wait4selector(page, 'div.chrome-picker', { visible: true, timeout : 500000 })
-		})
+		}, 120000)
 
 		// Chance color of VFB_jrchk4wj instance using controls
 		it('Use color picker to change color of VFB_jrchk4wj', async () => {
