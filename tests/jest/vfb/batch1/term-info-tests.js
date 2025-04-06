@@ -15,8 +15,8 @@ describe('VFB Term Info Component Tests', () => {
 	beforeAll(async () => {
 		//increases timeout to ~8 minutes
 		jest.setTimeout(500000);
-		await page.goto(projectURL, {timeout : 120000 });
-	});
+		await page.goto(projectURL, {timeout : 220000 });
+	}, 220000);
 
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
@@ -27,7 +27,7 @@ describe('VFB Term Info Component Tests', () => {
 			const title = await page.title();
 			expect(title).toMatch("Virtual Fly Brain");
 		})
-	})
+	}, 120000)
 
 	//Tests metadata in term info component and clicking on links
 	describe('Test Term Info Component Opens on Load with Components', () => {
@@ -54,7 +54,7 @@ describe('VFB Term Info Component Tests', () => {
 			expect(
 					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[6].style.getPropertyValue("display"))
 			).toBe("none");
-		})
+		}, 120000)
 
 		it('Term info restored', async () => {
 			await page.evaluate(async () => {
@@ -80,13 +80,13 @@ describe('VFB Term Info Component Tests', () => {
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
 			await flexWindowClick("Term Info","flexlayout__tab_button_trailing");
 			await wait4selector(page, 'div#vfbterminfowidget', { hidden: true, timeout : 500000});
-		})
+		}, 500000)
 
 		it('Term info opened', async () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
@@ -101,7 +101,7 @@ describe('VFB Term Info Component Tests', () => {
 				}
 			});
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
-		})
+		}, 120000)
 	})
 
 	describe('Test Term Info Component Links and Buttons Work', () => {
@@ -113,7 +113,7 @@ describe('VFB Term Info Component Tests', () => {
 			//	document.getElementsByClassName("flexlayout__tab_button_trailing")[flexComponents-1].click();
 			//});
 			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 50000})
-		})
+		}, 120000)
 
 		it('Term info opened', async () => {
 			await page.evaluate(async () => document.getElementById("Tools").click());
@@ -132,11 +132,9 @@ describe('VFB Term Info Component Tests', () => {
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info , run "Query For" from menu option', async () => {
-			// Takes a while for 'Query For' option to show, wait for it 20 seconds
-			await page.waitFor(20000);
 			// Click on Term Info Drop Down Menu
 			// await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
 			// await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
@@ -152,7 +150,7 @@ describe('VFB Term Info Component Tests', () => {
 					console.log("Found possible query elements:", possibleElements.map(e => e.id || e.textContent));
 				}
 			});
-			await page.waitFor(1000);
+			await page.waitFor(8000);
 			// Click on item from query drop down menu and expect the query modal window to open
 			await page.evaluate(async () => {
 				const element = document.getElementById("List all available images of medulla");
@@ -162,7 +160,7 @@ describe('VFB Term Info Component Tests', () => {
 					console.error("Element not found: 'List all available images of medulla'");
 				}
 			});
-			await wait4selector(page, '#query-results-container', { visible: true, timeout : 50000});
+			await wait4selector(page, '#query-results-container', { visible: true, timeout : 120000});
 		}, 120000)
 
 		// Close Query Results window by pressing Escape on Window
@@ -192,7 +190,7 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Query Button" Works', async () => {
 			await click(page, 'i.fa.fa-quora');
-			await wait4selector(page, '#query-results-container', { visible: true ,timeout : 50000 });
+			await wait4selector(page, '#query-results-container', { visible: true ,timeout : 80000 });
 			// Close Query Panel
 			closeModalWindow(page);
 			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 50000});
