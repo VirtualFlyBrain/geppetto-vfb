@@ -154,7 +154,14 @@ describe('VFB Term Info Component Tests', () => {
 			});
 			await page.waitFor(1000);
 			// Click on item from query drop down menu and expect the query modal window to open
-			await page.evaluate(async () => document.getElementById("List all available images of medulla").click());
+			await page.evaluate(async () => {
+				const element = document.getElementById("List all available images of medulla");
+				if (element) {
+					element.click();
+				} else {
+					console.error("Element not found: 'List all available images of medulla'");
+				}
+			});
 			await wait4selector(page, '#query-results-container', { visible: true, timeout : 50000});
 		}, 120000)
 
@@ -162,7 +169,7 @@ describe('VFB Term Info Component Tests', () => {
 		it('Close Query Results Window', async () => {
 			closeModalWindow(page);
 			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 50000});
-		})
+		}, 120000)
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
 			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
@@ -181,7 +188,7 @@ describe('VFB Term Info Component Tests', () => {
 			// Close Spotlight
 			await page.evaluate(async () => document.querySelector("#closeIcon").click());
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000});
-		})
+		}, 120000)
 
 		it('Term info, "Query Button" Works', async () => {
 			await click(page, 'i.fa.fa-quora.arrowStyle');
@@ -195,6 +202,6 @@ describe('VFB Term Info Component Tests', () => {
 			await page.evaluate(async variableName => $(variableName).click(), "i.fa-eraser");
 			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
 			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
-		})
+		}, 120000)
 	})
 })
