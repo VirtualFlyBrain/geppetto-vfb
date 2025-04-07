@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, testLandingPage, selectTab } from '../utils';
+import { wait4selector, click, testLandingPage, selectTab, takeScreenshot } from '../utils.js';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -47,6 +47,7 @@ describe('VFB Term Context Component Tests', () => {
 		it('Snapshot Comparison of Term Context', async () => {
 			await page.waitFor(10000);
 			const image = await page.screenshot();
+			takeScreenshot(page, "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-sync-trigger-graph-displays-medulla-1-snap.png");
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
 		}, 120000)
 	})
@@ -105,8 +106,10 @@ describe('VFB Term Context Component Tests', () => {
 			// Wait 5 seconds so nodes in Term Context stop moving
 			await page.waitFor(5000);
 			await click(page, 'i.fa-home');
-			await page.waitFor(2000);
+			await page.waitFor(3000);
 			const image = await page.screenshot();
+			takeScreenshot(page, "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-medulla-loaded-graph-remains-the-same-1-snap.png");
+			await page.waitFor(2000)
 			// This will fail if Adult Brain is not still loaded.
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
 		}, 120000)
@@ -114,7 +117,7 @@ describe('VFB Term Context Component Tests', () => {
 		it('Snapshot Comparison of Term Context After Sync Trigger, Graph Displays Medulla', async () => {
 			// Click on sync button
 			await click(page, 'i.fa-refresh');
-			await page.waitFor(2000)
+			await page.waitFor(2000);
 			// Wait 10 seconds so nodes in Term Context stop moving
 			await page.waitFor(10000);
 			// reset camera to center, to make snapshots for tests be taken when camera is centered
@@ -122,6 +125,8 @@ describe('VFB Term Context Component Tests', () => {
 			await page.waitFor(2000);
 			// Take screenshot, and compared to stored image of page.
 			const image = await page.screenshot();
+			takeScreenshot(page, "term-context-tests-js-vfb-term-context-component-tests-test-term-context-component-snapshot-comparison-of-term-context-1-snap.png");
+			await page.waitFor(2000)
 			// This will fail if Medulla didn't load in Term Context, since snapshot comparison will show differences
 			SNAPSHOT_OPTIONS.failureThreshold = 0.20 // allowing for minor graph layout changes
 			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/medulla"  });

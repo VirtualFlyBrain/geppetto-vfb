@@ -15,3 +15,5 @@ build
 .vscode/
 
 coverage
+
+tests/jest/vfb/snapshots/failures/*
