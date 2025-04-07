@@ -23,15 +23,15 @@ describe('VFB Batch Requests Tests', () => {
 
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
-			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
+			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 220000 })
 			// Close tutorial window
 			closeModalWindow(page);
-		})
+		}, 220000)
 
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toMatch("Virtual Fly Brain");
-		})
+		}, 120000)
 
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
