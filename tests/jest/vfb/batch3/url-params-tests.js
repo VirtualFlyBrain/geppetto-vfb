@@ -186,8 +186,8 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 				expect(element).toBe("adult brain");
 			}, 120000)
 
-			it('Term info component correctly populated with "adult brain on Adult Head (McKellar2020) [VFB_001014uq]" Thumbnail', async () => {
-				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0010/14uq/VFB_00110000/thumbnailT.png"');
+			it('Term info component correctly populated with "JFRC2" Thumbnail', async () => {
+				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0001/7894/VFB_00017894/thumbnailT.png"');
 			}, 120000)
 		})
 	});
