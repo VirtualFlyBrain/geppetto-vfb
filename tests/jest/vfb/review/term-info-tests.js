@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click , closeModalWindow, flexWindowClick, findElementByText} from '../utils';
-import * as ST from '../selectors';
+import { wait4selector, click , closeModalWindow, flexWindowClick, findElementByText} from '../utils.js';
+import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624";

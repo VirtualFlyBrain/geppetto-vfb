@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, testLandingPage, findElementByText, selectTab} from '../utils';
-import * as ST from '../selectors';
+import { wait4selector, click, testLandingPage, findElementByText, selectTab} from '../utils.js';
+import * as ST from '../selectors.js';
 
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?id=VFB_jrchk4wj&i=VFB_00101567";
