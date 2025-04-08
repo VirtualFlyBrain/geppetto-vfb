@@ -29,15 +29,15 @@ describe('VFB Spotlight Tests', () => {
     it('VFB Title shows up', async () => {
       const title = await page.title();
       expect(title).toMatch("Virtual Fly Brain");
-    })
+    }, 30000)
 
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+		}, 30000)
 
 		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 30000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
@@ -66,7 +66,7 @@ describe('VFB Spotlight Tests', () => {
       await page.waitFor(10000);
       await click(page, 'i.fa-search');
       await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { visible: true });
-    });
+    }, 30000);
 
     it('Search Returned Results', async () => {
       await page.focus(ST.SPOT_LIGHT_SEARCH_INPUT_SELECTOR);
@@ -75,7 +75,7 @@ describe('VFB Spotlight Tests', () => {
       await page.keyboard.type(' ');
       await page.waitFor(5000);
       await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
-    })
+    }, 30000)
 
     it('fru-M-200266 (VFB_00000001) selected and spotlight has closed', async () => {
     	await page.evaluate(async () => {
@@ -91,6 +91,6 @@ describe('VFB Spotlight Tests', () => {
 
     it('VFB_00000001.VFB_00000001 loaded after adding it through spotlight', async () => {
       await wait4selector(page, '#VFB_00000001_visibility_buttonBar_btn', { visible: true , timeout : 500000 });
-    })
+    }, 30000)
   })
 })

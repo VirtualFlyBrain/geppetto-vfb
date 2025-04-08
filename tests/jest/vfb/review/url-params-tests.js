@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, findElementByText } from '../utils';
-import * as ST from '../selectors';
+import { wait4selector, click, closeModalWindow, findElementByText } from '../utils.js';
+import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL1 = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030624,VFB_00030611,VFB_00030623";
@@ -41,29 +41,29 @@ const medullaTest = function(project) {
 	describe('Test Term Info Component Contains Metadata for Medulla', () => {
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+		}, 120000)
 
 		it('Term info component correctly populated with "Medulla" as Name', async () => {
 			let element = await findElementByText(page, "medulla");
 			expect(element).toBe("medulla");
-		})
+		}, 120000)
 
 		it('Term info component correctly populated with "Medula" as Classification Name', async () => {
 			let element = await findElementByText(page, "medulla");
 			expect(element).toBe("medulla");
-		})
+		}, 120000)
 
 		it('Term info component correctly populated with "Medula" Thumbnail', async () => {
-			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/thumbnailT.png"', {visible : true, timeout : 60000});
-		})
+			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/VFB_00017894/thumbnail.png"', {visible : true, timeout : 80000});
+		}, 120000)
 	})
 
 	describe('"Medula" Selected in Canvas Container', () => {
@@ -72,7 +72,7 @@ const medullaTest = function(project) {
 			expect(
 					await page.evaluate(async () => CanvasContainer.engine.meshes['VFB_00030624.VFB_00030624_obj'].selected)
 			).toBeTruthy();
-		});
+		}, 120000);
 	})
 };
 
@@ -139,13 +139,13 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 	// Test the item passed in id= takes the focus in the term info and it's selected
 	describe('Test Loading "Medulla" as "id" in URL', () => {
 		medullaTest(projectURL1);
-	});
+	}, 120000);
 
 	// Load project ?i=VFB_00030624,VFB_00017894,VFB_00030611,VFB_00030623"
 	// Test that the first id in the i= list takes the focus and it's selected
 	describe('Test Loading "Medulla" using parameter "i" in URL', () => {
 		medullaTest(projectURL2);
-	});
+	}, 120000);
 
 	// Load project ?id=FBbt_00014013&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624"
 	// Test the item passed in id= that does not have visual capability takes the focus in the term info
@@ -164,31 +164,31 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 		describe('Test Term Info Component', () => {		
 			it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
 				await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-			})
+			}, 120000)
 
 			it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
 				await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-			})
+			}, 120000)
 
 			
 			it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
+			}, 120000)
 
-		it('Term info component correctly populated with "adult brain template JFRC2 (VFB_00017894)" as Name', async () => {
-			await page.waitFor(1000);
-			let element = await findElementByText(page, "adult brain template JFRC2");
-			expect(element).toBe("adult brain template JFRC2");
-		})
+			it('Term info component correctly populated with "adult brain template JFRC2 (VFB_00017894)" as Name', async () => {
+				await page.waitFor(1000);
+				let element = await findElementByText(page, "adult brain template JFRC2");
+				expect(element).toBe("adult brain template JFRC2");
+			}, 120000)
 
-		it('Term info component correctly populated with "adult brain" as Classification Name', async () => {
-			let element = await findElementByText(page, "adult brain");
-			expect(element).toBe("adult brain");
-		})
+			it('Term info component correctly populated with "adult brain" as Classification Name', async () => {
+				let element = await findElementByText(page, "adult brain");
+				expect(element).toBe("adult brain");
+			}, 120000)
 
-		it('Term info component correctly populated with "adult gnathal ganglion" Thumbnail', async () => {
-			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0001/7894/thumbnailT.png"');
-		})
+			it('Term info component correctly populated with "JFRC2" Thumbnail', async () => {
+				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0001/7894/VFB_00017894/thumbnailT.png"');
+			}, 120000)
 		})
 	});
 

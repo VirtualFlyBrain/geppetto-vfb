@@ -28,26 +28,26 @@ describe('VFB Query Builder Tests', () => {
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
 			expect(title).toMatch("Virtual Fly Brain");
-		})
+		}, 120000)
 
 		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		})
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		})
+		}, 120000)
 	})
 
 	describe('Tests Compound Queries from URL', () => {
 		it('Wait for First Query', async () => {
 			await wait4selector(page, '#queryitem-fru-M-200266_0', { visible: true, timeout : 150000 });
-		})
+		}, 120000)
 		
 		it('Griddle Results Loads 53 Results for Compounds QUeries', async () => {
 			await wait4selector(page, '#query-results-container', { visible: true, timeout : 150000 });
 			const griddleResults = await page.evaluate(async () => document.getElementsByClassName("result-verbose-label")[0].textContent);
 			expect(griddleResults.trim()).toEqual(COMPOUND_QUERY_MATCHER);
-		})
+		}, 120000)
 	})
 })

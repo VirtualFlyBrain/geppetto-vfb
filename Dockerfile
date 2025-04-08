@@ -28,9 +28,11 @@ ARG VFB_R_SERVER_ARG=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select
 ARG googleAnalyticsSiteCode_ARG=G-K7DDZVVXM7
 ENV MAXSIZE=2G
-ARG finalBuild=false
+ARG finalBuild=true
 ENV USESSL=${finalBuild}
 ARG build_type=production
+ARG runtime_build=false
+ENV RUNTIME_BUILD=${runtime_build}
 
 ENV VFB_PDB_SERVER=${VFB_PDB_SERVER_ARG}
 ENV VFB_TREE_PDB_SERVER=${VFB_TREE_PDB_SERVER_ARG}
@@ -101,13 +103,13 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
 
-RUN echo "package.json" && cat $HOME/workspace/org.geppetto.frontend/src/main/webapp/package.json
-
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
 COPY dockerFiles/startup.sh /
+COPY dockerFiles/build.sh /
 
-RUN if test ! "${build_type}" = "development" ; then /startup.sh || true; fi
+# Run build script if not in runtime mode
+RUN if test "${runtime_build}" = "false" ; then /build.sh; fi
 
 WORKDIR $HOME
 RUN mkdir -p $SERVER_HOME/./repository/usr

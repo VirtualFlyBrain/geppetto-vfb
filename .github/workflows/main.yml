@@ -37,14 +37,16 @@ jobs:
       - name: Setup local servers
         id: local-servers
         shell: bash
-        run: if [ "${GITHUB_REF#refs/heads/}" == master ] || [[ "${GITHUB_REF#refs/heads/}" == v* ]]; then
+        run: echo "::set-output name=BUILD_TYPE::release";
+          echo "::set-output name=RUNTIME_BUILD::true";
+          if [ "${GITHUB_REF#refs/heads/}" == master ] || [[ "${GITHUB_REF#refs/heads/}" == v* ]]; then
             echo "::debug::Set to master setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
+            echo "::set-output name=RUNTIME_BUILD::false";
           elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [[ "${GITHUB_REF#refs/heads/}" == f* ]]; then
             echo "::debug::Set to dev setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
@@ -52,7 +54,6 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::development";
           elif [ "${GITHUB_REF#refs/heads/}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
@@ -60,7 +61,7 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
+            echo "::set-output name=RUNTIME_BUILD::false";
           else 
             echo "::debug::Set to default setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
@@ -68,19 +69,19 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
           fi
       - name: Setup remote servers
         id: remote-servers
         shell: bash
-        run: if [ "${GITHUB_REF#refs/heads/}" == master ] || [[ "${GITHUB_REF#refs/heads/}" == v* ]]; then
+        run: echo "::set-output name=BUILD_TYPE::release";
+          echo "::set-output name=RUNTIME_BUILD::false";
+          if [ "${GITHUB_REF#refs/heads/}" == master ] || [[ "${GITHUB_REF#refs/heads/}" == v* ]]; then
             echo "::debug::Set to master setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
           elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [[ "${GITHUB_REF#refs/heads/}" == f* ]]; then
             echo "::debug::Set to dev setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb-dev.virtualflybrain.org";
@@ -88,7 +89,6 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
           elif [ "${GITHUB_REF#refs/heads/}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb-alpha.virtualflybrain.org";
@@ -96,7 +96,6 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
           else 
             echo "::debug::Set to default setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
@@ -104,7 +103,6 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=BUILD_TYPE::release";
           fi
       
       # Output the chosen servers
@@ -128,6 +126,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
+      # For the local build
       - name: Build and push local wss
         id: docker_build_local
         timeout-minutes: 290
@@ -141,12 +140,14 @@ jobs:
             VFB_R_SERVER_ARG=${{ steps.local-servers.outputs.VFB_R_SERVER }}
             VFB_OWL_SERVER_ARG=${{ steps.local-servers.outputs.VFB_OWL_SERVER }}
             VFB_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_PDB_SERVER }}
-            build_type=${{ steps.local-servers.outputs.BUILD_TYPE }} 
-            targetBranch=${{ steps.branch.outputs.value }} 
-            originBranch=${{ steps.branch.outputs.value }}
+            build_type=${{ steps.local-servers.outputs.BUILD_TYPE }}
+            runtime_build=${{ steps.local-servers.outputs.RUNTIME_BUILD }}
+            targetBranch=${{ steps.branch.outputs.value }}
+            originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
             finalBuild=true
       
+      # For the remote build
       - name: Build and push remote
         id: docker_build_remote
         timeout-minutes: 290
@@ -160,7 +161,8 @@ jobs:
             VFB_R_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_R_SERVER }}
             VFB_OWL_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_OWL_SERVER }}
             VFB_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_PDB_SERVER }}
-            build_type=${{ steps.remote-servers.outputs.BUILD_TYPE }} 
+            build_type=${{ steps.remote-servers.outputs.BUILD_TYPE }}
+            runtime_build=${{ steps.remote-servers.outputs.RUNTIME_BUILD }}
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development

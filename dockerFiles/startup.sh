@@ -35,8 +35,8 @@ then
     grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/
     grep -rls "ga('create', 'UA-" $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@ga('create', 'UA-[0-9]*-[0-9]'@ga('create', '${googleAnalyticsSiteCode}'@g"
     echo "useSSL:${USESSL}"
-    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/
-    grep -rls '"useSsl":' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\":.*,@\"useSsl\":${USESSL},@g"
+    grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/
+    grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\"[[:space:]]*:[[:space:]]*\(true\|false\)@\"useSsl\": ${USESSL}@g"
 
     set -e
 
