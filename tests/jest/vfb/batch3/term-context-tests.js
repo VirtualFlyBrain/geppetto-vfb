@@ -72,7 +72,7 @@ describe('VFB Term Context Component Tests', () => {
 
 			// Click medulla in results shown in Search Component
 			await page.evaluate(async () => {
-				let tabs = document.getElementsByClassName('MuiListItem-root ');
+				let tabs = document.getElementsByClassName('MuiButtonBase-root MuiListItem-root MuiMenuItem-root searchResult MuiMenuItem-gutters MuiListItem-gutters MuiListItem-button');
 				for ( var i = 0; i < tabs.length ; i ++ ) {
 					if ( tabs[i].innerText.split('\n')[0] === "medulla (FBbt_00003748)" ) {
 						tabs[i].click();
