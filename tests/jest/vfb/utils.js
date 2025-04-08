@@ -188,7 +188,20 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 export const takeScreenshot = async (page, name) => {
   try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const path = `./test-screenshots/${name}-${timestamp}.png`;
+    // Change to use the same base snapshots directory, but in a failures subfolder
+    const path = `./tests/jest/vfb/snapshots/failures/${name}-${timestamp}.png`;
+    
+    // Ensure the directory exists
+    await page.evaluate(async path => {
+      const fs = require('fs');
+      const { promisify } = require('util');
+      const mkdirp = promisify(require('mkdirp'));
+      const dirname = path.substring(0, path.lastIndexOf('/'));
+      await mkdirp(dirname);
+    }, path).catch(() => {
+      // Ignore errors from browser context - we'll handle directory creation during screenshot
+    });
+    
     await page.screenshot({ path, fullPage: true });
     console.log(`Screenshot saved to ${path}`);
     return path;
