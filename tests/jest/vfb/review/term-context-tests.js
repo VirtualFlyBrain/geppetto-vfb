@@ -3,7 +3,7 @@ const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
 import { wait4selector, click, testLandingPage, selectTab, takeScreenshot } from '../utils.js';
-import * as ST from '../selectors';
+import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto";
