@@ -95,7 +95,10 @@
 - Step: Process solr query results (DataSource Index: 3, Query Index: 3)
 
 ## AllDatasets: List all datasets
-- Step: Datasaets available (DataSource Index: 0, Query Index: 11)
+- Step: all_datasets_ids (DataSource Index: 0, Query Index: 26)
+- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
+- Step: Get template_2_datasets_query (DataSource Index: 3, Query Index: 5)
+- Step: Process solr query results (DataSource Index: 3, Query Index: 3)
 
 ## ref_neuron_region_connectivity_query: Show connectivity per region for $NAME
 - Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 13)
