@@ -651,6 +651,14 @@
         returnType="//@libraries.3/@types.24"
         query="&quot;statement&quot;: &quot;MATCH (t:Template) &lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
         countQuery="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="neoImageIDsForDataSet"
+        name="Find image ids for dataset"
+        description="Find images for a dataset"
+        returnType="//@libraries.3/@types.0"
+        query="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -1160,7 +1168,7 @@
       name="Show all images for a dataset"
       description="List all images included in $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.6">
+      queryChain="//@dataSources.0/@queries.27 //@dataSources.0/@queries.24 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.24 //@libraries.3/@types.41"/>
   </queries>
