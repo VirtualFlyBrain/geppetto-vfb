@@ -56,7 +56,9 @@
 - Step: Find domains for template (DataSource Index: 0, Query Index: 4)
 
 ## DatasetImages: List all images included in $NAME
-- Step: Find images for dataset (DataSource Index: 0, Query Index: 6)
+- Step: Find image ids for dataset (DataSource Index: 0, Query Index: 27)
+- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
+- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## TractsNervesInnervatingHere: Tracts/nerves innervating $NAME
 - Step: Owlery tracts in (DataSource Index: 1, Query Index: 7)

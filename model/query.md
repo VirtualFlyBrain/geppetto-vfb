@@ -584,6 +584,14 @@ Query: ```
 "statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
+## Query Name: Find image ids for dataset
+ID: neoImageIDsForDataSet
+Description: Find images for a dataset
+Type: gep_2:SimpleQuery
+Query: ```
+"statement": "MATCH (c:DataSet)<-[:has_source]-(primary:Individual)<-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids", "parameters" : { "id" : "$ID" }
+```
+
 ## Query Name: Owlery Part of
 ID: None
 Description: Part of $NAME
