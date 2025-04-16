@@ -272,12 +272,12 @@ Query: ```
 
 ```
 
-    ## Query Name: template_2_datasets_query
+    ## Query Name: template_2_datasets_ids
     ID: None
-    Description: Get JSON for template_2_datasets query
+    Description: Get JSON for template_2_datasets ids
     Type: gep_2:SimpleQuery
     Query: ```
-    "statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] WITH distinct ds, t CALL apoc.cypher.run('WITH ds, template_anat OPTIONAL MATCH (ds) <- [:has_source]-(i:Individual) <-[:depicts]- (channel:Individual)-[irw:in_register_with]->(template:Individual)-[:depicts]->(template_anat) RETURN template, channel, template_anat, i, irw limit 5', {ds:ds, template_anat:t}) yield value with value.template as template, value.channel as channel,value.template_anat as template_anat, value.i as i, value.irw as irw, ds OPTIONAL MATCH (channel)-[:is_specified_output_of]->(technique:Class) WITH CASE WHEN channel IS NULL THEN [] ELSE COLLECT({ anatomy: { short_form: i.short_form, label: coalesce(i.label,''), iri: i.iri, types: labels(i), symbol: coalesce(i.symbol[0], '')} , channel_image: { channel: { short_form: channel.short_form, label: coalesce(channel.label,''), iri: channel.iri, types: labels(channel), unique_facets: apoc.coll.sort(coalesce(channel.uniqueFacets,[])), symbol: coalesce(channel.symbol[0], '')} , imaging_technique: { short_form: technique.short_form, label: coalesce(technique.label,''), iri: technique.iri, types: labels(technique), unique_facets: apoc.coll.sort(coalesce(technique.uniqueFacets,[])), symbol: coalesce(technique.symbol[0], '')} ,image: { template_channel : { short_form: template.short_form, label: coalesce(template.label,''), iri: template.iri, types: labels(template), unique_facets: apoc.coll.sort(coalesce(template.uniqueFacets,[])), symbol: coalesce(template.symbol[0], '')} , template_anatomy: { short_form: template_anat.short_form, label: coalesce(template_anat.label,''), iri: template_anat.iri, types: labels(template_anat), symbol: coalesce(template_anat.symbol[0], '')} ,image_folder: COALESCE(irw.folder[0], ''), index: coalesce(apoc.convert.toInteger(irw.index[0]), []) + [] }} }) END AS anatomy_channel_image ,ds OPTIONAL MATCH (ds)-[rp:has_reference]->(p:pub) WITH CASE WHEN p is null THEN [] ELSE collect({ core: { short_form: p.short_form, label: coalesce(p.label,''), iri: p.iri, types: labels(p), symbol: coalesce(p.symbol[0], '')} , PubMed: coalesce(p.PMID[0], ''), FlyBase: coalesce(p.FlyBase[0], ''), DOI: coalesce(p.DOI[0], '') } ) END AS pubs,ds,anatomy_channel_image OPTIONAL MATCH (ds)-[:has_license|license]->(l:License) WITH collect ({ icon : coalesce(l.license_logo[0], ''), link : coalesce(l.license_url[0], ''), core : { short_form: l.short_form, label: coalesce(l.label,''), iri: l.iri, types: labels(l), unique_facets: apoc.coll.sort(coalesce(l.uniqueFacets,[])), symbol: coalesce(l.symbol[0], '')} }) as license,ds,anatomy_channel_image,pubs OPTIONAL MATCH (ds) <-[:has_source]-(i:Individual) WITH i, ds, anatomy_channel_image, pubs, license OPTIONAL MATCH (i)-[:INSTANCEOF]-(c:Class) WITH DISTINCT { images: count(distinct i),types: count(distinct c) } as dataset_counts,ds,anatomy_channel_image,pubs,license RETURN { short_form: ds.short_form, label: coalesce(ds.label,''), iri: ds.iri, types: labels(ds), symbol: coalesce(ds.symbol[0], '')} as dataset, 'bac066c' AS version, 'template_2_datasets_query' AS query, anatomy_channel_image, pubs, license, dataset_counts", "parameters" : { "id" : "$ID" }
+    "statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] WITH distinct ds RETURN ds.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
     ## Query Name: vfb_query schema processor
@@ -592,6 +592,14 @@ Query: ```
 neo4jToSOLRidQueryProcessor
 ```
 
+## Query Name: template_2_datasets_ids
+ID: None
+Description: Get JSON for template_2_datasets ids
+Type: gep_2:SimpleQuery
+Query: ```
+"statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
+```
+
 ## Query Name: Owlery Part of
 ID: None
 Description: Part of $NAME
@@ -838,6 +846,30 @@ Query: ```
     Type: gep_2:ProcessQuery
     Query: ```
     cachedUploadNblastQueryProcessor
+```
+
+## Query Name: Process solr query results
+ID: None
+Description: takes solr docs returned from id list and returns first *_query doc found in first row.
+Type: gep_2:ProcessQuery
+Query: ```
+solrQueryProcessor
+```
+
+## Query Name: Get anat_2_ep_query
+ID: None
+Description: Fetches essential details.
+Type: gep_2:SimpleQuery
+Query: ```
+"params":{"defType":"edismax","fl":"anat_2_ep_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"999999"}
+```
+
+## Query Name: Get template_2_datasets_query
+ID: None
+Description: Fetches essential details.
+Type: gep_2:SimpleQuery
+Query: ```
+"params":{"defType":"edismax","fl":"template_2_datasets_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"999999"}
 ```
 
 ## Query Name: List all available images for class with examples

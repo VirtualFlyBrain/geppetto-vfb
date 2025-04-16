@@ -90,6 +90,9 @@
 
 ## AlignedDatasets: List all datasets aligned to $NAME
 - Step: Datasets available for Template (DataSource Index: 0, Query Index: 11)
+- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 25)
+- Step: Get template_2_datasets_query (DataSource Index: 3, Query Index: 5)
+- Step: Process solr query results (DataSource Index: 3, Query Index: 3)
 
 ## AllDatasets: List all datasets
 - Step: Datasaets available (DataSource Index: 0, Query Index: 12)
