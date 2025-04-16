@@ -264,30 +264,6 @@ Query: ```
     neo4jQueryProcessor
 ```
 
-## Query Name: Datasets available for Template
-ID: None
-Description: Get JSON for template_2_datasets query
-Type: gep_2:CompoundQuery
-Query: ```
-
-```
-
-    ## Query Name: template_2_datasets_ids
-    ID: None
-    Description: Get JSON for template_2_datasets ids
-    Type: gep_2:SimpleQuery
-    Query: ```
-    "statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] WITH distinct ds RETURN ds.short_form as ids", "parameters" : { "id" : "$ID" }
-```
-
-    ## Query Name: vfb_query schema processor
-    ID: vfb_query_schema_processor
-    Description: vfb_query schema processor
-    Type: gep_2:ProcessQuery
-    Query: ```
-    neo4jQueryProcessor
-```
-
 ## Query Name: Datasaets available
 ID: None
 Description: Get JSON for template_2_datasets query
