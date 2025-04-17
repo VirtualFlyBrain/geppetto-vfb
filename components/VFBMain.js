@@ -386,6 +386,7 @@ class VFBMain extends React.Component {
         instance = undefined;
       }
     } catch (ignore) {
+      instance = undefined;
     }
 
     // If no full mesh, check if we have swc
@@ -397,6 +398,7 @@ class VFBMain extends React.Component {
           flagRendering = false;
         }
       } catch (ignore) {
+        instance = undefined;
       }
     }
 
@@ -408,6 +410,8 @@ class VFBMain extends React.Component {
           window[path][path + '_obj'].show();
         }
       } catch (ignore) {
+        instance = undefined;
+        flagRendering = false;
       }
     }
 
