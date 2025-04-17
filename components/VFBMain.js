@@ -373,15 +373,13 @@ class VFBMain extends React.Component {
       instance = Instances.getInstance(path + "." + path + "_obj");
       
       // Check if this is a full mesh (volume_man.obj) and not a point cloud (volume.obj)
-      if (instance && window[path][path + '_obj'].getType() && 
-          typeof window[path][path + '_obj'].getType().getUrl === "function") {
-        
+      if (instance && window[path][path + '_obj'].getType() && typeof window[path][path + '_obj'].getType().getUrl === "function") {
         var url = window[path][path + '_obj'].getType().getUrl();
         if (url && url.includes("volume_man.obj")) {
           if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
             window[path][path + '_obj'].show();
             // Make this object accessible through the variables parent to maintain isVisible() functionality
-            window[path].isVisible = function() { return window[path][path + '_obj'].visible; };
+            window[path].isVisible = function () { return window[path][path + '_obj'].visible; };
             flagRendering = false;
           }
         } else {
@@ -403,7 +401,7 @@ class VFBMain extends React.Component {
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
           window[path][path + '_swc'].show();
           // Make this object accessible through the variables parent to maintain isVisible() functionality
-          window[path].isVisible = function() { return window[path][path + '_swc'].visible; };
+          window[path].isVisible = function () { return window[path][path + '_swc'].visible; };
           flagRendering = false;
         }
       } catch (ignore) {
@@ -418,7 +416,7 @@ class VFBMain extends React.Component {
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
           // Make this object accessible through the variables parent to maintain isVisible() functionality
-          window[path].isVisible = function() { return window[path][path + '_obj'].visible; };
+          window[path].isVisible = function () { return window[path][path + '_obj'].visible; };
         }
       } catch (ignore) {
         instance = undefined;
