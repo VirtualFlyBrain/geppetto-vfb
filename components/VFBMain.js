@@ -367,16 +367,40 @@ class VFBMain extends React.Component {
 
     var instance = undefined;
     var flagRendering = true;
-    // check if we have swc
+
+    // First check if we have full mesh (_obj with volume_man.obj)
     try {
-      instance = Instances.getInstance(path + "." + path + "_swc");
-      if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
-        window[path][path + '_swc'].show();
-        flagRendering = false;
+      instance = Instances.getInstance(path + "." + path + "_obj");
+      
+      // Check if this is a full mesh (volume_man.obj) and not a point cloud (volume.obj)
+      if (instance && window[path][path + '_obj'].getType().getMetaType() 
+          && window[path][path + '_obj'].getType().getMetaType().filename 
+          && window[path][path + '_obj'].getType().getMetaType().filename.includes("volume_man.obj")) {
+        
+        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
+          window[path][path + '_obj'].show();
+          flagRendering = false;
+        }
+      } else {
+        // Reset instance if it's not a full mesh
+        instance = undefined;
       }
     } catch (ignore) {
     }
-    // if no swc check if we have obj
+
+    // If no full mesh, check if we have swc
+    if (instance == undefined) {
+      try {
+        instance = Instances.getInstance(path + "." + path + "_swc");
+        if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
+          window[path][path + '_swc'].show();
+          flagRendering = false;
+        }
+      } catch (ignore) {
+      }
+    }
+
+    // If neither full mesh nor swc, check if we have point cloud obj (volume.obj)
     if (instance == undefined) {
       try {
         instance = Instances.getInstance(path + "." + path + "_obj");
@@ -386,6 +410,7 @@ class VFBMain extends React.Component {
       } catch (ignore) {
       }
     }
+
     // if anything was found resolve type (will add to scene)
     if (instance != undefined) {
       var postResolve = () => {
