@@ -373,16 +373,23 @@ class VFBMain extends React.Component {
       instance = Instances.getInstance(path + "." + path + "_obj");
       
       // Check if this is a full mesh (volume_man.obj) and not a point cloud (volume.obj)
-      if (instance && window[path][path + '_obj'].getType().getMetaType() 
-          && window[path][path + '_obj'].getType().getMetaType().filename 
-          && window[path][path + '_obj'].getType().getMetaType().filename.includes("volume_man.obj")) {
+      if (instance && window[path][path + '_obj'].getType() && 
+          typeof window[path][path + '_obj'].getType().getUrl === "function") {
         
-        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
-          window[path][path + '_obj'].show();
-          flagRendering = false;
+        var url = window[path][path + '_obj'].getType().getUrl();
+        if (url && url.includes("volume_man.obj")) {
+          if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
+            window[path][path + '_obj'].show();
+            // Make this object accessible through the variables parent to maintain isVisible() functionality
+            window[path].isVisible = function() { return window[path][path + '_obj'].visible; };
+            flagRendering = false;
+          }
+        } else {
+          // Reset instance if it's not a full mesh
+          instance = undefined;
         }
       } else {
-        // Reset instance if it's not a full mesh
+        // Reset instance if getType() or getUrl() doesn't exist
         instance = undefined;
       }
     } catch (ignore) {
@@ -395,6 +402,8 @@ class VFBMain extends React.Component {
         instance = Instances.getInstance(path + "." + path + "_swc");
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
           window[path][path + '_swc'].show();
+          // Make this object accessible through the variables parent to maintain isVisible() functionality
+          window[path].isVisible = function() { return window[path][path + '_swc'].visible; };
           flagRendering = false;
         }
       } catch (ignore) {
@@ -408,10 +417,11 @@ class VFBMain extends React.Component {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
+          // Make this object accessible through the variables parent to maintain isVisible() functionality
+          window[path].isVisible = function() { return window[path][path + '_obj'].visible; };
         }
       } catch (ignore) {
         instance = undefined;
-        flagRendering = false;
       }
     }
 
