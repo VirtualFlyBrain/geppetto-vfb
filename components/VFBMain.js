@@ -420,7 +420,9 @@ class VFBMain extends React.Component {
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
           // Make this object accessible through the variables parent to maintain isVisible() functionality
-          window[path].isVisible = function () { return window[path][path + '_obj'].visible; };
+          window[path].isVisible = function () { 
+            return window[path][path + '_obj'].visible; 
+          };
         }
       } catch (ignore) {
         instance = undefined;
