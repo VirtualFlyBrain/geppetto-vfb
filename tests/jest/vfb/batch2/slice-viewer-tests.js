@@ -90,6 +90,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 			})
 			//Test there are 2+ results before running query
 			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
+			await page.waitFor(1000);
 			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
 		})
 

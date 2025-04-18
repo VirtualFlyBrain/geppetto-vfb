@@ -378,10 +378,6 @@ class VFBMain extends React.Component {
         if (url && url.includes("volume_man.obj")) {
           if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
             window[path][path + '_obj'].show();
-            // Make this object accessible through the variables parent to maintain isVisible() functionality
-            window[path].isVisible = function () { 
-              return window[path][path + '_obj'].visible; 
-            };
             flagRendering = false;
           }
         } else {
@@ -402,10 +398,6 @@ class VFBMain extends React.Component {
         instance = Instances.getInstance(path + "." + path + "_swc");
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
           window[path][path + '_swc'].show();
-          // Make this object accessible through the variables parent to maintain isVisible() functionality
-          window[path].isVisible = function () { 
-            return window[path][path + '_swc'].visible; 
-          };
           flagRendering = false;
         }
       } catch (ignore) {
@@ -419,10 +411,6 @@ class VFBMain extends React.Component {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
-          // Make this object accessible through the variables parent to maintain isVisible() functionality
-          window[path].isVisible = function () { 
-            return window[path][path + '_obj'].visible; 
-          };
         }
       } catch (ignore) {
         instance = undefined;

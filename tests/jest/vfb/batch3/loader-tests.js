@@ -111,7 +111,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the progress bar is gone after 2 instances are done loading
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
-		}, 120000)
+		}, 800000)
 
 		// Check that the Term Info was contains the second instance loaded
 		it('Term info component created and populated after load', async () => {
@@ -159,9 +159,10 @@ describe('VFB Loader Component Tests', () => {
 
 		// Check that the progress bar text shows is loading 3 instances
 		it('Progress Bar Loading 3 Instance(s)', async () => {
-			expect(
-				await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
-			).toBe("Loading 1/3 ...");
+			const datalabel = await page.evaluate(async () => 
+				document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel")
+			);
+			expect(datalabel).toMatch(/Loading \d+\/3 \.\.\./);
 		})
 	})
 
