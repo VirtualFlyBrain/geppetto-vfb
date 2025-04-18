@@ -110,7 +110,6 @@ describe('VFB Loader Component Tests', () => {
 	describe('Loader Finished, Test 2 Instances were Loaded', () => {
 		// Check that the progress bar is gone after 2 instances are done loading
 		it('Progress Bar Hidden After Loading of Instances', async () => {
-			await page.waitFor(3000);
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
 		}, 800000)
 
