@@ -374,6 +374,11 @@ class VFBMain extends React.Component {
       
       // Check if this is a full mesh (volume_man.obj) and not a point cloud (volume.obj)
       if (instance && window[path][path + '_obj'].getType() && typeof window[path][path + '_obj'].getType().getUrl === "function") {
+        if (!typeof window[path].isVisible === "function") { 
+          window[path].isVisible = function () { 
+            return true; 
+          }
+        }
         var url = window[path][path + '_obj'].getType().getUrl();
         if (url && url.includes("volume_man.obj")) {
           if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
