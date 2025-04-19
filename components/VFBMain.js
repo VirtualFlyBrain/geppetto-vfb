@@ -368,29 +368,29 @@ class VFBMain extends React.Component {
     var instance = undefined;
     var flagRendering = true;
 
-    // First check if we have full mesh (_obj with volume_man.obj)
-    try {
-      instance = Instances.getInstance(path + "." + path + "_obj");
+    // // First check if we have full mesh (_obj with volume_man.obj)
+    // try {
+    //   instance = Instances.getInstance(path + "." + path + "_obj");
       
-      // Check if this is a full mesh (volume_man.obj) and not a point cloud (volume.obj)
-      if (instance && window[path][path + '_obj'].getType()) {
-        var url = window[path][path + '_obj'].getType().getUrl();
-        if (url && url.includes("volume_man.obj")) {
-          if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
-            window[path][path + '_obj'].show();
-            flagRendering = false;
-          }
-        } else {
-          // Reset instance if it's not a full mesh
-          instance = undefined;
-        }
-      } else {
-        // Reset instance if getType() or getUrl() doesn't exist
-        instance = undefined;
-      }
-    } catch (ignore) {
-      instance = undefined;
-    }
+    //   // Check if this is a full mesh (volume_man.obj) and not a point cloud (volume.obj)
+    //   if (instance && window[path][path + '_obj'].getType()) {
+    //     var url = window[path][path + '_obj'].getType().getUrl();
+    //     if (url && url.includes("volume_man.obj")) {
+    //       if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
+    //         window[path][path + '_obj'].show();
+    //         flagRendering = false;
+    //       }
+    //     } else {
+    //       // Reset instance if it's not a full mesh
+    //       instance = undefined;
+    //     }
+    //   } else {
+    //     // Reset instance if getType() or getUrl() doesn't exist
+    //     instance = undefined;
+    //   }
+    // } catch (ignore) {
+    //   instance = undefined;
+    // }
 
     // If no full mesh, check if we have swc
     if (instance == undefined) {
