@@ -109,8 +109,11 @@ describe('VFB Loader Component Tests', () => {
 	// 2 instances are finished loading, check they were loaded in other components too
 	describe('Loader Finished, Test 2 Instances were Loaded', () => {
 		// Check that the progress bar is gone after 2 instances are done loading
-		it('Progress Bar Hidden After Loading of Instances', async () => {
-			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
+		it('Progress Bar Removed After Loading of Instances', async () => {
+			await page.waitForFunction(
+				() => !document.querySelector('div.progress-bar'),
+				{ timeout: 800000 }
+			);
 		}, 800000)
 
 		// Check that the Term Info was contains the second instance loaded
