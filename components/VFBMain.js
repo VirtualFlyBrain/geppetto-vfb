@@ -374,7 +374,7 @@ class VFBMain extends React.Component {
         var url = window[path][path + '_obj'].getType().getUrl();
         if (url && url.includes("volume_man.obj")) {
           instance = Instances.getInstance(path + "." + path + "_obj");
-          instance.resolve();
+          instance.getType().resolve();
           instance.show();
           flagRendering = false;
         } else {
