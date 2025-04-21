@@ -367,23 +367,20 @@ class VFBMain extends React.Component {
 
     var instance = undefined;
     var flagRendering = true;
+
     
     try { 
       instance = Instances.getInstance(path + "." + path + "_obj");
       if (!instance == undefined) {
-        insttype = instance.getType();
-        if (!insttype == undefined && insttype.getType() == "ImportType") {
-          insttype = instance.getType().resolve();
-        }
+        instance.getType().resolve();
         if (window[path][path + '_obj'] != undefined) {
-          var url = insttype.getUrl();
+          var url = window[path][path + '_obj'].getType().getUrl();
           if (url && url.includes("volume_man.obj")) {
             instance.show();
             flagRendering = false;
           } else {
             instance.hide();
             instance = undefined;
-            flagRendering = true;
           }
         } else {
           instance = undefined;
@@ -394,34 +391,24 @@ class VFBMain extends React.Component {
     }
 
     // If no full mesh, check if we have swc
-    
-    try {
-      instance = Instances.getInstance(path + "." + path + "_swc");
-      if (instance == undefined) {
-        insttype = instance.getType();
-        if (!insttype == undefined && insttype.getType() == "ImportType") {
-          insttype = instance.getType().resolve();
-        }
+    if (instance == undefined) {
+      try {
+        instance = Instances.getInstance(path + "." + path + "_swc");
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
           window[path][path + '_swc'].show();
           flagRendering = false;
         } else {
           window[path][path + '_swc'].hide();
-          flagRendering = true;
         }
+      } catch (ignore) {
+        instance = undefined;
       }
-    } catch (ignore) {
-      instance = undefined;
     }
 
     // If neither full mesh nor swc, check if we have point cloud obj (volume.obj)
     if (instance == undefined) {
       try {
         instance = Instances.getInstance(path + "." + path + "_obj");
-        insttype = instance.getType();
-        if (!insttype == undefined && insttype.getType() == "ImportType") {
-          insttype = instance.getType().resolve();
-        }
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
         }
