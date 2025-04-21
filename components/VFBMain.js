@@ -396,7 +396,7 @@ class VFBMain extends React.Component {
         instance = Instances.getInstance(path + "." + path + "_swc");
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
           window[path][path + '_swc'].show();
-          if (!fullMesh) {
+          if (fullMesh) {
             window[path][path + '_swc'].hide();
           }
           flagRendering = false;
