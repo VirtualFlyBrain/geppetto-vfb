@@ -367,7 +367,7 @@ class VFBMain extends React.Component {
 
     var instance = undefined;
     var flagRendering = true;
-
+    var fullMesh = false;
     
     try { 
       instance = Instances.getInstance(path + "." + path + "_obj");
@@ -376,14 +376,17 @@ class VFBMain extends React.Component {
         if (url && url.includes("volume_man.obj")) {
           instance.getType().resolve();
           instance.show();
+          fullMesh = true;
           flagRendering = false;
         } else {
+          instance.hide();
           instance = undefined;
         }
       } else {
         instance = undefined;
       }
     } catch (ignore) {
+      console.log("No full mesh instance found");
       instance = undefined;
     }
 
@@ -392,10 +395,15 @@ class VFBMain extends React.Component {
       try {
         instance = Instances.getInstance(path + "." + path + "_swc");
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
-          window[path][path + '_swc'].show();
+          if (fullMesh) {
+            window[path][path + '_swc'].hide();
+          } else {
+            window[path][path + '_swc'].show();
+          }
           flagRendering = false;
         }
       } catch (ignore) {
+        console.log("No swc instance found");
         instance = undefined;
       }
     }
@@ -408,6 +416,7 @@ class VFBMain extends React.Component {
           window[path][path + '_obj'].show();
         }
       } catch (ignore) {
+        console.log("No point cloud instance found");
         instance = undefined;
       }
     }
