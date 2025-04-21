@@ -397,6 +397,8 @@ class VFBMain extends React.Component {
         if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
           window[path][path + '_swc'].show();
           flagRendering = false;
+        } else {
+          window[path][path + '_swc'].hide();
         }
       } catch (ignore) {
         instance = undefined;
