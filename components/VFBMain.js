@@ -371,7 +371,7 @@ class VFBMain extends React.Component {
     try { 
       instance = Instances.getInstance(path + "." + path + "_obj");
       if (!instance == undefined) {
-        insttype = instance.getType();
+        insttype = window[path][path + '_obj'].getType();
         if (!insttype == undefined && insttype.getType() == "ImportType") {
           insttype = instance.getType().resolve();
         }
