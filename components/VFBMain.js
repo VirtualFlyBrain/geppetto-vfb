@@ -418,6 +418,16 @@ class VFBMain extends React.Component {
         console.log("No point cloud instance found");
         instance = undefined;
       }
+    } else {
+      try {
+        Instances.getInstance(path + "." + path + "_obj");
+        if (window[path][path + '_obj'] != undefined && typeof window[path][path + '_obj'].show == "function") {
+          window[path][path + '_obj'].show();
+          window[path][path + '_obj'].hide();
+        }
+      } catch (ignore) {
+        console.log("No point cloud instance found after SWC");
+      }
     }
 
     // if anything was found resolve type (will add to scene)
