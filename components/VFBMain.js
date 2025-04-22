@@ -377,6 +377,7 @@ class VFBMain extends React.Component {
           instance.show();
           fullMesh = true;
         } else {
+          instance.getType().resolve();
           instance.hide();
           instance = undefined;
         }
