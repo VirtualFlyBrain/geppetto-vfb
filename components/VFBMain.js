@@ -371,15 +371,15 @@ class VFBMain extends React.Component {
     try { 
       instance = Instances.getInstance(path + "." + path + "_obj");
       if (window[path][path + '_obj'] != undefined) {
+        instance.getType().resolve();
         var url = window[path][path + '_obj'].getType().getUrl();
         if (url && url.includes("volume_man.obj")) {
-          instance.getType().resolve();
           instance.show();
           fullMesh = true;
         } else {
-          instance.getType().resolve();
           instance.hide();
           instance = undefined;
+          fullMesh = false;
         }
       } else {
         instance = undefined;
