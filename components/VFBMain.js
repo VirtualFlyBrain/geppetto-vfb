@@ -366,7 +366,6 @@ class VFBMain extends React.Component {
     }
 
     var instance = undefined;
-    var flagRendering = true;
     var fullMesh = false;
     
     try { 
@@ -377,7 +376,6 @@ class VFBMain extends React.Component {
           instance.getType().resolve();
           instance.show();
           fullMesh = true;
-          flagRendering = false;
         } else {
           instance.hide();
           instance = undefined;
@@ -391,27 +389,28 @@ class VFBMain extends React.Component {
     }
 
     // If no full mesh, check if we have swc
-    if (instance == undefined) {
-      try {
+    
+    try {
+      if (instance == undefined) {
         instance = Instances.getInstance(path + "." + path + "_swc");
-        if (window[path][path + '_swc'] != undefined && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
-          window[path][path + '_swc'].show();
-          if (fullMesh) {
-            window[path][path + '_swc'].hide();
-          }
-          flagRendering = false;
-        }
-      } catch (ignore) {
-        console.log("No swc instance found");
-        instance = undefined;
+      } else {
+        Instances.getInstance(path + "." + path + "_swc");
       }
+      if (window[path][path + '_swc'] != undefined && typeof window[path][path + '_swc'].show == "function") {
+        window[path][path + '_swc'].show();
+        if (fullMesh) {
+          window[path][path + '_swc'].hide();
+        }
+      }
+    } catch (ignore) {
+      console.log("No swc instance found");
     }
 
     // If neither full mesh nor swc, check if we have point cloud obj (volume.obj)
     if (instance == undefined) {
       try {
         instance = Instances.getInstance(path + "." + path + "_obj");
-        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
+        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
           window[path][path + '_obj'].show();
         }
       } catch (ignore) {
