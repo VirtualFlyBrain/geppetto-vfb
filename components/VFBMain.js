@@ -366,67 +366,42 @@ class VFBMain extends React.Component {
     }
 
     var instance = undefined;
-    var fullMesh = false;
-    
-    try { 
-      instance = Instances.getInstance(path + "." + path + "_obj");
-      if (window[path][path + '_obj'] != undefined) {
-        instance.getType().resolve();
-        var url = window[path][path + '_obj'].getType().getUrl();
-        if (url && url.includes("volume_man.obj")) {
-          instance.show();
-          fullMesh = true;
-        } else {
-          instance.hide();
-          instance = undefined;
-          fullMesh = false;
+    var flagRendering = true;
+    // check if we have a full mesh
+    try {
+      instance=instance[path][path + "_obj"].getType();
+      if (instance != undefined && instance.getUrl != undefined && instance.getUrl == "function" && instance.getUrl().contains("volume_man.obj")) {
+        instance = Instances.getInstance(path + "." + path + "_obj");
+        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
+          window[path][path + '_obj'].show();
+          flagRendering = false;
         }
       } else {
         instance = undefined;
+        flagRendering = true;
       }
     } catch (ignore) {
-      console.log("No full mesh instance found");
       instance = undefined;
     }
-
-    // If no full mesh, check if we have swc
-    
-    try {
-      if (instance == undefined) {
+    // check if we have swc
+    if (instance == undefined) {
+      try {
         instance = Instances.getInstance(path + "." + path + "_swc");
-      } else {
-        Instances.getInstance(path + "." + path + "_swc");
-      }
-      if (window[path][path + '_swc'] != undefined && typeof window[path][path + '_swc'].show == "function") {
-        window[path][path + '_swc'].show();
-        if (fullMesh) {
-          window[path][path + '_swc'].hide();
+        if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
+          window[path][path + '_swc'].show();
+          flagRendering = false;
         }
+      } catch (ignore) {
       }
-    } catch (ignore) {
-      console.log("No swc instance found");
     }
-
-    // If neither full mesh nor swc, check if we have point cloud obj (volume.obj)
+    // if no swc check if we have obj
     if (instance == undefined) {
       try {
         instance = Instances.getInstance(path + "." + path + "_obj");
-        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function")) {
+        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
         }
       } catch (ignore) {
-        console.log("No point cloud instance found");
-        instance = undefined;
-      }
-    } else {
-      try {
-        Instances.getInstance(path + "." + path + "_obj");
-        if (window[path][path + '_obj'] != undefined && typeof window[path][path + '_obj'].show == "function") {
-          window[path][path + '_obj'].show();
-          window[path][path + '_obj'].hide();
-        }
-      } catch (ignore) {
-        console.log("No point cloud instance found after SWC");
       }
     }
 
