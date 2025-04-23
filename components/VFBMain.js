@@ -369,7 +369,7 @@ class VFBMain extends React.Component {
     var flagRendering = true;
     // check if we have a full mesh
     try {
-      instance=instance[path][path + "_obj"].getType();
+      instance = instance[path][path + "_obj"].getType();
       if (instance != undefined && instance.getUrl != undefined && instance.getUrl == "function" && instance.getUrl().contains("volume_man.obj")) {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
