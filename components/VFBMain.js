@@ -409,9 +409,6 @@ class VFBMain extends React.Component {
     if (instance != undefined) {
       var postResolve = () => {
         this.setSepCol(path);
-        if (callback != undefined) {
-          callback(path);
-        }
       };
 
       if (typeof (instance) != 'undefined' && instance.getType() instanceof ImportType) {
@@ -430,9 +427,14 @@ class VFBMain extends React.Component {
       instance = Instances.getInstance(path + "." + path + "_slices");
       if (typeof (instance) != 'undefined' && instance.getType() instanceof ImportType) {
         instance.getType().resolve();
+        instance.col
       }
     } catch (ignore) {
       // any alternative handling goes here
+    }
+
+    if (callback != undefined) {
+      callback(path);
     }
   }
 
