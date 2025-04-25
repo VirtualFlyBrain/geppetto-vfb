@@ -433,6 +433,18 @@ class VFBMain extends React.Component {
       // any alternative handling goes here
     }
 
+    try{
+      if (window[path + "." + path + "_swc"] != undefined && window[path + "." + path + "_obj"] != undefined) {
+        if (window[path + "." + path + "_swc"].getType() instanceof ImportType) {
+          window[path + "." + path + "_swc"].visible = false;
+          window[path + "." + path + "_swc"].isVisible = window[path + "." + path + "_obj"].isVisible;
+          window[path + "." + path + "_swc"].selected = false;
+          window[path + "." + path + "_swc"].isSelected = window[path + "." + path + "_obj"].isSelected;
+        }
+      }
+    } catch (ignore) {
+    }
+
     if (callback != undefined) {
       callback(path);
     }
