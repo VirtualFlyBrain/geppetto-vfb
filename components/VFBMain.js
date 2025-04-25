@@ -433,7 +433,7 @@ class VFBMain extends React.Component {
       // any alternative handling goes here
     }
 
-    try{
+    try {
       if (window[path + "." + path + "_swc"] != undefined && window[path + "." + path + "_obj"] != undefined) {
         if (window[path + "." + path + "_swc"].getType() instanceof ImportType) {
           window[path + "." + path + "_swc"].visible = false;
