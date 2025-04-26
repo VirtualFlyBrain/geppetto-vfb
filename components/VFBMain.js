@@ -405,6 +405,16 @@ class VFBMain extends React.Component {
       }
     }
 
+    // independently from the above, check if we have slices for the instance
+    try {
+      var slices = Instances.getInstance(path + "." + path + "_slices");
+      if (typeof (slices) != 'undefined' && slices.getType() instanceof ImportType) {
+        slices.getType().resolve();
+      }
+    } catch (ignore) {
+      // any alternative handling goes here
+    }
+
     // if anything was found resolve type (will add to scene)
     if (instance != undefined) {
       var postResolve = () => {
@@ -423,16 +433,6 @@ class VFBMain extends React.Component {
         GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
         postResolve();
       }
-    }
-
-    // independently from the above, check if we have slices for the instance
-    try {
-      instance = Instances.getInstance(path + "." + path + "_slices");
-      if (typeof (instance) != 'undefined' && instance.getType() instanceof ImportType) {
-        instance.getType().resolve();
-      }
-    } catch (ignore) {
-      // any alternative handling goes here
     }
   }
 
