@@ -393,13 +393,7 @@ class VFBMain extends React.Component {
         }
       } catch (ignore) {
       }
-    } else {
-      try {
-        Instances.getInstance(path + "." + path + "_swc");
-      } catch (ignore) { 
-      }
     }
-
     // if no swc check if we have obj
     if (instance == undefined) {
       try {
