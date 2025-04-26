@@ -123,10 +123,9 @@ describe('VFB Menu Component Tests', () => {
     it('All Available Datasets Opens', async () => {
       await page.evaluate(async () => document.getElementById("All Available Datasets").click());
       // Wait for results to appear, this means datasets were returned
-      await page.waitFor(9000);
       await wait4selector(page, '#querybuilder', { visible: true , timeout : 900000 });
       await wait4selector(page, '#Dorkenwald2023----VFBlicense_CC_BY_NC_4_0----doi_10_1101_2023_06_27_546656-image-container', { visible: true , timeout : 900000 });
-    }, 5000000);
+    }, 900000);
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
       await clickQueryResult(page, "FlyWire connectome neurons");
