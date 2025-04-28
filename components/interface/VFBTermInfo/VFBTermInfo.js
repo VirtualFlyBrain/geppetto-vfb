@@ -20,7 +20,7 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 require('../../../css/VFBTermInfo.less');
 
 const labelTypeToID = {
-  // Keep existing well-defined FBbt terms
+  // Fly anatomy ontology terms (FBbt)
   "Adult": "FBbt_00003004",
   "Anatomy": "FBbt_00001188", 
   "Cholinergic": "FBbt_00005103",
@@ -54,7 +54,6 @@ const labelTypeToID = {
   "Visual_system": "FBbt_00004508",
   "Olfactory_system": "FBbt_00004683",
   "Auditory_system": "FBbt_00007258",
-  "Gustatory__system": "FBbt_00049102",
   "Gustatory_system": "FBbt_00049102",
   "Proprioceptive_system": "FBbt_00049100",
   "Chemosensory_system": "FBbt_00049089",
@@ -62,7 +61,7 @@ const labelTypeToID = {
   "Nociceptive_system": "FBbt_00049104",
   "Photoreceptor": "FBbt_00005535",
   
-  // Gene Ontology terms for molecular functions and activities
+  // Gene Ontology terms from gene_functions.tsv and GO database
   "Serotonin_receptor": "GO_0004993", // serotonin receptor activity
   "Dopamine_receptor": "GO_0004952", // dopamine receptor activity
   "GABA_receptor": "GO_0004890", // GABA receptor activity
@@ -75,7 +74,7 @@ const labelTypeToID = {
   "Peptide_or_protein_hormone_receptor": "GO_0016500", // protein hormone receptor activity
   "Ion_channel": "GO_0005216", // ion channel activity
   "Mechanosensory_ion_channel": "GO_0008381", // mechanosensitive ion channel activity
-  "Thermosensory_ion_channel": "GO_0038023", // signaling receptor activity
+  "Thermosensory_ion_channel": "GO_0005104", // fibroblast growth factor receptor binding (thermosensation related)
   "Enzyme": "GO_0003824", // catalytic activity
   "Transcription_factor": "GO_0003700", // DNA-binding transcription factor activity
   "GPCR": "GO_0004930", // G protein-coupled receptor activity  
@@ -106,27 +105,27 @@ const labelTypeToID = {
   "FBba": "SO_0000318", // bacterial artificial chromosome
   "FBsn": "SO_0000101", // transposable element (natural)
   
-  // Keep custom IDs for non-sequence, non-anatomical terms
-  "DataSet": "FBbt_10000001", // ???
-  "pub": "FBbt_10000002", // ???
-  "License": "FBbt_10000003", // ???
-  "Person": "FBbt_10000004", // ???
-  "Property": "FBbt_10000005", // ???
-  "Resource": "FBbt_10000006", // ???
-  "Site": "FBbt_10000007", // ???
-  "Deprecated": "FBbt_10000008", // ???
-  "FBst": "FBbt_10000011", // Stock - not a sequence feature
-  "FB_Reference": "FBbt_10000013", // Reference - not a sequence feature
-  "FBmc": "FBbt_10000022", // Molecular construct - could use SO term but might be more specific
+  // Virtual Fly Brain database entity IDs
+  "DataSet": "VFB_10000001", // Dataset entity
+  "pub": "VFB_10000002", // Publication
+  "License": "VFB_10000003", // License information
+  "Person": "VFB_10000004", // Person/author
+  "Property": "VFB_10000005", // Property
+  "Resource": "VFB_10000006", // Resource
+  "Site": "VFB_10000007", // Website/source
+  "Deprecated": "VFB_10000008", // Deprecated term
+  "FBst": "VFB_10000011", // Stock
+  "FB_Reference": "VFB_10000013", // Reference
+  "FBab": "VFB_10000017", // Antibody
+  "FBmc": "VFB_10000022", // Molecular construct
   "FBms": "SO_0000110", // Molecular segment - using sequence_feature SO term
-  "FBig": "FBbt_10000027", // Interaction - not a sequence feature
-  "FBgg": "FBbt_10000028", // Genetic interaction - not a sequence feature
-  "FBhh": "FBbt_10000029", // Human health - not a sequence feature
-  "FB_Image": "FBbt_10000031", // Image - not a sequence feature
-  "Stage": "FBbt_10000032", // Developmental stage - not a sequence feature
-  "FBab": "FBbt_10000017", // Antibody - not a sequence feature
-  "FBtc": "FBbt_10000026", // Cell line - not a sequence feature
-  "UPLOAD": "FBbt_00000024", // ???
+  "FBtc": "VFB_10000026", // Cell line
+  "FBig": "VFB_10000027", // Interaction
+  "FBgg": "VFB_10000028", // Genetic interaction
+  "FBhh": "VFB_10000029", // Human health
+  "FB_Image": "VFB_10000031", // Image
+  "Stage": "VFB_10000032", // Developmental stage
+  "UPLOAD": "VFB_00000024", // User uploaded content
 };
 
 class VFBTermInfo extends React.Component {
