@@ -643,7 +643,7 @@ class VFBTermInfo extends React.Component {
           const labelType = labelClass.replace('label-', '');
           
           // Attach click handler
-          label.addEventListener ('click', (event) => {
+          label.addEventListener ('click', event => {
             event.stopPropagation();
             const termID = labelTypeToID[labelType];
             
