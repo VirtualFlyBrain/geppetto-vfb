@@ -1286,3 +1286,13 @@ details[open] > summary > i.fa-chevron-circle-down {
 details[open] > summary > i.fa-chevron-circle-right {
     display: none;
 }
+
+/* Make label tags look clickable and add hover effect */
+.label.types > .label[class*="label-"] {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+}

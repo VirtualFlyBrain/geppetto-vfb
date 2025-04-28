@@ -19,6 +19,116 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
+const labelTypeToID = {
+  // Keep existing well-defined FBbt terms
+  "Adult": "FBbt_00003004",
+  "Anatomy": "FBbt_00001188", 
+  "Cholinergic": "FBbt_00005103",
+  "Clone": "FBbt_00007001",
+  "Cluster": "FBbt_00007004",
+  "Dopaminergic": "FBbt_00005106",
+  "Expression_pattern": "FBbt_00015543",
+  "GABAergic": "FBbt_00005121",
+  "Ganglion": "FBbt_00005093",
+  "Glutamatergic": "FBbt_00005107",
+  "Larva": "FBbt_00001727",
+  "Motor_neuron": "FBbt_00005106",
+  "Muscle": "FBbt_00005123",
+  "Nervous_system": "FBbt_00005093",
+  "Neuromere": "FBbt_00003624",
+  "Neuron": "FBbt_00005106",
+  "Neuron_projection_bundle": "FBbt_00007011",
+  "Octopaminergic": "FBbt_00005400",
+  "Peptidergic_neuron": "FBbt_00005412",
+  "Sensory_neuron": "FBbt_00005125",
+  "Serotonergic": "FBbt_00005397",
+  "Synaptic_neuropil_block": "FBbt_00050048",
+  "Synaptic_neuropil_domain": "FBbt_00007003", 
+  "Synaptic_neuropil": "FBbt_00007003",
+  "Glial_cell": "FBbt_00005399",
+  "Cell": "FBbt_00007001",
+  "Thermosensory_system": "FBbt_00049101",
+  "Neuroblast": "FBbt_00005146",
+  "GMC": "FBbt_00005136",
+  "Mechanosensory_system": "FBbt_00049065",
+  "Visual_system": "FBbt_00004508",
+  "Olfactory_system": "FBbt_00004683",
+  "Auditory_system": "FBbt_00007258",
+  "Gustatory__system": "FBbt_00049102",
+  "Gustatory_system": "FBbt_00049102",
+  "Proprioceptive_system": "FBbt_00049100",
+  "Chemosensory_system": "FBbt_00049089",
+  "Hygrosensory_system": "FBbt_00049103",
+  "Nociceptive_system": "FBbt_00049104",
+  "Photoreceptor": "FBbt_00005535",
+  
+  // Gene Ontology terms for molecular functions and activities
+  "Serotonin_receptor": "GO_0004993", // serotonin receptor activity
+  "Dopamine_receptor": "GO_0004952", // dopamine receptor activity
+  "GABA_receptor": "GO_0004890", // GABA receptor activity
+  "Glutamate_receptor": "GO_0008066", // glutamate receptor activity
+  "Acetylcholine_receptor": "GO_0015464", // acetylcholine receptor activity
+  "Histamine_receptor": "GO_0004969", // histamine receptor activity
+  "Octopamine_receptor": "GO_0004989", // octopamine receptor activity
+  "Olfactory_receptor": "GO_0004984", // olfactory receptor activity
+  "Tyramine_receptor": "GO_0008227", // tyramine receptor activity
+  "Peptide_or_protein_hormone_receptor": "GO_0016500", // protein hormone receptor activity
+  "Ion_channel": "GO_0005216", // ion channel activity
+  "Mechanosensory_ion_channel": "GO_0008381", // mechanosensitive ion channel activity
+  "Thermosensory_ion_channel": "GO_0038023", // signaling receptor activity
+  "Enzyme": "GO_0003824", // catalytic activity
+  "Transcription_factor": "GO_0003700", // DNA-binding transcription factor activity
+  "GPCR": "GO_0004930", // G protein-coupled receptor activity  
+  "Calcium_binding": "GO_0005509", // calcium ion binding
+  "Odorant_binding": "GO_0005549", // odorant binding
+  "Hormone": "GO_0005179", // hormone activity
+  "Neuropeptide": "GO_0005184", // neuropeptide hormone activity
+  "Gustatory_receptor": "GO_0008527", // taste receptor activity
+  
+  // Structural terms that need proper FBbt IDs
+  "Expression_pattern_fragment": "FBbt_00000001", // Still needs proper ID
+  "Synaptic_neuropil_subdomain": "FBbt_00040001", // Still needs proper ID
+  "Template": "FBbt_00000001", // Still needs proper ID
+  "Split": "FBbt_00000002", // Still needs proper ID
+  
+  // Sequence Ontology terms for genetic elements and features
+  "Gene": "SO_0000704", // gene
+  "Allele": "SO_0001023", // allele
+  "Insertion": "SO_0000667", // insertion site
+  "Transgenic_Construct": "SO_0000804", // transgenic transposable element
+  "FBtr": "SO_0000673", // transcript
+  "FBpp": "SO_0000104", // protein
+  "FBcl": "SO_0000151", // clone
+  "FBsf": "SO_0000148", // supercontig/scaffold
+  "FBte": "SO_0000101", // transposable element
+  "FBto": "SO_0001218", // transgenic insertion
+  "FBlc": "SO_0000317", // cDNA clone
+  "FBba": "SO_0000318", // bacterial artificial chromosome
+  "FBsn": "SO_0000101", // transposable element (natural)
+  
+  // Keep custom IDs for non-sequence, non-anatomical terms
+  "DataSet": "FBbt_10000001", // ???
+  "pub": "FBbt_10000002", // ???
+  "License": "FBbt_10000003", // ???
+  "Person": "FBbt_10000004", // ???
+  "Property": "FBbt_10000005", // ???
+  "Resource": "FBbt_10000006", // ???
+  "Site": "FBbt_10000007", // ???
+  "Deprecated": "FBbt_10000008", // ???
+  "FBst": "FBbt_10000011", // Stock - not a sequence feature
+  "FB_Reference": "FBbt_10000013", // Reference - not a sequence feature
+  "FBmc": "FBbt_10000022", // Molecular construct - could use SO term but might be more specific
+  "FBms": "SO_0000110", // Molecular segment - using sequence_feature SO term
+  "FBig": "FBbt_10000027", // Interaction - not a sequence feature
+  "FBgg": "FBbt_10000028", // Genetic interaction - not a sequence feature
+  "FBhh": "FBbt_10000029", // Human health - not a sequence feature
+  "FB_Image": "FBbt_10000031", // Image - not a sequence feature
+  "Stage": "FBbt_10000032", // Developmental stage - not a sequence feature
+  "FBab": "FBbt_10000017", // Antibody - not a sequence feature
+  "FBtc": "FBbt_10000026", // Cell line - not a sequence feature
+  "UPLOAD": "FBbt_00000024", // ???
+};
+
 class VFBTermInfo extends React.Component {
 
   constructor (props) {
@@ -516,9 +626,11 @@ class VFBTermInfo extends React.Component {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
     this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+
+    // Add click handlers to label tags
+    this.attachLabelClickHandlers();
   }
-
-
+  
   componentDidUpdate (prevProps, prevState) {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     if (this.state.termInfoId !== this.innerHandler.id) {
@@ -528,6 +640,43 @@ class VFBTermInfo extends React.Component {
     if (document.getElementById('bar-div-vfbterminfowidget') !== null) {
       $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
     }
+
+    // Update click handlers for newly rendered labels
+    this.attachLabelClickHandlers();
+  }
+  
+  attachLabelClickHandlers() {
+    // Select all label tags
+    const labelElements = document.querySelectorAll('.label.types > .label[class*="label-"]');
+    
+    labelElements.forEach(label => {
+      // Avoid attaching multiple handlers
+      if (!label.dataset.handlerAttached) {
+        label.dataset.handlerAttached = 'true';
+        
+        // Extract label type from class name
+        const classNames = Array.from(label.classList);
+        const labelClass = classNames.find(cls => cls.startsWith('label-'));
+        
+        if (labelClass) {
+          const labelType = labelClass.replace('label-', '');
+          
+          // Attach click handler
+          label.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const termID = labelTypeToID[labelType];
+            
+            if (termID) {
+              if (window.Instances && window.Instances.getInstance(termID)) {
+                window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
+              } else {
+                window.addVfbId(termID);
+              }
+            }
+          });
+        }
+      }
+    });
   }
 
   render () {
