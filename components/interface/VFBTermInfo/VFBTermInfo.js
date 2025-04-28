@@ -626,7 +626,7 @@ class VFBTermInfo extends React.Component {
     this.attachLabelClickHandlers();
   }
   
-  attachLabelClickHandlers() {
+  attachLabelClickHandlers () {
     // Select all label tags
     const labelElements = document.querySelectorAll('.label.types > .label[class*="label-"]');
     
@@ -643,7 +643,7 @@ class VFBTermInfo extends React.Component {
           const labelType = labelClass.replace('label-', '');
           
           // Attach click handler
-          label.addEventListener('click', (event) => {
+          label.addEventListener ('click', (event) => {
             event.stopPropagation();
             const termID = labelTypeToID[labelType];
             
