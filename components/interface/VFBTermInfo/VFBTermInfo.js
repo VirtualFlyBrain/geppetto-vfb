@@ -39,7 +39,7 @@ const labelTypeToID = {
   "Neuron": "FBbt_00005106",
   "Neuron_projection_bundle": "FBbt_00005099",
   "Octopaminergic": "FBbt_00007364",
-  "Peptidergic_neuron": "FBbt_00004101", // Changed to match "Peptidergic" in config
+  "Peptidergic": "FBbt_00004101",
   "Sensory_neuron": "FBbt_00005124",
   "Serotonergic": "FBbt_00005133",
   "Synaptic_neuropil_block": "FBbt_00041000",

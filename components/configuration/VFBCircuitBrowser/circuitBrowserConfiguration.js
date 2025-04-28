@@ -109,7 +109,7 @@ var styling = {
     "Synaptic_neuropil_subdomain" : "#88ffb3",
     "Sensory_neuron" : "#fb9a99",
     "Mechanosensory_system": "#00aaaa",
-    "Peptidergic_neuron" : "#80b1d3",
+    "Peptidergic" : "#80b1d3",
     "Thermosensory_system" : "#aa0000",
     "Muscle" : "#a6cee3",
     "Serotonergic" : "#d9d9d9",
