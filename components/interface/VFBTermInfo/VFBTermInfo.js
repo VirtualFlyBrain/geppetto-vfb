@@ -22,73 +22,76 @@ require('../../../css/VFBTermInfo.less');
 const labelTypeToID = {
   // Fly anatomy ontology terms (FBbt)
   "Adult": "FBbt_00003004",
-  "Anatomy": "FBbt_00001188", 
-  "Cholinergic": "FBbt_00005103",
-  "Clone": "FBbt_00007001",
-  "Cluster": "FBbt_00007004",
-  "Dopaminergic": "FBbt_00005106",
-  "Expression_pattern": "FBbt_00015543",
-  "GABAergic": "FBbt_00005121",
-  "Ganglion": "FBbt_00005093",
-  "Glutamatergic": "FBbt_00005107",
+  "Anatomy": "CARO_0000000", 
+  "Cholinergic": "FBbt_00007173",
+  "Clone": "FBbt_00007683",
+  "Cluster": "FBbt_00007004", // Preserved as not found in config
+  "Dopaminergic": "FBbt_00005131",
+  "Expression_pattern": "CARO_0030002",
+  "GABAergic": "FBbt_00007228",
+  "Ganglion": "FBbt_00005137",
+  "Glutamatergic": "FBbt_00100291",
   "Larva": "FBbt_00001727",
-  "Motor_neuron": "FBbt_00005106",
-  "Muscle": "FBbt_00005123",
+  "Motor_neuron": "FBbt_00005123",
+  "Muscle": "FBbt_00005074",
   "Nervous_system": "FBbt_00005093",
-  "Neuromere": "FBbt_00003624",
+  "Neuromere": "FBbt_00005140",
   "Neuron": "FBbt_00005106",
-  "Neuron_projection_bundle": "FBbt_00007011",
-  "Octopaminergic": "FBbt_00005400",
-  "Peptidergic_neuron": "FBbt_00005412",
-  "Sensory_neuron": "FBbt_00005125",
-  "Serotonergic": "FBbt_00005397",
-  "Synaptic_neuropil_block": "FBbt_00050048",
-  "Synaptic_neuropil_domain": "FBbt_00007003", 
-  "Synaptic_neuropil": "FBbt_00007003",
-  "Glial_cell": "FBbt_00005399",
-  "Cell": "FBbt_00007001",
-  "Thermosensory_system": "FBbt_00049101",
+  "Neuron_projection_bundle": "FBbt_00005099",
+  "Octopaminergic": "FBbt_00007364",
+  "Peptidergic_neuron": "FBbt_00004101", // Changed to match "Peptidergic" in config
+  "Sensory_neuron": "FBbt_00005124",
+  "Serotonergic": "FBbt_00005133",
+  "Synaptic_neuropil_block": "FBbt_00041000",
+  "Synaptic_neuropil_domain": "FBbt_00040007", 
+  "Synaptic_neuropil": "FBbt_00040005",
+  "Glial_cell": "FBbt_00005144",
+  "Cell": "FBbt_00007002",
+  "Thermosensory_system": "FBbt_00007691",
   "Neuroblast": "FBbt_00005146",
-  "GMC": "FBbt_00005136",
-  "Mechanosensory_system": "FBbt_00049065",
-  "Visual_system": "FBbt_00004508",
-  "Olfactory_system": "FBbt_00004683",
-  "Auditory_system": "FBbt_00007258",
-  "Gustatory_system": "FBbt_00049102",
-  "Proprioceptive_system": "FBbt_00049100",
-  "Chemosensory_system": "FBbt_00049089",
-  "Hygrosensory_system": "FBbt_00049103",
-  "Nociceptive_system": "FBbt_00049104",
-  "Photoreceptor": "FBbt_00005535",
+  "GMC": "FBbt_00005149",
+  "Mechanosensory_system": "FBbt_00007687",
+  "Visual_system": "FBbt_00047735",
+  "Olfactory_system": "FBbt_00007688",
+  "Auditory_system": "FBbt_00007685",
+  "Gustatory_system": "FBbt_00007690",
+  "Proprioceptive_system": "FBbt_00052154",
+  "Chemosensory_system": "FBbt_00007689",
+  "Hygrosensory_system": "FBbt_00110660",
+  "Nociceptive_system": "FBbt_00052155",
+  "Photoreceptor": "GO_0009881", // (photoreceptor activity)
+  "Histaminergic": "FBbt_00007367", // Added from config
+  "Tyraminergic": "FBbt_00100397", // Added from config
+  "Channel": "VFBext_0000014", // Added from config
   
   // Gene Ontology terms from gene_functions.tsv and GO database
-  "Serotonin_receptor": "GO_0004993", // serotonin receptor activity
-  "Dopamine_receptor": "GO_0004952", // dopamine receptor activity
-  "GABA_receptor": "GO_0004890", // GABA receptor activity
-  "Glutamate_receptor": "GO_0008066", // glutamate receptor activity
-  "Acetylcholine_receptor": "GO_0015464", // acetylcholine receptor activity
-  "Histamine_receptor": "GO_0004969", // histamine receptor activity
-  "Octopamine_receptor": "GO_0004989", // octopamine receptor activity
-  "Olfactory_receptor": "GO_0004984", // olfactory receptor activity
-  "Tyramine_receptor": "GO_0008227", // tyramine receptor activity
-  "Peptide_or_protein_hormone_receptor": "GO_0016500", // protein hormone receptor activity
-  "Ion_channel": "GO_0005216", // ion channel activity
-  "Mechanosensory_ion_channel": "GO_0008381", // mechanosensitive ion channel activity
-  "Thermosensory_ion_channel": "GO_0005104", // fibroblast growth factor receptor binding (thermosensation related)
-  "Enzyme": "GO_0003824", // catalytic activity
-  "Transcription_factor": "GO_0003700", // DNA-binding transcription factor activity
-  "GPCR": "GO_0004930", // G protein-coupled receptor activity  
-  "Calcium_binding": "GO_0005509", // calcium ion binding
-  "Odorant_binding": "GO_0005549", // odorant binding
-  "Hormone": "GO_0005179", // hormone activity
-  "Neuropeptide": "GO_0005184", // neuropeptide hormone activity
-  "Gustatory_receptor": "GO_0008527", // taste receptor activity
+  "Serotonin_receptor": "GO:0099589", // serotonin receptor activity (updated from GO_0004993)
+  "Dopamine_receptor": "GO:0004952", // dopamine neurotransmitter receptor activity
+  "GABA_receptor": "GO:0016917", // GABA receptor activity (updated from GO_0004890)
+  "Glutamate_receptor": "GO:0008066", // glutamate receptor activity
+  "Acetylcholine_receptor": "GO:0015464", // acetylcholine receptor activity
+  "Histamine_receptor": "GO:0019182", // histamine-gated chloride channel activity (updated from GO_0004969)
+  "Octopamine_receptor": "GO:0004989", // octopamine receptor activity
+  "Olfactory_receptor": "GO:0004984", // olfactory receptor activity
+  "Tyramine_receptor": "GO:0008226", // tyramine receptor activity (updated from GO_0008227)
+  "Peptide_or_protein_hormone_receptor": "GO:0016500", // protein-hormone receptor activity
+  "Ion_channel": "GO:0005216", // ion channel activity
+  "Mechanosensory_ion_channel": "GO:0008381", // mechanosensitive ion channel activity
+  "Thermosensory_ion_channel": "GO:0097603", // temperature-gated ion channel activity (updated from GO_0005104)
+  "Enzyme": "GO:0003824", // catalytic activity
+  "Transcription_factor": "GO:0140110", // transcription regulator activity (updated from GO_0003700)
+  "GPCR": "GO:0004930", // G protein-coupled receptor activity  
+  "Calcium_binding": "GO:0005509", // calcium ion binding
+  "Odorant_binding": "GO:0005549", // odorant binding
+  "Hormone": "GO:0005179", // hormone activity
+  "Neuropeptide": "GO:0005184", // neuropeptide hormone activity
+  "Gustatory_receptor": "GO:0008527", // taste receptor activity
   
-  // Structural terms that need proper FBbt IDs
-  "Expression_pattern_fragment": "FBbt_00000001", // Still needs proper ID
-  "Synaptic_neuropil_subdomain": "FBbt_00040001", // Still needs proper ID
+  // Structural terms with proper IDs from config
+  "Expression_pattern_fragment": "VFBext_0000004", 
+  "Synaptic_neuropil_subdomain": "FBbt_00040006", 
   "Template": "FBbt_00000001", // Still needs proper ID
-  "Split": "FBbt_00000002", // Still needs proper ID
+  "Split": "VFBext_0000010", 
   
   // Sequence Ontology terms for genetic elements and features
   "Gene": "SO_0000704", // gene
@@ -105,27 +108,6 @@ const labelTypeToID = {
   "FBba": "SO_0000318", // bacterial artificial chromosome
   "FBsn": "SO_0000101", // transposable element (natural)
   
-  // Virtual Fly Brain database entity IDs
-  "DataSet": "VFB_10000001", // Dataset entity
-  "pub": "VFB_10000002", // Publication
-  "License": "VFB_10000003", // License information
-  "Person": "VFB_10000004", // Person/author
-  "Property": "VFB_10000005", // Property
-  "Resource": "VFB_10000006", // Resource
-  "Site": "VFB_10000007", // Website/source
-  "Deprecated": "VFB_10000008", // Deprecated term
-  "FBst": "VFB_10000011", // Stock
-  "FB_Reference": "VFB_10000013", // Reference
-  "FBab": "VFB_10000017", // Antibody
-  "FBmc": "VFB_10000022", // Molecular construct
-  "FBms": "SO_0000110", // Molecular segment - using sequence_feature SO term
-  "FBtc": "VFB_10000026", // Cell line
-  "FBig": "VFB_10000027", // Interaction
-  "FBgg": "VFB_10000028", // Genetic interaction
-  "FBhh": "VFB_10000029", // Human health
-  "FB_Image": "VFB_10000031", // Image
-  "Stage": "VFB_10000032", // Developmental stage
-  "UPLOAD": "VFB_00000024", // User uploaded content
 };
 
 class VFBTermInfo extends React.Component {
