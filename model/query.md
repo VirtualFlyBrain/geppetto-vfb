@@ -1138,7 +1138,7 @@ No query provided
 
 ## Query Name: Show all images that develops_from X
 ID: ImagesThatDevelopFrom
-Description: List all images That develops from $NAME
+Description: List images of neurons that develop from $NAME
 Type: gep_2:CompoundRefQuery
 Query: ```
 No query provided

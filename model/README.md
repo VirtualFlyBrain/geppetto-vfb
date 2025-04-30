@@ -143,7 +143,7 @@
 ## SimilarMorphologyToUserData: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
 - Step: Get user NBLAST results (DataSource Index: 3, Query Index: 2)
 
-## ImagesThatDevelopFrom: List all images That develops from $NAME
+## ImagesThatDevelopFrom: List images of neurons that develop from $NAME
 - Step: Find images develops_from id (DataSource Index: 0, Query Index: 28)
 - Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
