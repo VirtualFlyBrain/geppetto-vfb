@@ -3,6 +3,60 @@ var QueryLinkComponent = require("@geppettoengine/geppetto-client/components/int
 var QueryLinkArrayComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryLinkArrayComponent");
 var SlideshowImageComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/slideshowImageComponent");
 var QueryResultsControlsComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryResultsControlsComponent");
+const React = require('react');
+import { labelTypeToID } from '../../interface/utils/utils';
+
+// Create a custom component for the gross_type column that renders clickable labels
+const GrossTypeLabelsComponent = (props) => {
+  if (!props.value) {
+    return null;
+  }
+  
+  // Split the semicolon-delimited string into individual labels
+  const labels = props.value.split(';').map(label => {
+    const trimmedLabel = label.trim();
+    if (!trimmedLabel) return null;
+    
+    // Use original case for the CSS class
+    const labelClass = trimmedLabel.replace(/ /g, '_');
+    
+    return (
+      <span 
+        key={labelClass}
+        className={`label label-${labelClass}`}
+        style={{
+          marginRight: '3px',
+          cursor: 'pointer',
+          display: 'inline-block',
+          padding: '0.2em 0.6em',
+          fontSize: '10px',
+          fontWeight: 'bold',
+          borderRadius: '0.25em',
+          backgroundColor: '#337ab7',
+          color: 'white'
+        }}
+        onClick={() => {
+          // Find the term ID for this label type
+          const termID = labelTypeToID[trimmedLabel];
+          
+          if (termID) {
+            if (window.Instances && window.Instances.getInstance(termID)) {
+              window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
+            } else {
+              window.fetchVariableThenRun(termID, function() {
+                window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
+              });
+            }
+          }
+        }}
+      >
+        {trimmedLabel}
+      </span>
+    );
+  }).filter(Boolean);
+  
+  return <div className="label-types">{labels}</div>;
+};
 
 var queryResultsColMeta = [
   {
@@ -159,6 +213,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Gross_Type",
     "cssClassName": "query-results-grosstype-column",
+    "customComponent": GrossTypeLabelsComponent,
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
