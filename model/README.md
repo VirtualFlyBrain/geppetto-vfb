@@ -144,7 +144,7 @@
 - Step: Get user NBLAST results (DataSource Index: 3, Query Index: 2)
 
 ## ImagesThatDevelopFrom: List images of neurons that develop from $NAME
-- Step: Find images develops_from id (DataSource Index: 0, Query Index: 28)
-- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
+- Step: Images of neurons that develops from this (DataSource Index: 2, Query Index: 5)
+- Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 

@@ -792,6 +792,14 @@ Query: ```
 owleryToSolrIdOnlyQueryProcessor
 ```
 
+## Query Name: Images of neurons that develops from this
+ID: ImagesOfNeuronsThatDevelopFromThis
+Description: Images of neurons that develops from this
+Type: gep_2:SimpleQuery
+Query: ```
+object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl.obolibrary.org/obo/RO_0002202%3E%20some%20%3Chttp://purl.obolibrary.org/obo/$ID%3E&direct=false&includeDeprecated=false
+```
+
 ## Query Name: Get cached VFB_JSON for Term
 ID: cachedvfbjsoncall
 Description: Get cached VFB_JSON for Term
