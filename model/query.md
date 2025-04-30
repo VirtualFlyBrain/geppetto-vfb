@@ -592,6 +592,14 @@ Query: ```
 "statement": "MATCH (c:DataSet)<-[:has_source]-(primary:Individual)<-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
+## Query Name: Find images develops_from id
+ID: imagesDevelopsFromNeuroblast
+Description: Find images develops_from X
+Type: gep_2:SimpleQuery
+Query: ```
+"statement": "MATCH (n:Class {short_form:$id})<-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
+```
+
 ## Query Name: Owlery Part of
 ID: None
 Description: Part of $NAME
@@ -1123,6 +1131,14 @@ No query provided
 ## Query Name: has_similar_morphology_to_userdata
 ID: SimilarMorphologyToUserData
 Description: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
+Type: gep_2:CompoundRefQuery
+Query: ```
+No query provided
+```
+
+## Query Name: Show all images that develops_from X
+ID: ImagesThatDevelopFrom
+Description: List all images That develops from $NAME
 Type: gep_2:CompoundRefQuery
 Query: ```
 No query provided
