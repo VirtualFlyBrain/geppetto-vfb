@@ -168,6 +168,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="UNBLAST"
         name="user data NBLAST results"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="Neuroblast"
+        name="Neuroblast"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -659,6 +662,14 @@
         returnType="//@libraries.3/@types.0"
         query="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
         countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="imagesDevelopsFromNeuroblast"
+        name="Find images develops_from id"
+        description="Find images develops_from X"
+        returnType="//@libraries.3/@types.0"
+        query="&quot;statement&quot;: &quot;MATCH (n:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -1366,5 +1377,14 @@
       queryChain="//@dataSources.3/@queries.2">
     <matchingCriteria
         type="//@libraries.3/@types.49 //@libraries.3/@types.0"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ImagesThatDevelopFrom"
+      name="Show all images that develops_from X"
+      description="List all images That develops from $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.0/@queries.28 //@dataSources.0/@queries.24 //@dataSources.3/@queries.1">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.50"/>
   </queries>
 </gep:GeppettoModel>
