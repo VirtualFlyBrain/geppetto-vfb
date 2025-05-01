@@ -520,7 +520,7 @@ class VFBTermInfo extends React.Component {
     this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
 
     // Add click handlers to label tags
-    this.attachLabelClickHandlers();
+    attachLabelClickHandlers();
   }
   
   componentDidUpdate (prevProps, prevState) {
