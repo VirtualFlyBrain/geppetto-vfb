@@ -2,14 +2,12 @@ var coli = 1;
 
 // Label type to ID mapping
 const labelTypeToID = {
-  // Fly anatomy ontology terms (FBbt)
+  // Anatomy terms
   "Adult": "FBbt_00003004",
   "Anatomy": "CARO_0000000", 
   "Cholinergic": "FBbt_00007173",
   "Clone": "FBbt_00007683",
-  "Cluster": "FBbt_00007004", // Preserved as not found in config
   "Dopaminergic": "FBbt_00005131",
-  "Expression_pattern": "CARO_0030002",
   "GABAergic": "FBbt_00007228",
   "Ganglion": "FBbt_00005137",
   "Glutamatergic": "FBbt_00100291",
@@ -27,6 +25,7 @@ const labelTypeToID = {
   "Synaptic_neuropil_block": "FBbt_00041000",
   "Synaptic_neuropil_domain": "FBbt_00040007", 
   "Synaptic_neuropil": "FBbt_00040005",
+  "Synaptic_neuropil_subdomain": "FBbt_00040006", 
   "Glial_cell": "FBbt_00005144",
   "Cell": "FBbt_00007002",
   "Thermosensory_system": "FBbt_00007691",
@@ -41,10 +40,21 @@ const labelTypeToID = {
   "Chemosensory_system": "FBbt_00007689",
   "Hygrosensory_system": "FBbt_00110660",
   "Nociceptive_system": "FBbt_00052155",
-  "Photoreceptor": "GO_0009881", // (photoreceptor activity)
   "Histaminergic": "FBbt_00007367", // Added from config
   "Tyraminergic": "FBbt_00100397", // Added from config
+
+  // Structural terms
   "Channel": "VFBext_0000014", // Added from config
+  "Expression_pattern": "CARO_0030002",
+  "Expression_pattern_fragment": "VFBext_0000004", 
+  "Template": "VFBext_0000007", 
+  "Split": "VFBext_0000010", 
+  "Pub": "FBcv_0000212", 
+
+  //scRNAseq
+  "Cluster": "FBcv_0009003", 
+  "Sample": "FBcv_0003024", 
+  "Assay": "FBcv_0003025", 
   
   // Gene Ontology terms from gene_functions.tsv and GO database
   "Serotonin_receptor": "GO:0099589", // serotonin receptor activity (updated from GO_0004993)
@@ -68,12 +78,7 @@ const labelTypeToID = {
   "Hormone": "GO:0005179", // hormone activity
   "Neuropeptide": "GO:0005184", // neuropeptide hormone activity
   "Gustatory_receptor": "GO:0008527", // taste receptor activity
-  
-  // Structural terms with proper IDs from config
-  "Expression_pattern_fragment": "VFBext_0000004", 
-  "Synaptic_neuropil_subdomain": "FBbt_00040006", 
-  "Template": "FBbt_00000001", // Still needs proper ID
-  "Split": "VFBext_0000010", 
+  "Photoreceptor": "GO_0009881", // (photoreceptor activity)
   
   // Sequence Ontology terms for genetic elements and features
   "Gene": "SO_0000704", // gene
@@ -89,6 +94,8 @@ const labelTypeToID = {
   "FBlc": "SO_0000317", // cDNA clone
   "FBba": "SO_0000318", // bacterial artificial chromosome
   "FBsn": "SO_0000101", // transposable element (natural)
+
+  // Lineage
   "lineage_MBp": "FBbt_00007113",
   "lineage_VPNd1": "FBbt_00049153",
   "lineage_VLPl&p1": "FBbt_00049157",
