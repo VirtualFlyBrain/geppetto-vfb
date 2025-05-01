@@ -51,7 +51,7 @@ const labelTypeToID = {
   "Split": "VFBext_0000010", 
   "Pub": "FBcv_0000212", 
 
-  //scRNAseq
+  // scRNAseq
   "Cluster": "FBcv_0009003", 
   "Sample": "FBcv_0003024", 
   "Assay": "FBcv_0003025", 
