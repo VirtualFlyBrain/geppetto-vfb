@@ -9,6 +9,7 @@ import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
+import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
