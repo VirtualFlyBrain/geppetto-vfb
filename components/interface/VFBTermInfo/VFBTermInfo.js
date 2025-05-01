@@ -7,6 +7,7 @@ import ButtonBarComponent from './ButtonBarComponent';
 import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
 import { labelTypeToID } from '../utils/utils';
+import { attachLabelClickHandlers } from '../utils/utils';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -534,40 +535,6 @@ class VFBTermInfo extends React.Component {
 
     // Update click handlers for newly rendered labels
     this.attachLabelClickHandlers();
-  }
-  
-  attachLabelClickHandlers () {
-    // Select all label tags
-    const labelElements = document.querySelectorAll('.label.types > .label[class*="label-"]');
-    
-    labelElements.forEach(label => {
-      // Avoid attaching multiple handlers
-      if (!label.dataset.handlerAttached) {
-        label.dataset.handlerAttached = 'true';
-        
-        // Extract label type from class name
-        const classNames = Array.from(label.classList);
-        const labelClass = classNames.find(cls => cls.startsWith('label-'));
-        
-        if (labelClass) {
-          const labelType = labelClass.replace('label-', '');
-          
-          // Attach click handler
-          label.addEventListener ('click', event => {
-            event.stopPropagation();
-            const termID = labelTypeToID[labelType];
-            
-            if (termID) {
-              if (window.Instances && window.Instances.getInstance(termID)) {
-                window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
-              } else {
-                window.addVfbId(termID);
-              }
-            }
-          });
-        }
-      }
-    });
   }
 
   render () {

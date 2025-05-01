@@ -2,8 +2,10 @@ define (function (require) {
   var React = require('react');
   var GEPPETTO = require('geppetto');
   
+  
   // Import the label type to ID mapping from utils
   var labelTypeToID = require('./utils').labelTypeToID;
+  var attachLabelClickHandlers = require('./utils').attachLabelClickHandlers;
 
   /**
    * A custom component for the gross_type column that renders clickable labels
@@ -41,6 +43,6 @@ define (function (require) {
       return <span className="label types">{labels}</span>;
     }
   }
-  
+  this.attachLabelClickHandlers();
   return GrossTypeLabelsComponent;
 });
