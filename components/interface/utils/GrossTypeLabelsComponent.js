@@ -1,4 +1,4 @@
-define(function (require) {
+define (function (require) {
   var React = require('react');
   var GEPPETTO = require('geppetto');
   
@@ -9,11 +9,11 @@ define(function (require) {
    * A custom component for the gross_type column that renders clickable labels
    */
   class GrossTypeLabelsComponent extends React.Component {
-    constructor(props) {
+    constructor (props) {
       super(props);
     }
 
-    render() {
+    render () {
       if (!this.props.data) {
         return null;
       }
@@ -21,7 +21,9 @@ define(function (require) {
       // Split the semicolon-delimited string into individual labels
       const labels = this.props.data.split(';').map((label, idx) => {
         const trimmedLabel = label.trim();
-        if (!trimmedLabel) return null;
+        if (!trimmedLabel) {
+          return null;
+        }
         
         // Use original case for the CSS class
         const labelClass = trimmedLabel.replace(/ /g, '_');
@@ -38,7 +40,7 @@ define(function (require) {
                 if (window.Instances && window.Instances.getInstance(termID)) {
                   window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
                 } else {
-                  window.fetchVariableThenRun(termID, function() {
+                  window.fetchVariableThenRun(termID, function () {
                     window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
                   });
                 }
