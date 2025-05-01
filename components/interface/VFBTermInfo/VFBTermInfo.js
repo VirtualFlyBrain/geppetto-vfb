@@ -534,7 +534,7 @@ class VFBTermInfo extends React.Component {
     }
 
     // Update click handlers for newly rendered labels
-    attachLabelClickHandlers();
+    this.attachLabelClickHandlers();
   }
 
   render () {
