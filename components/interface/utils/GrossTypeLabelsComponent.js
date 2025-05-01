@@ -31,27 +31,14 @@ define (function (require) {
         return (
           <span 
             key={labelClass + '-' + idx}
-            className={`label label-${labelClass}`}
-            onClick={() => {
-              // Find the term ID for this label type
-              const termID = labelTypeToID[trimmedLabel];
-              
-              if (termID) {
-                if (window.Instances && window.Instances.getInstance(termID)) {
-                  window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
-                } else {
-                  window.fetchVariableThenRun(termID, function () {
-                    window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
-                  });
-                }
-              }
-            }}>
+            className={`label label-${labelClass}`}>
             {trimmedLabel}
           </span>
         );
       }).filter(Boolean);
       
-      return <div className="label-types">{labels}</div>;
+      // Wrap the labels in a span with class "label types"
+      return <span className="label types">{labels}</span>;
     }
   }
   
