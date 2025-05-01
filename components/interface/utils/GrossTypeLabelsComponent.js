@@ -43,6 +43,6 @@ define (function (require) {
       return <span className="label types">{labels}</span>;
     }
   }
-  attachLabelClickHandlers();
+  this.attachLabelClickHandlers();
   return GrossTypeLabelsComponent;
 });
