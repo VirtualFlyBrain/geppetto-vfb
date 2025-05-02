@@ -848,7 +848,7 @@ class VFBTermInfoWidget extends React.Component {
           $("#run-query-btn").hide();
           
           setTimeout(function () {
-            $("#query-error-message").text("Pulling a large number of results (2 mins max). Click anywhere to run in background or Esc to quit.").show();
+            $("#query-error-message").text("Still processing query (2 mins max). Click anywhere to run in background or Esc to quit.").show();
           }, 10000);
 
           var callback = function () {
