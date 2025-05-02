@@ -31,6 +31,10 @@ define (function (require) {
         return (
           <span 
             key={labelClass + '-' + idx}
+            onClick={() => {
+              // Add the label to the filter
+              this.props.setFilter(trimmedLabel);
+            }}
             className={`label label-${labelClass}`}>
             {trimmedLabel}
           </span>
