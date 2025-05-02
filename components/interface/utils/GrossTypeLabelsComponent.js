@@ -32,8 +32,9 @@ define (function (require) {
           <span 
             key={labelClass + '-' + idx}
             onClick={() => {
-              // Add the label to the filter
-              this.props.setFilter(trimmedLabel);
+              // TODO: should add trimmedLabel to the filter
+              // Open the term for now
+              window.addVfbId(labelTypeToID[trimmedLabel], trimmedLabel);
             }}
             className={`label label-${labelClass}`}>
             {trimmedLabel}
