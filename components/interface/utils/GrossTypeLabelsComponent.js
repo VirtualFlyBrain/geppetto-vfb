@@ -36,7 +36,7 @@ define (function (require) {
               window.addVfbId(labelTypeToID[trimmedLabel], trimmedLabel);
               // Open the term for now
               
-              // this.props.metadata.queryBuilder.close();
+              this.props.metadata.queryBuilder.close();
             }}
             className={`label label-${labelClass}`}>
             {trimmedLabel}
