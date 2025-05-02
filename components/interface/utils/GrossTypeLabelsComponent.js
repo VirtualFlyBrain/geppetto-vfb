@@ -33,8 +33,10 @@ define (function (require) {
             key={labelClass + '-' + idx}
             onClick={() => {
               // TODO: should add trimmedLabel to the filter
-              // Open the term for now
               window.addVfbId(labelTypeToID[trimmedLabel], trimmedLabel);
+              // Open the term for now
+              
+              // this.props.metadata.queryBuilder.close();
             }}
             className={`label label-${labelClass}`}>
             {trimmedLabel}
