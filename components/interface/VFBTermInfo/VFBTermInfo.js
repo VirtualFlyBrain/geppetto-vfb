@@ -6,6 +6,7 @@ import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import ButtonBarComponent from './ButtonBarComponent';
 import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
+import { labelTypeToID } from '../utils/utils';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -516,9 +517,11 @@ class VFBTermInfo extends React.Component {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false, id: this.state.termInfoId };
     this.hookupCustomHandler(this.innerHandler, $("#" + this.props.id), domTermInfo);
+
+    // Add click handlers to label tags
+    this.attachLabelClickHandlers();
   }
-
-
+  
   componentDidUpdate (prevProps, prevState) {
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     if (this.state.termInfoId !== this.innerHandler.id) {
@@ -528,6 +531,43 @@ class VFBTermInfo extends React.Component {
     if (document.getElementById('bar-div-vfbterminfowidget') !== null) {
       $('#bar-div-vfbterminfowidget').css('width', this.refs.termInfoInnerRef.clientWidth);
     }
+
+    // Update click handlers for newly rendered labels
+    this.attachLabelClickHandlers();
+  }
+  
+  attachLabelClickHandlers () {
+    // Select all label tags
+    const labelElements = document.querySelectorAll('.label.types > .label[class*="label-"]');
+    
+    labelElements.forEach(label => {
+      // Avoid attaching multiple handlers
+      if (!label.dataset.handlerAttached) {
+        label.dataset.handlerAttached = 'true';
+        
+        // Extract label type from class name
+        const classNames = Array.from(label.classList);
+        const labelClass = classNames.find(cls => cls.startsWith('label-'));
+        
+        if (labelClass) {
+          const labelType = labelClass.replace('label-', '');
+          
+          // Attach click handler
+          label.addEventListener ('click', event => {
+            event.stopPropagation();
+            const termID = labelTypeToID[labelType];
+            
+            if (termID) {
+              if (window.Instances && window.Instances.getInstance(termID)) {
+                window.setTermInfo(window.Instances.getInstance(termID)[termID + "_meta"], termID);
+              } else {
+                window.addVfbId(termID);
+              }
+            }
+          });
+        }
+      }
+    });
   }
 
   render () {
@@ -808,8 +848,8 @@ class VFBTermInfoWidget extends React.Component {
           $("#run-query-btn").hide();
           
           setTimeout(function () {
-            $("#query-error-message").text("Large query (~2 min). Click anywhere to run in background.").show();
-          }, 5000);
+            $("#query-error-message").text("Still processing query (2 mins max). Click anywhere to run in background or Esc to quit.").show();
+          }, 10000);
 
           var callback = function () {
             // check if any results with count flag

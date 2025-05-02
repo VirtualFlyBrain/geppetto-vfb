@@ -3,6 +3,7 @@ var QueryLinkComponent = require("@geppettoengine/geppetto-client/components/int
 var QueryLinkArrayComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryLinkArrayComponent");
 var SlideshowImageComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/slideshowImageComponent");
 var QueryResultsControlsComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryResultsControlsComponent");
+var GrossTypeLabelsComponent = require('../../interface/utils/GrossTypeLabelsComponent');
 
 var queryResultsColMeta = [
   {
@@ -159,6 +160,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Gross_Type",
     "cssClassName": "query-results-grosstype-column",
+    "customComponent": GrossTypeLabelsComponent,
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {

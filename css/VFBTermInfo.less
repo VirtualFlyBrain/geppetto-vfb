@@ -285,6 +285,12 @@
     color: #3a3939;
 }
 
+/* Target all lineage labels */
+.label.types>.label[class*="label-lineage_"] {
+    background-color: #33a02c !important;
+    color: #3a3939;
+}
+
 .label.types>.label.label-Cholinergic {
     background-color: #bebada !important;
     color: #3a3939;
@@ -366,7 +372,7 @@
     color: #3a3939;
 }
 
-.label.types>.label.label-Peptidergic_neuron {
+.label.types>.label.label-Peptidergic {
     background-color: #80b1d3 !important;
     color: #3a3939;
 }
@@ -575,7 +581,7 @@
     background-color: #aa00aa !important;
     color: white;
 }
-.label.types>.label.label-Gustatory__system {
+.label.types>.label.label-Gustatory_system {
     background-color: #aaaa00 !important;
     color: black;
 }
@@ -714,6 +720,7 @@
     background-color: #ff4902 !important;
     color: black;
 }
+
 
 
 .button-bar-vfbHistoryLinks-back {
@@ -1278,4 +1285,14 @@ details[open] > summary > i.fa-chevron-circle-down {
 
 details[open] > summary > i.fa-chevron-circle-right {
     display: none;
+}
+
+/* Make label tags look clickable and add hover effect */
+.label.types > .label[class*="label-"] {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 0.8;
+  }
 }
