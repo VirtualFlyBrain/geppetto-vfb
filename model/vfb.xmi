@@ -632,8 +632,8 @@
         name="Find images aligned to template id"
         description="Find images aligned to template id"
         returnType="//@libraries.3/@types.0"
-        query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[:in_register_with]-(:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[:in_register_with]-(:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:ProcessQuery"
         id="neo4jPassSolrIdListOnly"
@@ -660,16 +660,16 @@
         name="Find image ids for dataset"
         description="Find images for a dataset"
         returnType="//@libraries.3/@types.0"
-        query="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:$id})&lt;-[:has_source]-(primary:Individual) WHERE (primary)&lt;-[:depicts]-(:Individual)-[:in_register_with]->(:Template) RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:$id})&lt;-[:has_source]-(primary:Individual) WHERE (primary)&lt;-[:depicts]-(:Individual)-[:in_register_with]->(:Template) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
         id="imagesDevelopsFromNeuroblast"
         name="Find images develops_from id"
         description="Find images develops_from X"
         returnType="//@libraries.3/@types.0"
-        query="&quot;statement&quot;: &quot;MATCH (n:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
