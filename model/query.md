@@ -573,7 +573,7 @@ ID: None
 Description: Get JSON for template_2_datasets ids
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (ds:DataSet:Individual) WHERE NOT ds:deprecated AND (:Template:Individual {short_form:$id})<-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual {short_form:$id})<-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: all_datasets_ids
@@ -581,7 +581,7 @@ ID: None
 Description: Get ids for all_datasets ids
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (ds:DataSet:Individual) WHERE NOT ds:deprecated AND (:Template:Individual)<-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual)<-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: Find image ids for dataset
