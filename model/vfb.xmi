@@ -645,15 +645,15 @@
         name="template_2_datasets_ids"
         description="Get JSON for template_2_datasets ids"
         returnType="//@libraries.3/@types.24"
-        query="&quot;statement&quot;: &quot;MATCH (t:Template) &lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:deprecated AND (:Template:Individual {short_form:$id})&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:deprecated AND (:Template:Individual {short_form:$id})&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
         name="all_datasets_ids"
         description="Get ids for all_datasets ids"
         returnType="//@libraries.3/@types.24"
-        query="&quot;statement&quot;: &quot;MATCH (t:Template) &lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:deprecated AND (:Template:Individual)&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:deprecated AND (:Template:Individual)&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
         id="neoImageIDsForDataSet"
