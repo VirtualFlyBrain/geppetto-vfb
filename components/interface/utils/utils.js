@@ -50,6 +50,7 @@ const labelTypeToID = {
   "Template": "VFBext_0000007", 
   "Split": "VFBext_0000010", 
   "Pub": "FBcv_0000212", 
+  "DataSet": "FBcv_0003023",
 
   // scRNAseq
   "Cluster": "FBcv_0009003", 
