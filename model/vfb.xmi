@@ -1049,6 +1049,13 @@
         description="Fetches essential details."
         query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;template_2_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
         countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;template_2_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="solr_all_datasets_query"
+        name="Get all_datasets_query"
+        description="Fetches essential details."
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
+        countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Process Cached JSON"
@@ -1263,7 +1270,7 @@
       name="Show all datasets"
       description="List all datasets"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.26 //@dataSources.0/@queries.24 //@dataSources.3/@queries.5 //@dataSources.3/@queries.3">
+      queryChain="//@dataSources.0/@queries.26 //@dataSources.0/@queries.24 //@dataSources.3/@queries.6 //@dataSources.3/@queries.3">
     <matchingCriteria
         type="//@libraries.3/@types.20"/>
   </queries>
