@@ -880,6 +880,14 @@ Query: ```
 "params":{"defType":"edismax","fl":"template_2_datasets_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"999999"}
 ```
 
+## Query Name: Get all_datasets_query
+ID: solr_all_datasets_query
+Description: Fetches essential details.
+Type: gep_2:SimpleQuery
+Query: ```
+"params":{"defType":"edismax","fl":"all_datasets_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"999999"}
+```
+
 ## Query Name: List all available images for class with examples
 ID: ListAllAvailableImages
 Description: List all available images of $NAME
