@@ -1261,7 +1261,7 @@
       name="Show all datasets aligned to template"
       description="List all datasets aligned to $NAME"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.25 //@dataSources.0/@queries.24 //@dataSources.3/@queries.5 //@dataSources.3/@queries.3">
+      queryChain="//@dataSources.0/@queries.25 //@dataSources.0/@queries.24 //@dataSources.3/@queries.6 //@dataSources.3/@queries.3">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
