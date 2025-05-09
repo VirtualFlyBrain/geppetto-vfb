@@ -40,8 +40,9 @@ const labelTypeToID = {
   "Chemosensory_system": "FBbt_00007689",
   "Hygrosensory_system": "FBbt_00110660",
   "Nociceptive_system": "FBbt_00052155",
-  "Histaminergic": "FBbt_00007367", // Added from config
-  "Tyraminergic": "FBbt_00100397", // Added from config
+  "Histaminergic": "FBbt_00007367",
+  "Tyraminergic": "FBbt_00100397",
+  "secondary_neuron": "FBbt_00047096",
 
   // Structural terms
   "Channel": "VFBext_0000014", // Added from config
