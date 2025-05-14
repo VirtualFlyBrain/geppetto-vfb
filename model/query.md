@@ -557,7 +557,7 @@ ID: imagesForTempQuery
 Description: Find images aligned to template id
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (n:Template {short_form:$id})<-[:depicts]-(:Template)<-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (:Template {short_form:$id})<-[:depicts]-(:Template)<-[:in_register_with]-(:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: neo4j Pass solr id list only
@@ -573,7 +573,7 @@ ID: None
 Description: Get JSON for template_2_datasets ids
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual {short_form:$id})<-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: all_datasets_ids
@@ -581,7 +581,7 @@ ID: None
 Description: Get ids for all_datasets ids
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (t:Template) <-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual)<-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: Find image ids for dataset
@@ -589,7 +589,7 @@ ID: neoImageIDsForDataSet
 Description: Find images for a dataset
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (c:DataSet)<-[:has_source]-(primary:Individual)<-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (:DataSet {short_form:$id})<-[:has_source]-(primary:Individual) WHERE (primary)<-[:depicts]-(:Individual)-[:in_register_with]->(:Template) RETURN distinct primary.short_form as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: Find images develops_from id
@@ -597,7 +597,7 @@ ID: imagesDevelopsFromNeuroblast
 Description: Find images develops_from X
 Type: gep_2:SimpleQuery
 Query: ```
-"statement": "MATCH (n:Class {short_form:$id})<-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
+"statement": "MATCH (:Class {short_form:$id})<-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
 ```
 
 ## Query Name: Owlery Part of
@@ -878,6 +878,14 @@ Description: Fetches essential details.
 Type: gep_2:SimpleQuery
 Query: ```
 "params":{"defType":"edismax","fl":"template_2_datasets_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"999999"}
+```
+
+## Query Name: Get all_datasets_query
+ID: solr_all_datasets_query
+Description: Fetches essential details.
+Type: gep_2:SimpleQuery
+Query: ```
+"params":{"defType":"edismax","fl":"all_datasets_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}$ARRAY_ID_RESULTS","rows":"999999"}
 ```
 
 ## Query Name: List all available images for class with examples
