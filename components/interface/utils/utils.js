@@ -43,6 +43,7 @@ const labelTypeToID = {
   "Histaminergic": "FBbt_00007367",
   "Tyraminergic": "FBbt_00100397",
   "secondary_neuron": "FBbt_00047096",
+  "primary_neuron": "FBbt_00047097",
 
   // Structural terms
   "Channel": "VFBext_0000014", // Added from config
