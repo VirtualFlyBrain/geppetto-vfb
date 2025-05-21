@@ -353,6 +353,16 @@
     color: #3a3939;
 }
 
+.label.types>.label.label-secondary_neuron {
+    background-color: #fdd962 !important;
+    color: #3a3939;
+}
+
+.label.types>.label.label-primary_neuron {
+    background-color: #fdd962 !important;
+    color: #3a3939;
+}
+
 .label.types>.label.label-Neuromere {
     background-color: #8dd3c7 !important;
     color: #3a3939;
@@ -372,7 +382,7 @@
     color: #3a3939;
 }
 
-.label.types>.label.label-Peptidergic_neuron {
+.label.types>.label.label-Peptidergic {
     background-color: #80b1d3 !important;
     color: #3a3939;
 }
@@ -581,7 +591,7 @@
     background-color: #aa00aa !important;
     color: white;
 }
-.label.types>.label.label-Gustatory__system {
+.label.types>.label.label-Gustatory_system {
     background-color: #aaaa00 !important;
     color: black;
 }
@@ -862,6 +872,11 @@
 	max-width: 100%;
     max-height: 260px;
     margin-left: 25px;
+}
+
+/* Apply max-height to images inside the term info widget */
+#vfbterminfowidget .popup-image img {
+    max-height: 260px;
 }
 
 .popup-image img{
@@ -1285,4 +1300,14 @@ details[open] > summary > i.fa-chevron-circle-down {
 
 details[open] > summary > i.fa-chevron-circle-right {
     display: none;
+}
+
+/* Make label tags look clickable and add hover effect */
+.label.types > .label[class*="label-"] {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 0.8;
+  }
 }

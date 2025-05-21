@@ -39,7 +39,7 @@ jobs:
         shell: bash
         run: echo "::set-output name=BUILD_TYPE::release";
           echo "::set-output name=RUNTIME_BUILD::true";
-          if [ "${GITHUB_REF#refs/heads/}" == master ] || [[ "${GITHUB_REF#refs/heads/}" == v* ]]; then
+          if [ "${{ steps.branch.outputs.value }}" == master ] || [[ "${{ steps.branch.outputs.value }}" == v* ]]; then
             echo "::debug::Set to master setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
@@ -75,7 +75,7 @@ jobs:
         shell: bash
         run: echo "::set-output name=BUILD_TYPE::release";
           echo "::set-output name=RUNTIME_BUILD::false";
-          if [ "${GITHUB_REF#refs/heads/}" == master ] || [[ "${GITHUB_REF#refs/heads/}" == v* ]]; then
+          if [ "${{ steps.branch.outputs.value }}" == master ] || [[ "${{ steps.branch.outputs.value }}" == v* ]]; then
             echo "::debug::Set to master setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";

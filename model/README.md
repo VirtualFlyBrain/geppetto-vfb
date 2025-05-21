@@ -93,13 +93,13 @@
 ## AlignedDatasets: List all datasets aligned to $NAME
 - Step: template_2_datasets_ids (DataSource Index: 0, Query Index: 25)
 - Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get template_2_datasets_query (DataSource Index: 3, Query Index: 5)
+- Step: Get all_datasets_query (DataSource Index: 3, Query Index: 6)
 - Step: Process solr query results (DataSource Index: 3, Query Index: 3)
 
 ## AllDatasets: List all datasets
 - Step: all_datasets_ids (DataSource Index: 0, Query Index: 26)
 - Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get template_2_datasets_query (DataSource Index: 3, Query Index: 5)
+- Step: Get all_datasets_query (DataSource Index: 3, Query Index: 6)
 - Step: Process solr query results (DataSource Index: 3, Query Index: 3)
 
 ## ref_neuron_region_connectivity_query: Show connectivity per region for $NAME
@@ -142,4 +142,9 @@
 
 ## SimilarMorphologyToUserData: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
 - Step: Get user NBLAST results (DataSource Index: 3, Query Index: 2)
+
+## ImagesThatDevelopFrom: List images of neurons that develop from $NAME
+- Step: Images of neurons that develops from this (DataSource Index: 2, Query Index: 5)
+- Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
+- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 

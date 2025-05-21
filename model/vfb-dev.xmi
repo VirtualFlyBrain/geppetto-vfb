@@ -115,7 +115,7 @@
         id="Sensory_neuron"
         name="Sensory Neuron"/>
     <types xsi:type="gep_1:SimpleType"
-        id="Peptidergic_neuron"
+        id="Peptidergic"
         name="Peptidergic Neuron"/>
     <types xsi:type="gep_1:SimpleType"
         id="Painted_domain"

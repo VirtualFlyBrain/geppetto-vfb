@@ -115,7 +115,7 @@
         id="Sensory_neuron"
         name="Sensory Neuron"/>
     <types xsi:type="gep_1:SimpleType"
-        id="Peptidergic_neuron"
+        id="Peptidergic"
         name="Peptidergic Neuron"/>
     <types xsi:type="gep_1:SimpleType"
         id="Painted_domain"
@@ -168,6 +168,9 @@
     <types xsi:type="gep_1:SimpleType"
         id="UNBLAST"
         name="user data NBLAST results"/>
+    <types xsi:type="gep_1:SimpleType"
+        id="Neuroblast"
+        name="Neuroblast"/>
   </libraries>
   <libraries
       id="vfbLibrary"
@@ -629,8 +632,8 @@
         name="Find images aligned to template id"
         description="Find images aligned to template id"
         returnType="//@libraries.3/@types.0"
-        query="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (n:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[r:in_register_with]-(dc:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[:in_register_with]-(:Individual)-[:depicts]->(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:Template {short_form:$id})&lt;-[:depicts]-(:Template)&lt;-[:in_register_with]-(:Individual)-[:depicts]->(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:ProcessQuery"
         id="neo4jPassSolrIdListOnly"
@@ -642,23 +645,31 @@
         name="template_2_datasets_ids"
         description="Get JSON for template_2_datasets ids"
         returnType="//@libraries.3/@types.24"
-        query="&quot;statement&quot;: &quot;MATCH (t:Template) &lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WHERE t.short_form in [$id] WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual {short_form:$id})&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual {short_form:$id})&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
         name="all_datasets_ids"
         description="Get ids for all_datasets ids"
         returnType="//@libraries.3/@types.24"
-        query="&quot;statement&quot;: &quot;MATCH (t:Template) &lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (t:Template)&lt;-[depicts]-(tc:Template)-[:in_register_with]-(c:Individual)-[:depicts]->(ai:Individual)-[:has_source]->(ds:DataSet) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual)&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) RETURN distinct ds.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (ds:DataSet:Individual) WHERE NOT ds:Deprecated AND (:Template:Individual)&lt;-[:depicts]-(:Template:Individual)-[:in_register_with]-(:Individual)-[:depicts]->(:Individual)-[:has_source]->(ds) WITH distinct ds RETURN count(ds) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <queries
         xsi:type="gep_2:SimpleQuery"
         id="neoImageIDsForDataSet"
         name="Find image ids for dataset"
         description="Find images for a dataset"
         returnType="//@libraries.3/@types.0"
-        query="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
-        countQuery="&quot;statement&quot;: &quot;MATCH (c:DataSet)&lt;-[:has_source]-(primary:Individual)&lt;-[:depicts]-(channel:Individual)-[irw:in_register_with]->(template:Template)-[:depicts]->(template_anat:Template) WHERE c.short_form in [$id] RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+        query="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:$id})&lt;-[:has_source]-(primary:Individual) WHERE (primary)&lt;-[:depicts]-(:Individual)-[:in_register_with]->(:Template) RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:DataSet {short_form:$id})&lt;-[:has_source]-(primary:Individual) WHERE (primary)&lt;-[:depicts]-(:Individual)-[:in_register_with]->(:Template) RETURN count(primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="imagesDevelopsFromNeuroblast"
+        name="Find images develops_from id"
+        description="Find images develops_from X"
+        returnType="//@libraries.3/@types.0"
+        query="&quot;statement&quot;: &quot;MATCH (:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -955,6 +966,14 @@
         name="Owlery Ind Pass solr id list only"
         description="Keep nothing slimply pass solr ids"
         queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="ImagesOfNeuronsThatDevelopFromThis"
+        name="Images of neurons that develops from this"
+        description="Images of neurons that develops from this"
+        returnType="//@libraries.3/@types.2"
+        query="object=%3Chttp://purl.obolibrary.org/obo/FBbt_00005106%3E%20and%20%3Chttp://purl.obolibrary.org/obo/RO_0002202%3E%20some%20%3Chttp://purl.obolibrary.org/obo/$ID%3E&amp;direct=false&amp;includeDeprecated=false"
+        countQuery=""/>
   </dataSources>
   <dataSources
       id="querycache"
@@ -1030,6 +1049,13 @@
         description="Fetches essential details."
         query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;template_2_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
         countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;template_2_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="solr_all_datasets_query"
+        name="Get all_datasets_query"
+        description="Fetches essential details."
+        query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
+        countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Process Cached JSON"
@@ -1235,7 +1261,7 @@
       name="Show all datasets aligned to template"
       description="List all datasets aligned to $NAME"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.25 //@dataSources.0/@queries.24 //@dataSources.3/@queries.5 //@dataSources.3/@queries.3">
+      queryChain="//@dataSources.0/@queries.25 //@dataSources.0/@queries.24 //@dataSources.3/@queries.6 //@dataSources.3/@queries.3">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
@@ -1244,7 +1270,7 @@
       name="Show all datasets"
       description="List all datasets"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.26 //@dataSources.0/@queries.24 //@dataSources.3/@queries.5 //@dataSources.3/@queries.3">
+      queryChain="//@dataSources.0/@queries.26 //@dataSources.0/@queries.24 //@dataSources.3/@queries.6 //@dataSources.3/@queries.3">
     <matchingCriteria
         type="//@libraries.3/@types.20"/>
   </queries>
@@ -1366,5 +1392,14 @@
       queryChain="//@dataSources.3/@queries.2">
     <matchingCriteria
         type="//@libraries.3/@types.49 //@libraries.3/@types.0"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ImagesThatDevelopFrom"
+      name="Show all images that develops_from X"
+      description="List images of neurons that develop from $NAME"
+      returnType="//@libraries.3/@types.0"
+      queryChain="//@dataSources.2/@queries.5 //@dataSources.2/@queries.4 //@dataSources.3/@queries.1">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.50"/>
   </queries>
 </gep:GeppettoModel>
