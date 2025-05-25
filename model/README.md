@@ -115,7 +115,9 @@
 - Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 17)
 
 ## TermsForPub: List all terms that reference $NAME
-- Step: All referenced Entities from a pub (DataSource Index: 0, Query Index: 16)
+- Step: Find term ids ref in pub (DataSource Index: 0, Query Index: 29)
+- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
+- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## SimilarMorphologyToPartOfexp: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
 - Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 17)
