@@ -144,19 +144,75 @@ describe('VFB Tree Browser Component Tests', () => {
 			).toEqual(1);
 		}, 120000)
 
+		it('Verify initial color of "adult mushroom body" mesh', async () => {
+			// Retrieve current color of the mesh "adult mushroom body" (VFB_00030867)
+			const initialColor = await page.evaluate(async () => {
+				const mesh = CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"];
+				// Basic check to ensure the path to color is valid
+				if (mesh && mesh.children && mesh.children.length > 0 && mesh.children[0].material && typeof mesh.children[0].material.color.getHexString === 'function') {
+					return mesh.children[0].material.color.getHexString();
+				}
+				// Throw an error if the color cannot be retrieved, for clearer test failures.
+				throw new Error('Could not retrieve mesh color or mesh structure is unexpected for VFB_00030867.VFB_00030867_obj.');
+			});
+			expect(initialColor).toEqual("ffcc00");
+		}, 120000)
+
 		it('Color Picker Appears for "adult mushroom body"', async () => {
+			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker0.png" });
+			await page.focus('i.fa-tint');
+			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker1.png" });
 			await clickNodeIcon(page, "adult mushroom body", 'fa-tint');
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
+			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker2.png" });
 		}, 120000)
 
-		it('Use color picker to change color of "adult mushroom body"', async () => {
-			// Retrieve old color in mesh
-			let adultCerebralGanglionColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"].children[0].material.color.getHexString();
+		it('Change color of "adult mushroom body" using color picker', async () => {
+			// This selector assumes an input field with current value "#00FF00" is used for changing the color.
+			// This might be a specific behavior of the color picker component.
+			const colorInputSelector = 'input'; 
+			const fullSelector = `#tree-color-picker ${colorInputSelector}`;
+
+			
+
+
+			// The test 'Color Picker Appears for "adult mushroom body"' should ensure #tree-color-picker is visible.
+			// Wait for the specific input field within the color picker to be targetable.
+			await wait4selector(page, fullSelector, { visible: true, timeout: 10000 }); 
+
+			
+			// Use page.evaluate to set the input's value and dispatch events,
+			// which can be more reliable for complex/custom input components.
+			await page.evaluate((selector, colorValue) => {
+				const el = document.querySelector(selector);
+				if (!el) {
+					throw new Error(`Color input element not found: ${selector}`);
+				}
+				el.value = colorValue; // Set the value directly
+				// Dispatch 'input' and 'change' events to mimic user interaction
+				// and trigger any listeners (e.g., React, Vue, Angular)
+				el.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+				el.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+			}, fullSelector, '#f542e6');
+
+			// Add a brief pause to allow the application to process the color change
+			await page.waitForTimeout(500); // Consider replacing with a more deterministic wait if possible
+			
+		}, 120000)
+
+		it('Verify "adult mushroom body" mesh color is updated after color picker usage', async () => {
+			// Retrieve the new color of the unselected mesh "adult mushroom body" (VFB_00030867)
+			await click(page, '#VFB_00030867_deselect_buttonBar_btn');
+			await page.waitFor(5000);
+			const newColor = await page.evaluate(async () => {
+				const mesh = CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"];
+				if (mesh && mesh.children && mesh.children.length > 0 && mesh.children[0].material && typeof mesh.children[0].material.color.getHexString === 'function') {
+					return mesh.children[0].material.color.getHexString();
+				}
+				throw new Error('Could not retrieve new mesh color or mesh structure is unexpected for VFB_00030867.VFB_00030867_obj.');
 			});
-			expect(adultCerebralGanglionColor).toEqual("ffcc00");
-			await expect(page).toFill('input[value="#00FF00"]', '#f542e6');
+			expect(newColor).toEqual("f542e6");
 		}, 120000)
 
 		it('Click on Node "adult mushroom body"', async () => {
