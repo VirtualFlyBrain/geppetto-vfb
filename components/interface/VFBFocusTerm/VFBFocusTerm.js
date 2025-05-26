@@ -3,8 +3,8 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
-  createTheme,
-  ThemeProvider
+  createMuiTheme,
+  MuiThemeProvider
 } from "@material-ui/core/styles";
 import { connect } from 'react-redux';
 import { SHOW_LIST_VIEWER } from './../../../actions/generals';
@@ -23,7 +23,7 @@ class VFBFocusTerm extends React.Component {
 
 
     this.labels = require('../../configuration/VFBFocusTerm/menuGroups').subMenusGrouping;
-    this.theme = createTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
+    this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
     this.configuration = undefined;
 
     this.clearAll = this.clearAll.bind(this);
