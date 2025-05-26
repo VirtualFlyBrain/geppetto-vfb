@@ -7,8 +7,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { setTermInfo } from './../../../actions/generals';
 
 import {
-  createMuiTheme,
-  MuiThemeProvider
+  createTheme,
+  ThemeProvider
 } from "@material-ui/core/styles";
 
 import 'react-sortable-tree/style.css';
@@ -59,7 +59,7 @@ class VFBTree extends React.Component {
     this.parseGraphResultData = require('./helper').parseGraphResultData;
     this.buildDictClassToIndividual = require('./helper').buildDictClassToIndividual;
 
-    this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
+    this.theme = createTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
     this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
     this.styles = {
       left_second_column: 395,

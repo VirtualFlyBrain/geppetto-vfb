@@ -2,8 +2,8 @@ import React from 'react';
 import { ChromePicker } from 'react-color';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
-  createMuiTheme,
-  MuiThemeProvider
+  createTheme,
+  ThemeProvider
 } from "@material-ui/core/styles";
 
 require("./../../../css/ButtonBarComponent.less");
@@ -21,7 +21,7 @@ export default class ButtonBarComponent extends React.Component {
 
     this.colorPickerBtnId = '';
     this.colorPickerActionFn = '';
-    this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
+    this.theme = createTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
     this.colorPickerContainer = undefined;
   }
 
@@ -183,7 +183,7 @@ export default class ButtonBarComponent extends React.Component {
 
     return (
       <div className="buttonBarComponentDiv">
-        <MuiThemeProvider theme={this.theme}>
+        <ThemeProvider theme={this.theme}>
           {ctrlButtons?.map(function (control, id) {
             // grab attributes to init button attributes
             var controlConfig = that.resolveCondition(control, path);
@@ -280,7 +280,7 @@ export default class ButtonBarComponent extends React.Component {
               </span>
             )
           })}
-        </MuiThemeProvider>
+        </ThemeProvider>
       </div>
     )
   }
