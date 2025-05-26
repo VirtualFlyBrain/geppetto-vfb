@@ -169,35 +169,63 @@ describe('VFB Tree Browser Component Tests', () => {
 		}, 120000)
 
 		it('Change color of "adult mushroom body" using color picker', async () => {
-			// This selector assumes an input field with current value "#00FF00" is used for changing the color.
-			// This might be a specific behavior of the color picker component.
-			const colorInputSelector = 'input'; 
-			const fullSelector = `#tree-color-picker ${colorInputSelector}`;
-
+			// Wait for the color picker to be fully loaded
+			await page.waitFor(1000);
 			
-
-
-			// The test 'Color Picker Appears for "adult mushroom body"' should ensure #tree-color-picker is visible.
-			// Wait for the specific input field within the color picker to be targetable.
-			await wait4selector(page, fullSelector, { visible: true, timeout: 10000 }); 
-
+			// Try multiple possible selectors for the color input
+			const possibleSelectors = [
+				'#tree-color-picker input[type="text"]',
+				'#tree-color-picker input[type="color"]',
+				'#tree-color-picker input',
+				'#tree-color-picker .color-input',
+				'#tree-color-picker [class*="input"]'
+			];
 			
-			// Use page.evaluate to set the input's value and dispatch events,
-			// which can be more reliable for complex/custom input components.
+			let colorInputElement = null;
+			let workingSelector = null;
+			
+			// Find the first working selector
+			for (const selector of possibleSelectors) {
+				try {
+					await page.waitForSelector(selector, { visible: true, timeout: 2000 });
+					colorInputElement = await page.$(selector);
+					if (colorInputElement) {
+						workingSelector = selector;
+						break;
+					}
+				} catch (e) {
+					// Try next selector
+					continue;
+				}
+			}
+			
+			if (!workingSelector) {
+				throw new Error('Could not find color input element in color picker');
+			}
+			
+			// Clear the input and set new color value
 			await page.evaluate((selector, colorValue) => {
 				const el = document.querySelector(selector);
 				if (!el) {
 					throw new Error(`Color input element not found: ${selector}`);
 				}
-				el.value = colorValue; // Set the value directly
-				// Dispatch 'input' and 'change' events to mimic user interaction
-				// and trigger any listeners (e.g., React, Vue, Angular)
+				
+				// Clear existing value
+				el.value = '';
+				el.focus();
+				
+				// Set the new value
+				el.value = colorValue;
+				
+				// Dispatch events to trigger any listeners
+				el.dispatchEvent(new Event('focus', { bubbles: true }));
 				el.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
 				el.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-			}, fullSelector, '#f542e6');
+				el.dispatchEvent(new Event('blur', { bubbles: true }));
+			}, workingSelector, '#f542e6');
 
-			// Add a brief pause to allow the application to process the color change
-			await page.waitForTimeout(500); // Consider replacing with a more deterministic wait if possible
+			// Wait for the application to process the color change
+			await page.waitFor(1000);
 			
 		}, 120000)
 
