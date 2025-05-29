@@ -216,23 +216,24 @@ describe('VFB Tree Browser Component Tests', () => {
 				
 				// Set the new value
 				el.value = colorValue;
-				
-				// Dispatch events to trigger any listeners
-				el.dispatchEvent(new Event('focus', { bubbles: true }));
-				el.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-				el.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-				el.dispatchEvent(new Event('blur', { bubbles: true }));
 			}, workingSelector, '#f542e6');
+
+			// Wait for the input to be updated
+			await page.waitForFunction((selector, colorValue) => {
+				const el = document.querySelector(selector);
+				return el && el.value === colorValue;
+			}, {}, workingSelector, '#f542e6');
 
 			// Wait for the application to process the color change
 			await page.waitFor(1000);
-			
 		}, 120000)
 
 		it('Verify "adult mushroom body" mesh color is updated after color picker usage', async () => {
 			// Retrieve the new color of the unselected mesh "adult mushroom body" (VFB_00030867)
-			await click(page, '#VFB_00030867_deselect_buttonBar_btn');
-			await page.waitFor(5000);
+			await page.evaluate(() => {
+				document.querySelector('#VFB_00030867_deselect_buttonBar_btn').click();
+			});
+			await wait4selector(page, '#VFB_00030867_select_buttonBar_btn', { visible: true, timeout : 800000 });
 			const newColor = await page.evaluate(async () => {
 				const mesh = CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"];
 				if (mesh && mesh.children && mesh.children.length > 0 && mesh.children[0].material && typeof mesh.children[0].material.color.getHexString === 'function') {
