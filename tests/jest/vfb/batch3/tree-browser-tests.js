@@ -187,10 +187,10 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Find the first working selector
 			for (const selector of possibleSelectors) {
 				try {
-					await page.waitForSelector(selector, { visible: true, timeout: 2000 });
 					colorInputElement = await page.$(selector);
 					if (colorInputElement) {
-						workingSelector = selector;
+						workingSelector = selector;	
+						console.log(`Found working color input selector: ${workingSelector}`);
 						break;
 					}
 				} catch (e) {
