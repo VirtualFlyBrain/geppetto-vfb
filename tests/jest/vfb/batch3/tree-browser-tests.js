@@ -231,7 +231,7 @@ describe('VFB Tree Browser Component Tests', () => {
 		it('Verify "adult mushroom body" mesh color is updated after color picker usage', async () => {
 			// Retrieve the new color of the unselected mesh "adult mushroom body" (VFB_00030867)
 			await page.evaluate(() => {
-				document.querySelector('#VFB_00030867_deselect_buttonBar_btn').click();
+				VFB_00030867.deselect();
 			});
 			await wait4selector(page, '#VFB_00030867_select_buttonBar_btn', { visible: true, timeout : 800000 });
 			const newColor = await page.evaluate(async () => {
