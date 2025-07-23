@@ -144,19 +144,104 @@ describe('VFB Tree Browser Component Tests', () => {
 			).toEqual(1);
 		}, 120000)
 
+		it('Verify initial color of "adult mushroom body" mesh', async () => {
+			// Retrieve current color of the mesh "adult mushroom body" (VFB_00030867)
+			const initialColor = await page.evaluate(async () => {
+				const mesh = CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"];
+				// Basic check to ensure the path to color is valid
+				if (mesh && mesh.children && mesh.children.length > 0 && mesh.children[0].material && typeof mesh.children[0].material.color.getHexString === 'function') {
+					return mesh.children[0].material.color.getHexString();
+				}
+				// Throw an error if the color cannot be retrieved, for clearer test failures.
+				throw new Error('Could not retrieve mesh color or mesh structure is unexpected for VFB_00030867.VFB_00030867_obj.');
+			});
+			expect(initialColor).toEqual("ffcc00");
+		}, 120000)
+
 		it('Color Picker Appears for "adult mushroom body"', async () => {
+			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker0.png" });
+			await page.focus('i.fa-tint');
+			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker1.png" });
 			await clickNodeIcon(page, "adult mushroom body", 'fa-tint');
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
+			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker2.png" });
 		}, 120000)
 
-		it('Use color picker to change color of "adult mushroom body"', async () => {
-			// Retrieve old color in mesh
-			let adultCerebralGanglionColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"].children[0].material.color.getHexString();
+		it('Change color of "adult mushroom body" using color picker', async () => {
+			// Wait for the color picker to be fully loaded
+			await page.waitFor(1000);
+			
+			// Try multiple possible selectors for the color input
+			const possibleSelectors = [
+				'#tree-color-picker input[type="text"]',
+				'#tree-color-picker input[type="color"]',
+				'#tree-color-picker input',
+				'#tree-color-picker .color-input',
+				'#tree-color-picker [class*="input"]'
+			];
+			
+			let colorInputElement = null;
+			let workingSelector = null;
+			
+			// Find the first working selector
+			for (const selector of possibleSelectors) {
+				try {
+					colorInputElement = await page.$(selector);
+					if (colorInputElement) {
+						workingSelector = selector;	
+						console.log(`Found working color input selector: ${workingSelector}`);
+						break;
+					}
+				} catch (e) {
+					// Try next selector
+					continue;
+				}
+			}
+			
+			if (!workingSelector) {
+				throw new Error('Could not find color input element in color picker');
+			}
+			
+			// Clear the input and set new color value
+			await page.evaluate((selector, colorValue) => {
+				const el = document.querySelector(selector);
+				if (!el) {
+					throw new Error(`Color input element not found: ${selector}`);
+				}
+				
+				// Clear existing value
+				el.value = '';
+				el.focus();
+				
+				// Set the new value
+				el.value = colorValue;
+			}, workingSelector, '#f542e6');
+
+			// Wait for the input to be updated
+			await page.waitForFunction((selector, colorValue) => {
+				const el = document.querySelector(selector);
+				return el && el.value === colorValue;
+			}, {}, workingSelector, '#f542e6');
+
+			// Wait for the application to process the color change
+			await page.waitFor(1000);
+		}, 120000)
+
+		it('Verify "adult mushroom body" mesh color is updated after color picker usage', async () => {
+			// Retrieve the new color of the unselected mesh "adult mushroom body" (VFB_00030867)
+			await page.evaluate(() => {
+				VFB_00030867.deselect();
 			});
-			expect(adultCerebralGanglionColor).toEqual("ffcc00");
-			await expect(page).toFill('input[value="#00FF00"]', '#f542e6');
+			await wait4selector(page, '#VFB_00030867_select_buttonBar_btn', { visible: true, timeout : 800000 });
+			const newColor = await page.evaluate(async () => {
+				const mesh = CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"];
+				if (mesh && mesh.children && mesh.children.length > 0 && mesh.children[0].material && typeof mesh.children[0].material.color.getHexString === 'function') {
+					return mesh.children[0].material.color.getHexString();
+				}
+				throw new Error('Could not retrieve new mesh color or mesh structure is unexpected for VFB_00030867.VFB_00030867_obj.');
+			});
+			expect(newColor).toEqual("f542e6");
 		}, 120000)
 
 		it('Click on Node "adult mushroom body"', async () => {

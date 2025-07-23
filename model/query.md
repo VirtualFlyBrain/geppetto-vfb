@@ -600,6 +600,14 @@ Query: ```
 "statement": "MATCH (:Class {short_form:$id})<-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids", "parameters" : { "id" : "$ID" }
 ```
 
+## Query Name: Find term ids ref in pub
+ID: neoTermIdsRefPub
+Description: Find terms referencing this paper
+Type: gep_2:SimpleQuery
+Query: ```
+"statement": "MATCH (:pub:Individual {short_form:$id})<-[:has_reference]-(primary:Individual) RETURN distinct primary.short_form as ids", "parameters" : { "id" : "$ID" }
+```
+
 ## Query Name: Owlery Part of
 ID: None
 Description: Part of $NAME
