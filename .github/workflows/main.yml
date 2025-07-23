@@ -208,4 +208,5 @@ jobs:
           path: |
             tests/jest/vfb/snapshots/*/*/__diff_output__/*.png
             tests/jest/vfb/snapshots/*/*/*.png
+            tests/jest/vfb/snapshots/*/*.png
           retention-days: 5
