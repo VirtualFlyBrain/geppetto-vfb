@@ -18,21 +18,26 @@ export const wait4selector = async (page, selector, settings = {}) => {
     }
     console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}.`);
     
-    // Take a screenshot to capture the failure state
-    const safeSelector = selector.replace(/[^a-zA-Z0-9]/g, '_');
-    const screenshotName = `error-wait4selector-${safeSelector}-${behaviour.replace(/\s+/g, '-')}`;
-    const screenshotPath = await takeScreenshot(page, screenshotName);
-    if (screenshotPath) {
-      console.log(`Screenshot of failure state saved to: ${screenshotPath}`);
-    }
-    
-    // Additional debugging info
-    console.log(`Current page URL: ${page.url()}`);
+    // Check if page is still accessible before attempting screenshots/debugging
     try {
-      const html = await page.evaluate(() => document.body.innerHTML);
-      console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
-    } catch (e) {
-      console.log(`Could not get page HTML: ${e}`);
+      // Take a screenshot to capture the failure state
+      const safeSelector = selector.replace(/[^a-zA-Z0-9]/g, '_');
+      const screenshotName = `error-wait4selector-${safeSelector}-${behaviour.replace(/\s+/g, '-')}`;
+      const screenshotPath = await takeScreenshot(page, screenshotName);
+      if (screenshotPath) {
+        console.log(`Screenshot of failure state saved to: ${screenshotPath}`);
+      }
+      
+      // Additional debugging info
+      console.log(`Current page URL: ${page.url()}`);
+      try {
+        const html = await page.evaluate(() => document.body.innerHTML);
+        console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
+      } catch (e) {
+        console.log(`Could not get page HTML: ${e}`);
+      }
+    } catch (debugError) {
+      console.log(`Could not capture debug information (page may be closed): ${debugError.message}`);
     }
   }
   expect(success).toBeDefined();
@@ -187,6 +192,12 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 
 export const takeScreenshot = async (page, name) => {
   try {
+    // Check if the page is still available
+    if (!page || page.isClosed()) {
+      console.log(`Cannot take screenshot: page is closed`);
+      return null;
+    }
+    
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     // Change to use the same base snapshots directory, but in a failures subfolder
     const path = `./tests/jest/vfb/snapshots/failures/${name}-${timestamp}.png`;

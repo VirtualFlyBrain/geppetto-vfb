@@ -368,14 +368,32 @@ class VFBMain extends React.Component {
 
     var instance = undefined;
     var flagRendering = true;
-    // check if we have swc
+    // check if we have a full mesh
     try {
-      instance = Instances.getInstance(path + "." + path + "_swc");
-      if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function") {
-        window[path][path + '_swc'].show();
-        flagRendering = false;
+      instance = Instances[path].getType()[path + "_obj"].getType();
+      if (instance != undefined && instance.getUrl != undefined && (typeof instance.getUrl == "function") && instance.getUrl().includes("volume_man.obj")) {
+        instance = Instances.getInstance(path + "." + path + "_obj");
+        if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
+          window[path][path + '_obj'].show();
+          flagRendering = false;
+        }
+      } else {
+        instance = undefined;
+        flagRendering = true;
       }
     } catch (ignore) {
+      instance = undefined;
+    }
+    // check if we have swc
+    if (instance == undefined) {
+      try {
+        instance = Instances.getInstance(path + "." + path + "_swc");
+        if (!window[path][path + '_swc'].visible && typeof window[path][path + '_swc'].show == "function" && flagRendering) {
+          window[path][path + '_swc'].show();
+          flagRendering = false;
+        }
+      } catch (ignore) {
+      }
     }
     // if no swc check if we have obj
     if (instance == undefined) {
@@ -387,6 +405,17 @@ class VFBMain extends React.Component {
       } catch (ignore) {
       }
     }
+
+    // independently from the above, check if we have slices for the instance
+    try {
+      var slices = Instances.getInstance(path + "." + path + "_slices");
+      if (typeof (slices) != 'undefined' && slices.getType() instanceof ImportType) {
+        slices.getType().resolve();
+      }
+    } catch (ignore) {
+      // any alternative handling goes here
+    }
+
     // if anything was found resolve type (will add to scene)
     if (instance != undefined) {
       var postResolve = () => {
@@ -405,16 +434,6 @@ class VFBMain extends React.Component {
         GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
         postResolve();
       }
-    }
-
-    // independently from the above, check if we have slices for the instance
-    try {
-      instance = Instances.getInstance(path + "." + path + "_slices");
-      if (typeof (instance) != 'undefined' && instance.getType() instanceof ImportType) {
-        instance.getType().resolve();
-      }
-    } catch (ignore) {
-      // any alternative handling goes here
     }
   }
 

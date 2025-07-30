@@ -670,6 +670,14 @@
         returnType="//@libraries.3/@types.0"
         query="&quot;statement&quot;: &quot;MATCH (:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN COLLECT(distinct di.short_form) as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
         countQuery="&quot;statement&quot;: &quot;MATCH (:Class {short_form:$id})&lt;-[:develops_from]-(di:Individual) RETURN count(di) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
+    <queries
+        xsi:type="gep_2:SimpleQuery"
+        id="neoTermIdsRefPub"
+        name="Find term ids ref in pub"
+        description="Find terms referencing this paper"
+        returnType="//@libraries.3/@types.36"
+        query="&quot;statement&quot;: &quot;MATCH (:pub:Individual {short_form:$id})&lt;-[:has_reference]-(primary:Individual) RETURN distinct primary.short_form as ids&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"
+        countQuery="&quot;statement&quot;: &quot;MATCH (:pub:Individual {short_form:$id})&lt;-[:has_reference]-(primary:Individual) RETURN count(distinct primary) as count&quot;, &quot;parameters&quot; : { &quot;id&quot; : &quot;$ID&quot; }"/>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Compound query for collating term information"
@@ -1313,7 +1321,7 @@
       name="has_reference_to_pub"
       description="List all terms that reference $NAME"
       returnType="//@libraries.3/@types.36"
-      queryChain="//@dataSources.0/@queries.16">
+      queryChain="//@dataSources.0/@queries.29 //@dataSources.0/@queries.24 //@dataSources.3/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.16"/>
   </queries>
