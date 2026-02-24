@@ -1027,7 +1027,8 @@
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
-        name="Get user NBLAST results">
+        name="Get user NBLAST results"
+        description="Fetches and processes user NBLAST results">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Get user NBLAST results"
