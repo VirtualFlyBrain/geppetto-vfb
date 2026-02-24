@@ -842,7 +842,7 @@ Query: ```
 
 ## Query Name: Get user NBLAST results
 ID: None
-Description: No description provided
+Description: Fetches and processes user NBLAST results
 Type: gep_2:CompoundQuery
 Query: ```
 
