@@ -18,7 +18,7 @@ Query: ```
 
     ## Query Name: Process images
     ID: None
-    Description: No description provided
+    Description: Process images
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
@@ -66,7 +66,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     vfbCreateResultListForIndividualsForQueryResultsQueryProcessor
@@ -90,7 +90,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
@@ -114,7 +114,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     vfbCreateResultListForIndividualsForQueryResultsQueryProcessor
@@ -138,7 +138,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     vfbCreateResultListForIndividualsForQueryResultsQueryProcessor
@@ -162,7 +162,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
@@ -402,7 +402,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
@@ -482,7 +482,7 @@ Query: ```
 
 ## Query Name: anat_scRNAseq_query
 ID: anat_scRNAseq_query_compound
-Description: No description provided
+Description: Get scRNAseq data for anatomy
 Type: gep_2:CompoundQuery
 Query: ```
 
@@ -498,7 +498,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
@@ -506,7 +506,7 @@ Query: ```
 
 ## Query Name: dataset_scRNAseq_query
 ID: dataset_scRNAseq_query_compound
-Description: No description provided
+Description: Get scRNAseq data for dataset
 Type: gep_2:CompoundQuery
 Query: ```
 
@@ -522,7 +522,7 @@ Query: ```
 
     ## Query Name: Process Images
     ID: None
-    Description: No description provided
+    Description: Process Images
     Type: gep_2:ProcessQuery
     Query: ```
     neo4jQueryProcessor
@@ -834,7 +834,7 @@ Query: ```
 
     ## Query Name: Process images
     ID: None
-    Description: No description provided
+    Description: Process images
     Type: gep_2:ProcessQuery
     Query: ```
     solrQueryProcessor
