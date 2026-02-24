@@ -1,5 +1,7 @@
 import sys
 import html
+import json
+import re
 from lxml import etree
 
 def parse_xmi(file_path):
@@ -59,6 +61,33 @@ def generate_markdown_for_all_queries(queries_info):
         markdown_content += generate_markdown_for_query(info)
     return markdown_content
 
+def extract_cypher_query(query_string):
+    """Extract the cypher query from a JSON statement wrapper"""
+    try:
+        # Try to parse as JSON to extract the statement
+        if '"statement":' in query_string:
+            # Find the statement value
+            match = re.search(r'"statement":\s*"((?:[^"\\]|\\.)*)"', query_string)
+            if match:
+                statement = match.group(1)
+                # Unescape the JSON string
+                statement = statement.replace('\\n', '\n').replace('\\', '')
+                return statement.strip()
+    except:
+        pass
+    return query_string
+
+def extract_json_params(query_string):
+    """Extract the JSON params from a query string"""
+    try:
+        if '"params":' in query_string:
+            match = re.search(r'"params":\s*(\{[^}]+\})', query_string)
+            if match:
+                return match.group(1).strip()
+    except:
+        pass
+    return None
+
 def generate_markdown_for_query(info):
     # Calculate header level based on depth (depth 0 = ##, depth 1 = ###, etc.)
     header_level = '#' * (2 + info['depth'])
@@ -68,16 +97,21 @@ def generate_markdown_for_query(info):
     markdown += f"**Description:** {info['description']}\n\n"
     markdown += f"**Type:** {info['type']}\n\n"
     
-    # Determine language for code block
-    if '"statement":' in info['query']:
+    # Determine language and extract actual query for code block
+    query_content = info['query'].strip()
+    lang = 'text'
+    
+    if '"statement":' in query_content:
         lang = 'cypher'
-    elif '"params":' in info['query']:
+        query_content = extract_cypher_query(query_content)
+    elif '"params":' in query_content:
         lang = 'json'
+        query_content = extract_json_params(query_content)
     else:
         lang = 'java'
     
-    if info['query'].strip():
-        markdown += f"**Query:**\n\n```{lang}\n{info['query']}\n```\n\n"
+    if query_content and query_content != 'No query provided':
+        markdown += f"**Query:**\n\n```{lang}\n{query_content}\n```\n\n"
     
     for child_query in info.get('childQueries', []):
         markdown += generate_markdown_for_query(child_query)
