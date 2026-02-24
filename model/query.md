@@ -5,10 +5,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: anatomy_query
     ID: None
     Description: fetch Individual instances from Class ID list
@@ -31,10 +27,6 @@ Query: ```java
 ID: None
 Description: 
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: anat_image_query
     ID: GetMetaForIndList
@@ -59,10 +51,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Get other cluster members
     ID: GetFellowClusterMembers
     Description: $NAME's fellow cluster members
@@ -85,10 +73,6 @@ Query: ```java
 ID: None
 Description: 
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Fetch all example individuals for Class
     ID: None
@@ -113,10 +97,6 @@ ID: domainsForTempId
 Description: Doamins for template
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Find domain individuals for template id
     ID: domainsForTempQuery
     Description: Find domain individuals for template id
@@ -139,10 +119,6 @@ Query: ```java
 ID: None
 Description: 
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Get cluster members
     ID: GetClusterMembers
@@ -167,10 +143,6 @@ ID: imagesForDataSet
 Description: Images in a dataset
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Find images for dataset
     ID: neoImagesForDataSet
     Description: Find images for a dataset
@@ -193,10 +165,6 @@ Query: ```java
 ID: None
 Description: 
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Test Query for Exp from Anatomy
     ID: None
@@ -221,10 +189,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Query for Anatomy from Exp
     ID: None
     Description: Get JSON for ep_2_anat query
@@ -247,10 +211,6 @@ Query: ```java
 ID: None
 Description: Get JSON for anat_2_ep query
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Test Query for Anatomy from Exp
     ID: ep_2_anat_query
@@ -275,10 +235,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Query for Exp from Anatomy
     ID: None
     Description: Get JSON for anat_2_ep query
@@ -301,10 +257,6 @@ Query: ```java
 ID: None
 Description: Get JSON for template_2_datasets query
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: test_all_datasets_query
     ID: None
@@ -329,10 +281,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Query for Exp from Anatomy
     ID: None
     Description: Get JSON for anat_2_ep query
@@ -355,10 +303,6 @@ Query: ```java
 ID: compound_neuron_region_connectivity_query
 Description: compound query for neo4j neuron_region_connectivity_query 
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: neuron_region_connectivity_query
     ID: neuron_region_connectivity_query
@@ -383,10 +327,6 @@ ID: compound_neuron_neuron_connectivity_query
 Description: compound query for neo4j neuron_neuron_connectivity_query
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: neuron_neuron_connectivity_query
     ID: neuron_neuron_connectivity_query
     Description: neuron_neuron_connectivity_query
@@ -409,10 +349,6 @@ Query: ```java
 ID: has_similar_morphology_to
 Description: NBLAST similarity neo Query
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: NBLAST_anat_image_query
     ID: NBLAST_anat_image_query
@@ -437,10 +373,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Fetch all entities for pub
     ID: None
     Description: Fetch all entities that have reference to pub
@@ -463,10 +395,6 @@ Query: ```java
 ID: has_similar_morphology_to_part_of
 Description: NBLASTexp similarity neo Query
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: NBLAST_anat_image_query_exp
     ID: NBLAST_anat_image_query_exp
@@ -491,10 +419,6 @@ ID: has_similar_morphology_to_nb
 Description: NeuronBridge similarity neo Query
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: NB_anat_image_query
     ID: NB_anat_image_query
     Description: find has_similar_morphology_to relationships
@@ -517,10 +441,6 @@ Query: ```java
 ID: cluster_expression_query_compound
 Description: Get JSON for cluster expression query
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Get JSON for cluster expression query
     ID: cluster_expression_query
@@ -545,10 +465,6 @@ ID: anat_scRNAseq_query_compound
 Description: Get scRNAseq data for anatomy
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Get JSON for anat scRNAseq query
     ID: None
     Description: Get JSON for anat scRNAseq query
@@ -572,10 +488,6 @@ ID: dataset_scRNAseq_query_compound
 Description: Get scRNAseq data for dataset
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Get JSON for dataset scRNAseq query
     ID: None
     Description: Get JSON for dataset scRNAseq query
@@ -598,10 +510,6 @@ Query: ```java
 ID: expression_cluster_query_compound
 Description: Get JSON for expression in cluster query
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Get JSON for cluster expression query
     ID: cluster_expression_query
@@ -770,10 +678,6 @@ ID: TransgenesExpressedInX
 Description: Transgenes expressed in 
 Type: gep_2:SimpleQuery
 
-Query: ```java
-
-```
-
 ## Query Name: Owlery Lineage Clones
 ID: lineageClones
 Description: Lineage clones found in
@@ -923,10 +827,6 @@ ID: None
 Description: 
 Type: gep_2:CompoundQuery
 
-Query: ```java
-
-```
-
     ## Query Name: Get anat_query
     ID: None
     Description: Fetches essential details.
@@ -949,10 +849,6 @@ Query: ```java
 ID: None
 Description: Fetches and processes user NBLAST results
 Type: gep_2:CompoundQuery
-
-Query: ```java
-
-```
 
     ## Query Name: Get user NBLAST results
     ID: None
