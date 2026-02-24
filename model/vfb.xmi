@@ -209,6 +209,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process images"
+          description="Process images"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
     <queries
@@ -245,6 +246,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
     </queries>
@@ -262,6 +264,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -282,6 +285,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
     </queries>
@@ -299,6 +303,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
     </queries>
@@ -319,6 +324,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -515,6 +521,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -578,7 +585,8 @@
     <queries
         xsi:type="gep_2:CompoundQuery"
         id="anat_scRNAseq_query_compound"
-        name="anat_scRNAseq_query">
+        name="anat_scRNAseq_query"
+        description="Get scRNAseq data for anatomy">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Get JSON for anat scRNAseq query"
@@ -588,13 +596,15 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
         id="dataset_scRNAseq_query_compound"
-        name="dataset_scRNAseq_query">
+        name="dataset_scRNAseq_query"
+        description="Get scRNAseq data for dataset">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Get JSON for dataset scRNAseq query"
@@ -604,6 +614,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -1023,6 +1034,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process images"
+          description="Process images"
           queryProcessorId="solrQueryProcessor"/>
     </queries>
     <queries
