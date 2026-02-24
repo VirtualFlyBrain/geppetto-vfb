@@ -72,7 +72,7 @@ def generate_markdown_for_query(info):
     else:
         lang = 'java'
     if info['query'].strip():
-        markdown += f"{info['indent']}Query: ```{lang}\n{info['indent']}{info['query']}\n{info['indent']}```\n\n"
+        markdown += f"{info['indent']}Query: ```{lang}\n{info['query']}\n{info['indent']}```\n\n"
     for child_query in info.get('childQueries', []):
         markdown += generate_markdown_for_query(child_query)
     return markdown
