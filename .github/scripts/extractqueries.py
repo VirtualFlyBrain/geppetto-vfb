@@ -63,8 +63,15 @@ def generate_markdown_for_query(info):
     markdown = f"{info['indent']}## Query Name: {info['name']}\n"
     markdown += f"{info['indent']}ID: {info['id']}\n"
     markdown += f"{info['indent']}Description: {info['description']}\n"
-    markdown += f"{info['indent']}Type: {info['type']}\n"
-    markdown += f"{info['indent']}Query: ```\n{info['indent']}{info['query']}\n```\n\n"
+    markdown += f"{info['indent']}Type: {info['type']}\n\n"
+    # Determine language for code block
+    if '"statement":' in info['query']:
+        lang = 'cypher'
+    elif '"params":' in info['query']:
+        lang = 'json'
+    else:
+        lang = 'java'
+    markdown += f"{info['indent']}Query: ```{lang}\n{info['query']}\n```\n\n"
     for child_query in info.get('childQueries', []):
         markdown += generate_markdown_for_query(child_query)
     return markdown
