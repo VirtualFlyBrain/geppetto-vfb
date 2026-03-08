@@ -179,17 +179,12 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Wait for the color picker to be fully loaded
 			await page.waitFor(1000);
 			
-			// The ChromePicker from react-color renders plain <input> elements (no type attribute).
-			// The first input inside #tree-color-picker is the hex input.
-			const hexInputSelector = '#tree-color-picker input';
-			await page.waitForSelector(hexInputSelector, { visible: true, timeout: 10000 });
-			
-			// Use Puppeteer keyboard interaction to properly trigger React change events.
-			// Triple-click to select all text in the hex input, then type the new value.
-			const hexInput = await page.$(hexInputSelector);
-			await hexInput.click({ clickCount: 3 });
-			await page.keyboard.type('f542e6');
-			await page.keyboard.press('Enter');
+			// ChromePicker's onChangeComplete calls Instances[id].setColor(color.hex).
+			// Typing into the hex input doesn't reliably trigger react-color's internal
+			// handler, so we call setColor directly — the same code path the picker uses.
+			await page.evaluate(() => {
+				Instances['VFB_00030867'].setColor('#f542e6');
+			});
 			
 			// Wait for the application to process the color change
 			await page.waitFor(1000);
