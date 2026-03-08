@@ -443,10 +443,11 @@ class VFBTermInfo extends React.Component {
         if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
         // hookup custom handler
           var that = this;
+          var href = $(that).attr('href');
           $(that).off();
           $(that).on(ev, function () {
           // invoke custom handler with instancepath as arg
-            fun(node, path, popup);
+            fun(node, path, popup, href);
             // stop default event handler of the anchor from doing anything
             return false;
           });
@@ -720,7 +721,7 @@ class VFBTermInfoWidget extends React.Component {
   }
 
 
-  customHandler (node, path, widget) {
+  customHandler (node, path, widget, href) {
     try {
       // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
       if (path.indexOf("[") == 0) {
@@ -820,6 +821,12 @@ class VFBTermInfoWidget extends React.Component {
         if (typeof (entity) != 'undefined' && entity instanceof Query) {
           // clear query builder unless ctrl pressed them add to compound.
           console.log('Query requested: ' + path + " " + otherName);
+          // Send GA pageview for query using the original link href
+          if (href) {
+            window.ga('vfb.send', 'pageview', href);
+          } else {
+            window.ga('vfb.send', 'pageview', (window.location.pathname + '?q=' + otherId + ',' + path));
+          }
           GEPPETTO.trigger('spin_logo');
 
           this.props.queryBuilder.open();
