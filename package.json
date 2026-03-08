@@ -73,7 +73,7 @@
     "source-map-loader": "^0.2.3",
     "typedoc": "^0.11.1",
     "typescript": "^2.0.0",
-    "webpack-dev-server": "^3.7.2"
+    "webpack-dev-server": "^5.2.2"
   },
   "overrides": {
     "@geppettoengine/geppetto-client": {
