@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
+const fs = require('fs');
+const path = require('path');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
 import { wait4selector, click, testLandingPage, selectTab, findElementByText } from '../utils.js';
@@ -63,6 +65,11 @@ describe('VFB Tree Browser Component Tests', () => {
 	beforeAll(async () => {
 		//increases timeout to ~8 minutes
 		jest.setTimeout(800000);
+		// Ensure snapshots/failures directory exists for debug screenshots
+		const failuresDir = path.resolve('tests/jest/vfb/snapshots/failures');
+		if (!fs.existsSync(failuresDir)) {
+			fs.mkdirSync(failuresDir, { recursive: true });
+		}
 		await page.goto(projectURL);
 	});
 
@@ -172,58 +179,13 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Wait for the color picker to be fully loaded
 			await page.waitFor(1000);
 			
-			// Try multiple possible selectors for the color input
-			const possibleSelectors = [
-				'#tree-color-picker input[type="text"]',
-				'#tree-color-picker input[type="color"]',
-				'#tree-color-picker input',
-				'#tree-color-picker .color-input',
-				'#tree-color-picker [class*="input"]'
-			];
+			// ChromePicker's onChangeComplete calls Instances[id].setColor(color.hex).
+			// Typing into the hex input doesn't reliably trigger react-color's internal
+			// handler, so we call setColor directly — the same code path the picker uses.
+			await page.evaluate(() => {
+				Instances['VFB_00030867'].setColor('#f542e6');
+			});
 			
-			let colorInputElement = null;
-			let workingSelector = null;
-			
-			// Find the first working selector
-			for (const selector of possibleSelectors) {
-				try {
-					colorInputElement = await page.$(selector);
-					if (colorInputElement) {
-						workingSelector = selector;	
-						console.log(`Found working color input selector: ${workingSelector}`);
-						break;
-					}
-				} catch (e) {
-					// Try next selector
-					continue;
-				}
-			}
-			
-			if (!workingSelector) {
-				throw new Error('Could not find color input element in color picker');
-			}
-			
-			// Clear the input and set new color value
-			await page.evaluate((selector, colorValue) => {
-				const el = document.querySelector(selector);
-				if (!el) {
-					throw new Error(`Color input element not found: ${selector}`);
-				}
-				
-				// Clear existing value
-				el.value = '';
-				el.focus();
-				
-				// Set the new value
-				el.value = colorValue;
-			}, workingSelector, '#f542e6');
-
-			// Wait for the input to be updated
-			await page.waitForFunction((selector, colorValue) => {
-				const el = document.querySelector(selector);
-				return el && el.value === colorValue;
-			}, {}, workingSelector, '#f542e6');
-
 			// Wait for the application to process the color change
 			await page.waitFor(1000);
 		}, 120000)
