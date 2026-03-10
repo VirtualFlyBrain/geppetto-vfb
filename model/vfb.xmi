@@ -1086,8 +1086,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get downstream connectivity from SOLR"
           description="Fetches pre-computed downstream connectivity statistics for a neuron class."
-          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
-          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process downstream connectivity"
@@ -1103,8 +1103,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Get upstream connectivity from SOLR"
           description="Fetches pre-computed upstream connectivity statistics for a neuron class."
-          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
-          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process upstream connectivity"
