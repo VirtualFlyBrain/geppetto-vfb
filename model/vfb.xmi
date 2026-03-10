@@ -1077,6 +1077,40 @@
         description="Fetches essential details."
         query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
         countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="compound_downstream_connectivity_query"
+        name="downstream_connectivity_query"
+        description="Get cached downstream connectivity for neuron class">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get downstream connectivity from SOLR"
+          description="Fetches pre-computed downstream connectivity statistics for a neuron class."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process downstream connectivity"
+          description="Process downstream connectivity"
+          queryProcessorId="solrQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="compound_upstream_connectivity_query"
+        name="upstream_connectivity_query"
+        description="Get cached upstream connectivity for neuron class">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get upstream connectivity from SOLR"
+          description="Fetches pre-computed upstream connectivity statistics for a neuron class."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:$ID&quot;,&quot;qf&quot;:&quot;id&quot;,&quot;rows&quot;:&quot;1&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process upstream connectivity"
+          description="Process upstream connectivity"
+          queryProcessorId="solrQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Process Cached JSON"
@@ -1310,6 +1344,22 @@
       queryChain="//@dataSources.0/@queries.14">
     <matchingCriteria
         type="//@libraries.3/@types.42"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ref_downstream_class_connectivity_query"
+      name="Show downstream connectivity classes for Neuron Class"
+      description="Show downstream connectivity by class for $NAME"
+      queryChain="//@dataSources.3/@queries.7">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="ref_upstream_class_connectivity_query"
+      name="Show upstream connectivity classes for Neuron Class"
+      description="Show upstream connectivity by class for $NAME"
+      queryChain="//@dataSources.3/@queries.8">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyTo"
