@@ -1412,6 +1412,78 @@ solrQueryProcessor
 {"defType":"edismax","fl":"all_datasets_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}
 ```
 
+## Query Name: downstream_connectivity_query
+
+**ID:** compound_downstream_connectivity_query
+
+**Description:** Get cached downstream connectivity for neuron class
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Get downstream connectivity from SOLR
+
+**ID:** None
+
+**Description:** Fetches pre-computed downstream connectivity statistics for a neuron class.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```json
+{"defType":"edismax","fl":"downstream_connectivity","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+```
+
+### Query Name: Process downstream connectivity
+
+**ID:** None
+
+**Description:** Process downstream connectivity
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+solrQueryProcessor
+```
+
+## Query Name: upstream_connectivity_query
+
+**ID:** compound_upstream_connectivity_query
+
+**Description:** Get cached upstream connectivity for neuron class
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Get upstream connectivity from SOLR
+
+**ID:** None
+
+**Description:** Fetches pre-computed upstream connectivity statistics for a neuron class.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```json
+{"defType":"edismax","fl":"upstream_connectivity","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+```
+
+### Query Name: Process upstream connectivity
+
+**ID:** None
+
+**Description:** Process upstream connectivity
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+solrQueryProcessor
+```
+
 ## Query Name: List all available images for class with examples
 
 **ID:** ListAllAvailableImages
@@ -1585,6 +1657,22 @@ solrQueryProcessor
 **ID:** ref_neuron_neuron_connectivity_query
 
 **Description:** Show neurons connected to $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Show downstream connectivity classes for Neuron Class
+
+**ID:** ref_downstream_class_connectivity_query
+
+**Description:** Show downstream connectivity by class for $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Show upstream connectivity classes for Neuron Class
+
+**ID:** ref_upstream_class_connectivity_query
+
+**Description:** Show upstream connectivity by class for $NAME
 
 **Type:** gep_2:CompoundRefQuery
 
