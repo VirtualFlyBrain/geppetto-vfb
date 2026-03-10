@@ -1431,7 +1431,7 @@ solrQueryProcessor
 **Query:**
 
 ```json
-{"defType":"edismax","fl":"downstream_connectivity","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+{"defType":"edismax","fl":"downstream_connectivity_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
 ```
 
 ### Query Name: Process downstream connectivity
@@ -1467,7 +1467,7 @@ solrQueryProcessor
 **Query:**
 
 ```json
-{"defType":"edismax","fl":"upstream_connectivity","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+{"defType":"edismax","fl":"upstream_connectivity_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
 ```
 
 ### Query Name: Process upstream connectivity
