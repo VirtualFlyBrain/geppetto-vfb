@@ -236,17 +236,61 @@ var searchConfiguration = {
       return 1;
     }
     // split out the [Name (Other)] bracketed part.
-    if (InputString == a.label.split(' (')[0]) {
+    var aMatchBracket = InputString == a.label.split(' (')[0];
+    var bMatchBracket = InputString == b.label.split(' (')[0];
+    if (aMatchBracket && bMatchBracket) {
+      // both match — prefer class terms (FBbt/FB) over individuals (VFB)
+      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+      if (aIsClass && !bIsClass) {
+        return -1;
+      }
+      if (bIsClass && !aIsClass) {
+        return 1;
+      }
+    }
+    if (aMatchBracket && !bMatchBracket) {
+      // b doesn't bracket-match, but if b is a class term containing the search string, prefer b
+      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+      if (bIsClass && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return 1;
+      }
       return -1;
     }
-    if (InputString == b.label.split(' (')[0]) {
+    if (bMatchBracket && !aMatchBracket) {
+      // a doesn't bracket-match, but if a is a class term containing the search string, prefer a
+      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+      if (aIsClass && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return -1;
+      }
       return 1;
     }
     // close match without case matching
-    if (InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase()) {
+    var aMatchBracketLC = InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase();
+    var bMatchBracketLC = InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase();
+    if (aMatchBracketLC && bMatchBracketLC) {
+      // both match — prefer class terms over individuals
+      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+      if (aIsClass && !bIsClass) {
+        return -1;
+      }
+      if (bIsClass && !aIsClass) {
+        return 1;
+      }
+    }
+    if (aMatchBracketLC && !bMatchBracketLC) {
+      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+      if (bIsClass && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return 1;
+      }
       return -1;
     }
-    if (InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase()) {
+    if (bMatchBracketLC && !aMatchBracketLC) {
+      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+      if (aIsClass && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
+        return -1;
+      }
       return 1;
     }
     // match ignoring joinging nonwords
