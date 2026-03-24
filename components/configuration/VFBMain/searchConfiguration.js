@@ -214,7 +214,8 @@ var searchConfiguration = {
     },
   ],
   "sorter": function (a, b) {
-    var InputString = window.spotlightString;
+    // Normalize user input so ranking comparisons stay aligned with query tokenization
+    var InputString = (window.spotlightString || "").trim();
     if (a.label == undefined) {
       return 1;
     }
