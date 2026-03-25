@@ -100,7 +100,7 @@ var datasourceConfiguration = {
         "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*",
         "NOT facets_annotation:Deprecated"
       ],
-      "rows": "150",
+      "rows": "500",
       "wt": "json",
       "bq": "short_form:VFBexp*^10.0 short_form:VFB*^50.0 facets_annotation:Class^200.0 short_form:FBbt*^150.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001 facets_annotation:DataSet^500.0 facets_annotation:pub^100.0",
     }
