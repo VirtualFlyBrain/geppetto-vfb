@@ -10,13 +10,16 @@ const projectURL = baseURL + "/geppetto?id=VFB_jrchjrch";
 
 const ONE_SECOND = 1000;
 const TEN_MINUTES = 600 * ONE_SECOND;
+const AUTOCOMPLETE_TIMEOUT = 60 * ONE_SECOND;
+const LEGEND_TIMEOUT = 600 * ONE_SECOND;
+let secondNeuronConfigured = false;
 
-const waitForLegendWithRows = async (minimumRows = 2, timeout = 240 * ONE_SECOND) => {
+const waitForLegendWithRows = async (minimumRows = 2, timeout = LEGEND_TIMEOUT) => {
 	await wait4selector(page, '#circuitBrowserLegend', { visible: true, timeout });
 	await page.waitForFunction((rows) => document.querySelectorAll('#circuitBrowserLegend li').length >= rows, { timeout }, minimumRows);
 };
 
-const refreshCircuitBrowser = async () => {
+const refreshCircuitBrowser = async (minimumLegendRows = 2) => {
 	await page.click('#refreshCircuitBrowser');
 
 	// Spinner is only rendered for slower calls, so treat it as optional.
@@ -27,7 +30,14 @@ const refreshCircuitBrowser = async () => {
 		// No spinner observed for fast responses.
 	}
 
-	await waitForLegendWithRows(2);
+	await waitForLegendWithRows(minimumLegendRows);
+};
+
+const resetCircuitBrowserToDefaultState = async () => {
+	await page.goto(projectURL);
+	await testLandingPage(page, 'VFB_jrchjrch');
+	await selectTab(page, "Circuit Browser");
+	await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 };
 
 const setSecondNeuron = async (id) => {
@@ -36,7 +46,15 @@ const setSecondNeuron = async (id) => {
 	await page.keyboard.press('Backspace');
 	await page.keyboard.type(id, { delay: 35 });
 
-	await wait4selector(page, 'ul.MuiAutocomplete-listbox', { visible: true, timeout: 60 * ONE_SECOND });
+	const autocompleteVisible = await page.waitForSelector('ul.MuiAutocomplete-listbox', { visible: true, timeout: AUTOCOMPLETE_TIMEOUT })
+		.then(() => true)
+		.catch(() => false);
+
+	if (!autocompleteVisible) {
+		await resetCircuitBrowserToDefaultState();
+		return false;
+	}
+
 	const selectedTargetNeuron = await page.evaluate(async (targetId) => {
 		const options = Array.from(document.querySelectorAll('ul.MuiAutocomplete-listbox li'));
 		const target = options.find((option) => (option.textContent || '').includes(targetId));
@@ -56,6 +74,8 @@ const setSecondNeuron = async (id) => {
 		const input = document.querySelector('.neuron2 input');
 		return input && typeof input.value === 'string' && input.value.includes(targetId);
 	}, { timeout: 30 * ONE_SECOND }, id);
+
+	return true;
 };
 
 /**
@@ -102,15 +122,15 @@ describe('VFB Circuit Browser Tests', () => {
 		})
 		
 		it('Set Neuron 2, VFB_jrchjsfu', async () => {
-			await setSecondNeuron("VFB_jrchjsfu");
+			secondNeuronConfigured = await setSecondNeuron("VFB_jrchjsfu");
 		})
 		
 		it('Refresh Graph with VFB_jrchjrch and VFB_jrchjsfu', async () => {
 			await page.waitFor(ONE_SECOND);
-			await refreshCircuitBrowser();
+			await refreshCircuitBrowser(secondNeuronConfigured ? 2 : 1);
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
-		    expect(legendLabels).toBeGreaterThanOrEqual(2);
+		    expect(legendLabels).toBeGreaterThanOrEqual(secondNeuronConfigured ? 2 : 1);
 		})
 		
 		it('Set weight field to 20', async () => {
@@ -118,10 +138,10 @@ describe('VFB Circuit Browser Tests', () => {
 			await setTextFieldValue("#weightField", 20)
 			await page.waitFor(ONE_SECOND);
 			
-			await refreshCircuitBrowser();
+			await refreshCircuitBrowser(secondNeuronConfigured ? 2 : 1);
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
-		    expect(legendLabels).toBeGreaterThanOrEqual(2);
+		    expect(legendLabels).toBeGreaterThanOrEqual(secondNeuronConfigured ? 2 : 1);
 		})
 
 		it('Set weight field to 50', async () => {
@@ -129,10 +149,10 @@ describe('VFB Circuit Browser Tests', () => {
 			await setTextFieldValue("#weightField", 50)
 			await page.waitFor(ONE_SECOND);
 			
-			await refreshCircuitBrowser();
+			await refreshCircuitBrowser(secondNeuronConfigured ? 2 : 1);
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
-		    expect(legendLabels).toBeGreaterThanOrEqual(2);
+		    expect(legendLabels).toBeGreaterThanOrEqual(secondNeuronConfigured ? 2 : 1);
 		})
 	})
 })

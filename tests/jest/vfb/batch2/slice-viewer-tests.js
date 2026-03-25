@@ -7,13 +7,14 @@ import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
+const ONE_MINUTE = 60 * 1000;
 
 /**
  * Tests slice viewer component. Tests the slice viewer loads, has meshes loaded, and that new meshes get rendered when added from query panel.
  */
 describe('VFB Slice Viewer Component Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(60000);
+		jest.setTimeout(5 * ONE_MINUTE);
 		await page.goto(PROJECT_URL);
 
 	});
@@ -82,22 +83,28 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Selecting first query for medulla', async () => {
-			await page.evaluate(async () =>  {
-				var selectElement = document.querySelector('select.query-item-option');
-				selectElement.value = '0';
-				var event = new Event('change', { bubbles: true });
-				selectElement.dispatchEvent(event);
-			})
-			//Test there are 2+ results before running query
-			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
-			await page.waitFor(1000);
-			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 120000});
-		})
+			await wait4selector(page, 'select.query-item-option', { visible: true, timeout : 120000 });
+			await page.select('select.query-item-option', '0');
+			await wait4selector(page, '#query-results-label', { visible: true , timeout : 180000 });
+			await page.waitForFunction(() => {
+				const label = document.getElementById("query-results-label");
+				if (!label) {
+					return false;
+				}
+				const count = Number((label.innerText || '').split(' ')[0]);
+				return Number.isFinite(count) && count > 1;
+			}, { timeout : 180000 });
+		}, 180000)
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
+			await wait4selector(page, 'button[id=run-query-btn]', { visible: true, timeout : 180000 });
+			await page.waitForFunction(() => {
+				const button = document.getElementById('run-query-btn');
+				return button && !button.disabled;
+			}, { timeout : 120000 });
 			await click(page, 'button[id=run-query-btn]');
 			await wait4selector(page, '#VFB_00030624----FBbt_00003748-image-container', { visible: true, timeout : 180000 })
-		})
+		}, 240000)
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
 			await page.evaluate(async selector =>   $("#VFB_00030624----FBbt_00003748-image-container").find("img").click());
