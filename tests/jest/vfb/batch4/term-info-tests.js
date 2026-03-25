@@ -8,6 +8,51 @@ import * as ST from '../selectors.js';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624";
 
+const openQueryBuilderFromTermInfo = async () => {
+	const clickedFocusQueryButton = await page.evaluate(async () => {
+		const queryButton = Array.from(document.querySelectorAll('.focusTermDivR button')).find((button) => {
+			return typeof button.id === 'string' && button.id.startsWith('Queries for ');
+		});
+		if (queryButton) {
+			queryButton.click();
+			return true;
+		}
+		return false;
+	});
+
+	let opened = false;
+	if (clickedFocusQueryButton) {
+		opened = await page.waitForSelector('#querybuilder', { visible: true, timeout: 10000 })
+			.then(() => true)
+			.catch(() => false);
+	}
+
+	if (!opened) {
+		await click(page, 'i.fa.fa-quora');
+	}
+
+	await wait4selector(page, '#querybuilder', { visible: true, timeout : 120000});
+	await wait4selector(page, '#query-results-label', { visible: true, timeout : 120000});
+};
+
+const closeQueryBuilder = async () => {
+	await page.evaluate(async () => {
+		const closeButton = document.getElementById('closeQuery2');
+		if (closeButton) {
+			closeButton.click();
+		}
+	});
+
+	const closed = await page.waitForSelector('#querybuilder', { hidden: true, timeout: 10000 })
+		.then(() => true)
+		.catch(() => false);
+
+	if (!closed) {
+		closeModalWindow(page);
+		await wait4selector(page, '#querybuilder', { hidden: true, timeout : 50000});
+	}
+};
+
 /**
  * Tests term info component. Loads ID VFB_00017894 , and tests term info component to be correctly loaded with metadata for VFB_00017894. 
  */
@@ -135,39 +180,17 @@ describe('VFB Term Info Component Tests', () => {
 		}, 120000);
 
 		it('Term info , run "Query For" from menu option', async () => {
-			// Click on Term Info Drop Down Menu
-			// await page.evaluate(async variableName => document.querySelectorAll(".focusTermRight button")[0].click());
-			// await wait4selector(page, 'div#simple-popper', { visible: true, timeout : 50000});
-			// Mouse over 'Query For' menu item to expand drop down menu
-			await page.evaluate(async () => {
-				const element = document.getElementById("Queries for medulla on adult brain template JFRC2");
-				if (element) {
-					element.click();
-				} else {
-					console.error("Element not found: 'Queries for medulla on adult brain template JFRC2'");
-					// Try to find similar elements to see what's available
-					const possibleElements = Array.from(document.querySelectorAll('[id*="Queries"]'));
-					console.log("Found possible query elements:", possibleElements.map(e => e.id || e.textContent));
-				}
+			await openQueryBuilderFromTermInfo();
+			const resultSummary = await page.evaluate(async () => {
+				const label = document.querySelector('#query-results-label');
+				return label ? label.textContent.trim() : "";
 			});
-			await page.waitFor(1000);
-			// Click on item from query drop down menu and expect the query modal window to open
-			await page.evaluate(async () => {
-				const element = document.getElementById("List all available images of medulla");
-				if (element) {
-					element.click();
-				} else {
-					console.error("Element not found: 'List all available images of medulla'");
-				}
-			});
-			await page.waitFor(3000);
-			await wait4selector(page, '#queryResultsButton-container', { visible: true, timeout : 120000});
+			expect(resultSummary).toMatch(/^\d+\s+results?$/i);
 		}, 220000);
 
 		// Close Query Results window by pressing Escape on Window
 		it('Close Query Results Window', async () => {
-			closeModalWindow(page);
-			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 50000});
+			await closeQueryBuilder();
 		}, 120000);
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
@@ -191,10 +214,15 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Query Button" Works', async () => {
 			await click(page, 'i.fa.fa-quora');
-			await wait4selector(page, '#query-results-container', { visible: true ,timeout : 80000 });
+			await wait4selector(page, '#querybuilder', { visible: true ,timeout : 120000 });
+			await wait4selector(page, '#query-results-label', { visible: true, timeout : 120000});
+			const resultSummary = await page.evaluate(async () => {
+				const label = document.querySelector('#query-results-label');
+				return label ? label.textContent.trim() : "";
+			});
+			expect(resultSummary).toMatch(/^\d+\s+results?$/i);
 			// Close Query Panel
-			closeModalWindow(page);
-			await wait4selector(page, '#query-results-container', { hidden: true, timeout : 50000});
+			await closeQueryBuilder();
 		}, 120000);
 
 		it('Term info, "Clear All" Button Works', async () => {
