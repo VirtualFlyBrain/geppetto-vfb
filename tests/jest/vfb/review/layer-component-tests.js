@@ -61,7 +61,7 @@ describe('VFB Layer Component Tests', () => {
 
 		// Tests Layer component opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
-			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
+			const rows = await page.evaluate(async selector => document.querySelectorAll(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(2);
 		}, 30000) // Increased timeout to 30 seconds
 	});
@@ -204,7 +204,7 @@ describe('VFB Layer Component Tests', () => {
 			
 			expect(meshColor).toEqual("ffcc00");
 			
-			await expect(page).toFill('input[value="#00FF00"]', '#f542e6')
+			await page.fill('input[value="#00FF00"]', '#f542e6')
 			await page.waitFor(15000);
 			// Retrieve new color in mesh
 			let newColor = await page.evaluate(async () => {
