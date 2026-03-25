@@ -236,6 +236,48 @@ var searchConfiguration = {
     var bShortFormLC = bShortForm.toLowerCase();
     var InputStringLC = InputString.toLowerCase();
 
+    /* Detect official symbol matches vs synonym matches */
+    var aIsOfficialSymbol = a.short_form && a.short_form === InputString;
+    var bIsOfficialSymbol = b.short_form && b.short_form === InputString;
+    var aIsSymbolCaseInsensitive = a.short_form && a.short_form.toLowerCase() === InputStringLC;
+    var bIsSymbolCaseInsensitive = b.short_form && b.short_form.toLowerCase() === InputStringLC;
+    var aIsSynonymMatch = aShortForm === InputString && !aIsOfficialSymbol;
+    var bIsSynonymMatch = bShortForm === InputString && !bIsOfficialSymbol;
+
+    /* Priority 0: Official symbol match (short_form field match) */
+    if (aIsOfficialSymbol || bIsOfficialSymbol) {
+      if (aIsOfficialSymbol && !bIsOfficialSymbol) {
+        return -1;
+      }
+      if (bIsOfficialSymbol && !aIsOfficialSymbol) {
+        return 1;
+      }
+      /* Both are official symbols - prefer class terms if search doesn't specify a type */
+      if (aIsOfficialSymbol && bIsOfficialSymbol) {
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    /* Case-insensitive official symbol match */
+    if (aIsSymbolCaseInsensitive || bIsSymbolCaseInsensitive) {
+      if (aIsSymbolCaseInsensitive && !bIsSymbolCaseInsensitive) {
+        return -1;
+      }
+      if (bIsSymbolCaseInsensitive && !aIsSymbolCaseInsensitive) {
+        return 1;
+      }
+    }
+
     /* Priority 1: Exact short form match */
     var aExactShort = InputString === aShortForm;
     var bExactShort = InputString === bShortForm;
