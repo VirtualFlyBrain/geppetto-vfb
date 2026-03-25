@@ -238,15 +238,33 @@ var searchConfiguration = {
 
     /*
      * Detect official symbol matches vs synonym matches
-     * Official symbol: search term appears directly in the label text
-     * Synonym/Alias: search term only appears in the synonym list, not in the label
+     * Official symbol: search term appears multiple times (label + synonyms)
+     * Alias/Synonym: search term appears only once or only in synonyms
+     * Rationale: Terms appearing in both label and synonyms are more likely official
      */
-    var aLabelContainsTerm = a.label.toLowerCase().indexOf(InputStringLC) > -1;
-    var bLabelContainsTerm = b.label.toLowerCase().indexOf(InputStringLC) > -1;
-    var aIsOfficialSymbol = aLabelContainsTerm;
-    var bIsOfficialSymbol = bLabelContainsTerm;
-    var aIsSymbolCaseInsensitive = aLabelContainsTerm;
-    var bIsSymbolCaseInsensitive = bLabelContainsTerm;
+    var countTermOccurrences = function (item) {
+      var count = 0;
+      /* Check label */
+      if (item.label && item.label.toLowerCase().indexOf(InputStringLC) > -1) {
+        count += 1;
+      }
+      /* Check synonyms */
+      if (item.synonym) {
+        var syns = Array.isArray(item.synonym) ? item.synonym : [item.synonym];
+        syns.forEach(function (syn) {
+          if (syn && syn.toLowerCase().indexOf(InputStringLC) > -1) {
+            count += 1;
+          }
+        });
+      }
+      return count;
+    };
+    var aTermCount = countTermOccurrences(a);
+    var bTermCount = countTermOccurrences(b);
+    var aIsOfficialSymbol = aTermCount >= 2;
+    var bIsOfficialSymbol = bTermCount >= 2;
+    var aIsSymbolCaseInsensitive = aTermCount >= 2;
+    var bIsSymbolCaseInsensitive = bTermCount >= 2;
     var aIsSynonymMatch = aShortForm === InputString && !aIsOfficialSymbol;
     var bIsSynonymMatch = bShortForm === InputString && !bIsOfficialSymbol;
 
