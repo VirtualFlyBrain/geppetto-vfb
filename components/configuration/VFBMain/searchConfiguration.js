@@ -244,11 +244,43 @@ var searchConfiguration = {
      */
     var countTermOccurrences = function (item) {
       var count = 0;
-      /* Check label */
-      if (item.label && item.label.toLowerCase().indexOf(InputStringLC) > -1) {
+      if (!item.label) {
+        return 0;
+      }
+
+      var labelLC = item.label.toLowerCase();
+
+      /*
+       * After refineResults, label format is:
+       * - "synonym (original_label)" for synonym matches
+       * - "label (short_form)" for original records
+       * Count occurrences in both the main part and parenthetical part
+       */
+
+      /*
+       * Extract parts from refined label
+       */
+      var parenIndex = labelLC.indexOf(' (');
+      var mainPart = parenIndex > -1 ? labelLC.substring(0, parenIndex) : labelLC;
+      var parenPart = parenIndex > -1 ? labelLC.substring(parenIndex + 2, labelLC.length - 1) : '';
+
+      /*
+       * Check main part of label
+       */
+      if (mainPart.indexOf(InputStringLC) > -1) {
         count += 1;
       }
-      /* Check synonyms */
+
+      /*
+       * Check parenthetical part of label
+       */
+      if (parenPart && parenPart.indexOf(InputStringLC) > -1) {
+        count += 1;
+      }
+
+      /*
+       * Also check synonyms field if it exists (for backward compatibility)
+       */
       if (item.synonym) {
         var syns = Array.isArray(item.synonym) ? item.synonym : [item.synonym];
         syns.forEach(function (syn) {
@@ -257,6 +289,7 @@ var searchConfiguration = {
           }
         });
       }
+
       return count;
     };
     var aTermCount = countTermOccurrences(a);
