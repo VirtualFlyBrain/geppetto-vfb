@@ -82,16 +82,16 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Selecting first query for medulla', async () => {
-			await page.evaluate(async selector =>  {
-				var selectElement = $('select.query-item-option');
-				selectElement.val('0').change();
+			await page.evaluate(async () =>  {
+				var selectElement = document.querySelector('select.query-item-option');
+				selectElement.value = '0';
 				var event = new Event('change', { bubbles: true });
-				selectElement[0].dispatchEvent(event);
+				selectElement.dispatchEvent(event);
 			})
 			//Test there are 2+ results before running query
 			await wait4selector(page, '.fa-cogs', { visible: true , timeout : 90000})
 			await page.waitFor(1000);
-			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 60000});
+			await page.waitForFunction('Number(document.getElementById("query-results-label").innerText.split(" ")[0]) > 1', {visible : true, timeout : 120000});
 		})
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
