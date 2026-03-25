@@ -77,7 +77,7 @@ describe('VFB Layer Component Tests', () => {
 		// Check VFB_jrchk4wj neuron is selected by default, should be the case since it was last one to load
 		it('Instance VFB_jrchk4wj Selected', async () => {
 			const color = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString()
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].material.color.getHexString()
 			});
 			expect(color).toEqual("ffcc00");
 		})
@@ -87,7 +87,7 @@ describe('VFB Layer Component Tests', () => {
 			await clickLayerControlsElement(page, 'Unselect');
 			await page.waitFor(3000);
 			const color = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString()
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].material.color.getHexString()
 			});
 			expect(color).toEqual("00ff00");
 		})
@@ -98,7 +98,7 @@ describe('VFB Layer Component Tests', () => {
 			await clickLayerControlsElement(page, 'Hide');
 			await page.waitFor(2000);
 			const visible = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].visible
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].visible
 			});
 			expect(visible).toEqual(false);
 		})
@@ -109,7 +109,7 @@ describe('VFB Layer Component Tests', () => {
 			await clickLayerControlsElement(page, 'Show');
 			await page.waitFor(2000);
 			const visible = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].visible
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].visible
 			});
 			expect(visible).toEqual(true);
 		})
@@ -199,7 +199,7 @@ describe('VFB Layer Component Tests', () => {
 			// Retrieve old color in mesh
 			await page.waitFor(2000);
 			let meshColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].material.color.getHexString();
 			});
 			
 			expect(meshColor).toEqual("ffcc00");
@@ -208,7 +208,7 @@ describe('VFB Layer Component Tests', () => {
 			await page.waitFor(15000);
 			// Retrieve new color in mesh
 			let newColor = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"].material.color.getHexString();
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"].material.color.getHexString();
 			});
 
 			expect(newColor).toEqual('f542e6');
@@ -221,7 +221,7 @@ describe('VFB Layer Component Tests', () => {
 			await page.waitFor(2000);
 
 			let instance = await page.evaluate(async () => {
-				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_swc"];
+				return CanvasContainer.engine.meshes["VFB_jrchk4wj.VFB_jrchk4wj_obj"];
 			});
 
 			expect(instance).toEqual(undefined);
