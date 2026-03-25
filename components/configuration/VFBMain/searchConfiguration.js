@@ -222,7 +222,65 @@ var searchConfiguration = {
     if (b.label == undefined) {
       return -1;
     }
-    // move exact matches to top
+
+    // Helper functions
+    var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+    var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+    var aIsIndividual = a.id.indexOf("VFB_") > -1;
+    var bIsIndividual = b.id.indexOf("VFB_") > -1;
+
+    // Extract short form (part before parenthesis)
+    var aShortForm = a.label.split(' (')[0];
+    var bShortForm = b.label.split(' (')[0];
+    var aShortFormLC = aShortForm.toLowerCase();
+    var bShortFormLC = bShortForm.toLowerCase();
+    var InputStringLC = InputString.toLowerCase();
+
+    // Priority 1: Exact short form match
+    var aExactShort = InputString === aShortForm;
+    var bExactShort = InputString === bShortForm;
+    if (aExactShort || bExactShort) {
+      if (aExactShort && !bExactShort) {
+        // Only a matches exactly - prefer a
+        // But if both match exactly in short form, prefer FBbt over VFB
+        return -1;
+      }
+      if (bExactShort && !aExactShort) {
+        return 1;
+      }
+      // Both match exactly - prefer class terms (FBbt) over individuals (VFB)
+      if (aExactShort && bExactShort) {
+        if (aIsClass && !bIsClass) {
+          return -1;
+        }
+        if (bIsClass && !aIsClass) {
+          return 1;
+        }
+      }
+    }
+
+    // Priority 2: Case-insensitive short form match
+    var aCaseInsensitiveShort = InputStringLC === aShortFormLC;
+    var bCaseInsensitiveShort = InputStringLC === bShortFormLC;
+    if (aCaseInsensitiveShort || bCaseInsensitiveShort) {
+      if (aCaseInsensitiveShort && !bCaseInsensitiveShort) {
+        return -1;
+      }
+      if (bCaseInsensitiveShort && !aCaseInsensitiveShort) {
+        return 1;
+      }
+      // Both match case-insensitively - prefer class terms over individuals
+      if (aCaseInsensitiveShort && bCaseInsensitiveShort) {
+        if (aIsClass && !bIsClass) {
+          return -1;
+        }
+        if (bIsClass && !aIsClass) {
+          return 1;
+        }
+      }
+    }
+
+    // move exact label matches to top
     if (InputString == a.label) {
       return -1;
     }
@@ -230,68 +288,10 @@ var searchConfiguration = {
       return 1;
     }
     // close match without case matching
-    if (InputString.toLowerCase() == a.label.toLowerCase()) {
+    if (InputStringLC == a.label.toLowerCase()) {
       return -1;
     }
-    if (InputString.toLowerCase() == b.label.toLowerCase()) {
-      return 1;
-    }
-    // split out the [Name (Other)] bracketed part.
-    var aMatchBracket = InputString == a.label.split(' (')[0];
-    var bMatchBracket = InputString == b.label.split(' (')[0];
-    if (aMatchBracket && bMatchBracket) {
-      // both match — prefer class terms (FBbt/FB) over individuals (VFB)
-      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
-      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
-      if (aIsClass && !bIsClass) {
-        return -1;
-      }
-      if (bIsClass && !aIsClass) {
-        return 1;
-      }
-    }
-    if (aMatchBracket && !bMatchBracket) {
-      // b doesn't bracket-match, but if b is a class term containing the search string, prefer b
-      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
-      if (bIsClass && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-        return 1;
-      }
-      return -1;
-    }
-    if (bMatchBracket && !aMatchBracket) {
-      // a doesn't bracket-match, but if a is a class term containing the search string, prefer a
-      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
-      if (aIsClass && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-        return -1;
-      }
-      return 1;
-    }
-    // close match without case matching
-    var aMatchBracketLC = InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase();
-    var bMatchBracketLC = InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase();
-    if (aMatchBracketLC && bMatchBracketLC) {
-      // both match — prefer class terms over individuals
-      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
-      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
-      if (aIsClass && !bIsClass) {
-        return -1;
-      }
-      if (bIsClass && !aIsClass) {
-        return 1;
-      }
-    }
-    if (aMatchBracketLC && !bMatchBracketLC) {
-      var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
-      if (bIsClass && b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-        return 1;
-      }
-      return -1;
-    }
-    if (bMatchBracketLC && !aMatchBracketLC) {
-      var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
-      if (aIsClass && a.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1) {
-        return -1;
-      }
+    if (InputStringLC == b.label.toLowerCase()) {
       return 1;
     }
     // match ignoring joinging nonwords
