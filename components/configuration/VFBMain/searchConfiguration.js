@@ -236,9 +236,11 @@ var searchConfiguration = {
     var bShortFormLC = bShortForm.toLowerCase();
     var InputStringLC = InputString.toLowerCase();
 
-    /* Detect official symbol matches vs synonym matches
-       Official symbol: search term appears in BOTH short form AND semantic description
-       Synonym/Alias: search term only appears in short form, not in semantic description */
+    /*
+     * Detect official symbol matches vs synonym matches
+     * Official symbol: search term appears in BOTH short form AND semantic description
+     * Synonym/Alias: search term only appears in short form, not in semantic description
+     */
     var aSemanticPart = a.label.split(' (')[1];
     var bSemanticPart = b.label.split(' (')[1];
     var aIsOfficialSymbol = aShortForm === InputString && aSemanticPart && aSemanticPart.toLowerCase().indexOf(InputStringLC) > -1;
@@ -247,6 +249,38 @@ var searchConfiguration = {
     var bIsSymbolCaseInsensitive = bShortFormLC === InputStringLC && bSemanticPart && bSemanticPart.toLowerCase().indexOf(InputStringLC) > -1;
     var aIsSynonymMatch = aShortForm === InputString && !aIsOfficialSymbol;
     var bIsSynonymMatch = bShortForm === InputString && !bIsOfficialSymbol;
+
+    /*
+     * Helper function to find synonym position in list
+     * Earlier position = more important/commonly used name
+     */
+    var getSynonymIndex = function (synonymField) {
+      if (!synonymField) {
+        return -1;
+      }
+      var syns = Array.isArray(synonymField) ? synonymField : (typeof synonymField === 'string' ? synonymField.split(';').map(s => s.trim()) : []);
+      for (var i = 0; i < syns.length; i++) {
+        if (syns[i].toLowerCase() === InputStringLC) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var aSynonymIndex = getSynonymIndex(a.synonym);
+    var bSynonymIndex = getSynonymIndex(b.synonym);
+
+    /* Synonym position ordering: earlier in list = more important */
+    if ((aSynonymIndex >= 0 || bSynonymIndex >= 0) && aSynonymIndex !== bSynonymIndex) {
+      if (aSynonymIndex >= 0 && bSynonymIndex < 0) {
+        return -1;
+      }
+      if (bSynonymIndex >= 0 && aSynonymIndex < 0) {
+        return 1;
+      }
+      if (aSynonymIndex >= 0 && bSynonymIndex >= 0 && aSynonymIndex !== bSynonymIndex) {
+        return aSynonymIndex - bSynonymIndex;
+      }
+    }
 
     /* Priority 0: Official symbol match (short_form field match) */
     if (aIsOfficialSymbol || bIsOfficialSymbol) {
