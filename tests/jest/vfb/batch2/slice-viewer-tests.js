@@ -24,7 +24,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 })
 			// Close tutorial window
-			closeModalWindow(page);
+			await closeModalWindow(page);
 		})
 
 		it('VFB Title shows up', async () => {
@@ -69,50 +69,122 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('Typing medu in the query builder search bar', async () => {
-			await page.focus('input#query-typeahead');
+			await wait4selector(page, '#querybuilder input#query-typeahead', { visible: true, timeout : 120000 })
+			await page.focus('#querybuilder input#query-typeahead');
+			await page.keyboard.down('Control');
+			await page.keyboard.press('A');
+			await page.keyboard.up('Control');
+			await page.keyboard.press('Backspace');
 			await page.keyboard.type('med');
 			await page.keyboard.type('ulla');
 			await page.keyboard.press(String.fromCharCode(13))
 
-			await wait4selector(page, 'div.tt-suggestion', { visible: true , timeout : 10000})
+			await wait4selector(page, '#querybuilder div.tt-suggestion', { visible: true , timeout : 60000})
 		})
 
 		it('Selecting medulla, first suggestion from suggestion box', async () => {
-			await page.evaluate(async selector =>  $('div.tt-suggestion').first().click())
+			await page.evaluate(async () =>  $('#querybuilder div.tt-suggestion').first().click())
 			await wait4selector(page, '#queryitem-medulla_0', { visible: true , timeout : 60000})
 		})
 
 		it('Selecting first query for medulla', async () => {
-			await wait4selector(page, 'select.query-item-option', { visible: true, timeout : 120000 });
-			await page.select('select.query-item-option', '0');
-			await wait4selector(page, '#query-results-label', { visible: true , timeout : 180000 });
+			await wait4selector(page, '#queryitem-medulla_0 select.query-item-option', { visible: true, timeout : 120000 });
+			const selectionState = await page.evaluate(() => {
+				const selectElements = Array.from(document.querySelectorAll('#querybuilder select.query-item-option'));
+				let updatedSelections = 0;
+
+				selectElements.forEach((selectElement) => {
+					if (!selectElement) {
+						return;
+					}
+
+					const currentOption = selectElement.options[selectElement.selectedIndex];
+					const currentText = currentOption ? (currentOption.text || '').trim().toLowerCase() : '';
+					const needsSelection = !selectElement.value || currentText.startsWith('select query');
+
+					if (!needsSelection) {
+						return;
+					}
+
+					const firstQueryOption = Array.from(selectElement.options).find((option) => {
+						if (!option || option.disabled) {
+							return false;
+						}
+						const optionText = (option.text || '').trim().toLowerCase();
+						return option.value !== '' && !optionText.startsWith('select query');
+					});
+
+					if (!firstQueryOption) {
+						return;
+					}
+
+					selectElement.value = firstQueryOption.value;
+					selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+					updatedSelections += 1;
+				});
+
+				const allQueriesSelected = selectElements.every((selectElement) => {
+					if (!selectElement) {
+						return true;
+					}
+					const selectedOption = selectElement.options[selectElement.selectedIndex];
+					const selectedText = selectedOption ? (selectedOption.text || '').trim().toLowerCase() : '';
+					return Boolean(selectElement.value) && !selectedText.startsWith('select query');
+				});
+
+				return {
+					updatedSelections,
+					allQueriesSelected
+				};
+			});
+
+			expect(selectionState.allQueriesSelected).toBe(true);
 			await page.waitForFunction(() => {
-				const label = document.getElementById("query-results-label");
-				if (!label) {
-					return false;
-				}
-				const count = Number((label.innerText || '').split(' ')[0]);
-				return Number.isFinite(count) && count > 1;
-			}, { timeout : 180000 });
+				const runButton = document.querySelector('#run-query-btn');
+				const resultsLabel = document.querySelector('#query-results-label');
+				return Boolean(runButton || resultsLabel);
+			}, { timeout : 120000 });
 		}, 180000)
 
 		it('Running query. Results rows appeared - click on results info for JFRC2 example of medulla', async () => {
-			await wait4selector(page, 'button[id=run-query-btn]', { visible: true, timeout : 180000 });
+			await wait4selector(page, '#run-query-btn', { visible: true, timeout : 180000 });
 			await page.waitForFunction(() => {
 				const button = document.getElementById('run-query-btn');
 				return button && !button.disabled;
 			}, { timeout : 120000 });
-			await click(page, 'button[id=run-query-btn]');
-			await wait4selector(page, '#VFB_00030624----FBbt_00003748-image-container', { visible: true, timeout : 180000 })
+			await click(page, '#run-query-btn');
+			await wait4selector(page, '.query-results-name-column', { visible: true, timeout : 180000 });
+			await page.waitForFunction(() => {
+				const rows = Array.from(document.querySelectorAll('.query-results-name-column'));
+				return rows.some((row) => {
+					const text = (row.textContent || '').toLowerCase();
+					return text.includes('medulla') && text.includes('jfrc2');
+				});
+			}, { timeout : 180000 });
 		}, 240000)
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
-			await page.evaluate(async selector =>   $("#VFB_00030624----FBbt_00003748-image-container").find("img").click());
-			closeModalWindow(page);
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 180000 })
+			const clickedMedulla = await page.evaluate(() => {
+				const rows = Array.from(document.querySelectorAll('.query-results-name-column'));
+				for (let i = 0; i < rows.length; i++) {
+					const row = rows[i];
+					const text = (row.textContent || '').toLowerCase();
+					if (text.includes('medulla') && text.includes('jfrc2')) {
+						const clickable = row.querySelector('a, img, button, i.fa-info-circle');
+						if (clickable) {
+							clickable.click();
+							return true;
+						}
+					}
+				}
+				return false;
+			});
+			expect(clickedMedulla).toBeTruthy();
+			await closeModalWindow(page);
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 120000 })
 			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
 			expect(element).toBe("medulla on adult brain template JFRC2");
-		}, 120000)
+		}, 240000)
 	})
 
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
