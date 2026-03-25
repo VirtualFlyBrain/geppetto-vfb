@@ -236,30 +236,34 @@ var searchConfiguration = {
     var bShortFormLC = bShortForm.toLowerCase();
     var InputStringLC = InputString.toLowerCase();
 
-    // Priority 1: Exact short form match
+    /* Priority 1: Exact short form match */
     var aExactShort = InputString === aShortForm;
     var bExactShort = InputString === bShortForm;
     if (aExactShort || bExactShort) {
       if (aExactShort && !bExactShort) {
-        // Only a matches exactly - prefer a
-        // But if both match exactly in short form, prefer FBbt over VFB
+        /* Only a matches exactly - prefer a. If both match exactly in short form, prefer FBbt over VFB */
         return -1;
       }
       if (bExactShort && !aExactShort) {
         return 1;
       }
-      // Both match exactly - prefer class terms (FBbt) over individuals (VFB)
+      /* Both match exactly - only prefer classes if search doesn't specify a type */
       if (aExactShort && bExactShort) {
-        if (aIsClass && !bIsClass) {
-          return -1;
-        }
-        if (bIsClass && !aIsClass) {
-          return 1;
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
         }
       }
     }
 
-    // Priority 2: Case-insensitive short form match
+    /* Priority 2: Case-insensitive short form match */
     var aCaseInsensitiveShort = InputStringLC === aShortFormLC;
     var bCaseInsensitiveShort = InputStringLC === bShortFormLC;
     if (aCaseInsensitiveShort || bCaseInsensitiveShort) {
@@ -269,13 +273,18 @@ var searchConfiguration = {
       if (bCaseInsensitiveShort && !aCaseInsensitiveShort) {
         return 1;
       }
-      // Both match case-insensitively - prefer class terms over individuals
+      /* Both match - only prefer classes if search doesn't specify a type */
       if (aCaseInsensitiveShort && bCaseInsensitiveShort) {
-        if (aIsClass && !bIsClass) {
-          return -1;
-        }
-        if (bIsClass && !aIsClass) {
-          return 1;
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
         }
       }
     }
