@@ -238,15 +238,15 @@ var searchConfiguration = {
 
     /*
      * Detect official symbol matches vs synonym matches
-     * Official symbol: search term appears in BOTH short form AND semantic description
-     * Synonym/Alias: search term only appears in short form, not in semantic description
+     * Official symbol: search term appears directly in the label text
+     * Synonym/Alias: search term only appears in the synonym list, not in the label
      */
-    var aSemanticPart = a.label.split(' (')[1];
-    var bSemanticPart = b.label.split(' (')[1];
-    var aIsOfficialSymbol = aShortForm === InputString && aSemanticPart && aSemanticPart.toLowerCase().indexOf(InputStringLC) > -1;
-    var bIsOfficialSymbol = bShortForm === InputString && bSemanticPart && bSemanticPart.toLowerCase().indexOf(InputStringLC) > -1;
-    var aIsSymbolCaseInsensitive = aShortFormLC === InputStringLC && aSemanticPart && aSemanticPart.toLowerCase().indexOf(InputStringLC) > -1;
-    var bIsSymbolCaseInsensitive = bShortFormLC === InputStringLC && bSemanticPart && bSemanticPart.toLowerCase().indexOf(InputStringLC) > -1;
+    var aLabelContainsTerm = a.label.toLowerCase().indexOf(InputStringLC) > -1;
+    var bLabelContainsTerm = b.label.toLowerCase().indexOf(InputStringLC) > -1;
+    var aIsOfficialSymbol = aLabelContainsTerm;
+    var bIsOfficialSymbol = bLabelContainsTerm;
+    var aIsSymbolCaseInsensitive = aLabelContainsTerm;
+    var bIsSymbolCaseInsensitive = bLabelContainsTerm;
     var aIsSynonymMatch = aShortForm === InputString && !aIsOfficialSymbol;
     var bIsSynonymMatch = bShortForm === InputString && !bIsOfficialSymbol;
 
