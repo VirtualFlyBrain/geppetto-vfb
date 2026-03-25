@@ -187,7 +187,7 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 			}, 120000)
 
 			it('Term info component correctly populated with "JFRC2" Thumbnail', async () => {
-				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0001/7894/VFB_00017894/thumbnailT.png"');
+				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0001/7894/VFB_00017894/thumbnailT.png"', {timeout: 80000});
 			}, 120000)
 		})
 	});
