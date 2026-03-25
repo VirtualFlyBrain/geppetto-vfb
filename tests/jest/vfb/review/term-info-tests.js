@@ -73,7 +73,7 @@ describe('VFB Term Info Component Tests', () => {
 					cancelable: true
 				});
 				mouseDown.dispatchEvent(clickEvent);
-			}, 120000);
+			});
 
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
@@ -126,7 +126,7 @@ describe('VFB Term Info Component Tests', () => {
 						tabs[i].click();
 					}
 				}
-			}, 120000);
+			});
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
@@ -198,7 +198,7 @@ describe('VFB Term Info Component Tests', () => {
 		}, 120000);
 
 		it('Term info, "Clear All" Button Works', async () => {
-			await page.evaluate(async variableName => $(variableName).click(), "i.fa-eraser");
+			await page.evaluate(async selector => document.querySelector(selector).click(), "i.fa-eraser");
 			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
 			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
 		}, 120000);
