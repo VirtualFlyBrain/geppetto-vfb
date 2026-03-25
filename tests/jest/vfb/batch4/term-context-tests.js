@@ -17,9 +17,9 @@ const SNAPSHOT_OPTIONS = {
 };
 
 const SNAPSHOT_IDS = {
-	initialAdultBrain: "term-context-tests-js-vfb-term-context-component-tests-test-term-context-component-snapshot-comparison-of-term-context-1-snap",
-	afterMedullaLoaded: "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-medulla-loaded-graph-remains-the-same-1-snap",
-	afterSyncTrigger: "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-sync-trigger-graph-displays-medulla-1-snap"
+	initialAdultBrain: "term-context-tests-js-vfb-term-context-component-tests-test-term-context-component-snapshot-comparison-of-term-context-1",
+	afterMedullaLoaded: "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-medulla-loaded-graph-remains-the-same-1",
+	afterSyncTrigger: "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-sync-trigger-graph-displays-medulla-1"
 };
 
 const centerTermContextGraph = async () => {
