@@ -89,7 +89,7 @@ describe('VFB Term Context Component Tests', () => {
 		it('Medulla Loaded', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
 			expect(
-					await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
+					await page.evaluate(async () => document.querySelector(".focusTermDivR").innerText)
 			).toBe("Queries for medulla")
 		}, 120000)
 

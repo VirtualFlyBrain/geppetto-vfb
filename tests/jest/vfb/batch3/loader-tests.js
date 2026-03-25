@@ -131,7 +131,7 @@ describe('VFB Loader Component Tests', () => {
 				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00017894.VFB_00017894_obj'].visible)
 			).toBeTruthy()
 			expect(
-				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00000001.VFB_00000001_swc'].visible)
+				await page.evaluate(async () => StackViewer1.state.canvasRef.engine.meshes['VFB_00000001.VFB_00000001_obj'].visible)
 			).toBeTruthy()
 		}, 120000)
 

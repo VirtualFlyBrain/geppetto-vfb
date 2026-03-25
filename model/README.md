@@ -108,6 +108,12 @@
 ## ref_neuron_neuron_connectivity_query: Show neurons connected to $NAME
 - Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 14)
 
+## ref_downstream_class_connectivity_query: Show downstream connectivity by class for $NAME
+- Step: downstream_connectivity_query (DataSource Index: 3, Query Index: 7)
+
+## ref_upstream_class_connectivity_query: Show upstream connectivity by class for $NAME
+- Step: upstream_connectivity_query (DataSource Index: 3, Query Index: 8)
+
 ## SimilarMorphologyTo: Neurons with similar morphology to $NAME  [NBLAST mean score]
 - Step: NBLAST similarity neo Query (DataSource Index: 0, Query Index: 15)
 

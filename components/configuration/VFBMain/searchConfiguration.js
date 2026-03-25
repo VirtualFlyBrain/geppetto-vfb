@@ -97,11 +97,12 @@ var datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
-        "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*"
+        "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*",
+        "NOT facets_annotation:Deprecated"
       ],
       "rows": "150",
       "wt": "json",
-      "bq": "short_form:VFBexp*^10.0 short_form:VFB*^100.0 short_form:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001 facets_annotation:DataSet^500.0 facets_annotation:pub^100.0",
+      "bq": "short_form:VFBexp*^10.0 short_form:VFB*^50.0 facets_annotation:Class^200.0 short_form:FBbt*^150.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001 facets_annotation:DataSet^500.0 facets_annotation:pub^100.0",
     }
 };
 
@@ -213,14 +214,82 @@ var searchConfiguration = {
     },
   ],
   "sorter": function (a, b) {
-    var InputString = window.spotlightString;
+    // Normalize user input so ranking comparisons stay aligned with query tokenization
+    var InputString = (window.spotlightString || "").trim();
     if (a.label == undefined) {
       return 1;
     }
     if (b.label == undefined) {
       return -1;
     }
-    // move exact matches to top
+
+    // Helper functions
+    var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+    var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+    var aIsIndividual = a.id.indexOf("VFB_") > -1;
+    var bIsIndividual = b.id.indexOf("VFB_") > -1;
+
+    // Extract short form (part before parenthesis)
+    var aShortForm = a.label.split(' (')[0];
+    var bShortForm = b.label.split(' (')[0];
+    var aShortFormLC = aShortForm.toLowerCase();
+    var bShortFormLC = bShortForm.toLowerCase();
+    var InputStringLC = InputString.toLowerCase();
+
+    /* Priority 1: Exact short form match */
+    var aExactShort = InputString === aShortForm;
+    var bExactShort = InputString === bShortForm;
+    if (aExactShort || bExactShort) {
+      if (aExactShort && !bExactShort) {
+        /* Only a matches exactly - prefer a. If both match exactly in short form, prefer FBbt over VFB */
+        return -1;
+      }
+      if (bExactShort && !aExactShort) {
+        return 1;
+      }
+      /* Both match exactly - only prefer classes if search doesn't specify a type */
+      if (aExactShort && bExactShort) {
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    /* Priority 2: Case-insensitive short form match */
+    var aCaseInsensitiveShort = InputStringLC === aShortFormLC;
+    var bCaseInsensitiveShort = InputStringLC === bShortFormLC;
+    if (aCaseInsensitiveShort || bCaseInsensitiveShort) {
+      if (aCaseInsensitiveShort && !bCaseInsensitiveShort) {
+        return -1;
+      }
+      if (bCaseInsensitiveShort && !aCaseInsensitiveShort) {
+        return 1;
+      }
+      /* Both match - only prefer classes if search doesn't specify a type */
+      if (aCaseInsensitiveShort && bCaseInsensitiveShort) {
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    // move exact label matches to top
     if (InputString == a.label) {
       return -1;
     }
@@ -228,24 +297,10 @@ var searchConfiguration = {
       return 1;
     }
     // close match without case matching
-    if (InputString.toLowerCase() == a.label.toLowerCase()) {
+    if (InputStringLC == a.label.toLowerCase()) {
       return -1;
     }
-    if (InputString.toLowerCase() == b.label.toLowerCase()) {
-      return 1;
-    }
-    // split out the [Name (Other)] bracketed part.
-    if (InputString == a.label.split(' (')[0]) {
-      return -1;
-    }
-    if (InputString == b.label.split(' (')[0]) {
-      return 1;
-    }
-    // close match without case matching
-    if (InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase()) {
-      return -1;
-    }
-    if (InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase()) {
+    if (InputStringLC == b.label.toLowerCase()) {
       return 1;
     }
     // match ignoring joinging nonwords
@@ -339,6 +394,15 @@ var searchConfiguration = {
       return -1;
     }
     if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+      return 1;
+    }
+    // prioritise class terms (FBbt_) over individual terms (VFB_)
+    var aIsClass = a.id.indexOf("FBbt") > -1;
+    var bIsClass = b.id.indexOf("FBbt") > -1;
+    if (aIsClass && !bIsClass) {
+      return -1;
+    }
+    if (bIsClass && !aIsClass) {
       return 1;
     }
     // move up expression (VFBexp) terms

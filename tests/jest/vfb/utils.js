@@ -2,7 +2,6 @@ const { TimeoutError } = require('puppeteer/Errors');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
-  let success = undefined;
   let options = settings;
   if (!("timeout" in settings)) {
     options = { timeout: 30000, ...settings }; // Increase default timeout to 30 seconds
@@ -10,7 +9,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
   
   try {
     await page.waitForSelector(selector, options);
-    success = true;
+    return true;
   } catch (error) {
     let behaviour = "to exist";
     if (options.visible || options.hidden) {
@@ -39,8 +38,8 @@ export const wait4selector = async (page, selector, settings = {}) => {
     } catch (debugError) {
       console.log(`Could not capture debug information (page may be closed): ${debugError.message}`);
     }
+    throw new Error(`Timeout waiting for selector "${selector}" ${behaviour}.`);
   }
-  expect(success).toBeDefined();
 }
 
 /**
@@ -108,14 +107,12 @@ export const selectTab = async (page, tabName) => {
 
 export const click = async (page, selector) => {
 	await wait4selector(page, selector, { visible: true, timeout: 500000});
-	let success = undefined;
 	try {
 		await page.evaluate((selector) => document.querySelector(selector).click(), selector);
-		success = true
 	} catch (error){
-		console.log(`ERROR clicking on selector   --->   ${selector} failed.`)
+		console.log(`ERROR clicking on selector   --->   ${selector} failed.`);
+    throw new Error(`Failed to click selector "${selector}".`);
 	}
-	expect(success).toBeDefined()
 }
 
 /**

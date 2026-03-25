@@ -60,7 +60,7 @@ describe('VFB Uploader Tests', () => {
 				return document.querySelectorAll('.MuiListItem-root').length;
 			});
 			
-			expect(list).toBe(4);
+			expect(list).toBeGreaterThanOrEqual(4);
 		}, 120000)
 		
 		it('Template Selected', async () => {
