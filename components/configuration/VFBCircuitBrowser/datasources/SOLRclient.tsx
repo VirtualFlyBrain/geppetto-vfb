@@ -200,20 +200,23 @@ export const datasourceConfiguration = {
   "url": "https://solr.virtualflybrain.org/solr/ontology/select",
   "query_settings":
     {
-      "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
+      "q": "$SEARCH_TERM$",
+      "q.op": "OR",
       "defType": "edismax",
-      "qf": "label^100 synonym^100 label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest shortform_autosuggest",
+      "mm": "45%",
+      "qf": "label^110 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation",
       "start": "0",
       "pf":"true",
       "fq": [
         "facets_annotation:has_neuron_connectivity",
-        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*"
+        "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*",
+        "NOT facets_annotation:Deprecated"
       ],
       "rows": "100",
       "wt": "json",
-      "bq": "shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 label_s:\"\"^2 synonym_s:\"\" short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
+      "bq": "short_form:VFB*^110.0 short_form:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 

@@ -137,11 +137,17 @@ describe('VFB Circuit Browser Tests', () => {
 		it('Open Circuit Browser from Term Info with ID : VFB_jrchjrch', async () => {
 			await page.click("#circuitBrowserLink");
 
-			// Check that the Tree Browser is visible
+			// Check that the Circuit Browser is visible
 			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 
-			await page.waitFor(ONE_SECOND);
-			const neuron1Input =  await page.evaluate( () => document.querySelector(".neuron1 input").value)
+			// Wait for the neuron1 input to be populated via Redux dispatch chain
+			await page.waitForFunction(() => {
+				const input = document.querySelector('.neuron1 input');
+				const value = input && typeof input.value === 'string' ? input.value : '';
+				return value.trim().length > 0 && value.toLowerCase() !== 'neuron 1';
+			}, { timeout: 30 * ONE_SECOND });
+
+			const neuron1Input = await page.evaluate(() => document.querySelector(".neuron1 input").value);
 		    expect(neuron1Input).toBe("5-HTPLP01_R (FlyEM-HB:1324365879) (VFB_jrchjrch)");
 		})
 		
