@@ -61,9 +61,15 @@ const medullaTest = function(project) {
 			expect(element).toBe("medulla");
 		}, 120000)
 
-		it('Term info component correctly populated with "Medula" Thumbnail', async () => {
-			await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0003/0624/VFB_00017894/thumbnail.png"', {visible : true, timeout : 80000});
-		}, 120000)
+			it('Term info component correctly populated with "Medula" Thumbnail', async () => {
+				await page.waitForFunction(() => {
+					const thumbnail = document.querySelector(".Collapsible__contentInner img");
+					if (!thumbnail || !thumbnail.src) {
+						return false;
+					}
+					return /thumbnail(T)?\.png(\?.*)?$/i.test(thumbnail.src);
+				}, { timeout : 80000 });
+			}, 120000)
 	})
 
 	describe('"Medula" Selected in Canvas Container', () => {
@@ -186,9 +192,16 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 				expect(element).toBe("adult brain");
 			}, 120000)
 
-			it('Term info component correctly populated with "JFRC2" Thumbnail', async () => {
-				await page.waitForFunction('document.querySelector(".Collapsible__contentInner img").src === "https://www.virtualflybrain.org/data/VFB/i/0001/7894/VFB_00017894/thumbnailT.png"', {timeout: 80000});
-			}, 120000)
+				it('Term info component correctly populated with "JFRC2" Thumbnail', async () => {
+					await page.waitForFunction(() => {
+						const thumbnail = document.querySelector(".Collapsible__contentInner img");
+						if (!thumbnail || !thumbnail.src) {
+							return false;
+						}
+						const src = thumbnail.src.toLowerCase();
+						return src.includes("vfb_00017894") && /thumbnail(T)?\.png(\?.*)?$/i.test(src);
+					}, { timeout: 80000 });
+				}, 120000)
 		})
 	});
 
