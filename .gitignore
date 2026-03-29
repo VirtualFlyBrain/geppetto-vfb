@@ -16,4 +16,5 @@ build
 
 coverage
 
-tests/jest/vfb/snapshots/failures/*WEB-INF/web.xml
+tests/jest/vfb/snapshots/failures/
+WEB-INF/web.xml
