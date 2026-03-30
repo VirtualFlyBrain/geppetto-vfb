@@ -5,6 +5,7 @@ LABEL maintainer="rcourt@ed.ac.uk"
 ARG targetBranch=development
 ARG originBranch=development
 ARG defaultBranch=development
+ARG buildRef=development
 
 VOLUME /tmp/error
 
@@ -44,7 +45,8 @@ ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
 
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
-  /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m"
+  /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m" &&\
+  /bin/echo -e "\e[1;35mBUILD REF ------------ $buildRef\e[0m"
 
 # clear out the geppetto maven cache
 RUN rm -rv /home/developer/.m2/repository/org/geppetto
@@ -98,9 +100,14 @@ RUN git clone https://github.com/openworm/org.geppetto.frontend.git -q -b "${gep
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -q -b "${targetBranch}" --single-branch &&\
+  cd geppetto-vfb &&\
+  git checkout -q "${buildRef}" &&\
+  /bin/echo -e "\e[1;35mWEBAPP COMMIT ------------ $(git rev-parse HEAD)\e[0m" &&\
+  cd .. &&\
   mv geppetto-vfb webapp
 
-RUN cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
+RUN /bin/echo -e "\e[1;35mGEPPETTO CLIENT RELEASE ------------ $geppettoClientRelease\e[0m" &&\
+  cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
   $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
