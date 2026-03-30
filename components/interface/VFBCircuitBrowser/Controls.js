@@ -194,7 +194,6 @@ class AutocompleteResults extends Component {
             key={this.props.field.id}
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
-            onDelete={this.props.neuronTextfieldModified}
             onBlur={this.props.textFieldLoseFocus}
             inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
