@@ -1,4 +1,6 @@
 const { TimeoutError } = require('puppeteer/Errors');
+const fs = require('fs');
+const path = require('path');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
@@ -197,22 +199,14 @@ export const takeScreenshot = async (page, name) => {
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     // Change to use the same base snapshots directory, but in a failures subfolder
-    const path = `./tests/jest/vfb/snapshots/failures/${name}-${timestamp}.png`;
+    const screenshotPath = `./tests/jest/vfb/snapshots/failures/${name}-${timestamp}.png`;
     
-    // Ensure the directory exists
-    await page.evaluate(async path => {
-      const fs = require('fs');
-      const { promisify } = require('util');
-      const mkdirp = promisify(require('mkdirp'));
-      const dirname = path.substring(0, path.lastIndexOf('/'));
-      await mkdirp(dirname);
-    }, path).catch(() => {
-      // Ignore errors from browser context - we'll handle directory creation during screenshot
-    });
+    // Ensure the directory exists from Node context (not browser page context).
+    await fs.promises.mkdir(path.dirname(screenshotPath), { recursive: true });
     
-    await page.screenshot({ path, fullPage: true });
-    console.log(`Screenshot saved to ${path}`);
-    return path;
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    console.log(`Screenshot saved to ${screenshotPath}`);
+    return screenshotPath;
   } catch (error) {
     console.log(`Failed to take screenshot: ${error}`);
     return null;

@@ -145,6 +145,7 @@ jobs:
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
+            buildRef=${{ github.sha }}
             finalBuild=true
       
       # For the remote build
@@ -166,6 +167,7 @@ jobs:
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
+            buildRef=${{ github.sha }}
             finalBuild=false
       
       - name: Image digest
@@ -193,6 +195,13 @@ jobs:
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch2/.*js'
       - name: Test batch 3   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch3/.*js'
+      - name: Test batch 4
+        run: |
+          if ls tests/jest/vfb/batch4/*.js >/dev/null 2>&1; then
+            npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch4/.*js'
+          else
+            echo "No tests found in tests/jest/vfb/batch4 - skipping."
+          fi
       - name: Test under review  
         continue-on-error: true
         run: |
