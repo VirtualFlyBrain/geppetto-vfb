@@ -344,11 +344,91 @@ var queryResultsColMeta = [
     "displayName": "Image_count",
     "cssClassName": "query-results-image_count-column",
     "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "upstream_class",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 0,
+    "entityDelimiter": "----",
+    "displayName": "Upstream_Class",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "downstream_class",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "customComponent": QueryLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
+    "entityIndex": 1,
+    "entityDelimiter": "----",
+    "displayName": "Downstream_Class",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "total_n",
+    "order": 4,
+    "locked": false,
+    "visible": true,
+    "displayName": "Total_N",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "connected_n",
+    "order": 5,
+    "locked": false,
+    "visible": true,
+    "displayName": "Connected_N",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "percent_connected",
+    "order": 6,
+    "locked": false,
+    "visible": true,
+    "displayName": "Percent_Connected",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "pairwise_connections",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "Pairwise_Connections",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "total_weight",
+    "order": 8,
+    "locked": false,
+    "visible": true,
+    "displayName": "Total_Weight",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "avg_weight",
+    "order": 9,
+    "locked": false,
+    "visible": true,
+    "displayName": "Avg_Weight",
+    "cssClassName": "query-results-stage-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
   }
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count'];
+var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight'];
 
 var queryResultsControlConfig = {
   "Common": {
