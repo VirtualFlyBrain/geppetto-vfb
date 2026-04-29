@@ -844,6 +844,10 @@ var queryBuilderDatasourceConfig = {
 
 var sorterColumns = [
   {
+    column: "avg_weight",
+    order: "DESC"
+  },
+  {
     column: "downstream",
     order: "DESC"
   },
