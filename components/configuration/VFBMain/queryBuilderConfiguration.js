@@ -5,9 +5,11 @@ var SlideshowImageComponent = require("@geppettoengine/geppetto-client/component
 var QueryResultsControlsComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryResultsControlsComponent");
 var GrossTypeLabelsComponent = require('../../interface/utils/GrossTypeLabelsComponent');
 
-// Griddle (used by the query results table) sorts lexicographically by default.
-// Numeric columns must declare an arity-1 customCompareFn so values like
-// "99.99" and "996.58" are compared as numbers, not strings.
+/*
+ * Griddle (used by the query results table) sorts lexicographically by default.
+ * Numeric columns must declare an arity-1 customCompareFn so values like
+ * "99.99" and "996.58" are compared as numbers, not strings.
+ */
 var numericCompare = function (val) {
   var n = parseFloat(val);
   return isNaN(n) ? -Infinity : n;
