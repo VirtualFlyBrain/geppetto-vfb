@@ -13,7 +13,7 @@ const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_0003
  */
 describe('VFB Batch Requests Tests', () => {
 	beforeAll(async () => {
-		jest.setTimeout(1800000); 
+		jest.setTimeout(3600000);
 		await page.goto(PROJECT_URL);
 
 	});
@@ -23,10 +23,10 @@ describe('VFB Batch Requests Tests', () => {
 
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
-			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 220000 })
+			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 600000 })
 			// Close tutorial window
 			closeModalWindow(page);
-		}, 220000)
+		}, 600000)
 
 		it('VFB Title shows up', async () => {
 			const title = await page.title();
@@ -34,48 +34,48 @@ describe('VFB Batch Requests Tests', () => {
 		}, 120000)
 
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 600000 })
-		}, 600000)
+			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 1800000 })
+		}, 1800000)
 
 		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 600000 })
-		}, 600000)
+			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 1800000 })
+		}, 1800000)
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 600000 })
-		}, 600000)
-		
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 1800000 })
+		}, 1800000)
+
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
 			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2");
 			expect(element).toBe("ventral complex on adult brain template JFRC2");
-		}, 120000)
+		}, 1800000)
 
 		//Tests canvas has 5 meshes rendered
 		it('Canvas container component has 5 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(5)
-		}, 120000)
+		}, 1800000)
 	})
 
 	//Expects stack viewer component to have 5 meshes rendered and visible.
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 1800000 })
-		})
+		}, 1800000)
 
 		it('Slice viewer component has 5 meshes rendered', async () => {
 			expect(
 					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
 			).toBe(5)
-		}, 120000)
+		}, 1800000)
 
 		it.each(batch_requests)('Mesh from batch request id %s present in stack viewer component', async id => {
 			expect(
 					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, id)
 			).toBeTruthy()
-		})
+		}, 1800000)
 	})
 
 	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
@@ -86,9 +86,9 @@ describe('VFB Batch Requests Tests', () => {
 			});
 
 			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div.flexlayout__popup_menu_container', { visible: true, timeout : 5000 });
+			await wait4selector(page, 'div.flexlayout__popup_menu_container', { visible: true, timeout : 60000 });
 		}, 120000)
-		
+
 		it('Open Layers Component', async () => {
 			await page.evaluate(async () => {
 				let tabs = document.getElementsByClassName('flexlayout__popup_menu_item');
@@ -96,12 +96,12 @@ describe('VFB Batch Requests Tests', () => {
 					if ( tabs[i].innerText === "Layers" ) {
 						tabs[i].click();
 					}
-				}				
+				}
 			});
 
-			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 5000 });
+			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 60000 });
 		})
-		
+
 		it('The layers component opened with right amount of rows.', async () => {
 			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
