@@ -5,14 +5,6 @@ var SlideshowImageComponent = require("@geppettoengine/geppetto-client/component
 var QueryResultsControlsComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryResultsControlsComponent");
 var GrossTypeLabelsComponent = require('../../interface/utils/GrossTypeLabelsComponent');
 
-// Griddle (used by the query results table) sorts lexicographically by default.
-// Numeric columns must declare an arity-1 customCompareFn so values like
-// "99.99" and "996.58" are compared as numbers, not strings.
-var numericCompare = function (val) {
-  var n = parseFloat(val);
-  return isNaN(n) ? -Infinity : n;
-};
-
 var queryResultsColMeta = [
   {
     "columnName": "id",
@@ -187,8 +179,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Level",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
-    "sortDirectionCycle": ['desc', 'asc', null]
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "extent",
@@ -197,8 +188,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Extent",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
-    "sortDirectionCycle": ['desc', 'asc', null]
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "downstream",
@@ -207,8 +197,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Outputs",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
-    "sortDirectionCycle": ['desc', 'asc', null]
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "tbars",
@@ -217,8 +206,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Outputs (Tbars)",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
-    "sortDirectionCycle": ['desc', 'asc', null]
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "upstream",
@@ -227,8 +215,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Inputs",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
-    "sortDirectionCycle": ['desc', 'asc', null]
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "weight",
@@ -237,8 +224,7 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Weight",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
-    "sortDirectionCycle": ['desc', 'asc', null]
+    "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
     "columnName": "neuron_B",
@@ -339,7 +325,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Score",
     "cssClassName": "query-results-score-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -358,7 +343,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Image_count",
     "cssClassName": "query-results-image_count-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -394,7 +378,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Total_N",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -404,7 +387,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Connected_N",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -414,7 +396,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Percent_Connected",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -424,7 +405,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Pairwise_Connections",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -434,7 +414,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Total_Weight",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
@@ -444,7 +423,6 @@ var queryResultsColMeta = [
     "visible": true,
     "displayName": "Avg_Weight",
     "cssClassName": "query-results-stage-column",
-    "customCompareFn": numericCompare,
     "sortDirectionCycle": ['desc', 'asc', null]
   }
 ];
