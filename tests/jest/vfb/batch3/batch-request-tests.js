@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow, findElementByText } from '../ut
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030849&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
@@ -33,12 +33,12 @@ describe('VFB Batch Requests Tests', () => {
 			expect(title).toMatch("Virtual Fly Brain");
 		}, 120000)
 
-		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 1800000 })
+		it('Deselect button for VFB_00030849 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, '#VFB_00030849_deselect_buttonBar_btn', { visible: true , timeout : 1800000 })
 		}, 1800000)
 
-		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 1800000 })
+		it('Zoom button for VFB_00030849 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, 'button[id=VFB_00030849_zoom_buttonBar_btn]', { visible: true , timeout : 1800000 })
 		}, 1800000)
 
 		it('Term info component created after load', async () => {
