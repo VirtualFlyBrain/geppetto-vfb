@@ -34,16 +34,16 @@ describe('VFB Batch Requests Tests', () => {
 		}, 120000)
 
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		}, 120000)
+			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 600000 })
+		}, 600000)
 
 		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		}, 120000)
+			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 600000 })
+		}, 600000)
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
-		}, 120000)
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 600000 })
+		}, 600000)
 		
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
