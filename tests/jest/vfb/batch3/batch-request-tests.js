@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow, findElementByText } from '../ut
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030849&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
@@ -33,49 +33,51 @@ describe('VFB Batch Requests Tests', () => {
 			expect(title).toMatch("Virtual Fly Brain");
 		}, 120000)
 
-		it('Deselect button for VFB_00030849 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030849_deselect_buttonBar_btn', { visible: true , timeout : 1800000 })
-		}, 1800000)
+		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 600000 })
+		}, 600000)
 
-		it('Zoom button for VFB_00030849 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030849_zoom_buttonBar_btn]', { visible: true , timeout : 1800000 })
-		}, 1800000)
+		it('Zoom button for VFB_00030880 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 600000 })
+		}, 600000)
 
 		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 1800000 })
-		}, 1800000)
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 600000 })
+		}, 600000)
 
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
-			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2");
-			expect(element).toBe("ventral complex on adult brain template JFRC2");
-		}, 1800000)
+			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2 (VFB_00030880)");
+			expect(element).toBe("ventral complex on adult brain template JFRC2 (VFB_00030880)");
+		}, 120000)
 
 		//Tests canvas has 5 meshes rendered
 		it('Canvas container component has 5 meshes rendered', async () => {
-			expect(
-					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
-			).toBe(5)
-		}, 1800000)
+			await page.waitForFunction(
+				() => typeof CanvasContainer !== 'undefined' && Object.keys(CanvasContainer.engine.meshes).length === 5,
+				{ timeout: 600000 }
+			);
+		}, 600000)
 	})
 
 	//Expects stack viewer component to have 5 meshes rendered and visible.
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
-			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 1800000 })
-		}, 1800000)
+			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 600000 })
+		}, 600000)
 
 		it('Slice viewer component has 5 meshes rendered', async () => {
-			expect(
-					await page.evaluate(async () => Object.keys(StackViewer1.state.canvasRef.engine.meshes).length)
-			).toBe(5)
-		}, 1800000)
+			await page.waitForFunction(
+				() => typeof StackViewer1 !== 'undefined' && Object.keys(StackViewer1.state.canvasRef.engine.meshes).length === 5,
+				{ timeout: 600000 }
+			);
+		}, 600000)
 
 		it.each(batch_requests)('Mesh from batch request id %s present in stack viewer component', async id => {
 			expect(
 					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, id)
 			).toBeTruthy()
-		}, 1800000)
+		}, 120000)
 	})
 
 	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
