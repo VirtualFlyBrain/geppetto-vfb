@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow, findElementByText } from '../ut
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
 
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
@@ -74,9 +74,13 @@ describe('VFB Batch Requests Tests', () => {
 		}, 600000)
 
 		it.each(batch_requests)('Mesh from batch request id %s present in stack viewer component', async id => {
-			expect(
-					await page.evaluate(async selector => StackViewer1.state.canvasRef.engine.meshes[selector + "." + selector + "_obj"].visible, id)
-			).toBeTruthy()
+			const visible = await page.evaluate(async selector => {
+				const engine = (typeof StackViewer1 !== 'undefined' && StackViewer1.state && StackViewer1.state.canvasRef && StackViewer1.state.canvasRef.engine) ? StackViewer1.state.canvasRef.engine : null;
+				const meshes = engine ? engine.meshes : {};
+				const meshKey = Object.keys(meshes).find(key => key.startsWith(`${selector}.`));
+				return meshKey ? meshes[meshKey].visible : false;
+			}, id);
+			expect(visible).toBeTruthy();
 		}, 120000)
 	})
 

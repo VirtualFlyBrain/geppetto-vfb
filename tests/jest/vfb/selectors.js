@@ -56,7 +56,7 @@ export const HELP_MODAL_SELECTOR = '#help-modal';
 
 export const MINIMIZE_WIDGETS_CONTAINER_SELECTOR = '#dialog-extend-fixed-container';
 
-export const STANDARD_ROW_SELECTOR = '.griddle-row';
+export const STANDARD_ROW_SELECTOR = '.standard-row';
 
 export const PLOTLY_SELECTOR = 'div.js-plotly-plot';
 export const DIALOG_SELECTOR = 'div.dialog';

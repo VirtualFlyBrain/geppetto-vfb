@@ -17,6 +17,12 @@ export const wait4selector = async (page, selector, settings = {}) => {
     if (options.visible || options.hidden) {
       behaviour = options.visible ? "to be visible" : "to disappear";
     }
+
+    const pageClosed = !page || (typeof page.isClosed === 'function' && page.isClosed());
+    if (pageClosed) {
+      throw new Error(`Timeout waiting for selector "${selector}" ${behaviour}.`);
+    }
+
     console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}.`);
     
     // Check if page is still accessible before attempting screenshots/debugging
@@ -30,7 +36,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
       }
       
       // Additional debugging info
-      console.log(`Current page URL: ${page.url()}`);
+      console.log(`Current page URL: ${await page.url()}`);
       try {
         const html = await page.evaluate(() => document.body.innerHTML);
         console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
