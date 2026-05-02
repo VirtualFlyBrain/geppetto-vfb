@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, findElementByText } from '../utils';
+import { wait4selector, click, closeModalWindow, findElementByText, selectTab } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -25,7 +25,7 @@ describe('VFB Batch Requests Tests', () => {
 		it('Loading spinner goes away', async () => {
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 600000 })
 			// Close tutorial window
-			closeModalWindow(page);
+			await closeModalWindow(page);
 		}, 600000)
 
 		it('VFB Title shows up', async () => {
@@ -86,30 +86,15 @@ describe('VFB Batch Requests Tests', () => {
 
 	//Expects control panel have 5 rows rendered and 'info' buttons in control panel for each of the 5 requested VFB IDs
 	describe('Tests Batch Requests in Control Panel', () => {
-		it('Open Tabs Overflow Menu', async () => {
-			await page.evaluate(async () => {
-				let unselectedTab = document.getElementsByClassName('flexlayout__tab_button_overflow')[0].click();
-			});
-
-			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div.flexlayout__popup_menu_container', { visible: true, timeout : 60000 });
-		}, 120000)
-
 		it('Open Layers Component', async () => {
-			await page.evaluate(async () => {
-				let tabs = document.getElementsByClassName('flexlayout__popup_menu_item');
-				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "Layers" ) {
-						tabs[i].click();
-					}
-				}
-			});
+			await selectTab(page, "Layers");
+			await page.waitFor(1000); // Give the DOM time to update after opening the tab
 
 			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 60000 });
 		})
 
 		it('The layers component opened with right amount of rows.', async () => {
-			const rows = await page.evaluate(async selector => $(selector).length, ST.STANDARD_ROW_SELECTOR);
+			const rows = await page.evaluate(async selector => document.querySelectorAll(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(5);
 		}, 120000)
 //
