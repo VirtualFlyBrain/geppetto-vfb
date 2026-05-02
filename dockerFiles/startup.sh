@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Mitigation for CVE-2026-31431 / Copy Fail: prevent algif_aead module loading and unload it if possible.
+if command -v modprobe >/dev/null 2>&1; then
+  mkdir -p /etc/modprobe.d
+  printf '%s\n' 'install algif_aead /bin/false' 'blacklist algif_aead' > /etc/modprobe.d/disable-algif-aead.conf
+fi
+if command -v rmmod >/dev/null 2>&1; then
+  rmmod algif_aead 2>/dev/null || true
+fi
+
 if [[ -d "$HOME/workspace/org.geppetto.frontend/src" ]]
 then
     # Note dev/alpha servers in code:
