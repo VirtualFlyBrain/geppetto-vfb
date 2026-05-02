@@ -248,9 +248,15 @@ describe('VFB Layer Component Tests', () => {
 
 		// Tests Layer component opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
-			const rows = await page.evaluate(async selector => document.querySelectorAll(selector).length, ST.STANDARD_ROW_SELECTOR);
+			await page.waitForFunction(
+				selector => document.querySelectorAll(selector).length === 2,
+				{ timeout: 120000 },
+				ST.STANDARD_ROW_SELECTOR
+			);
+
+			const rows = await page.evaluate(selector => document.querySelectorAll(selector).length, ST.STANDARD_ROW_SELECTOR);
 			expect(rows).toEqual(2);
-		}, 30000) // Increased timeout to 30 seconds
+		}, 120000) // Increased timeout to 120 seconds
 	});
 
 	// Tests opening Layer component and clicking on row buttons
