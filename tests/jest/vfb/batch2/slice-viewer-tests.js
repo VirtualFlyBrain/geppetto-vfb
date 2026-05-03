@@ -163,10 +163,14 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
 			await closeModalWindow(page);
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 120000 });
+			// Bump from 120s to 240s — the previous successful run took 96.9s, but the
+			// page/network has been running closer to that limit and now intermittently
+			// exceeds 120s before the deselect button paints (failure screenshot shows the
+			// button rendered but the page still loading other widgets).
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true, timeout : 240000 });
 			let element = await findElementByText(page, "medulla on adult brain template JFRC2");
 			expect(element).toBe("medulla on adult brain template JFRC2");
-		}, 240000)
+		}, 300000)
 	})
 
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
