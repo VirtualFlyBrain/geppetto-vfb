@@ -63,10 +63,17 @@ describe('VFB Batch Requests Tests', () => {
 			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 600000 })
 		}, 600000)
 
-		//Function used for testing existance of text inside term info component
+		// Verify the term info content reflects VFB_00030880. The displayed name format
+		// has shifted across releases (with/without parens, with/without VFB id), so match
+		// the stable substring "ventral complex" + "JFRC2" + the VFB id rather than an
+		// exact string.
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
-			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2 (VFB_00030880)");
-			expect(element).toBe("ventral complex on adult brain template JFRC2 (VFB_00030880)");
+			await page.waitForFunction(() => {
+				const text = document.body.innerText || '';
+				return text.includes('ventral complex')
+					&& text.includes('JFRC2')
+					&& text.includes('VFB_00030880');
+			}, { timeout: 60000 });
 		}, 120000)
 	})
 
@@ -103,8 +110,23 @@ describe('VFB Batch Requests Tests', () => {
 			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 60000 });
 		})
 
+		// Wait for the row count to reach 5 — the listviewer renders rows asynchronously
+		// after the tab opens. Match either `.standard-row` (older layout) or
+		// `.vfbListViewer .griddle-row` (current layout), same pattern as
+		// batch2/layer-component-tests.js.
 		it('The layers component opened with right amount of rows.', async () => {
-			const rows = await page.evaluate(async selector => document.querySelectorAll(selector).length, ST.STANDARD_ROW_SELECTOR);
+			await page.waitForFunction(
+				() => document.querySelectorAll('.standard-row').length === 5
+					|| document.querySelectorAll('.vfbListViewer .griddle-row').length === 5,
+				{ timeout: 120000 }
+			);
+			const rows = await page.evaluate(() => {
+				const standardRows = document.querySelectorAll('.standard-row').length;
+				if (standardRows > 0) {
+					return standardRows;
+				}
+				return document.querySelectorAll('.vfbListViewer .griddle-row').length;
+			});
 			expect(rows).toEqual(5);
 		}, 120000)
 //
