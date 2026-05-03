@@ -6,7 +6,12 @@ import { wait4selector, click, closeModalWindow, findElementByText, selectTab } 
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_00030849,VFB_00030838,VFB_00030856,VFB_00030880";
+// Use IDs proven to load fast on the current backend (see batch4/term-info-tests.js,
+// which loads VFB_00030611/623/624 in seconds). The previous IDs (VFB_00030849/838/856)
+// got stuck mid-load — only 2/5 loaded after 600s in CI run 25272817640 — making every
+// downstream check time out. VFB_00030880 stays as the focus target since the test
+// asserts the "ventral complex on adult brain template JFRC2 (VFB_00030880)" text.
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00030880&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624,VFB_00030880";
 
 /**
  * Requests 5 different VFB IDs and tests they all load by testing canvas, stack viewer and term info components
@@ -18,8 +23,8 @@ describe('VFB Batch Requests Tests', () => {
 
 	});
 
-	//5 VFB IDs requested
-	const batch_requests = ['VFB_00017894','VFB_00030849','VFB_00030838','VFB_00030856','VFB_00030880'];
+	//5 VFB IDs requested — must match the i= list in PROJECT_URL above.
+	const batch_requests = ['VFB_00017894','VFB_00030611','VFB_00030623','VFB_00030624','VFB_00030880'];
 
 	describe('Test landing page', () => {
 		it('Loading spinner goes away', async () => {
