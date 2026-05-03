@@ -146,20 +146,19 @@ describe('VFB Slice Viewer Component Tests', () => {
 			}, { timeout : 120000 });
 		}, 180000)
 
-		it('Running query. Results rows appeared - click on results image for JFRC2 example of medulla', async () => {
+		it('Running query. Results rows appeared - add JFRC2 example of medulla', async () => {
 			await wait4selector(page, '#run-query-btn', { visible: true, timeout : 180000 });
 			await page.waitForFunction(() => {
 				const button = document.getElementById('run-query-btn');
 				return button && !button.disabled;
 			}, { timeout : 120000 });
 			await click(page, '#run-query-btn');
-			await wait4selector(page, 'div#VFB_00030624-image-container', { visible: true, timeout : 180000 });
-			await page.evaluate(() => {
-				const image = document.querySelector('#VFB_00030624-image-container img');
-				if (image) {
-					image.click();
-				}
-			});
+			// Wait for at least one result row to render (proves the query ran and returned data).
+			// The Griddle results table uses infinite scroll, so a specific row's image-container may
+			// not be in the DOM until scrolled into view — invoke window.addVfbId directly, which is
+			// exactly what clicking the image triggers (see slideshowImageComponent.getImageClickAction).
+			await wait4selector(page, '.query-results-name-column', { visible: true, timeout : 180000 });
+			await page.evaluate(() => window.addVfbId('VFB_00030624'));
 		}, 240000)
 
 		it('Term info correctly populated for example of Medulla after query results info button click', async () => {
