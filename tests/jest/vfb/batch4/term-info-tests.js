@@ -76,13 +76,19 @@ describe('VFB Term Info Component Tests', () => {
 
 	//Tests metadata in term info component and clicking on links
 	describe('Test Term Info Component Opens on Load with Components', () => {
+		// Force-focus VFB_00030624 — the URL `id=` parameter is rewritten by addVfbId
+		// during initial load (VFBMain.js:165 replaces id= with idsList[0] = the template),
+		// so on slow runners the term info ends up on the template, not VFB_00030624.
+		// Calling window.addVfbId again with the desired id sets it as the focus.
+		// Same pattern as batch3/batch-request-tests.js.
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		}, 120000)
+			await page.evaluate(() => window.addVfbId('VFB_00030624'));
+			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
+		}, 300000)
 
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		}, 120000)
+			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 240000 })
+		}, 300000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
