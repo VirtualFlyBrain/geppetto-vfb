@@ -33,7 +33,24 @@ describe('VFB Batch Requests Tests', () => {
 			expect(title).toMatch("Virtual Fly Brain");
 		}, 120000)
 
+		it('Term info component created after load', async () => {
+			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 600000 })
+		}, 600000)
+
+		//Tests canvas has 5 meshes rendered — proves all 5 batch-requested instances loaded.
+		it('Canvas container component has 5 meshes rendered', async () => {
+			await page.waitForFunction(
+				() => typeof CanvasContainer !== 'undefined' && Object.keys(CanvasContainer.engine.meshes).length === 5,
+				{ timeout: 600000 }
+			);
+		}, 600000)
+
+		// Focus the term info on VFB_00030880 explicitly — the URL `id=` parameter is rewritten by
+		// addVfbId during initial load (see VFBMain.js:165, replacing id= with idsList[0] = the
+		// template), so the focused term info ends up on the template, not VFB_00030880. Calling
+		// window.addVfbId again with the desired id sets it as the focus.
 		it('Deselect button for VFB_00030880 appears in button bar inside the term info component', async () => {
+			await page.evaluate(() => window.addVfbId('VFB_00030880'));
 			await wait4selector(page, '#VFB_00030880_deselect_buttonBar_btn', { visible: true , timeout : 600000 })
 		}, 600000)
 
@@ -41,23 +58,11 @@ describe('VFB Batch Requests Tests', () => {
 			await wait4selector(page, 'button[id=VFB_00030880_zoom_buttonBar_btn]', { visible: true , timeout : 600000 })
 		}, 600000)
 
-		it('Term info component created after load', async () => {
-			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 600000 })
-		}, 600000)
-
 		//Function used for testing existance of text inside term info component
 		it('Element ventral complex on adult brain template JFRC2 appeared in popup', async () => {
 			let element = await findElementByText(page, "ventral complex on adult brain template JFRC2 (VFB_00030880)");
 			expect(element).toBe("ventral complex on adult brain template JFRC2 (VFB_00030880)");
 		}, 120000)
-
-		//Tests canvas has 5 meshes rendered
-		it('Canvas container component has 5 meshes rendered', async () => {
-			await page.waitForFunction(
-				() => typeof CanvasContainer !== 'undefined' && Object.keys(CanvasContainer.engine.meshes).length === 5,
-				{ timeout: 600000 }
-			);
-		}, 600000)
 	})
 
 	//Expects stack viewer component to have 5 meshes rendered and visible.
