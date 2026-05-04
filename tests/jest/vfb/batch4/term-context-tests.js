@@ -109,12 +109,19 @@ describe('VFB Term Context Component Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
 		}, 120000)
 
-		// Wait for Medulla to be loaded by checking term info and Focus Term
+		// Wait for Medulla to be loaded by checking term info and Focus Term.
+		// The focusTermDivR text updates asynchronously after the spotlight click — in
+		// run 25308773215 the assertion fired with "Queries for JRC2018Unisex" still
+		// showing (the previous focus). Poll until it switches to medulla.
 		it('Medulla Loaded', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
-			expect(
-					await page.evaluate(async () => document.querySelector(".focusTermDivR").innerText)
-			).toBe("Queries for medulla")
+			await page.waitForFunction(
+				() => {
+					const el = document.querySelector('.focusTermDivR');
+					return el && el.innerText === 'Queries for medulla';
+				},
+				{ timeout: 60000 }
+			);
 		}, 120000)
 
 		// Re open Term Context
