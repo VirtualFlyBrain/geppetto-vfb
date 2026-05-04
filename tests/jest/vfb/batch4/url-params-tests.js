@@ -105,6 +105,7 @@ const medullaTest = function(project) {
 				).toBeTruthy();
 			}, 120000);
 		})
+    };
 
 //Tests loading project containing fru-M-200266 (VFB_00000001
 const neuronTest = function(project){
