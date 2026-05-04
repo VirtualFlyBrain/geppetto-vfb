@@ -44,13 +44,26 @@ const medullaTest = function(project) {
 		// up on the template, not VFB_00030624. Calling addVfbId again with the
 		// desired id sets it as the focus. Same pattern as batch3/batch-request-tests.js.
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			// addVfbId dereferences geppetto's `Instances` global; wait for it before calling
-			// or the early invocation throws ReferenceError (run 25306900368).
+			// addVfbId('VFB_00030624') only auto-selects when idsFromURL is empty (see
+			// VFBMain.js handleSceneAndTermInfoCallback) — fired mid-load, it just refreshes
+			// term info without selecting. Wait for the mesh to be in CanvasContainer (load
+			// finished), then call instance.select() directly so the deselect button appears.
 			await page.waitForFunction(
-				() => typeof Instances !== 'undefined' && typeof window.addVfbId === 'function',
-				{ timeout: 120000 }
+				() => typeof CanvasContainer !== 'undefined'
+					&& CanvasContainer.engine
+					&& CanvasContainer.engine.meshes
+					&& CanvasContainer.engine.meshes['VFB_00030624.VFB_00030624_obj'] !== undefined
+					&& typeof Instances !== 'undefined'
+					&& Instances['VFB_00030624']
+					&& typeof Instances['VFB_00030624'].select === 'function',
+				{ timeout: 240000 }
 			);
-			await page.evaluate(() => window.addVfbId('VFB_00030624'));
+			await page.evaluate(() => {
+				Instances['VFB_00030624'].select();
+				if (typeof window.setTermInfo === 'function') {
+					window.setTermInfo(Instances['VFB_00030624'].VFB_00030624_meta, 'VFB_00030624');
+				}
+			});
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
 		}, 300000)
 
