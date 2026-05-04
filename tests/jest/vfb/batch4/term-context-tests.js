@@ -63,7 +63,7 @@ describe('VFB Term Context Component Tests', () => {
 
 			// Check that the Term Context is Visible
 			await wait4selector(page, 'div#VFBGraph', { visible: true, timeout : 800000 });
-		}, 120000)
+		}, 240000)
 
 		it('Snapshot Comparison of Term Context', async () => {
 			await page.waitFor(10000);

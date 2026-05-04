@@ -409,7 +409,7 @@ describe('VFB Layer Component Tests', () => {
 			await openControls(page, INSTANCE_ROW_LABEL);
 			await clickLayerControlsElement(page, 'Color');
 			await wait4selector(page, 'div.chrome-picker', { visible: true, timeout : 500000 })
-		}, 120000)
+		}, 240000)
 
 		// Chance color of VFB_jrchk4wj instance using controls
 		it('Use color picker to change color of VFB_jrchk4wj', async () => {

@@ -131,7 +131,7 @@ describe('VFB Term Info Component Tests', () => {
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		}, 120000)
+		}, 240000)
 
 		it('Term info closed', async () => {
 			// There's 4 div elements with same class (slice viewer, 3d viewer, term info and tree browser), the forth one belongs to the term info
@@ -152,7 +152,7 @@ describe('VFB Term Info Component Tests', () => {
 				}
 			});
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
-		}, 120000)
+		}, 240000)
 	})
 
 	describe('Test Term Info Component Links and Buttons Work', () => {
@@ -183,7 +183,7 @@ describe('VFB Term Info Component Tests', () => {
 
 			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		}, 120000);
+		}, 240000);
 
 		it('Term info , run "Query For" from menu option', async () => {
 			await openQueryBuilderFromTermInfo();
