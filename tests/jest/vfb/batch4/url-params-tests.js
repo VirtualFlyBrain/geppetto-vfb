@@ -47,6 +47,7 @@ const medullaTest = function(project) {
 			// Wait for the VFB_00030624 instance to be loaded (any mesh key starting with
 			// "VFB_00030624." — could be _obj, _swc, etc.). addVfbId mid-load doesn't select
 			// when idsFromURL is non-empty, so call .select() and setTermInfo() directly.
+			// 360s wait — run 25319381544 mesh appeared ~246s in, just past the 240s ceiling.
 			await page.waitForFunction(
 				() => {
 					if (typeof Instances === 'undefined' || !Instances['VFB_00030624']) return false;
@@ -54,7 +55,7 @@ const medullaTest = function(project) {
 					if (typeof CanvasContainer === 'undefined' || !CanvasContainer.engine || !CanvasContainer.engine.meshes) return false;
 					return Object.keys(CanvasContainer.engine.meshes).some(k => k.indexOf('VFB_00030624.') === 0);
 				},
-				{ timeout: 240000 }
+				{ timeout: 360000 }
 			);
 			await page.evaluate(() => {
 				Instances['VFB_00030624'].select();
@@ -63,7 +64,7 @@ const medullaTest = function(project) {
 				}
 			});
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
-		}, 600000)
+		}, 720000)
 
 		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 240000 })
