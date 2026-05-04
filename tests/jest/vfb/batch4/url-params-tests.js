@@ -196,7 +196,10 @@ it('Deselect button for VFB_00101567 appears in button bar inside the term info 
 		}, 120000)
 
 		it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00101567_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+			await page.waitForFunction(() => {
+				const el = document.querySelector('#VFB_00101567_zoom_buttonBar_btn');
+				return el && el.offsetParent !== null;
+			}, { timeout: 120000 });
 			}, 120000)
 
 			
