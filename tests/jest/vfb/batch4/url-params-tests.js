@@ -204,8 +204,8 @@ it('Deselect button for VFB_00101567 appears in button bar inside the term info 
 				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 			}, 120000)
 
-it('Term info component correctly populated with adult brain unisex JRC2018U metadata as Name', async () => {
-			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('adult brain unisex'), { timeout: 120000 });
+it('Term info component correctly populated with JRC2018Unisex metadata as Name', async () => {
+			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('jrc2018unisex'), { timeout: 120000 });
 			}, 120000)
 
 			it('Term info component correctly populated with "adult brain" as Classification Name', async () => {
