@@ -44,6 +44,12 @@ const medullaTest = function(project) {
 		// up on the template, not VFB_00030624. Calling addVfbId again with the
 		// desired id sets it as the focus. Same pattern as batch3/batch-request-tests.js.
 		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
+			// addVfbId dereferences geppetto's `Instances` global; wait for it before calling
+			// or the early invocation throws ReferenceError (run 25306900368).
+			await page.waitForFunction(
+				() => typeof Instances !== 'undefined' && typeof window.addVfbId === 'function',
+				{ timeout: 120000 }
+			);
 			await page.evaluate(() => window.addVfbId('VFB_00030624'));
 			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
 		}, 300000)
