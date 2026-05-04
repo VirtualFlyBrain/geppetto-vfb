@@ -6,7 +6,7 @@ import { wait4selector, click , closeModalWindow, flexWindowClick, findElementBy
 import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const projectURL = baseURL + "/geppetto?id=VFB_00030624&i=VFB_00017894,VFB_00030611,VFB_00030623,VFB_00030624";
+const projectURL = baseURL + "/geppetto?id=VFB_00102107&i=VFB_00101567,VFB_00102135,VFB_00102162,VFB_00102107";
 
 const openQueryBuilderFromTermInfo = async () => {
 	const clickedFocusQueryButton = await page.evaluate(async () => {
@@ -54,7 +54,7 @@ const closeQueryBuilder = async () => {
 };
 
 /**
- * Tests term info component. Loads ID VFB_00017894 , and tests term info component to be correctly loaded with metadata for VFB_00017894. 
+ * Tests term info component. Loads ID VFB_00101567 , and tests term info component to be correctly loaded with metadata for VFB_00101567. 
  */
 describe('VFB Term Info Component Tests', () => {
 	beforeAll(async () => {
@@ -76,36 +76,36 @@ describe('VFB Term Info Component Tests', () => {
 
 	//Tests metadata in term info component and clicking on links
 	describe('Test Term Info Component Opens on Load with Components', () => {
-		// Force-focus VFB_00030624 — the URL `id=` parameter is rewritten by addVfbId
+		// Force-focus VFB_00102107 — the URL `id=` parameter is rewritten by addVfbId
 		// during initial load (VFBMain.js:165 replaces id= with idsList[0] = the template),
-		// so on slow runners the term info ends up on the template, not VFB_00030624.
+		// so on slow runners the term info ends up on the template, not VFB_00102107.
 		// Calling window.addVfbId again with the desired id sets it as the focus.
 		// Same pattern as batch3/batch-request-tests.js.
-		it('Deselect button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			// Wait for the VFB_00030624 instance to be loaded (any mesh key starting with
-			// "VFB_00030624." — could be _obj, _swc, etc.). addVfbId mid-load doesn't select
+		it('Deselect button for VFB_00102107 appears in button bar inside the term info component', async () => {
+			// Wait for the VFB_00102107 instance to be loaded (any mesh key starting with
+			// "VFB_00102107." — could be _obj, _swc, etc.). addVfbId mid-load doesn't select
 			// when idsFromURL is non-empty, so call .select() and setTermInfo() directly.
 			// 360s wait — run 25319381544 mesh appeared ~246s in, just past the 240s ceiling.
 			await page.waitForFunction(
 				() => {
-					if (typeof Instances === 'undefined' || !Instances['VFB_00030624']) return false;
-					if (typeof Instances['VFB_00030624'].select !== 'function') return false;
+					if (typeof Instances === 'undefined' || !Instances['VFB_00102107']) return false;
+					if (typeof Instances['VFB_00102107'].select !== 'function') return false;
 					if (typeof CanvasContainer === 'undefined' || !CanvasContainer.engine || !CanvasContainer.engine.meshes) return false;
-					return Object.keys(CanvasContainer.engine.meshes).some(k => k.indexOf('VFB_00030624.') === 0);
+					return Object.keys(CanvasContainer.engine.meshes).some(k => k.indexOf('VFB_00102107.') === 0);
 				},
 				{ timeout: 360000 }
 			);
 			await page.evaluate(() => {
-				Instances['VFB_00030624'].select();
-				if (typeof window.setTermInfo === 'function' && Instances['VFB_00030624'].VFB_00030624_meta) {
-					window.setTermInfo(Instances['VFB_00030624'].VFB_00030624_meta, 'VFB_00030624');
+				Instances['VFB_00102107'].select();
+				if (typeof window.setTermInfo === 'function' && Instances['VFB_00102107'].VFB_00102107_meta) {
+					window.setTermInfo(Instances['VFB_00102107'].VFB_00102107_meta, 'VFB_00102107');
 				}
 			});
-			await wait4selector(page, '#VFB_00030624_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
+			await wait4selector(page, '#VFB_00102107_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
 		}, 720000)
 
-		it('Zoom button for VFB_00030624 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 240000 })
+		it('Zoom button for VFB_00102107 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, 'button[id=VFB_00102107_zoom_buttonBar_btn]', { visible: true , timeout : 240000 })
 		}, 300000)
 
 		it('Term info component created after load', async () => {
@@ -147,8 +147,8 @@ describe('VFB Term Info Component Tests', () => {
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
-			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+			// Looks for zoom button for id 'VFB_00102107', which is present if it's visible
+			await wait4selector(page, 'button[id=VFB_00102107_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		}, 240000)
 
 		it('Term info closed', async () => {
@@ -199,8 +199,8 @@ describe('VFB Term Info Component Tests', () => {
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
-			// Looks for zoom button for id 'VFB_00030624', which is present if it's visible
-			await wait4selector(page, 'button[id=VFB_00030624_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+			// Looks for zoom button for id 'VFB_00102107', which is present if it's visible
+			await wait4selector(page, 'button[id=VFB_00102107_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		}, 240000);
 
 		it('Term info , run "Query For" from menu option', async () => {
@@ -218,12 +218,10 @@ describe('VFB Term Info Component Tests', () => {
 		}, 120000);
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
-			let element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
-			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
+			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('brainname neuropils on adult brain'), { timeout: 120000 });
 			await page.evaluate(async () => document.querySelector(".terminfo-source a").click());
 			await page.waitFor(15000);
-			element = await findElementByText(page, "BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
-			expect(element).toBe("BrainName neuropils on adult brain JFRC2 (Jenett, Shinomya)");
+			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('brainname neuropils on adult brain'), { timeout: 120000 });
 		}, 120000);
 	})
 
@@ -251,8 +249,7 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info, "Clear All" Button Works', async () => {
 			await page.evaluate(async selector => document.querySelector(selector).click(), "i.fa-eraser");
-			let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
-			expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
+			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('list all painted anatomy available for adult brain unisex jrc2018u'), { timeout: 120000 });
 		}, 120000);
 	})
 })
