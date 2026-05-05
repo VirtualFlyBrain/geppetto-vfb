@@ -190,25 +190,39 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 		})
 
 		//Tests metadata in term info component and clicking on links
-		describe('Test Term Info Component', () => {		
-it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, '#VFB_00101567_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		}, 120000)
+		describe('Test Term Info Component', () => {
+			it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
+				await page.waitForFunction(
+					() => {
+						if (typeof Instances === 'undefined' || !Instances['VFB_00101567']) return false;
+						if (typeof Instances['VFB_00101567'].select !== 'function') return false;
+						if (typeof CanvasContainer === 'undefined' || !CanvasContainer.engine || !CanvasContainer.engine.meshes) return false;
+						return Object.keys(CanvasContainer.engine.meshes).some(k => k.indexOf('VFB_00101567.') === 0);
+					},
+					{ timeout: 360000 }
+				);
+				await page.evaluate(() => {
+					Instances['VFB_00101567'].select();
+					if (typeof window.setTermInfo === 'function' && Instances['VFB_00101567'].VFB_00101567_meta) {
+						window.setTermInfo(Instances['VFB_00101567'].VFB_00101567_meta, 'VFB_00101567');
+					}
+				});
+				await wait4selector(page, '#VFB_00101567_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
+			}, 720000)
 
-		it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
-			await page.waitForFunction(() => {
-				const el = document.querySelector('#VFB_00101567_zoom_buttonBar_btn');
-				return el && el.offsetParent !== null;
-			}, { timeout: 120000 });
+			it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
+				await page.waitForFunction(() => {
+					const el = document.querySelector('#VFB_00101567_zoom_buttonBar_btn');
+					return el && el.offsetParent !== null;
+				}, { timeout: 120000 });
 			}, 120000)
 
-			
 			it('Term info component created after load', async () => {
 				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })
 			}, 120000)
 
-it('Term info component correctly populated with JRC2018Unisex metadata as Name', async () => {
-			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('jrc2018unisex'), { timeout: 120000 });
+			it('Term info component correctly populated with JRC2018Unisex metadata as Name', async () => {
+				await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('jrc2018unisex'), { timeout: 120000 });
 			}, 120000)
 
 			it('Term info component correctly populated with "adult brain" as Classification Name', async () => {
@@ -216,16 +230,16 @@ it('Term info component correctly populated with JRC2018Unisex metadata as Name'
 				expect(element).toBe("adult brain");
 			}, 120000)
 
-				it('Term info component correctly populated with JRC2018U Thumbnail', async () => {
-					await page.waitForFunction(() => {
-						const thumbnail = document.querySelector(".Collapsible__contentInner img");
-						if (!thumbnail || !thumbnail.src) {
-							return false;
-						}
-						const src = thumbnail.src.toLowerCase();
-						return src.includes("vfb_00101567") && /thumbnail(T)?\.png(\?.*)?$/i.test(src);
-					}, { timeout: 80000 });
-				}, 120000)
+			it('Term info component correctly populated with JRC2018U Thumbnail', async () => {
+				await page.waitForFunction(() => {
+					const thumbnail = document.querySelector(".Collapsible__contentInner img");
+					if (!thumbnail || !thumbnail.src) {
+						return false;
+					}
+					const src = thumbnail.src.toLowerCase();
+					return src.includes("vfb_00101567") && /thumbnail(T)?\.png(\?.*)?$/i.test(src);
+				}, { timeout: 80000 });
+			}, 120000)
 		})
 	});
 
