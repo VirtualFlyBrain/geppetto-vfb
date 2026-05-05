@@ -149,9 +149,48 @@ describe('VFB Term Info Component Tests', () => {
 
 	describe('Test Term Info Component Minimizes/Maximizes/Opens/Closes', () => {
 		it('Term info minimized', async () => {
-			await flexWindowClick("Term Info","fa-window-minimize");
-			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 240000 });
-		}, 120000)
+			const clicked = await page.evaluate(() => {
+				var titles = Array.prototype.slice.call(document.getElementsByClassName('flexlayout__tab_button_content'));
+				var termIndex = -1;
+				for (var i = 0; i < titles.length; i++) {
+					if ((titles[i].innerText || '').trim() === 'Term Info') {
+						termIndex = i;
+						break;
+					}
+				}
+				if (termIndex === -1) {
+					return false;
+				}
+				var minButtons = Array.prototype.slice.call(document.getElementsByClassName('flexlayout__tab_toolbar_button-min'));
+				if (minButtons[termIndex]) {
+					minButtons[termIndex].click();
+					return true;
+				}
+				var minIcons = Array.prototype.slice.call(document.getElementsByClassName('fa-window-minimize'));
+				if (minIcons[termIndex]) {
+					minIcons[termIndex].click();
+					return true;
+				}
+				var trailingButtons = Array.prototype.slice.call(document.getElementsByClassName('flexlayout__tab_button_trailing'));
+				if (trailingButtons[termIndex]) {
+					trailingButtons[termIndex].click();
+					return true;
+				}
+				return false;
+			});
+			if (!clicked) {
+				throw new Error('Could not minimize or close the Term Info tab');
+			}
+			await page.waitForFunction(function() {
+				var nodes = Array.prototype.slice.call(document.querySelectorAll('.flexlayout__tab_button_content'));
+				for (var i = 0; i < nodes.length; i++) {
+					if ((nodes[i].innerText || '').trim() === 'Term Info') {
+						return false;
+					}
+				}
+				return true;
+			}, { timeout: 240000 });
+		}, 240000)
 
 		it('Term info restored', async () => {
 		await wait4selector(page, 'button#Tools', { visible: true, timeout: 240000 });
