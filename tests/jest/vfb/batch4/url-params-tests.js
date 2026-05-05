@@ -8,7 +8,7 @@ import * as ST from '../selectors.js';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL1 = baseURL + "/geppetto?id=VFB_00102107&i=VFB_00101567,VFB_00102107,VFB_00102135,VFB_00102162";
 const projectURL2 = baseURL + "/geppetto?i=VFB_00102107,VFB_00101567,VFB_00102135,VFB_00102162";
-const projectURL3 = baseURL + "/geppetto?id=FBbt_00014013&i=VFB_00102135,VFB_00102162,VFB_00102107";
+const projectURL3 = baseURL + "/geppetto?id=FBbt_00014013&i=VFB_00101567,VFB_00102135,VFB_00102162,VFB_00102107";
 const projectURL4 = baseURL + "/geppetto?id=VFB_00000001&i=VFB_00101567,VFB_00000001";
 const projectURL5 = baseURL + "/geppetto?i=VFB_00000001,VFB_00101567,VFB_00000001";
 
