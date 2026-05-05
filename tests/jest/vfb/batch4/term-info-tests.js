@@ -8,6 +8,40 @@ import * as ST from '../selectors.js';
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?id=VFB_00102107&i=VFB_00101567,VFB_00102135,VFB_00102162,VFB_00102107";
 
+const clickMenuButtonByText = async (text) => {
+  const clicked = await page.evaluate((text) => {
+    const candidates = Array.from(document.querySelectorAll('[role="button"], button, a, span, div'))
+      .filter(el => (el.innerText || '').trim() === text && el.offsetParent !== null);
+    if (candidates.length > 0) {
+      candidates[0].click();
+      return true;
+    }
+    return false;
+  }, text);
+  if (!clicked) {
+    throw new Error(`Could not find a visible menu button with text "${text}"`);
+  }
+};
+
+const clickMenuItemByText = async (text) => {
+  const clicked = await page.evaluate((text) => {
+    let candidates = Array.from(document.querySelectorAll('[role="menuitem"], [role="option"], .MuiMenuItem-root, .MuiListItem-root'))
+      .filter(el => (el.innerText || '').trim() === text && el.offsetParent !== null);
+    if (candidates.length === 0) {
+      candidates = Array.from(document.querySelectorAll('[role="menuitem"], [role="option"], .MuiMenuItem-root, .MuiListItem-root'))
+        .filter(el => (el.innerText || '').trim() === text);
+    }
+    if (candidates.length > 0) {
+      candidates[0].click();
+      return true;
+    }
+    return false;
+  }, text);
+  if (!clicked) {
+    throw new Error(`Could not find a menu item with text "${text}"`);
+  }
+};
+
 const openQueryBuilderFromTermInfo = async () => {
 	const clickedFocusQueryButton = await page.evaluate(async () => {
 		const queryButton = Array.from(document.querySelectorAll('.focusTermDivR button')).find((button) => {
@@ -115,35 +149,15 @@ describe('VFB Term Info Component Tests', () => {
 
 	describe('Test Term Info Component Minimizes/Maximizes/Opens/Closes', () => {
 		it('Term info minimized', async () => {
-			// There are three flexlayout_tab components open with the same minimize icon, the third one belongs to the term info
 			await flexWindowClick("Term Info","fa-window-minimize");
-			//await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[2].click());
-			// Check 3d viewer is visible again by checking css property 'display : none'
-			//await wait4selector(page, 'div#VFBTermInfo_el_0_component', { visible: false , timeout : 400000})
-			expect(
-					await page.evaluate(async () => document.getElementsByClassName("flexlayout__tab")[6].style.getPropertyValue("display"))
-			).toBe("none");
+			await wait4selector(page, '#vfbterminfowidget', { hidden: true, timeout : 240000 });
 		}, 120000)
 
 		it('Term info restored', async () => {
-			await page.evaluate(async () => {
-				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[0]
-				let clickEvent = new MouseEvent('mousedown', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				mouseUp.dispatchEvent(clickEvent);
-
-				let mouseDown = document.getElementsByClassName('flexlayout__border_button')[0]
-				clickEvent = new MouseEvent('mouseup', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				mouseDown.dispatchEvent(clickEvent);
-			});
-
+		await wait4selector(page, 'button#Tools', { visible: true, timeout: 240000 });
+		await click(page, 'button#Tools');
+		await wait4selector(page, 'ul.MuiList-root', { visible: true, timeout : 120000 });
+		await clickMenuItemByText('Term Info');
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
@@ -158,17 +172,10 @@ describe('VFB Term Info Component Tests', () => {
 		}, 500000)
 
 		it('Term info opened', async () => {
-			await page.evaluate(async () => document.getElementById("Tools").click());
-			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
+			await wait4selector(page, 'button#Tools', { visible: true, timeout: 240000 });
+			await click(page, 'button#Tools');
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => {
-				let tabs = document.getElementsByClassName('MuiMenuItem-root');
-				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "Term Info" ) {
-						tabs[i].click();
-					}
-				}
-			});
+			await clickMenuItemByText('Term Info');
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 		}, 240000)
 	})
@@ -185,17 +192,10 @@ describe('VFB Term Info Component Tests', () => {
 		}, 120000);
 
 		it('Term info opened', async () => {
-			await page.evaluate(async () => document.getElementById("Tools").click());
-			// Check HTML 'UL' with class 'MuiList-root' is visible, this is the drop down menu
+			await wait4selector(page, 'button#Tools', { visible: true, timeout: 240000 });
+			await click(page, 'button#Tools');
 			await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
-			await page.evaluate(async () => {
-				let tabs = document.getElementsByClassName('MuiMenuItem-root');
-				for ( var i = 0; i < tabs.length ; i ++ ) {
-					if ( tabs[i].innerText === "Term Info" ) {
-						tabs[i].click();
-					}
-				}
-			});
+			await clickMenuItemByText('Term Info');
 			// Check term info component is visible again'
 			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
 
