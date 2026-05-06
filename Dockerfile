@@ -43,6 +43,15 @@ ENV SOLR_SERVER=${SOLR_SERVER_ARG}
 ENV googleAnalyticsSiteCode=${googleAnalyticsSiteCode_ARG}
 ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
 
+# Ensure root privileges for system-level kernel module configuration in build environments.
+USER root
+
+# Mitigation for CVE-2026-31431 / Copy Fail: disable AF_ALG authencesn support in-container.
+RUN mkdir -p /etc/modprobe.d && \
+  printf '%s\n' 'install algif_aead /bin/false' 'blacklist algif_aead' > /etc/modprobe.d/disable-algif-aead.conf
+
+USER developer
+
 RUN /bin/echo -e "\e[1;35mORIGIN BRANCH ------------ $originBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mTARGET BRANCH ------------ $targetBranch\e[0m" &&\
   /bin/echo -e "\e[1;35mDEFAULT BRANCH ------------ $defaultBranch\e[0m" &&\

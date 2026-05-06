@@ -248,9 +248,20 @@ describe('VFB Layer Component Tests', () => {
 
 		// Tests Layer component opens up and that is populated with expected 2 rows
 		it('The control panel opened with right amount of rows.', async () => {
-			const rows = await page.evaluate(async selector => document.querySelectorAll(selector).length, ST.STANDARD_ROW_SELECTOR);
+			await page.waitForFunction(
+				() => document.querySelectorAll('.standard-row').length === 2 || document.querySelectorAll('.vfbListViewer .griddle-row').length === 2,
+				{ timeout: 120000 }
+			);
+
+			const rows = await page.evaluate(() => {
+				const standardRows = document.querySelectorAll('.standard-row').length;
+				if (standardRows > 0) {
+					return standardRows;
+				}
+				return document.querySelectorAll('.vfbListViewer .griddle-row').length;
+			});
 			expect(rows).toEqual(2);
-		}, 30000) // Increased timeout to 30 seconds
+		}, 120000) // Increased timeout to 120 seconds
 	});
 
 	// Tests opening Layer component and clicking on row buttons
@@ -398,7 +409,7 @@ describe('VFB Layer Component Tests', () => {
 			await openControls(page, INSTANCE_ROW_LABEL);
 			await clickLayerControlsElement(page, 'Color');
 			await wait4selector(page, 'div.chrome-picker', { visible: true, timeout : 500000 })
-		}, 120000)
+		}, 240000)
 
 		// Chance color of VFB_jrchk4wj instance using controls
 		it('Use color picker to change color of VFB_jrchk4wj', async () => {

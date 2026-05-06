@@ -31,13 +31,16 @@ describe('VFB Spotlight Tests', () => {
       expect(title).toMatch("Virtual Fly Brain");
     }, 30000)
 
+		// Jest timeout must be at least as long as the wait4selector timeout — otherwise
+		// jest kills the test before the wait can complete. Other batch1 tests have shown
+		// the deselect button taking 50s+ on slow GitHub runners.
 		it('Deselect button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, '#VFB_00017894_deselect_buttonBar_btn', { visible: true , timeout : 120000 })
-		}, 30000)
+		}, 120000)
 
 		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
 			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
-		}, 30000)
+		}, 120000)
 
 		it('Term info component created after load', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true })

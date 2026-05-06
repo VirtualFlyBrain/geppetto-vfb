@@ -4,6 +4,10 @@ const path = require('path');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
+  if (!selector) {
+    throw new Error(`wait4selector called with invalid selector: ${selector}`);
+  }
+
   let options = settings;
   if (!("timeout" in settings)) {
     options = { timeout: 30000, ...settings }; // Increase default timeout to 30 seconds
@@ -17,6 +21,12 @@ export const wait4selector = async (page, selector, settings = {}) => {
     if (options.visible || options.hidden) {
       behaviour = options.visible ? "to be visible" : "to disappear";
     }
+
+    const pageClosed = !page || (typeof page.isClosed === 'function' && page.isClosed());
+    if (pageClosed) {
+      throw new Error(`Timeout waiting for selector "${selector}" ${behaviour}.`);
+    }
+
     console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}.`);
     
     // Check if page is still accessible before attempting screenshots/debugging
@@ -30,7 +40,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
       }
       
       // Additional debugging info
-      console.log(`Current page URL: ${page.url()}`);
+      console.log(`Current page URL: ${await page.url()}`);
       try {
         const html = await page.evaluate(() => document.body.innerHTML);
         console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
@@ -145,27 +155,38 @@ export const setTextFieldValue = async(selector, value) => {
 
 export const flexWindowClick = async (title, selector) => {
 	await page.evaluate((title, selector) => {
-		if (document.getElementsByClassName("flexlayout__tab_button_content")  != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length > 0) {
-			if (document.getElementsByClassName("flexlayout__tab_button_content")[0].innerText == title) {
-				document.getElementsByClassName(selector)[0].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 1 && document.getElementsByClassName("flexlayout__tab_button_content")[1].innerText == title) {
-				document.getElementsByClassName(selector)[1].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 2 && document.getElementsByClassName("flexlayout__tab_button_content")[2].innerText == title) {
-				document.getElementsByClassName(selector)[2].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 3 && document.getElementsByClassName("flexlayout__tab_button_content")[3].innerText == title) {
-				document.getElementsByClassName(selector)[3].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 4 && document.getElementsByClassName("flexlayout__tab_button_content")[4].innerText == title) {
-				document.getElementsByClassName(selector)[4].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 5 && document.getElementsByClassName("flexlayout__tab_button_content")[5].innerText == title) {
-				document.getElementsByClassName(selector)[5].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 6 && document.getElementsByClassName("flexlayout__tab_button_content")[6].innerText == title) {
-				document.getElementsByClassName(selector)[6].click();
-			}else{
-				console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
+		const titles = Array.from(document.getElementsByClassName('flexlayout__tab_button_content'));
+		const controls = Array.from(document.getElementsByClassName(selector));
+		for (let index = 0; index < titles.length; index++) {
+			const tabText = titles[index].innerText && titles[index].innerText.trim();
+			if (tabText === title) {
+				if (controls[index]) {
+					controls[index].click();
+					return;
+				}
+				const tabElement = titles[index].closest('.flexlayout__tab_button');
+				if (tabElement) {
+					const controlElement = tabElement.querySelector('.' + selector.split(' ').join('.'));
+					if (controlElement) {
+						controlElement.click();
+						return;
+					}
+				}
 			}
 		}
-	}
-	, title, selector);
+		const tabElement = Array.from(document.getElementsByClassName('flexlayout__tab_button')).find(el => {
+			const label = el.querySelector('.flexlayout__tab_button_content');
+			return label && label.innerText && label.innerText.trim() === title;
+		});
+		if (tabElement) {
+			const control = tabElement.querySelector('.' + selector.split(' ').join('.'));
+			if (control) {
+				control.click();
+				return;
+			}
+		}
+		console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
+	}, title, selector);
 }
 
 /**

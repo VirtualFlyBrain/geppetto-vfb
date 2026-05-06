@@ -6,7 +6,7 @@ import { wait4selector, click, closeModalWindow, findElementByText } from '../ut
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const PROJECT_URL = baseURL + "/geppetto?id=VFB_00017894&q=VFB_00000001,SimilarMorphologyTo; VFBexp_FBal0276838,epFrag";
+const PROJECT_URL = baseURL + "/geppetto?id=VFB_00101567&q=VFB_00000001,SimilarMorphologyTo; VFBexp_FBal0276838,epFrag";
 
 /**
  * Query Builder component tests
@@ -29,8 +29,8 @@ describe('VFB Query Builder Tests', () => {
 			expect(title).toMatch("Virtual Fly Brain");
 		}, 120000)
 
-		it('Zoom button for VFB_00017894 appears in button bar inside the term info component', async () => {
-			await wait4selector(page, 'button[id=VFB_00017894_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+		it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
+			await wait4selector(page, 'button[id=VFB_00101567_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
 		}, 120000)
 
 		it('Term info component created after load', async () => {

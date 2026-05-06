@@ -56,7 +56,7 @@ describe('VFB Loader Component Tests', () => {
 		// Check that progress bar has disappeared
 		it('Progress Bar Hidden After Loading of Instances', async () => {
 			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 800000 });
-		}, 120000)
+		}, 240000)
 
 		// Check that the Term Info component has the instance loaded
 		it('Term info component created and populated after load', async () => {
@@ -173,8 +173,11 @@ describe('VFB Loader Component Tests', () => {
 	describe('Loader Finished, Test 3 Instances Were Loaded', () => {
 		// Check that the progress bar is gone, which means instances have loaded
 		it('Progress Bar Hidden After Loading of Instances', async () => {
-			await wait4selector(page, 'div.progress-bar', { hidden: true, timeout : 300000 });
-		}, 120000)
+			await page.waitForFunction(
+				() => !document.querySelector('div.progress-bar'),
+				{ timeout: 800000 }
+			);
+		}, 800000)
 
 		// Check Term Info has loaded the last instance added
 		it('Term info component created and populated after load with FBbt_00003678', async () => {

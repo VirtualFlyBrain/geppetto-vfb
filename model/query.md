@@ -1416,7 +1416,7 @@ solrQueryProcessor
 
 **ID:** compound_downstream_connectivity_query
 
-**Description:** Get cached downstream connectivity for neuron class
+**Description:** Get cached downstream connectivity for neuron class subclasses
 
 **Type:** gep_2:CompoundQuery
 
@@ -1424,14 +1424,14 @@ solrQueryProcessor
 
 **ID:** None
 
-**Description:** Fetches pre-computed downstream connectivity statistics for a neuron class.
+**Description:** Fetches pre-computed downstream connectivity for all subclass ids.
 
 **Type:** gep_2:SimpleQuery
 
 **Query:**
 
 ```json
-{"defType":"edismax","fl":"downstream_connectivity_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+{"defType":"edismax","fl":"downstream_connectivity_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}
 ```
 
 ### Query Name: Process downstream connectivity
@@ -1452,7 +1452,7 @@ solrQueryProcessor
 
 **ID:** compound_upstream_connectivity_query
 
-**Description:** Get cached upstream connectivity for neuron class
+**Description:** Get cached upstream connectivity for neuron class subclasses
 
 **Type:** gep_2:CompoundQuery
 
@@ -1460,14 +1460,14 @@ solrQueryProcessor
 
 **ID:** None
 
-**Description:** Fetches pre-computed upstream connectivity statistics for a neuron class.
+**Description:** Fetches pre-computed upstream connectivity for all subclass ids.
 
 **Type:** gep_2:SimpleQuery
 
 **Query:**
 
 ```json
-{"defType":"edismax","fl":"upstream_connectivity_query","indent":"true","q.op":"OR","q":"id:$ID","qf":"id","rows":"1"}
+{"defType":"edismax","fl":"upstream_connectivity_query","indent":"true","q.op":"OR","q":"id:*","fq":"{!terms f=id}
 ```
 
 ### Query Name: Process upstream connectivity

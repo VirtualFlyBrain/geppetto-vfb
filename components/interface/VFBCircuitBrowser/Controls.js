@@ -562,8 +562,8 @@ class Controls extends Component {
               </div>
             </AccordionSummary>
             <AccordionDetails classes={{ root : classes.details }}>
-              <Grid container justify="space-between" alignItems="center">
-                <Grid item sm={1} justify="center" alignItems="center">
+              <Grid container justifyContent="space-between" alignItems="center">
+                <Grid item container sm={1} justifyContent="center" alignItems="center">
                   <div>
                     <AdjustIcon />
                     <MoreVertIcon classes={{ root : classes.dottedIcon }}/>
@@ -572,7 +572,7 @@ class Controls extends Component {
                 </Grid>
                 <Grid style={ { marginRight : "1vh !important" } } id="neuronFieldsGrid" item sm={9}>
                   { neuronFields.map((field, index) => (
-                    <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
+                    <Grid container alignItems="center" justifyContent="center" key={"TextFieldContainer" + index}>
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <AutocompleteResults
                           field={field}
@@ -599,7 +599,7 @@ class Controls extends Component {
                     </Grid>
                   ))}
                 </Grid>
-                <Grid item justify="space-between" alignItems="center" sm={1}>
+                <Grid item container justifyContent="center" alignItems="center" sm={1}>
                   <IconButton
                     id="reverseNeurons"
                     color="inherit"
@@ -613,7 +613,7 @@ class Controls extends Component {
                 </Grid>
                 { addNeuronDisabled 
                   ? null
-                  : <Grid container style={ { marginTop : "1vh" } } justify="space-between" alignItems="center">
+                  : <Grid container style={ { marginTop : "1vh" } } justifyContent="space-between" alignItems="center">
                     <Grid item sm={2} classes={{ root : classes.addNeuron }}>
                       <IconButton
                         id="addNeuron"
@@ -633,7 +633,7 @@ class Controls extends Component {
             </AccordionDetails>
             <Divider />
             <AccordionActions>
-              <Grid container justify="space-between" alignItems="center" >
+              <Grid container justifyContent="space-between" alignItems="center" >
                 <Grid container spacing={1}>
                   <Grid item sm={3}>
                     <Typography classes={{ root : classes.typography }}># Paths</Typography>
@@ -659,7 +659,7 @@ class Controls extends Component {
                   <Grid item sm={9}>
                     <Input className={classes.weightInputDiv} label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
                   </Grid>
-                  <Grid item container justify="flex-end" sm={6}>
+                  <Grid item container justifyContent="flex-end" sm={6}>
                     <Button
                       variant="contained"
                       color="primary"
@@ -669,7 +669,7 @@ class Controls extends Component {
                       disabled={disabledRun}
                     >Run Query</Button>  
                   </Grid>
-                  <Grid item container justify="flex-end" sm={6}>
+                  <Grid item container justifyContent="flex-end" sm={6}>
                     <Button
                       variant="contained"
                       color="secondary"
