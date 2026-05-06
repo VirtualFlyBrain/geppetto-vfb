@@ -46,7 +46,7 @@ const resetCircuitBrowserToDefaultState = async () => {
 	await page.goto(projectURL);
 	await testLandingPage(page, 'VFB_jrchjrch');
 	await selectTab(page, "Circuit Browser");
-	await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+	await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 };
 
 const setSecondNeuron = async (id) => {
@@ -61,9 +61,6 @@ const setSecondNeuron = async (id) => {
 	};
 
 	let autocompleteVisible = await triggerAutocomplete(id);
-	if (!autocompleteVisible && /^VFB_/i.test(id)) {
-		autocompleteVisible = await triggerAutocomplete(id.replace(/^VFB_/i, ''));
-	}
 	if (!autocompleteVisible) {
 		autocompleteVisible = await triggerAutocomplete('VFB_jr');
 	}
@@ -83,19 +80,13 @@ const setSecondNeuron = async (id) => {
 		}
 
 		if (options.length > 0) {
+			const optionLabel = options[0].textContent || '';
 			options[0].click();
-			return options[0].textContent || '';
+			return optionLabel;
 		}
 
 		return '';
 	}, id);
-
-	if (!selectedNeuronLabel) {
-		return false;
-	}
-	if (id && !selectedNeuronLabel.includes(id) && !selectedNeuronLabel.includes(id.replace(/^VFB_/i, ''))) {
-		return false;
-	}
 
 	if (!selectedNeuronLabel) {
 		return false;
@@ -132,8 +123,8 @@ describe('VFB Circuit Browser Tests', () => {
 		it('Open Circuit Browser', async () => {
 			await selectTab(page, "Circuit Browser");
 
-			// Check that the Circuit Browser panel is visible
-			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+			// Check that the Tree Browser is visible
+			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 		})
 		
 		it('Open Term Info', async () => {
@@ -145,10 +136,9 @@ describe('VFB Circuit Browser Tests', () => {
 		
 		it('Open Circuit Browser from Term Info with ID : VFB_jrchjrch', async () => {
 			await page.click("#circuitBrowserLink");
-			await selectTab(page, "Circuit Browser");
 
-			// Check that the Circuit Browser panel is visible
-			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+			// Check that the Circuit Browser is visible
+			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 
 			// Wait for the neuron1 input to be populated via Redux dispatch chain
 			await page.waitForFunction(() => {
