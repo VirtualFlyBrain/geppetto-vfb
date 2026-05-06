@@ -111,6 +111,7 @@ export const LOGO = 'div#logo';
 export const TUTORIAL_1_DIV_SELECTOR = 'div#Tutorial1';
 
 export const LOADING_SPINNER = 'div[id="loading-spinner"]';
+export const SPINNER_SELECTOR = LOADING_SPINNER;
 
 export const ELEMENTS_IN_LANDING_PAGE = [
   [ SIM_TOOLBAR_MESSAGE, SIM_TOOLBAR_SELECTOR ],

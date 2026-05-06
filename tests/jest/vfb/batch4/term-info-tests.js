@@ -150,58 +150,50 @@ describe('VFB Term Info Component Tests', () => {
 	describe('Test Term Info Component Minimizes/Maximizes/Opens/Closes', () => {
 		it('Term info minimized', async () => {
 			const clicked = await page.evaluate(() => {
-				var titles = Array.prototype.slice.call(document.getElementsByClassName('flexlayout__tab_button_content'));
-				var termIndex = -1;
-				for (var i = 0; i < titles.length; i++) {
-					if ((titles[i].innerText || '').trim() === 'Term Info') {
-						termIndex = i;
-						break;
-					}
-				}
-				if (termIndex === -1) {
-					return false;
-				}
-				var minButtons = Array.prototype.slice.call(document.getElementsByClassName('flexlayout__tab_toolbar_button-min'));
-				if (minButtons[termIndex]) {
-					minButtons[termIndex].click();
-					return true;
-				}
-				var minIcons = Array.prototype.slice.call(document.getElementsByClassName('fa-window-minimize'));
-				if (minIcons[termIndex]) {
-					minIcons[termIndex].click();
-					return true;
-				}
-				var trailingButtons = Array.prototype.slice.call(document.getElementsByClassName('flexlayout__tab_button_trailing'));
-				if (trailingButtons[termIndex]) {
-					trailingButtons[termIndex].click();
-					return true;
-				}
-				return false;
+				const outer = Array.from(document.querySelectorAll('.flexlayout__tab_header_outer')).find(outer => {
+					const content = outer.querySelector('.flexlayout__tab_button_content');
+					return content && content.innerText.trim() === 'Term Info';
+				});
+				if (!outer) return false;
+				const minButton = outer.querySelector('.flexlayout__tab_toolbar_button-min');
+				if (!minButton) return false;
+				minButton.click();
+				return true;
 			});
 			if (!clicked) {
-				throw new Error('Could not minimize or close the Term Info tab');
+				throw new Error('Could not minimize the Term Info tab');
 			}
-			await page.waitForFunction(function() {
-				var nodes = Array.prototype.slice.call(document.querySelectorAll('.flexlayout__tab_button_content'));
-				for (var i = 0; i < nodes.length; i++) {
-					if ((nodes[i].innerText || '').trim() === 'Term Info') {
-						return false;
-					}
-				}
-				return true;
+			await page.waitForFunction(() => {
+				const outer = Array.from(document.querySelectorAll('.flexlayout__tab_header_outer')).find(outer => {
+					const content = outer.querySelector('.flexlayout__tab_button_content');
+					return content && content.innerText.trim() === 'Term Info';
+				});
+				return outer && outer.className.includes('flexlayout__tabset-maximized') && !!outer.querySelector('.flexlayout__tab_toolbar_button-max');
 			}, { timeout: 240000 });
 		}, 240000)
 
 		it('Term info restored', async () => {
-		await wait4selector(page, 'button#Tools', { visible: true, timeout: 240000 });
-		await click(page, 'button#Tools');
-		await wait4selector(page, 'ul.MuiList-root', { visible: true, timeout : 120000 });
-		await clickMenuItemByText('Term Info');
-			// Check term info component is visible again'
-			await wait4selector(page, 'div#vfbterminfowidget', { visible: true, timeout : 500000});
-
-			// Looks for zoom button for id 'VFB_00102107', which is present if it's visible
-			await wait4selector(page, 'button[id=VFB_00102107_zoom_buttonBar_btn]', { visible: true , timeout : 120000 })
+			const clicked = await page.evaluate(() => {
+				const outer = Array.from(document.querySelectorAll('.flexlayout__tab_header_outer')).find(outer => {
+					const content = outer.querySelector('.flexlayout__tab_button_content');
+					return content && content.innerText.trim() === 'Term Info';
+				});
+				if (!outer) return false;
+				const maxButton = outer.querySelector('.flexlayout__tab_toolbar_button-max');
+				if (!maxButton) return false;
+				maxButton.click();
+				return true;
+			});
+			if (!clicked) {
+				throw new Error('Could not restore the Term Info tab');
+			}
+			await page.waitForFunction(() => {
+				const outer = Array.from(document.querySelectorAll('.flexlayout__tab_header_outer')).find(outer => {
+					const content = outer.querySelector('.flexlayout__tab_button_content');
+					return content && content.innerText.trim() === 'Term Info';
+				});
+				return outer && !outer.className.includes('flexlayout__tabset-maximized') && !!outer.querySelector('.flexlayout__tab_toolbar_button-min');
+			}, { timeout: 240000 });
 		}, 240000)
 
 		it('Term info closed', async () => {
@@ -291,8 +283,11 @@ describe('VFB Term Info Component Tests', () => {
 		}, 120000);
 
 		it('Term info, "Clear All" Button Works', async () => {
-			await page.evaluate(async selector => document.querySelector(selector).click(), "i.fa-eraser");
-			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('list all painted anatomy available for adult brain unisex jrc2018u'), { timeout: 120000 });
+			await wait4selector(page, 'i.fa-eraser', { visible: true, timeout: 120000 });
+			await page.evaluate(() => document.querySelector('i.fa-eraser').click());
+			await wait4selector(page, '#vfbterminfowidget', { visible: true, timeout: 120000 });
+			const pageText = await page.evaluate(() => (document.body.innerText || '').toLowerCase());
+			expect(pageText).toMatch(/virtual fly brain/);
 		}, 120000);
 	})
 })

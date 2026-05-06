@@ -4,6 +4,10 @@ const path = require('path');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
+  if (!selector) {
+    throw new Error(`wait4selector called with invalid selector: ${selector}`);
+  }
+
   let options = settings;
   if (!("timeout" in settings)) {
     options = { timeout: 30000, ...settings }; // Increase default timeout to 30 seconds
