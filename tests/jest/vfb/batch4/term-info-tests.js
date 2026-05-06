@@ -257,10 +257,14 @@ describe('VFB Term Info Component Tests', () => {
 		}, 120000);
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
-			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('brainname neuropils on adult brain'), { timeout: 120000 });
-			await page.evaluate(async () => document.querySelector(".terminfo-source a").click());
-			await page.waitFor(15000);
-			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('brainname neuropils on adult brain'), { timeout: 120000 });
+			await wait4selector(page, '.terminfo-source a', { visible: true, timeout: 120000 });
+			await Promise.all([
+				page.waitForNavigation({ timeout: 120000 }),
+				page.evaluate(() => document.querySelector('.terminfo-source a').click())
+			]);
+			const currentUrl = page.url();
+			expect(currentUrl).toMatch(/id=JRC2018/);
+			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('jrc 2018 templates & rois'), { timeout: 120000 });
 		}, 120000);
 	})
 
