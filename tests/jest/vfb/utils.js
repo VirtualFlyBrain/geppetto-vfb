@@ -210,35 +210,6 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 	return found;
 }, text);
 
-export const clickElementByText = async (page, text, exact = false) => {
-	const clicked = await page.evaluate((text, exact) => {
-		const candidates = Array.from(document.querySelectorAll('*')).filter(el => {
-			const t = (el.innerText || '').trim();
-			if (!t) return false;
-			return exact ? t === text : t.includes(text);
-		});
-
-		for (const el of candidates) {
-			if (el.offsetParent === null) continue;
-			const button = el.closest('button, [role="button"], a');
-			if (button) {
-				button.click();
-				return true;
-			}
-			try {
-				el.click();
-				return true;
-			} catch (e) {
-				continue;
-			}
-		}
-		return false;
-	}, text, exact);
-	if (!clicked) {
-		throw new Error(`Could not find visible clickable element with text "${text}" to click.`);
-	}
-};
-
 export const takeScreenshot = async (page, name) => {
   try {
     // Check if the page is still available

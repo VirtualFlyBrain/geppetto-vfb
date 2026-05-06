@@ -2,12 +2,11 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, testLandingPage, findElementByText, clickElementByText } from '../utils';
+import { wait4selector, click, testLandingPage, findElementByText } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
 const PROJECT_URL = baseURL + "/geppetto?i=VFB_00017894";
-
 
 /**
  * Test Focus Term component
@@ -72,13 +71,13 @@ describe('VFB Focus Term Tests', () => {
 
 		// Open Focus Term drop down menu
 		it('Open Focus Term Menu for FBbt_00003748 (Medulla) ', async () => {
-			await click(page, '.focusTermDivR button');
+			await page.evaluate(async selector => document.getElementById("Queries for medulla").click())
 			await wait4selector(page, '#simple-popper', { visible: true , timeout : 50000 })
 		}, 120000)
 
-		// Click on option from drop down menu, and wait for Query Panel to appear
+		// Cick on option from drop down menu, and wait for Query Panel to appear
 		it('Queries Component Opens Up After Launching it from Focus Term', async () => {
-			await clickElementByText(page, 'Subclasses of medulla');
+			await page.evaluate(async selector => document.getElementById("Subclasses of medulla").click())
 			await wait4selector(page, '#query-builder-container', { visible: true , timeout : 50000 })
 		}, 120000)
 	})
