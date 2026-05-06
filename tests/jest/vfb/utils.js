@@ -212,6 +212,16 @@ export const findElementByText = async (page, text) => page.evaluate(async (text
 
 export const clickElementByText = async (page, text, exact = false) => {
 	const clicked = await page.evaluate((text, exact) => {
+		const isVisible = (el) => {
+			if (!(el instanceof Element)) return false;
+			const style = window.getComputedStyle(el);
+			if (!style || style.visibility === 'hidden' || style.display === 'none' || style.opacity === '0') {
+				return false;
+			}
+			const rect = el.getBoundingClientRect();
+			return rect.width > 0 && rect.height > 0;
+		};
+
 		const candidates = Array.from(document.querySelectorAll('*')).filter(el => {
 			const t = (el.innerText || '').trim();
 			if (!t) return false;
@@ -219,17 +229,18 @@ export const clickElementByText = async (page, text, exact = false) => {
 		});
 
 		for (const el of candidates) {
-			if (el.offsetParent === null) continue;
-			const button = el.closest('button, [role="button"], a');
-			if (button) {
-				button.click();
+			const clickable = el.closest('button, [role="button"], a, li');
+			if (clickable && isVisible(clickable)) {
+				clickable.click();
 				return true;
 			}
-			try {
-				el.click();
-				return true;
-			} catch (e) {
-				continue;
+			if (isVisible(el)) {
+				try {
+					el.click();
+					return true;
+				} catch (e) {
+					continue;
+				}
 			}
 		}
 		return false;

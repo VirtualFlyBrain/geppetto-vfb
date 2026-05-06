@@ -78,7 +78,13 @@ describe('VFB Focus Term Tests', () => {
 
 		// Click on option from drop down menu, and wait for Query Panel to appear
 		it('Queries Component Opens Up After Launching it from Focus Term', async () => {
-			await clickElementByText(page, 'Subclasses of medulla');
+			await page.evaluate(() => {
+				const item = Array.from(document.querySelectorAll('#simple-popper li')).find(el => (el.innerText || '').trim() === 'Subclasses of medulla');
+				if (!item) {
+					throw new Error('Could not find popup menu item Subclasses of medulla');
+				}
+				item.click();
+			});
 			await wait4selector(page, '#query-builder-container', { visible: true , timeout : 50000 })
 		}, 120000)
 	})

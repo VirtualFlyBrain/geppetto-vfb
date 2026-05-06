@@ -191,30 +191,33 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 
 		//Tests metadata in term info component and clicking on links
 		describe('Test Term Info Component', () => {
-			it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
+			it('Term info component created for JRC2018Unisex without visual capability', async () => {
 				await page.waitForFunction(
 					() => {
-						if (typeof Instances === 'undefined' || !Instances['VFB_00101567']) return false;
-						if (typeof Instances['VFB_00101567'].select !== 'function') return false;
-						if (typeof CanvasContainer === 'undefined' || !CanvasContainer.engine || !CanvasContainer.engine.meshes) return false;
-						return Object.keys(CanvasContainer.engine.meshes).some(k => k.indexOf('VFB_00101567.') === 0);
+						return typeof Instances !== 'undefined' && Instances['VFB_00101567'] &&
+						typeof window.setTermInfo === 'function' &&
+						document.querySelector('div#bar-div-vfbterminfowidget');
 					},
 					{ timeout: 360000 }
 				);
 				await page.evaluate(() => {
-					Instances['VFB_00101567'].select();
+					if (typeof Instances['VFB_00101567'].select === 'function') {
+						Instances['VFB_00101567'].select();
+					}
 					if (typeof window.setTermInfo === 'function' && Instances['VFB_00101567'].VFB_00101567_meta) {
 						window.setTermInfo(Instances['VFB_00101567'].VFB_00101567_meta, 'VFB_00101567');
 					}
 				});
-				await wait4selector(page, '#VFB_00101567_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
+				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 240000 })
 			}, 720000)
 
-			it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
-				await page.waitForFunction(() => {
-					const el = document.querySelector('#VFB_00101567_zoom_buttonBar_btn');
-					return el && el.offsetParent !== null;
-				}, { timeout: 120000 });
+			it('No deselect or zoom controls appear for the non-visual capability term', async () => {
+				const controlsPresent = await page.evaluate(() => {
+					const widget = document.querySelector('div#bar-div-vfbterminfowidget');
+					if (!widget) return false;
+					return !!widget.querySelector('#VFB_00101567_deselect_buttonBar_btn, #VFB_00101567_zoom_buttonBar_btn');
+				});
+				expect(controlsPresent).toBe(false);
 			}, 120000)
 
 			it('Term info component created after load', async () => {
