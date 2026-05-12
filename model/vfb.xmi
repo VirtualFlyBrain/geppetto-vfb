@@ -940,6 +940,12 @@
         name="Owlery Class Pass solr id list only"
         description="Keep nothing slimply pass solr ids"
         queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassSolrIdListWithSelf"
+        name="Owlery Class Pass solr id list incl self"
+        description="Pass OWLERY subclass ids to SOLR with the focus term prepended so leaf classes still hit their own per-class Solr doc."
+        queryProcessorId="owleryToSolrIdWithSelfQueryProcessor"/>
   </dataSources>
   <dataSources
       id="owleryDataSourceRealise"
@@ -1349,7 +1355,7 @@
       id="ref_downstream_class_connectivity_query"
       name="Show downstream connectivity classes for Neuron Class"
       description="Show downstream connectivity by class for $NAME"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.18 //@dataSources.3/@queries.7">
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.19 //@dataSources.3/@queries.7">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
   </queries>
@@ -1357,7 +1363,7 @@
       id="ref_upstream_class_connectivity_query"
       name="Show upstream connectivity classes for Neuron Class"
       description="Show upstream connectivity by class for $NAME"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.18 //@dataSources.3/@queries.8">
+      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.19 //@dataSources.3/@queries.8">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
   </queries>
