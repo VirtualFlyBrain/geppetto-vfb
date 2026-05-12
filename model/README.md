@@ -110,12 +110,12 @@
 
 ## ref_downstream_class_connectivity_query: Show downstream connectivity by class for $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
+- Step: Owlery Class Pass solr id list incl self (DataSource Index: 1, Query Index: 19)
 - Step: downstream_connectivity_query (DataSource Index: 3, Query Index: 7)
 
 ## ref_upstream_class_connectivity_query: Show upstream connectivity by class for $NAME
 - Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
+- Step: Owlery Class Pass solr id list incl self (DataSource Index: 1, Query Index: 19)
 - Step: upstream_connectivity_query (DataSource Index: 3, Query Index: 8)
 
 ## SimilarMorphologyTo: Neurons with similar morphology to $NAME  [NBLAST mean score]
