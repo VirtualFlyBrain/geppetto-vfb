@@ -1186,6 +1186,20 @@ owleryIdOnlyQueryProcessorWithQueryTerm
 owleryToSolrIdOnlyQueryProcessor
 ```
 
+## Query Name: Owlery Class Pass solr id list incl self
+
+**ID:** owlPassSolrIdListWithSelf
+
+**Description:** Pass OWLERY subclass ids to SOLR with the focus term prepended so leaf classes still hit their own per-class Solr doc.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+owleryToSolrIdWithSelfQueryProcessor
+```
+
 ## Query Name: Owlery Images of neurons with some part here (clustered)
 
 **ID:** ImagesOfNeuronsWithSomePartHereClustered
