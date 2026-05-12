@@ -34,7 +34,7 @@
 
 ## epFrag: Images of fragments of $NAME
 - Step: Owlery individual parts (DataSource Index: 2, Query Index: 2)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
+- Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
 - Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
 
 ## NeuronsSynaptic: Neurons with synaptic terminals in $NAME
