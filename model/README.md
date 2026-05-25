@@ -103,15 +103,13 @@
 - Step: Process solr query results (DataSource Index: 3, Query Index: 3)
 
 ## ref_neuron_region_connectivity_query: Show connectivity per region for $NAME
-- Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 13)
+- Step: VFBquery NeuronRegionConnectivityQuery (DataSource Index: 4, Query Index: 3)
 
 ## ref_neuron_neuron_connectivity_query: Show neurons connected to $NAME
-- Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 14)
+- Step: VFBquery NeuronNeuronConnectivityQuery (DataSource Index: 4, Query Index: 2)
 
 ## ref_downstream_class_connectivity_query: Show downstream connectivity by class for $NAME
-- Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Class Pass solr id list incl self (DataSource Index: 1, Query Index: 19)
-- Step: downstream_connectivity_query (DataSource Index: 3, Query Index: 7)
+- Step: VFBquery DownstreamClassConnectivity (DataSource Index: 4, Query Index: 1)
 
 ## ref_upstream_class_connectivity_query: Show upstream connectivity by class for $NAME
 - Step: VFBquery UpstreamClassConnectivity (DataSource Index: 4, Query Index: 0)
