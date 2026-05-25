@@ -1498,6 +1498,78 @@ solrQueryProcessor
 solrQueryProcessor
 ```
 
+## Query Name: VFBquery UpstreamClassConnectivity
+
+**ID:** vfbquery_upstream_class_connectivity
+
+**Description:** Cached class-level upstream connectivity for $NAME via VFBquery (v3-cached).
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch UpstreamClassConnectivity from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=UpstreamClassConnectivity. URL format MUST match V3 frontend and VFB3-MCP exactly so we share the nginx cache key.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+?id=$ID&query_type=UpstreamClassConnectivity
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Convert {headers, rows, count} envelope into geppetto rows; synthesise Downstream_Class column for the 9-column v2 layout.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery DownstreamClassConnectivity
+
+**ID:** vfbquery_downstream_class_connectivity
+
+**Description:** Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached). Defined but not yet wired into any CompoundRefQuery; do not use until upstream pilot is dev-verified.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch DownstreamClassConnectivity from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=DownstreamClassConnectivity.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+?id=$ID&query_type=DownstreamClassConnectivity
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Convert {headers, rows, count} envelope into geppetto rows; synthesise Upstream_Class column for the 9-column v2 layout.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
 ## Query Name: List all available images for class with examples
 
 **ID:** ListAllAvailableImages
