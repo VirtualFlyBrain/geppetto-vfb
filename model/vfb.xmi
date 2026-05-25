@@ -1134,6 +1134,46 @@
           queryProcessorId="vfbProcessTermInfoCachedJson"/>
     </fetchVariableQuery>
   </dataSources>
+  <dataSources
+      name="vfbquery"
+      url="https://v3-cached.virtualflybrain.org/run_query"
+      dataSourceService="org.geppetto.datasources.vfbquery.VFBqueryDataSourceService"
+      dependenciesLibrary="//@libraries.0">
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_upstream_class_connectivity"
+        name="VFBquery UpstreamClassConnectivity"
+        description="Cached class-level upstream connectivity for $NAME via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch UpstreamClassConnectivity from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=UpstreamClassConnectivity. URL format MUST match V3 frontend and VFB3-MCP exactly so we share the nginx cache key."
+          query="?id=$ID&amp;query_type=UpstreamClassConnectivity"
+          countQuery="?id=$ID&amp;query_type=UpstreamClassConnectivity"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Convert {headers, rows, count} envelope into geppetto rows; synthesise Downstream_Class column for the 9-column v2 layout."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_downstream_class_connectivity"
+        name="VFBquery DownstreamClassConnectivity"
+        description="Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached). Defined but not yet wired into any CompoundRefQuery; do not use until upstream pilot is dev-verified.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch DownstreamClassConnectivity from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=DownstreamClassConnectivity."
+          query="?id=$ID&amp;query_type=DownstreamClassConnectivity"
+          countQuery="?id=$ID&amp;query_type=DownstreamClassConnectivity"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Convert {headers, rows, count} envelope into geppetto rows; synthesise Upstream_Class column for the 9-column v2 layout."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+  </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
       name="List all available images for class with examples"
@@ -1363,7 +1403,7 @@
       id="ref_upstream_class_connectivity_query"
       name="Show upstream connectivity classes for Neuron Class"
       description="Show upstream connectivity by class for $NAME"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.19 //@dataSources.3/@queries.8">
+      queryChain="//@dataSources.4/@queries.0">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
   </queries>
