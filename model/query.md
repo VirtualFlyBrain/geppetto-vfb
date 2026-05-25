@@ -1517,7 +1517,7 @@ solrQueryProcessor
 **Query:**
 
 ```java
-?id=$ID&query_type=UpstreamClassConnectivity
+id=$ID&query_type=UpstreamClassConnectivity
 ```
 
 ### Query Name: Process VFBquery JSON to QueryResults
@@ -1553,7 +1553,7 @@ vfbqueryJsonProcessor
 **Query:**
 
 ```java
-?id=$ID&query_type=DownstreamClassConnectivity
+id=$ID&query_type=DownstreamClassConnectivity
 ```
 
 ### Query Name: Process VFBquery JSON to QueryResults
@@ -1589,7 +1589,7 @@ vfbqueryJsonProcessor
 **Query:**
 
 ```java
-?id=$ID&query_type=NeuronNeuronConnectivityQuery
+id=$ID&query_type=NeuronNeuronConnectivityQuery
 ```
 
 ### Query Name: Process VFBquery JSON to QueryResults
@@ -1625,7 +1625,7 @@ vfbqueryJsonProcessor
 **Query:**
 
 ```java
-?id=$ID&query_type=NeuronRegionConnectivityQuery
+id=$ID&query_type=NeuronRegionConnectivityQuery
 ```
 
 ### Query Name: Process VFBquery JSON to QueryResults
