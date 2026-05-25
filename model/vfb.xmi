@@ -1137,7 +1137,7 @@
   <dataSources
       name="vfbquery"
       url="https://v3-cached.virtualflybrain.org/run_query"
-      dataSourceService="org.geppetto.datasources.vfbquery.VFBqueryDataSourceService"
+      dataSourceService="vfbqueryDataSource"
       dependenciesLibrary="//@libraries.0">
     <queries
         xsi:type="gep_2:CompoundQuery"
