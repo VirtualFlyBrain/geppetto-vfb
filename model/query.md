@@ -1538,7 +1538,7 @@ vfbqueryJsonProcessor
 
 **ID:** vfbquery_downstream_class_connectivity
 
-**Description:** Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached). Defined but not yet wired into any CompoundRefQuery; do not use until upstream pilot is dev-verified.
+**Description:** Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached).
 
 **Type:** gep_2:CompoundQuery
 
@@ -1561,6 +1561,78 @@ vfbqueryJsonProcessor
 **ID:** None
 
 **Description:** Convert {headers, rows, count} envelope into geppetto rows; synthesise Upstream_Class column for the 9-column v2 layout.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronNeuronConnectivityQuery
+
+**ID:** vfbquery_neuron_neuron_connectivity
+
+**Description:** Cached individual-level neuron-to-neuron connectivity for $NAME via VFBquery (v3-cached). Replaces the single-step Cypher chain on dataSources.0/queries.14.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronNeuronConnectivityQuery from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronNeuronConnectivityQuery.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+?id=$ID&query_type=NeuronNeuronConnectivityQuery
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Object-to-String formatting per column type (list-to-pipe-joined, integer-Numbers as ints) via the processor's generic path.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronRegionConnectivityQuery
+
+**ID:** vfbquery_neuron_region_connectivity
+
+**Description:** Cached neuron-to-region (per-region presynaptic/postsynaptic terminals) connectivity for $NAME via VFBquery (v3-cached). Replaces the single-step Cypher chain on dataSources.0/queries.13.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronRegionConnectivityQuery from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronRegionConnectivityQuery.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+?id=$ID&query_type=NeuronRegionConnectivityQuery
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Object-to-String formatting per column type via the processor's generic path.
 
 **Type:** gep_2:ProcessQuery
 

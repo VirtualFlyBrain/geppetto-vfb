@@ -1137,7 +1137,7 @@
   <dataSources
       name="vfbquery"
       url="https://v3-cached.virtualflybrain.org/run_query"
-      dataSourceService="org.geppetto.datasources.vfbquery.VFBqueryDataSourceService"
+      dataSourceService="vfbqueryDataSource"
       dependenciesLibrary="//@libraries.0">
     <queries
         xsi:type="gep_2:CompoundQuery"
@@ -1160,7 +1160,7 @@
         xsi:type="gep_2:CompoundQuery"
         id="vfbquery_downstream_class_connectivity"
         name="VFBquery DownstreamClassConnectivity"
-        description="Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached). Defined but not yet wired into any CompoundRefQuery; do not use until upstream pilot is dev-verified.">
+        description="Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached).">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Fetch DownstreamClassConnectivity from v3-cached"
@@ -1171,6 +1171,40 @@
           xsi:type="gep_2:ProcessQuery"
           name="Process VFBquery JSON to QueryResults"
           description="Convert {headers, rows, count} envelope into geppetto rows; synthesise Upstream_Class column for the 9-column v2 layout."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuron_neuron_connectivity"
+        name="VFBquery NeuronNeuronConnectivityQuery"
+        description="Cached individual-level neuron-to-neuron connectivity for $NAME via VFBquery (v3-cached). Replaces the single-step Cypher chain on dataSources.0/queries.14.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronNeuronConnectivityQuery from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery."
+          query="?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"
+          countQuery="?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Object-to-String formatting per column type (list-to-pipe-joined, integer-Numbers as ints) via the processor's generic path."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuron_region_connectivity"
+        name="VFBquery NeuronRegionConnectivityQuery"
+        description="Cached neuron-to-region (per-region presynaptic/postsynaptic terminals) connectivity for $NAME via VFBquery (v3-cached). Replaces the single-step Cypher chain on dataSources.0/queries.13.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronRegionConnectivityQuery from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronRegionConnectivityQuery."
+          query="?id=$ID&amp;query_type=NeuronRegionConnectivityQuery"
+          countQuery="?id=$ID&amp;query_type=NeuronRegionConnectivityQuery"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Object-to-String formatting per column type via the processor's generic path."
           queryProcessorId="vfbqueryJsonProcessor"/>
     </queries>
   </dataSources>
@@ -1379,7 +1413,7 @@
       id="ref_neuron_region_connectivity_query"
       name="Show connectivity to regions from Neuron X"
       description="Show connectivity per region for $NAME"
-      queryChain="//@dataSources.0/@queries.13">
+      queryChain="//@dataSources.4/@queries.3">
     <matchingCriteria
         type="//@libraries.3/@types.43"/>
   </queries>
@@ -1387,7 +1421,7 @@
       id="ref_neuron_neuron_connectivity_query"
       name="Show connectivity to neurons from Neuron X"
       description="Show neurons connected to $NAME"
-      queryChain="//@dataSources.0/@queries.14">
+      queryChain="//@dataSources.4/@queries.2">
     <matchingCriteria
         type="//@libraries.3/@types.42"/>
   </queries>
@@ -1395,7 +1429,7 @@
       id="ref_downstream_class_connectivity_query"
       name="Show downstream connectivity classes for Neuron Class"
       description="Show downstream connectivity by class for $NAME"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.19 //@dataSources.3/@queries.7">
+      queryChain="//@dataSources.4/@queries.1">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
   </queries>
