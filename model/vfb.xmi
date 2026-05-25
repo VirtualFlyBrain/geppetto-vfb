@@ -1148,8 +1148,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Fetch UpstreamClassConnectivity from v3-cached"
           description="GET /run_query?id=$ID&amp;query_type=UpstreamClassConnectivity. URL format MUST match V3 frontend and VFB3-MCP exactly so we share the nginx cache key."
-          query="?id=$ID&amp;query_type=UpstreamClassConnectivity"
-          countQuery="?id=$ID&amp;query_type=UpstreamClassConnectivity"/>
+          query="id=$ID&amp;query_type=UpstreamClassConnectivity"
+          countQuery="id=$ID&amp;query_type=UpstreamClassConnectivity"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process VFBquery JSON to QueryResults"
@@ -1165,8 +1165,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Fetch DownstreamClassConnectivity from v3-cached"
           description="GET /run_query?id=$ID&amp;query_type=DownstreamClassConnectivity."
-          query="?id=$ID&amp;query_type=DownstreamClassConnectivity"
-          countQuery="?id=$ID&amp;query_type=DownstreamClassConnectivity"/>
+          query="id=$ID&amp;query_type=DownstreamClassConnectivity"
+          countQuery="id=$ID&amp;query_type=DownstreamClassConnectivity"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process VFBquery JSON to QueryResults"
@@ -1182,8 +1182,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Fetch NeuronNeuronConnectivityQuery from v3-cached"
           description="GET /run_query?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery."
-          query="?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"
-          countQuery="?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"/>
+          query="id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"
+          countQuery="id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process VFBquery JSON to QueryResults"
@@ -1199,8 +1199,8 @@
           xsi:type="gep_2:SimpleQuery"
           name="Fetch NeuronRegionConnectivityQuery from v3-cached"
           description="GET /run_query?id=$ID&amp;query_type=NeuronRegionConnectivityQuery."
-          query="?id=$ID&amp;query_type=NeuronRegionConnectivityQuery"
-          countQuery="?id=$ID&amp;query_type=NeuronRegionConnectivityQuery"/>
+          query="id=$ID&amp;query_type=NeuronRegionConnectivityQuery"
+          countQuery="id=$ID&amp;query_type=NeuronRegionConnectivityQuery"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process VFBquery JSON to QueryResults"
