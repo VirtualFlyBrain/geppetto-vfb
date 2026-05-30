@@ -1136,7 +1136,7 @@
   </dataSources>
   <dataSources
       name="vfbquery"
-      url="https://v3-cached.virtualflybrain.org/run_query"
+      url="http://vfbquery.virtualflybrain.org/run_query"
       dataSourceService="vfbqueryDataSource"
       dependenciesLibrary="//@libraries.0">
     <queries
