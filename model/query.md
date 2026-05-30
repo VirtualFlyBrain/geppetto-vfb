@@ -1642,6 +1642,1158 @@ id=$ID&query_type=NeuronRegionConnectivityQuery
 vfbqueryJsonProcessor
 ```
 
+## Query Name: VFBquery ListAllAvailableImages
+
+**ID:** vfbquery_listallavailableimages
+
+**Description:** Cached ListAllAvailableImages via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch ListAllAvailableImages from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=ListAllAvailableImages.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=ListAllAvailableImages
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery TransgeneExpressionHere
+
+**ID:** vfbquery_transgeneexpressionhere
+
+**Description:** Cached TransgeneExpressionHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch TransgeneExpressionHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=TransgeneExpressionHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=TransgeneExpressionHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery ExpressionOverlapsHere
+
+**ID:** vfbquery_expressionoverlapshere
+
+**Description:** Cached ExpressionOverlapsHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch ExpressionOverlapsHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=ExpressionOverlapsHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=ExpressionOverlapsHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronClassesFasciculatingHere
+
+**ID:** vfbquery_neuronclassesfasciculatinghere
+
+**Description:** Cached NeuronClassesFasciculatingHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronClassesFasciculatingHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronClassesFasciculatingHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=NeuronClassesFasciculatingHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery ImagesNeurons
+
+**ID:** vfbquery_imagesneurons
+
+**Description:** Cached ImagesNeurons via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch ImagesNeurons from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=ImagesNeurons.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=ImagesNeurons
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronsPartHere
+
+**ID:** vfbquery_neuronsparthere
+
+**Description:** Cached NeuronsPartHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronsPartHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronsPartHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=NeuronsPartHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery epFrag
+
+**ID:** vfbquery_epfrag
+
+**Description:** Cached epFrag via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch epFrag from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=epFrag.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=epFrag
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronsSynaptic
+
+**ID:** vfbquery_neuronssynaptic
+
+**Description:** Cached NeuronsSynaptic via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronsSynaptic from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronsSynaptic.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=NeuronsSynaptic
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronsPresynapticHere
+
+**ID:** vfbquery_neuronspresynaptichere
+
+**Description:** Cached NeuronsPresynapticHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronsPresynapticHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronsPresynapticHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=NeuronsPresynapticHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery NeuronsPostsynapticHere
+
+**ID:** vfbquery_neuronspostsynaptichere
+
+**Description:** Cached NeuronsPostsynapticHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronsPostsynapticHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronsPostsynapticHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=NeuronsPostsynapticHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery PaintedDomains
+
+**ID:** vfbquery_painteddomains
+
+**Description:** Cached PaintedDomains via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch PaintedDomains from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=PaintedDomains.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=PaintedDomains
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery DatasetImages
+
+**ID:** vfbquery_datasetimages
+
+**Description:** Cached DatasetImages via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch DatasetImages from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=DatasetImages.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=DatasetImages
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery TractsNervesInnervatingHere
+
+**ID:** vfbquery_tractsnervesinnervatinghere
+
+**Description:** Cached TractsNervesInnervatingHere via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch TractsNervesInnervatingHere from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=TractsNervesInnervatingHere.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=TractsNervesInnervatingHere
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery ComponentsOf
+
+**ID:** vfbquery_componentsof
+
+**Description:** Cached ComponentsOf via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch ComponentsOf from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=ComponentsOf.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=ComponentsOf
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery LineageClonesIn
+
+**ID:** vfbquery_lineageclonesin
+
+**Description:** Cached LineageClonesIn via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch LineageClonesIn from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=LineageClonesIn.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=LineageClonesIn
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery AllAlignedImages
+
+**ID:** vfbquery_allalignedimages
+
+**Description:** Cached AllAlignedImages via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch AllAlignedImages from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=AllAlignedImages.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=AllAlignedImages
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery PartsOf
+
+**ID:** vfbquery_partsof
+
+**Description:** Cached PartsOf via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch PartsOf from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=PartsOf.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=PartsOf
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SubclassesOf
+
+**ID:** vfbquery_subclassesof
+
+**Description:** Cached SubclassesOf via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SubclassesOf from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SubclassesOf.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SubclassesOf
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery AlignedDatasets
+
+**ID:** vfbquery_aligneddatasets
+
+**Description:** Cached AlignedDatasets via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch AlignedDatasets from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=AlignedDatasets.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=AlignedDatasets
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery AllDatasets
+
+**ID:** vfbquery_alldatasets
+
+**Description:** Cached AllDatasets via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch AllDatasets from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=AllDatasets.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=AllDatasets
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SimilarMorphologyTo
+
+**ID:** vfbquery_similarmorphologyto
+
+**Description:** Cached SimilarMorphologyTo via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SimilarMorphologyTo from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SimilarMorphologyTo.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SimilarMorphologyTo
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SimilarMorphologyToPartOf
+
+**ID:** vfbquery_similarmorphologytopartof
+
+**Description:** Cached SimilarMorphologyToPartOf via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SimilarMorphologyToPartOf from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SimilarMorphologyToPartOf.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SimilarMorphologyToPartOf
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery TermsForPub
+
+**ID:** vfbquery_termsforpub
+
+**Description:** Cached TermsForPub via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch TermsForPub from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=TermsForPub.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=TermsForPub
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SimilarMorphologyToPartOfexp
+
+**ID:** vfbquery_similarmorphologytopartofexp
+
+**Description:** Cached SimilarMorphologyToPartOfexp via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SimilarMorphologyToPartOfexp from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SimilarMorphologyToPartOfexp.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SimilarMorphologyToPartOfexp
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SimilarMorphologyToNB
+
+**ID:** vfbquery_similarmorphologytonb
+
+**Description:** Cached SimilarMorphologyToNB via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SimilarMorphologyToNB from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SimilarMorphologyToNB.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SimilarMorphologyToNB
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SimilarMorphologyToNBexp
+
+**ID:** vfbquery_similarmorphologytonbexp
+
+**Description:** Cached SimilarMorphologyToNBexp via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SimilarMorphologyToNBexp from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SimilarMorphologyToNBexp.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SimilarMorphologyToNBexp
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery anatScRNAseqQuery
+
+**ID:** vfbquery_anatscrnaseqquery
+
+**Description:** Cached anatScRNAseqQuery via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch anatScRNAseqQuery from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=anatScRNAseqQuery.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=anatScRNAseqQuery
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery clusterExpression
+
+**ID:** vfbquery_clusterexpression
+
+**Description:** Cached clusterExpression via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch clusterExpression from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=clusterExpression.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=clusterExpression
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery scRNAdatasetData
+
+**ID:** vfbquery_scrnadatasetdata
+
+**Description:** Cached scRNAdatasetData via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch scRNAdatasetData from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=scRNAdatasetData.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=scRNAdatasetData
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery expressionCluster
+
+**ID:** vfbquery_expressioncluster
+
+**Description:** Cached expressionCluster via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch expressionCluster from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=expressionCluster.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=expressionCluster
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SimilarMorphologyToUserData
+
+**ID:** vfbquery_similarmorphologytouserdata
+
+**Description:** Cached SimilarMorphologyToUserData via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SimilarMorphologyToUserData from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SimilarMorphologyToUserData.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SimilarMorphologyToUserData
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery ImagesThatDevelopFrom
+
+**ID:** vfbquery_imagesthatdevelopfrom
+
+**Description:** Cached ImagesThatDevelopFrom via VFBquery (v3-cached). Migrated from legacy chain.
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch ImagesThatDevelopFrom from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=ImagesThatDevelopFrom.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=ImagesThatDevelopFrom
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
 ## Query Name: List all available images for class with examples
 
 **ID:** ListAllAvailableImages
@@ -1804,7 +2956,7 @@ vfbqueryJsonProcessor
 
 ## Query Name: Show connectivity to regions from Neuron X
 
-**ID:** ref_neuron_region_connectivity_query
+**ID:** NeuronRegionConnectivityQuery
 
 **Description:** Show connectivity per region for $NAME
 
@@ -1812,7 +2964,7 @@ vfbqueryJsonProcessor
 
 ## Query Name: Show connectivity to neurons from Neuron X
 
-**ID:** ref_neuron_neuron_connectivity_query
+**ID:** NeuronNeuronConnectivityQuery
 
 **Description:** Show neurons connected to $NAME
 
@@ -1820,7 +2972,7 @@ vfbqueryJsonProcessor
 
 ## Query Name: Show downstream connectivity classes for Neuron Class
 
-**ID:** ref_downstream_class_connectivity_query
+**ID:** DownstreamClassConnectivity
 
 **Description:** Show downstream connectivity by class for $NAME
 
@@ -1828,7 +2980,7 @@ vfbqueryJsonProcessor
 
 ## Query Name: Show upstream connectivity classes for Neuron Class
 
-**ID:** ref_upstream_class_connectivity_query
+**ID:** UpstreamClassConnectivity
 
 **Description:** Show upstream connectivity by class for $NAME
 
