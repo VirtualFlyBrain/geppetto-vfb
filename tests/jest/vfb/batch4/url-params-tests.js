@@ -191,7 +191,14 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 
 		//Tests metadata in term info component and clicking on links
 		describe('Test Term Info Component', () => {
-			it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
+			// Gnathal ganglion (FBbt_00014013) has no visual capability, so v2 should
+			// fall back to displaying VFB_00101567 (JRC2018Unisex template) in the
+			// term info. Assert that the widget renders for the template — NOT the
+			// deselect button: templates can't be deselected, so that selector never
+			// appears and the wait times out. The following `it` block exercises
+			// the template's zoom button (which is the correct template-side
+			// affordance).
+			it('Term info component created for JRC2018Unisex without visual capability', async () => {
 				await page.waitForFunction(
 					() => {
 						if (typeof Instances === 'undefined' || !Instances['VFB_00101567']) return false;
@@ -207,7 +214,7 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 						window.setTermInfo(Instances['VFB_00101567'].VFB_00101567_meta, 'VFB_00101567');
 					}
 				});
-				await wait4selector(page, '#VFB_00101567_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
+				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 240000 })
 			}, 720000)
 
 			it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
