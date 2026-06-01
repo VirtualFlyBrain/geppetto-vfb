@@ -192,6 +192,7 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 		//Tests metadata in term info component and clicking on links
 		describe('Test Term Info Component', () => {
 			it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
+				// Step 1: VFB_00101567 meshes are present in the scene.
 				await page.waitForFunction(
 					() => {
 						if (typeof Instances === 'undefined' || !Instances['VFB_00101567']) return false;
@@ -201,6 +202,21 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 					},
 					{ timeout: 360000 }
 				);
+				// Step 2: VFBMain.handleSceneAndTermInfoCallback runs asynchronously
+				// for id=FBbt_00014013 (gnathal ganglion, no visual) and the i=
+				// instances. We must wait until v2 has finished its fallback and the
+				// term info widget is settled on VFB_00101567 — otherwise a select()
+				// landing during that race gets overwritten by the fallback and the
+				// deselect button never renders. Settled = widget is up AND its
+				// content shows JRC2018Unisex (VFB_00101567's label).
+				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout: 240000 });
+				await page.waitForFunction(
+					() => (document.body.innerText || '').toLowerCase().includes('jrc2018unisex'),
+					{ timeout: 120000 }
+				);
+				// Step 3: now in steady state, force-select VFB_00101567. The button
+				// bar is already rendering for it (passing zoom test below confirms),
+				// so select() reliably triggers the deselect-button render.
 				await page.evaluate(() => {
 					Instances['VFB_00101567'].select();
 					if (typeof window.setTermInfo === 'function' && Instances['VFB_00101567'].VFB_00101567_meta) {

@@ -1,162 +1,110 @@
 # High-Level Queries with Named Query Chain Steps
 
 ## ListAllAvailableImages: List all available images of $NAME
-- Step: All example images for a class (DataSource Index: 0, Query Index: 3)
+- Step: VFBquery ListAllAvailableImages (DataSource Index: 4, Query Index: 4)
 
 ## TransgeneExpressionHere: Reports of transgene expression in $NAME
-- Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Pass 1st id list only (DataSource Index: 1, Query Index: 14)
-- Step: Query for exp from anatomy with no warning (DataSource Index: 0, Query Index: 7)
-- Step: subClassOf cell overlaps some X (DataSource Index: 1, Query Index: 16)
-- Step: Owlery Pass 2nd id list only (DataSource Index: 1, Query Index: 12)
-- Step: Test Query for exp from anatomy without warning 2 (DataSource Index: 0, Query Index: 10)
-- Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
-- Step: Owlery Pass 3rd id list only (DataSource Index: 1, Query Index: 13)
-- Step: Test Query for exp from anatomy without warning 3 (DataSource Index: 0, Query Index: 12)
+- Step: VFBquery TransgeneExpressionHere (DataSource Index: 4, Query Index: 5)
 
 ## ExpressionOverlapsHere: Anatomy $NAME is expressed in
-- Step: Query for anatomy from expression  (DataSource Index: 0, Query Index: 9)
+- Step: VFBquery ExpressionOverlapsHere (DataSource Index: 4, Query Index: 6)
 
 ## NeuronClassesFasciculatingHere: Neurons fasciculating in $NAME
-- Step: Owlery Neuron classes fasciculating here (DataSource Index: 1, Query Index: 6)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery NeuronClassesFasciculatingHere (DataSource Index: 4, Query Index: 7)
 
 ## ImagesNeurons: Images of neurons with some part in $NAME
-- Step: Owlery Images of neurons with some part here (DataSource Index: 2, Query Index: 1)
-- Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery ImagesNeurons (DataSource Index: 4, Query Index: 8)
 
 ## NeuronsPartHere: Neurons with some part in $NAME
-- Step: Owlery Neuron class with part here (DataSource Index: 1, Query Index: 1)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery NeuronsPartHere (DataSource Index: 4, Query Index: 9)
 
 ## epFrag: Images of fragments of $NAME
-- Step: Owlery individual parts (DataSource Index: 2, Query Index: 2)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery epFrag (DataSource Index: 4, Query Index: 10)
 
 ## NeuronsSynaptic: Neurons with synaptic terminals in $NAME
-- Step: Owlery Neurons Synaptic (DataSource Index: 1, Query Index: 2)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery NeuronsSynaptic (DataSource Index: 4, Query Index: 11)
 
 ## NeuronsPresynapticHere: Neurons with presynaptic terminals in $NAME
-- Step: Owlery Neurons Presynaptic (DataSource Index: 1, Query Index: 3)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery NeuronsPresynapticHere (DataSource Index: 4, Query Index: 12)
 
 ## NeuronsPostsynapticHere: Neurons with postsynaptic terminals in $NAME
-- Step: Owlery Neurons Postsynaptic (DataSource Index: 1, Query Index: 4)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery NeuronsPostsynapticHere (DataSource Index: 4, Query Index: 13)
 
 ## PaintedDomains: List all painted anatomy available for $NAME
-- Step: Find domains for template (DataSource Index: 0, Query Index: 4)
+- Step: VFBquery PaintedDomains (DataSource Index: 4, Query Index: 14)
 
 ## DatasetImages: List all images included in $NAME
-- Step: Find image ids for dataset (DataSource Index: 0, Query Index: 27)
-- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery DatasetImages (DataSource Index: 4, Query Index: 15)
 
 ## TractsNervesInnervatingHere: Tracts/nerves innervating $NAME
-- Step: Owlery tracts in (DataSource Index: 1, Query Index: 7)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery TractsNervesInnervatingHere (DataSource Index: 4, Query Index: 16)
 
 ## ComponentsOf: Components of $NAME
-- Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery ComponentsOf (DataSource Index: 4, Query Index: 17)
 
 ## LineageClonesIn: Lineage clones found in $NAME
-- Step: Owlery Lineage Clones (DataSource Index: 1, Query Index: 10)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery LineageClonesIn (DataSource Index: 4, Query Index: 18)
 
 ## AllAlignedImages: List all images aligned to $NAME
-- Step: Find images aligned to template id (DataSource Index: 0, Query Index: 23)
-- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery AllAlignedImages (DataSource Index: 4, Query Index: 19)
 
 ## PartsOf: Parts of $NAME
-- Step: Owlery Part of (DataSource Index: 1, Query Index: 0)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery PartsOf (DataSource Index: 4, Query Index: 20)
 
 ## SubclassesOf: Subclasses of $NAME
-- Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery SubclassesOf (DataSource Index: 4, Query Index: 21)
 
 ## AlignedDatasets: List all datasets aligned to $NAME
-- Step: template_2_datasets_ids (DataSource Index: 0, Query Index: 25)
-- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get all_datasets_query (DataSource Index: 3, Query Index: 6)
-- Step: Process solr query results (DataSource Index: 3, Query Index: 3)
+- Step: VFBquery AlignedDatasets (DataSource Index: 4, Query Index: 22)
 
 ## AllDatasets: List all datasets
-- Step: all_datasets_ids (DataSource Index: 0, Query Index: 26)
-- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get all_datasets_query (DataSource Index: 3, Query Index: 6)
-- Step: Process solr query results (DataSource Index: 3, Query Index: 3)
+- Step: VFBquery AllDatasets (DataSource Index: 4, Query Index: 23)
 
-## ref_neuron_region_connectivity_query: Show connectivity per region for $NAME
-- Step: neuron_region_connectivity_query (DataSource Index: 0, Query Index: 13)
+## NeuronRegionConnectivityQuery: Show connectivity per region for $NAME
+- Step: VFBquery NeuronRegionConnectivityQuery (DataSource Index: 4, Query Index: 3)
 
-## ref_neuron_neuron_connectivity_query: Show neurons connected to $NAME
-- Step: neuron_neuron_connectivity_query (DataSource Index: 0, Query Index: 14)
+## NeuronNeuronConnectivityQuery: Show neurons connected to $NAME
+- Step: VFBquery NeuronNeuronConnectivityQuery (DataSource Index: 4, Query Index: 2)
 
-## ref_downstream_class_connectivity_query: Show downstream connectivity by class for $NAME
-- Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: downstream_connectivity_query (DataSource Index: 3, Query Index: 7)
+## DownstreamClassConnectivity: Show downstream connectivity by class for $NAME
+- Step: VFBquery DownstreamClassConnectivity (DataSource Index: 4, Query Index: 1)
 
-## ref_upstream_class_connectivity_query: Show upstream connectivity by class for $NAME
-- Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Class Pass solr id list only (DataSource Index: 1, Query Index: 18)
-- Step: upstream_connectivity_query (DataSource Index: 3, Query Index: 8)
+## UpstreamClassConnectivity: Show upstream connectivity by class for $NAME
+- Step: VFBquery UpstreamClassConnectivity (DataSource Index: 4, Query Index: 0)
 
 ## SimilarMorphologyTo: Neurons with similar morphology to $NAME  [NBLAST mean score]
-- Step: NBLAST similarity neo Query (DataSource Index: 0, Query Index: 15)
+- Step: VFBquery SimilarMorphologyTo (DataSource Index: 4, Query Index: 24)
 
 ## SimilarMorphologyToPartOf: Expression patterns with some similar morphology to $NAME  [NBLAST mean score]
-- Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 17)
+- Step: VFBquery SimilarMorphologyToPartOf (DataSource Index: 4, Query Index: 25)
 
 ## TermsForPub: List all terms that reference $NAME
-- Step: Find term ids ref in pub (DataSource Index: 0, Query Index: 29)
-- Step: neo4j Pass solr id list only (DataSource Index: 0, Query Index: 24)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery TermsForPub (DataSource Index: 4, Query Index: 26)
 
 ## SimilarMorphologyToPartOfexp: Neurons with similar morphology to part of $NAME  [NBLAST mean score]
-- Step: NBLASTexp similarity neo Query (DataSource Index: 0, Query Index: 17)
+- Step: VFBquery SimilarMorphologyToPartOfexp (DataSource Index: 4, Query Index: 27)
 
 ## SimilarMorphologyToNB: Neurons that overlap with $NAME  [NeuronBridge]
-- Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 18)
+- Step: VFBquery SimilarMorphologyToNB (DataSource Index: 4, Query Index: 28)
 
 ## SimilarMorphologyToNBexp: Expression patterns that overlap with $NAME  [NeuronBridge]
-- Step: NeuronBridge similarity neo Query (DataSource Index: 0, Query Index: 18)
+- Step: VFBquery SimilarMorphologyToNBexp (DataSource Index: 4, Query Index: 29)
 
 ## anatScRNAseqQuery: Single cell transcriptomics data for $NAME
-- Step: Owlery Subclasses of (DataSource Index: 1, Query Index: 8)
-- Step: Owlery Pass Plus Query ID (DataSource Index: 1, Query Index: 17)
-- Step: anat_scRNAseq_query (DataSource Index: 0, Query Index: 20)
+- Step: VFBquery anatScRNAseqQuery (DataSource Index: 4, Query Index: 30)
 
 ## clusterExpression: Genes expressed in $NAME
-- Step: cluster_expression_query (DataSource Index: 0, Query Index: 19)
+- Step: VFBquery clusterExpression (DataSource Index: 4, Query Index: 31)
 
 ## scRNAdatasetData: List all Clusters for $NAME
-- Step: dataset_scRNAseq_query (DataSource Index: 0, Query Index: 21)
+- Step: VFBquery scRNAdatasetData (DataSource Index: 4, Query Index: 32)
 
 ## expressionCluster: scRNAseq clusters expressing $NAME
-- Step: expression_cluster_query (DataSource Index: 0, Query Index: 22)
+- Step: VFBquery expressionCluster (DataSource Index: 4, Query Index: 33)
 
 ## SimilarMorphologyToUserData: Neurons with similar morphology to your upload $NAME  [NBLAST mean score]
-- Step: Get user NBLAST results (DataSource Index: 3, Query Index: 2)
+- Step: VFBquery SimilarMorphologyToUserData (DataSource Index: 4, Query Index: 34)
 
 ## ImagesThatDevelopFrom: List images of neurons that develop from $NAME
-- Step: Images of neurons that develops from this (DataSource Index: 2, Query Index: 5)
-- Step: Owlery Ind Pass solr id list only (DataSource Index: 2, Query Index: 4)
-- Step: Get and process example images from SOLR from id list (DataSource Index: 3, Query Index: 1)
+- Step: VFBquery ImagesThatDevelopFrom (DataSource Index: 4, Query Index: 35)
 

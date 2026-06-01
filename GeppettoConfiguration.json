@@ -17,15 +17,15 @@
     "icon" :"https://v2.virtualflybrain.org/images/vfbbrain_icon.png",
     "image": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png",
     "errorDialog": {
-      "message" : "I broke geppetto, ops!",
+      "message" : "Something went wrong in Virtual Fly Brain. Please reload the page, or report it if it keeps happening.",
       "githubButton": {
         "enabled" : true,
         "url" : "https://github.com/VirtualFlyBrain/geppetto-vfb/issues"
       },
       "twitterButton": {
-        "enabled" : true,
-        "url" : "https://twitter.com/openworm",
-        "message" : "I broke geppetto, ops!"
+        "enabled" : false,
+        "url" : "https://virtualflybrain.bsky.social",
+        "message" : "Something went wrong in Virtual Fly Brain."
       }
     }
   }
