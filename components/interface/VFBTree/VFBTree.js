@@ -14,9 +14,14 @@ import {
 import 'react-sortable-tree/style.css';
 import { connect } from 'react-redux';
 
-var $ = require('jquery');
-const restPostConfig = require('../../configuration/VFBTree/VFBTreeConfiguration').restPostConfig;
-const treeCypherQuery = require('../../configuration/VFBTree/VFBTreeConfiguration').treeCypherQuery;
+const treeQueryUrl = require('../../configuration/VFBTree/VFBTreeConfiguration').treeQueryUrl;
+
+// Cache key prefix is version-stamped so any localStorage entry written
+// under the legacy Cypher-shape response (treeData_<id>) is ignored by
+// the new applyResponse — those entries have a graph/relationships
+// payload that the new code wouldn't know how to consume. The prefix
+// will only need bumping again if the response shape changes.
+const TREE_CACHE_KEY_PREFIX = "treeData_vfbquery_v1_";
 
 class VFBTree extends React.Component {
 
@@ -28,7 +33,6 @@ class VFBTree extends React.Component {
       dataTree: undefined,
       root: undefined,
       loading: false,
-      edges: undefined,
       nodes: undefined,
       nodeSelected: undefined,
       displayColorPicker: false,
@@ -36,31 +40,17 @@ class VFBTree extends React.Component {
     };
 
     this.initTree = this.initTree.bind(this);
+    this.applyResponse = this.applyResponse.bind(this);
     this.getNodes = this.getNodes.bind(this);
-    this.restPost = this.restPost.bind(this);
     this.nodeClick = this.nodeClick.bind(this);
     this.updateTree = this.updateTree.bind(this);
     this.getButtons = this.getButtons.bind(this);
     this.selectNode = this.selectNode.bind(this);
     this.reloadData = this.reloadData.bind(this);
-    this.findChildren = this.findChildren.bind(this);
-    this.insertChildren = this.insertChildren.bind(this);
-    this.updateSubtitle = this.updateSubtitle.bind(this);
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
-    this.convertDataForTree = this.convertDataForTree.bind(this);
-
-    this.isNumber = require('./helper').isNumber;
-    this.sortData = require('./helper').sortData;
-    this.findRoot = require('./helper').findRoot;
-    this.convertEdges = require('./helper').convertEdges;
-    this.convertNodes = require('./helper').convertNodes;
-    this.searchChildren = require('./helper').searchChildren;
-    this.defaultComparator = require('./helper').defaultComparator;
-    this.parseGraphResultData = require('./helper').parseGraphResultData;
-    this.buildDictClassToIndividual = require('./helper').buildDictClassToIndividual;
+    this.convertVfbqueryNode = this.convertVfbqueryNode.bind(this);
 
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
-    this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
     this.styles = {
       left_second_column: 395,
       column_width_small: 385,
@@ -75,112 +65,45 @@ class VFBTree extends React.Component {
     this.nodeWithColorPicker = undefined;
   }
 
-  restPost (data) {
-    var strData = JSON.stringify(data);
-    return $.ajax({
-      type: "POST",
-      beforeSend: function (request) {
-        if (this.AUTHORIZATION != undefined) {
-          request.setRequestHeader("Authorization", this.AUTHORIZATION);
-        }
-      },
-      url: restPostConfig.url,
-      contentType: restPostConfig.contentType,
-      data: strData
-    });
+  // Map a single node from the vfbquery TemplateROIBrowser response shape
+  // into the legacy node shape consumed by getButtons / getNodes /
+  // nodeClick / updateTree. painted_domain is always a list (T1 leg has
+  // bilateral L/R Individuals on the same Class); we surface the first
+  // for the eye toggle. Future enhancement: cycle through Individuals
+  // in the tooltip if there is more than one.
+  convertVfbqueryNode (vNode) {
+    var painted = (vNode.painted_domain && vNode.painted_domain.length > 0)
+      ? vNode.painted_domain[0]
+      : null;
+    var instanceId = painted ? painted.individual_id : "";
+    return {
+      title: vNode.label,
+      subtitle: vNode.id,
+      description: vNode.summary_md || "",
+      classId: vNode.id,
+      instanceId: instanceId,
+      id: vNode.id,
+      showColorPicker: false,
+      children: (vNode.children || []).map(this.convertVfbqueryNode)
+    };
   }
 
-  findChildren (parent, key, familyList, labels) {
-    var childrenList = [];
-    var childKey = this.searchChildren(familyList, key, parent, labels);
-    if (childKey !== undefined) {
-      childrenList.push(childKey);
-      var i = childKey - 1;
-      while (i > 0 && this.isNumber(parent[key]) === this.isNumber(familyList[i][key])) {
-        childrenList.push(i);
-        i--;
+  // Walk the converted tree depth-first into a flat list used by
+  // updateTree to find a node by instanceId/classId on focus change.
+  flattenTree (treeData) {
+    var out = [];
+    var walk = nodes => {
+      for (var i = 0; i < nodes.length; i++) {
+        out.push(nodes[i]);
+        walk(nodes[i].children);
       }
-      i = childKey + 1;
-      while (i < familyList.length && this.isNumber(parent[key]) === this.isNumber(familyList[i][key])) {
-        childrenList.push(i);
-        i++;
-      }
-    }
-    return childrenList;
-  }
-
-  insertChildren (nodes, edges, child, imagesMap) {
-    // Extend the array of relationships from here
-    var childrenList = this.findChildren({ from: child.id }, "from", edges, ["part of", "SUBCLASSOF"]);
-    // child.images = this.findChildren({ from: child.id }, "from", edges, "INSTANCEOF");
-    var nodesList = [];
-    for ( var i = 0; i < childrenList.length; i++) {
-      nodesList.push(edges[childrenList[i]].to)
-    }
-    var uniqNodes = [...new Set(nodesList)];
-
-    for ( var j = 0; j < uniqNodes.length; j++) {
-      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
-      let imageId = node.instanceId;
-      child.children.push({
-        title: node.title,
-        subtitle: node.classId,
-        description: node.info,
-        classId: node.classId,
-        instanceId: node.instanceId,
-        id: node.id,
-        showColorPicker: false,
-        children: []
-      });
-      this.insertChildren(nodes, edges, child.children[j], imagesMap)
-    }
-  }
-
-  convertDataForTree (nodes, edges, vertix, imagesMap) {
-    // This will create the data structure for the react-sortable-tree library, starting from the vertix node.
-    var refinedDataTree = [];
-    for ( var i = 0; i < nodes.length; i++ ) {
-      if (vertix === nodes[i].id) {
-        refinedDataTree.push({
-          title: nodes[i].title,
-          subtitle: nodes[i].classId,
-          description: nodes[i].info,
-          classId: nodes[i].classId,
-          instanceId: nodes[i].instanceId,
-          id: nodes[i].id,
-          showColorPicker: false,
-          children: []
-        });
-        break;
-      }
-    }
-    var child = refinedDataTree[0];
-    // Once the vertix has been established we call insertChildren recursively on each child.
-    this.insertChildren(nodes, edges, child, imagesMap);
-    return refinedDataTree;
-  }
-
-  updateSubtitle (tree, idSelected) {
-    var node = undefined;
-    if (tree.length !== undefined) {
-      node = tree[0];
-    } else {
-      node = tree;
-    }
-    if (node.instanceId === idSelected || node.classId === idSelected) {
-      node.subtitle = idSelected;
-    }
-    for (let i = 0; i < node.children.length; i++) {
-      this.updateSubtitle(node.children[i], idSelected);
-    }
+    };
+    walk(treeData);
+    return out;
   }
 
   selectNode (instance) {
     if (this.state.nodeSelected !== undefined && this.state.nodeSelected.instanceId !== instance.instanceId) {
-      /*
-       * var treeData = this.state.dataTree;
-       * this.updateSubtitle(treeData, instance.instanceId);
-       */
       this.setState({ nodeSelected: instance });
     }
   }
@@ -225,94 +148,87 @@ class VFBTree extends React.Component {
   }
 
   initTree (instance) {
-    // This function is the core and starting point of the component itself
-    var that = this;
+    // Entry point: load the ROI tree for the active template, either
+    // from localStorage (L1 cache) or from vfbquery (which is itself
+    // SOLR-cached server-side with a 90-day TTL).
     this.setState({
       loading: true,
-      errors: undefined,
+      errors: undefined
     });
 
-    const cacheKey = `treeData_${instance}`;
-    const cachedData = localStorage.getItem(cacheKey);
+    var cacheKey = TREE_CACHE_KEY_PREFIX + instance;
+    var cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        this.applyResponse(JSON.parse(cached));
+        return;
+      } catch (e) {
+        console.warn("VFBTree: corrupted localStorage entry, refetching", e);
+        localStorage.removeItem(cacheKey);
+      }
+    }
 
-    if (cachedData) {
-      const parsedData = JSON.parse(cachedData);
-      const dataTree = this.parseGraphResultData(parsedData);
-      const vertix = this.findRoot(parsedData);
-      const imagesMap = this.buildDictClassToIndividual(parsedData);
-      const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-      const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-      const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-      
+    fetch(treeQueryUrl(instance))
+      .then(r => {
+        if (!r.ok) {
+          throw new Error("HTTP " + r.status + " from vfbquery TemplateROIBrowser");
+        }
+        return r.json();
+      })
+      .then(data => {
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+        } catch (e) {
+          if (e && e.name === 'QuotaExceededError') {
+            // Tree responses are small (tens of KB) but the user may
+            // have hundreds of other entries. Clear and retry once.
+            console.warn('VFBTree: localStorage full, clearing and retrying');
+            localStorage.clear();
+            try { localStorage.setItem(cacheKey, JSON.stringify(data)); }
+            catch (e2) { console.error('VFBTree: localStorage write still failing', e2); }
+          } else {
+            console.error('VFBTree: localStorage write error', e);
+          }
+        }
+        this.applyResponse(data);
+      })
+      .catch(e => {
+        console.error("VFBTree: error retrieving tree from vfbquery", e);
+        this.setState({
+          loading: false,
+          errors: "Error retrieving the data - check the console for additional information"
+        });
+      });
+  }
+
+  applyResponse (data) {
+    // Render the no-data placeholder when the template has no painted
+    // domains (e.g. L1 CNS at the time of writing) or the endpoint
+    // returned an unexpected shape.
+    if (!data || !Array.isArray(data.tree) || data.tree.length === 0) {
       this.setState({
         loading: false,
         errors: undefined,
-        dataTree: treeData,
-        root: vertix,
-        edges: edges,
-        nodes: nodes,
-        nodeSelected: (this.props.instance === undefined
-          ? treeData[0]
-          : (this.props.instance?.getParent() === null
-            ? { subtitle: this.props.instance?.getId() }
-            : { subtitle: this.props.instance?.getParent()?.getId() }))
+        dataTree: [{ title: "No data available.", subtitle: null, children: [] }],
+        root: undefined,
+        nodes: []
       });
-    } else {
-      this.restPost(treeCypherQuery(instance)).done(data => {
-        if (data.errors.length > 0) {
-          console.log("-- ERROR TREE COMPONENT --");
-          console.log(data.errors);
-          this.setState({ errors: "Error retrieving the data - check the console for additional information" });
-        }
-        if (data.results.length > 0 && data.results[0].data.length > 0) {
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(data));
-          } catch (e) {
-            console.error('Error saving to localStorage:', e);
-            if (e.name === 'QuotaExceededError') {
-              console.warn('LocalStorage is full, clearing all data');
-              localStorage.clear();
-              try {
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-              } catch (e) {
-                console.error('Error saving to localStorage after clearing:', e);
-              }
-            }
-          }
-          const dataTree = this.parseGraphResultData(data);
-          const vertix = this.findRoot(data);
-          const imagesMap = this.buildDictClassToIndividual(data);
-          const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-          const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-          const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-          this.setState({
-            loading: false,
-            errors: undefined,
-            dataTree: treeData,
-            root: vertix,
-            edges: edges,
-            nodes: nodes,
-            nodeSelected: (this.props.instance === undefined
-              ? treeData[0]
-              : (this.props.instance?.getParent() === null
-                ? { subtitle: this.props.instance?.getId() }
-                : { subtitle: this.props.instance?.getParent()?.getId() }))
-          });
-        } else {
-          var treeData = [{
-            title: "No data available.",
-            subtitle: null,
-            children: []
-          }];
-          this.setState({
-            dataTree: treeData,
-            root: undefined,
-            loading: false,
-            errors: undefined,
-          });
-        }
-      });
+      return;
     }
+    var treeData = data.tree.map(this.convertVfbqueryNode);
+    var flatNodes = this.flattenTree(treeData);
+    this.setState({
+      loading: false,
+      errors: undefined,
+      dataTree: treeData,
+      root: (data.anatomy_root && data.anatomy_root.short_form) || undefined,
+      nodes: flatNodes,
+      nodeSelected: (this.props.instance === undefined
+        ? treeData[0]
+        : (this.props.instance?.getParent() === null
+          ? { subtitle: this.props.instance?.getId() }
+          : { subtitle: this.props.instance?.getParent()?.getId() }))
+    });
   }
 
 
