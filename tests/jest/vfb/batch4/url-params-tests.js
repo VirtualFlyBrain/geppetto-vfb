@@ -191,14 +191,8 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 
 		//Tests metadata in term info component and clicking on links
 		describe('Test Term Info Component', () => {
-			// Gnathal ganglion (FBbt_00014013) has no visual capability, so v2 should
-			// fall back to displaying VFB_00101567 (JRC2018Unisex template) in the
-			// term info. Assert that the widget renders for the template — NOT the
-			// deselect button: templates can't be deselected, so that selector never
-			// appears and the wait times out. The following `it` block exercises
-			// the template's zoom button (which is the correct template-side
-			// affordance).
-			it('Term info component created for JRC2018Unisex without visual capability', async () => {
+			it('Deselect button for VFB_00101567 appears in button bar inside the term info component', async () => {
+				// Step 1: VFB_00101567 meshes are present in the scene.
 				await page.waitForFunction(
 					() => {
 						if (typeof Instances === 'undefined' || !Instances['VFB_00101567']) return false;
@@ -208,13 +202,28 @@ describe('VFB URL Parameters id= and i= Tests', () => {
 					},
 					{ timeout: 360000 }
 				);
+				// Step 2: VFBMain.handleSceneAndTermInfoCallback runs asynchronously
+				// for id=FBbt_00014013 (gnathal ganglion, no visual) and the i=
+				// instances. We must wait until v2 has finished its fallback and the
+				// term info widget is settled on VFB_00101567 — otherwise a select()
+				// landing during that race gets overwritten by the fallback and the
+				// deselect button never renders. Settled = widget is up AND its
+				// content shows JRC2018Unisex (VFB_00101567's label).
+				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout: 240000 });
+				await page.waitForFunction(
+					() => (document.body.innerText || '').toLowerCase().includes('jrc2018unisex'),
+					{ timeout: 120000 }
+				);
+				// Step 3: now in steady state, force-select VFB_00101567. The button
+				// bar is already rendering for it (passing zoom test below confirms),
+				// so select() reliably triggers the deselect-button render.
 				await page.evaluate(() => {
 					Instances['VFB_00101567'].select();
 					if (typeof window.setTermInfo === 'function' && Instances['VFB_00101567'].VFB_00101567_meta) {
 						window.setTermInfo(Instances['VFB_00101567'].VFB_00101567_meta, 'VFB_00101567');
 					}
 				});
-				await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 240000 })
+				await wait4selector(page, '#VFB_00101567_deselect_buttonBar_btn', { visible: true , timeout : 240000 })
 			}, 720000)
 
 			it('Zoom button for VFB_00101567 appears in button bar inside the term info component', async () => {
