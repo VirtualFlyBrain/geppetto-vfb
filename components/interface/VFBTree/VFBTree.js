@@ -133,13 +133,20 @@ class VFBTree extends React.Component {
     /*
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
+     *
+     * Geppetto's getParent() returns null for some entity shapes
+     * and undefined for others (depends on whether the instance is a
+     * top-level Variable or a typed Class/Instance). Use a falsy
+     * check so we treat both as "no parent" — a strict `!== null`
+     * check routes the undefined case into the parent branch with
+     * innerInstance = undefined, idToSearch = undefined, and the flat-
+     * node search finds nothing. The GEPPETTO Select event for a
+     * focus-term load (e.g. medulla via the search dialog) then
+     * silently fails to update nodeSelected, and the batch3 .nodeFound
+     * assertion sees no row matching the previous selection.
      */
-    var innerInstance = undefined;
-    if (instance?.getParent() !== null) {
-      innerInstance = instance.getParent();
-    } else {
-      innerInstance = instance;
-    }
+    var parent = instance?.getParent();
+    var innerInstance = parent || instance;
     var idToSearch = innerInstance?.getId();
 
     if (this.state.nodeSelected !== undefined
@@ -305,9 +312,20 @@ class VFBTree extends React.Component {
     if (this.props.instance === undefined) {
       initialSelected = treeData[0];
     } else {
-      var focusInstance = (this.props.instance?.getParent() === null)
-        ? this.props.instance
-        : this.props.instance?.getParent();
+      /*
+       * Geppetto's getParent() returns null for some entities and
+       * undefined for others (depends on whether the instance is a
+       * top-level Variable or a Type). Treat both as "no parent" via
+       * the falsy check — a strict `=== null` check misses the
+       * undefined case and would route us into the parent branch with
+       * focusInstance = undefined, yielding focusId = undefined and
+       * the synthetic-placeholder fallback. That's the root cause of
+       * the batch3 nodeFound test failure: with focusId undefined,
+       * the flat-node lookup fails, the placeholder has no
+       * instanceId, and getNodes' nodeFound class never applies.
+       */
+      var parent = this.props.instance?.getParent();
+      var focusInstance = parent || this.props.instance;
       var focusId = focusInstance?.getId();
       initialSelected = null;
       if (focusId !== undefined) {
@@ -408,8 +426,13 @@ class VFBTree extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          if (Instances[rowInfo.node.instanceId]?.getParent() !== null) {
-            Instances[rowInfo.node.instanceId]?.getParent().show();
+          /*
+           * Falsy parent check covers both null and undefined returns
+           * from getParent() — same shape gotcha as updateTree.
+           */
+          var hiddenParent = Instances[rowInfo.node.instanceId]?.getParent();
+          if (hiddenParent) {
+            hiddenParent.show();
           } else {
             Instances[rowInfo.node.instanceId]?.show();
           }
@@ -422,8 +445,9 @@ class VFBTree extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          if (Instances[rowInfo.node.instanceId]?.getParent() !== null) {
-            Instances[rowInfo.node.instanceId]?.getParent().hide();
+          var visibleParent = Instances[rowInfo.node.instanceId]?.getParent();
+          if (visibleParent) {
+            visibleParent.hide();
           } else {
             Instances[rowInfo.node.instanceId].hide();
           }
