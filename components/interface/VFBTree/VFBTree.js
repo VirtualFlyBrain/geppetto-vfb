@@ -17,6 +17,43 @@ import { connect } from 'react-redux';
 const treeQueryUrl = require('../../configuration/VFBTree/VFBTreeConfiguration').treeQueryUrl;
 
 /*
+ * The vfbquery TemplateROIBrowser endpoint emits per-node `summary_md`
+ * blobs with inline markdown — bold (`**foo**`), italic (`*foo*`) and
+ * link (`[label](url)`) syntax. We render those in the tree row
+ * tooltip; without conversion the user sees the raw asterisks and link
+ * syntax. Strip links to their visible label text (we don't want a
+ * clickable URL inside the Material-UI Tooltip portal), convert bold
+ * to <b> and italic to <i>, then carry over newlines as <br/>.
+ *
+ * HTML-special chars in the source are escaped FIRST so any literal
+ * `<` or `>` in a class label is shown as text rather than treated as
+ * a tag. The `*` characters that drive markdown are untouched by the
+ * escape, so the bold/italic replacements still match after.
+ */
+function escapeHtml (s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function markdownInlineToHtml (md) {
+  if (!md) return '';
+  // Strip markdown links: [label](url) -> label  (do this before
+  // escapeHtml so the URL gets discarded without us having to think
+  // about whether parens inside escaped sequences confuse the regex).
+  var s = String(md).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  s = escapeHtml(s);
+  // Bold: **text** -> <b>text</b>
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  // Italic: *text* -> <i>text</i>. The (^|[^*]) prefix prevents
+  // matching the inside of an already-converted `<b>` pair.
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<i>$2</i>');
+  s = s.replace(/\n/g, '<br/>');
+  return s;
+}
+
+/*
  * Cache key prefix is version-stamped so any localStorage entry written
  * under the legacy Cypher-shape response (treeData_<id>) is ignored by
  * the new applyResponse - those entries have a graph/relationships
@@ -498,17 +535,18 @@ class VFBTree extends React.Component {
      * we attach the tooltip with the image, differently only tooltip.
      */
     if (rowInfo.node.title !== "No data available.") {
+      var descHtml = { __html: markdownInlineToHtml(rowInfo.node.description) };
       var title = <MuiThemeProvider theme={this.theme}>
         <Tooltip placement="right-start"
           title={ (rowInfo.node.instanceId.indexOf("VFB_") > -1)
             ? (<div>
-              <div> {rowInfo.node.description} </div>
+              <div dangerouslySetInnerHTML={descHtml} />
               <div>
                 <img style={{ display: "block", textAlign: "center" }}
                   src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
               </div></div>)
             : (<div>
-              <div> {rowInfo.node.description} </div>
+              <div dangerouslySetInnerHTML={descHtml} />
             </div>)}>
           <div
             className={(this.state.nodeSelected !== undefined && rowInfo.node.instanceId === this.state.nodeSelected.instanceId)
