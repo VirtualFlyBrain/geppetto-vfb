@@ -232,17 +232,48 @@ class VFBTree extends React.Component {
     }
     var treeData = data.tree.map(this.convertVfbqueryNode);
     var flatNodes = this.flattenTree(treeData);
+    /*
+     * Seed nodeSelected from props.instance when the page already has a
+     * focus term (e.g. Tree Browser tab is opened after the user
+     * searched a class). The legacy code dropped a synthetic
+     * { subtitle: <id> } placeholder in here, but that has no
+     * instanceId, so getNodes' nodeFound condition
+     * (rowInfo.node.instanceId === state.nodeSelected.instanceId) never
+     * matched any row - meaning .nodeFound was never applied after a
+     * remount with an active focus term. Look up the matching real tree
+     * node by classId / instanceId so the row gets the nodeFound class
+     * straight from initial render. Falls back to the synthetic
+     * placeholder when the focus term isn't in this template's tree.
+     */
+    var initialSelected;
+    if (this.props.instance === undefined) {
+      initialSelected = treeData[0];
+    } else {
+      var focusInstance = (this.props.instance?.getParent() === null)
+        ? this.props.instance
+        : this.props.instance?.getParent();
+      var focusId = focusInstance?.getId();
+      initialSelected = null;
+      if (focusId !== undefined) {
+        for (var fi = 0; fi < flatNodes.length; fi++) {
+          if (flatNodes[fi].instanceId === focusId
+              || flatNodes[fi].classId === focusId) {
+            initialSelected = flatNodes[fi];
+            break;
+          }
+        }
+      }
+      if (initialSelected === null) {
+        initialSelected = { subtitle: focusId };
+      }
+    }
     this.setState({
       loading: false,
       errors: undefined,
       dataTree: treeData,
       root: (data.anatomy_root && data.anatomy_root.short_form) || undefined,
       nodes: flatNodes,
-      nodeSelected: (this.props.instance === undefined
-        ? treeData[0]
-        : (this.props.instance?.getParent() === null
-          ? { subtitle: this.props.instance?.getId() }
-          : { subtitle: this.props.instance?.getParent()?.getId() }))
+      nodeSelected: initialSelected
     });
   }
 
