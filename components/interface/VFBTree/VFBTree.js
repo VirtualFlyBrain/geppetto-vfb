@@ -16,11 +16,13 @@ import { connect } from 'react-redux';
 
 const treeQueryUrl = require('../../configuration/VFBTree/VFBTreeConfiguration').treeQueryUrl;
 
-// Cache key prefix is version-stamped so any localStorage entry written
-// under the legacy Cypher-shape response (treeData_<id>) is ignored by
-// the new applyResponse — those entries have a graph/relationships
-// payload that the new code wouldn't know how to consume. The prefix
-// will only need bumping again if the response shape changes.
+/*
+ * Cache key prefix is version-stamped so any localStorage entry written
+ * under the legacy Cypher-shape response (treeData_<id>) is ignored by
+ * the new applyResponse - those entries have a graph/relationships
+ * payload that the new code wouldn't know how to consume. The prefix
+ * will only need bumping again if the response shape changes.
+ */
 const TREE_CACHE_KEY_PREFIX = "treeData_vfbquery_v1_";
 
 class VFBTree extends React.Component {
@@ -65,12 +67,14 @@ class VFBTree extends React.Component {
     this.nodeWithColorPicker = undefined;
   }
 
-  // Map a single node from the vfbquery TemplateROIBrowser response shape
-  // into the legacy node shape consumed by getButtons / getNodes /
-  // nodeClick / updateTree. painted_domain is always a list (T1 leg has
-  // bilateral L/R Individuals on the same Class); we surface the first
-  // for the eye toggle. Future enhancement: cycle through Individuals
-  // in the tooltip if there is more than one.
+  /*
+   * Map a single node from the vfbquery TemplateROIBrowser response shape
+   * into the legacy node shape consumed by getButtons / getNodes /
+   * nodeClick / updateTree. painted_domain is always a list (T1 leg has
+   * bilateral L/R Individuals on the same Class); we surface the first
+   * for the eye toggle. Future enhancement: cycle through Individuals
+   * in the tooltip if there is more than one.
+   */
   convertVfbqueryNode (vNode) {
     var painted = (vNode.painted_domain && vNode.painted_domain.length > 0)
       ? vNode.painted_domain[0]
@@ -88,8 +92,10 @@ class VFBTree extends React.Component {
     };
   }
 
-  // Walk the converted tree depth-first into a flat list used by
-  // updateTree to find a node by instanceId/classId on focus change.
+  /*
+   * Walk the converted tree depth-first into a flat list used by
+   * updateTree to find a node by instanceId/classId on focus change.
+   */
   flattenTree (treeData) {
     var out = [];
     var walk = nodes => {
@@ -148,9 +154,11 @@ class VFBTree extends React.Component {
   }
 
   initTree (instance) {
-    // Entry point: load the ROI tree for the active template, either
-    // from localStorage (L1 cache) or from vfbquery (which is itself
-    // SOLR-cached server-side with a 90-day TTL).
+    /*
+     * Entry point: load the ROI tree for the active template, either
+     * from localStorage (L1 cache) or from vfbquery (which is itself
+     * SOLR-cached server-side with a 90-day TTL).
+     */
     this.setState({
       loading: true,
       errors: undefined
@@ -180,12 +188,17 @@ class VFBTree extends React.Component {
           localStorage.setItem(cacheKey, JSON.stringify(data));
         } catch (e) {
           if (e && e.name === 'QuotaExceededError') {
-            // Tree responses are small (tens of KB) but the user may
-            // have hundreds of other entries. Clear and retry once.
+            /*
+             * Tree responses are small (tens of KB) but the user may
+             * have hundreds of other entries. Clear and retry once.
+             */
             console.warn('VFBTree: localStorage full, clearing and retrying');
             localStorage.clear();
-            try { localStorage.setItem(cacheKey, JSON.stringify(data)); }
-            catch (e2) { console.error('VFBTree: localStorage write still failing', e2); }
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(data));
+            } catch (e2) {
+              console.error('VFBTree: localStorage write still failing', e2);
+            }
           } else {
             console.error('VFBTree: localStorage write error', e);
           }
@@ -202,9 +215,11 @@ class VFBTree extends React.Component {
   }
 
   applyResponse (data) {
-    // Render the no-data placeholder when the template has no painted
-    // domains (e.g. L1 CNS at the time of writing) or the endpoint
-    // returned an unexpected shape.
+    /*
+     * Render the no-data placeholder when the template has no painted
+     * domains (e.g. L1 CNS at the time of writing) or the endpoint
+     * returned an unexpected shape.
+     */
     if (!data || !Array.isArray(data.tree) || data.tree.length === 0) {
       this.setState({
         loading: false,
