@@ -65,6 +65,21 @@ class VFBTree extends React.Component {
 
     this.colorPickerContainer = undefined;
     this.nodeWithColorPicker = undefined;
+
+    /*
+     * Track the in-flight tree fetch so componentWillUnmount can abort
+     * it. Without this, a fetch started just before the user closes
+     * the Tree Browser tab can resolve after unmount and call setState
+     * on a dead component (React warning + leaked work).
+     */
+    this._fetchController = null;
+    /*
+     * Mounted flag — belt-and-braces guard alongside the abort, since
+     * AbortController doesn't cover the localStorage-cached fast path
+     * where applyResponse fires synchronously inside the .then() of an
+     * already-resolved promise.
+     */
+    this._mounted = false;
   }
 
   /*
@@ -176,7 +191,18 @@ class VFBTree extends React.Component {
       }
     }
 
-    fetch(treeQueryUrl(instance))
+    /*
+     * Abort any prior in-flight fetch (e.g. the user switched template
+     * before the previous load completed) so its .then doesn't race
+     * the new one.
+     */
+    if (this._fetchController) {
+      this._fetchController.abort();
+    }
+    var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    this._fetchController = controller;
+
+    fetch(treeQueryUrl(instance), controller ? { signal: controller.signal } : undefined)
       .then(r => {
         if (!r.ok) {
           throw new Error("HTTP " + r.status + " from vfbquery TemplateROIBrowser");
@@ -184,20 +210,36 @@ class VFBTree extends React.Component {
         return r.json();
       })
       .then(data => {
+        if (!this._mounted || this._fetchController !== controller) {
+          return;
+        }
         try {
           localStorage.setItem(cacheKey, JSON.stringify(data));
         } catch (e) {
           if (e && e.name === 'QuotaExceededError') {
             /*
              * Tree responses are small (tens of KB) but the user may
-             * have hundreds of other entries. Clear and retry once.
+             * have hundreds of other entries. Don't wipe the whole
+             * localStorage (would nuke show_quick_help, VFBUploader
+             * URLs, and any other app state) — only evict OUR cache
+             * entries, including legacy `treeData_<id>` keys from the
+             * pre-vfbquery code path that are dead weight.
              */
-            console.warn('VFBTree: localStorage full, clearing and retrying');
-            localStorage.clear();
+            console.warn('VFBTree: localStorage full, evicting tree-cache keys and retrying');
+            try {
+              for (var i = localStorage.length - 1; i >= 0; i--) {
+                var k = localStorage.key(i);
+                if (k && (k.indexOf(TREE_CACHE_KEY_PREFIX) === 0 || k.indexOf('treeData_') === 0)) {
+                  localStorage.removeItem(k);
+                }
+              }
+            } catch (evictErr) {
+              console.error('VFBTree: tree-cache eviction failed', evictErr);
+            }
             try {
               localStorage.setItem(cacheKey, JSON.stringify(data));
             } catch (e2) {
-              console.error('VFBTree: localStorage write still failing', e2);
+              console.error('VFBTree: localStorage write still failing after eviction', e2);
             }
           } else {
             console.error('VFBTree: localStorage write error', e);
@@ -206,6 +248,12 @@ class VFBTree extends React.Component {
         this.applyResponse(data);
       })
       .catch(e => {
+        if (e && e.name === 'AbortError') {
+          return;
+        }
+        if (!this._mounted || this._fetchController !== controller) {
+          return;
+        }
         console.error("VFBTree: error retrieving tree from vfbquery", e);
         this.setState({
           loading: false,
@@ -221,12 +269,20 @@ class VFBTree extends React.Component {
      * returned an unexpected shape.
      */
     if (!data || !Array.isArray(data.tree) || data.tree.length === 0) {
+      /*
+       * Clear nodeSelected too — if the user previously had a
+       * selection (e.g. medulla on JFRC2) and then switched to a
+       * template with no painted domains (e.g. L1 larval CNS), the
+       * stale subtitle would still drive searchQuery for a node that
+       * no longer exists in the rendered tree.
+       */
       this.setState({
         loading: false,
         errors: undefined,
         dataTree: [{ title: "No data available.", subtitle: null, children: [] }],
         root: undefined,
-        nodes: []
+        nodes: [],
+        nodeSelected: undefined
       });
       return;
     }
@@ -478,11 +534,25 @@ class VFBTree extends React.Component {
   }
 
   componentWillUnmount () {
+    this._mounted = false;
+    /*
+     * Cancel any in-flight tree fetch so its .then doesn't try to
+     * setState on this dead instance (React warning, leaked work).
+     */
+    if (this._fetchController) {
+      try {
+        this._fetchController.abort();
+      } catch (e) {
+        /* AbortController.abort() may not be supported in legacy envs */
+      }
+      this._fetchController = null;
+    }
     document.removeEventListener('mousedown', this.monitorMouseClick, false);
   }
 
   componentDidMount () {
     var that = this;
+    this._mounted = true;
     document.addEventListener('mousedown', this.monitorMouseClick, false);
 
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
