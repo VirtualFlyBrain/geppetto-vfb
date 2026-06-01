@@ -38,16 +38,22 @@ function escapeHtml (s) {
 }
 
 function markdownInlineToHtml (md) {
-  if (!md) return '';
-  // Strip markdown links: [label](url) -> label  (do this before
-  // escapeHtml so the URL gets discarded without us having to think
-  // about whether parens inside escaped sequences confuse the regex).
+  if (!md) {
+    return '';
+  }
+  /*
+   * Strip markdown links: [label](url) -> label  (do this before
+   * escapeHtml so the URL gets discarded without us having to think
+   * about whether parens inside escaped sequences confuse the regex).
+   */
   var s = String(md).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   s = escapeHtml(s);
-  // Bold: **text** -> <b>text</b>
+  /* Bold: **text** -> <b>text</b> */
   s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  // Italic: *text* -> <i>text</i>. The (^|[^*]) prefix prevents
-  // matching the inside of an already-converted `<b>` pair.
+  /*
+   * Italic: *text* -> <i>text</i>. The (^|[^*]) prefix prevents
+   * matching the inside of an already-converted `<b>` pair.
+   */
   s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<i>$2</i>');
   s = s.replace(/\n/g, '<br/>');
   return s;
