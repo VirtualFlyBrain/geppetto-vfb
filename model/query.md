@@ -1714,26 +1714,26 @@ id=$ID&query_type=TransgeneExpressionHere
 vfbqueryJsonProcessor
 ```
 
-## Query Name: VFBquery ExpressionOverlapsHere
+## Query Name: VFBquery AnatomyExpressedIn
 
-**ID:** vfbquery_expressionoverlapshere
+**ID:** vfbquery_anatomyexpressedin
 
-**Description:** Cached ExpressionOverlapsHere via VFBquery (v3-cached). Migrated from legacy chain.
+**Description:** Anatomy classes where the given expression pattern is expressed. Renamed from ExpressionOverlapsHere in v1.13.7 to reflect the inverse-direction semantics. The legacy query_type ExpressionOverlapsHere is still routed to the same handler by VFBquery's QUERY_TYPE_MAP, so pre-existing bookmarks keep working.
 
 **Type:** gep_2:CompoundQuery
 
-### Query Name: Fetch ExpressionOverlapsHere from v3-cached
+### Query Name: Fetch AnatomyExpressedIn from VFBquery
 
 **ID:** None
 
-**Description:** GET /run_query?id=$ID&query_type=ExpressionOverlapsHere.
+**Description:** GET /run_query?id=$ID&query_type=AnatomyExpressedIn.
 
 **Type:** gep_2:SimpleQuery
 
 **Query:**
 
 ```java
-id=$ID&query_type=ExpressionOverlapsHere
+id=$ID&query_type=AnatomyExpressedIn
 ```
 
 ### Query Name: Process VFBquery JSON to QueryResults
@@ -2810,11 +2810,19 @@ vfbqueryJsonProcessor
 
 **Type:** gep_2:CompoundRefQuery
 
-## Query Name: Expression overlapping what anatomy
+## Query Name: Anatomy where the expression pattern is expressed
+
+**ID:** AnatomyExpressedIn
+
+**Description:** Anatomy where $NAME is expressed
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Anatomy where the expression pattern is expressed (legacy alias of AnatomyExpressedIn)
 
 **ID:** ExpressionOverlapsHere
 
-**Description:** Anatomy $NAME is expressed in
+**Description:** Anatomy where $NAME is expressed
 
 **Type:** gep_2:CompoundRefQuery
 
