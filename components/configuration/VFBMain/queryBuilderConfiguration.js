@@ -109,10 +109,18 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    /* v1.14.3 — switched from QueryLinkComponent (single link) to
+     * QueryLinkArrayComponent so EPs that overlap multiple anatomy
+     * classes (via the Owlery subclass closure) render one clickable
+     * chip per anat. Wire format: "label1----short_form1; label2----
+     * short_form2; ..." matching the Reference column's delimiter
+     * convention. VFBquery caps the list at 5 entries with "+N more"
+     * suffix to keep wide closures readable. */
+    "customComponent": QueryLinkArrayComponent,
     "actions": "window.addVfbId('$entity$');",
     "entityIndex": 1,
     "entityDelimiter": "----",
+    "stringDelimiter": ";",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column",
     "sortDirectionCycle": ['asc', 'desc', null]
