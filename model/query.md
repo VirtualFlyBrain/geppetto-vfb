@@ -1718,7 +1718,7 @@ vfbqueryJsonProcessor
 
 **ID:** vfbquery_anatomyexpressedin
 
-**Description:** Anatomy classes where the given expression pattern is expressed. Renamed from ExpressionOverlapsHere in v1.13.7 to reflect the inverse-direction semantics. The legacy query_type ExpressionOverlapsHere is still routed to the same handler by VFBquery's QUERY_TYPE_MAP, so pre-existing bookmarks keep working.
+**Description:** Anatomy classes where the given expression pattern is expressed.
 
 **Type:** gep_2:CompoundQuery
 
@@ -2813,14 +2813,6 @@ vfbqueryJsonProcessor
 ## Query Name: Anatomy where the expression pattern is expressed
 
 **ID:** AnatomyExpressedIn
-
-**Description:** Anatomy where $NAME is expressed
-
-**Type:** gep_2:CompoundRefQuery
-
-## Query Name: Anatomy where the expression pattern is expressed (legacy alias of AnatomyExpressedIn)
-
-**ID:** ExpressionOverlapsHere
 
 **Description:** Anatomy where $NAME is expressed
 
