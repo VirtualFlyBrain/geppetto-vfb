@@ -9,9 +9,6 @@
 ## AnatomyExpressedIn: Anatomy where $NAME is expressed
 - Step: VFBquery AnatomyExpressedIn (DataSource Index: 4, Query Index: 6)
 
-## ExpressionOverlapsHere: Anatomy where $NAME is expressed
-- Step: VFBquery AnatomyExpressedIn (DataSource Index: 4, Query Index: 6)
-
 ## NeuronClassesFasciculatingHere: Neurons fasciculating in $NAME
 - Step: VFBquery NeuronClassesFasciculatingHere (DataSource Index: 4, Query Index: 7)
 
