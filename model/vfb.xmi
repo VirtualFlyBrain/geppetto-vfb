@@ -1243,15 +1243,15 @@
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
-        id="vfbquery_expressionoverlapshere"
-        name="VFBquery ExpressionOverlapsHere"
-        description="Cached ExpressionOverlapsHere via VFBquery (v3-cached). Migrated from legacy chain.">
+        id="vfbquery_anatomyexpressedin"
+        name="VFBquery AnatomyExpressedIn"
+        description="Anatomy classes where the given expression pattern is expressed. Renamed from ExpressionOverlapsHere in v1.13.7 to reflect the inverse-direction semantics. The legacy query_type ExpressionOverlapsHere is still routed to the same handler by VFBquery's QUERY_TYPE_MAP, so pre-existing bookmarks keep working.">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
-          name="Fetch ExpressionOverlapsHere from v3-cached"
-          description="GET /run_query?id=$ID&amp;query_type=ExpressionOverlapsHere."
-          query="id=$ID&amp;query_type=ExpressionOverlapsHere"
-          countQuery="id=$ID&amp;query_type=ExpressionOverlapsHere"/>
+          name="Fetch AnatomyExpressedIn from VFBquery"
+          description="GET /run_query?id=$ID&amp;query_type=AnatomyExpressedIn."
+          query="id=$ID&amp;query_type=AnatomyExpressedIn"
+          countQuery="id=$ID&amp;query_type=AnatomyExpressedIn"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process VFBquery JSON to QueryResults"
@@ -1773,9 +1773,20 @@
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.2"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
+      id="AnatomyExpressedIn"
+      name="Anatomy where the expression pattern is expressed"
+      description="Anatomy where $NAME is expressed"
+      returnType="//@libraries.3/@types.1"
+      queryChain="//@dataSources.4/@queries.6">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.46"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
       id="ExpressionOverlapsHere"
-      name="Expression overlapping what anatomy"
-      description="Anatomy $NAME is expressed in"
+      name="Anatomy where the expression pattern is expressed (legacy alias of AnatomyExpressedIn)"
+      description="Anatomy where $NAME is expressed"
       returnType="//@libraries.3/@types.1"
       queryChain="//@dataSources.4/@queries.6">
     <matchingCriteria
