@@ -6,8 +6,11 @@
 ## TransgeneExpressionHere: Reports of transgene expression in $NAME
 - Step: VFBquery TransgeneExpressionHere (DataSource Index: 4, Query Index: 5)
 
-## ExpressionOverlapsHere: Anatomy $NAME is expressed in
-- Step: VFBquery ExpressionOverlapsHere (DataSource Index: 4, Query Index: 6)
+## AnatomyExpressedIn: Anatomy where $NAME is expressed
+- Step: VFBquery AnatomyExpressedIn (DataSource Index: 4, Query Index: 6)
+
+## ExpressionOverlapsHere: Anatomy where $NAME is expressed
+- Step: VFBquery AnatomyExpressedIn (DataSource Index: 4, Query Index: 6)
 
 ## NeuronClassesFasciculatingHere: Neurons fasciculating in $NAME
 - Step: VFBquery NeuronClassesFasciculatingHere (DataSource Index: 4, Query Index: 7)
