@@ -854,24 +854,20 @@ class VFBTermInfoWidget extends React.Component {
           $("#query-builder-footer").show();
           $("#run-query-btn").hide();
 
-          /*
-           * Reassuring in-progress notice. Shown immediately so the user
-           * gets feedback during the round-trip (including ?q= deep-link
-           * open via VFBMain), not only after a 10s warning timer fires.
-           * Override the inline colour so the element stops rendering as
-           * an alarm-red error -- the id is preserved for back-compat
-           * with downstream CSS and tests.
-           */
+          // Reassuring in-progress notice. Shown immediately so the user
+          // gets feedback during the round-trip (including ?q= deep-link
+          // open via VFBMain), not only after a 10s warning timer fires.
+          // Override the inline colour so the element stops rendering as
+          // an alarm-red error -- the id is preserved for back-compat
+          // with downstream CSS and tests.
           $("#query-error-message")
             .css({ color: "#9be7ff", fontWeight: "normal" })
             .text("Fetching results — this can take a moment for complex queries.")
             .show();
 
           var callback = function () {
-            /*
-             * Hide the in-progress notice now we have a response, so it
-             * never co-exists with the "0 results" terminal state.
-             */
+            // Hide the in-progress notice now we have a response, so it
+            // never co-exists with the "0 results" terminal state.
             $("#query-error-message").hide().text("");
             // check if any results with count flag
             if (that.props.queryBuilder.props.model.count > 0) {

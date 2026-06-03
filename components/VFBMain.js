@@ -1398,12 +1398,10 @@ class VFBMain extends React.Component {
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
-        /*
-         * Hide the in-progress notice now we have a response, so it
-         * never co-exists with the "0 results" terminal state. Matches
-         * the hide pattern in VFBTermInfo + VFBFocusTerm so all three
-         * query entry points clean up the same element.
-         */
+        // Hide the in-progress notice now we have a response, so it
+        // never co-exists with the "0 results" terminal state. Matches
+        // the hide pattern in VFBTermInfo + VFBFocusTerm so all three
+        // query entry points clean up the same element.
         $("#query-error-message").hide().text("");
         if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
           // runQuery if any results
@@ -1433,13 +1431,11 @@ class VFBMain extends React.Component {
 
       // Initial queries specified on URL
       if (that.urlQueryLoader !== undefined && that.urlQueryLoader.length > 0 && that.urlQueryLoader[0]?.id) {
-        /*
-         * Surface loading feedback to the user *before* the round-trip
-         * starts. The click-driven query paths (VFBTermInfo / VFBFocusTerm)
-         * already do this; without it, ?q= deep links land on a page
-         * that looks idle until results pop in. Same spin / cursor /
-         * notice triplet, same hide in the callback.
-         */
+        // Surface loading feedback to the user *before* the round-trip
+        // starts. The click-driven query paths (VFBTermInfo / VFBFocusTerm)
+        // already do this; without it, ?q= deep links land on a page
+        // that looks idle until results pop in. Same spin / cursor /
+        // notice triplet, same hide in the callback.
         GEPPETTO.trigger('spin_logo');
         $("body").css("cursor", "progress");
         $("#query-error-message")
