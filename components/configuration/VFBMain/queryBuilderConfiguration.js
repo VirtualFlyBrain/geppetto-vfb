@@ -1,6 +1,4 @@
 var Bloodhound = require("typeahead.js/dist/bloodhound.min.js");
-var QueryLinkComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryLinkComponent");
-var QueryLinkArrayComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryLinkArrayComponent");
 var SlideshowImageComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/slideshowImageComponent");
 var QueryResultsControlsComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryResultsControlsComponent");
 var GrossTypeLabelsComponent = require('../../interface/utils/GrossTypeLabelsComponent');
