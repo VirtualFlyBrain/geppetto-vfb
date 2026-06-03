@@ -56,6 +56,17 @@ var React = require('react');
  */
 var TERM_LINK = /\[(.*?)\]\(([^()[\]]+)\)/g;
 
+/*
+ * Internal VFB / FlyBase short_form: word characters and hyphen only
+ * (e.g. VFB_00101567, FBbt_00003624, SplitShuai2023). Only ids matching
+ * this get a clickable chip wired to addVfbId. Anything else -- most
+ * importantly an external URL leaking through from an unmapped column
+ * (e.g. the Janelia split-GAL4 imagery link) -- is rendered as its plain
+ * label with no link, so we never call addVfbId with a non-VFB target or
+ * surface an external hyperlink straight from cell data.
+ */
+var INTERNAL_ID = /^[A-Za-z0-9_-]+$/;
+
 function parseTermLinks (value) {
   if (typeof value !== 'string' || !value) {
     return [];
@@ -93,6 +104,13 @@ function MarkdownLinkComponent (props) {
     { className: 'markdown-link-cell' },
     links.map(function (link, i) {
       var sep = i < links.length - 1 ? '; ' : null;
+      if (!INTERNAL_ID.test(link.id)) {
+        /*
+         * Non-VFB target (external URL or otherwise non-short_form id):
+         * render the label as plain text, no link.
+         */
+        return React.createElement(React.Fragment, { key: i }, link.label, sep);
+      }
       return React.createElement(
         React.Fragment,
         { key: i },
