@@ -155,6 +155,8 @@ var queryResultsColMeta = [
     "order": 7,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
     "displayName": "Stage",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -262,6 +264,8 @@ var queryResultsColMeta = [
     "order": 9,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
     "displayName": "Template_Space",
     "cssClassName": "query-results-template-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -271,6 +275,8 @@ var queryResultsColMeta = [
     "order": 10,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
     "displayName": "Imaging_Technique",
     "cssClassName": "query-results-technique-column",
     "sortDirectionCycle": ['asc', 'desc', null]
