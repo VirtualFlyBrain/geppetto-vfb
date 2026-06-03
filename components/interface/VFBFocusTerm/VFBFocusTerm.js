@@ -289,6 +289,9 @@ class VFBFocusTerm extends React.Component {
       var otherId = click.parameters[0].getId();
       var otherName = click.parameters[0].getName();
       var callback = function () {
+        // Hide the in-progress notice now we have a response, so it
+        // never co-exists with the "0 results" terminal state.
+        $("#query-error-message").hide().text("");
         // check if any results with count flag
         if (that.props.queryBuilder.props.model.count > 0) {
           // runQuery if any results
@@ -311,6 +314,14 @@ class VFBFocusTerm extends React.Component {
 
       GEPPETTO.trigger('spin_logo');
       $("body").css("cursor", "progress");
+      // Reassuring in-progress notice. See VFBTermInfo for the matching
+      // notice on the term-info click path and VFBMain for the ?q= deep
+      // link path -- same id + same hide pattern keeps all three paths
+      // consistent.
+      $("#query-error-message")
+        .css({ color: "#9be7ff", fontWeight: "normal" })
+        .text("Fetching results — this can take a moment for complex queries.")
+        .show();
       if (window[otherId] === undefined) {
         window.fetchVariableThenRun(otherId, function () {
           if ($('#add-new-query-container')[0] !== undefined) {
