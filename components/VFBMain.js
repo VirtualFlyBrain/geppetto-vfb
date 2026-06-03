@@ -1398,11 +1398,6 @@ class VFBMain extends React.Component {
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
-        // Hide the in-progress notice now we have a response, so it
-        // never co-exists with the "0 results" terminal state. Matches
-        // the hide pattern in VFBTermInfo + VFBFocusTerm so all three
-        // query entry points clean up the same element.
-        $("#query-error-message").hide().text("");
         if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
           // runQuery if any results
           that.refs.querybuilderRef.runQuery();
@@ -1412,7 +1407,7 @@ class VFBMain extends React.Component {
           const query = that.urlQueryLoader[0];
           // Fetch variable and addQuery, if no more queries left then run query.
           query
-            ? window[query.id] === undefined
+            ? window[query.id] === undefined 
               ? window.fetchVariableThenRun(query.id, function () {
                 that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
               })
@@ -1430,21 +1425,9 @@ class VFBMain extends React.Component {
       };
 
       // Initial queries specified on URL
-      if (that.urlQueryLoader !== undefined && that.urlQueryLoader.length > 0 && that.urlQueryLoader[0]?.id) {
-        // Surface loading feedback to the user *before* the round-trip
-        // starts. The click-driven query paths (VFBTermInfo / VFBFocusTerm)
-        // already do this; without it, ?q= deep links land on a page
-        // that looks idle until results pop in. Same spin / cursor /
-        // notice triplet, same hide in the callback.
-        GEPPETTO.trigger('spin_logo');
-        $("body").css("cursor", "progress");
-        $("#query-error-message")
-          .css({ color: "#9be7ff", fontWeight: "normal" })
-          .text("Fetching results — this can take a moment for complex queries.")
-          .show();
-
-        if (window[that.urlQueryLoader[0]?.id] === undefined) {
-          window.fetchVariableThenRun(that.urlQueryLoader[0].id, function () {
+      if (that.urlQueryLoader !== undefined) {
+        if (window[that.urlQueryLoader[0]] == undefined) {
+          that.urlQueryLoader[0]?.id && window.fetchVariableThenRun(that.urlQueryLoader[0]?.id, function () {
             that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
           });
         } else {
