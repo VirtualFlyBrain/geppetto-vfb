@@ -58,14 +58,53 @@ var TERM_LINK = /\[(.*?)\]\(([^()[\]]+)\)/g;
 
 /*
  * Internal VFB / FlyBase short_form: word characters and hyphen only
- * (e.g. VFB_00101567, FBbt_00003624, SplitShuai2023). Only ids matching
- * this get a clickable chip wired to addVfbId. Anything else -- most
- * importantly an external URL leaking through from an unmapped column
- * (e.g. the Janelia split-GAL4 imagery link) -- is rendered as its plain
- * label with no link, so we never call addVfbId with a non-VFB target or
- * surface an external hyperlink straight from cell data.
+ * (e.g. VFB_00101567, FBbt_00003624, SplitShuai2023).
  */
 var INTERNAL_ID = /^[A-Za-z0-9_-]+$/;
+
+/*
+ * A virtualflybrain.org self-link (any subdomain: v2., v2-dev., www., bare).
+ * The host must be virtualflybrain.org -- not merely contain it -- so an
+ * external URL with the string in a query parameter is not misclassified.
+ */
+var VFB_HOST = /^https?:\/\/([a-z0-9-]+\.)*virtualflybrain\.org\//i;
+
+/*
+ * Resolve a parsed link id to an internal VFB / FlyBase short_form, or null
+ * if it is not an internal target (render those as plain text).
+ *
+ * Accepts three shapes:
+ *   1. a bare short_form, e.g. `VFB_00101567` / `Matsuo2016`
+ *   2. a VFB self-link with the short_form in the `id` query parameter,
+ *      e.g. `https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=Matsuo2016`
+ *      (the form VFBquery AllDatasets emits for the dataset name column)
+ *   3. a VFB self-link with the short_form in a `/reports/<short_form>` path,
+ *      e.g. `https://virtualflybrain.org/reports/Matsuo2016`
+ *
+ * Genuinely external URLs (e.g. the Janelia split-GAL4 imagery link) return
+ * null, so we never call addVfbId with a non-VFB target or surface an
+ * external hyperlink straight from cell data.
+ */
+function resolveInternalId (id) {
+  if (typeof id !== 'string' || !id) {
+    return null;
+  }
+  if (INTERNAL_ID.test(id)) {
+    return id;
+  }
+  if (!VFB_HOST.test(id)) {
+    return null;
+  }
+  var m = id.match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if (m) {
+    return m[1];
+  }
+  m = id.match(/\/reports\/([A-Za-z0-9_-]+)/);
+  if (m) {
+    return m[1];
+  }
+  return null;
+}
 
 function parseTermLinks (value) {
   if (typeof value !== 'string' || !value) {
@@ -104,7 +143,8 @@ function MarkdownLinkComponent (props) {
     { className: 'markdown-link-cell' },
     links.map(function (link, i) {
       var sep = i < links.length - 1 ? '; ' : null;
-      if (!INTERNAL_ID.test(link.id)) {
+      var shortForm = resolveInternalId(link.id);
+      if (!shortForm) {
         /*
          * Non-VFB target (external URL or otherwise non-short_form id):
          * render the label as plain text, no link.
@@ -118,11 +158,11 @@ function MarkdownLinkComponent (props) {
           'a',
           {
             href: '#',
-            'data-instancepath': link.id,
+            'data-instancepath': shortForm,
             onClick: function (e) {
               e.preventDefault();
               if (typeof window !== 'undefined' && typeof window.addVfbId === 'function') {
-                window.addVfbId(link.id);
+                window.addVfbId(shortForm);
               }
             }
           },
