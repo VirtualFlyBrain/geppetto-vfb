@@ -23,13 +23,13 @@ var React = require('react');
  *
  * REGEX SAFETY NOTES (per Robbie):
  *
- * Labels CAN contain `(`, `)`, `[`, `]` characters — e.g.
+ * Labels CAN contain `(`, `)`, `[`, `]` characters -- e.g.
  * "Wolff & Rubin, 2018, J. Comp. Neurol. 526(16): 2585--2611",
  * "antennal lobe (left)", "FBbt_[deprecated]", and so on.
  *
  * The id portion in `[label](id)` is always a VFB / FlyBase
  * short_form: `[A-Za-z0-9_-]+`. We exploit that constraint by
- * restricting the id capture group to `[^()[\]]+` — anything BUT
+ * restricting the id capture group to `[^()[\]]+` -- anything BUT
  * parens or brackets. The regex engine then backtracks the label
  * capture (`(.*?)`) until the label/id boundary is consistent with
  * the id constraint, even when the label itself contains parens or
@@ -56,54 +56,56 @@ var React = require('react');
  */
 var TERM_LINK = /\[(.*?)\]\(([^()[\]]+)\)/g;
 
-function parseTermLinks(value)
-{
-    if (typeof value !== 'string' || !value) return [];
-    var out = [];
-    var m;
-    TERM_LINK.lastIndex = 0;
-    while ((m = TERM_LINK.exec(value)) !== null) {
-        out.push({ label: m[1], id: m[2] });
-    }
-    return out;
+function parseTermLinks (value) {
+  if (typeof value !== 'string' || !value) {
+    return [];
+  }
+  var out = [];
+  var m;
+  TERM_LINK.lastIndex = 0;
+  while ((m = TERM_LINK.exec(value)) !== null) {
+    out.push({ label: m[1], id: m[2] });
+  }
+  return out;
 }
 
-function MarkdownLinkComponent(props)
-{
-    var value = props && props.value;
-    var links = parseTermLinks(value);
-    if (links.length === 0) {
-        /* Not parseable as a term link — render the raw cell value as
-         * plain text so we don't silently drop content. Covers numeric,
-         * pipe-joined tag, empty cell, and any future schema additions. */
-        return value ? React.createElement('span', null, value) : null;
-    }
-    return React.createElement(
-        'span',
-        { className: 'markdown-link-cell' },
-        links.map(function (link, i) {
-            var sep = (i < links.length - 1) ? '; ' : null;
-            return React.createElement(
-                React.Fragment,
-                { key: i },
-                React.createElement(
-                    'a',
-                    {
-                        href: '#',
-                        'data-instancepath': link.id,
-                        onClick: function (e) {
-                            e.preventDefault();
-                            if (typeof window !== 'undefined' && typeof window.addVfbId === 'function') {
-                                window.addVfbId(link.id);
-                            }
-                        }
-                    },
-                    link.label
-                ),
-                sep
-            );
-        })
-    );
+function MarkdownLinkComponent (props) {
+  var value = props && props.value;
+  var links = parseTermLinks(value);
+  if (links.length === 0) {
+    /*
+     * Not parseable as a term link -- render the raw cell value as
+     * plain text so we don't silently drop content. Covers numeric,
+     * pipe-joined tag, empty cell, and any future schema additions.
+     */
+    return value ? React.createElement('span', null, value) : null;
+  }
+  return React.createElement(
+    'span',
+    { className: 'markdown-link-cell' },
+    links.map(function (link, i) {
+      var sep = i < links.length - 1 ? '; ' : null;
+      return React.createElement(
+        React.Fragment,
+        { key: i },
+        React.createElement(
+          'a',
+          {
+            href: '#',
+            'data-instancepath': link.id,
+            onClick: function (e) {
+              e.preventDefault();
+              if (typeof window !== 'undefined' && typeof window.addVfbId === 'function') {
+                window.addVfbId(link.id);
+              }
+            }
+          },
+          link.label
+        ),
+        sep
+      );
+    })
+  );
 }
 
 module.exports = MarkdownLinkComponent;
