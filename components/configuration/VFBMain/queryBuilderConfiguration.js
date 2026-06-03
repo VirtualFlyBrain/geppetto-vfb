@@ -262,6 +262,8 @@ var queryResultsColMeta = [
     "order": 9,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "actions": "window.addVfbId('$entity$');",
     "displayName": "Template_Space",
     "cssClassName": "query-results-template-column",
     "sortDirectionCycle": ['asc', 'desc', null]

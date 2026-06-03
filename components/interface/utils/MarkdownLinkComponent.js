@@ -70,7 +70,15 @@ function parseTermLinks (value) {
 }
 
 function MarkdownLinkComponent (props) {
-  var value = props && props.value;
+  /*
+   * Geppetto's query-results griddle passes the cell value as `data`
+   * (alongside `rowData` / `metadata`) -- the same prop the legacy
+   * QueryLinkComponent / QueryLinkArrayComponent read. It is NOT
+   * `value` (that is the newer griddle Cell contract used by the
+   * term-info side panel). Reading `value` here yields undefined, so
+   * every term-link column renders nothing.
+   */
+  var value = props && props.data;
   var links = parseTermLinks(value);
   if (links.length === 0) {
     /*
