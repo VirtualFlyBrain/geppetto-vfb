@@ -4,6 +4,16 @@ var QueryLinkArrayComponent = require("@geppettoengine/geppetto-client/component
 var SlideshowImageComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/slideshowImageComponent");
 var QueryResultsControlsComponent = require("@geppettoengine/geppetto-client/components/interface/query/customComponents/queryResultsControlsComponent");
 var GrossTypeLabelsComponent = require('../../interface/utils/GrossTypeLabelsComponent');
+/*
+ * MarkdownLinkComponent parses `[label](short_form)` term-link markdown
+ * directly out of each cell value, supporting `; `-separated multi-chip
+ * cells. Replaces QueryLinkComponent + QueryLinkArrayComponent for
+ * every term-label-with-id column: the positional id-extraction via
+ * entityIndex / entityDelimiter is no longer needed, so click routing
+ * cannot misalign when a query's schema skips a canonical slot or
+ * reorders columns. Image / tag / slideshow columns are unchanged.
+ */
+var MarkdownLinkComponent = require('../../interface/utils/MarkdownLinkComponent');
 
 var queryResultsColMeta = [
   {
@@ -18,10 +28,8 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 0,
-    "entityDelimiter": "----",
     "displayName": "Name",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -31,10 +39,8 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 0,
-    "entityDelimiter": "----",
     "displayName": "Cluster",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -44,10 +50,8 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 0,
-    "entityDelimiter": "----",
     "displayName": "Gene",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -57,10 +61,8 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 0,
-    "entityDelimiter": "----",
     "displayName": "Neuron_A",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -70,10 +72,8 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -83,10 +83,8 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Cell type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -96,10 +94,8 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Parent",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -109,10 +105,8 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Expressed_in",
     "cssClassName": "query-results-expressed_in-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -122,10 +116,8 @@ var queryResultsColMeta = [
     "order": 4,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 3,
-    "entityDelimiter": "----",
     "displayName": "Dataset",
     "cssClassName": "query-results-dataset-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -144,11 +136,8 @@ var queryResultsColMeta = [
     "order": 5,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkArrayComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 2,
-    "entityDelimiter": "----",
-    "stringDelimiter": ";",
     "displayName": "Reference",
     "cssClassName": "query-results-reference-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -231,10 +220,8 @@ var queryResultsColMeta = [
     "order": 1,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 2,
-    "entityDelimiter": "----",
     "displayName": "Partner_Neuron",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -244,10 +231,8 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Region",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -257,10 +242,8 @@ var queryResultsColMeta = [
     "order": 11,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Target",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -270,10 +253,8 @@ var queryResultsColMeta = [
     "order": 8,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "License",
     "cssClassName": "query-results-license-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -350,10 +331,8 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 0,
-    "entityDelimiter": "----",
     "displayName": "Upstream_Class",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -363,10 +342,8 @@ var queryResultsColMeta = [
     "order": 3,
     "locked": false,
     "visible": true,
-    "customComponent": QueryLinkComponent,
+    "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "entityIndex": 1,
-    "entityDelimiter": "----",
     "displayName": "Downstream_Class",
     "cssClassName": "query-results-name-column",
     "sortDirectionCycle": ['asc', 'desc', null]
