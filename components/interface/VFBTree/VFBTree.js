@@ -14,9 +14,59 @@ import {
 import 'react-sortable-tree/style.css';
 import { connect } from 'react-redux';
 
-var $ = require('jquery');
-const restPostConfig = require('../../configuration/VFBTree/VFBTreeConfiguration').restPostConfig;
-const treeCypherQuery = require('../../configuration/VFBTree/VFBTreeConfiguration').treeCypherQuery;
+const treeQueryUrl = require('../../configuration/VFBTree/VFBTreeConfiguration').treeQueryUrl;
+
+/*
+ * The vfbquery TemplateROIBrowser endpoint emits per-node `summary_md`
+ * blobs with inline markdown — bold (`**foo**`), italic (`*foo*`) and
+ * link (`[label](url)`) syntax. We render those in the tree row
+ * tooltip; without conversion the user sees the raw asterisks and link
+ * syntax. Strip links to their visible label text (we don't want a
+ * clickable URL inside the Material-UI Tooltip portal), convert bold
+ * to <b> and italic to <i>, then carry over newlines as <br/>.
+ *
+ * HTML-special chars in the source are escaped FIRST so any literal
+ * `<` or `>` in a class label is shown as text rather than treated as
+ * a tag. The `*` characters that drive markdown are untouched by the
+ * escape, so the bold/italic replacements still match after.
+ */
+function escapeHtml (s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function markdownInlineToHtml (md) {
+  if (!md) {
+    return '';
+  }
+  /*
+   * Strip markdown links: [label](url) -> label  (do this before
+   * escapeHtml so the URL gets discarded without us having to think
+   * about whether parens inside escaped sequences confuse the regex).
+   */
+  var s = String(md).replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  s = escapeHtml(s);
+  /* Bold: **text** -> <b>text</b> */
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  /*
+   * Italic: *text* -> <i>text</i>. The (^|[^*]) prefix prevents
+   * matching the inside of an already-converted `<b>` pair.
+   */
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<i>$2</i>');
+  s = s.replace(/\n/g, '<br/>');
+  return s;
+}
+
+/*
+ * Cache key prefix is version-stamped so any localStorage entry written
+ * under the legacy Cypher-shape response (treeData_<id>) is ignored by
+ * the new applyResponse - those entries have a graph/relationships
+ * payload that the new code wouldn't know how to consume. The prefix
+ * will only need bumping again if the response shape changes.
+ */
+const TREE_CACHE_KEY_PREFIX = "treeData_vfbquery_v1_";
 
 class VFBTree extends React.Component {
 
@@ -28,7 +78,6 @@ class VFBTree extends React.Component {
       dataTree: undefined,
       root: undefined,
       loading: false,
-      edges: undefined,
       nodes: undefined,
       nodeSelected: undefined,
       displayColorPicker: false,
@@ -36,31 +85,18 @@ class VFBTree extends React.Component {
     };
 
     this.initTree = this.initTree.bind(this);
+    this.applyResponse = this.applyResponse.bind(this);
     this.getNodes = this.getNodes.bind(this);
-    this.restPost = this.restPost.bind(this);
     this.nodeClick = this.nodeClick.bind(this);
     this.updateTree = this.updateTree.bind(this);
     this.getButtons = this.getButtons.bind(this);
     this.selectNode = this.selectNode.bind(this);
     this.reloadData = this.reloadData.bind(this);
-    this.findChildren = this.findChildren.bind(this);
-    this.insertChildren = this.insertChildren.bind(this);
-    this.updateSubtitle = this.updateSubtitle.bind(this);
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
-    this.convertDataForTree = this.convertDataForTree.bind(this);
-
-    this.isNumber = require('./helper').isNumber;
-    this.sortData = require('./helper').sortData;
-    this.findRoot = require('./helper').findRoot;
-    this.convertEdges = require('./helper').convertEdges;
-    this.convertNodes = require('./helper').convertNodes;
-    this.searchChildren = require('./helper').searchChildren;
-    this.defaultComparator = require('./helper').defaultComparator;
-    this.parseGraphResultData = require('./helper').parseGraphResultData;
-    this.buildDictClassToIndividual = require('./helper').buildDictClassToIndividual;
+    this.convertVfbqueryNode = this.convertVfbqueryNode.bind(this);
+    this.scrollSelectedIntoView = this.scrollSelectedIntoView.bind(this);
 
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
-    this.AUTHORIZATION = "Basic " + btoa("neo4j:vfb");
     this.styles = {
       left_second_column: 395,
       column_width_small: 385,
@@ -73,114 +109,73 @@ class VFBTree extends React.Component {
 
     this.colorPickerContainer = undefined;
     this.nodeWithColorPicker = undefined;
+
+    /*
+     * Track the in-flight tree fetch so componentWillUnmount can abort
+     * it. Without this, a fetch started just before the user closes
+     * the Tree Browser tab can resolve after unmount and call setState
+     * on a dead component (React warning + leaked work).
+     */
+    this._fetchController = null;
+    /*
+     * Mounted flag — belt-and-braces guard alongside the abort, since
+     * AbortController doesn't cover the localStorage-cached fast path
+     * where applyResponse fires synchronously inside the .then() of an
+     * already-resolved promise.
+     */
+    this._mounted = false;
+    /*
+     * Pending scroll-into-view timer (see scrollSelectedIntoView),
+     * held so componentWillUnmount can cancel it. treeContainer is the
+     * wrapping div ref used to scope the react-virtualized lookup.
+     */
+    this._scrollTimer = null;
+    this.treeContainer = null;
   }
 
-  restPost (data) {
-    var strData = JSON.stringify(data);
-    return $.ajax({
-      type: "POST",
-      beforeSend: function (request) {
-        if (this.AUTHORIZATION != undefined) {
-          request.setRequestHeader("Authorization", this.AUTHORIZATION);
-        }
-      },
-      url: restPostConfig.url,
-      contentType: restPostConfig.contentType,
-      data: strData
-    });
+  /*
+   * Map a single node from the vfbquery TemplateROIBrowser response shape
+   * into the legacy node shape consumed by getButtons / getNodes /
+   * nodeClick / updateTree. painted_domain is always a list (T1 leg has
+   * bilateral L/R Individuals on the same Class); we surface the first
+   * for the eye toggle. Future enhancement: cycle through Individuals
+   * in the tooltip if there is more than one.
+   */
+  convertVfbqueryNode (vNode) {
+    var painted = (vNode.painted_domain && vNode.painted_domain.length > 0)
+      ? vNode.painted_domain[0]
+      : null;
+    var instanceId = painted ? painted.individual_id : "";
+    return {
+      title: vNode.label,
+      subtitle: vNode.id,
+      description: vNode.summary_md || "",
+      classId: vNode.id,
+      instanceId: instanceId,
+      id: vNode.id,
+      showColorPicker: false,
+      children: (vNode.children || []).map(this.convertVfbqueryNode)
+    };
   }
 
-  findChildren (parent, key, familyList, labels) {
-    var childrenList = [];
-    var childKey = this.searchChildren(familyList, key, parent, labels);
-    if (childKey !== undefined) {
-      childrenList.push(childKey);
-      var i = childKey - 1;
-      while (i > 0 && this.isNumber(parent[key]) === this.isNumber(familyList[i][key])) {
-        childrenList.push(i);
-        i--;
+  /*
+   * Walk the converted tree depth-first into a flat list used by
+   * updateTree to find a node by instanceId/classId on focus change.
+   */
+  flattenTree (treeData) {
+    var out = [];
+    var walk = nodes => {
+      for (var i = 0; i < nodes.length; i++) {
+        out.push(nodes[i]);
+        walk(nodes[i].children);
       }
-      i = childKey + 1;
-      while (i < familyList.length && this.isNumber(parent[key]) === this.isNumber(familyList[i][key])) {
-        childrenList.push(i);
-        i++;
-      }
-    }
-    return childrenList;
-  }
-
-  insertChildren (nodes, edges, child, imagesMap) {
-    // Extend the array of relationships from here
-    var childrenList = this.findChildren({ from: child.id }, "from", edges, ["part of", "SUBCLASSOF"]);
-    // child.images = this.findChildren({ from: child.id }, "from", edges, "INSTANCEOF");
-    var nodesList = [];
-    for ( var i = 0; i < childrenList.length; i++) {
-      nodesList.push(edges[childrenList[i]].to)
-    }
-    var uniqNodes = [...new Set(nodesList)];
-
-    for ( var j = 0; j < uniqNodes.length; j++) {
-      var node = nodes[this.findChildren({ id: uniqNodes[j] }, "id", nodes)[0]];
-      let imageId = node.instanceId;
-      child.children.push({
-        title: node.title,
-        subtitle: node.classId,
-        description: node.info,
-        classId: node.classId,
-        instanceId: node.instanceId,
-        id: node.id,
-        showColorPicker: false,
-        children: []
-      });
-      this.insertChildren(nodes, edges, child.children[j], imagesMap)
-    }
-  }
-
-  convertDataForTree (nodes, edges, vertix, imagesMap) {
-    // This will create the data structure for the react-sortable-tree library, starting from the vertix node.
-    var refinedDataTree = [];
-    for ( var i = 0; i < nodes.length; i++ ) {
-      if (vertix === nodes[i].id) {
-        refinedDataTree.push({
-          title: nodes[i].title,
-          subtitle: nodes[i].classId,
-          description: nodes[i].info,
-          classId: nodes[i].classId,
-          instanceId: nodes[i].instanceId,
-          id: nodes[i].id,
-          showColorPicker: false,
-          children: []
-        });
-        break;
-      }
-    }
-    var child = refinedDataTree[0];
-    // Once the vertix has been established we call insertChildren recursively on each child.
-    this.insertChildren(nodes, edges, child, imagesMap);
-    return refinedDataTree;
-  }
-
-  updateSubtitle (tree, idSelected) {
-    var node = undefined;
-    if (tree.length !== undefined) {
-      node = tree[0];
-    } else {
-      node = tree;
-    }
-    if (node.instanceId === idSelected || node.classId === idSelected) {
-      node.subtitle = idSelected;
-    }
-    for (let i = 0; i < node.children.length; i++) {
-      this.updateSubtitle(node.children[i], idSelected);
-    }
+    };
+    walk(treeData);
+    return out;
   }
 
   selectNode (instance) {
     if (this.state.nodeSelected !== undefined && this.state.nodeSelected.instanceId !== instance.instanceId) {
-      /*
-       * var treeData = this.state.dataTree;
-       * this.updateSubtitle(treeData, instance.instanceId);
-       */
       this.setState({ nodeSelected: instance });
     }
   }
@@ -189,13 +184,20 @@ class VFBTree extends React.Component {
     /*
      * function handler called by the VFBMain whenever there is an update of the instance on focus,
      * this will reflect and move to the node (if it exists) that we have on focus.
+     *
+     * Geppetto's getParent() returns null for some entity shapes
+     * and undefined for others (depends on whether the instance is a
+     * top-level Variable or a typed Class/Instance). Use a falsy
+     * check so we treat both as "no parent" — a strict `!== null`
+     * check routes the undefined case into the parent branch with
+     * innerInstance = undefined, idToSearch = undefined, and the flat-
+     * node search finds nothing. The GEPPETTO Select event for a
+     * focus-term load (e.g. medulla via the search dialog) then
+     * silently fails to update nodeSelected, and the batch3 .nodeFound
+     * assertion sees no row matching the previous selection.
      */
-    var innerInstance = undefined;
-    if (instance?.getParent() !== null) {
-      innerInstance = instance.getParent();
-    } else {
-      innerInstance = instance;
-    }
+    var parent = instance?.getParent();
+    var innerInstance = parent || instance;
     var idToSearch = innerInstance?.getId();
 
     if (this.state.nodeSelected !== undefined
@@ -225,94 +227,179 @@ class VFBTree extends React.Component {
   }
 
   initTree (instance) {
-    // This function is the core and starting point of the component itself
-    var that = this;
+    /*
+     * Entry point: load the ROI tree for the active template, either
+     * from localStorage (L1 cache) or from vfbquery (which is itself
+     * SOLR-cached server-side with a 90-day TTL).
+     */
     this.setState({
       loading: true,
-      errors: undefined,
+      errors: undefined
     });
 
-    const cacheKey = `treeData_${instance}`;
-    const cachedData = localStorage.getItem(cacheKey);
+    var cacheKey = TREE_CACHE_KEY_PREFIX + instance;
+    var cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        this.applyResponse(JSON.parse(cached));
+        return;
+      } catch (e) {
+        console.warn("VFBTree: corrupted localStorage entry, refetching", e);
+        localStorage.removeItem(cacheKey);
+      }
+    }
 
-    if (cachedData) {
-      const parsedData = JSON.parse(cachedData);
-      const dataTree = this.parseGraphResultData(parsedData);
-      const vertix = this.findRoot(parsedData);
-      const imagesMap = this.buildDictClassToIndividual(parsedData);
-      const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-      const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-      const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-      
+    /*
+     * Abort any prior in-flight fetch (e.g. the user switched template
+     * before the previous load completed) so its .then doesn't race
+     * the new one.
+     */
+    if (this._fetchController) {
+      this._fetchController.abort();
+    }
+    var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    this._fetchController = controller;
+
+    fetch(treeQueryUrl(instance), controller ? { signal: controller.signal } : undefined)
+      .then(r => {
+        if (!r.ok) {
+          throw new Error("HTTP " + r.status + " from vfbquery TemplateROIBrowser");
+        }
+        return r.json();
+      })
+      .then(data => {
+        if (!this._mounted || this._fetchController !== controller) {
+          return;
+        }
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+        } catch (e) {
+          if (e && e.name === 'QuotaExceededError') {
+            /*
+             * Tree responses are small (tens of KB) but the user may
+             * have hundreds of other entries. Don't wipe the whole
+             * localStorage (would nuke show_quick_help, VFBUploader
+             * URLs, and any other app state) — only evict OUR cache
+             * entries, including legacy `treeData_<id>` keys from the
+             * pre-vfbquery code path that are dead weight.
+             */
+            console.warn('VFBTree: localStorage full, evicting tree-cache keys and retrying');
+            try {
+              for (var i = localStorage.length - 1; i >= 0; i--) {
+                var k = localStorage.key(i);
+                if (k && (k.indexOf(TREE_CACHE_KEY_PREFIX) === 0 || k.indexOf('treeData_') === 0)) {
+                  localStorage.removeItem(k);
+                }
+              }
+            } catch (evictErr) {
+              console.error('VFBTree: tree-cache eviction failed', evictErr);
+            }
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(data));
+            } catch (e2) {
+              console.error('VFBTree: localStorage write still failing after eviction', e2);
+            }
+          } else {
+            console.error('VFBTree: localStorage write error', e);
+          }
+        }
+        this.applyResponse(data);
+      })
+      .catch(e => {
+        if (e && e.name === 'AbortError') {
+          return;
+        }
+        if (!this._mounted || this._fetchController !== controller) {
+          return;
+        }
+        console.error("VFBTree: error retrieving tree from vfbquery", e);
+        this.setState({
+          loading: false,
+          errors: "Error retrieving the data - check the console for additional information"
+        });
+      });
+  }
+
+  applyResponse (data) {
+    /*
+     * Render the no-data placeholder when the template has no painted
+     * domains (e.g. L1 CNS at the time of writing) or the endpoint
+     * returned an unexpected shape.
+     */
+    if (!data || !Array.isArray(data.tree) || data.tree.length === 0) {
+      /*
+       * Clear nodeSelected too — if the user previously had a
+       * selection (e.g. medulla on JFRC2) and then switched to a
+       * template with no painted domains (e.g. L1 larval CNS), the
+       * stale subtitle would still drive searchQuery for a node that
+       * no longer exists in the rendered tree.
+       */
       this.setState({
         loading: false,
         errors: undefined,
-        dataTree: treeData,
-        root: vertix,
-        edges: edges,
-        nodes: nodes,
-        nodeSelected: (this.props.instance === undefined
-          ? treeData[0]
-          : (this.props.instance?.getParent() === null
-            ? { subtitle: this.props.instance?.getId() }
-            : { subtitle: this.props.instance?.getParent()?.getId() }))
+        dataTree: [{ title: "No data available.", subtitle: null, children: [] }],
+        root: undefined,
+        nodes: [],
+        nodeSelected: undefined
       });
-    } else {
-      this.restPost(treeCypherQuery(instance)).done(data => {
-        if (data.errors.length > 0) {
-          console.log("-- ERROR TREE COMPONENT --");
-          console.log(data.errors);
-          this.setState({ errors: "Error retrieving the data - check the console for additional information" });
-        }
-        if (data.results.length > 0 && data.results[0].data.length > 0) {
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(data));
-          } catch (e) {
-            console.error('Error saving to localStorage:', e);
-            if (e.name === 'QuotaExceededError') {
-              console.warn('LocalStorage is full, clearing all data');
-              localStorage.clear();
-              try {
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-              } catch (e) {
-                console.error('Error saving to localStorage after clearing:', e);
-              }
-            }
-          }
-          const dataTree = this.parseGraphResultData(data);
-          const vertix = this.findRoot(data);
-          const imagesMap = this.buildDictClassToIndividual(data);
-          const nodes = this.sortData(this.convertNodes(dataTree.nodes, imagesMap), "id", this.defaultComparator);
-          const edges = this.sortData(this.convertEdges(dataTree.edges), "from", this.defaultComparator);
-          const treeData = this.convertDataForTree(nodes, edges, vertix, imagesMap);
-          this.setState({
-            loading: false,
-            errors: undefined,
-            dataTree: treeData,
-            root: vertix,
-            edges: edges,
-            nodes: nodes,
-            nodeSelected: (this.props.instance === undefined
-              ? treeData[0]
-              : (this.props.instance?.getParent() === null
-                ? { subtitle: this.props.instance?.getId() }
-                : { subtitle: this.props.instance?.getParent()?.getId() }))
-          });
-        } else {
-          var treeData = [{
-            title: "No data available.",
-            subtitle: null,
-            children: []
-          }];
-          this.setState({
-            dataTree: treeData,
-            root: undefined,
-            loading: false,
-            errors: undefined,
-          });
-        }
-      });
+      return;
     }
+    var treeData = data.tree.map(this.convertVfbqueryNode);
+    var flatNodes = this.flattenTree(treeData);
+    /*
+     * Seed nodeSelected from props.instance when the page already has a
+     * focus term (e.g. Tree Browser tab is opened after the user
+     * searched a class). The legacy code dropped a synthetic
+     * { subtitle: <id> } placeholder in here, but that has no
+     * instanceId, so getNodes' nodeFound condition
+     * (rowInfo.node.instanceId === state.nodeSelected.instanceId) never
+     * matched any row - meaning .nodeFound was never applied after a
+     * remount with an active focus term. Look up the matching real tree
+     * node by classId / instanceId so the row gets the nodeFound class
+     * straight from initial render. Falls back to the synthetic
+     * placeholder when the focus term isn't in this template's tree.
+     */
+    var initialSelected;
+    if (this.props.instance === undefined) {
+      initialSelected = treeData[0];
+    } else {
+      /*
+       * Geppetto's getParent() returns null for some entities and
+       * undefined for others (depends on whether the instance is a
+       * top-level Variable or a Type). Treat both as "no parent" via
+       * the falsy check — a strict `=== null` check misses the
+       * undefined case and would route us into the parent branch with
+       * focusInstance = undefined, yielding focusId = undefined and
+       * the synthetic-placeholder fallback. That's the root cause of
+       * the batch3 nodeFound test failure: with focusId undefined,
+       * the flat-node lookup fails, the placeholder has no
+       * instanceId, and getNodes' nodeFound class never applies.
+       */
+      var parent = this.props.instance?.getParent();
+      var focusInstance = parent || this.props.instance;
+      var focusId = focusInstance?.getId();
+      initialSelected = null;
+      if (focusId !== undefined) {
+        for (var fi = 0; fi < flatNodes.length; fi++) {
+          if (flatNodes[fi].instanceId === focusId
+              || flatNodes[fi].classId === focusId) {
+            initialSelected = flatNodes[fi];
+            break;
+          }
+        }
+      }
+      if (initialSelected === null) {
+        initialSelected = { subtitle: focusId };
+      }
+    }
+    this.setState({
+      loading: false,
+      errors: undefined,
+      dataTree: treeData,
+      root: (data.anatomy_root && data.anatomy_root.short_form) || undefined,
+      nodes: flatNodes,
+      nodeSelected: initialSelected
+    });
   }
 
 
@@ -390,8 +477,13 @@ class VFBTree extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          if (Instances[rowInfo.node.instanceId]?.getParent() !== null) {
-            Instances[rowInfo.node.instanceId]?.getParent().show();
+          /*
+           * Falsy parent check covers both null and undefined returns
+           * from getParent() — same shape gotcha as updateTree.
+           */
+          var hiddenParent = Instances[rowInfo.node.instanceId]?.getParent();
+          if (hiddenParent) {
+            hiddenParent.show();
           } else {
             Instances[rowInfo.node.instanceId]?.show();
           }
@@ -404,8 +496,9 @@ class VFBTree extends React.Component {
         aria-hidden="true"
         onClick={ e => {
           e.stopPropagation();
-          if (Instances[rowInfo.node.instanceId]?.getParent() !== null) {
-            Instances[rowInfo.node.instanceId]?.getParent().hide();
+          var visibleParent = Instances[rowInfo.node.instanceId]?.getParent();
+          if (visibleParent) {
+            visibleParent.hide();
           } else {
             Instances[rowInfo.node.instanceId].hide();
           }
@@ -456,17 +549,18 @@ class VFBTree extends React.Component {
      * we attach the tooltip with the image, differently only tooltip.
      */
     if (rowInfo.node.title !== "No data available.") {
+      var descHtml = { __html: markdownInlineToHtml(rowInfo.node.description) };
       var title = <MuiThemeProvider theme={this.theme}>
         <Tooltip placement="right-start"
           title={ (rowInfo.node.instanceId.indexOf("VFB_") > -1)
             ? (<div>
-              <div> {rowInfo.node.description} </div>
+              <div dangerouslySetInnerHTML={descHtml} />
               <div>
                 <img style={{ display: "block", textAlign: "center" }}
                   src={"https://VirtualFlyBrain.org/reports/" + rowInfo.node.instanceId + "/thumbnailT.png"} />
               </div></div>)
             : (<div>
-              <div> {rowInfo.node.description} </div>
+              <div dangerouslySetInnerHTML={descHtml} />
             </div>)}>
           <div
             className={(this.state.nodeSelected !== undefined && rowInfo.node.instanceId === this.state.nodeSelected.instanceId)
@@ -516,11 +610,29 @@ class VFBTree extends React.Component {
   }
 
   componentWillUnmount () {
+    this._mounted = false;
+    if (this._scrollTimer) {
+      clearTimeout(this._scrollTimer);
+      this._scrollTimer = null;
+    }
+    /*
+     * Cancel any in-flight tree fetch so its .then doesn't try to
+     * setState on this dead instance (React warning, leaked work).
+     */
+    if (this._fetchController) {
+      try {
+        this._fetchController.abort();
+      } catch (e) {
+        /* AbortController.abort() may not be supported in legacy envs */
+      }
+      this._fetchController = null;
+    }
     document.removeEventListener('mousedown', this.monitorMouseClick, false);
   }
 
   componentDidMount () {
     var that = this;
+    this._mounted = true;
     document.addEventListener('mousedown', this.monitorMouseClick, false);
 
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
@@ -545,6 +657,89 @@ class VFBTree extends React.Component {
     });
   }
 
+  /*
+   * react-virtualized (under react-sortable-tree) only mounts the rows
+   * near the current scroll offset, and the geppetto-ui Tree wrapper
+   * never forwards searchFocusOffset to react-sortable-tree. So a
+   * selected node is highlighted (.nodeFound) and its ancestors are
+   * expanded, but its row is never scrolled into the render window.
+   * When the TemplateROIBrowser response reorders siblings the selected
+   * node can fall below the initial window and its row stays unmounted -
+   * the batch3 'medulla' assertion then reads querySelector('.nodeFound')
+   * as null. Step the scroll offset down a viewport at a time until the
+   * row mounts, then centre it.
+   */
+  scrollSelectedIntoView () {
+    var self = this;
+    /*
+     * Defer: react-sortable-tree expands the new searchQuery's ancestor
+     * paths in a render cycle that runs after this componentDidUpdate,
+     * so the target row's offset isn't settled when we are first called.
+     */
+    if (this._scrollTimer) {
+      clearTimeout(this._scrollTimer);
+    }
+    this._scrollTimer = setTimeout(function () {
+      self._scrollTimer = null;
+      if (!self._mounted) {
+        return;
+      }
+      var container = self.treeContainer;
+      if (!container) {
+        return;
+      }
+      var grid = container.querySelector('.ReactVirtualized__Grid');
+      if (!grid) {
+        return;
+      }
+      var step = Math.max(self.styles.row_height, grid.clientHeight - self.styles.row_height);
+      var maxScroll = grid.scrollHeight;
+      var pos = 0;
+      var guard = 0;
+      var scan = function () {
+        if (!self._mounted) {
+          return;
+        }
+        var found = container.querySelector('.nodeFound');
+        if (found) {
+          found.scrollIntoView({ block: 'center', inline: 'nearest' });
+          return;
+        }
+        if (pos >= maxScroll || guard > 200) {
+          return;
+        }
+        guard++;
+        pos += step;
+        grid.scrollTop = pos;
+        /*
+         * Setting scrollTop programmatically does not always emit a
+         * scroll event synchronously; dispatch one so react-virtualized
+         * recomputes the rendered window before the next scan tick.
+         */
+        grid.dispatchEvent(new Event('scroll'));
+        setTimeout(scan, 50);
+      };
+      scan();
+    }, 150);
+  }
+
+  /*
+   * Scroll the selected row into the virtualised render window whenever
+   * the selection changes (focus-term load, node click, remount). The
+   * key compares subtitle + instanceId so colour-picker / forceUpdate
+   * re-renders that leave the selection untouched do not trigger a
+   * scroll.
+   */
+  componentDidUpdate (prevProps, prevState) {
+    var prevSel = prevState.nodeSelected;
+    var sel = this.state.nodeSelected;
+    var prevKey = prevSel ? (prevSel.subtitle + '|' + prevSel.instanceId) : '';
+    var selKey = sel ? (sel.subtitle + '|' + sel.instanceId) : '';
+    if (sel !== undefined && selKey !== prevKey && this.state.loading !== true) {
+      this.scrollSelectedIntoView();
+    }
+  }
+
   render () {
     if (this.state.dataTree === undefined) {
       var treeData = [{
@@ -565,7 +760,7 @@ class VFBTree extends React.Component {
     } else {
       // In the return we show the circular progress if the data are still being processed, differently the Tree
       return (
-        <div>
+        <div ref={el => this.treeContainer = el}>
           {this.state.loading === true
             ? <CircularProgress
               style={{
