@@ -94,6 +94,7 @@ class VFBTree extends React.Component {
     this.reloadData = this.reloadData.bind(this);
     this.monitorMouseClick = this.monitorMouseClick.bind(this);
     this.convertVfbqueryNode = this.convertVfbqueryNode.bind(this);
+    this.scrollSelectedIntoView = this.scrollSelectedIntoView.bind(this);
 
     this.theme = createMuiTheme({ overrides: { MuiTooltip: { tooltip: { fontSize: "12px" } } } });
     this.styles = {
@@ -123,6 +124,13 @@ class VFBTree extends React.Component {
      * already-resolved promise.
      */
     this._mounted = false;
+    /*
+     * Pending scroll-into-view timer (see scrollSelectedIntoView),
+     * held so componentWillUnmount can cancel it. treeContainer is the
+     * wrapping div ref used to scope the react-virtualized lookup.
+     */
+    this._scrollTimer = null;
+    this.treeContainer = null;
   }
 
   /*
@@ -603,6 +611,10 @@ class VFBTree extends React.Component {
 
   componentWillUnmount () {
     this._mounted = false;
+    if (this._scrollTimer) {
+      clearTimeout(this._scrollTimer);
+      this._scrollTimer = null;
+    }
     /*
      * Cancel any in-flight tree fetch so its .then doesn't try to
      * setState on this dead instance (React warning, leaked work).
@@ -645,6 +657,89 @@ class VFBTree extends React.Component {
     });
   }
 
+  /*
+   * react-virtualized (under react-sortable-tree) only mounts the rows
+   * near the current scroll offset, and the geppetto-ui Tree wrapper
+   * never forwards searchFocusOffset to react-sortable-tree. So a
+   * selected node is highlighted (.nodeFound) and its ancestors are
+   * expanded, but its row is never scrolled into the render window.
+   * When the TemplateROIBrowser response reorders siblings the selected
+   * node can fall below the initial window and its row stays unmounted -
+   * the batch3 'medulla' assertion then reads querySelector('.nodeFound')
+   * as null. Step the scroll offset down a viewport at a time until the
+   * row mounts, then centre it.
+   */
+  scrollSelectedIntoView () {
+    var self = this;
+    /*
+     * Defer: react-sortable-tree expands the new searchQuery's ancestor
+     * paths in a render cycle that runs after this componentDidUpdate,
+     * so the target row's offset isn't settled when we are first called.
+     */
+    if (this._scrollTimer) {
+      clearTimeout(this._scrollTimer);
+    }
+    this._scrollTimer = setTimeout(function () {
+      self._scrollTimer = null;
+      if (!self._mounted) {
+        return;
+      }
+      var container = self.treeContainer;
+      if (!container) {
+        return;
+      }
+      var grid = container.querySelector('.ReactVirtualized__Grid');
+      if (!grid) {
+        return;
+      }
+      var step = Math.max(self.styles.row_height, grid.clientHeight - self.styles.row_height);
+      var maxScroll = grid.scrollHeight;
+      var pos = 0;
+      var guard = 0;
+      var scan = function () {
+        if (!self._mounted) {
+          return;
+        }
+        var found = container.querySelector('.nodeFound');
+        if (found) {
+          found.scrollIntoView({ block: 'center', inline: 'nearest' });
+          return;
+        }
+        if (pos >= maxScroll || guard > 200) {
+          return;
+        }
+        guard++;
+        pos += step;
+        grid.scrollTop = pos;
+        /*
+         * Setting scrollTop programmatically does not always emit a
+         * scroll event synchronously; dispatch one so react-virtualized
+         * recomputes the rendered window before the next scan tick.
+         */
+        grid.dispatchEvent(new Event('scroll'));
+        setTimeout(scan, 50);
+      };
+      scan();
+    }, 150);
+  }
+
+  /*
+   * Scroll the selected row into the virtualised render window whenever
+   * the selection changes (focus-term load, node click, remount). The
+   * key compares subtitle + instanceId so colour-picker / forceUpdate
+   * re-renders that leave the selection untouched do not trigger a
+   * scroll.
+   */
+  componentDidUpdate (prevProps, prevState) {
+    var prevSel = prevState.nodeSelected;
+    var sel = this.state.nodeSelected;
+    var prevKey = prevSel ? (prevSel.subtitle + '|' + prevSel.instanceId) : '';
+    var selKey = sel ? (sel.subtitle + '|' + sel.instanceId) : '';
+    if (sel !== undefined && selKey !== prevKey && this.state.loading !== true) {
+      this.scrollSelectedIntoView();
+    }
+  }
+
   render () {
     if (this.state.dataTree === undefined) {
       var treeData = [{
@@ -665,7 +760,7 @@ class VFBTree extends React.Component {
     } else {
       // In the return we show the circular progress if the data are still being processed, differently the Tree
       return (
-        <div>
+        <div ref={el => { this.treeContainer = el; }}>
           {this.state.loading === true
             ? <CircularProgress
               style={{
