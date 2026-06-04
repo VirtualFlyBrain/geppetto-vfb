@@ -760,7 +760,7 @@ class VFBTree extends React.Component {
     } else {
       // In the return we show the circular progress if the data are still being processed, differently the Tree
       return (
-        <div ref={el => { this.treeContainer = el; }}>
+        <div ref={el => this.treeContainer = el}>
           {this.state.loading === true
             ? <CircularProgress
               style={{
