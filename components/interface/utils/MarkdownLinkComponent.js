@@ -164,6 +164,15 @@ function MarkdownLinkComponent (props) {
               if (typeof window !== 'undefined' && typeof window.addVfbId === 'function') {
                 window.addVfbId(shortForm);
               }
+              /*
+               * Hide the query-results window when opening a term, matching the
+               * gross-type tag behaviour (GrossTypeLabelsComponent calls
+               * metadata.queryBuilder.close()).
+               */
+              if (props && props.metadata && props.metadata.queryBuilder
+                  && typeof props.metadata.queryBuilder.close === 'function') {
+                props.metadata.queryBuilder.close();
+              }
             }
           },
           link.label
