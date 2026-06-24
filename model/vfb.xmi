@@ -1754,7 +1754,7 @@
   </dataSources>
   <dataSources
       name="vfbqueryterminfo"
-      dataSourceService="vfbqueryDataSource"
+      dataSourceService="vfbqueryTermInfoDataSource"
       url="http://v3-cached.virtualflybrain.org/get_term_info"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
