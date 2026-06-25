@@ -1752,41 +1752,6 @@
           queryProcessorId="vfbqueryJsonProcessor"/>
     </queries>
   </dataSources>
-  <dataSources
-      name="vfbqueryterminfo"
-      dataSourceService="vfbqueryTermInfoDataSource"
-      url="http://v3-cached.virtualflybrain.org/get_term_info"
-      dependenciesLibrary="//@libraries.3"
-      targetLibrary="//@libraries.4">
-    <libraryConfigurations
-        library="//@libraries.0"
-        modelInterpreterId="swcModelInterpreterService"
-        format="swc"/>
-    <libraryConfigurations
-        library="//@libraries.1"
-        modelInterpreterId="objModelInterpreterService"
-        format="obj"/>
-    <libraryConfigurations
-        library="//@libraries.2"
-        modelInterpreterId="owlModelInterpreterService"
-        format="owl"/>
-    <fetchVariableQuery
-        xsi:type="gep_2:CompoundQuery"
-        name="Process VFBquery term info"
-        description="">
-      <queryChain
-          xsi:type="gep_2:SimpleQuery"
-          name="Get term info from v3-cached"
-          description="GET /get_term_info?id=$ID."
-          query="id=$ID"
-          countQuery="id=$ID"/>
-      <queryChain
-          xsi:type="gep_2:ProcessQuery"
-          name="Process VFBquery term info JSON"
-          description="Process VFBquery term info JSON"
-          queryProcessorId="vfbProcessTermInfoVFBqueryJson"/>
-    </fetchVariableQuery>
-  </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
       name="List all available images for class with examples"
