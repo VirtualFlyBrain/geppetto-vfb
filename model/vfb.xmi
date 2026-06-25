@@ -1756,7 +1756,7 @@
       id="vfbqueryTermInfo"
       name="vfbqueryterminfo"
       dataSourceService="vfbqueryTermInfoDataSource"
-      url="http://v3-cached.virtualflybrain.org/get_term_info?"
+      url="http://v3-cached.virtualflybrain.org/get_term_info"
       dependenciesLibrary="//@libraries.3"
       targetLibrary="//@libraries.4">
     <libraryConfigurations
