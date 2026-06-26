@@ -439,6 +439,17 @@ class VFBTermInfo extends React.Component {
           node = undefined;
         }
 
+        // If the link shows the raw id (e.g. the "Aligned to" template short_form),
+        // resolve it to the term's label when the target term is loaded.
+        try {
+          if (node && $(this).text() === path) {
+            var resolvedName = (typeof node.getName === "function") ? node.getName() : node.name;
+            if (resolvedName && resolvedName !== path) {
+              $(this).text(resolvedName);
+            }
+          }
+        } catch (eName) { /* keep raw id */ }
+
         // hookup IF domain type is undefined OR it's defined and it matches the node type
         if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
         // hookup custom handler
