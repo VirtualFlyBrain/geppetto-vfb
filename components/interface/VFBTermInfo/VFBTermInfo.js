@@ -439,8 +439,7 @@ class VFBTermInfo extends React.Component {
           node = undefined;
         }
 
-        /* If the link shows the raw id (e.g. the "Aligned to" template short_form),
-           resolve it to the term's label when the target term is loaded. */
+        // Raw-id link (e.g. "Aligned to" template short_form): show the term label when loaded.
         try {
           if (node && $(this).text() === path) {
             var resolvedName = (typeof node.getName === "function") ? node.getName() : node.name;
