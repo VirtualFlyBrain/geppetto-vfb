@@ -20,6 +20,53 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
+/*
+ * Preferred template ordering for the Available Images carousel, after the
+ * currently loaded template: JRC2018U, JRC2018VNCU, L1EM, L3CNS.
+ */
+const PREFERRED_CAROUSEL_TEMPLATES = ['VFB_00101567', 'VFB_00200000', 'VFB_00050000', 'VFB_00049000'];
+
+/* Template short_form is the second-to-last segment of the thumbnail data URL. */
+function carouselTemplateOf (element) {
+  try {
+    var parts = element.initialValue.data.split('/');
+    return parts[parts.length - 2];
+  } catch (e) {
+    return '';
+  }
+}
+
+function carouselImageIdOf (element) {
+  return element.initialValue && element.initialValue.reference ? element.initialValue.reference : '';
+}
+
+function carouselTemplateRank (template) {
+  if (window.templateID !== undefined && template === window.templateID) {
+    return -1;
+  }
+  var i = PREFERRED_CAROUSEL_TEMPLATES.indexOf(template);
+  return i >= 0 ? i : 1000;
+}
+
+/* Sort a copy of the carousel elements; see the call site for the ordering rationale. */
+function orderCarouselElements (elements) {
+  return elements.slice().sort(function (a, b) {
+    var templateA = carouselTemplateOf(a), templateB = carouselTemplateOf(b);
+    var rankA = carouselTemplateRank(templateA), rankB = carouselTemplateRank(templateB);
+    if (rankA !== rankB) {
+      return rankA - rankB;
+    }
+    if (rankA === 1000 && templateA !== templateB) {
+      return templateA < templateB ? 1 : -1;
+    }
+    var idA = carouselImageIdOf(a), idB = carouselImageIdOf(b);
+    if (idA === idB) {
+      return 0;
+    }
+    return idA < idB ? 1 : -1;
+  });
+}
+
 class VFBTermInfo extends React.Component {
 
   constructor (props) {
@@ -250,8 +297,15 @@ class VFBTermInfo extends React.Component {
           var elements = [];
           this.imagesData.index = 0;
           this.imagesData.list = [];
-          for (var j = 0; j < value.elements.length; j++) {
-            var image = value.elements[j].initialValue;
+          /*
+           * Order Available Images: current template first, then the preferred
+           * templates, then the rest by descending template id, and within each
+           * template by descending image id (newest first). Done client-side so
+           * a stale cache cannot pin the wrong current template to the front.
+           */
+          var sortedElements = orderCarouselElements(value.elements);
+          for (var j = 0; j < sortedElements.length; j++) {
+            var image = sortedElements[j].initialValue;
             this.imagesData.list.push(image.reference);
             elements.push(<div className="slider_image_container">
               {image.name}
