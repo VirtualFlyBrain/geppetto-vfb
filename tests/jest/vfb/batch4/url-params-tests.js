@@ -134,7 +134,7 @@ const neuronTest = function(project){
 		})
 		
 		it('Term info component correctly populated at startup', async () => {
-			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('list all painted anatomy available for adult brain unisex jrc2018u'), { timeout: 120000 });
+			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('painted domains for jrc2018u'), { timeout: 120000 });
 		})
 
 		it('Term info component correctly populated with "fru-M-200266 (VFB_00000001)" as Name', async () => {

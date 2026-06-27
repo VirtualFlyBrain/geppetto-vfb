@@ -68,8 +68,8 @@ describe('VFB Menu Component Tests', () => {
 
     it('Term info component correctly populated at startup', async () => {
       await page.waitFor(3000);
-      let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
-      expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
+      let element = await findElementByText(page, "Painted domains for JFRC2");
+      expect(element).toBe("Painted domains for JFRC2");
     })
   })
 
