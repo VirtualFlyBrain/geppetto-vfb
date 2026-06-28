@@ -127,7 +127,11 @@ function generalReducer (state, action) {
       var idsToLoad = state.idsToLoad;
       var newMap = { ...state.idsMap };
       action.data.map(item => {
-        if (!state.idsList.includes(item) && checkLayoutState(state.ui.layout)) {
+        // Guard against duplicates both already-loaded (state.idsList) and
+        // repeated within this same array (newIds) -- otherwise idsToLoad is
+        // counted more than once for an id while only one instance loads,
+        // leaving the loader stuck (e.g. "Loading 1/2" forever).
+        if (!state.idsList.includes(item) && !newIds.includes(item) && checkLayoutState(state.ui.layout)) {
           idsToLoad++;
           newIds.push(item);
           newMap[item] = {
