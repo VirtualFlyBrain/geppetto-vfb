@@ -161,8 +161,13 @@ class VFBMain extends React.Component {
       }
       idsList = Array.from(new Set(idsList));
       // Udate URL in case of reload before items loaded:
+      // Rebuild a clean, de-duplicated id=/i= URL rather than appending the id
+      // list onto the existing search string (which duplicated the i= list on
+      // every call, growing the URL and desyncing the loader when ids repeat).
       if (window.history.state != null && (window.history.state.s == 1 || window.history.state.s == 4) && window.location.search.indexOf("i=") > -1) {
-        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0] + "&") + "," + idsList.join(','));
+        var cleanIds = Array.from(new Set(idsList));
+        var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
+        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
       window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
