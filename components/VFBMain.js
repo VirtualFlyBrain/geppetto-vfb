@@ -1288,6 +1288,41 @@ class VFBMain extends React.Component {
       this.props.setTermInfo(meta, true);
     }.bind(this);
 
+    /*
+     * Fetch the VFBquery "Query For" set (get_term_info.Queries) for a term so
+     * the query builder / focus term can offer the same queries the term-info
+     * panel shows. preview=false keeps it light and uses the cached term_info.
+     * Memoised; resolves to a {queryType: true} map, or null on failure (callers
+     * then keep the full getMatchingQueries list, so no regression).
+     */
+    window._vfbQueryTypesCache = window._vfbQueryTypesCache || {};
+    window.getVFBQueryTypes = function (id) {
+      if (window._vfbQueryTypesCache[id] !== undefined) {
+        return Promise.resolve(window._vfbQueryTypesCache[id]);
+      }
+      return fetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
+        .then(function (r) {
+          return r.ok ? r.json() : null;
+        })
+        .then(function (d) {
+          var set = null;
+          if (d && Array.isArray(d.Queries)) {
+            set = {};
+            d.Queries.forEach(function (q) {
+              if (q && q.query) {
+                set[q.query] = true;
+              }
+            });
+          }
+          window._vfbQueryTypesCache[id] = set;
+          return set;
+        })
+        .catch(function () {
+          window._vfbQueryTypesCache[id] = null;
+          return null;
+        });
+    };
+
     window.fetchVariableThenRun = function (idsList, cb, label) {
       this.fetchVariableThenRun(idsList, cb, label);
     }.bind(this);
