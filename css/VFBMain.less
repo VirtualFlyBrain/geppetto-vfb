@@ -269,7 +269,7 @@
 #querybuilder .tt-menu {
   background-color: #333 !important;
   color: #fff !important;
-  width: 780px !important;
+  width: 900px !important;
   max-width: 92vw !important;
   padding: 8px 0 !important;
   max-height: 340px !important;
@@ -280,10 +280,11 @@
 
 #querybuilder .tt-suggestion {
   height: auto !important;
-  min-height: 34px;
+  min-height: 39px;
   padding: 6px 16px !important;
-  line-height: 22px !important;
-  font-size: 15px !important;
+  line-height: 27px !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 18px !important;
   color: #fff !important;
   overflow: hidden !important;
   border-bottom: 1px solid #444;
@@ -307,11 +308,12 @@
   float: right;
   margin-right: 0 !important;
   white-space: nowrap;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
+// Main search renders matched text at normal weight; don't bold the typeahead match
 #querybuilder .tt-suggestion strong {
-  font-weight: 700;
+  font-weight: 400;
   color: #fff;
 }
 
