@@ -508,6 +508,10 @@ class VFBTermInfo extends React.Component {
         // hookup custom handler
           var that = this;
           var href = $(that).attr('href');
+          // Hint that query links can be combined with the current results via shift-click.
+          if (href && href.indexOf('?q=') > -1 && !$(that).attr('title')) {
+            $(that).attr('title', 'Shift-click to add this query to your current results');
+          }
           $(that).off();
           $(that).on(ev, function () {
           // invoke custom handler with instancepath as arg
@@ -895,21 +899,15 @@ class VFBTermInfoWidget extends React.Component {
 
           this.props.queryBuilder.open();
           this.props.queryBuilder.switchView(false, false);
-          if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
+          if (GEPPETTO.isKeyPressed("shift")) {
+            // Shift held: combine (stack) the new query with the existing one instead of replacing it.
             console.log('Query stacking requested.');
           } else {
             this.props.queryBuilder.clearAllQueryItems();
             $('#add-new-query-container')[0].hidden = true;
             $('#query-builder-items-container')[0].hidden = true;
           }
-          
-          /**
-           *  Fire event to set the Shift key as not pressed, this is needed since the presence of the 
-           *  confirm() dialog prevents the DOM to un-set the 'shift' key.
-           */
-          var e = new KeyboardEvent('keyup', { bubbles : true, cancelable : true, shiftKey : false });
-          document.querySelector("body").dispatchEvent(e);
-          
+
           $("body").css("cursor", "progress");
 
 

@@ -239,6 +239,15 @@
   padding-bottom: 0em;
 }
 
+  /* Term-info action links (queries, graphs) are click targets, not prose:
+     stop shift+click from selecting their text instead of triggering the query. */
+a[data-instancepath] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
  /* icon customisations: */
 
  .terminfo-licenseicon {
