@@ -387,6 +387,32 @@ class VFBMain extends React.Component {
           }
         }
       }
+
+      /*
+       * Multi-template: the cached type carries only the primary alignment's
+       * geometry. When the term is aligned to the loaded template but its
+       * attached OBJ belongs to a different template, swap in this template's
+       * geometry URLs from get_term_info.Images (structured, not URL-parsed).
+       * Fully guarded best-effort -- on any miss we keep the default geometry.
+       */
+      if (alignedToCurrent) {
+        try {
+          var objVar = (Instances[path] && Instances[path].getType()) ? Instances[path].getType()[path + "_obj"] : undefined;
+          var attachedUrl = (objVar && objVar.getType() && typeof objVar.getType().getUrl === "function") ? objVar.getType().getUrl() : "";
+          if (attachedUrl && attachedUrl.indexOf(window.templateID) === -1) {
+            if (window._vfbImagesCache && window._vfbImagesCache[path] !== undefined) {
+              this.applyTemplateGeometry(path, window.templateID, window._vfbImagesCache[path]);
+            } else {
+              window.getVFBImages(path).then(function () {
+                window.resolve3D(path);
+              });
+              return;
+            }
+          }
+        } catch (e) {
+          /* keep default geometry on any error */
+        }
+      }
     }
 
     var instance = undefined;
@@ -457,6 +483,39 @@ class VFBMain extends React.Component {
         GEPPETTO.trigger(GEPPETTO.Events.Instances_created, [instance]);
         postResolve();
       }
+    }
+  }
+
+  /*
+   * Point the term's geometry import types at the CURRENTLY loaded template's
+   * alignment. imgs is get_term_info.Images (keyed by template short_form); each
+   * record carries per-template obj/swc/wlz URLs. No-op (keeps default geometry)
+   * if this template has no record or the import types are absent.
+   */
+  applyTemplateGeometry (path, tpl, imgs) {
+    try {
+      if (!imgs || !imgs[tpl] || !imgs[tpl].length) {
+        return;
+      }
+      var rec = imgs[tpl][0];
+      var setUrl = function (suffix, url) {
+        if (!url) {
+          return;
+        }
+        try {
+          var v = Instances[path].getType()[path + suffix];
+          if (v && v.getType() && typeof v.getType().setUrl === "function") {
+            v.getType().setUrl(url.replace("https://", "http://"));
+          }
+        } catch (inner) {
+          /* skip this format */
+        }
+      };
+      setUrl("_obj", rec.obj);
+      setUrl("_swc", rec.swc);
+      setUrl("_slices", rec.wlz);
+    } catch (e) {
+      /* keep default geometry on any error */
     }
   }
 
@@ -1335,6 +1394,32 @@ class VFBMain extends React.Component {
         })
         .catch(function () {
           window._vfbQueryTypesCache[id] = null;
+          return null;
+        });
+    };
+
+    /*
+     * Fetch a term's per-template image records (get_term_info.Images, keyed by
+     * template short_form) so the loader can pick the geometry for the CURRENTLY
+     * loaded template rather than the single primary alignment baked into the
+     * cached type. Memoised; resolves to the Images object, or null on failure
+     * (callers then keep the default geometry, so no regression).
+     */
+    window._vfbImagesCache = window._vfbImagesCache || {};
+    window.getVFBImages = function (id) {
+      if (window._vfbImagesCache[id] !== undefined) {
+        return Promise.resolve(window._vfbImagesCache[id]);
+      }
+      return fetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id))
+        .then(function (r) {
+          return r.ok ? r.json() : null;
+        })
+        .then(function (d) {
+          window._vfbImagesCache[id] = (d && d.Images) ? d.Images : null;
+          return window._vfbImagesCache[id];
+        })
+        .catch(function () {
+          window._vfbImagesCache[id] = null;
           return null;
         });
     };
