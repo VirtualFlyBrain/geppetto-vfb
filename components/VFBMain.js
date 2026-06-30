@@ -328,9 +328,19 @@ class VFBMain extends React.Component {
       // check if the user is adding to the scene something belonging to another template
       var superTypes = rootInstance.getType().getSuperType();
       var templateID = "unknown";
+      /*
+       * An image term can be aligned to several templates; every one is a
+       * super-type of its type (VFBProcessTermInfoVFBqueryJson lists them all
+       * under "Aligned to"). Decide whether the term is available on the
+       * CURRENTLY loaded template by membership in that set, not by a single
+       * cached template value -- the latter falsely flagged a template change
+       * whenever the term's primary template differed from the loaded one.
+       */
+      var alignedToCurrent = false;
       for (var i = 0; i < superTypes.length; i++) {
         if (superTypes[i].getId() == window.templateID) {
           templateID = superTypes[i].getId()
+          alignedToCurrent = true;
         }
         if (superTypes[i].getId() == 'Class') {
           templateID = window.templateID;
@@ -353,7 +363,13 @@ class VFBMain extends React.Component {
             var curHost = document.location.host;
             var curProto = document.location.protocol;
           }
-          if (templateID != window.templateID) {
+          if (!alignedToCurrent && templateID != window.templateID) {
+            /*
+             * The term is not aligned to the loaded template -- offer to open it
+             * on its own template, as before. When it IS aligned to the loaded
+             * template (alignedToCurrent) we fall through and load it here
+             * instead of falsely prompting a template change.
+             */
             // open new window with the new template and the instance ID
             window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
             var targetWindow = '_blank';
