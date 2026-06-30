@@ -13,9 +13,15 @@
  * nested tree with FBbt labels, FBbt IDs, painted-domain Individual IDs,
  * and per-node markdown summaries for tooltips. The frontend no longer
  * runs Cypher, holds DB credentials, or reconstructs paths.
+ *
+ * Go through the v3-cached proxy (never the raw vfbquery host), so the
+ * tree is served from the SOLR cache like every other VFBquery call
+ * (get_term_info / connectivity in vfb.xmi and VFBMain.js). Hitting
+ * vfbquery directly exposed the tree to cold-miss/backend-node stalls
+ * that left div.rst__tree unrendered in CI.
  */
 
-const VFBQUERY_BASE = "https://vfbquery.virtualflybrain.org";
+const VFBQUERY_BASE = "https://v3-cached.virtualflybrain.org";
 
 var treeQueryUrl = templateShortForm =>
   `${VFBQUERY_BASE}/run_query?query_type=TemplateROIBrowser&id=${encodeURIComponent(templateShortForm)}`;
