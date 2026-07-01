@@ -82,14 +82,21 @@ export default class VFBLoadManager {
       this.focusId = id;
     }
 
+    var existing = this.items.get(id);
+
     /*
-     * Already available -- either this manager loaded it, or it is already in
-     * the model/scene (e.g. a template or painted domain that came in with the
-     * initial scene, which this manager never requested). Re-requesting such a
-     * term (a click to view it) must NOT enqueue or increment the loader; just
-     * move focus to it. Only applies when it is not currently mid-load.
+     * Already loaded -- the model has it (window[id], set by any loader), this
+     * manager finished it (its entry may not be pruned yet), or we recorded it
+     * earlier. A re-request (a click to view it) must just re-focus: no reload,
+     * no counter increment. This has to run even when a finished entry is still
+     * in `items` -- entries are only pruned when the whole batch goes idle, which
+     * flicking between loaded terms prevents -- otherwise the re-click falls
+     * through to the in-flight branch below and never re-displays (the "flick
+     * between loaded terms a few times then it stops showing in Term Info" bug).
      */
-    if (!this.items.has(id) && (this.loaded.has(id) || (this._isLoaded && this._isLoaded(id)))) {
+    if ((existing && existing.status === LOAD_STATUS.LOADED)
+        || this.loaded.has(id)
+        || (this._isLoaded && this._isLoaded(id))) {
       this.loaded.add(id);
       if (display) {
         this._applyFocus(id);
@@ -98,11 +105,11 @@ export default class VFBLoadManager {
       return;
     }
 
-    var existing = this.items.get(id);
     if (existing && existing.status !== LOAD_STATUS.FAILED) {
       /*
-       * Already queued/fetching/background: do NOT issue a second request. The
-       * outstanding one will resolve; a repeat with display only re-points focus.
+       * Currently loading (queued/fetching/background/rendering): do NOT issue a
+       * second request. focusId is set above, so focus is applied when it
+       * resolves; a repeat with display just waits.
        */
       this._publishSnapshot();
       return;
