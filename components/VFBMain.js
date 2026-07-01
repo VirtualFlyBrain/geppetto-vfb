@@ -250,8 +250,10 @@ class VFBMain extends React.Component {
         if (settled) {
           return;
         }
-        // The reply may have arrived and built the variable without our
-        // callback firing (orphaned requestID) -- accept it if so.
+        /*
+         * The reply may have arrived and built the variable without our
+         * callback firing (orphaned requestID) -- accept it if so.
+         */
         if (GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId).length > 0) {
           finish();
           return;
