@@ -29,6 +29,7 @@ export const LOAD_STATUS = {
   QUEUED: 'queued',
   FETCHING: 'fetching',
   BACKGROUND: 'background',
+  RENDERING: 'rendering',
   LOADED: 'loaded',
   FAILED: 'failed'
 };
@@ -47,6 +48,13 @@ export default class VFBLoadManager {
     this.backgroundAfterMs = opts.backgroundAfterMs || 45000;
     // Hard give-up: only after this do we treat a term as failed and drain it.
     this.itemTimeoutMs = opts.itemTimeoutMs || 1800000; // 30 min
+    /*
+     * A visual term is only "loaded" once its viewer paints the mesh
+     * (noteComponentLoaded). If no viewer reports within this grace window we
+     * count it done anyway rather than hold the bar open -- so a missing/absent
+     * mesh can never freeze loading.
+     */
+    this.renderGraceMs = opts.renderGraceMs || 90000;
 
     // Injected side-effects (all optional; guarded at call sites).
     this._fetch = opts.fetch; // (id, { onResolved, onFailed }) => void
@@ -54,7 +62,7 @@ export default class VFBLoadManager {
     this._onFailed = opts.onFailed; // (id, error) => void -- drain loader entry
     this._publish = opts.publish; // (snapshot) => void  -- push status to the UI
 
-    this.items = new Map(); // id -> { status, label, startedAt, bootstrapTimer, hardTimer, error }
+    this.items = new Map(); // id -> { status, label, startedAt, bootstrapTimer, hardTimer, renderTimer, error }
     this.queue = []; // ids awaiting a counting slot
     this.loaded = new Set(); // ids already loaded this session (re-request => re-focus only)
     this.focusId = undefined;
@@ -98,6 +106,7 @@ export default class VFBLoadManager {
       startedAt: Date.now(),
       bootstrapTimer: null,
       hardTimer: null,
+      renderTimer: null,
       error: null
     });
     this.queue.push(id);
@@ -173,8 +182,13 @@ export default class VFBLoadManager {
 
     try {
       this._fetch(id, {
+        /* Non-visual term: nothing to paint, so it is done once fetched. */
         onResolved: function () {
           self._resolved(id);
+        },
+        /* Visual term: fetched, now wait for the viewer to paint the mesh. */
+        onFetched: function () {
+          self._rendering(id);
         },
         onFailed: function (err) {
           self._fail(id, err || new Error('load failed'));
@@ -182,6 +196,44 @@ export default class VFBLoadManager {
       });
     } catch (e) {
       this._fail(id, e);
+    }
+  }
+
+  /*
+   * A visual term whose fetch has completed: free its concurrency slot (the
+   * fetch is done) and wait for a viewer to report the mesh painted, keeping the
+   * item active so the overlay reflects "still rendering". A grace timer settles
+   * it regardless, so an absent mesh can never hold the bar open.
+   */
+  _rendering (id) {
+    var self = this;
+    var it = this.items.get(id);
+    if (!it || it.status === LOAD_STATUS.LOADED || it.status === LOAD_STATUS.FAILED) {
+      return;
+    }
+    if (it.bootstrapTimer) {
+      clearTimeout(it.bootstrapTimer);
+      it.bootstrapTimer = null;
+    }
+    if (it.hardTimer) {
+      clearTimeout(it.hardTimer);
+      it.hardTimer = null;
+    }
+    it.status = LOAD_STATUS.RENDERING;
+    it.renderTimer = setTimeout(function () {
+      self._resolved(id);
+    }, this.renderGraceMs);
+    this._publishSnapshot();
+    this._pump();
+  }
+
+  /* A viewer has painted a component for this id -- treat the term as loaded. */
+  noteComponentLoaded (id) {
+    var it = this.items.get(id);
+    if (it && (it.status === LOAD_STATUS.FETCHING
+        || it.status === LOAD_STATUS.BACKGROUND
+        || it.status === LOAD_STATUS.RENDERING)) {
+      this._resolved(id);
     }
   }
 
@@ -210,6 +262,7 @@ export default class VFBLoadManager {
     it.status = LOAD_STATUS.FAILED;
     it.error = (err && err.message) || String(err);
     this._settled++;
+    console.warn('VFBLoadManager: giving up on ' + id + ' (' + it.error + '); draining so the rest can finish');
     try {
       if (this._onFailed) {
         this._onFailed(id, it.error);
@@ -240,15 +293,26 @@ export default class VFBLoadManager {
       clearTimeout(it.hardTimer);
       it.hardTimer = null;
     }
+    if (it.renderTimer) {
+      clearTimeout(it.renderTimer);
+      it.renderTimer = null;
+    }
+  }
+
+  _isActiveStatus (status) {
+    return status === LOAD_STATUS.FETCHING
+      || status === LOAD_STATUS.BACKGROUND
+      || status === LOAD_STATUS.RENDERING;
   }
 
   _active () {
     if (this.queue.length > 0) {
       return true;
     }
+    var self = this;
     var active = false;
     this.items.forEach(function (it) {
-      if (it.status === LOAD_STATUS.FETCHING || it.status === LOAD_STATUS.BACKGROUND) {
+      if (self._isActiveStatus(it.status)) {
         active = true;
       }
     });
@@ -258,19 +322,17 @@ export default class VFBLoadManager {
   _currentLabel () {
     if (this.focusId) {
       var f = this.items.get(this.focusId);
-      if (f && (f.status === LOAD_STATUS.FETCHING || f.status === LOAD_STATUS.BACKGROUND)) {
+      if (f && this._isActiveStatus(f.status)) {
         return f.label;
       }
     }
+    /* Otherwise prefer whatever is actively fetching, then longer-running work. */
     var label = '';
-    this.items.forEach(function (it) {
-      if (!label && it.status === LOAD_STATUS.FETCHING) {
-        label = it.label;
-      }
-    });
-    if (!label) {
+    var order = [LOAD_STATUS.FETCHING, LOAD_STATUS.RENDERING, LOAD_STATUS.BACKGROUND];
+    for (var i = 0; i < order.length && !label; i++) {
+      var wanted = order[i];
       this.items.forEach(function (it) {
-        if (!label && it.status === LOAD_STATUS.BACKGROUND) {
+        if (!label && it.status === wanted) {
           label = it.label;
         }
       });
@@ -289,12 +351,24 @@ export default class VFBLoadManager {
       return { active: false, total: this._total, settled: this._settled, failed: failed, message: '' };
     }
     var label = this._currentLabel();
+    /*
+     * If only long-running (background/rendering) work remains -- nothing queued
+     * or actively fetching -- say so, so the user knows a slow instance is still
+     * coming rather than the bar being stuck.
+     */
+    var foreground = this.queue.length > 0;
+    this.items.forEach(function (it) {
+      if (it.status === LOAD_STATUS.FETCHING) {
+        foreground = true;
+      }
+    });
+    var verb = foreground ? 'Loading ' : 'Still loading ';
     return {
       active: true,
       total: this._total,
       settled: this._settled,
       failed: failed,
-      message: 'Loading ' + this._settled + '/' + this._total + (label ? ' — ' + label : '')
+      message: verb + this._settled + '/' + this._total + (label ? ' — ' + label : '')
     };
   }
 

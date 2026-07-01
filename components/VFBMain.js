@@ -275,14 +275,17 @@ class VFBMain extends React.Component {
 
   ThreeDViewerIdLoaded (id) {
     this.props.vfbIdLoaded(id, "ThreeDViewer");
+    this.loadManager.noteComponentLoaded(id);
   }
 
   StackViewerIdLoaded (id) {
     this.props.vfbIdLoaded(id, "StackViewer");
+    this.loadManager.noteComponentLoaded(id);
   }
 
   TermInfoIdLoaded (id) {
     this.props.vfbIdLoaded(id, "TermInfo");
+    this.loadManager.noteComponentLoaded(id);
   }
 
   handleSceneAndTermInfoCallback (variableIds) {
@@ -370,21 +373,50 @@ class VFBMain extends React.Component {
    */
   managerFetch (id, callbacks) {
     var self = this;
-    var done = (callbacks && callbacks.onResolved) ? callbacks.onResolved : function () {};
-    var failed = (callbacks && callbacks.onFailed) ? callbacks.onFailed : function () {};
+    var cb = callbacks || {};
+    var resolved = cb.onResolved || function () {};
+    var fetched = cb.onFetched || function () {};
+    var failed = cb.onFailed || function () {};
+
+    /* Already in the scene: nothing to fetch or paint -- done now. */
     if (Instances.getInstance(id) !== undefined) {
       this.handleSceneAndTermInfoCallback(id);
-      done();
+      this.managerLabel(id);
+      resolved();
       return;
     }
+
     this.props.vfbLoadId([id]);
     try {
       Model.getDatasources()[5].fetchVariable(id, function () {
         self.handleSceneAndTermInfoCallback(id);
-        done();
+        self.managerLabel(id);
+        /*
+         * A visual term is not "done" until its viewer paints the mesh, so
+         * report it as fetched and let noteComponentLoaded complete it. A term
+         * with no geometry has nothing to paint, so resolve it immediately.
+         */
+        if (self.hasVisualType(id)) {
+          fetched();
+        } else {
+          resolved();
+        }
       });
     } catch (e) {
       failed(e);
+    }
+  }
+
+  /* Best-effort human label for the status line (falls back to the id). */
+  managerLabel (id) {
+    try {
+      var instance = Instances.getInstance(id);
+      var name = (instance && typeof instance.getName === "function") ? instance.getName() : undefined;
+      if (name && name !== id) {
+        this.loadManager.setLabel(id, name);
+      }
+    } catch (e) {
+      // label is cosmetic; ignore
     }
   }
 
