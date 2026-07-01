@@ -22,27 +22,30 @@ export default class VFBLoader extends Component {
   }
 
   render () {
-    if (!this.props.generals.loading) {
+    var status = this.props.generals.loadStatus || {};
+    if (!status.active) {
       return null;
     }
     return (
       <div>
-        <ProgressBar params={this.props.generals} />
+        <ProgressBar status={status} />
       </div>
     )
   }
 }
 
 const ProgressBar = props => {
-  let instancesToLoad = props.params.idsToLoad;
-  let instancesLoaded = props.params.idsLoaded + 1;
+  var status = props.status;
+  var pct = status.total > 0 ? Math.round((status.settled / status.total) * 100) : 0;
+  var failedCount = status.failed ? status.failed.length : 0;
+  var label = (status.message || "Loading ...") + (failedCount > 0 ? " (" + failedCount + " couldn't load)" : "");
   return (
-    <div className="progress-bar" datalabel={"Loading " + String(instancesLoaded) + "/" + String(instancesToLoad) + " ..."}>
-      <Filler stepsLoaded={props.params.stepsLoaded} stepsToLoad={props.params.stepsToLoad} />
+    <div className="progress-bar" datalabel={label}>
+      <Filler pct={pct} />
     </div>
   )
 };
 
 const Filler = props => (
-  <div className="filler" style={{ width: `${props.stepsLoaded * (100 / props.stepsToLoad)}%` }}></div>
+  <div className="filler" style={{ width: `${props.pct}%` }}></div>
 );

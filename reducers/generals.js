@@ -13,7 +13,8 @@ import {
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
   VFB_LOAD_TERM_INFO,
-  INVALID_ID
+  INVALID_ID,
+  LOAD_STATUS
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -28,6 +29,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
+  loadStatus: { active: false, total: 0, settled: 0, failed: [], message: '' },
   instanceOnFocus : {},
   ui : {
     canvas : {
@@ -103,6 +105,17 @@ function generalReducer (state, action) {
     return {
       ...state,
       error: action.data
+    }
+  case LOAD_STATUS:
+    /*
+     * VFBLoadManager is the single owner of loading progress. Mirror its
+     * snapshot into loadStatus and keep the legacy `loading` boolean in sync so
+     * existing readers (spinner, guards) keep working off one source of truth.
+     */
+    return {
+      ...state,
+      loadStatus: action.data,
+      loading: action.data.active
     }
   case VFB_LOAD_ID:
     // check if data are provided as string or array of strings
