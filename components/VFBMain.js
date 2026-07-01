@@ -344,9 +344,21 @@ class VFBMain extends React.Component {
             }
           }
         }.bind(this));
-      } else if (isFocusTarget) {
-        this.handlerInstanceUpdate(meta);
-        this.setActiveTab("termInfo");
+      } else {
+        /*
+         * Term with no visual type (a class / neuromere etc.): there is nothing
+         * for the 3D or slice viewers to load, so no viewer ever dispatches its
+         * loaded-signal and this id's loader entry (empty components) would stick
+         * forever -- e.g. "Loading 2/2" -- keeping the progress overlay up so the
+         * Term Info panel never surfaces. Resolve the loader entry here so the
+         * load completes and the term simply appears in Term Info, with NO
+         * geometry pulled in. Only the focus term drives the panel/tab.
+         */
+        if (isFocusTarget) {
+          this.handlerInstanceUpdate(meta);
+          this.setActiveTab("termInfo");
+        }
+        this.props.invalidIdLoaded(variableIds[singleId]);
       }
       // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
       if (window[variableIds[singleId]] != undefined) {
