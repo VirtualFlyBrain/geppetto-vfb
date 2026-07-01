@@ -187,7 +187,7 @@ function generalReducer (state, action) {
 
       if (instanceLoaded) {
         idsLoaded++;
-        delete newMap[action.data.id];
+        delete newMap[singleId];
       }
     }
 
@@ -383,7 +383,7 @@ function generalReducer (state, action) {
 
       if (instanceLoaded) {
         idsLoaded++;
-        delete newMap[action.data.id];
+        delete newMap[singleId];
       }
     }
 
