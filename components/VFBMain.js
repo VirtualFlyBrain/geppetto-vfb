@@ -117,6 +117,21 @@ class VFBMain extends React.Component {
 
     this.setSepCol = require('./interface/utils/utils').setSepCol;
     this.hasVisualType = require('./interface/utils/utils').hasVisualType;
+
+    /*
+     * Single owner of term loading. Everything that loads a term goes through
+     * this: it caps how many fetch at once, remembers the last id requested for
+     * display (focusId), dedups repeat requests, lets a slow term step aside so
+     * neighbours load, and publishes a live status for the progress overlay.
+     */
+    var VFBLoadManager = require('./interface/VFBLoader/VFBLoadManager').default;
+    this.loadManager = new VFBLoadManager({
+      concurrency: 3,
+      fetch: (id, callbacks) => this.managerFetch(id, callbacks),
+      onFocus: id => this.managerFocus(id),
+      onFailed: id => this.props.invalidIdLoaded(id),
+      publish: snapshot => this.props.setLoadStatus(snapshot)
+    });
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
     this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
@@ -183,24 +198,18 @@ class VFBMain extends React.Component {
       }
       window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
-        for (var singleId = 0; idsList.length > singleId; singleId++) {
-          if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
-            this.vfbLoadBuffer.push(idsList[singleId]);
-          }
-          if (Instances.getInstance(idsList[singleId]) !== undefined) {
-            this.handleSceneAndTermInfoCallback(idsList[singleId]);
-            idsList.splice($.inArray(idsList[singleId], idsList), 1);
-            this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
-          }
-        }
-        if (idsList.length > 0) {
-          this.props.vfbLoadId(idsList);
-          this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({
-            UIUpdated: false,
-            idSelected: idsList[idsList.length - 1]
-          });
-        }
+        /*
+         * Hand the whole request to the load manager. The last id is the display
+         * target (focus); the rest load silently. The manager caps concurrency,
+         * dedups repeats, and drives the overlay + focus -- replacing the old
+         * per-item fetch loop and its focus race.
+         */
+        this.loadManager.focusId = idsList[idsList.length - 1];
+        this.loadManager.requestMany(idsList, { displayLast: true });
+        this.setState({
+          UIUpdated: false,
+          idSelected: idsList[idsList.length - 1]
+        });
       }
 
     } else {
@@ -349,6 +358,57 @@ class VFBMain extends React.Component {
       GEPPETTO.trigger('spin_logo');
     } else {
       GEPPETTO.trigger('stop_spin_logo');
+    }
+  }
+
+  /*
+   * Per-item worker the load manager calls under its concurrency cap. Issues a
+   * single fetch_variable -- the manager owns the timeout/give-up, so there is
+   * NO retry here (retries only reloaded the serial sender and gridlocked
+   * loading) -- then runs the existing scene/term-info handling and reports the
+   * term resolved so the manager can free the slot and start the next one.
+   */
+  managerFetch (id, callbacks) {
+    var self = this;
+    var done = (callbacks && callbacks.onResolved) ? callbacks.onResolved : function () {};
+    var failed = (callbacks && callbacks.onFailed) ? callbacks.onFailed : function () {};
+    if (Instances.getInstance(id) !== undefined) {
+      this.handleSceneAndTermInfoCallback(id);
+      done();
+      return;
+    }
+    this.props.vfbLoadId([id]);
+    try {
+      Model.getDatasources()[5].fetchVariable(id, function () {
+        self.handleSceneAndTermInfoCallback(id);
+        done();
+      });
+    } catch (e) {
+      failed(e);
+    }
+  }
+
+  /*
+   * Apply focus for the manager's current display target: show it in Term Info
+   * and, if it has geometry, select it in the scene. Idempotent -- safe to call
+   * again when an already-loaded term is re-requested (re-click).
+   */
+  managerFocus (id) {
+    var meta;
+    try {
+      meta = Instances.getInstance(id + '.' + id + '_meta');
+    } catch (e) {
+      return;
+    }
+    if (meta !== undefined) {
+      this.handlerInstanceUpdate(meta);
+    }
+    var instance = Instances.getInstance(id);
+    if (this.hasVisualType(id) && instance !== undefined && typeof instance.select === "function") {
+      GEPPETTO.SceneController.deselectAll();
+      instance.select();
+    } else {
+      this.setActiveTab("termInfo");
     }
   }
 
