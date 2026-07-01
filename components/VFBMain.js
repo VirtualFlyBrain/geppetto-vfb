@@ -90,6 +90,12 @@ class VFBMain extends React.Component {
     this.instanceOnFocus = undefined;
     this.idFromURL = undefined;
     this.idsFromURL = [];
+    /*
+     * The most recently requested term (last click, or the id= focus on a URL
+     * load). Only this term drives the term-info panel / selection; other loads
+     * complete silently. A newer request supersedes an in-flight one.
+     */
+    this.lastRequestedFocusId = undefined;
     this.urlQueryLoader = [];
     this.quickHelpRender = undefined;
     this.firstLoad = true;
@@ -160,6 +166,10 @@ class VFBMain extends React.Component {
         }
       }
       idsList = Array.from(new Set(idsList));
+      // Latest requested term wins focus/term-info (idsFromURL keeps id= last).
+      if (idsList.length > 0) {
+        this.lastRequestedFocusId = idsList[idsList.length - 1];
+      }
       /*
        * Update URL in case of reload before items loaded. Rebuild a clean,
        * de-duplicated id=/i= URL rather than appending the id list onto the
@@ -305,11 +315,25 @@ class VFBMain extends React.Component {
         // this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
+      /*
+       * Only the most recently requested term (last click / id= focus) drives
+       * the term-info panel and selection. Everything else still loads into the
+       * model and scene, but silently -- so clicking several terms in quick
+       * succession while one is loading no longer has each completion fight for
+       * focus (which piled up and looked like a stuck load). Evaluated against
+       * the CURRENT latest request, so a newer click supersedes an in-flight one.
+       */
+      var isFocusTarget = (this.lastRequestedFocusId === undefined)
+        || (variableIds[singleId] === this.lastRequestedFocusId);
       if (this.hasVisualType(variableIds[singleId])) {
-        if (!this.firstLoad) {
+        if (!this.firstLoad && isFocusTarget) {
           this.handlerInstanceUpdate(meta);
         }
         this.resolve3D(variableIds[singleId], function (id) {
+          // Superseded terms: geometry still loads, but take no focus/selection.
+          if (this.lastRequestedFocusId !== undefined && id !== this.lastRequestedFocusId) {
+            return;
+          }
           var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function")) {
@@ -320,7 +344,7 @@ class VFBMain extends React.Component {
             }
           }
         }.bind(this));
-      } else {
+      } else if (isFocusTarget) {
         this.handlerInstanceUpdate(meta);
         this.setActiveTab("termInfo");
       }
@@ -1471,6 +1495,8 @@ class VFBMain extends React.Component {
       this.idsFromURL.push(this.idFromURL);
       this.idsFromURL = [... new Set(this.idsFromURL)];
       this.idsFinalList = this.idsFromURL;
+      // The id= term is the intended focus on a URL load; others load silently.
+      this.lastRequestedFocusId = this.idFromURL;
       console.log("Loading IDS to add to the scene from url");
     } else {
       this.urlIdsLoaded = true;
