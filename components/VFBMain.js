@@ -130,7 +130,8 @@ class VFBMain extends React.Component {
       fetch: (id, callbacks) => this.managerFetch(id, callbacks),
       onFocus: id => this.managerFocus(id),
       onFailed: id => this.props.invalidIdLoaded(id),
-      publish: snapshot => this.props.setLoadStatus(snapshot)
+      publish: snapshot => this.props.setLoadStatus(snapshot),
+      isLoaded: id => this.managerIsLoaded(id)
     });
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
     this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
@@ -405,6 +406,23 @@ class VFBMain extends React.Component {
     } catch (e) {
       failed(e);
     }
+  }
+
+  /*
+   * True when the term is already present in the model/scene, so a re-request
+   * (a click to view it) should just re-focus rather than load and count it
+   * again. Covers terms that came in with the initial scene (templates, painted
+   * domains) which the manager itself never requested.
+   */
+  managerIsLoaded (id) {
+    /*
+     * VFB sets window[<id>] when a term has been loaded (by any loader -- slice
+     * viewer click loads the class, shift+click loads the aligned-image
+     * Individual, plus URL/tree/graph paths). It is the path-independent source
+     * of truth, so if it exists the term is already loaded and a re-request
+     * should just re-focus rather than load and count it again.
+     */
+    return typeof window !== "undefined" && window[id] !== undefined;
   }
 
   /* Best-effort human label for the status line (falls back to the id). */

@@ -61,6 +61,7 @@ export default class VFBLoadManager {
     this._onFocus = opts.onFocus; // (id) => void  -- apply term-info/selection
     this._onFailed = opts.onFailed; // (id, error) => void -- drain loader entry
     this._publish = opts.publish; // (snapshot) => void  -- push status to the UI
+    this._isLoaded = opts.isLoaded; // (id) => bool -- already present in the model/scene
 
     this.items = new Map(); // id -> { status, label, startedAt, bootstrapTimer, hardTimer, renderTimer, error }
     this.queue = []; // ids awaiting a counting slot
@@ -81,8 +82,15 @@ export default class VFBLoadManager {
       this.focusId = id;
     }
 
-    // Already loaded earlier: nothing to fetch, just move focus.
-    if (this.loaded.has(id) && !this.items.has(id)) {
+    /*
+     * Already available -- either this manager loaded it, or it is already in
+     * the model/scene (e.g. a template or painted domain that came in with the
+     * initial scene, which this manager never requested). Re-requesting such a
+     * term (a click to view it) must NOT enqueue or increment the loader; just
+     * move focus to it. Only applies when it is not currently mid-load.
+     */
+    if (!this.items.has(id) && (this.loaded.has(id) || (this._isLoaded && this._isLoaded(id)))) {
+      this.loaded.add(id);
       if (display) {
         this._applyFocus(id);
       }
