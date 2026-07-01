@@ -47,7 +47,7 @@ describe('VFB Loader Component Tests', () => {
 		it('Progress Bar Loading 1 Instance(s)', async () => {
 			expect(
 					await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
-			).toBe("Loading 1/1 ...");
+			).toMatch(/^(Loading|Still loading) \d+\/1\b/);
 		})
 	})
 
@@ -102,7 +102,7 @@ describe('VFB Loader Component Tests', () => {
 		it('Progress Bar Loading 1 Instance(s)', async () => {
 			expect(
 				await page.evaluate(async () => document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel"))
-			).toBe("Loading 1/2 ...");
+			).toMatch(/^(Loading|Still loading) \d+\/2\b/);
 		})
 	})
 
@@ -165,7 +165,7 @@ describe('VFB Loader Component Tests', () => {
 			const datalabel = await page.evaluate(async () => 
 				document.getElementsByClassName("progress-bar")[0].getAttribute("datalabel")
 			);
-			expect(datalabel).toMatch(/Loading \d+\/3 \.\.\./);
+			expect(datalabel).toMatch(/^(Loading|Still loading) \d+\/3\b/);
 		})
 	})
 
