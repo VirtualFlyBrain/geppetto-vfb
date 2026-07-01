@@ -220,68 +220,48 @@ class VFBMain extends React.Component {
     }
 
     /*
-     * fetch_variable is a WebSocket request whose completion callback is
-     * matched by requestID in MessageSocket. A cold-cache/backend stall that
-     * drops or errors the reply leaves that callback orphaned, so the loader
-     * never advances and sticks at "Loading N/M ...". We deliberately do NOT
-     * time the load out -- the user wants the data -- but re-issue the request
-     * on a backoff so a lost or slow reply keeps trying until it lands. Only
-     * after a generous number of attempts do we drain the loader entry
-     * (invalidIdLoaded, which the reducer already handles) so the progress bar
-     * can clear instead of freezing forever.
+     * fetch_variable is a WebSocket request whose completion callback is matched
+     * by requestID in MessageSocket. Issue it ONCE and wait. We deliberately do
+     * NOT re-issue on a timeout: term-info replies are large and the server
+     * sends them serially (~1-2s each), so re-fetching just piles more requests
+     * onto an already-busy queue and makes loading slower, gridlocking it. A
+     * long single grace period covers a genuinely lost/errored reply -- if the
+     * variable still hasn't arrived by then, drain this one loader entry
+     * (invalidIdLoaded, handled by the reducer) so the progress bar can complete
+     * rather than sticking at "Loading N/M ..." forever.
      */
     var self = this;
     var settled = false;
-    var attempts = 0;
-    var MAX_ATTEMPTS = 8;
-    var watchdog = null;
     var finish = function () {
       if (settled) {
         return;
       }
       settled = true;
-      if (watchdog) {
-        clearTimeout(watchdog);
-        watchdog = null;
-      }
       if (callback != undefined) {
         callback(variableId, label);
       }
     };
-    var attempt = function () {
+    Model.getDatasources()[5].fetchVariable(variableId, finish);
+    setTimeout(function () {
       if (settled) {
         return;
       }
-      attempts++;
-      Model.getDatasources()[5].fetchVariable(variableId, finish);
-      // Backoff: 20s, 40s, then 60s per further attempt.
-      var delay = Math.min(attempts, 3) * 20000;
-      watchdog = setTimeout(function () {
-        if (settled) {
-          return;
-        }
-        /*
-         * The reply may have arrived and built the variable without our
-         * callback firing (orphaned requestID) -- accept it if so.
-         */
-        if (GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId).length > 0) {
-          finish();
-          return;
-        }
-        if (attempts < MAX_ATTEMPTS) {
-          attempt(); // re-issue -- keep waiting for the data
-        } else {
-          settled = true;
-          console.error("fetchVariableThenRun: no response for " + variableId
-            + " after " + attempts + " attempts; draining loader entry");
-          if (self.props && typeof self.props.invalidIdLoaded === "function") {
-            self.props.invalidIdLoaded(variableId);
-          }
-          GEPPETTO.trigger('stop_spin_logo');
-        }
-      }, delay);
-    };
-    attempt();
+      /*
+       * The reply may have arrived and built the variable without our callback
+       * firing (orphaned requestID) -- accept it if so.
+       */
+      if (GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId).length > 0) {
+        finish();
+        return;
+      }
+      settled = true;
+      console.error("fetchVariableThenRun: no response for " + variableId
+        + "; draining loader entry");
+      if (self.props && typeof self.props.invalidIdLoaded === "function") {
+        self.props.invalidIdLoaded(variableId);
+      }
+      GEPPETTO.trigger('stop_spin_logo');
+    }, 120000);
   }
 
   ThreeDViewerIdLoaded (id) {
