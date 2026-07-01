@@ -76,13 +76,15 @@ describe('VFB Downloader Tests', () => {
 		it('Download Contents Dialog goes away', async () => {
 			await page.click('#downloadContentsButton');
 
-			// The dialog only closes when the POST to the zip service
-			// (configuration.json postURL) resolves; on any error or hang it
-			// stays open and switches to the error footer (the "Try Again"
-			// button carries i.fa-refresh). Race both outcomes so a backend
-			// failure reports as a clean assertion rather than timing out and
-			// rejecting after teardown (which crashes the jest worker). Keep
-			// the waits below the it() timeout for the same reason.
+			/*
+			 * The dialog only closes when the POST to the zip service
+			 * (configuration.json postURL) resolves; on any error or hang it
+			 * stays open and switches to the error footer (the "Try Again"
+			 * button carries i.fa-refresh). Race both outcomes so a backend
+			 * failure reports as a clean assertion rather than timing out and
+			 * rejecting after teardown (which crashes the jest worker). Keep
+			 * the waits below the it() timeout for the same reason.
+			 */
 			const outcome = await Promise.race([
 				page.waitForSelector('#downloadContents', { hidden: true, timeout: 90000 })
 					.then(() => 'closed').catch(() => null),
