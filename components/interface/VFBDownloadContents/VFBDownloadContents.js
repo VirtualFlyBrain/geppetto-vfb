@@ -254,10 +254,16 @@ class VFBDownloadContents extends React.Component {
         );
       })
       .catch(function (error) {
+        /*
+         * Use the captured `self` and the configured message text: inside this
+         * callback `this` is not the component, so `this.props` threw and left
+         * `downloading` stuck true with the dialog hung open on any download
+         * error. `classes.errorMessage` was also a CSS class, not a message.
+         */
         self.setState({
           downloadError: true,
           downloading: false,
-          errorMessage : this.props.classes.errorMessage
+          errorMessage : self.configuration.text.errorMessage
         });
       });
   }

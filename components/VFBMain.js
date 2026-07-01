@@ -202,17 +202,74 @@ class VFBMain extends React.Component {
   fetchVariableThenRun (variableId, callback, label) {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
-    if (!variables.length > 0) {
-      Model.getDatasources()[5].fetchVariable(variableId, function () {
-        if (callback != undefined) {
-          callback(variableId, label);
-        }
-      });
-    } else {
+    if (variables.length > 0) {
       if (callback != undefined) {
         callback(variableId, label);
       }
+      return;
     }
+
+    /*
+     * fetch_variable is a WebSocket request whose completion callback is
+     * matched by requestID in MessageSocket. A cold-cache/backend stall that
+     * drops or errors the reply leaves that callback orphaned, so the loader
+     * never advances and sticks at "Loading N/M ...". We deliberately do NOT
+     * time the load out -- the user wants the data -- but re-issue the request
+     * on a backoff so a lost or slow reply keeps trying until it lands. Only
+     * after a generous number of attempts do we drain the loader entry
+     * (invalidIdLoaded, which the reducer already handles) so the progress bar
+     * can clear instead of freezing forever.
+     */
+    var self = this;
+    var settled = false;
+    var attempts = 0;
+    var MAX_ATTEMPTS = 8;
+    var watchdog = null;
+    var finish = function () {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (watchdog) {
+        clearTimeout(watchdog);
+        watchdog = null;
+      }
+      if (callback != undefined) {
+        callback(variableId, label);
+      }
+    };
+    var attempt = function () {
+      if (settled) {
+        return;
+      }
+      attempts++;
+      Model.getDatasources()[5].fetchVariable(variableId, finish);
+      // Backoff: 20s, 40s, then 60s per further attempt.
+      var delay = Math.min(attempts, 3) * 20000;
+      watchdog = setTimeout(function () {
+        if (settled) {
+          return;
+        }
+        // The reply may have arrived and built the variable without our
+        // callback firing (orphaned requestID) -- accept it if so.
+        if (GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId).length > 0) {
+          finish();
+          return;
+        }
+        if (attempts < MAX_ATTEMPTS) {
+          attempt(); // re-issue -- keep waiting for the data
+        } else {
+          settled = true;
+          console.error("fetchVariableThenRun: no response for " + variableId
+            + " after " + attempts + " attempts; draining loader entry");
+          if (self.props && typeof self.props.invalidIdLoaded === "function") {
+            self.props.invalidIdLoaded(variableId);
+          }
+          GEPPETTO.trigger('stop_spin_logo');
+        }
+      }, delay);
+    };
+    attempt();
   }
 
   ThreeDViewerIdLoaded (id) {
