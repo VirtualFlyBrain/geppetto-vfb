@@ -1,5 +1,7 @@
 import sys
 import html
+import json
+import re
 from lxml import etree
 
 def parse_xmi(file_path):
@@ -8,7 +10,7 @@ def parse_xmi(file_path):
         root = tree.getroot()
     return root
 
-def process_queries(element, indent, queries_info, namespaces):
+def process_queries(element, depth, queries_info, namespaces):
     for query in element.findall('.//queries', namespaces=namespaces):
         query_id = query.get('id')
         query_name = query.get('name')
@@ -17,7 +19,7 @@ def process_queries(element, indent, queries_info, namespaces):
         
         # Initialize query entry
         query_entry = {
-            'indent': indent,
+            'depth': depth,
             'id': query_id,
             'name': query_name,
             'description': query_description,
@@ -29,7 +31,7 @@ def process_queries(element, indent, queries_info, namespaces):
         if query_type == "gep_2:CompoundQuery":
             # Process each queryChain within the compound query
             for query_chain in query.findall('.//queryChain', namespaces=namespaces):
-                process_query_chain(query_chain, indent + "    ", query_entry['childQueries'], namespaces)
+                process_query_chain(query_chain, depth + 1, query_entry['childQueries'], namespaces)
         else:
             # Simple or process queries directly within <queries> tag
             query_content = query.get('query', query.get('queryProcessorId', 'No query provided'))
@@ -37,7 +39,7 @@ def process_queries(element, indent, queries_info, namespaces):
         
         queries_info.append(query_entry)
 
-def process_query_chain(query_chain, indent, child_queries_info, namespaces):
+def process_query_chain(query_chain, depth, child_queries_info, namespaces):
     chain_id = query_chain.get('id')
     chain_name = query_chain.get('name')
     chain_description = query_chain.get('description', 'No description provided')
@@ -45,7 +47,7 @@ def process_query_chain(query_chain, indent, child_queries_info, namespaces):
     chain_query = query_chain.get('query', query_chain.get('queryProcessorId', 'No query provided'))
     
     child_queries_info.append({
-        'indent': indent,
+        'depth': depth,
         'id': chain_id,
         'name': chain_name,
         'description': chain_description,
@@ -59,21 +61,68 @@ def generate_markdown_for_all_queries(queries_info):
         markdown_content += generate_markdown_for_query(info)
     return markdown_content
 
+def extract_cypher_query(query_string):
+    """Extract the cypher query from a JSON statement wrapper"""
+    try:
+        # Try to parse as JSON to extract the statement
+        if '"statement":' in query_string:
+            # Find the statement value
+            match = re.search(r'"statement":\s*"((?:[^"\\]|\\.)*)"', query_string)
+            if match:
+                statement = match.group(1)
+                # Unescape the JSON string
+                statement = statement.replace('\\n', '\n').replace('\\', '')
+                return statement.strip()
+    except:
+        pass
+    return query_string
+
+def extract_json_params(query_string):
+    """Extract the JSON params from a query string"""
+    try:
+        if '"params":' in query_string:
+            match = re.search(r'"params":\s*(\{[^}]+\})', query_string)
+            if match:
+                return match.group(1).strip()
+    except:
+        pass
+    return None
+
 def generate_markdown_for_query(info):
-    markdown = f"{info['indent']}## Query Name: {info['name']}\n"
-    markdown += f"{info['indent']}ID: {info['id']}\n"
-    markdown += f"{info['indent']}Description: {info['description']}\n"
-    markdown += f"{info['indent']}Type: {info['type']}\n"
-    markdown += f"{info['indent']}Query: ```\n{info['indent']}{info['query']}\n```\n\n"
+    # Calculate header level based on depth (depth 0 = ##, depth 1 = ###, etc.)
+    header_level = '#' * (2 + info['depth'])
+    
+    markdown = f"{header_level} Query Name: {info['name']}\n"
+    markdown += f"\n**ID:** {info['id']}\n\n"
+    markdown += f"**Description:** {info['description']}\n\n"
+    markdown += f"**Type:** {info['type']}\n\n"
+    
+    # Determine language and extract actual query for code block
+    query_content = info['query'].strip()
+    lang = 'text'
+    
+    if '"statement":' in query_content:
+        lang = 'cypher'
+        query_content = extract_cypher_query(query_content)
+    elif '"params":' in query_content:
+        lang = 'json'
+        query_content = extract_json_params(query_content)
+    else:
+        lang = 'java'
+    
+    if query_content and query_content != 'No query provided':
+        markdown += f"**Query:**\n\n```{lang}\n{query_content}\n```\n\n"
+    
     for child_query in info.get('childQueries', []):
         markdown += generate_markdown_for_query(child_query)
+    
     return markdown
 
 def main(xmi_file_path, output_markdown_path):
     namespaces = {'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
     root = parse_xmi(xmi_file_path)
     queries_info = []
-    process_queries(root, "", queries_info, namespaces)
+    process_queries(root, 0, queries_info, namespaces)
     markdown_content = generate_markdown_for_all_queries(queries_info)
     with open(output_markdown_path, 'w', encoding='utf-8') as file:
         file.write(markdown_content)

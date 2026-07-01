@@ -20,6 +20,53 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
+/*
+ * Preferred template ordering for the Available Images carousel, after the
+ * currently loaded template: JRC2018U, JRC2018VNCU, L1EM, L3CNS.
+ */
+const PREFERRED_CAROUSEL_TEMPLATES = ['VFB_00101567', 'VFB_00200000', 'VFB_00050000', 'VFB_00049000'];
+
+/* Template short_form is the second-to-last segment of the thumbnail data URL. */
+function carouselTemplateOf (element) {
+  try {
+    var parts = element.initialValue.data.split('/');
+    return parts[parts.length - 2];
+  } catch (e) {
+    return '';
+  }
+}
+
+function carouselImageIdOf (element) {
+  return element.initialValue && element.initialValue.reference ? element.initialValue.reference : '';
+}
+
+function carouselTemplateRank (template) {
+  if (window.templateID !== undefined && template === window.templateID) {
+    return -1;
+  }
+  var i = PREFERRED_CAROUSEL_TEMPLATES.indexOf(template);
+  return i >= 0 ? i : 1000;
+}
+
+/* Sort a copy of the carousel elements; see the call site for the ordering rationale. */
+function orderCarouselElements (elements) {
+  return elements.slice().sort(function (a, b) {
+    var templateA = carouselTemplateOf(a), templateB = carouselTemplateOf(b);
+    var rankA = carouselTemplateRank(templateA), rankB = carouselTemplateRank(templateB);
+    if (rankA !== rankB) {
+      return rankA - rankB;
+    }
+    if (rankA === 1000 && templateA !== templateB) {
+      return templateA < templateB ? 1 : -1;
+    }
+    var idA = carouselImageIdOf(a), idB = carouselImageIdOf(b);
+    if (idA === idB) {
+      return 0;
+    }
+    return idA < idB ? 1 : -1;
+  });
+}
+
 class VFBTermInfo extends React.Component {
 
   constructor (props) {
@@ -250,8 +297,15 @@ class VFBTermInfo extends React.Component {
           var elements = [];
           this.imagesData.index = 0;
           this.imagesData.list = [];
-          for (var j = 0; j < value.elements.length; j++) {
-            var image = value.elements[j].initialValue;
+          /*
+           * Order Available Images: current template first, then the preferred
+           * templates, then the rest by descending template id, and within each
+           * template by descending image id (newest first). Done client-side so
+           * a stale cache cannot pin the wrong current template to the front.
+           */
+          var sortedElements = orderCarouselElements(value.elements);
+          for (var j = 0; j < sortedElements.length; j++) {
+            var image = sortedElements[j].initialValue;
             this.imagesData.list.push(image.reference);
             elements.push(<div className="slider_image_container">
               {image.name}
@@ -439,14 +493,29 @@ class VFBTermInfo extends React.Component {
           node = undefined;
         }
 
+        // Raw-id link (e.g. "Aligned to" template short_form): show the term label when loaded.
+        try {
+          if (node && $(this).text() === path) {
+            var resolvedName = (typeof node.getName === "function") ? node.getName() : node.name;
+            if (resolvedName && resolvedName !== path) {
+              $(this).text(resolvedName);
+            }
+          }
+        } catch (eName) { /* keep raw id */ }
+
         // hookup IF domain type is undefined OR it's defined and it matches the node type
         if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
         // hookup custom handler
           var that = this;
+          var href = $(that).attr('href');
+          // Hint that query links can be combined with the current results via shift-click.
+          if (href && href.indexOf('?q=') > -1 && !$(that).attr('title')) {
+            $(that).attr('title', 'Shift-click to add this query to your current results');
+          }
           $(that).off();
           $(that).on(ev, function () {
           // invoke custom handler with instancepath as arg
-            fun(node, path, popup);
+            fun(node, path, popup, href);
             // stop default event handler of the anchor from doing anything
             return false;
           });
@@ -720,7 +789,7 @@ class VFBTermInfoWidget extends React.Component {
   }
 
 
-  customHandler (node, path, widget) {
+  customHandler (node, path, widget, href) {
     try {
       // handling path consisting of a list. Note: first ID is assumed to be the template followed by a single ID (comma separated) 
       if (path.indexOf("[") == 0) {
@@ -820,25 +889,25 @@ class VFBTermInfoWidget extends React.Component {
         if (typeof (entity) != 'undefined' && entity instanceof Query) {
           // clear query builder unless ctrl pressed them add to compound.
           console.log('Query requested: ' + path + " " + otherName);
+          // Send GA pageview for query using the original link href
+          if (href) {
+            window.ga('vfb.send', 'pageview', href);
+          } else {
+            window.ga('vfb.send', 'pageview', (window.location.pathname + '?q=' + otherId + ',' + path));
+          }
           GEPPETTO.trigger('spin_logo');
 
           this.props.queryBuilder.open();
           this.props.queryBuilder.switchView(false, false);
-          if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
+          if (GEPPETTO.isKeyPressed("shift")) {
+            // Shift held: combine (stack) the new query with the existing one instead of replacing it.
             console.log('Query stacking requested.');
           } else {
             this.props.queryBuilder.clearAllQueryItems();
             $('#add-new-query-container')[0].hidden = true;
             $('#query-builder-items-container')[0].hidden = true;
           }
-          
-          /**
-           *  Fire event to set the Shift key as not pressed, this is needed since the presence of the 
-           *  confirm() dialog prevents the DOM to un-set the 'shift' key.
-           */
-          var e = new KeyboardEvent('keyup', { bubbles : true, cancelable : true, shiftKey : false });
-          document.querySelector("body").dispatchEvent(e);
-          
+
           $("body").css("cursor", "progress");
 
 
@@ -848,7 +917,7 @@ class VFBTermInfoWidget extends React.Component {
           $("#run-query-btn").hide();
           
           setTimeout(function () {
-            $("#query-error-message").text("Still processing query (2 mins max). Click anywhere to run in background.").show();
+            $("#query-error-message").text("Fetching results — this can take a moment for complex queries.").show();
           }, 10000);
 
           var callback = function () {
@@ -875,7 +944,7 @@ class VFBTermInfoWidget extends React.Component {
             }, 100);
           }
         } else {
-          Model.getDatasources()[3].fetchVariable(path, function () {
+          Model.getDatasources()[5].fetchVariable(path, function () {
             var m = Instances.getInstance(meta);
             this.setTermInfo(m, m.name);
             window.addVfbId(path);

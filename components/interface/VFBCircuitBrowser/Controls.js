@@ -113,8 +113,6 @@ const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrow
 const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
 const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
-const Neo4jLabels = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').Neo4jLabels;
-
 const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
 const defaultDatasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
 const datasourceConfiguration = JSON.parse(JSON.stringify(defaultDatasourceConfiguration));
@@ -196,7 +194,6 @@ class AutocompleteResults extends Component {
             key={this.props.field.id}
             className={label.replace(/ +/g, "").toLowerCase()}
             onChange={this.props.neuronTextfieldModified}
-            onDelete={this.props.neuronTextfieldModified}
             onBlur={this.props.textFieldLoseFocus}
             inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
@@ -236,6 +233,7 @@ class Controls extends Component {
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     this.autoCompleteInput = React.createRef();
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
+    this.connectomePrefix = null;
     this.createRefs = this.createRefs.bind(this);
     this.createRefs();
   }
@@ -272,11 +270,12 @@ class Controls extends Component {
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     delete this.autocompleteRef[id.toString()];
     this.neuronFields = neurons;
-    if ( !this.state.neurons.find( neuron => neuron.id != "") ) {
-      // reset configuration of fq to default
+    if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
+      // reset configuration of fq to default and clear connectome filter
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+      this.connectomePrefix = null;
     }
-    
+
     this.forceUpdate();
   }
   
@@ -337,9 +336,10 @@ class Controls extends Component {
     } else {
       neurons.push({ id : target.value, label : target.value });
     }
-      
+
     this.neuronFields = neurons;
-    getResultsSOLR( target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
+    const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
+    getResultsSOLR( target.value, callback, searchConfiguration.sorter, datasourceConfiguration );
   }
   
   textFieldLoseFocus (event) {
@@ -355,6 +355,20 @@ class Controls extends Component {
   
   
   /**
+   * Wraps the autocomplete handleResults callback to filter results by connectome prefix.
+   * When a neuron has been selected, subsequent searches only show neurons from the same connectome.
+   */
+  wrapResultsCallback (handleResults) {
+    const self = this;
+    return function (status, data, value) {
+      if ( self.connectomePrefix && data ) {
+        data = data.filter(item => item.label && item.label.includes(self.connectomePrefix + ':'));
+      }
+      handleResults(status, data, value);
+    };
+  }
+
+  /**
    * Neuron text field has been modified.
    */
   neuronTextfieldModified (event) {
@@ -363,7 +377,7 @@ class Controls extends Component {
     if (this.state.typingTimeout) {
       clearTimeout(this.typingTimeout);
     }
-    
+
     this.setInputValue = event.target.id;
     if ( event.target.id.id === "" ) {
       this.setInputValue = event.target.parentElement.id;
@@ -375,23 +389,35 @@ class Controls extends Component {
     } else {
       neurons.push({ id : event.target.value, label : event.target.value });
     }
-    
+
     if ( event?.nativeEvent?.inputType === "deleteContentBackward" && neurons?.find( (neuron, index) => neuron.id === "" && index.toString() === event.target.id )){
       this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     } else {
-      getResultsSOLR( event.target.value, this.autocompleteRef[this.setInputValue].current.handleResults,searchConfiguration.sorter,datasourceConfiguration );
+      const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
+      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, datasourceConfiguration );
     }
     this.neuronFields = neurons;
-    
+
     if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
-      // reset configuration of fq to default
+      // reset configuration of fq to default and clear connectome filter
       this.autocompleteRef[this.setInputValue].current.clearResults();
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+      this.connectomePrefix = null;
     }
   }
   
   /**
-   * Handle SOLR result selection, activated by selecting from drop down menu under textfield 
+   * Extract the connectome database name from a neuron label.
+   * Labels follow the pattern: "NeuronName (DB-NAME:RemoteID) (VFB_id)"
+   * e.g. "5-HTPLP01_R (FlyEM-HB:1324365879) (VFB_jrchjrch)" → "FlyEM-HB"
+   */
+  extractConnectomePrefix (label) {
+    const match = label && label.match(/\(([^:)]+):\d+\)/);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Handle SOLR result selection, activated by selecting from drop down menu under textfield
    */
   resultSelectedChanged (event, value, index) {
     // Copy neurons and add selection to correct array index
@@ -400,13 +426,12 @@ class Controls extends Component {
     let result = this.autocompleteRef[textFieldId].current.getFilteredResults()[value];
     let shortForm = result && result.short_form;
     neurons[index] = { id : shortForm, label : value };
-    
-    result.facets_annotation.forEach( annotation => {
-      let facet = "facets_annotation:" + annotation;
-      if ( Object.values(Neo4jLabels).includes(annotation) && !datasourceConfiguration.query_settings.fq.includes(facet) ) {
-        datasourceConfiguration.query_settings.fq.push(facet); 
-      }
-    });
+
+    // Extract connectome prefix from label to filter subsequent searches
+    const prefix = this.extractConnectomePrefix(value);
+    if ( prefix && !this.connectomePrefix ) {
+      this.connectomePrefix = prefix;
+    }
 
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -431,15 +456,18 @@ class Controls extends Component {
 
   setNeurons () {
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
+    this.connectomePrefix = null;
     while (this?.props?.circuitQuerySelected.length > 0) {
       this?.props?.circuitQuerySelected.pop();
     }
+    datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
     this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, [])
     this.setState({ key: Math.random() });
   }
   
   clearGraph () {
     datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
+    this.connectomePrefix = null;
     this.props.clearGraph()
   }
   
@@ -454,26 +482,33 @@ class Controls extends Component {
         entry.id === this.props.circuitQuerySelected[i] || entry.id === this.props.circuitQuerySelected?.[i]?.id
       );
 
-      if ( !fieldExists) { 
+      if ( !fieldExists) {
+        const selected = this.props.circuitQuerySelected[i];
+        const selectedId = selected.id ? selected.id : selected;
+        const selectedLabel = selected.label ? selected.label : selected;
         const emptyIndex = neuronFields.findIndex( field => field.id === "");
         if ( emptyIndex >= 0 ) {
-          neuronFields[emptyIndex] = { id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] };
+          neuronFields[emptyIndex] = { id : selectedId, label : selectedLabel };
           added = true;
           fieldExists = true;
+          // Extract connectome prefix from neurons added via Term Info link
+          if ( !this.connectomePrefix ) {
+            this.connectomePrefix = this.extractConnectomePrefix(selectedLabel);
+          }
           break;
         } else {
           neuronFields.pop();
-          neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] })
+          neuronFields.push({ id : selectedId, label : selectedLabel });
         }
-        
-        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && this.props.circuitQuerySelected?.[i]?.id != "") {
+
+        if ( this.props.circuitQuerySelected.length > neuronFields.length && !fieldExists && selected?.id != "") {
           if ( this.props.circuitQuerySelected !== "" ) {
-            neuronFields.push({ id : this.props.circuitQuerySelected[i].id ? this.props.circuitQuerySelected[i].id : this.props.circuitQuerySelected[i], label : this.props.circuitQuerySelected[i].label ? this.props.circuitQuerySelected[i].label : this.props.circuitQuerySelected[i] });
-          } 
+            neuronFields.push({ id : selectedId, label : selectedLabel });
+          }
         }
       }
     }
-    
+
     return neuronFields;
   }
   
@@ -527,8 +562,8 @@ class Controls extends Component {
               </div>
             </AccordionSummary>
             <AccordionDetails classes={{ root : classes.details }}>
-              <Grid container justify="space-between" alignItems="center">
-                <Grid item sm={1} justify="center" alignItems="center">
+              <Grid container justifyContent="space-between" alignItems="center">
+                <Grid item container sm={1} justifyContent="center" alignItems="center">
                   <div>
                     <AdjustIcon />
                     <MoreVertIcon classes={{ root : classes.dottedIcon }}/>
@@ -537,7 +572,7 @@ class Controls extends Component {
                 </Grid>
                 <Grid style={ { marginRight : "1vh !important" } } id="neuronFieldsGrid" item sm={9}>
                   { neuronFields.map((field, index) => (
-                    <Grid container alignItems="center" justify="center" key={"TextFieldContainer" + index}>
+                    <Grid container alignItems="center" justifyContent="center" key={"TextFieldContainer" + index}>
                       <Grid item sm={neuronColumnSize} key={"TextFieldItem" + index}>
                         <AutocompleteResults
                           field={field}
@@ -564,7 +599,7 @@ class Controls extends Component {
                     </Grid>
                   ))}
                 </Grid>
-                <Grid item justify="space-between" alignItems="center" sm={1}>
+                <Grid item container justifyContent="center" alignItems="center" sm={1}>
                   <IconButton
                     id="reverseNeurons"
                     color="inherit"
@@ -578,7 +613,7 @@ class Controls extends Component {
                 </Grid>
                 { addNeuronDisabled 
                   ? null
-                  : <Grid container style={ { marginTop : "1vh" } } justify="space-between" alignItems="center">
+                  : <Grid container style={ { marginTop : "1vh" } } justifyContent="space-between" alignItems="center">
                     <Grid item sm={2} classes={{ root : classes.addNeuron }}>
                       <IconButton
                         id="addNeuron"
@@ -598,7 +633,7 @@ class Controls extends Component {
             </AccordionDetails>
             <Divider />
             <AccordionActions>
-              <Grid container justify="space-between" alignItems="center" >
+              <Grid container justifyContent="space-between" alignItems="center" >
                 <Grid container spacing={1}>
                   <Grid item sm={3}>
                     <Typography classes={{ root : classes.typography }}># Paths</Typography>
@@ -624,7 +659,7 @@ class Controls extends Component {
                   <Grid item sm={9}>
                     <Input className={classes.weightInputDiv} label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
                   </Grid>
-                  <Grid item container justify="flex-end" sm={6}>
+                  <Grid item container justifyContent="flex-end" sm={6}>
                     <Button
                       variant="contained"
                       color="primary"
@@ -634,7 +669,7 @@ class Controls extends Component {
                       disabled={disabledRun}
                     >Run Query</Button>  
                   </Grid>
-                  <Grid item container justify="flex-end" sm={6}>
+                  <Grid item container justifyContent="flex-end" sm={6}>
                     <Button
                       variant="contained"
                       color="secondary"

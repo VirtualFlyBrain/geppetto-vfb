@@ -160,9 +160,16 @@ class VFBMain extends React.Component {
         }
       }
       idsList = Array.from(new Set(idsList));
-      // Udate URL in case of reload before items loaded:
+      /*
+       * Update URL in case of reload before items loaded. Rebuild a clean,
+       * de-duplicated id=/i= URL rather than appending the id list onto the
+       * existing search string (which duplicated the i= list on every call,
+       * growing the URL and desyncing the loader when ids repeat).
+       */
       if (window.history.state != null && (window.history.state.s == 1 || window.history.state.s == 4) && window.location.search.indexOf("i=") > -1) {
-        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + location.search.replace(/id=.*\&/gi,"id=" + idsList[0] + "&") + "," + idsList.join(','));
+        var cleanIds = Array.from(new Set(idsList));
+        var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
+        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
       window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
@@ -196,7 +203,7 @@ class VFBMain extends React.Component {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
     if (!variables.length > 0) {
-      Model.getDatasources()[3].fetchVariable(variableId, function () {
+      Model.getDatasources()[5].fetchVariable(variableId, function () {
         if (callback != undefined) {
           callback(variableId, label);
         }
@@ -1280,6 +1287,41 @@ class VFBMain extends React.Component {
       this.handlerInstanceUpdate(meta);
       this.props.setTermInfo(meta, true);
     }.bind(this);
+
+    /*
+     * Fetch the VFBquery "Query For" set (get_term_info.Queries) for a term so
+     * the query builder / focus term can offer the same queries the term-info
+     * panel shows. preview=false keeps it light and uses the cached term_info.
+     * Memoised; resolves to a {queryType: true} map, or null on failure (callers
+     * then keep the full getMatchingQueries list, so no regression).
+     */
+    window._vfbQueryTypesCache = window._vfbQueryTypesCache || {};
+    window.getVFBQueryTypes = function (id) {
+      if (window._vfbQueryTypesCache[id] !== undefined) {
+        return Promise.resolve(window._vfbQueryTypesCache[id]);
+      }
+      return fetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
+        .then(function (r) {
+          return r.ok ? r.json() : null;
+        })
+        .then(function (d) {
+          var set = null;
+          if (d && Array.isArray(d.Queries)) {
+            set = {};
+            d.Queries.forEach(function (q) {
+              if (q && q.query) {
+                set[q.query] = true;
+              }
+            });
+          }
+          window._vfbQueryTypesCache[id] = set;
+          return set;
+        })
+        .catch(function () {
+          window._vfbQueryTypesCache[id] = null;
+          return null;
+        });
+    };
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
       this.fetchVariableThenRun(idsList, cb, label);

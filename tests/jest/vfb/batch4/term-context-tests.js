@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, testLandingPage, selectTab, takeScreenshot } from '../utils.js';
+import { wait4selector, click, testLandingPage, selectTab } from '../utils.js';
 import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -14,6 +14,27 @@ const SNAPSHOT_OPTIONS = {
 		comparisonMethod: 'ssim', 
 		failureThresholdType: 'percent',
 		failureThreshold: 0.20 // This means a 20% difference is allowed between compared snapshots during tests
+};
+
+const SNAPSHOT_IDS = {
+	initialAdultBrain: "term-context-tests-js-vfb-term-context-component-tests-test-term-context-component-snapshot-comparison-of-term-context-1",
+	afterMedullaLoaded: "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-medulla-loaded-graph-remains-the-same-1",
+	afterSyncTrigger: "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-sync-trigger-graph-displays-medulla-1"
+};
+
+const centerTermContextGraph = async () => {
+	const homeClicked = await page.evaluate(() => {
+		const homeIcon = document.querySelector('i.fa-home');
+		if (!homeIcon) {
+			return false;
+		}
+		homeIcon.click();
+		return true;
+	});
+
+	if (homeClicked) {
+		await page.waitFor(2000);
+	}
 };
 
 //Import snapshot module
@@ -42,13 +63,16 @@ describe('VFB Term Context Component Tests', () => {
 
 			// Check that the Term Context is Visible
 			await wait4selector(page, 'div#VFBGraph', { visible: true, timeout : 800000 });
-		}, 120000)
+		}, 240000)
 
 		it('Snapshot Comparison of Term Context', async () => {
 			await page.waitFor(10000);
 			const image = await page.screenshot();
-			takeScreenshot(page, "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-sync-trigger-graph-displays-medulla-1-snap.png");
-			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
+			expect(image).toMatchImageSnapshot({
+				...SNAPSHOT_OPTIONS,
+				customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain",
+				customSnapshotIdentifier: SNAPSHOT_IDS.initialAdultBrain
+			});
 		}, 120000)
 	})
 
@@ -85,12 +109,19 @@ describe('VFB Term Context Component Tests', () => {
 			await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
 		}, 120000)
 
-		// Wait for Medulla to be loaded by checking term info and Focus Term
+		// Wait for Medulla to be loaded by checking term info and Focus Term.
+		// The focusTermDivR text updates asynchronously after the spotlight click — in
+		// run 25308773215 the assertion fired with "Queries for JRC2018Unisex" still
+		// showing (the previous focus). Poll until it switches to medulla.
 		it('Medulla Loaded', async () => {
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
-			expect(
-					await page.evaluate(async selector => document.querySelector(".focusTermDivR").innerText)
-			).toBe("Queries for medulla")
+			await page.waitForFunction(
+				() => {
+					const el = document.querySelector('.focusTermDivR');
+					return el && el.innerText === 'Queries for medulla';
+				},
+				{ timeout: 60000 }
+			);
 		}, 120000)
 
 		// Re open Term Context
@@ -105,31 +136,43 @@ describe('VFB Term Context Component Tests', () => {
 		it("Snapshot Comparison of Term Context After Medulla Loaded, Graph Remains the Same", async () => {
 			// Wait 5 seconds so nodes in Term Context stop moving
 			await page.waitFor(5000);
-			await click(page, 'i.fa-home');
-			await page.waitFor(3000);
+			await centerTermContextGraph();
 			const image = await page.screenshot();
-			takeScreenshot(page, "term-context-tests-js-vfb-term-context-component-tests-add-medulla-snapshot-comparison-of-term-context-after-medulla-loaded-graph-remains-the-same-1-snap.png");
 			await page.waitFor(2000)
 			// This will fail if Adult Brain is not still loaded.
-			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain"  });
+			expect(image).toMatchImageSnapshot({
+				...SNAPSHOT_OPTIONS,
+				customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/adult-brain",
+				customSnapshotIdentifier: SNAPSHOT_IDS.afterMedullaLoaded
+			});
 		}, 120000)
 
 		it('Snapshot Comparison of Term Context After Sync Trigger, Graph Displays Medulla', async () => {
 			// Click on sync button
-			await click(page, 'i.fa-refresh');
+			const syncClicked = await page.evaluate(() => {
+				const syncIcon = document.querySelector('i.fa-refresh');
+				if (!syncIcon) {
+					return false;
+				}
+				syncIcon.click();
+				return true;
+			});
+			expect(syncClicked).toBe(true);
 			await page.waitFor(2000);
 			// Wait 10 seconds so nodes in Term Context stop moving
 			await page.waitFor(10000);
 			// reset camera to center, to make snapshots for tests be taken when camera is centered
-			await click(page, 'i.fa-home');
-			await page.waitFor(2000);
+			await centerTermContextGraph();
 			// Take screenshot, and compared to stored image of page.
 			const image = await page.screenshot();
-			takeScreenshot(page, "term-context-tests-js-vfb-term-context-component-tests-test-term-context-component-snapshot-comparison-of-term-context-1-snap.png");
 			await page.waitFor(2000)
 			// This will fail if Medulla didn't load in Term Context, since snapshot comparison will show differences
 			SNAPSHOT_OPTIONS.failureThreshold = 0.20 // allowing for minor graph layout changes
-			expect(image).toMatchImageSnapshot( { ...SNAPSHOT_OPTIONS, customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/medulla"  });
+			expect(image).toMatchImageSnapshot({
+				...SNAPSHOT_OPTIONS,
+				customSnapshotsDir : "./tests/jest/vfb/snapshots/term-context/medulla",
+				customSnapshotIdentifier: SNAPSHOT_IDS.afterSyncTrigger
+			});
 		}, 120000)
 	})
 })

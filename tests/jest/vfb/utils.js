@@ -1,8 +1,13 @@
 const { TimeoutError } = require('puppeteer/Errors');
+const fs = require('fs');
+const path = require('path');
 import * as ST from './selectors';
 
 export const wait4selector = async (page, selector, settings = {}) => {
-  let success = undefined;
+  if (!selector) {
+    throw new Error(`wait4selector called with invalid selector: ${selector}`);
+  }
+
   let options = settings;
   if (!("timeout" in settings)) {
     options = { timeout: 30000, ...settings }; // Increase default timeout to 30 seconds
@@ -10,12 +15,18 @@ export const wait4selector = async (page, selector, settings = {}) => {
   
   try {
     await page.waitForSelector(selector, options);
-    success = true;
+    return true;
   } catch (error) {
     let behaviour = "to exist";
     if (options.visible || options.hidden) {
       behaviour = options.visible ? "to be visible" : "to disappear";
     }
+
+    const pageClosed = !page || (typeof page.isClosed === 'function' && page.isClosed());
+    if (pageClosed) {
+      throw new Error(`Timeout waiting for selector "${selector}" ${behaviour}.`);
+    }
+
     console.log(`ERROR: timeout waiting for selector   --->   ${selector}    ${behaviour}.`);
     
     // Check if page is still accessible before attempting screenshots/debugging
@@ -29,7 +40,7 @@ export const wait4selector = async (page, selector, settings = {}) => {
       }
       
       // Additional debugging info
-      console.log(`Current page URL: ${page.url()}`);
+      console.log(`Current page URL: ${await page.url()}`);
       try {
         const html = await page.evaluate(() => document.body.innerHTML);
         console.log(`Page HTML snippet: ${html.substring(0, 500)}...`);
@@ -39,8 +50,8 @@ export const wait4selector = async (page, selector, settings = {}) => {
     } catch (debugError) {
       console.log(`Could not capture debug information (page may be closed): ${debugError.message}`);
     }
+    throw new Error(`Timeout waiting for selector "${selector}" ${behaviour}.`);
   }
-  expect(success).toBeDefined();
 }
 
 /**
@@ -108,14 +119,12 @@ export const selectTab = async (page, tabName) => {
 
 export const click = async (page, selector) => {
 	await wait4selector(page, selector, { visible: true, timeout: 500000});
-	let success = undefined;
 	try {
 		await page.evaluate((selector) => document.querySelector(selector).click(), selector);
-		success = true
 	} catch (error){
-		console.log(`ERROR clicking on selector   --->   ${selector} failed.`)
+		console.log(`ERROR clicking on selector   --->   ${selector} failed.`);
+    throw new Error(`Failed to click selector "${selector}".`);
 	}
-	expect(success).toBeDefined()
 }
 
 /**
@@ -146,27 +155,38 @@ export const setTextFieldValue = async(selector, value) => {
 
 export const flexWindowClick = async (title, selector) => {
 	await page.evaluate((title, selector) => {
-		if (document.getElementsByClassName("flexlayout__tab_button_content")  != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length != undefined && document.getElementsByClassName("flexlayout__tab_button_content").length > 0) {
-			if (document.getElementsByClassName("flexlayout__tab_button_content")[0].innerText == title) {
-				document.getElementsByClassName(selector)[0].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 1 && document.getElementsByClassName("flexlayout__tab_button_content")[1].innerText == title) {
-				document.getElementsByClassName(selector)[1].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 2 && document.getElementsByClassName("flexlayout__tab_button_content")[2].innerText == title) {
-				document.getElementsByClassName(selector)[2].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 3 && document.getElementsByClassName("flexlayout__tab_button_content")[3].innerText == title) {
-				document.getElementsByClassName(selector)[3].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 4 && document.getElementsByClassName("flexlayout__tab_button_content")[4].innerText == title) {
-				document.getElementsByClassName(selector)[4].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 5 && document.getElementsByClassName("flexlayout__tab_button_content")[5].innerText == title) {
-				document.getElementsByClassName(selector)[5].click();
-			}else if (document.getElementsByClassName("flexlayout__tab_button_content").length > 6 && document.getElementsByClassName("flexlayout__tab_button_content")[6].innerText == title) {
-				document.getElementsByClassName(selector)[6].click();
-			}else{
-				console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
+		const titles = Array.from(document.getElementsByClassName('flexlayout__tab_button_content'));
+		const controls = Array.from(document.getElementsByClassName(selector));
+		for (let index = 0; index < titles.length; index++) {
+			const tabText = titles[index].innerText && titles[index].innerText.trim();
+			if (tabText === title) {
+				if (controls[index]) {
+					controls[index].click();
+					return;
+				}
+				const tabElement = titles[index].closest('.flexlayout__tab_button');
+				if (tabElement) {
+					const controlElement = tabElement.querySelector('.' + selector.split(' ').join('.'));
+					if (controlElement) {
+						controlElement.click();
+						return;
+					}
+				}
 			}
 		}
-	}
-	, title, selector);
+		const tabElement = Array.from(document.getElementsByClassName('flexlayout__tab_button')).find(el => {
+			const label = el.querySelector('.flexlayout__tab_button_content');
+			return label && label.innerText && label.innerText.trim() === title;
+		});
+		if (tabElement) {
+			const control = tabElement.querySelector('.' + selector.split(' ').join('.'));
+			if (control) {
+				control.click();
+				return;
+			}
+		}
+		console.log(`ERROR Finding FlexLayout Tab matching "${title}" to click "${selector}" `);
+	}, title, selector);
 }
 
 /**
@@ -200,22 +220,14 @@ export const takeScreenshot = async (page, name) => {
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     // Change to use the same base snapshots directory, but in a failures subfolder
-    const path = `./tests/jest/vfb/snapshots/failures/${name}-${timestamp}.png`;
+    const screenshotPath = `./tests/jest/vfb/snapshots/failures/${name}-${timestamp}.png`;
     
-    // Ensure the directory exists
-    await page.evaluate(async path => {
-      const fs = require('fs');
-      const { promisify } = require('util');
-      const mkdirp = promisify(require('mkdirp'));
-      const dirname = path.substring(0, path.lastIndexOf('/'));
-      await mkdirp(dirname);
-    }, path).catch(() => {
-      // Ignore errors from browser context - we'll handle directory creation during screenshot
-    });
+    // Ensure the directory exists from Node context (not browser page context).
+    await fs.promises.mkdir(path.dirname(screenshotPath), { recursive: true });
     
-    await page.screenshot({ path, fullPage: true });
-    console.log(`Screenshot saved to ${path}`);
-    return path;
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    console.log(`Screenshot saved to ${screenshotPath}`);
+    return screenshotPath;
   } catch (error) {
     console.log(`Failed to take screenshot: ${error}`);
     return null;

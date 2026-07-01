@@ -81,17 +81,19 @@ const conf = [
 
       // Extract HTML element anchor from html string
       var matchAnchor = /<a[^>]*>([\s\S]*?)<\/a>/g
-        , type = html.match(matchAnchor);
+        , type = html.match(matchAnchor) || [];
 
-      // Extract HTML element anchor from html string
+      // Extract span tags from the Name HTML (null when a term carries no tags)
       var matchSpan = /<span[^>]*>([\s\S]*?)<\/span>/g
-        , tags = htmlLabels.match(matchSpan);
+        , tags = htmlLabels.match(matchSpan) || [];
 
       var matchID = /data-instancepath\=\"([A-Za-z0-9 _]*)\"/
-        , classID = type[0].match(matchID)[1];
+        , idMatch = type[0] ? type[0].match(matchID) : null
+        , classID = idMatch ? idMatch[1] : path;
 
       var matchText = /<a [^>]+>(.*?)<\/a>/
-        , newText = type[0].match(matchText)[1]
+        , textMatch = type[0] ? type[0].match(matchText) : null
+        , newText = textMatch ? textMatch[1] : path
 
       let textClass = '<a id="' + classID + '" style="color:#428bca;text-decoration: none;cursor:pointer">' + newText + "</a>"
       // Create new HTML string with the Type name and tags only

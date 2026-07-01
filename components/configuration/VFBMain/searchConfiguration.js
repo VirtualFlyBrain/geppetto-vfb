@@ -97,11 +97,12 @@ var datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
-        "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*"
+        "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*",
+        "NOT facets_annotation:Deprecated"
       ],
-      "rows": "150",
+      "rows": "500",
       "wt": "json",
-      "bq": "short_form:VFBexp*^10.0 short_form:VFB*^100.0 short_form:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001 facets_annotation:DataSet^500.0 facets_annotation:pub^100.0",
+      "bq": "short_form:VFBexp*^10.0 short_form:VFB*^50.0 facets_annotation:Class^200.0 short_form:FBbt*^150.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001 facets_annotation:DataSet^500.0 facets_annotation:pub^100.0",
     }
 };
 
@@ -213,14 +214,213 @@ var searchConfiguration = {
     },
   ],
   "sorter": function (a, b) {
-    var InputString = window.spotlightString;
+    // Normalize user input so ranking comparisons stay aligned with query tokenization
+    var InputString = (window.spotlightString || "").trim();
     if (a.label == undefined) {
       return 1;
     }
     if (b.label == undefined) {
       return -1;
     }
-    // move exact matches to top
+
+    // Helper functions
+    var aIsClass = a.id.indexOf("FBbt") > -1 || a.id.indexOf("FBgn") > -1;
+    var bIsClass = b.id.indexOf("FBbt") > -1 || b.id.indexOf("FBgn") > -1;
+    var aIsIndividual = a.id.indexOf("VFB_") > -1;
+    var bIsIndividual = b.id.indexOf("VFB_") > -1;
+
+    // Extract short form (part before parenthesis)
+    var aShortForm = a.label.split(' (')[0];
+    var bShortForm = b.label.split(' (')[0];
+    var aShortFormLC = aShortForm.toLowerCase();
+    var bShortFormLC = bShortForm.toLowerCase();
+    var InputStringLC = InputString.toLowerCase();
+
+    /*
+     * Detect official symbol matches vs synonym matches
+     * Official symbol: search term appears multiple times (label + synonyms)
+     * Alias/Synonym: search term appears only once or only in synonyms
+     * Rationale: Terms appearing in both label and synonyms are more likely official
+     */
+    var countTermOccurrences = function (item) {
+      var count = 0;
+      if (!item.label) {
+        return 0;
+      }
+
+      var labelLC = item.label.toLowerCase();
+
+      /*
+       * After refineResults, label format is:
+       * - "synonym (original_label)" for synonym matches
+       * - "label (short_form)" for original records
+       * Count occurrences in both the main part and parenthetical part
+       */
+
+      /*
+       * Extract parts from refined label
+       */
+      var parenIndex = labelLC.indexOf(' (');
+      var mainPart = parenIndex > -1 ? labelLC.substring(0, parenIndex) : labelLC;
+      var parenPart = parenIndex > -1 ? labelLC.substring(parenIndex + 2, labelLC.length - 1) : '';
+
+      /*
+       * Check main part of label
+       */
+      if (mainPart.indexOf(InputStringLC) > -1) {
+        count += 1;
+      }
+
+      /*
+       * Check parenthetical part of label
+       */
+      if (parenPart && parenPart.indexOf(InputStringLC) > -1) {
+        count += 1;
+      }
+
+      /*
+       * Also check synonyms field if it exists (for backward compatibility)
+       */
+      if (item.synonym) {
+        var syns = Array.isArray(item.synonym) ? item.synonym : [item.synonym];
+        syns.forEach(function (syn) {
+          if (syn && syn.toLowerCase().indexOf(InputStringLC) > -1) {
+            count += 1;
+          }
+        });
+      }
+
+      return count;
+    };
+    var aTermCount = countTermOccurrences(a);
+    var bTermCount = countTermOccurrences(b);
+    var aIsOfficialSymbol = aTermCount >= 2;
+    var bIsOfficialSymbol = bTermCount >= 2;
+    var aIsSymbolCaseInsensitive = aTermCount >= 2;
+    var bIsSymbolCaseInsensitive = bTermCount >= 2;
+    var aIsSynonymMatch = aShortForm === InputString && !aIsOfficialSymbol;
+    var bIsSynonymMatch = bShortForm === InputString && !bIsOfficialSymbol;
+
+    /*
+     * Helper function to find synonym position in list
+     * Earlier position = more important/commonly used name
+     */
+    var getSynonymIndex = function (synonymField) {
+      if (!synonymField) {
+        return -1;
+      }
+      var syns = Array.isArray(synonymField) ? synonymField : (typeof synonymField === 'string' ? synonymField.split(';').map(s => s.trim()) : []);
+      for (var i = 0; i < syns.length; i++) {
+        if (syns[i].toLowerCase() === InputStringLC) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var aSynonymIndex = getSynonymIndex(a.synonym);
+    var bSynonymIndex = getSynonymIndex(b.synonym);
+
+    /* Synonym position ordering: earlier in list = more important */
+    if ((aSynonymIndex >= 0 || bSynonymIndex >= 0) && aSynonymIndex !== bSynonymIndex) {
+      if (aSynonymIndex >= 0 && bSynonymIndex < 0) {
+        return -1;
+      }
+      if (bSynonymIndex >= 0 && aSynonymIndex < 0) {
+        return 1;
+      }
+      if (aSynonymIndex >= 0 && bSynonymIndex >= 0 && aSynonymIndex !== bSynonymIndex) {
+        return aSynonymIndex - bSynonymIndex;
+      }
+    }
+
+    /* Priority 0: Official symbol match (short_form field match) */
+    if (aIsOfficialSymbol || bIsOfficialSymbol) {
+      if (aIsOfficialSymbol && !bIsOfficialSymbol) {
+        return -1;
+      }
+      if (bIsOfficialSymbol && !aIsOfficialSymbol) {
+        return 1;
+      }
+      /* Both are official symbols - prefer class terms if search doesn't specify a type */
+      if (aIsOfficialSymbol && bIsOfficialSymbol) {
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    /* Case-insensitive official symbol match */
+    if (aIsSymbolCaseInsensitive || bIsSymbolCaseInsensitive) {
+      if (aIsSymbolCaseInsensitive && !bIsSymbolCaseInsensitive) {
+        return -1;
+      }
+      if (bIsSymbolCaseInsensitive && !aIsSymbolCaseInsensitive) {
+        return 1;
+      }
+    }
+
+    /* Priority 1: Exact short form match */
+    var aExactShort = InputString === aShortForm;
+    var bExactShort = InputString === bShortForm;
+    if (aExactShort || bExactShort) {
+      if (aExactShort && !bExactShort) {
+        /* Only a matches exactly - prefer a. If both match exactly in short form, prefer FBbt over VFB */
+        return -1;
+      }
+      if (bExactShort && !aExactShort) {
+        return 1;
+      }
+      /* Both match exactly - only prefer classes if search doesn't specify a type */
+      if (aExactShort && bExactShort) {
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    /* Priority 2: Case-insensitive short form match */
+    var aCaseInsensitiveShort = InputStringLC === aShortFormLC;
+    var bCaseInsensitiveShort = InputStringLC === bShortFormLC;
+    if (aCaseInsensitiveShort || bCaseInsensitiveShort) {
+      if (aCaseInsensitiveShort && !bCaseInsensitiveShort) {
+        return -1;
+      }
+      if (bCaseInsensitiveShort && !aCaseInsensitiveShort) {
+        return 1;
+      }
+      /* Both match - only prefer classes if search doesn't specify a type */
+      if (aCaseInsensitiveShort && bCaseInsensitiveShort) {
+        var searchIsVFB = InputString.indexOf("VFB") === 0;
+        var searchIsFBbt = InputString.indexOf("FBbt") === 0;
+        var searchIsFBgn = InputString.indexOf("FBgn") === 0;
+        if (!searchIsVFB && !searchIsFBbt && !searchIsFBgn) {
+          if (aIsClass && !bIsClass) {
+            return -1;
+          }
+          if (bIsClass && !aIsClass) {
+            return 1;
+          }
+        }
+      }
+    }
+
+    // move exact label matches to top
     if (InputString == a.label) {
       return -1;
     }
@@ -228,24 +428,10 @@ var searchConfiguration = {
       return 1;
     }
     // close match without case matching
-    if (InputString.toLowerCase() == a.label.toLowerCase()) {
+    if (InputStringLC == a.label.toLowerCase()) {
       return -1;
     }
-    if (InputString.toLowerCase() == b.label.toLowerCase()) {
-      return 1;
-    }
-    // split out the [Name (Other)] bracketed part.
-    if (InputString == a.label.split(' (')[0]) {
-      return -1;
-    }
-    if (InputString == b.label.split(' (')[0]) {
-      return 1;
-    }
-    // close match without case matching
-    if (InputString.toLowerCase() == a.label.split(' (')[0].toLowerCase()) {
-      return -1;
-    }
-    if (InputString.toLowerCase() == b.label.split(' (')[0].toLowerCase()) {
+    if (InputStringLC == b.label.toLowerCase()) {
       return 1;
     }
     // match ignoring joinging nonwords
@@ -339,6 +525,15 @@ var searchConfiguration = {
       return -1;
     }
     if (b.label.toLowerCase().indexOf(InputString.toLowerCase()) > -1 && b.label.toLowerCase().indexOf(InputString.toLowerCase()) < a.label.toLowerCase().indexOf(InputString.toLowerCase())) {
+      return 1;
+    }
+    // prioritise class terms (FBbt_) over individual terms (VFB_)
+    var aIsClass = a.id.indexOf("FBbt") > -1;
+    var bIsClass = b.id.indexOf("FBbt") > -1;
+    if (aIsClass && !bIsClass) {
+      return -1;
+    }
+    if (bIsClass && !aIsClass) {
       return 1;
     }
     // move up expression (VFBexp) terms

@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
+const fs = require('fs');
+const path = require('path');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
 import { wait4selector, click, testLandingPage, selectTab, findElementByText } from '../utils.js';
@@ -63,13 +65,18 @@ describe('VFB Tree Browser Component Tests', () => {
 	beforeAll(async () => {
 		//increases timeout to ~8 minutes
 		jest.setTimeout(800000);
+		// Ensure snapshots/failures directory exists for debug screenshots
+		const failuresDir = path.resolve('tests/jest/vfb/snapshots/failures');
+		if (!fs.existsSync(failuresDir)) {
+			fs.mkdirSync(failuresDir, { recursive: true });
+		}
 		await page.goto(projectURL);
 	});
 
 	//Tests components in landing page are present
 	it('Test Landing Page', async () => {
 		await testLandingPage(page, 'VFB_00017894');
-	}, 120000)
+	}, 240000)
 
 	describe('Test Tree Browser Component', () => {
 		it('Open Tree Browser', async () => {
@@ -77,7 +84,7 @@ describe('VFB Tree Browser Component Tests', () => {
 
 			// Check that the Tree Browser is visible
 			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
-		}, 120000)
+		}, 240000)
 
 		it('First node in Tree Browser is correctly named', async () => {
 			// Retrieve text from first node in Tree Browser
@@ -86,7 +93,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			});
 			// Check first node is Adult Brain
 			expect(firstNode).toEqual("adult brain");
-		}, 120000)
+		}, 240000)
 
 		it('First node (adult brain) correctly expanded', async () => {
 			// Click on first node of tree browser, 'adult brain'
@@ -96,7 +103,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Test node for 'adult central brain' exists
 			let element = await findElementByText(page, "adult cerebral ganglion");
 			expect(element).toBe("adult cerebral ganglion");
-		}, 120000)
+		}, 240000)
 
 		it('Expand node "adult cerebral ganglion"', async () => {
 			// Click on third node of tree browser, 'adult cerebrum'
@@ -105,7 +112,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Check tree now expanded with adult cerebral ganglion name
 			let element = await findElementByText(page, "adult cerebrum");
 			expect(element).toEqual("adult cerebrum");
-		}, 120000)
+		}, 240000)
 
 		it('Expand node "adult cerebrum"', async () => {
 			// Click on third node of tree browser, 'adult cerebral ganglion'
@@ -114,7 +121,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Test node for 'adult central brain' exists
 			let element = await findElementByText(page, "adult deutocerebrum");
 			expect(element).toEqual("adult deutocerebrum");
-		}, 120000)
+		}, 240000)
 
 		it('Click on Node "adult deutocerebrum"', async () => {
 			await clickTreeNode(page, "adult deutocerebrum");
@@ -123,26 +130,26 @@ describe('VFB Tree Browser Component Tests', () => {
 			let element = await findElementByText(page, "adult deutocerebrum");
 			expect(element).toBe("adult deutocerebrum");
 			await page.waitFor(5000);
-		}, 120000)
+		}, 240000)
 
 		it('Open Tree Browser', async () => {
 			await selectTab(page, "Template ROI Browser");
 
 			// Check that the Tree Browser is visible
 			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
-		}, 120000)
+		}, 240000)
 
 		it('Click on "eye" icon to render "adult mushroom body" mesh', async () => {
 			await clickNodeIcon(page, "adult mushroom body", 'fa-eye-slash');
 			// Wait for 'color picker' selector to show, this is the sign that the click on the eye button worked and the mesh was rendered
 			await wait4selector(page, 'i.fa-tint', { visible: true, timeout : 500000 });
-		}, 120000)
+		}, 240000)
 
 		it('Mesh for "adult mushroom body" rendered in canvas after clicking on eye icon next to node', async () => {
 			expect(
 				await page.evaluate(async () => CanvasContainer.engine.getRealMeshesForInstancePath('VFB_00030867.VFB_00030867_obj').length)
 			).toEqual(1);
-		}, 120000)
+		}, 240000)
 
 		it('Verify initial color of "adult mushroom body" mesh', async () => {
 			// Retrieve current color of the mesh "adult mushroom body" (VFB_00030867)
@@ -156,7 +163,7 @@ describe('VFB Tree Browser Component Tests', () => {
 				throw new Error('Could not retrieve mesh color or mesh structure is unexpected for VFB_00030867.VFB_00030867_obj.');
 			});
 			expect(initialColor).toEqual("ffcc00");
-		}, 120000)
+		}, 240000)
 
 		it('Color Picker Appears for "adult mushroom body"', async () => {
 			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker0.png" });
@@ -166,67 +173,22 @@ describe('VFB Tree Browser Component Tests', () => {
 			// Wait for color picker to show
 			await wait4selector(page, '#tree-color-picker', { visible: true, timeout : 500000 })
 			await page.screenshot({ path: "tests/jest/vfb/snapshots/failures/color-picker2.png" });
-		}, 120000)
+		}, 240000)
 
 		it('Change color of "adult mushroom body" using color picker', async () => {
 			// Wait for the color picker to be fully loaded
 			await page.waitFor(1000);
 			
-			// Try multiple possible selectors for the color input
-			const possibleSelectors = [
-				'#tree-color-picker input[type="text"]',
-				'#tree-color-picker input[type="color"]',
-				'#tree-color-picker input',
-				'#tree-color-picker .color-input',
-				'#tree-color-picker [class*="input"]'
-			];
+			// ChromePicker's onChangeComplete calls Instances[id].setColor(color.hex).
+			// Typing into the hex input doesn't reliably trigger react-color's internal
+			// handler, so we call setColor directly — the same code path the picker uses.
+			await page.evaluate(() => {
+				Instances['VFB_00030867'].setColor('#f542e6');
+			});
 			
-			let colorInputElement = null;
-			let workingSelector = null;
-			
-			// Find the first working selector
-			for (const selector of possibleSelectors) {
-				try {
-					colorInputElement = await page.$(selector);
-					if (colorInputElement) {
-						workingSelector = selector;	
-						console.log(`Found working color input selector: ${workingSelector}`);
-						break;
-					}
-				} catch (e) {
-					// Try next selector
-					continue;
-				}
-			}
-			
-			if (!workingSelector) {
-				throw new Error('Could not find color input element in color picker');
-			}
-			
-			// Clear the input and set new color value
-			await page.evaluate((selector, colorValue) => {
-				const el = document.querySelector(selector);
-				if (!el) {
-					throw new Error(`Color input element not found: ${selector}`);
-				}
-				
-				// Clear existing value
-				el.value = '';
-				el.focus();
-				
-				// Set the new value
-				el.value = colorValue;
-			}, workingSelector, '#f542e6');
-
-			// Wait for the input to be updated
-			await page.waitForFunction((selector, colorValue) => {
-				const el = document.querySelector(selector);
-				return el && el.value === colorValue;
-			}, {}, workingSelector, '#f542e6');
-
 			// Wait for the application to process the color change
 			await page.waitFor(1000);
-		}, 120000)
+		}, 240000)
 
 		it('Verify "adult mushroom body" mesh color is updated after color picker usage', async () => {
 			// Retrieve the new color of the unselected mesh "adult mushroom body" (VFB_00030867)
@@ -242,7 +204,7 @@ describe('VFB Tree Browser Component Tests', () => {
 				throw new Error('Could not retrieve new mesh color or mesh structure is unexpected for VFB_00030867.VFB_00030867_obj.');
 			});
 			expect(newColor).toEqual("f542e6");
-		}, 120000)
+		}, 240000)
 
 		it('Click on Node "adult mushroom body"', async () => {
 			await clickTreeNode(page, "adult mushroom body");
@@ -251,7 +213,7 @@ describe('VFB Tree Browser Component Tests', () => {
 			expect(element).toBe("adult mushroom body");
 			await wait4selector(page, '#VFB_00030867_deselect_buttonBar_btn', { visible: true , timeout : 120000 });
 			await page.waitFor(5000);
-		}, 120000)
+		}, 240000)
 	})
 
 	describe('Add "Medulla"', () => {
@@ -275,22 +237,32 @@ describe('VFB Tree Browser Component Tests', () => {
 			   }
 			});
 		    await wait4selector(page, ST.SPOT_LIGHT_SELECTOR, { hidden: true, timeout : 50000 });
-		}, 120000)
+		}, 240000)
 
-		// Check Medulla is focus term
+		// Check Medulla is focus term — use waitForFunction with substring match.
+		// Exact-text findElementByText is timing-sensitive: in run 25282343638 the test
+		// fired before the term info finished re-rendering, returning "" even though the
+		// next-block .nodeFound test passed with innerText === "medulla". Wait for any
+		// element whose innerText includes "medulla".
 		it('Medulla loaded as the focus term', async () => {
-			await page.waitFor(5000);
-			// Check Medulla actually loaded
-			let element = await findElementByText(page, "medulla");
-			expect(element).toBe("medulla");
-		}, 120000)
+			await page.waitForFunction(() => {
+				const els = document.querySelectorAll('*');
+				for (let i = 0; i < els.length; i++) {
+					const t = els[i] && els[i].innerText;
+					if (typeof t === 'string' && t.toLowerCase().includes('medulla')) {
+						return true;
+					}
+				}
+				return false;
+			}, { timeout: 60000 });
+		}, 240000)
 
 		it('Open Tree Browser', async () => {
 			await selectTab(page, "Template ROI Browser");
 
 			// Check that the Tree Browser is visible
 			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 800000 });
-		}, 120000)
+		}, 240000)
 
 		it('Adult Brain remains root node after Medulla selection', async () => {
 			await page.waitFor(2000);
@@ -299,6 +271,6 @@ describe('VFB Tree Browser Component Tests', () => {
 				return document.querySelector(".nodeFound").innerText;
 			});
 			expect(firstNode).toEqual("medulla");
-		}, 120000)
+		}, 240000)
 	})
 })

@@ -8,25 +8,26 @@ import * as ST from '../selectors';
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
 const projectURL = baseURL + "/geppetto?i=VFB_00017894";
 
-const clickQueryResult = async (page, text) => {
-  await page.evaluate(async (text) => {
-    let elems = Array.from(document.querySelectorAll('.query-results-name-column'));
-    console.log('Query result elements:', elems.map(e => e.innerText)); // Debugging log
-
-    for (var i = 0; i < elems.length; i++) {
-      if (elems[i] && elems[i].innerText === text) {
-        console.log(`Clicking on element with text: ${text}`); // Debugging log
-        elems[i].getElementsByTagName("a")[0].click();
-        break;
+const clickFirstQueryResult = async (page) => {
+  await page.waitForSelector('.query-results-name-column', { visible: true, timeout: 1200000 });
+  const clickedText = await page.evaluate(async () => {
+    const elems = Array.from(document.querySelectorAll('.query-results-name-column'));
+    console.log('Query result elements:', elems.map(e => e.innerText));
+    for (let i = 0; i < elems.length; i++) {
+      const link = elems[i] && elems[i].getElementsByTagName('a')[0];
+      if (link) {
+        console.log(`Clicking first result: ${elems[i].innerText}`);
+        link.click();
+        return elems[i].innerText;
       }
     }
-  }, text);
-  
-  // Add a wait to ensure navigation completes
-  await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 }).catch(() => {
-    // Sometimes navigation doesn't trigger, which is fine
+    return null;
+  });
+
+  await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 120000 }).catch(() => {
     console.log('Navigation completed or timeout reached');
   });
+  return clickedText;
 }
 
 /**
@@ -67,8 +68,8 @@ describe('VFB Menu Component Tests', () => {
 
     it('Term info component correctly populated at startup', async () => {
       await page.waitFor(3000);
-      let element = await findElementByText(page, "List all painted anatomy available for adult brain template JFRC2");
-      expect(element).toBe("List all painted anatomy available for adult brain template JFRC2");
+      let element = await findElementByText(page, "Painted domains for JFRC2");
+      expect(element).toBe("Painted domains for JFRC2");
     })
   })
 
@@ -124,17 +125,21 @@ describe('VFB Menu Component Tests', () => {
       await page.evaluate(async () => document.getElementById("All Available Datasets").click());
       // Wait for results to appear, this means datasets were returned
       await page.waitFor(9000);
-      await wait4selector(page, '#querybuilder', { visible: true , timeout : 900000 });
-      await wait4selector(page, '#Dorkenwald2023----VFBlicense_CC_BY_NC_4_0----doi_10_1101_2023_06_27_546656-image-container', { visible: true , timeout : 900000 });
-    }, 5000000);
+      await wait4selector(page, '#querybuilder', { visible: true , timeout : 1200000 });
+      await page.waitForSelector('.query-results-name-column', { visible: true, timeout: 1200000 });
+      // Confirm at least one dataset card has rendered, without binding to a specific dataset id —
+      // the AllDatasets list grows with each release.
+      await page.waitForSelector("[id$='-image-container']", { visible: true, timeout: 1200000 });
+    }, 1500000);
 
     it('Term info correctly populated with dataset after query results clicked', async () => {
-      await clickQueryResult(page, "FlyWire connectome neurons");
-      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 900000 });
-      await wait4selector(page, '#slider_image_0', { visible: true , timeout : 900000 });
-      let element = await findElementByText(page, "FlyWire connectome neurons");
-      expect(element).toBe("FlyWire connectome neurons");
-    })
+      const clickedText = await clickFirstQueryResult(page);
+      expect(clickedText).not.toBeNull();
+      await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true , timeout : 1200000 });
+      await wait4selector(page, '#slider_image_0', { visible: true , timeout : 1200000 });
+      let element = await findElementByText(page, clickedText);
+      expect(element).toBe(clickedText);
+    }, 1500000)
   })
 
 

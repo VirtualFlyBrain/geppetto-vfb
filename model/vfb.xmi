@@ -209,6 +209,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process images"
+          description="Process images"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
     <queries
@@ -245,6 +246,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
     </queries>
@@ -262,6 +264,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -282,6 +285,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
     </queries>
@@ -299,6 +303,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="vfbCreateResultListForIndividualsForQueryResultsQueryProcessor"/>
     </queries>
@@ -319,6 +324,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -515,6 +521,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -578,7 +585,8 @@
     <queries
         xsi:type="gep_2:CompoundQuery"
         id="anat_scRNAseq_query_compound"
-        name="anat_scRNAseq_query">
+        name="anat_scRNAseq_query"
+        description="Get scRNAseq data for anatomy">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Get JSON for anat scRNAseq query"
@@ -588,13 +596,15 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
         id="dataset_scRNAseq_query_compound"
-        name="dataset_scRNAseq_query">
+        name="dataset_scRNAseq_query"
+        description="Get scRNAseq data for dataset">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Get JSON for dataset scRNAseq query"
@@ -604,6 +614,7 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process Images"
+          description="Process Images"
           returnType="//@libraries.3/@types.0"
           queryProcessorId="neo4jQueryProcessor"/>
     </queries>
@@ -929,6 +940,12 @@
         name="Owlery Class Pass solr id list only"
         description="Keep nothing slimply pass solr ids"
         queryProcessorId="owleryToSolrIdOnlyQueryProcessor"/>
+    <queries
+        xsi:type="gep_2:ProcessQuery"
+        id="owlPassSolrIdListWithSelf"
+        name="Owlery Class Pass solr id list incl self"
+        description="Pass OWLERY subclass ids to SOLR with the focus term prepended so leaf classes still hit their own per-class Solr doc."
+        queryProcessorId="owleryToSolrIdWithSelfQueryProcessor"/>
   </dataSources>
   <dataSources
       id="owleryDataSourceRealise"
@@ -1023,11 +1040,13 @@
       <queryChain
           xsi:type="gep_2:ProcessQuery"
           name="Process images"
+          description="Process images"
           queryProcessorId="solrQueryProcessor"/>
     </queries>
     <queries
         xsi:type="gep_2:CompoundQuery"
-        name="Get user NBLAST results">
+        name="Get user NBLAST results"
+        description="Fetches and processes user NBLAST results">
       <queryChain
           xsi:type="gep_2:SimpleQuery"
           name="Get user NBLAST results"
@@ -1064,6 +1083,40 @@
         description="Fetches essential details."
         query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
         countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;all_datasets_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="compound_downstream_connectivity_query"
+        name="downstream_connectivity_query"
+        description="Get cached downstream connectivity for neuron class subclasses">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get downstream connectivity from SOLR"
+          description="Fetches pre-computed downstream connectivity for all subclass ids."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;downstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process downstream connectivity"
+          description="Process downstream connectivity"
+          queryProcessorId="solrQueryProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="compound_upstream_connectivity_query"
+        name="upstream_connectivity_query"
+        description="Get cached upstream connectivity for neuron class subclasses">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get upstream connectivity from SOLR"
+          description="Fetches pre-computed upstream connectivity for all subclass ids."
+          query="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"
+          countQuery="&quot;params&quot;:{&quot;defType&quot;:&quot;edismax&quot;,&quot;fl&quot;:&quot;upstream_connectivity_query&quot;,&quot;indent&quot;:&quot;true&quot;,&quot;q.op&quot;:&quot;OR&quot;,&quot;q&quot;:&quot;id:*&quot;,&quot;fq&quot;:&quot;{!terms f=id}$ARRAY_ID_RESULTS&quot;,&quot;rows&quot;:&quot;999999&quot;}"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process upstream connectivity"
+          description="Process upstream connectivity"
+          queryProcessorId="solrQueryProcessor"/>
+    </queries>
     <fetchVariableQuery
         xsi:type="gep_2:CompoundQuery"
         name="Process Cached JSON"
@@ -1081,12 +1134,666 @@
           queryProcessorId="vfbProcessTermInfoCachedJson"/>
     </fetchVariableQuery>
   </dataSources>
+  <dataSources
+      name="vfbquery"
+      dataSourceService="vfbqueryDataSource"
+      url="http://v3-cached.virtualflybrain.org/run_query"
+      dependenciesLibrary="//@libraries.0">
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_upstream_class_connectivity"
+        name="VFBquery UpstreamClassConnectivity"
+        description="Cached class-level upstream connectivity for $NAME via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch UpstreamClassConnectivity from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=UpstreamClassConnectivity. URL format MUST match V3 frontend and VFB3-MCP exactly so we share the nginx cache key."
+          query="id=$ID&amp;query_type=UpstreamClassConnectivity"
+          countQuery="id=$ID&amp;query_type=UpstreamClassConnectivity"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Convert {headers, rows, count} envelope into geppetto rows; synthesise Downstream_Class column for the 9-column v2 layout."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_downstream_class_connectivity"
+        name="VFBquery DownstreamClassConnectivity"
+        description="Cached class-level downstream connectivity for $NAME via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch DownstreamClassConnectivity from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=DownstreamClassConnectivity."
+          query="id=$ID&amp;query_type=DownstreamClassConnectivity"
+          countQuery="id=$ID&amp;query_type=DownstreamClassConnectivity"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Convert {headers, rows, count} envelope into geppetto rows; synthesise Upstream_Class column for the 9-column v2 layout."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuron_neuron_connectivity"
+        name="VFBquery NeuronNeuronConnectivityQuery"
+        description="Cached individual-level neuron-to-neuron connectivity for $NAME via VFBquery (v3-cached). Replaces the single-step Cypher chain on dataSources.0/queries.14.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronNeuronConnectivityQuery from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronNeuronConnectivityQuery."
+          query="id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"
+          countQuery="id=$ID&amp;query_type=NeuronNeuronConnectivityQuery"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Object-to-String formatting per column type (list-to-pipe-joined, integer-Numbers as ints) via the processor's generic path."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuron_region_connectivity"
+        name="VFBquery NeuronRegionConnectivityQuery"
+        description="Cached neuron-to-region (per-region presynaptic/postsynaptic terminals) connectivity for $NAME via VFBquery (v3-cached). Replaces the single-step Cypher chain on dataSources.0/queries.13.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronRegionConnectivityQuery from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronRegionConnectivityQuery."
+          query="id=$ID&amp;query_type=NeuronRegionConnectivityQuery"
+          countQuery="id=$ID&amp;query_type=NeuronRegionConnectivityQuery"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Object-to-String formatting per column type via the processor's generic path."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_listallavailableimages"
+        name="VFBquery ListAllAvailableImages"
+        description="Cached ListAllAvailableImages via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch ListAllAvailableImages from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=ListAllAvailableImages."
+          query="id=$ID&amp;query_type=ListAllAvailableImages"
+          countQuery="id=$ID&amp;query_type=ListAllAvailableImages"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_transgeneexpressionhere"
+        name="VFBquery TransgeneExpressionHere"
+        description="Cached TransgeneExpressionHere via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch TransgeneExpressionHere from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=TransgeneExpressionHere."
+          query="id=$ID&amp;query_type=TransgeneExpressionHere"
+          countQuery="id=$ID&amp;query_type=TransgeneExpressionHere"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_anatomyexpressedin"
+        name="VFBquery AnatomyExpressedIn"
+        description="Anatomy classes where the given expression pattern is expressed.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch AnatomyExpressedIn from VFBquery"
+          description="GET /run_query?id=$ID&amp;query_type=AnatomyExpressedIn."
+          query="id=$ID&amp;query_type=AnatomyExpressedIn"
+          countQuery="id=$ID&amp;query_type=AnatomyExpressedIn"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuronclassesfasciculatinghere"
+        name="VFBquery NeuronClassesFasciculatingHere"
+        description="Cached NeuronClassesFasciculatingHere via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronClassesFasciculatingHere from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronClassesFasciculatingHere."
+          query="id=$ID&amp;query_type=NeuronClassesFasciculatingHere"
+          countQuery="id=$ID&amp;query_type=NeuronClassesFasciculatingHere"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_imagesneurons"
+        name="VFBquery ImagesNeurons"
+        description="Cached ImagesNeurons via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch ImagesNeurons from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=ImagesNeurons."
+          query="id=$ID&amp;query_type=ImagesNeurons"
+          countQuery="id=$ID&amp;query_type=ImagesNeurons"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuronsparthere"
+        name="VFBquery NeuronsPartHere"
+        description="Cached NeuronsPartHere via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronsPartHere from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronsPartHere."
+          query="id=$ID&amp;query_type=NeuronsPartHere"
+          countQuery="id=$ID&amp;query_type=NeuronsPartHere"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_epfrag"
+        name="VFBquery epFrag"
+        description="Cached epFrag via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch epFrag from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=epFrag."
+          query="id=$ID&amp;query_type=epFrag"
+          countQuery="id=$ID&amp;query_type=epFrag"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuronssynaptic"
+        name="VFBquery NeuronsSynaptic"
+        description="Cached NeuronsSynaptic via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronsSynaptic from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronsSynaptic."
+          query="id=$ID&amp;query_type=NeuronsSynaptic"
+          countQuery="id=$ID&amp;query_type=NeuronsSynaptic"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuronspresynaptichere"
+        name="VFBquery NeuronsPresynapticHere"
+        description="Cached NeuronsPresynapticHere via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronsPresynapticHere from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronsPresynapticHere."
+          query="id=$ID&amp;query_type=NeuronsPresynapticHere"
+          countQuery="id=$ID&amp;query_type=NeuronsPresynapticHere"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuronspostsynaptichere"
+        name="VFBquery NeuronsPostsynapticHere"
+        description="Cached NeuronsPostsynapticHere via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronsPostsynapticHere from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronsPostsynapticHere."
+          query="id=$ID&amp;query_type=NeuronsPostsynapticHere"
+          countQuery="id=$ID&amp;query_type=NeuronsPostsynapticHere"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_painteddomains"
+        name="VFBquery PaintedDomains"
+        description="Cached PaintedDomains via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch PaintedDomains from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=PaintedDomains."
+          query="id=$ID&amp;query_type=PaintedDomains"
+          countQuery="id=$ID&amp;query_type=PaintedDomains"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_datasetimages"
+        name="VFBquery DatasetImages"
+        description="Cached DatasetImages via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch DatasetImages from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=DatasetImages."
+          query="id=$ID&amp;query_type=DatasetImages"
+          countQuery="id=$ID&amp;query_type=DatasetImages"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_tractsnervesinnervatinghere"
+        name="VFBquery TractsNervesInnervatingHere"
+        description="Cached TractsNervesInnervatingHere via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch TractsNervesInnervatingHere from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=TractsNervesInnervatingHere."
+          query="id=$ID&amp;query_type=TractsNervesInnervatingHere"
+          countQuery="id=$ID&amp;query_type=TractsNervesInnervatingHere"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_componentsof"
+        name="VFBquery ComponentsOf"
+        description="Cached ComponentsOf via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch ComponentsOf from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=ComponentsOf."
+          query="id=$ID&amp;query_type=ComponentsOf"
+          countQuery="id=$ID&amp;query_type=ComponentsOf"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_lineageclonesin"
+        name="VFBquery LineageClonesIn"
+        description="Cached LineageClonesIn via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch LineageClonesIn from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=LineageClonesIn."
+          query="id=$ID&amp;query_type=LineageClonesIn"
+          countQuery="id=$ID&amp;query_type=LineageClonesIn"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_allalignedimages"
+        name="VFBquery AllAlignedImages"
+        description="Cached AllAlignedImages via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch AllAlignedImages from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=AllAlignedImages."
+          query="id=$ID&amp;query_type=AllAlignedImages"
+          countQuery="id=$ID&amp;query_type=AllAlignedImages"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_partsof"
+        name="VFBquery PartsOf"
+        description="Cached PartsOf via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch PartsOf from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=PartsOf."
+          query="id=$ID&amp;query_type=PartsOf"
+          countQuery="id=$ID&amp;query_type=PartsOf"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_subclassesof"
+        name="VFBquery SubclassesOf"
+        description="Cached SubclassesOf via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SubclassesOf from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SubclassesOf."
+          query="id=$ID&amp;query_type=SubclassesOf"
+          countQuery="id=$ID&amp;query_type=SubclassesOf"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_aligneddatasets"
+        name="VFBquery AlignedDatasets"
+        description="Cached AlignedDatasets via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch AlignedDatasets from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=AlignedDatasets."
+          query="id=$ID&amp;query_type=AlignedDatasets"
+          countQuery="id=$ID&amp;query_type=AlignedDatasets"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_alldatasets"
+        name="VFBquery AllDatasets"
+        description="Cached AllDatasets via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch AllDatasets from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=AllDatasets."
+          query="id=$ID&amp;query_type=AllDatasets"
+          countQuery="id=$ID&amp;query_type=AllDatasets"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_similarmorphologyto"
+        name="VFBquery SimilarMorphologyTo"
+        description="Cached SimilarMorphologyTo via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SimilarMorphologyTo from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SimilarMorphologyTo."
+          query="id=$ID&amp;query_type=SimilarMorphologyTo"
+          countQuery="id=$ID&amp;query_type=SimilarMorphologyTo"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_similarmorphologytopartof"
+        name="VFBquery SimilarMorphologyToPartOf"
+        description="Cached SimilarMorphologyToPartOf via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SimilarMorphologyToPartOf from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SimilarMorphologyToPartOf."
+          query="id=$ID&amp;query_type=SimilarMorphologyToPartOf"
+          countQuery="id=$ID&amp;query_type=SimilarMorphologyToPartOf"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_termsforpub"
+        name="VFBquery TermsForPub"
+        description="Cached TermsForPub via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch TermsForPub from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=TermsForPub."
+          query="id=$ID&amp;query_type=TermsForPub"
+          countQuery="id=$ID&amp;query_type=TermsForPub"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_similarmorphologytopartofexp"
+        name="VFBquery SimilarMorphologyToPartOfexp"
+        description="Cached SimilarMorphologyToPartOfexp via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SimilarMorphologyToPartOfexp from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SimilarMorphologyToPartOfexp."
+          query="id=$ID&amp;query_type=SimilarMorphologyToPartOfexp"
+          countQuery="id=$ID&amp;query_type=SimilarMorphologyToPartOfexp"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_similarmorphologytonb"
+        name="VFBquery SimilarMorphologyToNB"
+        description="Cached SimilarMorphologyToNB via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SimilarMorphologyToNB from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SimilarMorphologyToNB."
+          query="id=$ID&amp;query_type=SimilarMorphologyToNB"
+          countQuery="id=$ID&amp;query_type=SimilarMorphologyToNB"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_similarmorphologytonbexp"
+        name="VFBquery SimilarMorphologyToNBexp"
+        description="Cached SimilarMorphologyToNBexp via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SimilarMorphologyToNBexp from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SimilarMorphologyToNBexp."
+          query="id=$ID&amp;query_type=SimilarMorphologyToNBexp"
+          countQuery="id=$ID&amp;query_type=SimilarMorphologyToNBexp"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_anatscrnaseqquery"
+        name="VFBquery anatScRNAseqQuery"
+        description="Cached anatScRNAseqQuery via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch anatScRNAseqQuery from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=anatScRNAseqQuery."
+          query="id=$ID&amp;query_type=anatScRNAseqQuery"
+          countQuery="id=$ID&amp;query_type=anatScRNAseqQuery"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_clusterexpression"
+        name="VFBquery clusterExpression"
+        description="Cached clusterExpression via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch clusterExpression from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=clusterExpression."
+          query="id=$ID&amp;query_type=clusterExpression"
+          countQuery="id=$ID&amp;query_type=clusterExpression"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_scrnadatasetdata"
+        name="VFBquery scRNAdatasetData"
+        description="Cached scRNAdatasetData via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch scRNAdatasetData from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=scRNAdatasetData."
+          query="id=$ID&amp;query_type=scRNAdatasetData"
+          countQuery="id=$ID&amp;query_type=scRNAdatasetData"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_expressioncluster"
+        name="VFBquery expressionCluster"
+        description="Cached expressionCluster via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch expressionCluster from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=expressionCluster."
+          query="id=$ID&amp;query_type=expressionCluster"
+          countQuery="id=$ID&amp;query_type=expressionCluster"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_similarmorphologytouserdata"
+        name="VFBquery SimilarMorphologyToUserData"
+        description="Cached SimilarMorphologyToUserData via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SimilarMorphologyToUserData from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SimilarMorphologyToUserData."
+          query="id=$ID&amp;query_type=SimilarMorphologyToUserData"
+          countQuery="id=$ID&amp;query_type=SimilarMorphologyToUserData"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_imagesthatdevelopfrom"
+        name="VFBquery ImagesThatDevelopFrom"
+        description="Cached ImagesThatDevelopFrom via VFBquery (v3-cached). Migrated from legacy chain.">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch ImagesThatDevelopFrom from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=ImagesThatDevelopFrom."
+          query="id=$ID&amp;query_type=ImagesThatDevelopFrom"
+          countQuery="id=$ID&amp;query_type=ImagesThatDevelopFrom"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+  </dataSources>
+  <dataSources
+      id="vfbqueryTermInfo"
+      name="vfbqueryterminfo"
+      dataSourceService="vfbqueryTermInfoDataSource"
+      url="http://v3-cached.virtualflybrain.org/get_term_info"
+      dependenciesLibrary="//@libraries.3"
+      targetLibrary="//@libraries.4">
+    <libraryConfigurations
+        library="//@libraries.0"
+        modelInterpreterId="swcModelInterpreterService"
+        format="swc"/>
+    <libraryConfigurations
+        library="//@libraries.1"
+        modelInterpreterId="objModelInterpreterService"
+        format="obj"/>
+    <libraryConfigurations
+        library="//@libraries.2"
+        modelInterpreterId="owlModelInterpreterService"
+        format="owl"/>
+    <fetchVariableQuery
+        xsi:type="gep_2:CompoundQuery"
+        name="Process VFBquery term info"
+        description="">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Get term info from v3-cached"
+          description="GET get_term_info"
+          query="id=$ID"
+          countQuery="id=$ID"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery term info JSON"
+          description="Process VFBquery term info JSON"
+          queryProcessorId="vfbProcessTermInfoVFBqueryJson"/>
+    </fetchVariableQuery>
+  </dataSources>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="ListAllAvailableImages"
       name="List all available images for class with examples"
       description="List all available images of $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.3">
+      queryChain="//@dataSources.4/@queries.4">
     <matchingCriteria
         type="//@libraries.3/@types.21 //@libraries.3/@types.1"/>
   </queries>
@@ -1095,18 +1802,18 @@
       name="Expression overlapping selected anatomy"
       description="Reports of transgene expression in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.14 //@dataSources.0/@queries.7 //@dataSources.1/@queries.16 //@dataSources.1/@queries.12 //@dataSources.0/@queries.10 //@dataSources.1/@queries.0 //@dataSources.1/@queries.13 //@dataSources.0/@queries.12">
+      queryChain="//@dataSources.4/@queries.5">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.5"/>
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.2"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ExpressionOverlapsHere"
-      name="Expression overlapping what anatomy"
-      description="Anatomy $NAME is expressed in"
+      id="AnatomyExpressedIn"
+      name="Anatomy where the expression pattern is expressed"
+      description="Anatomy where $NAME is expressed"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.0/@queries.9">
+      queryChain="//@dataSources.4/@queries.6">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
     <matchingCriteria
@@ -1117,7 +1824,7 @@
       name="Neuron classes fasciculating here"
       description="Neurons fasciculating in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.6 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.7">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.3"/>
   </queries>
@@ -1126,7 +1833,7 @@
       name="Images of neurons with some part here"
       description="Images of neurons with some part in $NAME"
       returnType="//@libraries.3/@types.2"
-      queryChain="//@dataSources.2/@queries.1 //@dataSources.2/@queries.4 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.8">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1136,7 +1843,7 @@
       id="NeuronsPartHere"
       name="Neurons with any part here"
       description="Neurons with some part in $NAME"
-      queryChain="//@dataSources.1/@queries.1 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.9">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1148,7 +1855,7 @@
       id="epFrag"
       name="Images of expression pattern fragments"
       description="Images of fragments of $NAME"
-      queryChain="//@dataSources.2/@queries.2 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.10">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
   </queries>
@@ -1156,7 +1863,7 @@
       id="NeuronsSynaptic"
       name="Neurons Synaptic"
       description="Neurons with synaptic terminals in $NAME"
-      queryChain="//@dataSources.1/@queries.2 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.11">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1168,7 +1875,7 @@
       id="NeuronsPresynapticHere"
       name="Neurons Presynaptic"
       description="Neurons with presynaptic terminals in $NAME"
-      queryChain="//@dataSources.1/@queries.3 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.12">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1180,7 +1887,7 @@
       id="NeuronsPostsynapticHere"
       name="Neurons Postsynaptic"
       description="Neurons with postsynaptic terminals in $NAME"
-      queryChain="//@dataSources.1/@queries.4 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.13">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1193,7 +1900,7 @@
       name="Show all painted domains for template"
       description="List all painted anatomy available for $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.4">
+      queryChain="//@dataSources.4/@queries.14">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
@@ -1202,7 +1909,7 @@
       name="Show all images for a dataset"
       description="List all images included in $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.27 //@dataSources.0/@queries.24 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.15">
     <matchingCriteria
         type="//@libraries.3/@types.24 //@libraries.3/@types.41"/>
   </queries>
@@ -1211,7 +1918,7 @@
       name="Tracts/nerves innervating synaptic neuropil"
       description="Tracts/nerves innervating $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.7 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.16">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1222,7 +1929,7 @@
       name="Components of"
       description="Components of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.0 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.17">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.4"/>
   </queries>
@@ -1231,7 +1938,7 @@
       name="Lineage clones found here"
       description="Lineage clones found in $NAME"
       returnType="//@libraries.3/@types.4"
-      queryChain="//@dataSources.1/@queries.10 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.18">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.5"/>
     <matchingCriteria
@@ -1242,7 +1949,7 @@
       name="Show all images aligned to template"
       description="List all images aligned to $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.23 //@dataSources.0/@queries.24 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.19">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
@@ -1251,7 +1958,7 @@
       name="Parts of"
       description="Parts of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.0 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.20">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
@@ -1260,7 +1967,7 @@
       name="Subclasses of"
       description="Subclasses of $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.18 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.21">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
   </queries>
@@ -1269,7 +1976,7 @@
       name="Show all datasets aligned to template"
       description="List all datasets aligned to $NAME"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.25 //@dataSources.0/@queries.24 //@dataSources.3/@queries.6 //@dataSources.3/@queries.3">
+      queryChain="//@dataSources.4/@queries.22">
     <matchingCriteria
         type="//@libraries.3/@types.20 //@libraries.3/@types.0"/>
   </queries>
@@ -1278,32 +1985,48 @@
       name="Show all datasets"
       description="List all datasets"
       returnType="//@libraries.3/@types.24"
-      queryChain="//@dataSources.0/@queries.26 //@dataSources.0/@queries.24 //@dataSources.3/@queries.6 //@dataSources.3/@queries.3">
+      queryChain="//@dataSources.4/@queries.23">
     <matchingCriteria
         type="//@libraries.3/@types.20"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ref_neuron_region_connectivity_query"
+      id="NeuronRegionConnectivityQuery"
       name="Show connectivity to regions from Neuron X"
       description="Show connectivity per region for $NAME"
-      queryChain="//@dataSources.0/@queries.13">
+      queryChain="//@dataSources.4/@queries.3">
     <matchingCriteria
         type="//@libraries.3/@types.43"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
-      id="ref_neuron_neuron_connectivity_query"
+      id="NeuronNeuronConnectivityQuery"
       name="Show connectivity to neurons from Neuron X"
       description="Show neurons connected to $NAME"
-      queryChain="//@dataSources.0/@queries.14">
+      queryChain="//@dataSources.4/@queries.2">
     <matchingCriteria
         type="//@libraries.3/@types.42"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="DownstreamClassConnectivity"
+      name="Show downstream connectivity classes for Neuron Class"
+      description="Show downstream connectivity by class for $NAME"
+      queryChain="//@dataSources.4/@queries.1">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="UpstreamClassConnectivity"
+      name="Show upstream connectivity classes for Neuron Class"
+      description="Show upstream connectivity by class for $NAME"
+      queryChain="//@dataSources.4/@queries.0">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="SimilarMorphologyTo"
       name="has_similar_morphology_to"
       description="Neurons with similar morphology to $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.15">
+      queryChain="//@dataSources.4/@queries.24">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.25"/>
   </queries>
@@ -1312,7 +2035,7 @@
       name="has_similar_morphology_to_part_of_neuron"
       description="Expression patterns with some similar morphology to $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.17">
+      queryChain="//@dataSources.4/@queries.25">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.2 //@libraries.3/@types.44"/>
   </queries>
@@ -1321,7 +2044,7 @@
       name="has_reference_to_pub"
       description="List all terms that reference $NAME"
       returnType="//@libraries.3/@types.36"
-      queryChain="//@dataSources.0/@queries.29 //@dataSources.0/@queries.24 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.26">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.16"/>
   </queries>
@@ -1330,7 +2053,7 @@
       name="has_similar_morphology_to_part_of_exp"
       description="Neurons with similar morphology to part of $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.17">
+      queryChain="//@dataSources.4/@queries.27">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.27 //@libraries.3/@types.44"/>
     <matchingCriteria
@@ -1341,7 +2064,7 @@
       name="has_similar_morphology_to_nb"
       description="Neurons that overlap with $NAME  [NeuronBridge]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.18">
+      queryChain="//@dataSources.4/@queries.28">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.27"/>
     <matchingCriteria
@@ -1352,7 +2075,7 @@
       name="has_similar_morphology_to_nb_exp"
       description="Expression patterns that overlap with $NAME  [NeuronBridge]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.18">
+      queryChain="//@dataSources.4/@queries.29">
     <matchingCriteria
         type="//@libraries.3/@types.45 //@libraries.3/@types.0 //@libraries.3/@types.2"/>
   </queries>
@@ -1361,7 +2084,7 @@
       name="anat_scRNAseq_query"
       description="Single cell transcriptomics data for $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.1/@queries.8 //@dataSources.1/@queries.17 //@dataSources.0/@queries.20">
+      queryChain="//@dataSources.4/@queries.30">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.28 //@libraries.3/@types.47"/>
   </queries>
@@ -1370,7 +2093,7 @@
       name="cluster_expression"
       description="Genes expressed in $NAME"
       returnType="//@libraries.3/@types.1"
-      queryChain="//@dataSources.0/@queries.19">
+      queryChain="//@dataSources.4/@queries.31">
     <matchingCriteria
         type="//@libraries.3/@types.0 //@libraries.3/@types.22"/>
   </queries>
@@ -1379,7 +2102,7 @@
       name="Show all Clusters for a scRNAseq dataset"
       description="List all Clusters for $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.21">
+      queryChain="//@dataSources.4/@queries.32">
     <matchingCriteria
         type="//@libraries.3/@types.24 //@libraries.3/@types.47"/>
   </queries>
@@ -1388,7 +2111,7 @@
       name="expression_cluster"
       description="scRNAseq clusters expressing $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.0/@queries.22">
+      queryChain="//@dataSources.4/@queries.33">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.48 //@libraries.3/@types.47"/>
   </queries>
@@ -1397,7 +2120,7 @@
       name="has_similar_morphology_to_userdata"
       description="Neurons with similar morphology to your upload $NAME  [NBLAST mean score]"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.3/@queries.2">
+      queryChain="//@dataSources.4/@queries.34">
     <matchingCriteria
         type="//@libraries.3/@types.49 //@libraries.3/@types.0"/>
   </queries>
@@ -1406,7 +2129,7 @@
       name="Show all images that develops_from X"
       description="List images of neurons that develop from $NAME"
       returnType="//@libraries.3/@types.0"
-      queryChain="//@dataSources.2/@queries.5 //@dataSources.2/@queries.4 //@dataSources.3/@queries.1">
+      queryChain="//@dataSources.4/@queries.35">
     <matchingCriteria
         type="//@libraries.3/@types.1 //@libraries.3/@types.50"/>
   </queries>
