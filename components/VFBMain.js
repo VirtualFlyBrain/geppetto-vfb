@@ -1619,7 +1619,20 @@ class VFBMain extends React.Component {
             done(targetId, previewCount);
           });
         };
-        if (typeof window[targetId] === "undefined") {
+        /*
+         * Fetch the target unless it is already a loaded top-level variable.
+         * NB: `window[id]` is unreliable -- a DOM element with that id (e.g. the
+         * class node in the ROI tree) makes it truthy even though the geppetto
+         * variable isn't loaded, which would make addQueryItem throw. Check the
+         * model factory instead.
+         */
+        var targetLoaded = false;
+        try {
+          targetLoaded = !!(GEPPETTO.ModelFactory.getTopLevelVariablesById([targetId])[0]);
+        } catch (e) {
+          targetLoaded = false;
+        }
+        if (!targetLoaded) {
           window.fetchVariableThenRun(targetId, proceed);
         } else {
           proceed();
