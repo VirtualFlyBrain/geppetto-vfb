@@ -294,6 +294,13 @@ class VFBFocusTerm extends React.Component {
           clearTimeout(that._vfbQueryNoticeTimer);
           that._vfbQueryNoticeTimer = null;
         }
+        /*
+         * Query settled: clear the "Counting..." flag (covers no-query paths
+         * where setCount never runs).
+         */
+        if (that.props.queryBuilder.props.model) {
+          that.props.queryBuilder.props.model.counting = false;
+        }
         // check if any results with count flag
         if (that.props.queryBuilder.props.model.count > 0) {
           // runQuery clears the notice and renders results
@@ -338,7 +345,7 @@ class VFBFocusTerm extends React.Component {
        * data, not the focus individual.
        */
       var qType = (click.parameters[1] && click.parameters[1].getId) ? click.parameters[1].getId() : undefined;
-      window.vfbResolveAndPrepQuery(otherId, qType, function (targetId) {
+      window.vfbResolveAndPrepQuery(that.props.queryBuilder.props.model, otherId, qType, function (targetId) {
         if ($('#add-new-query-container')[0] !== undefined) {
           $('#add-new-query-container')[0].hidden = true;
           $('#query-builder-items-container')[0].hidden = true;

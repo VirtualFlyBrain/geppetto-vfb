@@ -938,6 +938,13 @@ class VFBTermInfoWidget extends React.Component {
               clearTimeout(that._vfbQueryNoticeTimer);
               that._vfbQueryNoticeTimer = null;
             }
+            /*
+             * Query settled: clear the "Counting..." flag (covers no-query
+             * paths where setCount never runs).
+             */
+            if (that.props.queryBuilder.props.model) {
+              that.props.queryBuilder.props.model.counting = false;
+            }
             // check if any results with count flag
             if (that.props.queryBuilder.props.model.count > 0) {
               // runQuery clears the notice and renders results
@@ -960,7 +967,7 @@ class VFBTermInfoWidget extends React.Component {
            * (takes.default.short_form -- the class for painted domains) so it
            * runs against the entity that has the data, not the focus individual.
            */
-          window.vfbResolveAndPrepQuery(otherId, path, function (targetId) {
+          window.vfbResolveAndPrepQuery(that.props.queryBuilder.props.model, otherId, path, function (targetId) {
             that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: entity }, callback);
           });
         } else {

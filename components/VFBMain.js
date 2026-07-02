@@ -1561,7 +1561,19 @@ class VFBMain extends React.Component {
      * so a query fired before anything has loaded still proceeds (against the
      * focus id as a fallback).
      */
-    window.vfbResolveAndPrepQuery = function (focusId, queryType, done) {
+    window.vfbResolveAndPrepQuery = function (model, focusId, queryType, done) {
+      /*
+       * Signal "running" immediately so the footer reads "Counting..." for the
+       * whole resolve/fetch/count phase instead of a misleading "0 results".
+       * getCount keeps it true; setCount clears it when the count returns, and
+       * the completion callback clears it on any terminal (no-query) path.
+       */
+      try {
+        if (model) {
+          model.counting = true;
+          model.notifyChange();
+        }
+      } catch (e) { /* non-fatal */ }
       window.withVFBQueryTypes(focusId, function () {
         var targetId = window.vfbQueryTargetId(focusId, queryType);
         var proceed = function () {
@@ -1701,6 +1713,13 @@ class VFBMain extends React.Component {
           clearTimeout(that._vfbQueryNoticeTimer);
           that._vfbQueryNoticeTimer = null;
         }
+        /*
+         * Query settled: clear the "Counting..." flag (covers no-query paths
+         * where setCount never runs).
+         */
+        if (that.refs.querybuilderRef.props.model) {
+          that.refs.querybuilderRef.props.model.counting = false;
+        }
         if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
           // runQuery if any results
           that.refs.querybuilderRef.runQuery();
@@ -1710,7 +1729,7 @@ class VFBMain extends React.Component {
           const query = that.urlQueryLoader[0];
           // Fetch variable and addQuery, if no more queries left then run query.
           query
-            ? window.vfbResolveAndPrepQuery(query.id, query.selection, function (targetId) {
+            ? window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, query.id, query.selection, function (targetId) {
               that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection] }, callback)
             })
             : that.refs.querybuilderRef.props.model.count > 0
@@ -1744,7 +1763,7 @@ class VFBMain extends React.Component {
         that._vfbQueryNoticeTimer = setTimeout(function () {
           that.refs.querybuilderRef?.setErrorMessage?.("Fetching results — this can take a moment for complex queries.", "info");
         }, 10000);
-        window.vfbResolveAndPrepQuery(that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId) {
+        window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId) {
           that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
         });
       }
