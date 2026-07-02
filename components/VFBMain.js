@@ -392,18 +392,17 @@ class VFBMain extends React.Component {
         self.handleSceneAndTermInfoCallback(id);
         self.managerLabel(id);
         /*
-         * A visual term is not "done" until its viewer paints the mesh, so
-         * register it in the legacy load counter (vfbLoadId) and report it
-         * fetched -- its component load (VFB_ID_LOADED) then clears the counter.
-         * A term with no geometry (classes, as a rule -- e.g. a query target
-         * pulled in to run "Query For") never paints a component, so it must NOT
-         * enter the legacy counter: an idsMap entry with empty `components` keeps
-         * `loading` true forever (VFB_ID_LOADED reducer), which leaves the fly
-         * logo spinning after the query settles. Resolve it immediately instead;
-         * the load manager's own status still covers the fetch window.
+         * Loading is owned by VFBLoadManager -- its status drives
+         * generals.loading (loadStatus.active). A visual term (any image,
+         * painted domains included) is reported fetched and completes when its
+         * viewer paints (noteComponentLoaded) or the render grace elapses; a term
+         * with no geometry resolves immediately. The old idsMap/vfbLoadId counter
+         * is deliberately NOT written any more: it never cleared for a term
+         * rendered as part of another mesh (a painted domain reports no separate
+         * component load), so its idsMap entry held generals.loading true forever
+         * and left the fly logo spinning. No term type is special-cased here.
          */
         if (self.hasVisualType(id)) {
-          self.props.vfbLoadId([id]);
           fetched();
         } else {
           resolved();
