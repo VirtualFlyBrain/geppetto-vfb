@@ -958,11 +958,15 @@ class VFBTermInfoWidget extends React.Component {
           // add query item + selection
           if (window[otherId] == undefined) {
             window.fetchVariableThenRun(otherId, function () {
-              that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
+              window.withVFBQueryTypes(otherId, function () {
+                that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
+              });
             });
           } else {
             setTimeout(function () {
-              that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
+              window.withVFBQueryTypes(otherId, function () {
+                that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
+              });
             }, 100);
           }
         } else {

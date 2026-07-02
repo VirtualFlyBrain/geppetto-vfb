@@ -1508,6 +1508,26 @@ class VFBMain extends React.Component {
         });
     };
 
+    /*
+     * Warm the term's get_term_info.Queries set (memoised) and then run cb,
+     * whatever the outcome. Queries can be invoked before the term/model has
+     * loaded (e.g. a ?q= deep link), so this must never block or throw: if the
+     * set can't be fetched the builder just falls back to type-matched queries.
+     * Guarantees cb runs exactly once.
+     */
+    window.withVFBQueryTypes = function (id, cb) {
+      var ran = false;
+      var run = function () { if (!ran) { ran = true; cb(); } };
+      try {
+        var p = (id && window.getVFBQueryTypes) ? window.getVFBQueryTypes(id) : null;
+        if (p && typeof p.then === "function") {
+          p.then(run, run);
+          return;
+        }
+      } catch (e) { /* fall through to run */ }
+      run();
+    };
+
     window.fetchVariableThenRun = function (idsList, cb, label) {
       this.fetchVariableThenRun(idsList, cb, label);
     }.bind(this);
@@ -1641,11 +1661,15 @@ class VFBMain extends React.Component {
           const query = that.urlQueryLoader[0];
           // Fetch variable and addQuery, if no more queries left then run query.
           query
-            ? window[query.id] === undefined 
+            ? window[query.id] === undefined
               ? window.fetchVariableThenRun(query.id, function () {
+                window.withVFBQueryTypes(query.id, function () {
+                  that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
+                })
+              })
+              : window.withVFBQueryTypes(query.id, function () {
                 that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
               })
-              : that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
             : that.refs.querybuilderRef.props.model.count > 0
               ? that.refs.querybuilderRef.runQuery()
               : null
@@ -1679,11 +1703,15 @@ class VFBMain extends React.Component {
         }, 10000);
         if (window[that.urlQueryLoader[0]] == undefined) {
           window.fetchVariableThenRun(that.urlQueryLoader[0].id, function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
+            window.withVFBQueryTypes(that.urlQueryLoader[0]?.id, function () {
+              that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
+            });
           });
         } else {
           setTimeout(function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
+            window.withVFBQueryTypes(that.urlQueryLoader[0]?.id, function () {
+              that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
+            });
           }, 100);
         }
       }

@@ -446,11 +446,11 @@ var queryBuilderDatasourceConfig = {
     explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
     type: {
       class: {
-        actions: ["window.getVFBQueryTypes && window.getVFBQueryTypes('$ID$'); window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+        actions: ["window.fetchVariableThenRun('$ID$', function(){ (window.withVFBQueryTypes || function(i, cb){ cb(); })('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); }); });"],
         icon: "fa-dot-circle-o"
       },
       individual: {
-        actions: ["window.getVFBQueryTypes && window.getVFBQueryTypes('$ID$'); window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+        actions: ["window.fetchVariableThenRun('$ID$', function(){ (window.withVFBQueryTypes || function(i, cb){ cb(); })('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); }); });"],
         icon: "fa-square-o"
       }
     },

@@ -338,7 +338,9 @@ class VFBFocusTerm extends React.Component {
             $('#add-new-query-container')[0].hidden = true;
             $('#query-builder-items-container')[0].hidden = true;
           }
-          this.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback) 
+          window.withVFBQueryTypes(otherId, function () {
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback)
+          });
         }.bind(this));
       } else {
         setTimeout(function () {
@@ -346,7 +348,9 @@ class VFBFocusTerm extends React.Component {
             $('#add-new-query-container')[0].hidden = true;
             $('#query-builder-items-container')[0].hidden = true;
           }
-          this.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback); 
+          window.withVFBQueryTypes(otherId, function () {
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback);
+          });
         }.bind(this), 100);
       }
       break;
