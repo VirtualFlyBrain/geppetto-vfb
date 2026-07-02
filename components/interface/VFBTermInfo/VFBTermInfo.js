@@ -915,17 +915,39 @@ class VFBTermInfoWidget extends React.Component {
           $('#query-builder-items-container')[0].hidden = true;
           $("#query-builder-footer").show();
           $("#run-query-btn").hide();
-          
-          setTimeout(function () {
-            $("#query-error-message").text("Fetching results — this can take a moment for complex queries.").show();
+
+          /*
+           * Clear any notice/timer left over from a previous query so stale
+           * feedback never lingers, then arm a fresh slow-query reassurance.
+           * The message is React-owned (queryBuilder.setErrorMessage), so it is
+           * cleared reliably by the next runQuery/clear -- unlike the old jQuery
+           * .show() which bypassed React and stuck on screen. The footer's own
+           * "Counting..." state (geppetto-client) covers the fast case.
+           */
+          if (that._vfbQueryNoticeTimer) {
+            clearTimeout(that._vfbQueryNoticeTimer);
+          }
+          that.props.queryBuilder.clearErrorMessage();
+          that._vfbQueryNoticeTimer = setTimeout(function () {
+            that.props.queryBuilder.setErrorMessage("Fetching results — this can take a moment for complex queries.", "info");
           }, 10000);
 
           var callback = function () {
+            // Response is in: cancel the pending slow-query notice.
+            if (that._vfbQueryNoticeTimer) {
+              clearTimeout(that._vfbQueryNoticeTimer);
+              that._vfbQueryNoticeTimer = null;
+            }
             // check if any results with count flag
             if (that.props.queryBuilder.props.model.count > 0) {
-              // runQuery if any results
+              // runQuery clears the notice and renders results
               that.props.queryBuilder.runQuery();
             } else {
+              /*
+               * Terminal empty state -- say so explicitly instead of leaving a
+               * bare "0 results" that reads like an in-flight query.
+               */
+              that.props.queryBuilder.setErrorMessage("No results for this query.", "info");
               that.props.queryBuilder.switchView(false);
             }
             // show query component

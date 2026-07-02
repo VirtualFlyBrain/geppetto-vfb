@@ -289,11 +289,21 @@ class VFBFocusTerm extends React.Component {
       var otherId = click.parameters[0].getId();
       var otherName = click.parameters[0].getName();
       var callback = function () {
+        // Response is in: cancel the pending slow-query notice.
+        if (that._vfbQueryNoticeTimer) {
+          clearTimeout(that._vfbQueryNoticeTimer);
+          that._vfbQueryNoticeTimer = null;
+        }
         // check if any results with count flag
         if (that.props.queryBuilder.props.model.count > 0) {
-          // runQuery if any results
+          // runQuery clears the notice and renders results
           that.props.queryBuilder.runQuery();
         } else {
+          /*
+           * Terminal empty state -- say so explicitly instead of leaving a
+           * bare "0 results" that reads like an in-flight query.
+           */
+          that.props.queryBuilder.setErrorMessage("No results for this query.", "info");
           that.props.queryBuilder.switchView(false);
         }
         // show query component
@@ -311,6 +321,17 @@ class VFBFocusTerm extends React.Component {
 
       GEPPETTO.trigger('spin_logo');
       $("body").css("cursor", "progress");
+      /*
+       * Clear any stale notice/timer, then arm a fresh slow-query reassurance.
+       * React-owned (queryBuilder.setErrorMessage) so it clears reliably.
+       */
+      if (that._vfbQueryNoticeTimer) {
+        clearTimeout(that._vfbQueryNoticeTimer);
+      }
+      that.props.queryBuilder.clearErrorMessage();
+      that._vfbQueryNoticeTimer = setTimeout(function () {
+        that.props.queryBuilder.setErrorMessage("Fetching results — this can take a moment for complex queries.", "info");
+      }, 10000);
       if (window[otherId] === undefined) {
         window.fetchVariableThenRun(otherId, function () {
           if ($('#add-new-query-container')[0] !== undefined) {

@@ -1627,6 +1627,11 @@ class VFBMain extends React.Component {
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
+        // Response is in: cancel the pending slow-query notice.
+        if (that._vfbQueryNoticeTimer) {
+          clearTimeout(that._vfbQueryNoticeTimer);
+          that._vfbQueryNoticeTimer = null;
+        }
         if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
           // runQuery if any results
           that.refs.querybuilderRef.runQuery();
@@ -1645,6 +1650,11 @@ class VFBMain extends React.Component {
               ? that.refs.querybuilderRef.runQuery()
               : null
         } else {
+          /*
+           * Terminal empty state -- say so explicitly instead of leaving a
+           * bare "0 results" that reads like an in-flight query.
+           */
+          that.refs.querybuilderRef.setErrorMessage("No results for this query.", "info");
           that.refs.querybuilderRef.switchView(false);
         }
         // show query component
@@ -1654,9 +1664,21 @@ class VFBMain extends React.Component {
       };
 
       // Initial queries specified on URL
-      if (that.urlQueryLoader !== undefined) {
+      if (that.urlQueryLoader !== undefined && that.urlQueryLoader[0]?.id) {
+        /*
+         * Arm a React-owned slow-query reassurance (no spin_logo here -- the
+         * deep-link path has a separate pre-existing stuck-spinner issue).
+         * The footer's "Counting..." state covers the fast case.
+         */
+        that.refs.querybuilderRef?.clearErrorMessage?.();
+        if (that._vfbQueryNoticeTimer) {
+          clearTimeout(that._vfbQueryNoticeTimer);
+        }
+        that._vfbQueryNoticeTimer = setTimeout(function () {
+          that.refs.querybuilderRef?.setErrorMessage?.("Fetching results — this can take a moment for complex queries.", "info");
+        }, 10000);
         if (window[that.urlQueryLoader[0]] == undefined) {
-          that.urlQueryLoader[0]?.id && window.fetchVariableThenRun(that.urlQueryLoader[0]?.id, function () {
+          window.fetchVariableThenRun(that.urlQueryLoader[0].id, function () {
             that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
           });
         } else {
