@@ -945,17 +945,16 @@ class VFBTermInfoWidget extends React.Component {
             if (that.props.queryBuilder.props.model) {
               that.props.queryBuilder.props.model.counting = false;
             }
-            // check if any results with count flag
-            if (that.props.queryBuilder.props.model.count > 0) {
-              // runQuery clears the notice and renders results
-              that.props.queryBuilder.runQuery();
-            } else {
-              /*
-               * Terminal empty state -- say so explicitly instead of leaving a
-               * bare "0 results" that reads like an in-flight query.
-               */
+            /*
+             * Known-empty (count 0, from the preview) needs no query run -- say
+             * so. Otherwise run directly (force): count > 0 or unknown (-1). The
+             * real count is taken from the results, not a separate count step.
+             */
+            if (that.props.queryBuilder.props.model.count === 0) {
               that.props.queryBuilder.setErrorMessage("No results for this query.", "info");
               that.props.queryBuilder.switchView(false);
+            } else {
+              that.props.queryBuilder.runQuery({ force: true });
             }
             // show query component
             that.props.queryBuilder.open();
@@ -967,8 +966,8 @@ class VFBTermInfoWidget extends React.Component {
            * (takes.default.short_form -- the class for painted domains) so it
            * runs against the entity that has the data, not the focus individual.
            */
-          window.vfbResolveAndPrepQuery(that.props.queryBuilder.props.model, otherId, path, function (targetId) {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: entity }, callback);
+          window.vfbResolveAndPrepQuery(that.props.queryBuilder.props.model, otherId, path, function (targetId, previewCount) {
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: entity, skipCount: true, previewCount: previewCount }, callback);
           });
         } else {
           Model.getDatasources()[5].fetchVariable(path, function () {

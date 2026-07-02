@@ -1496,14 +1496,17 @@ class VFBMain extends React.Component {
             d.Queries.forEach(function (q) {
               if (q && q.query) {
                 /*
-                 * Store the query's real target id (takes.default.short_form).
-                 * For painted-domain terms this is the parent CLASS, not the
-                 * focus individual -- the query must run against it. Fall back
-                 * to a truthy marker so the value still works as a membership
-                 * test for the geppetto-client query sourcing.
+                 * Cache each query's real target id (takes.default.short_form --
+                 * the parent CLASS for painted domains, else the term itself) and
+                 * its preview count (-1 = unknown). The count is refreshed from
+                 * the actual results after a run (window.vfbUpdateQueryCount), so
+                 * a subsequent open reuses it instead of running another count.
+                 * Stored as an object; still truthy for the geppetto-client
+                 * query-sourcing membership test.
                  */
-                var target = (q.takes && q.takes.default && q.takes.default.short_form) ? q.takes.default.short_form : true;
-                set[q.query] = target;
+                var target = (q.takes && q.takes.default && q.takes.default.short_form) ? q.takes.default.short_form : id;
+                var count = (typeof q.count === "number") ? q.count : -1;
+                set[q.query] = { target: target, count: count };
               }
             });
           }
@@ -1551,8 +1554,42 @@ class VFBMain extends React.Component {
      */
     window.vfbQueryTargetId = function (focusId, queryType) {
       var s = (window._vfbQueryTypesCache) ? window._vfbQueryTypesCache[focusId] : null;
-      var t = (s && queryType) ? s[queryType] : null;
+      var e = (s && queryType) ? s[queryType] : null;
+      var t = (e && typeof e === "object") ? e.target : e;
       return (typeof t === "string" && t) ? t : focusId;
+    };
+
+    /*
+     * Preview count for a term's query (get_term_info.Queries[].count), cached
+     * per query. -1 = unknown. Lets the auto-run path skip the count step when
+     * the preview already knows the number.
+     */
+    window.vfbQueryPreviewCount = function (focusId, queryType) {
+      var s = (window._vfbQueryTypesCache) ? window._vfbQueryTypesCache[focusId] : null;
+      var e = (s && queryType) ? s[queryType] : null;
+      return (e && typeof e === "object" && typeof e.count === "number") ? e.count : -1;
+    };
+
+    /*
+     * Write a query's real result count back into the cached term-info metadata
+     * after a run. Keyed by the query's target id, so every cached term whose
+     * "Query For" entry runs against that target (the class itself and any
+     * painted-domain individual of it) picks up the fresh count.
+     */
+    window.vfbUpdateQueryCount = function (targetId, queryType, count) {
+      try {
+        var cache = window._vfbQueryTypesCache;
+        if (!cache || typeof count !== "number" || !queryType) {
+          return;
+        }
+        Object.keys(cache).forEach(function (fid) {
+          var s = cache[fid];
+          var e = s ? s[queryType] : null;
+          if (e && typeof e === "object" && (e.target === targetId || fid === targetId)) {
+            e.count = count;
+          }
+        });
+      } catch (err) { /* best-effort metadata refresh */ }
     };
 
     /*
@@ -1576,9 +1613,10 @@ class VFBMain extends React.Component {
       } catch (e) { /* non-fatal */ }
       window.withVFBQueryTypes(focusId, function () {
         var targetId = window.vfbQueryTargetId(focusId, queryType);
+        var previewCount = window.vfbQueryPreviewCount(focusId, queryType);
         var proceed = function () {
           window.withVFBQueryTypes(targetId, function () {
-            done(targetId);
+            done(targetId, previewCount);
           });
         };
         if (typeof window[targetId] === "undefined") {
@@ -1720,28 +1758,27 @@ class VFBMain extends React.Component {
         if (that.refs.querybuilderRef.props.model) {
           that.refs.querybuilderRef.props.model.counting = false;
         }
-        if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
-          // runQuery if any results
-          that.refs.querybuilderRef.runQuery();
-        } else if (that.urlQueryLoader.length > 0 && that.refs.querybuilderRef.props.model.count > 0) {
-          // Remove query from stack, and perform the next query
+        var qbModel = that.refs.querybuilderRef.props.model;
+        if (that.urlQueryLoader.length > 1) {
+          /*
+           * More queries queued (compound ?q=): drop the current one and add the
+           * next without a count step -- this callback re-runs for it.
+           */
           that.urlQueryLoader.shift();
           const query = that.urlQueryLoader[0];
-          // Fetch variable and addQuery, if no more queries left then run query.
-          query
-            ? window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, query.id, query.selection, function (targetId) {
-              that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection] }, callback)
-            })
-            : that.refs.querybuilderRef.props.model.count > 0
-              ? that.refs.querybuilderRef.runQuery()
-              : null
-        } else {
+          window.vfbResolveAndPrepQuery(qbModel, query.id, query.selection, function (targetId, previewCount) {
+            that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection], skipCount: true, previewCount: previewCount }, callback);
+          });
+        } else if (qbModel.count === 0) {
           /*
-           * Terminal empty state -- say so explicitly instead of leaving a
-           * bare "0 results" that reads like an in-flight query.
+           * Known-empty (preview count 0) -- no query run needed. Say so instead
+           * of leaving a bare "0 results" that reads like an in-flight query.
            */
           that.refs.querybuilderRef.setErrorMessage("No results for this query.", "info");
           that.refs.querybuilderRef.switchView(false);
+        } else {
+          // Run the (compound) query directly; the count comes from the results.
+          that.refs.querybuilderRef.runQuery({ force: true });
         }
         // show query component
         that.refs.querybuilderRef.open();
@@ -1763,8 +1800,8 @@ class VFBMain extends React.Component {
         that._vfbQueryNoticeTimer = setTimeout(function () {
           that.refs.querybuilderRef?.setErrorMessage?.("Fetching results — this can take a moment for complex queries.", "info");
         }, 10000);
-        window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId) {
-          that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
+        window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId, previewCount) {
+          that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection], skipCount: true, previewCount: previewCount }, callback);
         });
       }
     });
