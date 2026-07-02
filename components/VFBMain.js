@@ -1772,26 +1772,34 @@ class VFBMain extends React.Component {
           that.refs.querybuilderRef.props.model.counting = false;
         }
         var qbModel = that.refs.querybuilderRef.props.model;
-        if (that.urlQueryLoader.length > 1) {
-          /*
-           * More queries queued (compound ?q=): drop the current one and add the
-           * next without a count step -- this callback re-runs for it.
-           */
+        /*
+         * Deep-link (?q=) path keeps the counted flow: a compound query needs
+         * the count to combine its parts and to show the count in the builder
+         * (the skipCount/run-once optimisation is used on the interactive click
+         * paths, not here). Still resolves the query's real target via
+         * vfbResolveAndPrepQuery.
+         */
+        if (that.urlQueryLoader.length == 0 && qbModel.count > 0) {
+          // Single / last query with results -- run it.
+          that.refs.querybuilderRef.runQuery();
+        } else if (that.urlQueryLoader.length > 0 && qbModel.count > 0) {
+          // Compound: drop the current query and combine the next (counted).
           that.urlQueryLoader.shift();
           const query = that.urlQueryLoader[0];
-          window.vfbResolveAndPrepQuery(qbModel, query.id, query.selection, function (targetId, previewCount) {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection], skipCount: true, previewCount: previewCount }, callback);
-          });
-        } else if (qbModel.count === 0) {
+          query
+            ? window.vfbResolveAndPrepQuery(qbModel, query.id, query.selection, function (targetId) {
+              that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection] }, callback);
+            })
+            : qbModel.count > 0
+              ? that.refs.querybuilderRef.runQuery()
+              : null;
+        } else {
           /*
-           * Known-empty (preview count 0) -- no query run needed. Say so instead
-           * of leaving a bare "0 results" that reads like an in-flight query.
+           * No results (count 0) -- say so instead of leaving a bare "0 results"
+           * that reads like an in-flight query.
            */
           that.refs.querybuilderRef.setErrorMessage("No results for this query.", "info");
           that.refs.querybuilderRef.switchView(false);
-        } else {
-          // Run the (compound) query directly; the count comes from the results.
-          that.refs.querybuilderRef.runQuery({ force: true });
         }
         // show query component
         that.refs.querybuilderRef.open();
@@ -1813,8 +1821,8 @@ class VFBMain extends React.Component {
         that._vfbQueryNoticeTimer = setTimeout(function () {
           that.refs.querybuilderRef?.setErrorMessage?.("Fetching results — this can take a moment for complex queries.", "info");
         }, 10000);
-        window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId, previewCount) {
-          that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection], skipCount: true, previewCount: previewCount }, callback);
+        window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId) {
+          that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
         });
       }
     });
