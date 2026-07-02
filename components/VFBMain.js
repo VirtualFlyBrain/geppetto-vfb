@@ -387,17 +387,23 @@ class VFBMain extends React.Component {
       return;
     }
 
-    this.props.vfbLoadId([id]);
     try {
       Model.getDatasources()[5].fetchVariable(id, function () {
         self.handleSceneAndTermInfoCallback(id);
         self.managerLabel(id);
         /*
          * A visual term is not "done" until its viewer paints the mesh, so
-         * report it as fetched and let noteComponentLoaded complete it. A term
-         * with no geometry has nothing to paint, so resolve it immediately.
+         * register it in the legacy load counter (vfbLoadId) and report it
+         * fetched -- its component load (VFB_ID_LOADED) then clears the counter.
+         * A term with no geometry (classes, as a rule -- e.g. a query target
+         * pulled in to run "Query For") never paints a component, so it must NOT
+         * enter the legacy counter: an idsMap entry with empty `components` keeps
+         * `loading` true forever (VFB_ID_LOADED reducer), which leaves the fly
+         * logo spinning after the query settles. Resolve it immediately instead;
+         * the load manager's own status still covers the fetch window.
          */
         if (self.hasVisualType(id)) {
+          self.props.vfbLoadId([id]);
           fetched();
         } else {
           resolved();
