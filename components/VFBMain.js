@@ -1495,7 +1495,15 @@ class VFBMain extends React.Component {
             set = {};
             d.Queries.forEach(function (q) {
               if (q && q.query) {
-                set[q.query] = true;
+                /*
+                 * Store the query's real target id (takes.default.short_form).
+                 * For painted-domain terms this is the parent CLASS, not the
+                 * focus individual -- the query must run against it. Fall back
+                 * to a truthy marker so the value still works as a membership
+                 * test for the geppetto-client query sourcing.
+                 */
+                var target = (q.takes && q.takes.default && q.takes.default.short_form) ? q.takes.default.short_form : true;
+                set[q.query] = target;
               }
             });
           }
@@ -1531,6 +1539,42 @@ class VFBMain extends React.Component {
         }
       } catch (e) { /* fall through to run */ }
       run();
+    };
+
+    /*
+     * Resolve the real id a query should run against. Painted-domain (and some
+     * individual) "Query For" entries are parameterised against a parent CLASS,
+     * not the focus term -- get_term_info gives the true target in each query's
+     * takes.default.short_form, cached as the value in _vfbQueryTypesCache.
+     * Running against the focus individual returns 0 rows; the class has the
+     * data. Falls back to the focus id when the target is unknown.
+     */
+    window.vfbQueryTargetId = function (focusId, queryType) {
+      var s = (window._vfbQueryTypesCache) ? window._vfbQueryTypesCache[focusId] : null;
+      var t = (s && queryType) ? s[queryType] : null;
+      return (typeof t === "string" && t) ? t : focusId;
+    };
+
+    /*
+     * Warm the focus term's query set, resolve the real target id for queryType,
+     * load + warm that target, then invoke done(targetId). Never blocks/throws,
+     * so a query fired before anything has loaded still proceeds (against the
+     * focus id as a fallback).
+     */
+    window.vfbResolveAndPrepQuery = function (focusId, queryType, done) {
+      window.withVFBQueryTypes(focusId, function () {
+        var targetId = window.vfbQueryTargetId(focusId, queryType);
+        var proceed = function () {
+          window.withVFBQueryTypes(targetId, function () {
+            done(targetId);
+          });
+        };
+        if (typeof window[targetId] === "undefined") {
+          window.fetchVariableThenRun(targetId, proceed);
+        } else {
+          proceed();
+        }
+      });
     };
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
@@ -1666,15 +1710,9 @@ class VFBMain extends React.Component {
           const query = that.urlQueryLoader[0];
           // Fetch variable and addQuery, if no more queries left then run query.
           query
-            ? window[query.id] === undefined
-              ? window.fetchVariableThenRun(query.id, function () {
-                window.withVFBQueryTypes(query.id, function () {
-                  that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
-                })
-              })
-              : window.withVFBQueryTypes(query.id, function () {
-                that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
-              })
+            ? window.vfbResolveAndPrepQuery(query.id, query.selection, function (targetId) {
+              that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection] }, callback)
+            })
             : that.refs.querybuilderRef.props.model.count > 0
               ? that.refs.querybuilderRef.runQuery()
               : null
@@ -1706,19 +1744,9 @@ class VFBMain extends React.Component {
         that._vfbQueryNoticeTimer = setTimeout(function () {
           that.refs.querybuilderRef?.setErrorMessage?.("Fetching results — this can take a moment for complex queries.", "info");
         }, 10000);
-        if (window[that.urlQueryLoader[0]] == undefined) {
-          window.fetchVariableThenRun(that.urlQueryLoader[0].id, function () {
-            window.withVFBQueryTypes(that.urlQueryLoader[0]?.id, function () {
-              that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
-            });
-          });
-        } else {
-          setTimeout(function () {
-            window.withVFBQueryTypes(that.urlQueryLoader[0]?.id, function () {
-              that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
-            });
-          }, 100);
-        }
+        window.vfbResolveAndPrepQuery(that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId) {
+          that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
+        });
       }
     });
 

@@ -955,20 +955,14 @@ class VFBTermInfoWidget extends React.Component {
             $("body").css("cursor", "default");
             GEPPETTO.trigger('stop_spin_logo');
           };
-          // add query item + selection
-          if (window[otherId] == undefined) {
-            window.fetchVariableThenRun(otherId, function () {
-              window.withVFBQueryTypes(otherId, function () {
-                that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
-              });
-            });
-          } else {
-            setTimeout(function () {
-              window.withVFBQueryTypes(otherId, function () {
-                that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
-              });
-            }, 100);
-          }
+          /*
+           * Add query item + selection. Resolve the query's real target id
+           * (takes.default.short_form -- the class for painted domains) so it
+           * runs against the entity that has the data, not the focus individual.
+           */
+          window.vfbResolveAndPrepQuery(otherId, path, function (targetId) {
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: entity }, callback);
+          });
         } else {
           Model.getDatasources()[5].fetchVariable(path, function () {
             var m = Instances.getInstance(meta);

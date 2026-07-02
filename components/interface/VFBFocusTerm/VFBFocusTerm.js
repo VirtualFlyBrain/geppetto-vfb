@@ -332,27 +332,19 @@ class VFBFocusTerm extends React.Component {
       that._vfbQueryNoticeTimer = setTimeout(function () {
         that.props.queryBuilder.setErrorMessage("Fetching results — this can take a moment for complex queries.", "info");
       }, 10000);
-      if (window[otherId] === undefined) {
-        window.fetchVariableThenRun(otherId, function () {
-          if ($('#add-new-query-container')[0] !== undefined) {
-            $('#add-new-query-container')[0].hidden = true;
-            $('#query-builder-items-container')[0].hidden = true;
-          }
-          window.withVFBQueryTypes(otherId, function () {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback)
-          });
-        }.bind(this));
-      } else {
-        setTimeout(function () {
-          if ($('#add-new-query-container')[0] !== undefined) {
-            $('#add-new-query-container')[0].hidden = true;
-            $('#query-builder-items-container')[0].hidden = true;
-          }
-          window.withVFBQueryTypes(otherId, function () {
-            that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback);
-          });
-        }.bind(this), 100);
-      }
+      /*
+       * Resolve the query's real target id (takes.default.short_form -- the
+       * class for painted domains) so it runs against the entity that has the
+       * data, not the focus individual.
+       */
+      var qType = (click.parameters[1] && click.parameters[1].getId) ? click.parameters[1].getId() : undefined;
+      window.vfbResolveAndPrepQuery(otherId, qType, function (targetId) {
+        if ($('#add-new-query-container')[0] !== undefined) {
+          $('#add-new-query-container')[0].hidden = true;
+          $('#query-builder-items-container')[0].hidden = true;
+        }
+        that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: click.parameters[1] }, callback);
+      });
       break;
     case 'showInstance':
       click.value.getParent().show();
