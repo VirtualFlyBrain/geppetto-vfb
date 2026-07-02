@@ -1517,7 +1517,12 @@ class VFBMain extends React.Component {
      */
     window.withVFBQueryTypes = function (id, cb) {
       var ran = false;
-      var run = function () { if (!ran) { ran = true; cb(); } };
+      var run = function () {
+        if (!ran) {
+          ran = true;
+          cb();
+        }
+      };
       try {
         var p = (id && window.getVFBQueryTypes) ? window.getVFBQueryTypes(id) : null;
         if (p && typeof p.then === "function") {
