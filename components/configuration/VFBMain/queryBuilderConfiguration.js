@@ -479,12 +479,21 @@ var queryBuilderDatasourceConfig = {
         return record[5]
       },
       getRecords: function (payload) {
-        return payload.results.map(function (item) {
-          return item.values
-        })
+        /*
+         * A query with no results comes back without a `results` array (the
+         * backend omits/nulls it for 0 rows), so payload.results.map threw here
+         * -- aborting queryDoneCallback before it could stop the spinner, which
+         * left the query cog spinning forever on any empty result. Treat a
+         * missing/!array results as zero rows.
+         */
+        return (payload && Array.isArray(payload.results))
+          ? payload.results.map(function (item) {
+            return item.values;
+          })
+          : [];
       },
       getHeaders: function (payload) {
-        return payload.header;
+        return (payload && payload.header) ? payload.header : [];
       }
     },
     bloodhoundConfig: {
