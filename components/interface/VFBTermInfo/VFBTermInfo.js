@@ -926,6 +926,9 @@ class VFBTermInfoWidget extends React.Component {
           if (that._vfbQueryNoticeTimer) {
             clearTimeout(that._vfbQueryNoticeTimer);
           }
+          if (that._vfbQueryWatchdog) {
+            clearTimeout(that._vfbQueryWatchdog);
+          }
           that.props.queryBuilder.clearErrorMessage();
           that._vfbQueryNoticeTimer = setTimeout(function () {
             that.props.queryBuilder.setErrorMessage("Fetching results — this can take a moment for complex queries.", "info");
@@ -954,6 +957,28 @@ class VFBTermInfoWidget extends React.Component {
               that.props.queryBuilder.switchView(false);
             } else {
               that.props.queryBuilder.runQuery({ force: true });
+              /*
+               * The auto-run (skipCount) path launches run_query directly. While
+               * it is in flight geppetto-client shows the cog and hides the
+               * footer, so a slow/cold query leaves "just a spinning cog and no
+               * count". runQuery's own done-callback clears the cog on success,
+               * but nothing bounds a query that never returns. Watchdog it: if
+               * the cog is still up after the grace window, stop it, drop the
+               * counting flag and hand the builder back so the count/footer show
+               * and the user can retry, rather than spinning forever. A late
+               * response still lands via runQuery's callback (results view).
+               */
+              that._vfbQueryWatchdog = setTimeout(function () {
+                var qb = that.props.queryBuilder;
+                if (qb && qb.state && qb.state.showSpinner) {
+                  if (qb.props.model) {
+                    qb.props.model.counting = false;
+                  }
+                  qb.showBrentSpiner(false);
+                  qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
+                  qb.switchView(false);
+                }
+              }, 45000);
             }
             // show query component
             that.props.queryBuilder.open();

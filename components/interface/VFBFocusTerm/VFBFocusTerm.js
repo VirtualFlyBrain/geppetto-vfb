@@ -311,6 +311,28 @@ class VFBFocusTerm extends React.Component {
           that.props.queryBuilder.switchView(false);
         } else {
           that.props.queryBuilder.runQuery({ force: true });
+          /*
+           * Watchdog the auto-run: geppetto-client shows the cog and hides the
+           * footer while run_query is in flight, so a slow/cold query leaves
+           * "just a spinning cog and no count". If the cog is still up after the
+           * grace window, stop it, drop the counting flag and hand the builder
+           * back so the count/footer show and the user can retry. A late
+           * response still lands via runQuery's callback.
+           */
+          if (that._vfbQueryWatchdog) {
+            clearTimeout(that._vfbQueryWatchdog);
+          }
+          that._vfbQueryWatchdog = setTimeout(function () {
+            var qb = that.props.queryBuilder;
+            if (qb && qb.state && qb.state.showSpinner) {
+              if (qb.props.model) {
+                qb.props.model.counting = false;
+              }
+              qb.showBrentSpiner(false);
+              qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
+              qb.switchView(false);
+            }
+          }, 45000);
         }
         // show query component
         that.props.queryBuilder.open();
@@ -331,6 +353,9 @@ class VFBFocusTerm extends React.Component {
        */
       if (that._vfbQueryNoticeTimer) {
         clearTimeout(that._vfbQueryNoticeTimer);
+      }
+      if (that._vfbQueryWatchdog) {
+        clearTimeout(that._vfbQueryWatchdog);
       }
       that.props.queryBuilder.clearErrorMessage();
       that._vfbQueryNoticeTimer = setTimeout(function () {
