@@ -6,19 +6,30 @@ export default class VFBLoader extends Component {
     super(props)
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (!this.props.generals.loading) {
+  /*
+   * The fly logo is a pure reflection of generals.loading, which VFBLoadManager
+   * (via LOAD_STATUS) is the single owner of. Spin on the false->true edge, stop
+   * on true->false. No other code path should trigger spin_logo/stop_spin_logo --
+   * that was the source of the logo spinning forever after a load or query.
+   */
+  syncLogo (loading) {
+    if (loading) {
+      GEPPETTO.trigger('spin_logo');
+    } else {
       GEPPETTO.trigger('stop_spin_logo');
     }
   }
 
+  componentDidUpdate (prevProps) {
+    var was = prevProps && prevProps.generals && prevProps.generals.loading;
+    var now = this.props.generals.loading;
+    if (now !== was) {
+      this.syncLogo(now);
+    }
+  }
+
   componentDidMount () {
-    var that = this;
-    GEPPETTO.on('stop_spin_logo', function () {
-      if (that.props.generals.loading) {
-        GEPPETTO.trigger('spin_logo');
-      }
-    });
+    this.syncLogo(this.props.generals.loading);
   }
 
   render () {

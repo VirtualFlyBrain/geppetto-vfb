@@ -315,7 +315,6 @@ class VFBFocusTerm extends React.Component {
         // show query component
         that.props.queryBuilder.open();
         $("body").css("cursor", "default");
-        GEPPETTO.trigger('stop_spin_logo');
       };
       var entity = Model[otherId];
       // clear query builder unless ctrl pressed them add to compound.
@@ -325,7 +324,6 @@ class VFBFocusTerm extends React.Component {
         this.props.queryBuilder.clearAllQueryItems();
       }
 
-      GEPPETTO.trigger('spin_logo');
       $("body").css("cursor", "progress");
       /*
        * Clear any stale notice/timer, then arm a fresh slow-query reassurance.

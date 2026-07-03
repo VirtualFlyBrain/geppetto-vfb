@@ -74,7 +74,6 @@ class VFBMain extends React.Component {
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
     this.instancesFromDifferentTemplates = this.instancesFromDifferentTemplates.bind(this);
 
-    this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
     this.htmlToolbarRender = undefined;
     this.urlIdsLoaded = false;
@@ -270,7 +269,6 @@ class VFBMain extends React.Component {
       if (self.props && typeof self.props.invalidIdLoaded === "function") {
         self.props.invalidIdLoaded(variableId);
       }
-      GEPPETTO.trigger('stop_spin_logo');
     }, 120000);
   }
 
@@ -305,7 +303,6 @@ class VFBMain extends React.Component {
       } catch (e) {
         console.log('Instance for ' + variableIds[singleId] + '.' + variableIds[singleId] + '_meta' + ' does not exist in the current model');
         this.props.invalidIdLoaded(variableIds[singleId])
-        // this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
       /*
@@ -353,15 +350,6 @@ class VFBMain extends React.Component {
         }
         this.props.invalidIdLoaded(variableIds[singleId]);
       }
-      // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
-      if (window[variableIds[singleId]] != undefined) {
-        this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
-      }
-    }
-    if (this.vfbLoadBuffer.length > 0) {
-      GEPPETTO.trigger('spin_logo');
-    } else {
-      GEPPETTO.trigger('stop_spin_logo');
     }
   }
 
@@ -759,7 +747,6 @@ class VFBMain extends React.Component {
       this.refs.uploaderContentsRef?.openDialog();
       break;
     case 'triggerRunQuery':
-      GEPPETTO.trigger('spin_logo');
       var that = this;
       var otherId = click.parameters[0].split(',')[1];
       var otherName = click.parameters[0].split(',')[2];
@@ -783,7 +770,6 @@ class VFBMain extends React.Component {
         // show query component
         that.refs.querybuilderRef.open();
         $("body").css("cursor", "default");
-        GEPPETTO.trigger('stop_spin_logo');
       };
       // add query item + selection
       if (window[otherId] == undefined) {
@@ -1809,15 +1795,14 @@ class VFBMain extends React.Component {
         // show query component
         that.refs.querybuilderRef.open();
         $("body").css("cursor", "default");
-        GEPPETTO.trigger('stop_spin_logo');
       };
 
       // Initial queries specified on URL
       if (that.urlQueryLoader !== undefined && that.urlQueryLoader[0]?.id) {
         /*
-         * Arm a React-owned slow-query reassurance (no spin_logo here -- the
-         * deep-link path has a separate pre-existing stuck-spinner issue).
-         * The footer's "Counting..." state covers the fast case.
+         * Arm a React-owned slow-query reassurance. The fly logo is driven
+         * solely by generals.loading (VFBLoadManager) via VFBLoader; query paths
+         * no longer trigger it directly. The footer covers query progress.
          */
         that.refs.querybuilderRef?.clearErrorMessage?.();
         if (that._vfbQueryNoticeTimer) {

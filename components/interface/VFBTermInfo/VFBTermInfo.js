@@ -895,7 +895,6 @@ class VFBTermInfoWidget extends React.Component {
           } else {
             window.ga('vfb.send', 'pageview', (window.location.pathname + '?q=' + otherId + ',' + path));
           }
-          GEPPETTO.trigger('spin_logo');
 
           this.props.queryBuilder.open();
           this.props.queryBuilder.switchView(false, false);
@@ -959,7 +958,6 @@ class VFBTermInfoWidget extends React.Component {
             // show query component
             that.props.queryBuilder.open();
             $("body").css("cursor", "default");
-            GEPPETTO.trigger('stop_spin_logo');
           };
           /*
            * Add query item + selection. Resolve the query's real target id
