@@ -529,9 +529,17 @@ class VFBFocusTerm extends React.Component {
         window.ga('vfb.send', 'pageview', (window.location.pathname + window.location.search));
         window.vfbUpdatingHistory = false;
       }
-    } catch (ignore) {
-      console.error("Focus term URL update error!");
-      window.vfbUpdatingHistory = true; // block further updates
+    } catch (e) {
+      /*
+       * Reset the guard on error rather than latching it true. Previously this
+       * set window.vfbUpdatingHistory = true ("block further updates"), so a
+       * single transient failure here permanently disabled URL syncing -- id=
+       * then stayed frozen on the last term for the rest of the session even as
+       * Term Info moved on (the reported bug). Self-heal: log the real error so
+       * the underlying throw is diagnosable, and let the next focus change retry.
+       */
+      console.error("Focus term URL update error!", e);
+      window.vfbUpdatingHistory = false;
     }
   }
 
