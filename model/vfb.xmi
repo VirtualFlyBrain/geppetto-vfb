@@ -1751,6 +1751,91 @@
           description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
           queryProcessorId="vfbqueryJsonProcessor"/>
     </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_neuronscapableof"
+        name="VFBquery NeuronsCapableOf"
+        description="Cached NeuronsCapableOf via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch NeuronsCapableOf from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=NeuronsCapableOf."
+          query="id=$ID&amp;query_type=NeuronsCapableOf"
+          countQuery="id=$ID&amp;query_type=NeuronsCapableOf"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_splitstargeting"
+        name="VFBquery SplitsTargeting"
+        description="Cached SplitsTargeting via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch SplitsTargeting from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=SplitsTargeting."
+          query="id=$ID&amp;query_type=SplitsTargeting"
+          countQuery="id=$ID&amp;query_type=SplitsTargeting"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_targetneurons"
+        name="VFBquery TargetNeurons"
+        description="Cached TargetNeurons via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch TargetNeurons from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=TargetNeurons."
+          query="id=$ID&amp;query_type=TargetNeurons"
+          countQuery="id=$ID&amp;query_type=TargetNeurons"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_findstocks"
+        name="VFBquery FindStocks"
+        description="Cached FindStocks via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch FindStocks from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=FindStocks."
+          query="id=$ID&amp;query_type=FindStocks"
+          countQuery="id=$ID&amp;query_type=FindStocks"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
+    <queries
+        xsi:type="gep_2:CompoundQuery"
+        id="vfbquery_findcombopublications"
+        name="VFBquery FindComboPublications"
+        description="Cached FindComboPublications via VFBquery (v3-cached).">
+      <queryChain
+          xsi:type="gep_2:SimpleQuery"
+          name="Fetch FindComboPublications from v3-cached"
+          description="GET /run_query?id=$ID&amp;query_type=FindComboPublications."
+          query="id=$ID&amp;query_type=FindComboPublications"
+          countQuery="id=$ID&amp;query_type=FindComboPublications"/>
+      <queryChain
+          xsi:type="gep_2:ProcessQuery"
+          name="Process VFBquery JSON to QueryResults"
+          description="Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor."
+          queryProcessorId="vfbqueryJsonProcessor"/>
+    </queries>
   </dataSources>
   <dataSources
       id="vfbqueryTermInfo"
@@ -1970,6 +2055,48 @@
       queryChain="//@dataSources.4/@queries.21">
     <matchingCriteria
         type="//@libraries.3/@types.1"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="NeuronsCapableOf"
+      name="Neurons capable of"
+      description="Neurons capable of $NAME"
+      queryChain="//@dataSources.4/@queries.36">
+    <matchingCriteria
+        type="//@libraries.3/@types.1"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="SplitsTargeting"
+      name="Splits targeting"
+      description="Split drivers targeting $NAME"
+      queryChain="//@dataSources.4/@queries.37">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.2"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="TargetNeurons"
+      name="Neurons targeted"
+      description="Neurons targeted by $NAME"
+      queryChain="//@dataSources.4/@queries.38">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.37"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="FindStocks"
+      name="Find stocks"
+      description="Fly stocks for $NAME"
+      queryChain="//@dataSources.4/@queries.39">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.37"/>
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.27"/>
+  </queries>
+  <queries xsi:type="gep_2:CompoundRefQuery"
+      id="FindComboPublications"
+      name="Find publications"
+      description="Publications for $NAME"
+      queryChain="//@dataSources.4/@queries.40">
+    <matchingCriteria
+        type="//@libraries.3/@types.1 //@libraries.3/@types.37"/>
   </queries>
   <queries xsi:type="gep_2:CompoundRefQuery"
       id="AlignedDatasets"
