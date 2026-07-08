@@ -54,6 +54,21 @@
 ## SubclassesOf: Subclasses of $NAME
 - Step: VFBquery SubclassesOf (DataSource Index: 4, Query Index: 21)
 
+## NeuronsCapableOf: Neurons capable of $NAME
+- Step: VFBquery NeuronsCapableOf (DataSource Index: 4, Query Index: 36)
+
+## SplitsTargeting: Split drivers targeting $NAME
+- Step: VFBquery SplitsTargeting (DataSource Index: 4, Query Index: 37)
+
+## TargetNeurons: Neurons targeted by $NAME
+- Step: VFBquery TargetNeurons (DataSource Index: 4, Query Index: 38)
+
+## FindStocks: Fly stocks for $NAME
+- Step: VFBquery FindStocks (DataSource Index: 4, Query Index: 39)
+
+## FindComboPublications: Publications for $NAME
+- Step: VFBquery FindComboPublications (DataSource Index: 4, Query Index: 40)
+
 ## AlignedDatasets: List all datasets aligned to $NAME
 - Step: VFBquery AlignedDatasets (DataSource Index: 4, Query Index: 22)
 
