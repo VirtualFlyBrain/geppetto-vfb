@@ -10,7 +10,8 @@ import {
   setTermInfo,
   vfbGraph,
   vfbCircuitBrowser,
-  invalidIdLoaded
+  invalidIdLoaded,
+  setLoadStatus
 } from '../actions/generals';
 import { connect } from "react-redux";
 
@@ -27,7 +28,8 @@ const mapDispatchToProps = dispatch => ({
   instanceDeleted : (type, instanceID) => dispatch(instanceDeleted(type, instanceID)),
   instanceVisibilityChanged : instance => dispatch(instanceVisibilityChanged(instance)),
   setTermInfo: (instance, visible) => dispatch (setTermInfo(instance, visible)),
-  invalidIdLoaded: id => dispatch(invalidIdLoaded(id))
+  invalidIdLoaded: id => dispatch(invalidIdLoaded(id)),
+  setLoadStatus: snapshot => dispatch(setLoadStatus(snapshot))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(VFBMain);

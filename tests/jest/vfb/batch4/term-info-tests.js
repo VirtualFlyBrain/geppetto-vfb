@@ -250,10 +250,12 @@ describe('VFB Term Info Component Tests', () => {
 
 		it('Term info correctly populated after clicking on Source Link', async () => {
 			await wait4selector(page, '.terminfo-source a', { visible: true, timeout: 120000 });
-			await Promise.all([
-				page.waitForNavigation({ timeout: 120000 }),
-				page.evaluate(() => document.querySelector('.terminfo-source a').click())
-			]);
+			// Source link loads the JRC2018 dataset (Licenses[].source_iri =
+			// .../reports/JRC2018), updating the SPA URL client-side. Poll the URL
+			// rather than a single waitForNavigation, which races with the app's
+			// in-page history.replaceState and can read the pre-navigation URL.
+			await page.evaluate(() => document.querySelector('.terminfo-source a').click());
+			await page.waitForFunction(() => /[?&]id=JRC2018/.test(window.location.href), { timeout: 120000 });
 			const currentUrl = page.url();
 			expect(currentUrl).toMatch(/id=JRC2018/);
 			await page.waitForFunction(() => (document.body.innerText || '').toLowerCase().includes('jrc 2018 templates & rois'), { timeout: 120000 });

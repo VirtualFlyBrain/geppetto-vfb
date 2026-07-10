@@ -437,19 +437,20 @@ var queryResultsControlConfig = {
 
 var queryBuilderDatasourceConfig = {
   VFB: {
-    url: 'https://solr.virtualflybrain.org/solr/ontology/select?q=$SEARCH_TERM$+OR+$SEARCH_TERM$*+OR+*$SEARCH_TERM$*&defType=edismax&qf=label^100+synonym^100+label_autosuggest_ws+label_autosuggest_e+label_autosuggest+synonym_autosuggest_ws+synonym_autosuggest+shortform_autosuggest&indent=true&fl=short_form+label+synonym+id+facets_annotation+type:"class"&start=0&pf=true&rows=100&wt=json&bq=shortform_autosuggest:VFB*^110.0+shortform_autosuggest:FBbt*^100.0+label_s:""^2+synonym_s:""+short_form=FBbt_00003982^2+facets_annotation:Deprecated^0.001',
+    url: 'https://solr.virtualflybrain.org/solr/ontology/select?q=$SEARCH_TERM$&q.op=OR&defType=edismax&mm=45%25&qf=label^110+synonym^100+label_autosuggest+synonym_autosuggest+shortform_autosuggest&indent=true&fl=short_form+label+synonym+id+facets_annotation+unique_facets+type:"class"&fq=((short_form:VFB*+OR+short_form:FB*+OR+facets_annotation:DataSet+OR+facets_annotation:pub)+AND+NOT+short_form:VFBc_*)+AND+NOT+facets_annotation:Deprecated&start=0&pf=true&rows=100&wt=json&bq=short_form:VFBexp*^10.0+short_form:VFB*^50.0+facets_annotation:Class^200.0+short_form:FBbt*^150.0+short_form:FBbt_00003982^2+facets_annotation:Deprecated^0.001+facets_annotation:DataSet^500.0+facets_annotation:pub^100.0',
     crossDomain: true,
     id: "short_form",
+    labels: "unique_facets",
     label: { field: "label", formatting: "$VALUE$" },
     explode_fields: [{ field: "short_form", formatting: "$VALUE$ ($LABEL$)" }],
     explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
     type: {
       class: {
-        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+        actions: ["window.fetchVariableThenRun('$ID$', function(){ (window.withVFBQueryTypes || function(i, cb){ cb(); })('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); }); });"],
         icon: "fa-dot-circle-o"
       },
       individual: {
-        actions: ["window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+        actions: ["window.fetchVariableThenRun('$ID$', function(){ (window.withVFBQueryTypes || function(i, cb){ cb(); })('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); }); });"],
         icon: "fa-square-o"
       }
     },
@@ -478,12 +479,21 @@ var queryBuilderDatasourceConfig = {
         return record[5]
       },
       getRecords: function (payload) {
-        return payload.results.map(function (item) {
-          return item.values
-        })
+        /*
+         * A query with no results comes back without a `results` array (the
+         * backend omits/nulls it for 0 rows), so payload.results.map threw here
+         * -- aborting queryDoneCallback before it could stop the spinner, which
+         * left the query cog spinning forever on any empty result. Treat a
+         * missing/!array results as zero rows.
+         */
+        return (payload && Array.isArray(payload.results))
+          ? payload.results.map(function (item) {
+            return item.values;
+          })
+          : [];
       },
       getHeaders: function (payload) {
-        return payload.header;
+        return (payload && payload.header) ? payload.header : [];
       }
     },
     bloodhoundConfig: {

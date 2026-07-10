@@ -13,7 +13,8 @@ import {
   INSTANCE_SELECTED,
   INSTANCE_VISIBILITY_CHANGED,
   VFB_LOAD_TERM_INFO,
-  INVALID_ID
+  INVALID_ID,
+  LOAD_STATUS
 } from '../actions/generals';
 
 const componentsMap = require('../components/configuration/VFBLoader/VFBLoaderConfiguration').componentsMap;
@@ -28,6 +29,7 @@ export const GENERAL_DEFAULT_STATE = {
   stepsToLoad: 1,
   stepsLoaded: 0,
   loading: false,
+  loadStatus: { active: false, total: 0, settled: 0, failed: [], message: '' },
   instanceOnFocus : {},
   ui : {
     canvas : {
@@ -104,6 +106,17 @@ function generalReducer (state, action) {
       ...state,
       error: action.data
     }
+  case LOAD_STATUS:
+    /*
+     * VFBLoadManager is the single owner of loading progress. Mirror its
+     * snapshot into loadStatus and keep the legacy `loading` boolean in sync so
+     * existing readers (spinner, guards) keep working off one source of truth.
+     */
+    return {
+      ...state,
+      loadStatus: action.data,
+      loading: action.data.active
+    }
   case VFB_LOAD_ID:
     // check if data are provided as string or array of strings
     if (typeof action.data === "string") {
@@ -116,7 +129,6 @@ function generalReducer (state, action) {
         };
         return {
           ...state,
-          loading: true,
           idsMap: newMap,
           idsList: [...state.idsList, action.data],
           idsToLoad: idsToLoad,
@@ -127,7 +139,13 @@ function generalReducer (state, action) {
       var idsToLoad = state.idsToLoad;
       var newMap = { ...state.idsMap };
       action.data.map(item => {
-        if (!state.idsList.includes(item) && checkLayoutState(state.ui.layout)) {
+        /*
+         * Guard against duplicates both already-loaded (state.idsList) and
+         * repeated within this same array (newIds) -- otherwise idsToLoad is
+         * counted more than once for an id while only one instance loads,
+         * leaving the loader stuck (e.g. "Loading 1/2" forever).
+         */
+        if (!state.idsList.includes(item) && !newIds.includes(item) && checkLayoutState(state.ui.layout)) {
           idsToLoad++;
           newIds.push(item);
           newMap[item] = {
@@ -139,7 +157,6 @@ function generalReducer (state, action) {
       if (newIds.length > 0) {
         return {
           ...state,
-          loading: true,
           idsMap: newMap,
           idsList: [...state.idsList, ...newIds],
           idsToLoad: idsToLoad,
@@ -148,9 +165,12 @@ function generalReducer (state, action) {
     }
     return { ...state };
   case VFB_ID_LOADED:
-    var loading = false;
-    var stepsToLoad = 0;
-    var stepsLoaded = 0;
+    /*
+     * Component-paint bookkeeping only. VFBLoadManager (LOAD_STATUS) is the sole
+     * owner of `loading`; this case must never write it, or a viewer paint would
+     * race the manager. Keep the idsMap/idsList inventory the list viewer and
+     * download menu still read.
+     */
     var idsLoaded = state.idsLoaded;
     var newMap = { ...state.idsMap };
 
@@ -163,50 +183,26 @@ function generalReducer (state, action) {
     for (let singleId in newMap) {
       var instanceLoaded = true;
       if (Object.keys(newMap[singleId].components).length === 0) {
-        stepsToLoad++;
-        loading = true;
         instanceLoaded = false;
       }
-
       for (let singleComponent in newMap[singleId].components) {
-        if (newMap[singleId].components[singleComponent].loaded) {
-          stepsToLoad++;
-          stepsLoaded++;
-        } else {
-          stepsToLoad++;
-          loading = true;
+        if (!newMap[singleId].components[singleComponent].loaded) {
           instanceLoaded = false;
         }
       }
-
       if (instanceLoaded) {
         idsLoaded++;
-        delete newMap[action.data.id];
+        delete newMap[singleId];
       }
     }
 
-    if (loading) {
-      return {
-        ...state,
-        idsMap: newMap,
-        loading: loading,
-        idsLoaded: idsLoaded,
-        stepsToLoad: stepsToLoad,
-        stepsLoaded: stepsLoaded
-      };
-    } else {
-      return {
-        ...state,
-        idsToLoad: 0,
-        idsLoaded: 0,
-        stepsToLoad: 0,
-        stepsLoaded: 0,
-        idsMap: newMap,
-        loading: loading,
-        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
-        idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
-      };
-    }
+    return {
+      ...state,
+      idsMap: newMap,
+      idsLoaded: idsLoaded,
+      instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
+      idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
+    };
   case VFB_UI_UPDATED:
     ui.layout = action.data;
     return {
@@ -345,9 +341,10 @@ function generalReducer (state, action) {
       ui : ui
     }
   case INVALID_ID:
-    var loading = false;
-    var stepsToLoad = 0;
-    var stepsLoaded = 0;
+    /*
+     * Drains a non-visual / failed id from the idsMap inventory. Loading is owned
+     * by VFBLoadManager (LOAD_STATUS); never write `loading` here.
+     */
     var idsLoaded = state.idsLoaded;
     var newMap = { ...state.idsMap };
 
@@ -359,49 +356,25 @@ function generalReducer (state, action) {
     for (let singleId in newMap) {
       var instanceLoaded = true;
       if (Object.keys(newMap[singleId].components).length === 0) {
-        stepsToLoad++;
-        loading = true;
         instanceLoaded = false;
       }
-
       for (let singleComponent in newMap[singleId].components) {
-        if (newMap[singleId].components[singleComponent].loaded) {
-          stepsToLoad++;
-          stepsLoaded++;
-        } else {
-          stepsToLoad++;
-          loading = true;
+        if (!newMap[singleId].components[singleComponent].loaded) {
           instanceLoaded = false;
         }
       }
-
       if (instanceLoaded) {
         idsLoaded++;
-        delete newMap[action.data.id];
+        delete newMap[singleId];
       }
     }
 
-    if (loading) {
-      return {
-        ...state,
-        idsMap: newMap,
-        loading: loading,
-        idsLoaded: idsLoaded,
-        stepsToLoad: stepsToLoad,
-        stepsLoaded: stepsLoaded
-      };
-    } else {
-      return {
-        ...state,
-        idsToLoad: 0,
-        idsLoaded: 0,
-        stepsToLoad: 0,
-        stepsLoaded: 0,
-        idsMap: newMap,
-        loading: loading,
-        instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
-        idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
-      };
-    }
+    return {
+      ...state,
+      idsMap: newMap,
+      idsLoaded: idsLoaded,
+      instanceOnFocus : Instances[action.data.id] != null ? Instances[action.data.id] : {},
+      idsList : !state.idsList.includes(action.data.id) ? [ ...state.idsList, action.data.id ] : [ ...state.idsList ]
+    };
   }
 }

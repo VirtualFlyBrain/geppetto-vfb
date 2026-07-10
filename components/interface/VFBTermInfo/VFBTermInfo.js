@@ -20,6 +20,53 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
 
+/*
+ * Preferred template ordering for the Available Images carousel, after the
+ * currently loaded template: JRC2018U, JRC2018VNCU, L1EM, L3CNS.
+ */
+const PREFERRED_CAROUSEL_TEMPLATES = ['VFB_00101567', 'VFB_00200000', 'VFB_00050000', 'VFB_00049000'];
+
+/* Template short_form is the second-to-last segment of the thumbnail data URL. */
+function carouselTemplateOf (element) {
+  try {
+    var parts = element.initialValue.data.split('/');
+    return parts[parts.length - 2];
+  } catch (e) {
+    return '';
+  }
+}
+
+function carouselImageIdOf (element) {
+  return element.initialValue && element.initialValue.reference ? element.initialValue.reference : '';
+}
+
+function carouselTemplateRank (template) {
+  if (window.templateID !== undefined && template === window.templateID) {
+    return -1;
+  }
+  var i = PREFERRED_CAROUSEL_TEMPLATES.indexOf(template);
+  return i >= 0 ? i : 1000;
+}
+
+/* Sort a copy of the carousel elements; see the call site for the ordering rationale. */
+function orderCarouselElements (elements) {
+  return elements.slice().sort(function (a, b) {
+    var templateA = carouselTemplateOf(a), templateB = carouselTemplateOf(b);
+    var rankA = carouselTemplateRank(templateA), rankB = carouselTemplateRank(templateB);
+    if (rankA !== rankB) {
+      return rankA - rankB;
+    }
+    if (rankA === 1000 && templateA !== templateB) {
+      return templateA < templateB ? 1 : -1;
+    }
+    var idA = carouselImageIdOf(a), idB = carouselImageIdOf(b);
+    if (idA === idB) {
+      return 0;
+    }
+    return idA < idB ? 1 : -1;
+  });
+}
+
 class VFBTermInfo extends React.Component {
 
   constructor (props) {
@@ -250,8 +297,15 @@ class VFBTermInfo extends React.Component {
           var elements = [];
           this.imagesData.index = 0;
           this.imagesData.list = [];
-          for (var j = 0; j < value.elements.length; j++) {
-            var image = value.elements[j].initialValue;
+          /*
+           * Order Available Images: current template first, then the preferred
+           * templates, then the rest by descending template id, and within each
+           * template by descending image id (newest first). Done client-side so
+           * a stale cache cannot pin the wrong current template to the front.
+           */
+          var sortedElements = orderCarouselElements(value.elements);
+          for (var j = 0; j < sortedElements.length; j++) {
+            var image = sortedElements[j].initialValue;
             this.imagesData.list.push(image.reference);
             elements.push(<div className="slider_image_container">
               {image.name}
@@ -439,11 +493,25 @@ class VFBTermInfo extends React.Component {
           node = undefined;
         }
 
+        // Raw-id link (e.g. "Aligned to" template short_form): show the term label when loaded.
+        try {
+          if (node && $(this).text() === path) {
+            var resolvedName = (typeof node.getName === "function") ? node.getName() : node.name;
+            if (resolvedName && resolvedName !== path) {
+              $(this).text(resolvedName);
+            }
+          }
+        } catch (eName) { /* keep raw id */ }
+
         // hookup IF domain type is undefined OR it's defined and it matches the node type
         if (metaType === undefined || (metaType !== undefined && node !== undefined && node.getMetaType() === metaType)) {
         // hookup custom handler
           var that = this;
           var href = $(that).attr('href');
+          // Hint that query links can be combined with the current results via shift-click.
+          if (href && href.indexOf('?q=') > -1 && !$(that).attr('title')) {
+            $(that).attr('title', 'Shift-click to add this query to your current results');
+          }
           $(that).off();
           $(that).on(ev, function () {
           // invoke custom handler with instancepath as arg
@@ -827,25 +895,18 @@ class VFBTermInfoWidget extends React.Component {
           } else {
             window.ga('vfb.send', 'pageview', (window.location.pathname + '?q=' + otherId + ',' + path));
           }
-          GEPPETTO.trigger('spin_logo');
 
           this.props.queryBuilder.open();
           this.props.queryBuilder.switchView(false, false);
-          if (GEPPETTO.isKeyPressed("shift") && confirm("You selected a query with shift pressed indicating you wanted to combine with an existing query. \nClick OK to see combined results or Cancel to just view the results of this query alone.\nNote: If shift is not pressed please press and release to clear the flag.")) {
+          if (GEPPETTO.isKeyPressed("shift")) {
+            // Shift held: combine (stack) the new query with the existing one instead of replacing it.
             console.log('Query stacking requested.');
           } else {
             this.props.queryBuilder.clearAllQueryItems();
             $('#add-new-query-container')[0].hidden = true;
             $('#query-builder-items-container')[0].hidden = true;
           }
-          
-          /**
-           *  Fire event to set the Shift key as not pressed, this is needed since the presence of the 
-           *  confirm() dialog prevents the DOM to un-set the 'shift' key.
-           */
-          var e = new KeyboardEvent('keyup', { bubbles : true, cancelable : true, shiftKey : false });
-          document.querySelector("body").dispatchEvent(e);
-          
+
           $("body").css("cursor", "progress");
 
 
@@ -853,36 +914,86 @@ class VFBTermInfoWidget extends React.Component {
           $('#query-builder-items-container')[0].hidden = true;
           $("#query-builder-footer").show();
           $("#run-query-btn").hide();
-          
-          setTimeout(function () {
-            $("#query-error-message").text("Fetching results — this can take a moment for complex queries.").show();
+
+          /*
+           * Clear any notice/timer left over from a previous query so stale
+           * feedback never lingers, then arm a fresh slow-query reassurance.
+           * The message is React-owned (queryBuilder.setErrorMessage), so it is
+           * cleared reliably by the next runQuery/clear -- unlike the old jQuery
+           * .show() which bypassed React and stuck on screen. The footer's own
+           * "Counting..." state (geppetto-client) covers the fast case.
+           */
+          if (that._vfbQueryNoticeTimer) {
+            clearTimeout(that._vfbQueryNoticeTimer);
+          }
+          if (that._vfbQueryWatchdog) {
+            clearTimeout(that._vfbQueryWatchdog);
+          }
+          that.props.queryBuilder.clearErrorMessage();
+          that._vfbQueryNoticeTimer = setTimeout(function () {
+            that.props.queryBuilder.setErrorMessage("Fetching results — this can take a moment for complex queries.", "info");
           }, 10000);
 
           var callback = function () {
-            // check if any results with count flag
-            if (that.props.queryBuilder.props.model.count > 0) {
-              // runQuery if any results
-              that.props.queryBuilder.runQuery();
-            } else {
+            // Response is in: cancel the pending slow-query notice.
+            if (that._vfbQueryNoticeTimer) {
+              clearTimeout(that._vfbQueryNoticeTimer);
+              that._vfbQueryNoticeTimer = null;
+            }
+            /*
+             * Query settled: clear the "Counting..." flag (covers no-query
+             * paths where setCount never runs).
+             */
+            if (that.props.queryBuilder.props.model) {
+              that.props.queryBuilder.props.model.counting = false;
+            }
+            /*
+             * Known-empty (count 0, from the preview) needs no query run -- say
+             * so. Otherwise run directly (force): count > 0 or unknown (-1). The
+             * real count is taken from the results, not a separate count step.
+             */
+            if (that.props.queryBuilder.props.model.count === 0) {
+              that.props.queryBuilder.setErrorMessage("No results for this query.", "info");
               that.props.queryBuilder.switchView(false);
+            } else {
+              that.props.queryBuilder.runQuery({ force: true });
+              /*
+               * The auto-run (skipCount) path launches run_query directly. While
+               * it is in flight geppetto-client shows the cog and hides the
+               * footer, so a slow/cold query leaves "just a spinning cog and no
+               * count". runQuery's own done-callback clears the cog on success,
+               * but nothing bounds a query that never returns. Watchdog it: if
+               * the cog is still up after the grace window, stop it, drop the
+               * counting flag and hand the builder back so the count/footer show
+               * and the user can retry, rather than spinning forever. A late
+               * response still lands via runQuery's callback (results view).
+               */
+              that._vfbQueryWatchdog = setTimeout(function () {
+                var qb = that.props.queryBuilder;
+                if (qb && qb.state && qb.state.showSpinner) {
+                  if (qb.props.model) {
+                    qb.props.model.counting = false;
+                  }
+                  qb.showBrentSpiner(false);
+                  qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
+                  qb.switchView(false);
+                }
+              }, 45000);
             }
             // show query component
             that.props.queryBuilder.open();
             $("body").css("cursor", "default");
-            GEPPETTO.trigger('stop_spin_logo');
           };
-          // add query item + selection
-          if (window[otherId] == undefined) {
-            window.fetchVariableThenRun(otherId, function () {
-              that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
-            });
-          } else {
-            setTimeout(function () {
-              that.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback);
-            }, 100);
-          }
+          /*
+           * Add query item + selection. Resolve the query's real target id
+           * (takes.default.short_form -- the class for painted domains) so it
+           * runs against the entity that has the data, not the focus individual.
+           */
+          window.vfbResolveAndPrepQuery(that.props.queryBuilder.props.model, otherId, path, function (targetId, previewCount) {
+            that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: entity, skipCount: true, previewCount: previewCount }, callback);
+          });
         } else {
-          Model.getDatasources()[3].fetchVariable(path, function () {
+          Model.getDatasources()[5].fetchVariable(path, function () {
             var m = Instances.getInstance(meta);
             this.setTermInfo(m, m.name);
             window.addVfbId(path);
