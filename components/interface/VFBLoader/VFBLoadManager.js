@@ -142,8 +142,10 @@ export default class VFBLoadManager {
     }
   }
 
-  /* Public: progressive query load-all status; keeps the overlay up while result
-     pages stream in and clears it when done. */
+  /*
+   * Public: progressive query load-all status; keeps the overlay up while result
+   * pages stream in and clears it when done.
+   */
   setQueryLoadStatus (loaded, done) {
     this._queryLoad = done ? null : { loaded: loaded };
     this._publishSnapshot();

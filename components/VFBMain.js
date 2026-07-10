@@ -141,7 +141,11 @@ class VFBMain extends React.Component {
       window.VFB_STREAMABLE_QUERIES = window.VFB_STREAMABLE_QUERIES || ['AllAlignedImages'];
       var vfbMainSelf = this;
       window.vfbQueryLoadStatus = function (loaded, done) {
-        try { vfbMainSelf.loadManager.setQueryLoadStatus(loaded, done); } catch (e) {}
+        try {
+          vfbMainSelf.loadManager.setQueryLoadStatus(loaded, done);
+        } catch (e) {
+          /* overlay status is best-effort */
+        }
       };
     }
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
