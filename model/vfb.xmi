@@ -1471,7 +1471,7 @@
           xsi:type="gep_2:SimpleQuery"
           name="Fetch AllAlignedImages from v3-cached"
           description="GET /run_query?id=$ID&amp;query_type=AllAlignedImages."
-          query="id=$ID&amp;query_type=AllAlignedImages"
+          query="id=$ID&amp;query_type=AllAlignedImages&amp;offset=$OFFSET&amp;limit=$LIMIT"
           countQuery="id=$ID&amp;query_type=AllAlignedImages"/>
       <queryChain
           xsi:type="gep_2:ProcessQuery"
