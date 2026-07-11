@@ -2201,7 +2201,7 @@ vfbqueryJsonProcessor
 **Query:**
 
 ```java
-id=$ID&query_type=AllAlignedImages&offset=$OFFSET&limit=$LIMIT
+id=$ID&query_type=AllAlignedImages
 ```
 
 ### Query Name: Process VFBquery JSON to QueryResults
