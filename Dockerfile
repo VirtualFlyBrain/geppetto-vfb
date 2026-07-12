@@ -17,7 +17,7 @@ ARG geppettoSimulationRelease=VFBv2.1.0.2
 ARG geppettoDatasourceRelease=feature/query-paging
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=feature/query-paging
-ARG geppettoClientRelease=feature/query-paging
+ARG geppettoClientRelease=VFBv2.3.4
 ARG ukAcVfbGeppettoRelease=v2.2.5.0
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
