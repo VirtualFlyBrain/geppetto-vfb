@@ -137,7 +137,7 @@ class VFBMain extends React.Component {
      * the streamable query allowlist, and a status bridge to the loader overlay.
      */
     if (typeof window !== 'undefined') {
-      window.VFB_QUERY_PAGE_SIZE = window.VFB_QUERY_PAGE_SIZE || 25000;
+      window.VFB_QUERY_PAGE_SIZE = window.VFB_QUERY_PAGE_SIZE || 10000;
       window.VFB_STREAMABLE_QUERIES = window.VFB_STREAMABLE_QUERIES || ['AllAlignedImages'];
       var vfbMainSelf = this;
       window.vfbQueryLoadStatus = function (loaded, done) {
