@@ -45,19 +45,6 @@ grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"
 # Temporarily disable exit on error so we can check for npm logs if the build fails
 set +e
 
-# Refresh locally-modified geppetto modules (unpublished versions: core 1.1.1
-# with QueryPagingContext, datasources with the paging changes) into .m2 before
-# the frontend build. Without this the frontend can resolve the older RELEASED
-# versions from the remote OBR whenever .m2 lacks the locally-built ones (e.g. the
-# runtime build inside the local.wss container), which breaks compilation and
-# silently drops the runtime paging behaviour.
-for _gm in org.geppetto.core org.geppetto.datasources; do
-  if [ -d "$HOME/workspace/$_gm" ]; then
-    /bin/echo -e "\e[96mRefreshing $_gm into .m2\e[0m"
-    ( cd "$HOME/workspace/$_gm" && mvn -Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster install )
-  fi
-done
-
 # Frontend final build
 cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"

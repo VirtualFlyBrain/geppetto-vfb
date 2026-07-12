@@ -128,22 +128,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      # For the local build
-      - name: Build and push local wss
-        id: docker_build_local
+      # For the remote WSS build (GA-built like -remote, no runtime compile, WSS on)
+      - name: Build and push remote wss
+        id: docker_build_remotewss
         timeout-minutes: 290
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-local.wss"
+          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote.wss"
           build-args: |
-            VFB_TREE_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_TREE_PDB_SERVER }}
-            SOLR_SERVER_ARG=${{ steps.local-servers.outputs.SOLR_SERVER }}
-            VFB_R_SERVER_ARG=${{ steps.local-servers.outputs.VFB_R_SERVER }}
-            VFB_OWL_SERVER_ARG=${{ steps.local-servers.outputs.VFB_OWL_SERVER }}
-            VFB_PDB_SERVER_ARG=${{ steps.local-servers.outputs.VFB_PDB_SERVER }}
-            build_type=${{ steps.local-servers.outputs.BUILD_TYPE }}
-            runtime_build=${{ steps.local-servers.outputs.RUNTIME_BUILD }}
+            VFB_TREE_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
+            SOLR_SERVER_ARG=${{ steps.remote-servers.outputs.SOLR_SERVER }}
+            VFB_R_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_R_SERVER }}
+            VFB_OWL_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_OWL_SERVER }}
+            VFB_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_PDB_SERVER }}
+            build_type=${{ steps.remote-servers.outputs.BUILD_TYPE }}
+            runtime_build=${{ steps.remote-servers.outputs.RUNTIME_BUILD }}
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
@@ -174,7 +174,7 @@ jobs:
       
       - name: Image digest
         run: |
-          echo "local:${{ steps.docker_build_local.outputs.digest }}"
+          echo "remote.wss:${{ steps.docker_build_remotewss.outputs.digest }}"
           echo "remote:${{ steps.docker_build_remote.outputs.digest }}"
       
       - name: Install Puppeteer
