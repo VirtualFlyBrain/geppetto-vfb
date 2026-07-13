@@ -11,7 +11,7 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       // projection over the whole 34.7M-edge synapsed_to graph, which timed out.
       + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a})-[:database_cross_reference]->(site:Connectome)"
       + " MATCH (target:Neuron:has_neuron_connectivity {short_form: b})-[:database_cross_reference]->(site)"
-      + " WITH source, target, 'cb_' + site.short_form AS graphName"
+      + " WITH a, b, source, target, 'cb_' + site.short_form AS graphName"
       + " CALL gds.beta.shortestPath.yens.stream(graphName, {"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
