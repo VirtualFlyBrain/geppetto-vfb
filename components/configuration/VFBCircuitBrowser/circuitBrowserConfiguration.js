@@ -3,12 +3,14 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     {
       "statement" : "WITH [" + instances + "] AS neurons"
       + " WITH neurons[0] as a, neurons[1] AS b"
-      // Route to the pre-built named GDS projection for this pair's connectome
-      // (cb_<connectome short_form>), rebuilt per KB load by the polishing
-      // pipeline (see build_connectome_projections.sh). Both neurons must share
-      // the same :Connectome:Site; if they do not the second MATCH fails and the
-      // query returns no paths. This replaces the old anonymous per-request
-      // projection over the whole 34.7M-edge synapsed_to graph, which timed out.
+      /*
+       * Route to the pre-built named GDS projection for this pair's connectome
+       * (cb_<connectome short_form>), rebuilt per KB load by the polishing
+       * pipeline (see build_connectome_projections.sh). Both neurons must share
+       * the same :Connectome:Site; if they do not the second MATCH fails and the
+       * query returns no paths. This replaces the old anonymous per-request
+       * projection over the whole 34.7M-edge synapsed_to graph, which timed out.
+       */
       + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a})-[:database_cross_reference]->(site:Connectome)"
       + " MATCH (target:Neuron:has_neuron_connectivity {short_form: b})-[:database_cross_reference]->(site)"
       + " WITH a, b, source, target, 'cb_' + site.short_form AS graphName"
