@@ -58,7 +58,7 @@ class VFBCircuitBrowser extends Component {
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
-      weight : 0,
+      weight : 10, // default graph weight; 0 projected the entire synapse graph and timed out
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);

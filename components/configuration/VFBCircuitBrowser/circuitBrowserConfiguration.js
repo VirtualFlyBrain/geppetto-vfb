@@ -3,16 +3,20 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     {
       "statement" : "WITH [" + instances + "] AS neurons"
       + " WITH neurons[0] as a, neurons[1] AS b"
-      + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a}), (target:Neuron:has_neuron_connectivity {short_form: b})"
-      + " CALL gds.beta.shortestPath.yens.stream({"
-      + "  nodeQuery: 'MATCH (n:Neuron:has_neuron_connectivity) RETURN id(n) AS id',"
-      + "  relationshipQuery: 'MATCH (a:Neuron:has_neuron_connectivity)-[r:synapsed_to]->(b:Neuron:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] >= "
-      + weight?.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
+      // Route to the pre-built named GDS projection for this pair's connectome
+      // (cb_<connectome short_form>), rebuilt per KB load by the polishing
+      // pipeline (see build_connectome_projections.sh). Both neurons must share
+      // the same :Connectome:Site; if they do not the second MATCH fails and the
+      // query returns no paths. This replaces the old anonymous per-request
+      // projection over the whole 34.7M-edge synapsed_to graph, which timed out.
+      + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a})-[:database_cross_reference]->(site:Connectome)"
+      + " MATCH (target:Neuron:has_neuron_connectivity {short_form: b})-[:database_cross_reference]->(site)"
+      + " WITH source, target, 'cb_' + site.short_form AS graphName"
+      + " CALL gds.beta.shortestPath.yens.stream(graphName, {"
       + "  sourceNode: id(source),"
       + "  targetNode: id(target),"
       + "  k: " + paths?.toString() + ","
       + "  relationshipWeightProperty: 'weight_p',"
-      + "  relationshipTypes: ['*'],"
       + "  path: true"
       + "})"
       + " YIELD index, sourceNode, targetNode, nodeIds, path"
