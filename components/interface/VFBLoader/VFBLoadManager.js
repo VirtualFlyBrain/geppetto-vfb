@@ -64,6 +64,7 @@ export default class VFBLoadManager {
     this._isLoaded = opts.isLoaded; // (id) => bool -- already present in the model/scene
 
     this.items = new Map(); // id -> { status, label, startedAt, bootstrapTimer, hardTimer, renderTimer, error }
+    this._queryLoad = null; // { loaded } while a progressive query load-all streams; drives the overlay
     this.queue = []; // ids awaiting a counting slot
     this.loaded = new Set(); // ids already loaded this session (re-request => re-focus only)
     this.focusId = undefined;
@@ -139,6 +140,15 @@ export default class VFBLoadManager {
         label: labels && labels[list[i]]
       });
     }
+  }
+
+  /*
+   * Public: progressive query load-all status; keeps the overlay up while result
+   * pages stream in and clears it when done.
+   */
+  setQueryLoadStatus (loaded, done) {
+    this._queryLoad = done ? null : { loaded: loaded };
+    this._publishSnapshot();
   }
 
   /* Public: give a term a human label once known (drives the status line). */
@@ -363,6 +373,13 @@ export default class VFBLoadManager {
       }
     });
     if (!this._active()) {
+      /*
+       * No term/component load active, but a progressive query load-all may be
+       * streaming result pages -- keep the overlay up and report progress.
+       */
+      if (this._queryLoad) {
+        return { active: true, total: 0, settled: 0, failed: failed, message: 'Loading results \u2014 ' + this._queryLoad.loaded + ' loaded' };
+      }
       return { active: false, total: this._total, settled: this._settled, failed: failed, message: '' };
     }
     var label = this._currentLabel();

@@ -132,6 +132,22 @@ class VFBMain extends React.Component {
       publish: snapshot => this.props.setLoadStatus(snapshot),
       isLoaded: id => this.managerIsLoaded(id)
     });
+    /*
+     * Progressive query load-all (geppetto-client queryBuilder): page size,
+     * the streamable query allowlist, and a status bridge to the loader overlay.
+     */
+    if (typeof window !== 'undefined') {
+      window.VFB_QUERY_PAGE_SIZE = window.VFB_QUERY_PAGE_SIZE || 10000;
+      window.VFB_STREAMABLE_QUERIES = window.VFB_STREAMABLE_QUERIES || ['AllAlignedImages'];
+      var vfbMainSelf = this;
+      window.vfbQueryLoadStatus = function (loaded, done) {
+        try {
+          vfbMainSelf.loadManager.setQueryLoadStatus(loaded, done);
+        } catch (e) {
+          /* overlay status is best-effort */
+        }
+      };
+    }
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
     this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
