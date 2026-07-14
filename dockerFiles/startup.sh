@@ -92,17 +92,6 @@ then
     match="java.lang.OutOfMemoryError"
     while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; pkill -u developer; exit 0; fi; done &
 
-    # Quieten noisy per-connection / per-request framework INFO logging (keep
-    # WARN/ERROR). These flood the container stdout with no diagnostic value
-    # (websocket open/close, 'New Geppetto Manager class', 'Model reading took',
-    # 'There is no user set', message-sender init). No effect if the config or
-    # markers are absent, so it is safe across base-image changes.
-    SVC=$(find "$SERVER_HOME" -name serviceability.xml 2>/dev/null | head -1)
-    if [ -n "$SVC" ] && ! grep -q 'name="org.geppetto.frontend.controllers"' "$SVC"; then
-      sed -i 's@</configuration>@\t<logger name="org.geppetto.frontend.controllers" level="WARN"/>\n\t<logger name="org.geppetto.frontend.messaging" level="WARN"/>\n\t<logger name="org.geppetto.simulation.manager" level="WARN"/>\n</configuration>@' "$SVC"
-      echo "Quietened org.geppetto framework INFO logging in $SVC"
-    fi
-
     # start virgo server
     $SERVER_HOME/bin/startup.sh
 fi
