@@ -92,6 +92,50 @@ then
     match="java.lang.OutOfMemoryError"
     while sleep 60; do if fgrep --quiet "$match" "$log"; then cp -fv "$log" "/tmp/error/$(date '+%Y-%m-%d_%H-%M').log" ; pkill -u developer; exit 0; fi; done &
 
+    # --- Relax Tomcat/Virgo HTTP connector to accept VFB characters in request targets ---
+    # Tomcat rejects | [ ] { } ^ in the request target per RFC 3986 / RFC 7230, logging
+    # "Invalid character found in the request target" and dropping the request. VFB IDs and
+    # query params legitimately contain these characters, so relax the HTTP connector(s).
+    # The patch prints what it matched/changed so it is verifiable in the container log
+    # (a silent no-op here previously bit us when patching Virgo config from startup.sh).
+    echo "Relaxing Tomcat connector allowed characters ( | [ ] { } ^ )..."
+    PYBIN=$(command -v python3 || command -v python)
+    if [ -n "$PYBIN" ]; then
+      "$PYBIN" - <<'PYEOF'
+import os, re, sys
+sh = os.environ.get('SERVER_HOME', '')
+cfgs = []
+for root, dirs, files in os.walk(sh):
+    if 'tomcat-server.xml' in files:
+        cfgs.append(os.path.join(root, 'tomcat-server.xml'))
+if not cfgs:
+    print("  WARNING: no tomcat-server.xml found under SERVER_HOME=" + repr(sh) + "; connector NOT relaxed")
+    sys.exit(0)
+relax = ' relaxedPathChars="[]|{}^" relaxedQueryChars="[]|{}^"'
+pat = re.compile(r'<Connector\b[^>]*>', re.IGNORECASE)
+for cfg in cfgs:
+    fh = open(cfg); data = fh.read(); fh.close()
+    state = {'changed': False}
+    def repl(m):
+        tag = m.group(0)
+        if 'relaxedQueryChars' in tag or re.search('AJP', tag, re.IGNORECASE):
+            return tag  # already relaxed, or an AJP connector we leave alone
+        state['changed'] = True
+        return '<Connector' + relax + tag[len('<Connector'):]
+    new = pat.sub(repl, data)
+    if state['changed']:
+        fh = open(cfg, 'w'); fh.write(new); fh.close()
+        print("  Patched Tomcat connector(s) in: " + cfg)
+    else:
+        print("  No change (already relaxed or no HTTP connector): " + cfg)
+    for line in new.splitlines():
+        if '<Connector' in line or 'relaxedQueryChars' in line:
+            print("    " + line.strip())
+PYEOF
+    else
+      echo "  WARNING: no python interpreter found; Tomcat connector NOT relaxed"
+    fi
+
     # start virgo server
     $SERVER_HOME/bin/startup.sh
 fi

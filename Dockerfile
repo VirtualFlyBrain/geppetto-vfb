@@ -12,7 +12,7 @@ VOLUME /tmp/error
 #SET TAG/BRANCH to use:
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
-ARG geppettoCoreRelease=VFBv2.3.8
+ARG geppettoCoreRelease=VFBv2.3.8.1
 ARG geppettoSimulationRelease=VFBv2.1.0.3
 ARG geppettoDatasourceRelease=VFBv2.3.8.2
 ARG geppettoModelSwcRelease=v1.0.1
