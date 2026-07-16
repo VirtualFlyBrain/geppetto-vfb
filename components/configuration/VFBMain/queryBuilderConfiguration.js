@@ -498,6 +498,15 @@ var queryBuilderDatasourceConfig = {
     },
     bloodhoundConfig: {
       datumTokenizer: function (d) {
+        /*
+         * The SOLR label field can carry a stray backslash-escaping of a quote
+         * or apostrophe from over-escaped source data (e.g. "y5B\'2a"). Strip a
+         * backslash that precedes a quote/apostrophe in place so the query-builder
+         * suggestion display, sorting and tokenizing all use the clean label.
+         */
+        if (d && typeof d.label === 'string') {
+          d.label = d.label.replace(/\\(['"])/g, '$1');
+        }
         return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
       },
       queryTokenizer: function (q) {

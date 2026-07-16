@@ -114,7 +114,14 @@ var searchConfiguration = {
       "id": "short_form",
       "labels" : "unique_facets"
     },
-  "label_manipulation" : label => label,
+  /*
+   * The SOLR label field can carry a stray backslash-escaping of a quote or
+   * apostrophe from over-escaped source data (e.g. "y5B\'2a" for a label whose
+   * real value is "y5B'2a"). Strip a backslash that precedes a quote/apostrophe
+   * so search results display the clean label. Never legitimate in a label, so
+   * this is safe and idempotent.
+   */
+  "label_manipulation" : label => (typeof label === 'string' ? label.replace(/\\(['"])/g, '$1') : label),
   "filters_expanded": true,
   "filter_positive" : "^100",
   "filter_negative" : "^0.001",
