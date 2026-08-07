@@ -25,12 +25,14 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
       + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
-      // Pick ONE class per neuron deterministically. Prefer a class that has a symbol
-      // (specific named cell types carry one, e.g. MBON21; broad NT/grouping classes
-      // like "adult cholinergic neuron" do not), then fall back to a stable short_form
-      // order. collect(c)[0] returns exactly one row so the path row is never dropped.
-      // The label shown is the class symbol, else the instance's own symbol/label with
-      // any trailing accession suffix " (SOURCE:id)" stripped (e.g. FlyWire cells).
+      /*
+       * Pick ONE class per neuron deterministically. Prefer a class that has a symbol
+       * (specific named cell types carry one, e.g. MBON21; broad NT/grouping classes
+       * like "adult cholinergic neuron" do not), then fall back to a stable short_form
+       * order. collect(c)[0] returns exactly one row so the path row is never dropped.
+       * The label shown is the class symbol, else the instance's own symbol/label with
+       * any trailing accession suffix " (SOURCE:id)" stripped (e.g. FlyWire cells).
+       */
       + " CALL { WITH x OPTIONAL MATCH (x)-[:INSTANCEOF]->(c:Class) WITH c ORDER BY (CASE WHEN size(coalesce(c.symbol, [])) > 0 THEN 0 ELSE 1 END), c.short_form RETURN collect(c)[0] AS xpc }"
       + " CALL { WITH y OPTIONAL MATCH (y)-[:INSTANCEOF]->(c:Class) WITH c ORDER BY (CASE WHEN size(coalesce(c.symbol, [])) > 0 THEN 0 ELSE 1 END), c.short_form RETURN collect(c)[0] AS ypc }"
       + " WITH *,'\"'+ x.short_form+'\":{\"'+coalesce(xpc.short_form, x.short_form)+'\":\"' + apoc.text.regreplace(coalesce(xpc.symbol[0], x.symbol[0], x.label), ' *[(][^()]*:[^()]*[)] *$', '') + '\"},\"'+ y.short_form+'\":{\"'+coalesce(ypc.short_form, y.short_form)+'\":\"' + apoc.text.regreplace(coalesce(ypc.symbol[0], y.symbol[0], y.label), ' *[(][^()]*:[^()]*[)] *$', '') + '\"}' as Class"
