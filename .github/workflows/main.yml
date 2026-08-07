@@ -147,7 +147,7 @@ jobs:
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
-            buildRef=${{ github.event.pull_request.head.sha || github.sha }}
+            buildRef=${{ github.sha }}
             finalBuild=true
       
       # For the remote build
@@ -169,7 +169,7 @@ jobs:
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
-            buildRef=${{ github.event.pull_request.head.sha || github.sha }}
+            buildRef=${{ github.sha }}
             finalBuild=false
       
       - name: Image digest
