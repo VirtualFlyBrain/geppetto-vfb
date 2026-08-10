@@ -405,15 +405,134 @@ var queryResultsColMeta = [
     "displayName": "Avg_Weight",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  /*
+   * FindStocks (FlyBase stock report). The row's selection id is the FBst
+   * stock id, carried in the hidden ID column; the four columns below are
+   * everything the report shows. Plain text throughout -- a stock is a
+   * FlyBase record, not a VFB term, so there is nothing for
+   * MarkdownLinkComponent to link to.
+   */
+  {
+    "columnName": "stock_number",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "displayName": "Stock_Number",
+    "cssClassName": "query-results-stock_number-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "genotype",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Genotype",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "collection",
+    "order": 4,
+    "locked": false,
+    "visible": true,
+    "displayName": "Collection",
+    "cssClassName": "query-results-collection-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  /*
+   * FindComboPublications (FlyBase publications for a split combination).
+   * The row's selection id is the FBrf, carried in the hidden ID column;
+   * unlike a stock that id IS a VFB pub individual, so the row resolves.
+   */
+  {
+    "columnName": "title",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "displayName": "Title",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "citation",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Citation",
+    "cssClassName": "query-results-reference-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "year",
+    "order": 4,
+    "locked": false,
+    "visible": true,
+    "displayName": "Year",
+    "cssClassName": "query-results-year-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "publication_type",
+    "order": 5,
+    "locked": false,
+    "visible": true,
+    "displayName": "Publication_Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "doi",
+    "order": 6,
+    "locked": false,
+    "visible": true,
+    "displayName": "DOI",
+    "cssClassName": "query-results-doi-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "pmid",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "displayName": "PMID",
+    "cssClassName": "query-results-pmid-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "pmcid",
+    "order": 8,
+    "locked": false,
+    "visible": true,
+    "displayName": "PMCID",
+    "cssClassName": "query-results-pmcid-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  /* TermsForPub: how the term relates to the publication. */
+  {
+    "columnName": "reference_type",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Reference_Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   }
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight'];
+var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight', 'stock_number', 'genotype', 'collection', 'title', 'citation', 'year', 'publication_type', 'doi', 'pmid', 'pmcid', 'reference_type'];
 
 var queryResultsControlConfig = {
   "Common": {
     "info": {
+      /*
+       * FindStocks rows are identified by a FlyBase FBst stock id. Stocks are
+       * not VFB terms -- get_term_info on FBst0602932 comes back empty -- so
+       * addVfbId would spin on an id that can never load. Those rows get the
+       * FlyBase stock button below instead.
+       */
+      "showCondition": "!'$ID$'.startsWith('FBst')",
       "id": "info",
       "actions": [
         "window.addVfbId('$ID$');"
@@ -421,6 +540,16 @@ var queryResultsControlConfig = {
       "icon": "fa-info-circle",
       "label": "Info",
       "tooltip": "Info"
+    },
+    "flybasestock": {
+      "showCondition": "'$ID$'.startsWith('FBst')",
+      "id": "flybasestock",
+      "actions": [
+        "window.open('http://flybase.org/reports/' + '$ID$', '_blank').focus()"
+      ],
+      "icon": "gpt-fly",
+      "label": "FlyBase",
+      "tooltip": "FlyBase Stock"
     },
     "flybase": {
       "showCondition": "'$ID$'.startsWith('FBbt')",
