@@ -852,7 +852,14 @@ class VFBTermInfoWidget extends React.Component {
       var target = widget;
       var that = this;
       var meta = path + "." + path + "_meta";
-      var n = window[meta];
+      /*
+       * Is this term already in the model? The meta variable hangs off the
+       * instance, at window[path][path + '_meta']. The flat window[path + '.' +
+       * path + '_meta'] key this used to read is never set by the model
+       * factory, so the branch below was unreachable and every thumbnail click
+       * fell through to the fetch path instead.
+       */
+      var n = (window[path] !== undefined) ? window[path][path + '_meta'] : undefined;
 
       if (n != undefined) {
         var metanode = Instances.getInstance(meta);
@@ -868,7 +875,13 @@ class VFBTermInfoWidget extends React.Component {
           }
         }
         this.setTermInfo(metanode, metanode.name);
-        window.resolve3D(path);
+        /*
+         * Hand off to the load manager rather than calling resolve3D directly,
+         * so a thumbnail click takes exactly the route a page-load id= takes.
+         * The manager resolves geometry that is not in the scene yet and just
+         * re-focuses when it already is.
+         */
+        window.addVfbId(path);
       } else {
         // check for passed ID:
         if (path.indexOf(',') > -1) {
@@ -993,11 +1006,14 @@ class VFBTermInfoWidget extends React.Component {
             that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: entity, skipCount: true, previewCount: previewCount }, callback);
           });
         } else {
-          Model.getDatasources()[5].fetchVariable(path, function () {
-            var m = Instances.getInstance(meta);
-            this.setTermInfo(m, m.name);
-            window.addVfbId(path);
-          }.bind(this));
+          /*
+           * Not in the model yet: let the load manager own fetching, scene
+           * resolution and Term Info focus, exactly as it does for a page-load
+           * id=. Fetching here first set window[path], which made the manager
+           * treat the term as already loaded and skip its geometry entirely --
+           * the term appeared in Term Info and the viewers stayed empty.
+           */
+          window.addVfbId(path);
         }
       }
     } catch (e) {
