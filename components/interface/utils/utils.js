@@ -422,7 +422,7 @@ var hasVisualType = function (variableId) {
   var extEnum = {
     0 : { extension: "_swc" },
     1 : { extension: "_obj" },
-    2 : { extension: "_slice" }
+    2 : { extension: "_slices" }
   };
   while ((instance == undefined) && (counter < 3)) {
     try {
@@ -437,10 +437,33 @@ var hasVisualType = function (variableId) {
   }
 };
 
+/*
+ * True when the term still has a visual child type that is an unresolved
+ * ImportType -- the mesh/stack has not been pulled into the scene yet.
+ * window[id] on its own only tells us the VARIABLE exists (Term Info has been
+ * fetched), which is a weaker condition and must not be mistaken for it.
+ */
+var hasUnresolvedVisualType = function (variableId) {
+  var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
+  var extensions = ["_swc", "_obj", "_slices"];
+  for (var i = 0; i < extensions.length; i++) {
+    try {
+      var child = Instances.getInstance(variableId + "." + variableId + extensions[i]);
+      if ((child !== undefined) && (child.getType() instanceof ImportType)) {
+        return true;
+      }
+    } catch (ignore) {
+      // No such child type on this term: nothing outstanding for this extension.
+    }
+  }
+  return false;
+};
+
 module.exports = {
   setSepCol,
   getStackViewerDefaultX,
   getStackViewerDefaultY,
   hasVisualType,
+  hasUnresolvedVisualType,
   labelTypeToID
 };

@@ -116,6 +116,7 @@ class VFBMain extends React.Component {
 
     this.setSepCol = require('./interface/utils/utils').setSepCol;
     this.hasVisualType = require('./interface/utils/utils').hasVisualType;
+    this.hasUnresolvedVisualType = require('./interface/utils/utils').hasUnresolvedVisualType;
 
     /*
      * Single owner of term loading. Everything that loads a term goes through
@@ -431,7 +432,18 @@ class VFBMain extends React.Component {
      * of truth, so if it exists the term is already loaded and a re-request
      * should just re-focus rather than load and count it again.
      */
-    return typeof window !== "undefined" && window[id] !== undefined;
+    if ((typeof window === "undefined") || (window[id] === undefined)) {
+      return false;
+    }
+    /*
+     * window[id] only means the VARIABLE is in the model -- i.e. Term Info has
+     * been fetched. The term is not loaded until its visual types have been
+     * resolved into the scene; while any of them is still an ImportType there
+     * is geometry outstanding, and a re-request must load it rather than just
+     * re-focus. Treating "variable exists" as "loaded" is what made a Term Info
+     * thumbnail click show the term and never its image.
+     */
+    return !this.hasUnresolvedVisualType(id);
   }
 
   /* Best-effort human label for the status line (falls back to the id). */
