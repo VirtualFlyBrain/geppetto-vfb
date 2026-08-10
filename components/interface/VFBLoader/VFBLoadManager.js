@@ -95,15 +95,33 @@ export default class VFBLoadManager {
      * through to the in-flight branch below and never re-displays (the "flick
      * between loaded terms a few times then it stops showing in Term Info" bug).
      */
-    if ((existing && existing.status === LOAD_STATUS.LOADED)
-        || this.loaded.has(id)
-        || (this._isLoaded && this._isLoaded(id))) {
+    var believedLoaded = (existing && existing.status === LOAD_STATUS.LOADED) || this.loaded.has(id);
+    /*
+     * _isLoaded inspects the model/scene, so it is authoritative when supplied.
+     * Our own bookkeeping can say LOADED for a term the render grace timed out
+     * on (settled without a paint) or one whose variable was fetched by another
+     * code path before it reached us; trusting that would make every later
+     * re-request a no-op re-focus, with the geometry never arriving at all.
+     */
+    var reallyLoaded = this._isLoaded ? this._isLoaded(id) : believedLoaded;
+    if (reallyLoaded) {
       this.loaded.add(id);
       if (display) {
         this._applyFocus(id);
       }
       this._publishSnapshot();
       return;
+    }
+    if (believedLoaded) {
+      /*
+       * We thought it was done but the scene disagrees -- drop the stale
+       * bookkeeping so the load below actually runs instead of being skipped.
+       */
+      this.loaded.delete(id);
+      if (existing && existing.status === LOAD_STATUS.LOADED) {
+        this.items.delete(id);
+        existing = undefined;
+      }
     }
 
     if (existing && existing.status !== LOAD_STATUS.FAILED) {
