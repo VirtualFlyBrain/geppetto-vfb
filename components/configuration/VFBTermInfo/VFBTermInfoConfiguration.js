@@ -57,12 +57,20 @@ const buttonBarConfiguration = {
         "tooltip": "Hide"
       }
     },
+    "volume_too_large": {
+      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj') && window.vfbObjOversized('$instance$')",
+      "id": "volume_too_large",
+      "actions": ["window.vfbExplainObjTooLarge('$instance$')"],
+      "icon": "fa-exclamation-triangle",
+      "label": "Unavailable",
+      "tooltip": "Mesh too large for the browser"
+    },
     "visibility_obj": {
-      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj')",
+      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj') && !window.vfbObjOversized('$instance$')",
       "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
       "false": {
         "id": "visibility_obj",
-        "actions": ["(function(){var color = $instance$.getColor();var instance = $instance$.$instance$_obj; if ($instance$.$instance$_obj == undefined || $instance$.getType().$instance$_obj.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = $instance$.getColor(); $instance$.getType().$instance$_obj.getType().resolve(function() { var instance = Instances.getInstance('$instance$.$instance$_obj'); instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); } else { var instance = Instances.getInstance('$instance$.$instance$_obj'); if(GEPPETTO.SceneController.isInstancePresent(instance)) { GEPPETTO.SceneController.show([instance]); } else { GEPPETTO.SceneController.display(instance); instance.setColor(color);}}})()"],
+        "actions": ["(function(){var color = $instance$.getColor();var instance = $instance$.$instance$_obj; if ($instance$.$instance$_obj == undefined || $instance$.getType().$instance$_obj.getType().getMetaType() == GEPPETTO.Resources.IMPORT_TYPE) { var col = $instance$.getColor(); window.vfbGuardedObjResolve('$instance$', function() { $instance$.getType().$instance$_obj.getType().resolve(function() { var instance = Instances.getInstance('$instance$.$instance$_obj'); instance.setColor(col); GEPPETTO.trigger('experiment:visibility_changed', instance); GEPPETTO.ControlPanel.refresh(); }); }); } else { var instance = Instances.getInstance('$instance$.$instance$_obj'); if(GEPPETTO.SceneController.isInstancePresent(instance)) { GEPPETTO.SceneController.show([instance]); } else { GEPPETTO.SceneController.display(instance); instance.setColor(color);}}})()"],
         "icon": "gpt-shapehide",
         "label": "Hidden",
         "tooltip": "Enable 3D Volume"
