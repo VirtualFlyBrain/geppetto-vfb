@@ -624,10 +624,19 @@ class VFBMain extends React.Component {
       done(objSizeCache[url] <= MAX_OBJ_BYTES);
       return;
     }
-    fetch(url, { method: "HEAD" }).then(response => {
+    /*
+     * pdb stores these URLs with an http scheme, and the browser blocks an http
+     * request from an https page as mixed content before it reaches the network.
+     * The server side is unaffected, so only the measurement needs upgrading.
+     */
+    var measureUrl = url;
+    if (document.location.protocol == "https:" && measureUrl.indexOf("http://") == 0) {
+      measureUrl = "https://" + measureUrl.substring("http://".length);
+    }
+    fetch(measureUrl, { method: "HEAD" }).then(response => {
       var length = parseInt(response.headers.get("content-length"), 10);
       if (isNaN(length)) {
-        console.warn("VFB: no content-length for " + url + ", loading the full mesh");
+        console.warn("VFB: no content-length for " + measureUrl + ", loading the full mesh");
         done(true);
         return;
       }
@@ -637,7 +646,7 @@ class VFBMain extends React.Component {
       }
       done(length <= MAX_OBJ_BYTES);
     }).catch(error => {
-      console.warn("VFB: could not measure " + url + " (" + error + "), loading the full mesh");
+      console.warn("VFB: could not measure " + measureUrl + " (" + error + "), loading the full mesh");
       done(true);
     });
   }
