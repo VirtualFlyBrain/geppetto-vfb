@@ -30,6 +30,20 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
+/*
+ * Largest volume_man.obj, in bytes, we are willing to pull through the websocket.
+ * Above this the neuron is rendered from its SWC skeleton instead. The transport
+ * has a hard ceiling of its own: the resolved model is JSON escaped twice before
+ * it is sent, so an OBJ much over 500 MB exceeds V8's maximum string length
+ * (536,870,888 characters) and cannot be held by the browser at any timeout.
+ * See VFB2 #455. Overridden at container start from the maxObjBytes environment
+ * variable when the image is built with runtime_build=true.
+ */
+var MAX_OBJ_BYTES = 157286400;
+
+/* Cache of URL -> byte length, so selecting the same neuron twice costs one HEAD. */
+var objSizeCache = {};
+
 class VFBMain extends React.Component {
 
   constructor (props) {
@@ -484,7 +498,6 @@ class VFBMain extends React.Component {
   }
 
   resolve3D (path, callback) {
-    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
@@ -579,12 +592,64 @@ class VFBMain extends React.Component {
       }
     }
 
+    /*
+     * A full mesh is preferred over the SWC skeleton, but only once we know it is
+     * small enough to survive the transport. Measure it first, then run the
+     * selection below; the measurement is cached and never blocks on failure.
+     */
+    var meshUrl = null;
+    try {
+      var objType = Instances[path].getType()[path + "_obj"].getType();
+      if (objType != undefined && objType.getUrl != undefined && (typeof objType.getUrl == "function") && objType.getUrl().includes("volume_man.obj")) {
+        meshUrl = objType.getUrl();
+      }
+    } catch (ignore) {
+      meshUrl = null;
+    }
+
+    if (meshUrl == null) {
+      this.selectAndResolve3D(path, callback, false);
+    } else {
+      this.withinObjSizeLimit(meshUrl, usable => this.selectAndResolve3D(path, callback, !usable));
+    }
+  }
+
+  /*
+   * HEAD the mesh and report whether it is within MAX_OBJ_BYTES. Fails open: if the
+   * request errors or the server omits content-length we keep today's behaviour and
+   * let the mesh through, rather than silently downgrading every neuron.
+   */
+  withinObjSizeLimit (url, done) {
+    if (objSizeCache[url] != undefined) {
+      done(objSizeCache[url] <= MAX_OBJ_BYTES);
+      return;
+    }
+    fetch(url, { method: "HEAD" }).then(response => {
+      var length = parseInt(response.headers.get("content-length"), 10);
+      if (isNaN(length)) {
+        console.warn("VFB: no content-length for " + url + ", loading the full mesh");
+        done(true);
+        return;
+      }
+      objSizeCache[url] = length;
+      if (length > MAX_OBJ_BYTES) {
+        console.warn("VFB: mesh " + url + " is " + length + " bytes, over the " + MAX_OBJ_BYTES + " byte limit; using the SWC skeleton instead");
+      }
+      done(length <= MAX_OBJ_BYTES);
+    }).catch(error => {
+      console.warn("VFB: could not measure " + url + " (" + error + "), loading the full mesh");
+      done(true);
+    });
+  }
+
+  selectAndResolve3D (path, callback, objTooLarge) {
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var instance = undefined;
     var flagRendering = true;
     // check if we have a full mesh
     try {
       instance = Instances[path].getType()[path + "_obj"].getType();
-      if (instance != undefined && instance.getUrl != undefined && (typeof instance.getUrl == "function") && instance.getUrl().includes("volume_man.obj")) {
+      if (!objTooLarge && instance != undefined && instance.getUrl != undefined && (typeof instance.getUrl == "function") && instance.getUrl().includes("volume_man.obj")) {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
@@ -609,7 +674,7 @@ class VFBMain extends React.Component {
       }
     }
     // if no swc check if we have obj
-    if (instance == undefined) {
+    if (instance == undefined && !objTooLarge) {
       try {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {

@@ -46,6 +46,9 @@ then
     echo "useSSL:${USESSL}"
     grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/
     grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\"[[:space:]]*:[[:space:]]*\(true\|false\)@\"useSsl\": ${USESSL}@g"
+    echo "Max OBJ mesh bytes: ${maxObjBytes}"
+    grep -rls 'var MAX_OBJ_BYTES = ' $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/VFBMain.js
+    grep -rls 'var MAX_OBJ_BYTES = ' $HOME/workspace/org.geppetto.frontend/src/main/webapp/components/VFBMain.js | xargs sed -i "s@var MAX_OBJ_BYTES = [0-9]*@var MAX_OBJ_BYTES = ${maxObjBytes}@g"
 
     set -e
 

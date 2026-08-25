@@ -28,6 +28,8 @@ ARG VFB_OWL_SERVER_ARG=http://owl.virtualflybrain.org/kbs/vfb/
 ARG VFB_R_SERVER_ARG=http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast
 ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select
 ARG googleAnalyticsSiteCode_ARG=G-K7DDZVVXM7
+# Largest volume_man.obj we will pull through the websocket; larger neurons render from SWC (VFB2 #455)
+ARG maxObjBytes_ARG=157286400
 ENV MAXSIZE=2G
 ARG finalBuild=true
 ENV USESSL=${finalBuild}
@@ -41,6 +43,7 @@ ENV VFB_OWL_SERVER=${VFB_OWL_SERVER_ARG}
 ENV VFB_R_SERVER=${VFB_R_SERVER_ARG}
 ENV SOLR_SERVER=${SOLR_SERVER_ARG}
 ENV googleAnalyticsSiteCode=${googleAnalyticsSiteCode_ARG}
+ENV maxObjBytes=${maxObjBytes_ARG}
 ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
 
 # Ensure root privileges for system-level kernel module configuration in build environments.
