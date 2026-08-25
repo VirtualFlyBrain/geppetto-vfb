@@ -90,7 +90,13 @@ http://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium/gemini-bluep
 		<property name="queuingEnabled" value="true" />
 		<property name="maxQueueSize" value="5" />
 		<property name="discardMessagesIfQueueFull" value="false" />
-		<property name="compressionEnabled" value="false" />
+		<!-- Messages over minMessageLengthForCompression are gzipped and sent as a
+			binary frame with a leading zero byte; the client inflates them in
+			MessageSocket (pako.ungzip on messageBytes.subarray(1)) and parses the
+			result exactly as it would a text frame. OBJ meshes and large query
+			result sets gzip roughly 5-8x, which keeps them inside Tomcat's
+			blocking send timeout. See VFB2 #455. -->
+		<property name="compressionEnabled" value="true" />
 		<property name="minMessageLengthForCompression" value="20000" />
 
 		<!-- <property name="queuedMessageTypes"> <set> <value type="org.geppetto.frontend.messages.OutboundMessages">EXPERIMENT_UPDATE</value> 
