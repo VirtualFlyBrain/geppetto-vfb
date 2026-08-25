@@ -100,6 +100,48 @@ function formatMeshSize (bytes) {
   return Math.round(bytes / (1024 * 1024)) + " MB";
 }
 
+/*
+ * The visibility controls in the term info, control panel, list viewer and focus
+ * term are configured as evaluated action strings, so they cannot import from here
+ * and reach the mesh size guard through these globals instead.
+ *
+ * These are assigned at module scope, NOT in componentDidMount. React mounts
+ * children before parents, so the term info button bar evaluates its showConditions
+ * before VFBMain has mounted; anything they depend on must already exist or the eval
+ * throws and the whole button bar renders empty.
+ *
+ * vfbObjOversized answers from the cache only so it can be called from a synchronous
+ * showCondition; it reports false until a measurement has been made.
+ * vfbGuardedObjResolve measures first, and is the one that must wrap any resolve.
+ */
+window.vfbObjOversized = function (instanceId) {
+  var url = objUrlForInstance(instanceId);
+  return url != null && objSizeCache[url] != undefined && objSizeCache[url] > MAX_OBJ_BYTES;
+};
+
+window.vfbExplainObjTooLarge = function (instanceId) {
+  var url = objUrlForInstance(instanceId);
+  var size = formatMeshSize(url == null ? undefined : objSizeCache[url]);
+  GEPPETTO.ModalFactory.infoDialog("Mesh too large for the browser",
+    size + ". Showing the 3D skeleton instead - use Download for the full mesh.");
+};
+
+window.vfbGuardedObjResolve = function (instanceId, proceed) {
+  var url = objUrlForInstance(instanceId);
+  if (url == null) {
+    proceed();
+    return;
+  }
+  withinObjSizeLimit(url, function (usable) {
+    if (usable) {
+      proceed();
+    } else {
+      window.vfbExplainObjTooLarge(instanceId);
+      GEPPETTO.ControlPanel.refresh();
+    }
+  });
+};
+
 class VFBMain extends React.Component {
 
   constructor (props) {
@@ -1751,43 +1793,6 @@ class VFBMain extends React.Component {
     window.addToQueryCallback = function (variableId, label) {
       this.addToQueryCallback(variableId, label)
     }.bind(this);
-
-    /*
-     * The visibility controls in the term info, control panel, list viewer and focus
-     * term are configured as evaluated action strings, so they cannot import from
-     * here and reach the mesh size guard through these globals instead.
-     *
-     * vfbObjOversized answers from the cache only so it can be called from a
-     * synchronous showCondition; it reports false until a measurement has been made.
-     * vfbGuardedObjResolve measures first, and is the one that must wrap any resolve.
-     */
-    window.vfbObjOversized = function (instanceId) {
-      var url = objUrlForInstance(instanceId);
-      return url != null && objSizeCache[url] != undefined && objSizeCache[url] > MAX_OBJ_BYTES;
-    };
-
-    window.vfbExplainObjTooLarge = function (instanceId) {
-      var url = objUrlForInstance(instanceId);
-      var size = formatMeshSize(url == null ? undefined : objSizeCache[url]);
-      GEPPETTO.ModalFactory.infoDialog("Mesh too large for the browser",
-        size + ". Showing the 3D skeleton instead - use Download for the full mesh.");
-    };
-
-    window.vfbGuardedObjResolve = function (instanceId, proceed) {
-      var url = objUrlForInstance(instanceId);
-      if (url == null) {
-        proceed();
-        return;
-      }
-      withinObjSizeLimit(url, function (usable) {
-        if (usable) {
-          proceed();
-        } else {
-          window.vfbExplainObjTooLarge(instanceId);
-          GEPPETTO.ControlPanel.refresh();
-        }
-      });
-    };
 
     window.resolve3D = function (externalID) {
       this.resolve3D(externalID, function (id) {

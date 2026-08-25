@@ -58,7 +58,7 @@ const buttonBarConfiguration = {
       }
     },
     "volume_too_large": {
-      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj') && window.vfbObjOversized('$instance$')",
+      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj') && typeof window.vfbObjOversized == 'function' && window.vfbObjOversized('$instance$')",
       "id": "volume_too_large",
       "actions": ["window.vfbExplainObjTooLarge('$instance$')"],
       "icon": "fa-exclamation-triangle",
@@ -66,7 +66,7 @@ const buttonBarConfiguration = {
       "tooltip": "Mesh too large for the browser"
     },
     "visibility_obj": {
-      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj') && !window.vfbObjOversized('$instance$')",
+      "showCondition": "$instance$.getType().hasVariable($instance$.getId() + '_obj') && !(typeof window.vfbObjOversized == 'function' && window.vfbObjOversized('$instance$'))",
       "condition": "(function() { var visible = false; if ($instance$.getType().$instance$_obj != undefined && $instance$.getType().$instance$_obj.getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && $instance$.$instance$_obj != undefined) { visible = GEPPETTO.SceneController.isVisible([$instance$.$instance$_obj]); } return visible; })()",
       "false": {
         "id": "visibility_obj",
@@ -117,6 +117,7 @@ const buttonBarControls = {
                        'color',
                        'visibility',
                        'visibility_obj',
+                       'volume_too_large',
                        'visibility_swc',
                        'geometryType_swc',
                        'zoom',
