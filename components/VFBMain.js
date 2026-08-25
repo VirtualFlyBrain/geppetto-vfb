@@ -30,6 +30,118 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
+/*
+ * Largest volume_man.obj, in bytes, we are willing to pull through the websocket.
+ * Above this the neuron is rendered from its SWC skeleton instead. The transport
+ * has a hard ceiling of its own: the resolved model is JSON escaped twice before
+ * it is sent, so an OBJ much over 500 MB exceeds V8's maximum string length
+ * (536,870,888 characters) and cannot be held by the browser at any timeout.
+ * See VFB2 #455. Overridden at container start from the maxObjBytes environment
+ * variable when the image is built with runtime_build=true.
+ */
+var MAX_OBJ_BYTES = 157286400;
+
+/* Cache of URL -> byte length, so selecting the same neuron twice costs one HEAD. */
+var objSizeCache = {};
+
+/*
+ * HEAD the mesh and report whether it is within MAX_OBJ_BYTES. Fails open: if the
+ * request errors or the server omits content-length we keep the previous behaviour
+ * and let the mesh through, rather than silently downgrading every neuron.
+ *
+ * pdb stores these URLs with an http scheme, and the browser blocks an http request
+ * from an https page as mixed content before it reaches the network. The server side
+ * is unaffected, so only the measurement needs upgrading.
+ */
+function withinObjSizeLimit (url, done) {
+  if (objSizeCache[url] != undefined) {
+    done(objSizeCache[url] <= MAX_OBJ_BYTES);
+    return;
+  }
+  var measureUrl = url;
+  if (document.location.protocol == "https:" && measureUrl.indexOf("http://") == 0) {
+    measureUrl = "https://" + measureUrl.substring("http://".length);
+  }
+  fetch(measureUrl, { method: "HEAD" }).then(response => {
+    var length = parseInt(response.headers.get("content-length"), 10);
+    if (isNaN(length)) {
+      console.warn("VFB: no content-length for " + measureUrl + ", loading the full mesh");
+      done(true);
+      return;
+    }
+    objSizeCache[url] = length;
+    if (length > MAX_OBJ_BYTES) {
+      console.warn("VFB: mesh " + url + " is " + length + " bytes, over the " + MAX_OBJ_BYTES + " byte limit; using the SWC skeleton instead");
+    }
+    done(length <= MAX_OBJ_BYTES);
+  }).catch(error => {
+    console.warn("VFB: could not measure " + measureUrl + " (" + error + "), loading the full mesh");
+    done(true);
+  });
+}
+
+/* Full-mesh URL for an instance, or null when it has no volume_man.obj. */
+function objUrlForInstance (instanceId) {
+  try {
+    var objType = Instances[instanceId].getType()[instanceId + "_obj"].getType();
+    if (objType != undefined && objType.getUrl != undefined && (typeof objType.getUrl == "function") && objType.getUrl().includes("volume_man.obj")) {
+      return objType.getUrl();
+    }
+  } catch (ignore) {
+    return null;
+  }
+  return null;
+}
+
+function formatMeshSize (bytes) {
+  if (bytes == undefined) {
+    return "unknown size";
+  }
+  return Math.round(bytes / (1024 * 1024)) + " MB";
+}
+
+/*
+ * The visibility controls in the term info, control panel, list viewer and focus
+ * term are configured as evaluated action strings, so they cannot import from here
+ * and reach the mesh size guard through these globals instead.
+ *
+ * These are assigned at module scope, NOT in componentDidMount. React mounts
+ * children before parents, so the term info button bar evaluates its showConditions
+ * before VFBMain has mounted; anything they depend on must already exist or the eval
+ * throws and the whole button bar renders empty.
+ *
+ * vfbObjOversized answers from the cache only so it can be called from a synchronous
+ * showCondition; it reports false until a measurement has been made.
+ * vfbGuardedObjResolve measures first, and is the one that must wrap any resolve.
+ */
+window.vfbObjOversized = function (instanceId) {
+  var url = objUrlForInstance(instanceId);
+  return url != null && objSizeCache[url] != undefined && objSizeCache[url] > MAX_OBJ_BYTES;
+};
+
+window.vfbExplainObjTooLarge = function (instanceId) {
+  var url = objUrlForInstance(instanceId);
+  var size = formatMeshSize(url == null ? undefined : objSizeCache[url]);
+  GEPPETTO.ModalFactory.infoDialog("Mesh too large for the browser",
+    size + ". Showing the 3D skeleton instead - use Download for the full mesh.");
+};
+
+window.vfbGuardedObjResolve = function (instanceId, proceed) {
+  var url = objUrlForInstance(instanceId);
+  if (url == null) {
+    proceed();
+    return;
+  }
+  withinObjSizeLimit(url, function (usable) {
+    if (usable) {
+      proceed();
+    } else {
+      window.vfbExplainObjTooLarge(instanceId);
+      GEPPETTO.ControlPanel.refresh();
+    }
+  });
+};
+
 class VFBMain extends React.Component {
 
   constructor (props) {
@@ -484,7 +596,6 @@ class VFBMain extends React.Component {
   }
 
   resolve3D (path, callback) {
-    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
@@ -579,12 +690,28 @@ class VFBMain extends React.Component {
       }
     }
 
+    /*
+     * A full mesh is preferred over the SWC skeleton, but only once we know it is
+     * small enough to survive the transport. Measure it first, then run the
+     * selection below; the measurement is cached and never blocks on failure.
+     */
+    var meshUrl = objUrlForInstance(path);
+
+    if (meshUrl == null) {
+      this.selectAndResolve3D(path, callback, false);
+    } else {
+      withinObjSizeLimit(meshUrl, usable => this.selectAndResolve3D(path, callback, !usable));
+    }
+  }
+
+  selectAndResolve3D (path, callback, objTooLarge) {
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var instance = undefined;
     var flagRendering = true;
     // check if we have a full mesh
     try {
       instance = Instances[path].getType()[path + "_obj"].getType();
-      if (instance != undefined && instance.getUrl != undefined && (typeof instance.getUrl == "function") && instance.getUrl().includes("volume_man.obj")) {
+      if (!objTooLarge && instance != undefined && instance.getUrl != undefined && (typeof instance.getUrl == "function") && instance.getUrl().includes("volume_man.obj")) {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
           window[path][path + '_obj'].show();
@@ -609,7 +736,7 @@ class VFBMain extends React.Component {
       }
     }
     // if no swc check if we have obj
-    if (instance == undefined) {
+    if (instance == undefined && !objTooLarge) {
       try {
         instance = Instances.getInstance(path + "." + path + "_obj");
         if ((!window[path][path + '_obj'].visible) && (typeof window[path][path + '_obj'].show == "function") && (flagRendering)) {
