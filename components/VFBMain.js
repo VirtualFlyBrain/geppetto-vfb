@@ -2017,6 +2017,55 @@ class VFBMain extends React.Component {
       }
     }
 
+    /*
+     * The application is unusable without its WebSocket connection. Some
+     * browsers fail to establish it at all (seen with recent Safari releases,
+     * notably when iCloud Private Relay is enabled) while the server side is
+     * healthy. When the socket has never completed its first handshake, warn
+     * the user that this is likely a browser compatibility issue and report
+     * the failure to Google Analytics at maximum severity, instead of
+     * reloading in a loop.
+     */
+    var websocketFailureReported = false;
+    var reportWebsocketFailure = function (context) {
+      if (websocketFailureReported) {
+        return;
+      }
+      websocketFailureReported = true;
+      var details = [
+        'context:' + context,
+        'userAgent:' + navigator.userAgent,
+        'platform:' + (navigator.platform || 'unknown'),
+        'vendor:' + (navigator.vendor || 'unknown'),
+        'socketStatus:' + GEPPETTO.MessageSocket.socketStatus,
+        'attempts:' + GEPPETTO.MessageSocket.attempts,
+        'page:' + (window.location.pathname + window.location.search)
+      ].join(' | ');
+      // Routed to GA as an errorlog event by the console.error override above
+      console.error('WebSocket connection could not be established: ' + details);
+      if (typeof gtag === 'function') {
+        // GA4 exception hit with fatal set - the highest severity GA offers
+        gtag('event', 'exception', {
+          description: 'websocket-connection-failed | ' + details,
+          fatal: true
+        });
+      }
+      window.ga('vfb.send', 'event', 'websocket-connection-failed', 'websocket-error', details);
+      GEPPETTO.ModalFactory.infoDialog('Unable to connect to the Virtual Fly Brain server',
+        'Your browser could not establish the WebSocket connection that Virtual Fly Brain requires to load data. '
+        + 'This usually indicates a browser compatibility issue rather than a problem with the service; some recent '
+        + 'Safari releases are known to have WebSocket connection problems, particularly when iCloud Private Relay is enabled.'
+        + '<br/><br/>Please try reloading the page, using a different browser such as Chrome, Firefox or Edge, or, if you are '
+        + 'using Safari with iCloud Private Relay, temporarily disabling Private Relay and reloading.'
+        + '<br/><br/>This failure has been reported automatically to help us investigate.');
+    };
+    window.vfbReportWebsocketFailure = reportWebsocketFailure;
+    setTimeout(function () {
+      if (GEPPETTO.MessageSocket.socketStatus !== GEPPETTO.Resources.SocketStatus.OPEN && GEPPETTO.MessageSocket.getClientID() == null) {
+        reportWebsocketFailure('startup-timeout');
+      }
+    }, 30000);
+
     // Selection listener
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
       var selection = GEPPETTO.SceneController.getSelection();
@@ -2060,6 +2109,13 @@ class VFBMain extends React.Component {
         if (GEPPETTO.MessageSocket.attempts < 2) {
           window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
           GEPPETTO.MessageSocket.reconnect();
+        } else if (GEPPETTO.MessageSocket.getClientID() == null) {
+          /*
+           * The socket never completed a handshake in this session, so a
+           * reload would fail the same way and loop forever. Warn the user
+           * and report instead.
+           */
+          reportWebsocketFailure('reconnect-exhausted');
         } else {
           window.ga('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
           console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
