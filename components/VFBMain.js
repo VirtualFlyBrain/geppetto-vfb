@@ -2018,13 +2018,15 @@ class VFBMain extends React.Component {
     }
 
     /*
-     * The application is unusable without its WebSocket connection. Some
-     * browsers fail to establish it at all (seen with recent Safari releases,
-     * notably when iCloud Private Relay is enabled) while the server side is
-     * healthy. When the socket has never completed its first handshake, warn
-     * the user that this is likely a browser compatibility issue and report
-     * the failure to Google Analytics at maximum severity, instead of
-     * reloading in a loop.
+     * The application is unusable without its WebSocket connection. This is
+     * the last-resort hand fallback: the client recovers from the causes it
+     * can identify on its own (a browser that mishandles permessage-deflate
+     * reconnects uncompressed), so anything reaching here is a failure we
+     * cannot work around - a browser without WebSocket support, a blocked or
+     * unstable connection, or a fault we have not identified. Keep the
+     * wording general: it must read sensibly for any of those, so it names no
+     * particular browser or setting. Report to Google Analytics at maximum
+     * severity rather than reloading in a loop.
      */
     var websocketFailureReported = false;
     var reportWebsocketFailure = function (context) {
@@ -2042,7 +2044,7 @@ class VFBMain extends React.Component {
         'page:' + (window.location.pathname + window.location.search)
       ].join(' | ');
       // Routed to GA as an errorlog event by the console.error override above
-      console.error('WebSocket connection could not be established: ' + details);
+      console.error('WebSocket connection failed: ' + details);
       if (typeof gtag === 'function') {
         // GA4 exception hit with fatal set - the highest severity GA offers
         gtag('event', 'exception', {
@@ -2051,12 +2053,11 @@ class VFBMain extends React.Component {
         });
       }
       window.ga('vfb.send', 'event', 'websocket-connection-failed', 'websocket-error', details);
-      GEPPETTO.ModalFactory.infoDialog('Unable to connect to the Virtual Fly Brain server',
-        'Your browser could not establish the WebSocket connection that Virtual Fly Brain requires to load data. '
-        + 'This usually indicates a browser compatibility issue rather than a problem with the service; some recent '
-        + 'Safari releases are known to have WebSocket connection problems, particularly when iCloud Private Relay is enabled.'
-        + '<br/><br/>Please try reloading the page, using a different browser such as Chrome, Firefox or Edge, or, if you are '
-        + 'using Safari with iCloud Private Relay, temporarily disabling Private Relay and reloading.'
+      GEPPETTO.ModalFactory.infoDialog('Unable to load data from the Virtual Fly Brain server',
+        'Virtual Fly Brain needs a WebSocket connection to load its data, and that connection could not be established '
+        + 'or was interrupted. This is usually a browser or network problem rather than a fault with the service.'
+        + '<br/><br/>Please try reloading the page. If the problem persists, try a different browser such as Chrome, '
+        + 'Firefox or Edge, or a different network - some corporate firewalls and proxies block WebSocket connections.'
         + '<br/><br/>This failure has been reported automatically to help us investigate.');
     };
     window.vfbReportWebsocketFailure = reportWebsocketFailure;

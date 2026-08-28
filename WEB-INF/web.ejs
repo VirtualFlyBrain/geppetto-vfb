@@ -59,6 +59,24 @@
         <url-pattern>/TestServlet</url-pattern>
     </servlet-mapping>
 
+    <!--
+        Lets a client that has detected broken WebSocket compression reconnect
+        with nodeflate=1, which makes the server decline permessage-deflate for
+        that one handshake. Declared here rather than added programmatically so
+        that it runs before the container's own WebSocket upgrade filter, which
+        is what allows it to affect extension negotiation.
+    -->
+    <filter>
+        <filter-name>WebsocketCompressionFilter</filter-name>
+        <filter-class>org.geppetto.frontend.controllers.WebsocketCompressionFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>WebsocketCompressionFilter</filter-name>
+        <url-pattern>/GeppettoServlet</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
     <filter>
         <filter-name>ShiroFilter</filter-name>
         <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
