@@ -302,38 +302,36 @@ class VFBFocusTerm extends React.Component {
           that.props.queryBuilder.props.model.counting = false;
         }
         /*
-         * Known-empty (count 0, from the preview) needs no query run -- say so.
-         * Otherwise run directly (force): count > 0 or unknown (-1). The real
-         * count is taken from the results, not a separate count step.
+         * The preview count (from the term-info cache) is only a hint, not a
+         * verified result -- it can be a stale 0 frozen months ago (the
+         * VFBquery term_info cache never re-validates a query whose count
+         * reads exactly 0, only ones reading -1). Never trust a preview 0 as
+         * confirmed-empty: always run the query, the same as an unknown (-1)
+         * preview already does, and let the real result rows decide.
          */
-        if (that.props.queryBuilder.props.model.count === 0) {
-          that.props.queryBuilder.setErrorMessage("No results for this query.", "info");
-          that.props.queryBuilder.switchView(false);
-        } else {
-          that.props.queryBuilder.runQuery({ force: true });
-          /*
-           * Watchdog the auto-run: geppetto-client shows the cog and hides the
-           * footer while run_query is in flight, so a slow/cold query leaves
-           * "just a spinning cog and no count". If the cog is still up after the
-           * grace window, stop it, drop the counting flag and hand the builder
-           * back so the count/footer show and the user can retry. A late
-           * response still lands via runQuery's callback.
-           */
-          if (that._vfbQueryWatchdog) {
-            clearTimeout(that._vfbQueryWatchdog);
-          }
-          that._vfbQueryWatchdog = setTimeout(function () {
-            var qb = that.props.queryBuilder;
-            if (qb && qb.state && qb.state.showSpinner) {
-              if (qb.props.model) {
-                qb.props.model.counting = false;
-              }
-              qb.showBrentSpiner(false);
-              qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
-              qb.switchView(false);
-            }
-          }, 45000);
+        that.props.queryBuilder.runQuery({ force: true });
+        /*
+         * Watchdog the auto-run: geppetto-client shows the cog and hides the
+         * footer while run_query is in flight, so a slow/cold query leaves
+         * "just a spinning cog and no count". If the cog is still up after the
+         * grace window, stop it, drop the counting flag and hand the builder
+         * back so the count/footer show and the user can retry. A late
+         * response still lands via runQuery's callback.
+         */
+        if (that._vfbQueryWatchdog) {
+          clearTimeout(that._vfbQueryWatchdog);
         }
+        that._vfbQueryWatchdog = setTimeout(function () {
+          var qb = that.props.queryBuilder;
+          if (qb && qb.state && qb.state.showSpinner) {
+            if (qb.props.model) {
+              qb.props.model.counting = false;
+            }
+            qb.showBrentSpiner(false);
+            qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
+            qb.switchView(false);
+          }
+        }, 45000);
         // show query component
         that.props.queryBuilder.open();
         $("body").css("cursor", "default");

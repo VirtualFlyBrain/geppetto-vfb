@@ -948,38 +948,36 @@ class VFBTermInfoWidget extends React.Component {
               that.props.queryBuilder.props.model.counting = false;
             }
             /*
-             * Known-empty (count 0, from the preview) needs no query run -- say
-             * so. Otherwise run directly (force): count > 0 or unknown (-1). The
-             * real count is taken from the results, not a separate count step.
+             * The preview count (from the term-info cache) is only a hint, not
+             * a verified result -- it can be a stale 0 frozen months ago (the
+             * VFBquery term_info cache never re-validates a query whose count
+             * reads exactly 0, only ones reading -1). Never trust a preview 0
+             * as confirmed-empty: always run the query, the same as an unknown
+             * (-1) preview already does, and let the real result rows decide.
              */
-            if (that.props.queryBuilder.props.model.count === 0) {
-              that.props.queryBuilder.setErrorMessage("No results for this query.", "info");
-              that.props.queryBuilder.switchView(false);
-            } else {
-              that.props.queryBuilder.runQuery({ force: true });
-              /*
-               * The auto-run (skipCount) path launches run_query directly. While
-               * it is in flight geppetto-client shows the cog and hides the
-               * footer, so a slow/cold query leaves "just a spinning cog and no
-               * count". runQuery's own done-callback clears the cog on success,
-               * but nothing bounds a query that never returns. Watchdog it: if
-               * the cog is still up after the grace window, stop it, drop the
-               * counting flag and hand the builder back so the count/footer show
-               * and the user can retry, rather than spinning forever. A late
-               * response still lands via runQuery's callback (results view).
-               */
-              that._vfbQueryWatchdog = setTimeout(function () {
-                var qb = that.props.queryBuilder;
-                if (qb && qb.state && qb.state.showSpinner) {
-                  if (qb.props.model) {
-                    qb.props.model.counting = false;
-                  }
-                  qb.showBrentSpiner(false);
-                  qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
-                  qb.switchView(false);
+            that.props.queryBuilder.runQuery({ force: true });
+            /*
+             * The auto-run (skipCount) path launches run_query directly. While
+             * it is in flight geppetto-client shows the cog and hides the
+             * footer, so a slow/cold query leaves "just a spinning cog and no
+             * count". runQuery's own done-callback clears the cog on success,
+             * but nothing bounds a query that never returns. Watchdog it: if
+             * the cog is still up after the grace window, stop it, drop the
+             * counting flag and hand the builder back so the count/footer show
+             * and the user can retry, rather than spinning forever. A late
+             * response still lands via runQuery's callback (results view).
+             */
+            that._vfbQueryWatchdog = setTimeout(function () {
+              var qb = that.props.queryBuilder;
+              if (qb && qb.state && qb.state.showSpinner) {
+                if (qb.props.model) {
+                  qb.props.model.counting = false;
                 }
-              }, 45000);
-            }
+                qb.showBrentSpiner(false);
+                qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
+                qb.switchView(false);
+              }
+            }, 45000);
             // show query component
             that.props.queryBuilder.open();
             $("body").css("cursor", "default");
