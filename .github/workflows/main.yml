@@ -2,10 +2,15 @@
 
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push only. ToDo: handle pull requests for testing only
+# Controls when the action will run.
+# Pull requests build and test but never publish images (see "Registry credentials"
+# below). Dependabot branches are excluded from the push trigger so each PR is built
+# once, via the pull_request event, rather than twice.
 on:
   push:
-    branches: '**'
+    branches:
+      - '**'
+      - '!dependabot/**'
     tags: 'v*'
   pull_request:
     branches: '**'
@@ -30,10 +35,43 @@ jobs:
       - uses: actions/checkout@v4
       
       # Decide based on branch which servers to use
+      # On a pull_request event GITHUB_REF is refs/pull/<n>/merge and github.sha is the
+      # ephemeral merge commit. The Dockerfile clones this repo by branch name and checks
+      # out buildRef, so neither is usable: resolve the PR head ref and sha instead.
       - name: Pass branch
         id: branch
-        run: echo "::set-output name=value::$(echo ${GITHUB_REF} | sed 's@refs/heads/@@g' | sed 's@refs/tags/@@g' )";
-            echo "::set-output name=clean::$(echo ${GITHUB_REF} | sed 's@refs/heads/@@g' | sed 's@refs/tags/@@g' | sed 's@[/\\]@-@g')";
+        shell: bash
+        env:
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            REF="${PR_HEAD_REF}"
+            SHA="${PR_HEAD_SHA}"
+          else
+            REF="$(echo "${GITHUB_REF}" | sed 's@refs/heads/@@g' | sed 's@refs/tags/@@g')"
+            SHA="${GITHUB_SHA}"
+          fi
+          echo "::set-output name=value::${REF}"
+          echo "::set-output name=clean::$(echo "${REF}" | sed 's@[/\\]@-@g')"
+          echo "::set-output name=sha::${SHA}"
+
+      # Publishing needs Docker Hub credentials. They are absent on Dependabot runs and
+      # on pull requests from forks, so build locally and skip the push instead of failing.
+      - name: Registry credentials
+        id: registry
+        shell: bash
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_TOKEN}" ]; then
+            echo "::notice::Docker Hub credentials present - images will be pushed"
+            echo "::set-output name=push::true"
+          else
+            echo "::notice::No Docker Hub credentials - building locally, images will not be pushed"
+            echo "::set-output name=push::false"
+          fi
       - name: Setup local servers
         id: local-servers
         shell: bash
@@ -47,7 +85,7 @@ jobs:
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
             echo "::set-output name=RUNTIME_BUILD::false";
-          elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [[ "${GITHUB_REF#refs/heads/}" == f* ]]; then
+          elif [ "${{ steps.branch.outputs.value }}" == debug ] || [ "${{ steps.branch.outputs.value }}" == pipeline2 ] || [ "${{ steps.branch.outputs.value }}" == vfb_geppetto_application ] || [ "${{ steps.branch.outputs.value }}" == development ] || [[ "${{ steps.branch.outputs.value }}" == f* ]]; then
             echo "::debug::Set to dev setup";
             echo "::set-output name=BUILD_TYPE::development";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
@@ -55,7 +93,7 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
-          elif [ "${GITHUB_REF#refs/heads/}" == alpha ] ; then
+          elif [ "${{ steps.branch.outputs.value }}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
             echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
@@ -83,7 +121,7 @@ jobs:
             echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-          elif [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [[ "${GITHUB_REF#refs/heads/}" == f* ]]; then
+          elif [ "${{ steps.branch.outputs.value }}" == debug ] || [ "${{ steps.branch.outputs.value }}" == pipeline2 ] || [ "${{ steps.branch.outputs.value }}" == vfb_geppetto_application ] || [ "${{ steps.branch.outputs.value }}" == development ] || [[ "${{ steps.branch.outputs.value }}" == f* ]]; then
             echo "::debug::Set to dev (live servers) setup";
             echo "::set-output name=BUILD_TYPE::development";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
@@ -91,7 +129,7 @@ jobs:
             echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
             echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
             echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-          elif [ "${GITHUB_REF#refs/heads/}" == alpha ] ; then
+          elif [ "${{ steps.branch.outputs.value }}" == alpha ] ; then
             echo "::debug::Set to alpha setup";
             echo "::set-output name=VFB_PDB_SERVER::http://pdb-alpha.virtualflybrain.org";
             echo "::set-output name=VFB_OWL_SERVER::http://owl-alpha.virtualflybrain.org/kbs/vfb/";
@@ -116,6 +154,18 @@ jobs:
           echo TREE_PDB:${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
           echo R:${{ steps.remote-servers.outputs.VFB_R_SERVER }}
 
+      # Loading the built image into the local daemon needs far more disk than pushing it
+      # straight to the registry, so reclaim the runner's preinstalled toolchains first.
+      - name: Free runner disk space
+        if: steps.registry.outputs.push != 'true'
+        shell: bash
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost /usr/local/.ghcup "${AGENT_TOOLSDIRECTORY}" || true
+          sudo docker image prune -af || true
+          df -h /
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       
@@ -123,14 +173,17 @@ jobs:
         uses: docker/setup-buildx-action@v1
       
       - name: Login to DockerHub
-        uses: docker/login-action@v1 
+        if: steps.registry.outputs.push == 'true'
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       # For the remote WSS build (GA-built like -remote, no runtime compile, WSS on)
+      # Nothing below tests this image, so skip it when we cannot publish it.
       - name: Build and push remote wss
         id: docker_build_remotewss
+        if: steps.registry.outputs.push == 'true'
         timeout-minutes: 290
         uses: docker/build-push-action@v2
         with:
@@ -147,16 +200,18 @@ jobs:
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
-            buildRef=${{ github.sha }}
+            buildRef=${{ steps.branch.outputs.sha }}
             finalBuild=true
       
-      # For the remote build
+      # For the remote build. This is the image the tests below run against, so it is
+      # always built; when we cannot publish it, load it into the local daemon instead.
       - name: Build and push remote
         id: docker_build_remote
         timeout-minutes: 290
         uses: docker/build-push-action@v2
         with:
-          push: true
+          push: ${{ steps.registry.outputs.push == 'true' }}
+          load: ${{ steps.registry.outputs.push != 'true' }}
           tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote"
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
@@ -169,7 +224,7 @@ jobs:
             targetBranch=${{ steps.branch.outputs.value }}
             originBranch=${{ steps.branch.outputs.value }} 
             defaultBranch=development
-            buildRef=${{ github.sha }}
+            buildRef=${{ steps.branch.outputs.sha }}
             finalBuild=false
       
       - name: Image digest
@@ -207,7 +262,7 @@ jobs:
       - name: Test under review  
         continue-on-error: true
         run: |
-          if [ "${GITHUB_REF#refs/heads/}" == debug ] || [ "${GITHUB_REF#refs/heads/}" == pipeline2 ] || [ "${GITHUB_REF#refs/heads/}" == vfb_geppetto_application ] || [ "${GITHUB_REF#refs/heads/}" == development ] || [[ "${GITHUB_REF#refs/heads/}" =~ ^(fix|feature).* ]] ; then
+          if [ "${{ steps.branch.outputs.value }}" == debug ] || [ "${{ steps.branch.outputs.value }}" == pipeline2 ] || [ "${{ steps.branch.outputs.value }}" == vfb_geppetto_application ] || [ "${{ steps.branch.outputs.value }}" == development ] || [[ "${{ steps.branch.outputs.value }}" =~ ^(fix|feature).* ]] ; then
             npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/review/.*js';
           fi
       - name: Stop VFB server   
