@@ -459,11 +459,32 @@ var hasUnresolvedVisualType = function (variableId) {
   return false;
 };
 
+/*
+ * window.ga can be undefined -- for a moment right after page load while the
+ * GA script is still fetching, or permanently if a browser/extension blocks
+ * it. Calling it directly throws in that case, and since most call sites in
+ * VFBMain.js fire it as a side-effect before the "real" work (opening a
+ * term, a new tab, a reconnect attempt, even logging the original error via
+ * the console.error override), an uncaught throw here silently kills
+ * whatever it was guarding, with no console error to explain why. Route
+ * every analytics ping through this instead of calling window.ga directly.
+ */
+var safeGa = function () {
+  if (typeof window !== "undefined" && typeof window.ga === "function") {
+    try {
+      window.ga.apply(window, arguments);
+    } catch (ignore) {
+      // Analytics must never be able to break the feature it's instrumenting.
+    }
+  }
+};
+
 module.exports = {
   setSepCol,
   getStackViewerDefaultX,
   getStackViewerDefaultY,
   hasVisualType,
   hasUnresolvedVisualType,
-  labelTypeToID
+  labelTypeToID,
+  safeGa
 };
