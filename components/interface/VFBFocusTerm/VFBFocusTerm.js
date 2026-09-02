@@ -9,6 +9,7 @@ import {
 import { connect } from 'react-redux';
 import { SHOW_LIST_VIEWER } from './../../../actions/generals';
 import focusTermConfiguration from '../../configuration/VFBFocusTerm/focusTermConfiguration';
+import { safeGa } from '../utils/utils';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -492,7 +493,7 @@ class VFBFocusTerm extends React.Component {
           try {
             items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
             title = instance.getName();
-            window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
+            safeGa('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
           } catch (ignore) { }
 
           if (window.history.state == null) {
@@ -524,7 +525,7 @@ class VFBFocusTerm extends React.Component {
             }
           }
         }
-        window.ga('vfb.send', 'pageview', (window.location.pathname + window.location.search));
+        safeGa('vfb.send', 'pageview', (window.location.pathname + window.location.search));
         window.vfbUpdatingHistory = false;
       }
     } catch (e) {
