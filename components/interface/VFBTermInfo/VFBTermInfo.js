@@ -6,7 +6,7 @@ import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
 import ButtonBarComponent from './ButtonBarComponent';
 import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
-import { labelTypeToID } from '../utils/utils';
+import { labelTypeToID, safeGa } from '../utils/utils';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -797,7 +797,7 @@ class VFBTermInfoWidget extends React.Component {
         var instanceID = path.split(',')[1].replace(']','');
         if (templateID != window.templateID) {
           // open new window with the new template and the instance ID
-          window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
+          safeGa('vfb.send', 'event', 'request', 'newtemplate', templateID);
           if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
             if (window.EMBEDDED) {
               var curHost = parent.document.location.host;
@@ -808,10 +808,10 @@ class VFBTermInfoWidget extends React.Component {
             }
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, instanceID).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);  
-            window.ga('vfb.send', 'event', 'opening', 'newtemplate', path);
+            safeGa('vfb.send', 'event', 'opening', 'newtemplate', path);
             window.open(newUrl, targetWindow);
           } else {
-            window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', path);
+            safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', path);
           }
           // passing only the instance ID for processing 
           path = instanceID;
@@ -891,9 +891,9 @@ class VFBTermInfoWidget extends React.Component {
           console.log('Query requested: ' + path + " " + otherName);
           // Send GA pageview for query using the original link href
           if (href) {
-            window.ga('vfb.send', 'pageview', href);
+            safeGa('vfb.send', 'pageview', href);
           } else {
-            window.ga('vfb.send', 'pageview', (window.location.pathname + '?q=' + otherId + ',' + path));
+            safeGa('vfb.send', 'pageview', (window.location.pathname + '?q=' + otherId + ',' + path));
           }
 
           this.props.queryBuilder.open();
