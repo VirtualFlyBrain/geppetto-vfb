@@ -325,7 +325,6 @@ class VFBMain extends React.Component {
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
-      window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
         /*
          * Hand the whole request to the load manager. The last id is the display
@@ -339,6 +338,18 @@ class VFBMain extends React.Component {
           UIUpdated: false,
           idSelected: idsList[idsList.length - 1]
         });
+      }
+      /*
+       * Analytics ping only -- must never be able to abort the load above.
+       * window.ga can be undefined for a moment after page load (script still
+       * fetching) or permanently if a browser/extension blocks it. Calling it
+       * unconditionally used to throw here and silently kill the whole
+       * addVfbId() call *before* the load-manager dispatch above ever ran --
+       * which looks exactly like "clicking a Type tag does nothing", with no
+       * console error to explain why.
+       */
+      if (typeof window.ga === "function") {
+        window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       }
 
     } else {
