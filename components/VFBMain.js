@@ -10,6 +10,7 @@ import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
+import { safeGa } from './interface/utils/utils';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
@@ -325,7 +326,6 @@ class VFBMain extends React.Component {
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
-      window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
         /*
          * Hand the whole request to the load manager. The last id is the display
@@ -340,6 +340,8 @@ class VFBMain extends React.Component {
           idSelected: idsList[idsList.length - 1]
         });
       }
+      // Analytics ping only -- must never be able to abort the load above.
+      safeGa('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
 
     } else {
       console.log("model has not been loaded, in the old initialization here I was triggering a"
@@ -672,15 +674,15 @@ class VFBMain extends React.Component {
           }
           if (templateID != window.templateID) {
             // open new window with the new template and the instance ID
-            window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
+            safeGa('vfb.send', 'event', 'request', 'newtemplate', templateID);
             var targetWindow = '_blank';
             var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
             if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
+              safeGa('vfb.send', 'event', 'opening', 'newtemplate', templateID);
               window.open(newUrl, targetWindow);
               this.instancesFromDifferentTemplates(rootInstance);
             } else {
-              window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
+              safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
               this.instancesFromDifferentTemplates(rootInstance);
             }
             // stop flow here, we don't want to add to scene something with a different template
@@ -1841,7 +1843,7 @@ class VFBMain extends React.Component {
               setTimeout(function () {
                 if (window[querySplit[0].trim()] == undefined) {
                   if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
-                    window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
+                    safeGa('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
                     window.open(url, "_self");
                   }
                 }
@@ -2011,7 +2013,7 @@ class VFBMain extends React.Component {
     }
     console.error = function () {
       if (Array.from(arguments).join("\n").indexOf('www.pixijs.com') < 0 && Array.from(arguments).join("\n").indexOf("Warning: Failed prop type: There should be an equal number of 'Tab' and 'TabPanel' in `UncontrolledTabs`. Received 2 'Tab' and 0 'TabPanel'.") < 0 ) {
-        window.ga('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
+        safeGa('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
         window.console.logs.push('- ' + Array.from(arguments).join('\n'));
         window.console.stderr.apply(console, arguments);
       }
@@ -2052,7 +2054,7 @@ class VFBMain extends React.Component {
           fatal: true
         });
       }
-      window.ga('vfb.send', 'event', 'websocket-connection-failed', 'websocket-error', details);
+      safeGa('vfb.send', 'event', 'websocket-connection-failed', 'websocket-error', details);
       GEPPETTO.ModalFactory.infoDialog('Unable to load data from the Virtual Fly Brain server',
         'Virtual Fly Brain needs a WebSocket connection to load its data, and that connection could not be established '
         + 'or was interrupted. This is usually a browser or network problem rather than a fault with the service.'
@@ -2101,14 +2103,14 @@ class VFBMain extends React.Component {
     }.bind(this));
 
     GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+      safeGa('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
       if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
         console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
         location.replace(`https:${location.href.substring(location.protocol.length)}`);
       }
       if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
         if (GEPPETTO.MessageSocket.attempts < 2) {
-          window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
+          safeGa('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
           GEPPETTO.MessageSocket.reconnect();
         } else if (GEPPETTO.MessageSocket.getClientID() == null) {
           /*
@@ -2118,14 +2120,14 @@ class VFBMain extends React.Component {
            */
           reportWebsocketFailure('reconnect-exhausted');
         } else {
-          window.ga('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
+          safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
           console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
           window.location.reload();
         }
       } else {
         setTimeout(() => {
           if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-            window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
+            safeGa('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
             GEPPETTO.MessageSocket.reconnect();
           }
         }, 3000);
