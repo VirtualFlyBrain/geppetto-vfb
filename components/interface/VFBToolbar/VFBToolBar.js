@@ -1,6 +1,7 @@
 /* eslint-disable no-tabs */
 import React from 'react';
 import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
+import { safeGa } from '../utils/utils';
 var VFBLoader = require('../VFBLoader/VFBLoaderContainer').default;
 var Rnd = require('react-rnd').default;
 
@@ -94,13 +95,13 @@ export default class VFBToolBar extends React.Component {
 
   clickFeedback () {
     var htmlContent = this.feedbackHTML;
-    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
+    safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
     // add clinet data to console
     $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
       console.log('USER: ' + data.geobytesipaddress + '  ' + data.geobytesfqcn);
     });
     // report console log for agrigated analysis
-    window.ga('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace(/\#/g,escape('#')), );
+    safeGa('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace(/\#/g,escape('#')), );
 
     var nVer = navigator.appVersion;
     var nAgt = navigator.userAgent;
@@ -202,13 +203,13 @@ export default class VFBToolBar extends React.Component {
   clickAbout () {
     var htmlContent = this.aboutHTML;
     this.props.htmlOutputHandler(htmlContent);
-    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=About'));
+    safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=About'));
   }
 
   clickContribute () {
     var htmlContent = this.contributeHTML;
     this.props.htmlOutputHandler(htmlContent);
-    window.ga('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
+    safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=Contribute'));
   }
   
   clickQuickHelp () {
@@ -219,7 +220,7 @@ export default class VFBToolBar extends React.Component {
     switch (click.handlerAction) {
     case 'openNewTab':
       click.parameters.map((item, index) => {
-        window.ga('vfb.send', 'pageview', item);
+        safeGa('vfb.send', 'pageview', item);
         window.open(item, '_blank');
       })
       break;
