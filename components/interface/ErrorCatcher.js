@@ -7,6 +7,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
+import { safeGa } from './utils/utils';
 
 require('../../css/VFBMain.less');
 require('../../css/colors.less');
@@ -87,7 +88,7 @@ class ErrorCatcher extends React.Component {
 
     componentDidCatch (error, info) {
       // Report error to GA
-      window.ga('vfb.send', 'event', 'error', 'react', error.message + " - " + error.stack.replace("#",escape("#")));
+      safeGa('vfb.send', 'event', 'error', 'react', error.message + " - " + error.stack.replace("#",escape("#")));
       // Display fallback UI
       this.setState({ hasError: true, error: error });
       // add clinet data to console
