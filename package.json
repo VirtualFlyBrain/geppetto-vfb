@@ -39,7 +39,7 @@
     "imports-loader": "^0.7.1",
     "jest": "^25.0.0",
     "jest-image-snapshot": "^4.1.0",
-    "jest-puppeteer": "^4.3.0",
+    "jest-puppeteer": "^11.0.0",
     "less-loader": "^5.0.0",
     "material-ui-dropzone": "^3.5.0",
     "mini-css-extract-plugin": "^0.7.0",
@@ -73,7 +73,7 @@
     "source-map-loader": "^0.2.3",
     "typedoc": "^0.11.1",
     "typescript": "^2.0.0",
-    "webpack-dev-server": "^3.7.2"
+    "webpack-dev-server": "^6.0.0"
   },
   "overrides": {
     "@geppettoengine/geppetto-client": {
