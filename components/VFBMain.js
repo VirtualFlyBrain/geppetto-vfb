@@ -1999,13 +1999,15 @@ class VFBMain extends React.Component {
       }
     }
 
-    // google analytics vfb specific tracker
-    // Bare (not window.) call, and the very first GA touchpoint in this
-    // component -- if the GA loader script hasn't executed yet (or never
-    // will), this used to throw a ReferenceError straight out of
-    // componentDidMount, aborting everything after it: the console.log /
-    // console.error overrides below, and the websocket disconnect/
-    // reconnect listener further down this same method.
+    /*
+     * google analytics vfb specific tracker
+     * Bare (not window.) call, and the very first GA touchpoint in this
+     * component -- if the GA loader script hasn't executed yet (or never
+     * will), this used to throw a ReferenceError straight out of
+     * componentDidMount, aborting everything after it: the console.log /
+     * console.error overrides below, and the websocket disconnect/
+     * reconnect listener further down this same method.
+     */
     safeGa('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
     window.console.stderr = console.error.bind(console);
