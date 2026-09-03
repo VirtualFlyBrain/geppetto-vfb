@@ -81,9 +81,11 @@ var VFB_HOST = /^https?:\/\/([a-z0-9-]+\.)*virtualflybrain\.org\//i;
  *   3. a VFB self-link with the short_form in a `/reports/<short_form>` path,
  *      e.g. `https://virtualflybrain.org/reports/Matsuo2016`
  *
- * Genuinely external URLs (e.g. the Janelia split-GAL4 imagery link) return
- * null, so we never call addVfbId with a non-VFB target or surface an
- * external hyperlink straight from cell data.
+ * Genuinely external URLs (e.g. the Janelia split-GAL4 imagery link, or the
+ * FlyBase / stock-centre linkouts on the FindStocks and
+ * FindComboPublications reports) return null, so we never call addVfbId with
+ * a non-VFB target. They are rendered as a real external anchor instead --
+ * see EXTERNAL_URL below.
  */
 function resolveInternalId (id) {
   if (typeof id !== 'string' || !id) {
@@ -105,6 +107,17 @@ function resolveInternalId (id) {
   }
   return null;
 }
+
+/*
+ * A link target that is a plain http(s) URL and not a VFB self-link. VFBquery
+ * emits these for identifiers that belong to another resource -- an FBst stock
+ * on FlyBase or its stock centre, a DOI, a PubMed or PMC record. They cannot
+ * resolve to a VFB term, so they open in a new tab rather than routing through
+ * addVfbId. Rendering them as dead text (the previous behaviour) threw the
+ * link away.
+ */
+var EXTERNAL_URL = /^https?:\/\//i;
+
 
 function parseTermLinks (value) {
   if (typeof value !== 'string' || !value) {
@@ -145,9 +158,30 @@ function MarkdownLinkComponent (props) {
       var sep = i < links.length - 1 ? '; ' : null;
       var shortForm = resolveInternalId(link.id);
       if (!shortForm) {
+        if (EXTERNAL_URL.test(link.id)) {
+          /*
+           * Genuinely external target: a real link, opened in a new tab so the
+           * Geppetto session is not navigated away from. noopener/noreferrer
+           * because the target is data, not something we control.
+           */
+          return React.createElement(
+            React.Fragment,
+            { key: i },
+            React.createElement(
+              'a',
+              {
+                href: link.id,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                className: 'markdown-external-link'
+              },
+              link.label
+            ),
+            sep
+          );
+        }
         /*
-         * Non-VFB target (external URL or otherwise non-short_form id):
-         * render the label as plain text, no link.
+         * Non-VFB, non-URL target: render the label as plain text, no link.
          */
         return React.createElement(React.Fragment, { key: i }, link.label, sep);
       }

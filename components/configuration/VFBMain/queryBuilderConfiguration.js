@@ -410,14 +410,19 @@ var queryResultsColMeta = [
    * FindStocks (FlyBase stock report). The row's selection id is the FBst
    * stock id, carried in the hidden ID column and also shown in the visible
    * Stock_ID column; the four columns below are everything the report shows.
-   * Plain text throughout -- a stock is a FlyBase record, not a VFB term, so
-   * there is nothing for MarkdownLinkComponent to link to.
+   * A stock is a FlyBase record, not a VFB term, so none of these resolve to
+   * a VFB id -- but Stock_ID, Stock_Number and Collection arrive as markdown
+   * pointing at FlyBase, the stock centre's catalogue and the centre itself,
+   * so they go through MarkdownLinkComponent for its external-link branch (no
+   * addVfbId action). Genotype stays plain: FlyBase notation is full of
+   * brackets and must not be read as markdown.
    */
   {
     "columnName": "stock_id",
     "order": 1,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "Stock_ID",
     "cssClassName": "query-results-stock_id-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -427,6 +432,7 @@ var queryResultsColMeta = [
     "order": 2,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "Stock_Number",
     "cssClassName": "query-results-stock_number-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -445,6 +451,7 @@ var queryResultsColMeta = [
     "order": 4,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "Collection",
     "cssClassName": "query-results-collection-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -453,13 +460,17 @@ var queryResultsColMeta = [
    * FindComboPublications (FlyBase publications for a split combination).
    * The row's selection id is the FBrf, carried in the hidden ID column and
    * also shown in the visible FBrf column; unlike a stock that id IS a VFB
-   * pub individual, so the row resolves.
+   * pub individual, so the row resolves. FlyBase_ID, DOI, PMID and PMCID
+   * arrive as markdown linking out to FlyBase, doi.org, PubMed and PMC, so
+   * they render through MarkdownLinkComponent. Title and Citation stay plain
+   * text -- a citation can contain brackets.
    */
   {
     "columnName": "fbrf",
     "order": 1,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "FlyBase_ID",
     "cssClassName": "query-results-fbrf-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -505,6 +516,7 @@ var queryResultsColMeta = [
     "order": 6,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "DOI",
     "cssClassName": "query-results-doi-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -514,6 +526,7 @@ var queryResultsColMeta = [
     "order": 7,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "PMID",
     "cssClassName": "query-results-pmid-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -523,6 +536,7 @@ var queryResultsColMeta = [
     "order": 8,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "PMCID",
     "cssClassName": "query-results-pmcid-column",
     "sortDirectionCycle": ['asc', 'desc', null]
