@@ -83,7 +83,7 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "displayName": "Cell type",
+    "displayName": "Cell_Type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -408,11 +408,20 @@ var queryResultsColMeta = [
   },
   /*
    * FindStocks (FlyBase stock report). The row's selection id is the FBst
-   * stock id, carried in the hidden ID column; the four columns below are
-   * everything the report shows. Plain text throughout -- a stock is a
-   * FlyBase record, not a VFB term, so there is nothing for
-   * MarkdownLinkComponent to link to.
+   * stock id, carried in the hidden ID column and also shown in the visible
+   * Stock_ID column; the four columns below are everything the report shows.
+   * Plain text throughout -- a stock is a FlyBase record, not a VFB term, so
+   * there is nothing for MarkdownLinkComponent to link to.
    */
+  {
+    "columnName": "stock_id",
+    "order": 1,
+    "locked": false,
+    "visible": true,
+    "displayName": "Stock_ID",
+    "cssClassName": "query-results-stock_id-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
   {
     "columnName": "stock_number",
     "order": 2,
@@ -442,9 +451,19 @@ var queryResultsColMeta = [
   },
   /*
    * FindComboPublications (FlyBase publications for a split combination).
-   * The row's selection id is the FBrf, carried in the hidden ID column;
-   * unlike a stock that id IS a VFB pub individual, so the row resolves.
+   * The row's selection id is the FBrf, carried in the hidden ID column and
+   * also shown in the visible FBrf column; unlike a stock that id IS a VFB
+   * pub individual, so the row resolves.
    */
+  {
+    "columnName": "fbrf",
+    "order": 1,
+    "locked": false,
+    "visible": true,
+    "displayName": "FlyBase_ID",
+    "cssClassName": "query-results-fbrf-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
   {
     "columnName": "title",
     "order": 2,
@@ -455,7 +474,7 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
-    "columnName": "citation",
+    "columnName": "miniref",
     "order": 3,
     "locked": false,
     "visible": true,
@@ -473,7 +492,7 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
-    "columnName": "publication_type",
+    "columnName": "pub_type",
     "order": 5,
     "locked": false,
     "visible": true,
@@ -521,7 +540,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight', 'stock_number', 'genotype', 'collection', 'title', 'citation', 'year', 'publication_type', 'doi', 'pmid', 'pmcid', 'reference_type'];
+var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight', 'stock_id', 'stock_number', 'genotype', 'collection', 'fbrf', 'title', 'miniref', 'year', 'pub_type', 'doi', 'pmid', 'pmcid', 'reference_type'];
 
 var queryResultsControlConfig = {
   "Common": {
