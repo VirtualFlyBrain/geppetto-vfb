@@ -83,7 +83,7 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "displayName": "Cell type",
+    "displayName": "Cell_Type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
