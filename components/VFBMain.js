@@ -2099,7 +2099,7 @@ class VFBMain extends React.Component {
           }
         }
       }
-      if (window.StackViewer1 != undefined) {
+      if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
         this.sliceViewerReference.updateStackWidget();
       }
 
