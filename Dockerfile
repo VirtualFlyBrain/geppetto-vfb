@@ -114,7 +114,7 @@ RUN git clone https://github.com/openworm/org.geppetto.model.swc.git -q -b "${ge
   /bin/echo -e "\e[96mMaven install org.geppetto.model.swc\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.frontend.git -q -b "${geppettoFrontendRelease}" --single-branch 
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.frontend.git -q -b "${geppettoFrontendRelease}" --single-branch
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -q -b "${targetBranch}" --single-branch &&\
@@ -126,7 +126,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
 
 RUN /bin/echo -e "\e[1;35mGEPPETTO CLIENT RELEASE ------------ $geppettoClientRelease\e[0m" &&\
   cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
-  $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
+  $HOME/rename.sh https://github.com/VirtualFlyBrain/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
