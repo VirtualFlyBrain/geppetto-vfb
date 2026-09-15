@@ -53,8 +53,10 @@ class VFBListViewer extends Component {
           
           meta_instance = Instances.getInstance(id)[id + "_meta"];
 
-          // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
-          // Either may be undefined for an untyped image; the extractors below tolerate that.
+          /*
+           * Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
+           * Either may be undefined for an untyped image; the extractors below tolerate that.
+           */
           html = getMetaHtml(meta_instance, "type");
           htmlLabels = getMetaHtml(meta_instance, "label");
           

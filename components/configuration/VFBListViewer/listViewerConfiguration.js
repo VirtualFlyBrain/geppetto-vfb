@@ -71,8 +71,10 @@ const conf = [
         return null;
       }
 
-      // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
-      // Empty when the image has no instance_of class in the KB (VFB2#499).
+      /*
+       * Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
+       * Empty when the image has no instance_of class in the KB (VFB2#499).
+       */
       let html = getMetaHtml(instance, "type") || "";
 
       let htmlLabels = getMetaHtml(instance, "label") || "";
