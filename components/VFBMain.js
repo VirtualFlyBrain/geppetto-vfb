@@ -2140,8 +2140,41 @@ class VFBMain extends React.Component {
       return waited < 10 ? 'Connection to the VFB server dropped. Reconnecting…'
         : 'Still trying to reach the VFB server (' + waited + 's). Your view is kept.';
     };
+    /*
+     * Downtime as a bucket rather than a raw number: GA event labels are
+     * strings, and buckets are what the reports need to answer "did the user
+     * notice", without a custom metric.
+     */
+    var downtimeBucket = function (ms) {
+      if (ms < 2000) {
+        return '0-2s';
+      } else if (ms < 10000) {
+        return '2-10s';
+      } else if (ms < 30000) {
+        return '10-30s';
+      } else if (ms < 60000) {
+        return '30-60s';
+      }
+      return '60s+';
+    };
+    /*
+     * Anything thrown in here would otherwise escape into the client's
+     * recovery sequence. The client guards its own triggers too; this makes
+     * sure the failure is attributed to VFB's listener and reaches GA
+     * (console.error is routed to an errorlog event above).
+     */
+    var onConnectionEvent = function (event, handler) {
+      GEPPETTO.on(event, function (info) {
+        try {
+          handler(info || {});
+        } catch (err) {
+          console.error('VFB connection listener failed for ' + event + ': '
+            + (err && err.stack ? err.stack : err));
+        }
+      });
+    };
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_reconnecting, function (info) {
+    onConnectionEvent(GEPPETTO.Events.Websocket_reconnecting, function (info) {
       if (!droppedNoticeShown) {
         safeGa('vfb.send', 'event', 'disconnected', 'websocket-disconnect', gaPage());
         droppedNoticeShown = true;
@@ -2160,17 +2193,30 @@ class VFBMain extends React.Component {
       }
     });
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_session_lost, function () {
+    onConnectionEvent(GEPPETTO.Events.Websocket_session_lost, function () {
       clearNoticeGrace();
       safeGa('vfb.send', 'event', 'reconnect-session-lost', 'websocket-disconnect', gaPage());
       showConnectionNotice('Reconnected. Restoring your session on the server…', { level: 'warn' });
     });
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_reconnected, function (info) {
+    onConnectionEvent(GEPPETTO.Events.Websocket_reconnected, function (info) {
       var wasNoticed = droppedNoticeShown && !noticeGraceTimer;
       clearNoticeGrace();
       droppedNoticeShown = false;
       safeGa('vfb.send', 'event', info.resumed ? 'reconnected-resumed' : 'reconnected-reestablished', 'websocket-disconnect', gaPage());
+      /*
+       * How long the user was without a session, and what it cost to get it
+       * back. Without these a recovery that took two minutes and replayed
+       * nothing looks the same in GA as one that took a second.
+       */
+      safeGa('vfb.send', 'event', 'reconnect-downtime:' + downtimeBucket(info.downtimeMs || 0),
+        'websocket-disconnect', (info.resumed ? 'resumed' : 'reestablished')
+          + ' | attempts:' + (info.attempts || 0)
+          + ' | replayed:' + (info.replayed || 0)
+          + ' | ms:' + (info.downtimeMs || 0));
+      console.log('%c VFB reconnected (' + (info.resumed ? 'resumed' : 're-established') + ') after '
+        + (info.downtimeMs || 0) + 'ms, ' + (info.attempts || 0) + ' attempt(s), replayed '
+        + (info.replayed || 0) + ' command(s) ', 'background: #444; color: #bada55');
       if (wasNoticed || !info.resumed) {
         showConnectionNotice('Reconnected.', { level: 'ok', autoHideMs: 3000 });
       } else {
@@ -2178,7 +2224,7 @@ class VFBMain extends React.Component {
       }
     });
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function (info) {
+    onConnectionEvent(GEPPETTO.Events.Websocket_disconnected, function (info) {
       var reason = (info && info.reason) || 'unknown';
       clearNoticeGrace();
       droppedNoticeShown = false;
@@ -2202,8 +2248,14 @@ class VFBMain extends React.Component {
          * it. A reload starts clean from the URL; this is the one path
          * that still reloads, and it is the Phase 1 success metric.
          */
-        safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', gaPage());
-        console.log("%c Websocket session could not be re-established, reloading content... ", 'background: #444; color: #bada55');
+        var detail = reason + ' | ' + (info.detail || 'no detail') + ' | ' + gaPage();
+        safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', detail);
+        /*
+         * Also as an error, so the reason travels with the browser and page
+         * context rather than only as a label, and shows up in the same place
+         * as every other client failure.
+         */
+        console.error('Websocket session could not be re-established, reloading: ' + detail);
         window.location.reload();
         return;
       }
@@ -2211,18 +2263,40 @@ class VFBMain extends React.Component {
        * Budget exhausted: the server has been unreachable for minutes. Keep
        * the page - the user may just be offline - and let them choose.
        */
-      safeGa('vfb.send', 'event', 'reconnect-exhausted', 'websocket-disconnect', gaPage());
+      var exhaustedDetail = 'attempts:' + (info.attempts || GEPPETTO.MessageSocket.attempts)
+        + ' | ms:' + (info.elapsedMs || 0)
+        + ' | closeCode:' + (info.closeCode || 'unknown')
+        + ' | online:' + (typeof navigator.onLine === 'boolean' ? navigator.onLine : 'unknown')
+        + ' | ' + gaPage();
+      safeGa('vfb.send', 'event', 'reconnect-exhausted', 'websocket-disconnect', exhaustedDetail);
+      console.error('Websocket reconnection gave up: ' + exhaustedDetail);
       showConnectionNotice('Could not reach the VFB server. Your view is kept; retry when you are back online.', {
         level: 'error',
         action: {
           label: 'Retry',
           onClick: function () {
+            safeGa('vfb.send', 'event', 'reconnect-retry-clicked', 'websocket-disconnect', gaPage());
             hideConnectionNotice();
             GEPPETTO.MessageSocket.attempts = 0;
             GEPPETTO.MessageSocket.reconnect();
           }
         }
       });
+    });
+
+    /*
+     * A request whose reply died with the socket and could not be replayed.
+     * The loader drains it, so the user sees no error - but the term or query
+     * they asked for silently never arrives, which is exactly the kind of
+     * failure this release needs to be able to see.
+     */
+    GEPPETTO.on('geppetto:request_failed', function (requestID) {
+      try {
+        safeGa('vfb.send', 'event', 'request-failed', 'websocket-disconnect',
+          'requestID:' + requestID + ' | socketStatus:' + GEPPETTO.MessageSocket.socketStatus + ' | ' + gaPage());
+      } catch (err) {
+        console.error('Failed to report a dropped request: ' + (err && err.message ? err.message : err));
+      }
     });
   }
 
