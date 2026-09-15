@@ -83,7 +83,7 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "displayName": "Cell type",
+    "displayName": "Cell_Type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -408,16 +408,31 @@ var queryResultsColMeta = [
   },
   /*
    * FindStocks (FlyBase stock report). The row's selection id is the FBst
-   * stock id, carried in the hidden ID column; the four columns below are
-   * everything the report shows. Plain text throughout -- a stock is a
-   * FlyBase record, not a VFB term, so there is nothing for
-   * MarkdownLinkComponent to link to.
+   * stock id, carried in the hidden ID column and also shown in the visible
+   * Stock_ID column; the four columns below are everything the report shows.
+   * A stock is a FlyBase record, not a VFB term, so none of these resolve to
+   * a VFB id -- but Stock_ID, Stock_Number and Collection arrive as markdown
+   * pointing at FlyBase, the stock centre's catalogue and the centre itself,
+   * so they go through MarkdownLinkComponent for its external-link branch (no
+   * addVfbId action). Genotype stays plain: FlyBase notation is full of
+   * brackets and must not be read as markdown.
    */
+  {
+    "columnName": "stock_id",
+    "order": 1,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "Stock_ID",
+    "cssClassName": "query-results-stock_id-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
   {
     "columnName": "stock_number",
     "order": 2,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "Stock_Number",
     "cssClassName": "query-results-stock_number-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -436,15 +451,30 @@ var queryResultsColMeta = [
     "order": 4,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "Collection",
     "cssClassName": "query-results-collection-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   /*
    * FindComboPublications (FlyBase publications for a split combination).
-   * The row's selection id is the FBrf, carried in the hidden ID column;
-   * unlike a stock that id IS a VFB pub individual, so the row resolves.
+   * The row's selection id is the FBrf, carried in the hidden ID column and
+   * also shown in the visible FBrf column; unlike a stock that id IS a VFB
+   * pub individual, so the row resolves. FlyBase_ID, DOI, PMID and PMCID
+   * arrive as markdown linking out to FlyBase, doi.org, PubMed and PMC, so
+   * they render through MarkdownLinkComponent. Title and Citation stay plain
+   * text -- a citation can contain brackets.
    */
+  {
+    "columnName": "fbrf",
+    "order": 1,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "FlyBase_ID",
+    "cssClassName": "query-results-fbrf-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
   {
     "columnName": "title",
     "order": 2,
@@ -455,7 +485,7 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['asc', 'desc', null]
   },
   {
-    "columnName": "citation",
+    "columnName": "miniref",
     "order": 3,
     "locked": false,
     "visible": true,
@@ -473,7 +503,7 @@ var queryResultsColMeta = [
     "sortDirectionCycle": ['desc', 'asc', null]
   },
   {
-    "columnName": "publication_type",
+    "columnName": "pub_type",
     "order": 5,
     "locked": false,
     "visible": true,
@@ -486,6 +516,7 @@ var queryResultsColMeta = [
     "order": 6,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "DOI",
     "cssClassName": "query-results-doi-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -495,6 +526,7 @@ var queryResultsColMeta = [
     "order": 7,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "PMID",
     "cssClassName": "query-results-pmid-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -504,6 +536,7 @@ var queryResultsColMeta = [
     "order": 8,
     "locked": false,
     "visible": true,
+    "customComponent": MarkdownLinkComponent,
     "displayName": "PMCID",
     "cssClassName": "query-results-pmcid-column",
     "sortDirectionCycle": ['asc', 'desc', null]
@@ -521,7 +554,7 @@ var queryResultsColMeta = [
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight', 'stock_number', 'genotype', 'collection', 'title', 'citation', 'year', 'publication_type', 'doi', 'pmid', 'pmcid', 'reference_type'];
+var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight', 'stock_id', 'stock_number', 'genotype', 'collection', 'fbrf', 'title', 'miniref', 'year', 'pub_type', 'doi', 'pmid', 'pmcid', 'reference_type'];
 
 var queryResultsControlConfig = {
   "Common": {
