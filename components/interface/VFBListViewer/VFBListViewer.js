@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ListViewer from '@geppettoengine/geppetto-ui/list-viewer/ListViewer';
 import listViewerConf from '../../configuration/VFBListViewer/listViewerConfiguration';
 import { connect } from 'react-redux';
+import { getMetaHtml } from './metaHtml';
 
 require('../../../css/VFBListViewer.less');
 
@@ -52,14 +53,10 @@ class VFBListViewer extends Component {
           
           meta_instance = Instances.getInstance(id)[id + "_meta"];
 
-          // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string
-          html = meta_instance.getTypes().map(function (t) {
-            return t.type.getInitialValue().value
-          })[0].html;
-
-          htmlLabels = meta_instance.getTypes().map(function (t) {
-            return t.label.getInitialValue().value
-          })[0].html;
+          // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
+          // Either may be undefined for an untyped image; the extractors below tolerate that.
+          html = getMetaHtml(meta_instance, "type");
+          htmlLabels = getMetaHtml(meta_instance, "label");
           
           // Extract HTML element anchor text from html string
           visuals[id].types = html?.match(/<a[^>]*>(.*?)<\/a>/g)?.map(function (val){

@@ -1,6 +1,7 @@
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListViewerControlsMenu from '../../interface/VFBListViewer/ListViewerControlsMenu';
+import { getMetaHtml } from '../../interface/VFBListViewer/metaHtml';
 
 /**
  * Create component to display controls
@@ -70,14 +71,11 @@ const conf = [
         return null;
       }
 
-      // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string
-      let html = instance.getTypes().map(function (t) {
-        return t.type.getInitialValue().value
-      })[0].html;
+      // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
+      // Empty when the image has no instance_of class in the KB (VFB2#499).
+      let html = getMetaHtml(instance, "type") || "";
 
-      let htmlLabels = instance.getTypes().map(function (t) {
-        return t.label.getInitialValue().value
-      })[0].html;
+      let htmlLabels = getMetaHtml(instance, "label") || "";
 
       // Extract HTML element anchor from html string
       var matchAnchor = /<a[^>]*>([\s\S]*?)<\/a>/g
@@ -130,8 +128,11 @@ const conf = [
         return null;
       }
       
-      let value = GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0].getInitialValues()[0].value;
+      let value = GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0]?.getInitialValues()?.[0]?.value;
       let img = "";
+      if ( value === undefined ) {
+        return img;
+      }
       if ( value.elements != undefined ) {
         img = value.elements[0].initialValue.data;
       } else if ( value.data != undefined ) {
