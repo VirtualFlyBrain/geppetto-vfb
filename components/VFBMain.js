@@ -11,6 +11,7 @@ import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanva
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
 import { safeGa } from './interface/utils/utils';
+import { showConnectionNotice, hideConnectionNotice } from './interface/utils/connectionNotice';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
@@ -2108,36 +2109,118 @@ class VFBMain extends React.Component {
       self.props.instanceVisibilityChanged(instance);
     }.bind(this));
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      safeGa('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+    /*
+     * Connection lifecycle. The client (geppetto-client MessageSocket) now
+     * recovers a dropped socket on its own: retries with backoff for minutes,
+     * resumes the old server session where it can, and re-establishes one in
+     * place where it cannot - all without touching the scene this page holds.
+     * VFB's job here is to tell the user what is going on and to record it.
+     *
+     * GA event names are kept from the reload-based version so the
+     * websocket-disconnect baseline stays comparable; reconnect-failed-reloading
+     * is now only sent from the genuine last resort below.
+     */
+    var gaPage = function () {
+      return window.location.pathname + window.location.search;
+    };
+    var droppedNoticeShown = false;
+    // A blip that reconnects on the first try should not flash a notice at all
+    var NOTICE_GRACE_MS = 2000;
+    var noticeGraceTimer = null;
+    var clearNoticeGrace = function () {
+      if (noticeGraceTimer) {
+        clearTimeout(noticeGraceTimer);
+        noticeGraceTimer = null;
+      }
+    };
+    var reconnectingMessage = function (elapsedMs) {
+      var waited = Math.round(elapsedMs / 1000);
+      return waited < 10 ? 'Connection to the VFB server dropped. Reconnecting…'
+        : 'Still trying to reach the VFB server (' + waited + 's). Your view is kept.';
+    };
+
+    GEPPETTO.on(GEPPETTO.Events.Websocket_reconnecting, function (info) {
+      if (!droppedNoticeShown) {
+        safeGa('vfb.send', 'event', 'disconnected', 'websocket-disconnect', gaPage());
+        droppedNoticeShown = true;
+      }
+      safeGa('vfb.send', 'event', 'reconnect-attempt:' + info.attempt, 'websocket-disconnect', gaPage());
+      if (info.elapsedMs >= NOTICE_GRACE_MS) {
+        clearNoticeGrace();
+        showConnectionNotice(reconnectingMessage(info.elapsedMs), { level: 'warn' });
+      } else if (!noticeGraceTimer) {
+        noticeGraceTimer = setTimeout(function () {
+          noticeGraceTimer = null;
+          if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.RECONNECTING) {
+            showConnectionNotice(reconnectingMessage(NOTICE_GRACE_MS), { level: 'warn' });
+          }
+        }, NOTICE_GRACE_MS);
+      }
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Websocket_session_lost, function () {
+      clearNoticeGrace();
+      safeGa('vfb.send', 'event', 'reconnect-session-lost', 'websocket-disconnect', gaPage());
+      showConnectionNotice('Reconnected. Restoring your session on the server…', { level: 'warn' });
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Websocket_reconnected, function (info) {
+      var wasNoticed = droppedNoticeShown && !noticeGraceTimer;
+      clearNoticeGrace();
+      droppedNoticeShown = false;
+      safeGa('vfb.send', 'event', info.resumed ? 'reconnected-resumed' : 'reconnected-reestablished', 'websocket-disconnect', gaPage());
+      if (wasNoticed || !info.resumed) {
+        showConnectionNotice('Reconnected.', { level: 'ok', autoHideMs: 3000 });
+      } else {
+        hideConnectionNotice();
+      }
+    });
+
+    GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function (info) {
+      var reason = (info && info.reason) || 'unknown';
+      clearNoticeGrace();
+      droppedNoticeShown = false;
       if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
         console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
         location.replace(`https:${location.href.substring(location.protocol.length)}`);
+        return;
       }
-      if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-        if (GEPPETTO.MessageSocket.attempts < 2) {
-          safeGa('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
-          GEPPETTO.MessageSocket.reconnect();
-        } else if (GEPPETTO.MessageSocket.getClientID() == null) {
-          /*
-           * The socket never completed a handshake in this session, so a
-           * reload would fail the same way and loop forever. Warn the user
-           * and report instead.
-           */
-          reportWebsocketFailure('reconnect-exhausted');
-        } else {
-          safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
-          console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
-          window.location.reload();
-        }
-      } else {
-        setTimeout(() => {
-          if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-            safeGa('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
+      if (GEPPETTO.MessageSocket.getClientID() == null) {
+        /*
+         * The socket never completed a handshake in this session, so a
+         * reload would fail the same way and loop forever. Warn the user
+         * and report instead.
+         */
+        reportWebsocketFailure('reconnect-exhausted');
+        return;
+      }
+      if (reason === 'resync-failed' || reason === 'resync-impossible') {
+        /*
+         * We got a socket back but could not re-establish the session on
+         * it. A reload starts clean from the URL; this is the one path
+         * that still reloads, and it is the Phase 1 success metric.
+         */
+        safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', gaPage());
+        console.log("%c Websocket session could not be re-established, reloading content... ", 'background: #444; color: #bada55');
+        window.location.reload();
+        return;
+      }
+      /*
+       * Budget exhausted: the server has been unreachable for minutes. Keep
+       * the page - the user may just be offline - and let them choose.
+       */
+      safeGa('vfb.send', 'event', 'reconnect-exhausted', 'websocket-disconnect', gaPage());
+      showConnectionNotice('Could not reach the VFB server. Your view is kept; retry when you are back online.', {
+        level: 'error',
+        action: {
+          label: 'Retry',
+          onClick: function () {
+            hideConnectionNotice();
+            GEPPETTO.MessageSocket.attempts = 0;
             GEPPETTO.MessageSocket.reconnect();
           }
-        }, 3000);
-      }
+        }
+      });
     });
   }
 
