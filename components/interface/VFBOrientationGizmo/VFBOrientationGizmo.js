@@ -210,7 +210,18 @@ export default class VFBOrientationGizmo extends Component {
     if (this.lastQuaternion === null || !this.lastQuaternion.equals(q)) {
       this.lastQuaternion = q.clone();
       this.lastMove = now;
-      this.group.quaternion.copy(q).invert();
+      /*
+       * engine.THREE is Geppetto's three r87, where the inverse of a
+       * quaternion is inverse(); invert() only arrived in r123. Calling
+       * the missing one threw on every animation frame and failed the
+       * whole term-info test batch.
+       */
+      const gq = this.group.quaternion.copy(q);
+      if (typeof gq.invert === 'function') {
+        gq.invert();
+      } else {
+        gq.inverse();
+      }
       this.renderer.render(this.scene, this.camera);
       this.canvas.style.opacity = OPACITY;
     } else if (now - this.lastMove > IDLE_MS && this.canvas.style.opacity !== String(IDLE_OPACITY)) {
