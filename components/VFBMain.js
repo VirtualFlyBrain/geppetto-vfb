@@ -550,15 +550,19 @@ class VFBMain extends React.Component {
    */
   managerIsLoaded (id) {
     /*
-     * Geppetto sets window[<id>] when a term's variable is loaded (by any
-     * loader -- slice viewer click, shift+click, URL/tree/graph paths), but
-     * window[id] is NOT safe to test: named access also resolves any DOM
-     * element with that id, and the Layers list gives its class links the
-     * class id. A slice-viewer click on a painted domain whose class is linked
-     * there was therefore taken as "already loaded", re-focused a term with no
-     * meta instance, and silently did nothing. Ask the model factory instead.
+     * Geppetto sets window[<id>] AND window.Instances[<id>] when a term's
+     * top-level instance is created (Manager.augmentInstancesArray). Testing
+     * window[id] is not safe: named access also resolves any DOM element with
+     * that id, and the Layers list gives its class links the class id, so a
+     * slice-viewer click on such a domain was taken as "already loaded" and
+     * silently did nothing. Testing the model factory instead (#1755) was too
+     * weak the other way: window.Model[id] exists as soon as the variable is
+     * merged, before its instance and geometry exist, so a term requested
+     * again in that window was skipped and its mesh never loaded (batch-2
+     * tests: Term Info populated, empty 3D viewer, no deselect button).
+     * window.Instances[id] is exactly what window[id] meant, minus the DOM.
      */
-    if (!this.isVariableLoaded(id)) {
+    if ((typeof window === "undefined") || !window.Instances || (window.Instances[id] === undefined)) {
       return false;
     }
     /*
@@ -601,13 +605,22 @@ class VFBMain extends React.Component {
        * Focus was applied to a term the manager believes is loaded but whose
        * meta instance isn't in the model. Don't return silently -- that leaves
        * Term Info unchanged with nothing in the console -- fetch it properly.
+       * Once per id: request() re-enters here if it still judges the term
+       * loaded, and a second pass would recurse without end.
        */
+      this.focusReloadTried = this.focusReloadTried || {};
+      if (this.focusReloadTried[id]) {
+        console.warn("managerFocus: still no meta instance for " + id + " after reloading it");
+        return;
+      }
+      this.focusReloadTried[id] = true;
       console.warn("managerFocus: no meta instance for " + id + "; loading it");
       this.loadManager.loaded.delete(id);
       this.loadManager.items.delete(id);
       this.loadManager.request(id, { display: true });
       return;
     }
+    delete (this.focusReloadTried || {})[id];
     this.handlerInstanceUpdate(meta);
     var instance = Instances.getInstance(id);
     if (this.hasVisualType(id) && instance !== undefined && typeof instance.select === "function") {
