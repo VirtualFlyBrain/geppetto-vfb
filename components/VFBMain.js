@@ -21,6 +21,7 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
 import { connect } from "react-redux";
 import * as ACTIONS from './../actions/generals';
 
@@ -2486,6 +2487,8 @@ class VFBMain extends React.Component {
         <Logo
           logo='gpt-fly'
           id="geppettologo" />
+
+        <VFBOrientationGizmo getCanvas={() => this.canvasReference} />
 
         <FlexLayout.Layout
           ref="layout"
