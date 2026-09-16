@@ -49,7 +49,12 @@ const conf = [
       };
       // Create new HTML string with the Type name and tags only
       let typeHTML = '<a id="' + instance.id + '" style="color:white;text-decoration: none;cursor:pointer">' + instance.getName() + "</a>" ;
-      if (instance.isSelected()) {
+      /*
+       * Same partial-instance-shape issue as the isVisible guard in
+       * ListViewerControlsMenu (VFB2 #clear-then-re-add) - isSelected may be
+       * briefly missing rather than undefined, so guard it too.
+       */
+      if (instance.isSelected !== undefined && instance.isSelected()) {
         typeHTML = '<a id="' + instance.id + '" style="color:yellow;text-decoration: none;cursor:pointer">' + instance.getName() + "</a>" ;
       }
 
