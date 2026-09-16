@@ -323,7 +323,14 @@ class VFBMain extends React.Component {
        * growing the URL and desyncing the loader when ids repeat).
        */
       if (window.history.state != null && (window.history.state.s == 1 || window.history.state.s == 4) && window.location.search.indexOf("i=") > -1) {
-        var cleanIds = Array.from(new Set(idsList));
+        /*
+         * Keep what the URL already lists and add the new ids to it. Writing
+         * only the ids of this request dropped everything already in the
+         * scene from i=, so a reload (including the one the reconnect logic
+         * falls back to) came back with just the last term.
+         */
+        var existingIds = (new URLSearchParams(window.location.search).get('i') || '').split(',').filter(Boolean);
+        var cleanIds = Array.from(new Set(existingIds.concat(idsList)));
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
