@@ -215,7 +215,13 @@ class ListViewerControlsMenu extends Component {
         // Replace buttons list in configuration with updated one
         button.list = list;
       }
-      if (self.props.instance.isVisible()) {
+      /*
+       * After a clear-then-re-add of the same item, this can briefly be a
+       * stale/placeholder reference without the full Instance API (e.g. no
+       * isVisible) rather than undefined - guard it the same way getColor is
+       * guarded above instead of assuming every instance shape has it.
+       */
+      if ( self.props.instance.isVisible !== undefined && self.props.instance.isVisible() ) {
         button.icon.props.className = "fa fa-eye-slash";
       } else {
         button.icon.props.className = "fa fa-eye";
