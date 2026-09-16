@@ -2287,7 +2287,27 @@ class VFBMain extends React.Component {
     onConnectionEvent(GEPPETTO.Events.Websocket_session_lost, function () {
       clearNoticeGrace();
       safeGa('vfb.send', 'event', 'reconnect-session-lost', 'websocket-disconnect', gaPage());
-      showConnectionNotice('Reconnected. Restoring your session on the server…', { level: 'warn' });
+      /*
+       * The server could not resume our session (another container, or the
+       * retained manager was evicted), so the client would now re-establish
+       * a FRESH project on this socket while keeping its own model. That
+       * cannot be made consistent: Geppetto references types positionally
+       * (//@libraries.N/@types.K) and a fresh server has none of the types
+       * this client added, so every later fetch_variable resolves K against
+       * the wrong list - Term Info shows JRC2018U, then GNG, VES, PED, FB
+       * for clicks on medulla, SLP, wedge... (seen 16 Sep, Connection109) -
+       * and the server rejects run_query / resolve_import_type for anything
+       * loaded earlier ("is neither an instance variable nor a library id").
+       * A reload from the URL (which keeps every id in the scene) is the one
+       * recovery that is correct. Counted as reconnect-failed-reloading so
+       * the reload rate stays comparable with the earlier baseline.
+       */
+      var detail = 'session-lost | ' + gaPage();
+      safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', detail);
+      gaDetail('ws-reload', 'session-lost');
+      console.log('%c Websocket session lost on the server, reloading from the URL ', 'background: #444; color: #bada55');
+      showConnectionNotice('Reconnected, reloading your view…', { level: 'warn' });
+      window.location.reload();
     });
 
     onConnectionEvent(GEPPETTO.Events.Websocket_reconnected, function (info) {
