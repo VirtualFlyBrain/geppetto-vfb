@@ -13,7 +13,7 @@ VOLUME /tmp/error
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
 ARG geppettoCoreRelease=VFBv2.3.8.2
-ARG geppettoSimulationRelease=VFBv2.1.0.3
+ARG geppettoSimulationRelease=VFBv2.1.0.4
 ARG geppettoDatasourceRelease=VFBv2.3.8.4
 ARG geppettoModelSwcRelease=v1.0.1
 ARG geppettoFrontendRelease=VFBv2.4.0.0
@@ -74,26 +74,26 @@ RUN rm -rf /home/developer/geppetto
 # get geppetto
 RUN mkdir -p workspace &&\
   cd workspace &&\
-  git clone http://github.com/openworm/org.geppetto.git -q -b "${geppettoRelease}" --single-branch 
+  git clone https://github.com/VirtualFlyBrain/org.geppetto.git -q -b "${geppettoRelease}" --single-branch 
 
 WORKDIR $HOME/workspace
 
-RUN git clone https://github.com/openworm/org.geppetto.model.git -q -b "${geppettoModelRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.model.git -q -b "${geppettoModelRelease}" --single-branch &&\
   cd org.geppetto.model &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.core.git -q -b "${geppettoCoreRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.core.git -q -b "${geppettoCoreRelease}" --single-branch &&\
   cd org.geppetto.core &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.core\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.simulation.git -q -b "${geppettoSimulationRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.simulation.git -q -b "${geppettoSimulationRelease}" --single-branch &&\
   cd org.geppetto.simulation &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.simulation\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.datasources.git -q -b "${geppettoDatasourceRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.datasources.git -q -b "${geppettoDatasourceRelease}" --single-branch &&\
   cd org.geppetto.datasources &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.datasources\e[0m" &&\
   mvn ${mvnOpt} install
@@ -109,7 +109,7 @@ RUN cd uk.ac.vfb.geppetto &&\
   /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.model.swc.git -q -b "${geppettoModelSwcRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.model.swc.git -q -b "${geppettoModelSwcRelease}" --single-branch &&\
   cd org.geppetto.model.swc &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model.swc\e[0m" &&\
   mvn ${mvnOpt} install
