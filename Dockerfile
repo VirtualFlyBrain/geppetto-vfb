@@ -16,8 +16,8 @@ ARG geppettoCoreRelease=VFBv2.3.8.2
 ARG geppettoSimulationRelease=VFBv2.1.0.4
 ARG geppettoDatasourceRelease=VFBv2.3.8.4
 ARG geppettoModelSwcRelease=v1.0.1
-ARG geppettoFrontendRelease=VFBv2.4.0.0
-ARG geppettoClientRelease=VFBv2.4.0.2
+ARG geppettoFrontendRelease=VFBv2.4.0.1
+ARG geppettoClientRelease=VFBv2.4.0.3
 ARG ukAcVfbGeppettoRelease=v2.2.5.4
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
