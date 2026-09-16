@@ -15,7 +15,8 @@ import React, { Component } from 'react';
  * code is missing the gizmo simply does not appear.
  *
  * Rendering is done with the three.js instance the Geppetto engine exposes
- * (engine.THREE), so no second copy of three is bundled.
+ * (engine.THREE), so no second copy of three is bundled. That instance is
+ * r87 in production, so only API that exists there is used.
  */
 
 const SIZE = 74;
@@ -140,7 +141,8 @@ export default class VFBOrientationGizmo extends Component {
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1.45, 1.45, 1.45, -1.45, 0.1, 10);
     camera.position.set(0, 0, 5);
-    camera.lookAt(0, 0, 0);
+    // r87's lookAt takes a Vector3 only; three numbers give a NaN matrix and a blank gizmo.
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const group = new THREE.Group();
     for (let i = 0; i < 3; i++) {
