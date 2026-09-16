@@ -96,10 +96,6 @@ export default class VFBToolBar extends React.Component {
   clickFeedback () {
     var htmlContent = this.feedbackHTML;
     safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=Feedback'));
-    // add clinet data to console
-    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
-      console.log('USER: ' + data.geobytesipaddress + '  ' + data.geobytesfqcn);
-    });
     // report console log for agrigated analysis
     safeGa('vfb.send', 'feedback', window.location.href, window.console.logs.join('\n').replace(/\#/g,escape('#')), );
 

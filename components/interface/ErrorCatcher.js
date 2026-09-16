@@ -91,10 +91,6 @@ class ErrorCatcher extends React.Component {
       safeGa('vfb.send', 'event', 'error', 'react', error.message + " - " + error.stack.replace("#",escape("#")));
       // Display fallback UI
       this.setState({ hasError: true, error: error });
-      // add clinet data to console
-      $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
-        console.log('USER: ' + data.geobytesipaddress + '  ' + data.geobytesfqcn);
-      });
     }
   
     render () {
