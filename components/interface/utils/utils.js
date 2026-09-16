@@ -460,6 +460,21 @@ var hasUnresolvedVisualType = function (variableId) {
 };
 
 /*
+ * True when the term's VARIABLE is in the Geppetto model (its Term Info has
+ * been fetched). Deliberately not `window[id] !== undefined`: named access on
+ * window also resolves DOM elements, and several panels give elements the term
+ * id (the class links in the Layers list, the tree/ROI nodes), so window[id] is
+ * truthy for a term that was never loaded. Ask the model factory instead.
+ */
+var isVariableLoaded = function (variableId) {
+  try {
+    return GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]).length > 0;
+  } catch (ignore) {
+    return false;
+  }
+};
+
+/*
  * window.ga can be undefined -- for a moment right after page load while the
  * GA script is still fetching, or permanently if a browser/extension blocks
  * it. Calling it directly throws in that case, and since most call sites in
@@ -485,6 +500,7 @@ module.exports = {
   getStackViewerDefaultY,
   hasVisualType,
   hasUnresolvedVisualType,
+  isVariableLoaded,
   labelTypeToID,
   safeGa
 };
