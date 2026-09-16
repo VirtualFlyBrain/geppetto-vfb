@@ -2,6 +2,10 @@ name: Process XMI and Update README in /model
 
 on:
   push:
+    # Branches only: GitHub ignores `paths` for tag pushes, so without this
+    # every release tag ran the job on a detached checkout and failed to push.
+    branches:
+      - '**'
     paths:
       - 'model/*.xmi'
       - '.github/workflows/process_xmi.yml'
