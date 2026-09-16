@@ -2084,6 +2084,7 @@ class VFBMain extends React.Component {
         });
       }
       safeGa('vfb.send', 'event', 'websocket-connection-failed', 'websocket-error', details);
+      gaDetail('ws-connfail', context, GEPPETTO.MessageSocket.socketStatus, 'a' + GEPPETTO.MessageSocket.attempts);
       GEPPETTO.ModalFactory.infoDialog('Unable to load data from the Virtual Fly Brain server',
         'Virtual Fly Brain needs a WebSocket connection to load its data, and that connection could not be established '
         + 'or was interrupted. This is usually a browser or network problem rather than a fault with the service.'
@@ -2145,7 +2146,64 @@ class VFBMain extends React.Component {
     var gaPage = function () {
       return window.location.pathname + window.location.search;
     };
+    /*
+     * GA4 only reports event parameters that have been registered as custom
+     * dimensions, and none are, so everything passed as the label (reason,
+     * close code, attempt count) is invisible in the Data API and the
+     * reports. Put the facts that decide what a failure WAS into the event
+     * name itself, as a second event alongside the baseline one so the
+     * existing counts stay comparable. GA4 caps event names at 40 characters.
+     */
+    var gaDetail = function () {
+      var name = Array.prototype.slice.call(arguments).map(function (part) {
+        return String(part === undefined || part === null || part === '' ? 'na' : part)
+          .toLowerCase().replace(/[^a-z0-9._-]+/g, '_');
+      }).join(':').substring(0, 40);
+      safeGa('vfb.send', 'event', name, 'websocket-detail', gaPage());
+    };
     var droppedNoticeShown = false;
+    /*
+     * Background retry after the client's reconnection budget is spent. Slow
+     * (once a minute) so a dead backend is not hammered, immediate on the
+     * signals that make success likely (network back, tab foregrounded).
+     */
+    var AUTO_RETRY_MS = 60 * 1000;
+    var autoRetryTimer = null;
+    var autoRetryOnSignal = null;
+    var stopAutoRetry = function () {
+      if (autoRetryTimer) {
+        clearInterval(autoRetryTimer);
+        autoRetryTimer = null;
+      }
+      if (autoRetryOnSignal) {
+        window.removeEventListener('online', autoRetryOnSignal);
+        document.removeEventListener('visibilitychange', autoRetryOnSignal);
+        autoRetryOnSignal = null;
+      }
+    };
+    var startAutoRetry = function (retry) {
+      stopAutoRetry();
+      var attempt = function () {
+        if (GEPPETTO.MessageSocket.socketStatus !== GEPPETTO.Resources.SocketStatus.CLOSE) {
+          return; // a retry is already under way
+        }
+        if (typeof navigator.onLine === 'boolean' && !navigator.onLine) {
+          return; // pointless while the browser knows it is offline
+        }
+        if (document.hidden) {
+          return; // an abandoned background tab retries when it is next looked at
+        }
+        retry('auto');
+      };
+      autoRetryTimer = setInterval(attempt, AUTO_RETRY_MS);
+      autoRetryOnSignal = function () {
+        if (!document.hidden) {
+          attempt();
+        }
+      };
+      window.addEventListener('online', autoRetryOnSignal);
+      document.addEventListener('visibilitychange', autoRetryOnSignal);
+    };
     // A blip that reconnects on the first try should not flash a notice at all
     var NOTICE_GRACE_MS = 2000;
     var noticeGraceTimer = null;
@@ -2222,6 +2280,7 @@ class VFBMain extends React.Component {
     onConnectionEvent(GEPPETTO.Events.Websocket_reconnected, function (info) {
       var wasNoticed = droppedNoticeShown && !noticeGraceTimer;
       clearNoticeGrace();
+      stopAutoRetry();
       droppedNoticeShown = false;
       safeGa('vfb.send', 'event', info.resumed ? 'reconnected-resumed' : 'reconnected-reestablished', 'websocket-disconnect', gaPage());
       /*
@@ -2229,6 +2288,8 @@ class VFBMain extends React.Component {
        * back. Without these a recovery that took two minutes and replayed
        * nothing looks the same in GA as one that took a second.
        */
+      gaDetail('ws-back', info.resumed ? 'resumed' : 'reest', downtimeBucket(info.downtimeMs || 0),
+        'a' + (info.attempts || 0), 'r' + (info.replayed || 0));
       safeGa('vfb.send', 'event', 'reconnect-downtime:' + downtimeBucket(info.downtimeMs || 0),
         'websocket-disconnect', (info.resumed ? 'resumed' : 'reestablished')
           + ' | attempts:' + (info.attempts || 0)
@@ -2270,6 +2331,7 @@ class VFBMain extends React.Component {
          */
         var detail = reason + ' | ' + (info.detail || 'no detail') + ' | ' + gaPage();
         safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', detail);
+        gaDetail('ws-reload', reason, (info.detail || '').split(' ').slice(0, 3).join('_'));
         /*
          * Also as an error, so the reason travels with the browser and page
          * context rather than only as a label, and shows up in the same place
@@ -2289,19 +2351,35 @@ class VFBMain extends React.Component {
         + ' | online:' + (typeof navigator.onLine === 'boolean' ? navigator.onLine : 'unknown')
         + ' | ' + gaPage();
       safeGa('vfb.send', 'event', 'reconnect-exhausted', 'websocket-disconnect', exhaustedDetail);
+      gaDetail('ws-exhausted', reason, 'c' + (info.closeCode || 'na'),
+        'a' + (info.attempts || GEPPETTO.MessageSocket.attempts),
+        (typeof navigator.onLine === 'boolean' ? (navigator.onLine ? 'online' : 'offline') : 'na'));
       console.error('Websocket reconnection gave up: ' + exhaustedDetail);
-      showConnectionNotice('Could not reach the VFB server. Your view is kept; retry when you are back online.', {
+      var retryNow = function (how) {
+        safeGa('vfb.send', 'event', how === 'user' ? 'reconnect-retry-clicked' : 'reconnect-retry-auto', 'websocket-disconnect', gaPage());
+        stopAutoRetry();
+        hideConnectionNotice();
+        GEPPETTO.MessageSocket.attempts = 0;
+        GEPPETTO.MessageSocket.reconnect();
+      };
+      showConnectionNotice('Could not reach the VFB server. Your view is kept and VFB keeps trying in the background; anything you click will load once it is back.', {
         level: 'error',
         action: {
-          label: 'Retry',
+          label: 'Retry now',
           onClick: function () {
-            safeGa('vfb.send', 'event', 'reconnect-retry-clicked', 'websocket-disconnect', gaPage());
-            hideConnectionNotice();
-            GEPPETTO.MessageSocket.attempts = 0;
-            GEPPETTO.MessageSocket.reconnect();
+            retryNow('user');
           }
         }
       });
+      /*
+       * Only three of ~190 users who saw this banner on 16 Sep clicked Retry;
+       * the rest left or reloaded by hand. So do not wait for the click: keep
+       * retrying at a slow, fixed cadence while the page is open, and at once
+       * when the network comes back or the tab is looked at again. The client
+       * holds the commands the user issued meanwhile and replays them once a
+       * session is back, so a retry that succeeds delivers what was clicked.
+       */
+      startAutoRetry(retryNow);
     });
 
     /*
@@ -2310,12 +2388,28 @@ class VFBMain extends React.Component {
      * they asked for silently never arrives, which is exactly the kind of
      * failure this release needs to be able to see.
      */
+    var requestFailedNoticeAt = 0;
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
       try {
         safeGa('vfb.send', 'event', 'request-failed', 'websocket-disconnect',
           'requestID:' + requestID + ' | socketStatus:' + GEPPETTO.MessageSocket.socketStatus + ' | ' + gaPage());
       } catch (err) {
         console.error('Failed to report a dropped request: ' + (err && err.message ? err.message : err));
+      }
+      /*
+       * With the client now holding and replaying commands across a drop this
+       * is rare (a request replayed three times and lost each time, or one
+       * the server answered with an error), but when it happens the user must
+       * hear about it rather than wait for a term that will never arrive.
+       * One notice per burst, on the logo float so it does not cover the page.
+       */
+      if (Date.now() - requestFailedNoticeAt > 30000
+        && GEPPETTO.MessageSocket.socketStatus !== GEPPETTO.Resources.SocketStatus.RECONNECTING) {
+        requestFailedNoticeAt = Date.now();
+        showConnectionNotice('Something you asked for could not be loaded after the connection dropped. Click it again to retry.', {
+          level: 'warn',
+          autoHideMs: 15000
+        });
       }
     });
   }
