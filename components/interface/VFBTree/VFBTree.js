@@ -628,6 +628,10 @@ class VFBTree extends React.Component {
       this._fetchController = null;
     }
     document.removeEventListener('mousedown', this.monitorMouseClick, false);
+    if (this._geppettoHandlers) {
+      this._geppettoHandlers.forEach(([event, handler]) => GEPPETTO.off(event, handler));
+      this._geppettoHandlers = null;
+    }
   }
 
   componentDidMount () {
@@ -635,26 +639,31 @@ class VFBTree extends React.Component {
     this._mounted = true;
     document.addEventListener('mousedown', this.monitorMouseClick, false);
 
-    GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
-      that.updateTree(instance);
-    });
-
-    GEPPETTO.on(GEPPETTO.Events.Instance_deleted, function (parameters) {
-      if (Instances[parameters] !== undefined ) {
-        that.setState({ nodeSelected: undefined });
-      }
-    });
-
-    GEPPETTO.on(GEPPETTO.Events.Instances_created, function () {
-      that.setState({ displayColorPicker: false });
-      if (that.state.errors !== undefined) {
-        that.reloadData();
-      }
-    });
-
-    GEPPETTO.on(GEPPETTO.Events.Color_set, function (instance) {
-      that.forceUpdate();
-    });
+    /*
+     * Keep references to the handlers so componentWillUnmount can remove
+     * them; anonymous listeners outlived the component and called setState
+     * on it after the Tree Browser was closed.
+     */
+    this._geppettoHandlers = [
+      [GEPPETTO.Events.Select, function (instance) {
+        that.updateTree(instance);
+      }],
+      [GEPPETTO.Events.Instance_deleted, function (parameters) {
+        if (Instances[parameters] !== undefined ) {
+          that.setState({ nodeSelected: undefined });
+        }
+      }],
+      [GEPPETTO.Events.Instances_created, function () {
+        that.setState({ displayColorPicker: false });
+        if (that.state.errors !== undefined) {
+          that.reloadData();
+        }
+      }],
+      [GEPPETTO.Events.Color_set, function (instance) {
+        that.forceUpdate();
+      }]
+    ];
+    this._geppettoHandlers.forEach(([event, handler]) => GEPPETTO.on(event, handler));
   }
 
   /*
