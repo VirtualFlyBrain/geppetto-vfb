@@ -232,6 +232,7 @@ class VFBMain extends React.Component {
     this.setSepCol = require('./interface/utils/utils').setSepCol;
     this.hasVisualType = require('./interface/utils/utils').hasVisualType;
     this.hasUnresolvedVisualType = require('./interface/utils/utils').hasUnresolvedVisualType;
+    this.isVariableLoaded = require('./interface/utils/utils').isVariableLoaded;
 
     /*
      * Single owner of term loading. Everything that loads a term goes through
@@ -549,18 +550,19 @@ class VFBMain extends React.Component {
    */
   managerIsLoaded (id) {
     /*
-     * VFB sets window[<id>] when a term has been loaded (by any loader -- slice
-     * viewer click loads the class, shift+click loads the aligned-image
-     * Individual, plus URL/tree/graph paths). It is the path-independent source
-     * of truth, so if it exists the term is already loaded and a re-request
-     * should just re-focus rather than load and count it again.
+     * Geppetto sets window[<id>] when a term's variable is loaded (by any
+     * loader -- slice viewer click, shift+click, URL/tree/graph paths), but
+     * window[id] is NOT safe to test: named access also resolves any DOM
+     * element with that id, and the Layers list gives its class links the
+     * class id. A slice-viewer click on a painted domain whose class is linked
+     * there was therefore taken as "already loaded", re-focused a term with no
+     * meta instance, and silently did nothing. Ask the model factory instead.
      */
-    if ((typeof window === "undefined") || (window[id] === undefined)) {
+    if (!this.isVariableLoaded(id)) {
       return false;
     }
     /*
-     * window[id] only means the VARIABLE is in the model -- i.e. Term Info has
-     * been fetched. The term is not loaded until its visual types have been
+     * A loaded variable only means Term Info has been fetched. The term is not loaded until its visual types have been
      * resolved into the scene; while any of them is still an ImportType there
      * is geometry outstanding, and a re-request must load it rather than just
      * re-focus. Treating "variable exists" as "loaded" is what made a Term Info
@@ -592,11 +594,21 @@ class VFBMain extends React.Component {
     try {
       meta = Instances.getInstance(id + '.' + id + '_meta');
     } catch (e) {
+      meta = undefined;
+    }
+    if (meta === undefined) {
+      /*
+       * Focus was applied to a term the manager believes is loaded but whose
+       * meta instance isn't in the model. Don't return silently -- that leaves
+       * Term Info unchanged with nothing in the console -- fetch it properly.
+       */
+      console.warn("managerFocus: no meta instance for " + id + "; loading it");
+      this.loadManager.loaded.delete(id);
+      this.loadManager.items.delete(id);
+      this.loadManager.request(id, { display: true });
       return;
     }
-    if (meta !== undefined) {
-      this.handlerInstanceUpdate(meta);
-    }
+    this.handlerInstanceUpdate(meta);
     var instance = Instances.getInstance(id);
     if (this.hasVisualType(id) && instance !== undefined && typeof instance.select === "function") {
       GEPPETTO.SceneController.deselectAll();
@@ -938,7 +950,7 @@ class VFBMain extends React.Component {
         $("body").css("cursor", "default");
       };
       // add query item + selection
-      if (window[otherId] == undefined) {
+      if (!this.isVariableLoaded(otherId)) {
         window.fetchVariableThenRun(otherId, function () {
           that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
         });
