@@ -59,11 +59,18 @@ fi
 # Temporarily disable exit on error so we can check for npm logs if the build fails
 set +e
 
-# Frontend final build
+# Frontend final build.
+# Every backend module above builds with ${mvnOpt} (which carries -Pmaster),
+# but this line never did, so the frontend fell through to the pom's
+# activeByDefault "development" profile: `npm run build-dev`, i.e. webpack with
+# --devtool eval and NODE_ENV=development. The site has been shipping the
+# unminified React development build - 16.7 MB main bundle, PropTypes checks
+# and dev-only warnings on every page, which is most of the ~250k errorlog
+# events GA records a month. -Pmaster selects `npm run build` (webpack -p).
 cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
 echo "mvnOpt: ${mvnOpt}"
-mvn -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} install -e
+mvn -Pmaster -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} install -e
 BUILD_STATUS=$?
 
 # If build failed, check for npm logs
