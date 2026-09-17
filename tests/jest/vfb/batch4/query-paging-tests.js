@@ -21,14 +21,25 @@ const QUERY_TYPE = 'DownstreamClassConnectivity';
 const PAGE_SIZE = 50;
 const PROJECT_URL = `${baseURL}/geppetto?id=VFB_00101567&q=${QUERY_TERM},${QUERY_TYPE}`;
 
-const resultsLabelCount = async (page) => page.evaluate(() => {
-	const label = document.querySelector('#query-results-label');
-	if (!label) {
+/*
+ * The loaded count lives in the results view's header (.result-verbose-label);
+ * #query-results-label is the build view's footer and is gone once results are
+ * showing. While a big result is still streaming the header reads ">N", so the
+ * ">" is what says the load has not finished.
+ */
+const resultsHeader = async (page) => page.evaluate(() => {
+	const label = document.querySelector('.result-verbose-label');
+	return label ? (label.innerText || '').replace(/\s+/g, ' ').trim() : null;
+});
+
+const resultsLabelCount = async (page) => {
+	const header = await resultsHeader(page);
+	if (header === null) {
 		return null;
 	}
-	const match = (label.textContent || '').match(/([\d,]+)/);
+	const match = header.match(/([\d,]+)/);
 	return match ? parseInt(match[1].replace(/,/g, ''), 10) : null;
-});
+};
 
 describe('VFB Query Paging Tests', () => {
 	beforeAll(async () => {
@@ -47,18 +58,21 @@ describe('VFB Query Paging Tests', () => {
 
 		it('The query from the URL returns results', async () => {
 			await wait4selector(page, '#querybuilder', { visible: true, timeout: 240000 });
-			await wait4selector(page, '#query-results-label', { visible: true, timeout: 300000 });
+			await wait4selector(page, '#query-results-container', { visible: true, timeout: 300000 });
 			await page.waitForFunction(() => {
-				const label = document.querySelector('#query-results-label');
-				return label && /^\d[\d,]*\s+results?/i.test((label.textContent || '').trim());
+				const label = document.querySelector('.result-verbose-label');
+				return label && /^\s*\d/.test(label.innerText || '');
 			}, { timeout: 300000 });
 		}, 420000);
 	});
 
 	describe('Paging a result', () => {
 		it('Loads every row the backend has, not just up to the first short page', async () => {
-			// Let the remaining pages stream in.
-			await page.waitFor(30000);
+			// Wait for the load to finish: the header drops its ">" prefix.
+			await page.waitForFunction(() => {
+				const label = document.querySelector('.result-verbose-label');
+				return label && (label.innerText || '').indexOf('>') < 0;
+			}, { timeout: 300000 });
 
 			const backendCount = await page.evaluate(async (term, queryType) => {
 				const response = await fetch(

@@ -44,15 +44,36 @@ describe('VFB Query Builder Tests', () => {
 			await wait4selector(page, '#queryitem-fru-M-200266_0', { visible: true, timeout : 150000 });
 		}, 220000)
 		
-		it('Query Builder Shows Result Count for Compound Queries', async () => {
+		/*
+		 * This used to wait for #query-results-label, the footer of the BUILD
+		 * view. It only passed because the compound run failed and left the
+		 * builder sitting on that view: a compound of two query types returns
+		 * parts with different headers, which the client refused to combine and
+		 * the server could not run either. Now the run succeeds and the builder
+		 * switches to the results view, where the count lives in
+		 * .result-verbose-label and the footer is gone -- so the old assertion
+		 * timed out on working behaviour. Assert the results instead.
+		 */
+		it('Query Builder Shows Results for Compound Queries', async () => {
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 150000 });
-			await wait4selector(page, '#query-results-label', { visible: true, timeout : 150000 });
+			await wait4selector(page, '#query-results-container', { visible: true, timeout : 150000 });
+			await wait4selector(page, '.result-verbose-label', { visible: true, timeout : 150000 });
+			await page.waitForFunction(
+				() => {
+					const label = document.querySelector('.result-verbose-label');
+					return label && /^\s*\d/.test(label.innerText || '');
+				},
+				{ timeout : 150000 }
+			);
 			const resultSummary = await page.evaluate(async () => {
-				const label = document.querySelector('#query-results-label');
-				return label ? label.textContent.trim() : "";
+				const label = document.querySelector('.result-verbose-label');
+				return label ? label.innerText.replace(/\s+/g, ' ').trim() : "";
 			});
-			expect(resultSummary).toMatch(/^\d+\s+results?$/i);
-			expect(parseInt(resultSummary, 10)).toBeGreaterThan(0);
+			// e.g. "25 Neurons with similar morphology to ... AND Images of ..."
+			expect(resultSummary).toMatch(/^\d[\d,]*\s+\S/);
+			expect(parseInt(resultSummary.replace(/,/g, ''), 10)).toBeGreaterThan(0);
+			// Both parts ran: a compound result names each query it combined.
+			expect(resultSummary.toLowerCase()).toContain(' and ');
 		}, 220000)
 	})
 
