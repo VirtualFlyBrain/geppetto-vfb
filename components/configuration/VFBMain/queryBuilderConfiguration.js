@@ -299,7 +299,8 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": SlideshowImageComponent,
     "displayName": "Images",
-    "actions": { addInstance : "window.addVfbId('$entity$');" , deleteInstance : '$entity$.delete()' },
+    // "<template>,<image>" references: window.vfbLoadImageRef honours the alignment clicked.
+    "actions": { addInstance : "window.vfbLoadImageRef('$entity$');" , deleteInstance : "window.vfbDeleteImageRef('$entity$');" },
     "cssClassName": "query-results-images-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
