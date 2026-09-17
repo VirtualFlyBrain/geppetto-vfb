@@ -36,7 +36,7 @@ class VFBFocusTerm extends React.Component {
     if (Instances !== undefined && Instances.length > 1) {
       for (var i = 1; i < Instances.length; i++) {
         if (Instances[i].getId() !== window.templateID) {
-          window.addVfbId(window[window.templateID].getId());
+          window.addVfbId(window.templateID);
           if (Instances[i].parent != null) {
             Instances[i].parent.delete();
             // Delete instance too after deleting parent
@@ -487,6 +487,19 @@ class VFBFocusTerm extends React.Component {
             items = items + ',' + compositeInstance.getId()
           }
         });
+        /*
+         * Only terms already in the scene are listed above, so a focus change
+         * while a URL load is still running (e.g. the id= term finishing first)
+         * dropped the rest from i= -- a reload or a copied link then lost them.
+         * Keep the ones still loading.
+         */
+        if (typeof window.vfbPendingIds === "function") {
+          window.vfbPendingIds().forEach(function (pendingId) {
+            if (!items.split(/[=,]/).includes(pendingId)) {
+              items = items + ',' + pendingId;
+            }
+          });
+        }
         items = items.replace(',,', ',').replace('i=,', 'i=');
         if (items != "i=") {
           var title = null;
@@ -579,7 +592,7 @@ class VFBFocusTerm extends React.Component {
             <div className="focusTermDivL">
               <Tabs>
                 <TabList>
-                  <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
+                  <Tab>{(window.templateID !== undefined && window[window.templateID] !== undefined && typeof window[window.templateID].getName === "function") ? window[window.templateID].getName() : "Template"}</Tab>
                   <Tab disabled={true} style={{ display: "none" }}>&nbsp; + &nbsp;</Tab>
                 </TabList>
                 <TabPanel style={{ display: "none" }}/>

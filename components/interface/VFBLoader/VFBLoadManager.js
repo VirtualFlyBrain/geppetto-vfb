@@ -149,6 +149,17 @@ export default class VFBLoadManager {
     this._pump();
   }
 
+  /* Public: ids requested but not yet loaded or given up on, in request order. */
+  pendingIds () {
+    var ids = [];
+    this.items.forEach(function (item, id) {
+      if (item.status !== LOAD_STATUS.LOADED && item.status !== LOAD_STATUS.FAILED) {
+        ids.push(id);
+      }
+    });
+    return ids;
+  }
+
   /* Public: request several ids; the last is the display/focus target. */
   requestMany (ids, { displayLast = true, labels } = {}) {
     var list = Array.from(new Set((ids || []).filter(Boolean)));

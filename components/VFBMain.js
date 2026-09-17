@@ -145,6 +145,15 @@ window.vfbGuardedObjResolve = function (instanceId, proceed) {
   });
 };
 
+/*
+ * The VFB template ids. When a URL loads, the first of its ids that is one of
+ * these becomes the scene's template straight away (see componentDidMount).
+ */
+const VFB_TEMPLATES = [
+  'VFB_00017894', 'VFB_00101567', 'VFB_00101384', 'VFB_00050000',
+  'VFB_00049000', 'VFB_00100000', 'VFB_00030786', 'VFB_00200000'
+];
+
 class VFBMain extends React.Component {
 
   constructor (props) {
@@ -635,103 +644,109 @@ class VFBMain extends React.Component {
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
-    if (window.templateID == undefined) {
-      var superTypes = rootInstance.getType().getSuperType();
-      for (var i = 0; i < superTypes.length; i++) {
-        if (superTypes[i].getId() == 'Template') {
-          window.templateID = rootInstance.getId();
-          // Set wireframe by template:
-          switch (window.templateID) {
-          case "VFB_00030786":
-            this.canvasReference.setWireframe(false);
-            break;
-          case "VFB_00050000":
-            this.canvasReference.setWireframe(false);
-            break;
-          case "VFB_00101384":
-            this.canvasReference.setWireframe(false);
-            this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
-            // TOOD: Fix Orientaion
-            break;
-          default:
-            this.canvasReference.setWireframe(false);
-            break;
-          }
-        }
+    var superTypes = rootInstance.getType().getSuperType();
+    var isTemplate = false;
+    var isClass = false;
+    var alignedTo = [];
+    for (var i = 0; i < superTypes.length; i++) {
+      var superId = superTypes[i].getId();
+      if (superId == 'Template') {
+        isTemplate = true;
+      } else if (superId == 'Class') {
+        isClass = true;
+      } else if (VFB_TEMPLATES.indexOf(superId) > -1) {
+        // Every template the term has an image on is one of its super-types.
+        alignedTo.push(superId);
       }
-      // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
-      if (window.templateID == undefined) {
-        var meta = rootInstance[rootInstance.getId() + '_meta'];
-        if (meta != undefined) {
-          if (typeof meta.getType().template != "undefined") {
-            var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-            var domObj = $(templateMarkup);
-            var anchorElement = domObj.filter('a');
-            // extract ID
-            var templateID = anchorElement.attr('data-instancepath');
-            /*
-             * Queue the template SILENTLY. This used to go through addVfbId,
-             * which also made the template the display target (lastRequestedFocusId,
-             * loadManager.focusId, URL id=) -- so whenever a non-template term's
-             * variable arrived before the template's, the template quietly took
-             * over term info / selection from the term the user actually asked
-             * for, and any later completion for it re-applied that. The template
-             * only needs to be in the model; focus stays with the requested term.
-             */
-            this.loadManager.request(templateID, { display: false });
-            setTimeout(function (){
-              window.resolve3D(path);
-            }, 5000);
-            return; // Don't load until the template has
-          }
-        }
-      }
-    } else {
-      // check if the user is adding to the scene something belonging to another template
-      var superTypes = rootInstance.getType().getSuperType();
-      var templateID = "unknown";
-      for (var i = 0; i < superTypes.length; i++) {
-        if (superTypes[i].getId() == window.templateID) {
-          templateID = superTypes[i].getId()
-        }
-        if (superTypes[i].getId() == 'Class') {
-          templateID = window.templateID;
-          return; // Exit if Class - Class doesn't have image types.
-        }
-      }
+    }
 
+    /*
+     * The scene's template may already be known before its own term has loaded
+     * (it is set from the URL, see componentDidMount), so apply the template's
+     * view settings when the template itself resolves, not only when it is the
+     * first thing to resolve.
+     */
+    if (isTemplate && (window.templateID == undefined || window.templateID == rootInstance.getId())) {
+      window.templateID = rootInstance.getId();
+      this.applyTemplateView(window.templateID);
+    }
+
+    if (window.templateID == undefined) {
+      // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
       var meta = rootInstance[rootInstance.getId() + '_meta'];
-      if (meta != undefined) {
-        if (typeof meta.getType().template != "undefined") {
+      if (meta != undefined && typeof meta.getType().template != "undefined") {
+        var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+        var anchorElement = $(templateMarkup).filter('a');
+        var templateID = anchorElement.attr('data-instancepath');
+        /*
+         * Queue the template SILENTLY (not through addVfbId, which would make it
+         * the display target) and claim it as the scene's template now, so
+         * terms resolving meanwhile are checked against it rather than each
+         * picking their own.
+         */
+        window.templateID = templateID;
+        this.loadManager.request(templateID, { display: false });
+        /*
+         * Retry with the SAME callback. This used to call window.resolve3D,
+         * whose callback selects the instance unconditionally -- that selection
+         * went through the Select listener into handlerInstanceUpdate, so any
+         * term that resolved before the template stole Term Info / URL id=
+         * from the requested focus ~5s later.
+         */
+        var self = this;
+        setTimeout(function () {
+          self.resolve3D(path, callback);
+        }, 5000);
+        return; // Don't load until the template has
+      }
+    } else if (!(isTemplate && rootInstance.getId() == window.templateID)) {
+      if (isClass) {
+        return; // Exit if Class - Class doesn't have image types.
+      }
+      /*
+       * Check if the user is adding to the scene something belonging to another
+       * template. A term can be aligned to several templates: it is only
+       * "another template" if none of them is the scene's. Comparing against
+       * just the first template listed in its term info (as before) prompted
+       * for images that do have an alignment to the loaded template.
+       */
+      var otherTemplate = undefined;
+      if (alignedTo.length > 0 && alignedTo.indexOf(window.templateID) < 0) {
+        otherTemplate = alignedTo[0];
+      } else if (alignedTo.length == 0) {
+        // No template super-types (older model shapes): fall back to the term info's template link.
+        var meta = rootInstance[rootInstance.getId() + '_meta'];
+        if (meta != undefined && typeof meta.getType().template != "undefined") {
           var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-          var domObj = $(templateMarkup);
-          var anchorElement = domObj.filter('a');
-          // extract ID
-          var templateID = anchorElement.attr('data-instancepath');
-          if (window.EMBEDDED) {
-            var curHost = parent.document.location.host;
-            var curProto = parent.document.location.protocol;
-          } else {
-            var curHost = document.location.host;
-            var curProto = document.location.protocol;
-          }
-          if (templateID != window.templateID) {
-            // open new window with the new template and the instance ID
-            safeGa('vfb.send', 'event', 'request', 'newtemplate', templateID);
-            var targetWindow = '_blank';
-            var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
-            if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              safeGa('vfb.send', 'event', 'opening', 'newtemplate', templateID);
-              window.open(newUrl, targetWindow);
-              this.instancesFromDifferentTemplates(rootInstance);
-            } else {
-              safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
-              this.instancesFromDifferentTemplates(rootInstance);
-            }
-            // stop flow here, we don't want to add to scene something with a different template
-            return;
+          var linkedTemplates = $(templateMarkup).filter('a').map(function () {
+            return $(this).attr('data-instancepath');
+          }).get();
+          if (linkedTemplates.length > 0 && linkedTemplates.indexOf(window.templateID) < 0) {
+            otherTemplate = linkedTemplates[0];
           }
         }
+      }
+      if (otherTemplate !== undefined) {
+        if (window.EMBEDDED) {
+          var curHost = parent.document.location.host;
+          var curProto = parent.document.location.protocol;
+        } else {
+          var curHost = document.location.host;
+          var curProto = document.location.protocol;
+        }
+        // open new window with the new template and the instance ID
+        safeGa('vfb.send', 'event', 'request', 'newtemplate', otherTemplate);
+        var targetWindow = '_blank';
+        var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, otherTemplate).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+          safeGa('vfb.send', 'event', 'opening', 'newtemplate', otherTemplate);
+          window.open(newUrl, targetWindow);
+        } else {
+          safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', otherTemplate);
+        }
+        this.instancesFromDifferentTemplates(rootInstance);
+        // stop flow here, we don't want to add to scene something with a different template
+        return;
       }
     }
 
@@ -822,8 +837,25 @@ class VFBMain extends React.Component {
     }
   }
 
+  applyTemplateView (templateID) {
+    // Set wireframe by template:
+    switch (templateID) {
+    case "VFB_00101384":
+      this.canvasReference.setWireframe(false);
+      this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
+      // TOOD: Fix Orientaion
+      break;
+    default:
+      this.canvasReference.setWireframe(false);
+      break;
+    }
+  }
+
   instancesFromDifferentTemplates (instance) {
-    this.handlerInstanceUpdate(instance);
+    // Show its metadata only if it is the term asked for; a silent load stays silent.
+    if (this.lastRequestedFocusId === undefined || instance.getId() === this.lastRequestedFocusId) {
+      this.handlerInstanceUpdate(instance);
+    }
 
     var children = instance.getChildren();
     for ( let i = 0; i < children.length; i++) {
@@ -1670,6 +1702,11 @@ class VFBMain extends React.Component {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
 
+    // Terms still loading, so a URL rebuilt mid-load keeps them in i=.
+    window.vfbPendingIds = function () {
+      return this.loadManager ? this.loadManager.pendingIds() : [];
+    }.bind(this);
+
     window.addVfbId = function (idFromOutside) {
       this.addVfbId(idFromOutside);
     }.bind(this);
@@ -1935,6 +1972,22 @@ class VFBMain extends React.Component {
       this.idsFromURL.push(this.idFromURL);
       this.idsFromURL = [... new Set(this.idsFromURL)];
       this.idsFinalList = this.idsFromURL;
+      /*
+       * Claim the scene's template now -- the first template id the URL lists --
+       * rather than when its term happens to resolve. Terms load several at a
+       * time, so an image often resolves before its template; without this it
+       * was checked against no template (or built its geometry for whichever
+       * template its term info listed first) and could be wrongly flagged as
+       * "aligned to another template".
+       */
+      if (window.templateID === undefined) {
+        var urlTemplate = this.idsFromURL.find(function (id) {
+          return VFB_TEMPLATES.indexOf(id) > -1;
+        });
+        if (urlTemplate !== undefined) {
+          window.templateID = urlTemplate;
+        }
+      }
       // The id= term is the intended focus on a URL load; others load silently.
       this.lastRequestedFocusId = this.idFromURL;
       console.log("Loading IDS to add to the scene from url");
