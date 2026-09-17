@@ -78,32 +78,35 @@ describe('VFB Query Builder Tests', () => {
 	})
 
 	/*
-	 * A query row's images are referenced by the plain image id, and the same id
-	 * serves every template the image is aligned to -- so every slide of a
-	 * multi-alignment carousel carried the same reference and clicking the VNC
+	 * A query row's images used to be referenced by the plain image id, and the
+	 * same id served every template the image is aligned to -- so every slide of
+	 * a multi-alignment carousel carried the same reference and clicking the VNC
 	 * slide loaded the brain one. The reference now carries its template.
+	 *
+	 * The fixture matters: only a row with more than one image renders a
+	 * carousel, and only a carousel puts the per-image reference in the DOM (a
+	 * single-image row's checkbox is keyed on the row's own id). This query has
+	 * rows aligned to both JRC2018U and JRCVNC2018U within its first page.
 	 */
 	describe('Tests Alignments in Query Result Images', () => {
-		it('Results with images arrive', async () => {
-			await page.goto(baseURL + "/geppetto?q=FBbt_00003748,ImagesNeurons", { timeout : 220000 });
+		it('Results with carousels arrive', async () => {
+			await page.goto(baseURL + "/geppetto?q=VFB_jrmc3jgx,NeuronNeuronConnectivityQuery", { timeout : 220000 });
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 });
 			closeModalWindow(page);
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 240000 });
 			await page.waitForFunction(
-				() => document.querySelectorAll('.query-results-images-column img').length > 0,
+				() => document.querySelectorAll('.query-results-slick .query-results-checkbox').length > 0,
 				{ timeout : 300000 }
 			);
 		}, 500000)
 
 		it('An image aligned to a second template is referenced by that template', async () => {
 			/*
-			 * The reference is what the click acts on, and the component puts it in
-			 * the checkbox/loader element id. A row aligned to one template only is
-			 * still "<template>,<image>" -- what matters is that two alignments of
-			 * one image are no longer the same reference.
+			 * The reference is what the click acts on, and the carousel puts it in
+			 * each slide's checkbox id.
 			 */
 			const references = await page.evaluate(() => Array.from(
-				document.querySelectorAll('[id$="-checkbox"], [id$="-loader"]')
+				document.querySelectorAll('.query-results-slick [id$="-checkbox"], .query-results-slick [id$="-loader"]')
 			).map((element) => element.id.replace(/-(checkbox|loader)$/, '')));
 
 			const aligned = references.filter((reference) => /^VFB_\d+,VFB_\w+/.test(reference));
