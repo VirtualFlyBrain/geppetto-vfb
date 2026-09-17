@@ -11,6 +11,7 @@ import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanva
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
 import { safeGa } from './interface/utils/utils';
+import { showConnectionNotice, hideConnectionNotice } from './interface/utils/connectionNotice';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
@@ -20,6 +21,7 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
 import { connect } from "react-redux";
 import * as ACTIONS from './../actions/generals';
 
@@ -230,6 +232,7 @@ class VFBMain extends React.Component {
     this.setSepCol = require('./interface/utils/utils').setSepCol;
     this.hasVisualType = require('./interface/utils/utils').hasVisualType;
     this.hasUnresolvedVisualType = require('./interface/utils/utils').hasUnresolvedVisualType;
+    this.isVariableLoaded = require('./interface/utils/utils').isVariableLoaded;
 
     /*
      * Single owner of term loading. Everything that loads a term goes through
@@ -322,7 +325,14 @@ class VFBMain extends React.Component {
        * growing the URL and desyncing the loader when ids repeat).
        */
       if (window.history.state != null && (window.history.state.s == 1 || window.history.state.s == 4) && window.location.search.indexOf("i=") > -1) {
-        var cleanIds = Array.from(new Set(idsList));
+        /*
+         * Keep what the URL already lists and add the new ids to it. Writing
+         * only the ids of this request dropped everything already in the
+         * scene from i=, so a reload (including the one the reconnect logic
+         * falls back to) came back with just the last term.
+         */
+        var existingIds = (new URLSearchParams(window.location.search).get('i') || '').split(',').filter(Boolean);
+        var cleanIds = Array.from(new Set(existingIds.concat(idsList)));
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
@@ -540,18 +550,23 @@ class VFBMain extends React.Component {
    */
   managerIsLoaded (id) {
     /*
-     * VFB sets window[<id>] when a term has been loaded (by any loader -- slice
-     * viewer click loads the class, shift+click loads the aligned-image
-     * Individual, plus URL/tree/graph paths). It is the path-independent source
-     * of truth, so if it exists the term is already loaded and a re-request
-     * should just re-focus rather than load and count it again.
+     * Geppetto sets window[<id>] AND window.Instances[<id>] when a term's
+     * top-level instance is created (Manager.augmentInstancesArray). Testing
+     * window[id] is not safe: named access also resolves any DOM element with
+     * that id, and the Layers list gives its class links the class id, so a
+     * slice-viewer click on such a domain was taken as "already loaded" and
+     * silently did nothing. Testing the model factory instead (#1755) was too
+     * weak the other way: window.Model[id] exists as soon as the variable is
+     * merged, before its instance and geometry exist, so a term requested
+     * again in that window was skipped and its mesh never loaded (batch-2
+     * tests: Term Info populated, empty 3D viewer, no deselect button).
+     * window.Instances[id] is exactly what window[id] meant, minus the DOM.
      */
-    if ((typeof window === "undefined") || (window[id] === undefined)) {
+    if ((typeof window === "undefined") || !window.Instances || (window.Instances[id] === undefined)) {
       return false;
     }
     /*
-     * window[id] only means the VARIABLE is in the model -- i.e. Term Info has
-     * been fetched. The term is not loaded until its visual types have been
+     * A loaded variable only means Term Info has been fetched. The term is not loaded until its visual types have been
      * resolved into the scene; while any of them is still an ImportType there
      * is geometry outstanding, and a re-request must load it rather than just
      * re-focus. Treating "variable exists" as "loaded" is what made a Term Info
@@ -583,11 +598,30 @@ class VFBMain extends React.Component {
     try {
       meta = Instances.getInstance(id + '.' + id + '_meta');
     } catch (e) {
+      meta = undefined;
+    }
+    if (meta === undefined) {
+      /*
+       * Focus was applied to a term the manager believes is loaded but whose
+       * meta instance isn't in the model. Don't return silently -- that leaves
+       * Term Info unchanged with nothing in the console -- fetch it properly.
+       * Once per id: request() re-enters here if it still judges the term
+       * loaded, and a second pass would recurse without end.
+       */
+      this.focusReloadTried = this.focusReloadTried || {};
+      if (this.focusReloadTried[id]) {
+        console.warn("managerFocus: still no meta instance for " + id + " after reloading it");
+        return;
+      }
+      this.focusReloadTried[id] = true;
+      console.warn("managerFocus: no meta instance for " + id + "; loading it");
+      this.loadManager.loaded.delete(id);
+      this.loadManager.items.delete(id);
+      this.loadManager.request(id, { display: true });
       return;
     }
-    if (meta !== undefined) {
-      this.handlerInstanceUpdate(meta);
-    }
+    delete (this.focusReloadTried || {})[id];
+    this.handlerInstanceUpdate(meta);
     var instance = Instances.getInstance(id);
     if (this.hasVisualType(id) && instance !== undefined && typeof instance.select === "function") {
       GEPPETTO.SceneController.deselectAll();
@@ -929,7 +963,7 @@ class VFBMain extends React.Component {
         $("body").css("cursor", "default");
       };
       // add query item + selection
-      if (window[otherId] == undefined) {
+      if (!this.isVariableLoaded(otherId)) {
         window.fetchVariableThenRun(otherId, function () {
           that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
         });
@@ -1999,13 +2033,15 @@ class VFBMain extends React.Component {
       }
     }
 
-    // google analytics vfb specific tracker
-    // Bare (not window.) call, and the very first GA touchpoint in this
-    // component -- if the GA loader script hasn't executed yet (or never
-    // will), this used to throw a ReferenceError straight out of
-    // componentDidMount, aborting everything after it: the console.log /
-    // console.error overrides below, and the websocket disconnect/
-    // reconnect listener further down this same method.
+    /*
+     * google analytics vfb specific tracker
+     * Bare (not window.) call, and the very first GA touchpoint in this
+     * component -- if the GA loader script hasn't executed yet (or never
+     * will), this used to throw a ReferenceError straight out of
+     * componentDidMount, aborting everything after it: the console.log /
+     * console.error overrides below, and the websocket disconnect/
+     * reconnect listener further down this same method.
+     */
     safeGa('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
     window.console.stderr = console.error.bind(console);
@@ -2061,6 +2097,7 @@ class VFBMain extends React.Component {
         });
       }
       safeGa('vfb.send', 'event', 'websocket-connection-failed', 'websocket-error', details);
+      gaDetail('ws-connfail', context, GEPPETTO.MessageSocket.socketStatus, 'a' + GEPPETTO.MessageSocket.attempts);
       GEPPETTO.ModalFactory.infoDialog('Unable to load data from the Virtual Fly Brain server',
         'Virtual Fly Brain needs a WebSocket connection to load its data, and that connection could not be established '
         + 'or was interrupted. This is usually a browser or network problem rather than a fault with the service.'
@@ -2097,7 +2134,7 @@ class VFBMain extends React.Component {
           }
         }
       }
-      if (window.StackViewer1 != undefined) {
+      if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
         this.sliceViewerReference.updateStackWidget();
       }
 
@@ -2108,35 +2145,304 @@ class VFBMain extends React.Component {
       self.props.instanceVisibilityChanged(instance);
     }.bind(this));
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      safeGa('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
+    /*
+     * Connection lifecycle. The client (geppetto-client MessageSocket) now
+     * recovers a dropped socket on its own: retries with backoff for minutes,
+     * resumes the old server session where it can, and re-establishes one in
+     * place where it cannot - all without touching the scene this page holds.
+     * VFB's job here is to tell the user what is going on and to record it.
+     *
+     * GA event names are kept from the reload-based version so the
+     * websocket-disconnect baseline stays comparable; reconnect-failed-reloading
+     * is now only sent from the genuine last resort below.
+     */
+    var gaPage = function () {
+      return window.location.pathname + window.location.search;
+    };
+    /*
+     * GA4 only reports event parameters that have been registered as custom
+     * dimensions, and none are, so everything passed as the label (reason,
+     * close code, attempt count) is invisible in the Data API and the
+     * reports. Put the facts that decide what a failure WAS into the event
+     * name itself, as a second event alongside the baseline one so the
+     * existing counts stay comparable. GA4 caps event names at 40 characters.
+     */
+    var gaDetail = function () {
+      var name = Array.prototype.slice.call(arguments).map(function (part) {
+        return String(part === undefined || part === null || part === '' ? 'na' : part)
+          .toLowerCase().replace(/[^a-z0-9._-]+/g, '_');
+      }).join(':').substring(0, 40);
+      safeGa('vfb.send', 'event', name, 'websocket-detail', gaPage());
+    };
+    var droppedNoticeShown = false;
+    /*
+     * Background retry after the client's reconnection budget is spent. Slow
+     * (once a minute) so a dead backend is not hammered, immediate on the
+     * signals that make success likely (network back, tab foregrounded).
+     */
+    var AUTO_RETRY_MS = 60 * 1000;
+    var autoRetryTimer = null;
+    var autoRetryOnSignal = null;
+    var stopAutoRetry = function () {
+      if (autoRetryTimer) {
+        clearInterval(autoRetryTimer);
+        autoRetryTimer = null;
+      }
+      if (autoRetryOnSignal) {
+        window.removeEventListener('online', autoRetryOnSignal);
+        document.removeEventListener('visibilitychange', autoRetryOnSignal);
+        autoRetryOnSignal = null;
+      }
+    };
+    var startAutoRetry = function (retry) {
+      stopAutoRetry();
+      var attempt = function () {
+        if (GEPPETTO.MessageSocket.socketStatus !== GEPPETTO.Resources.SocketStatus.CLOSE) {
+          return; // a retry is already under way
+        }
+        if (typeof navigator.onLine === 'boolean' && !navigator.onLine) {
+          return; // pointless while the browser knows it is offline
+        }
+        if (document.hidden) {
+          return; // an abandoned background tab retries when it is next looked at
+        }
+        retry('auto');
+      };
+      autoRetryTimer = setInterval(attempt, AUTO_RETRY_MS);
+      autoRetryOnSignal = function () {
+        if (!document.hidden) {
+          attempt();
+        }
+      };
+      window.addEventListener('online', autoRetryOnSignal);
+      document.addEventListener('visibilitychange', autoRetryOnSignal);
+    };
+    // A blip that reconnects on the first try should not flash a notice at all
+    var NOTICE_GRACE_MS = 2000;
+    var noticeGraceTimer = null;
+    var clearNoticeGrace = function () {
+      if (noticeGraceTimer) {
+        clearTimeout(noticeGraceTimer);
+        noticeGraceTimer = null;
+      }
+    };
+    var reconnectingMessage = function (elapsedMs) {
+      var waited = Math.round(elapsedMs / 1000);
+      return waited < 10 ? 'Connection to the VFB server dropped. Reconnecting…'
+        : 'Still trying to reach the VFB server (' + waited + 's). Your view is kept.';
+    };
+    /*
+     * Downtime as a bucket rather than a raw number: GA event labels are
+     * strings, and buckets are what the reports need to answer "did the user
+     * notice", without a custom metric.
+     */
+    var downtimeBucket = function (ms) {
+      if (ms < 2000) {
+        return '0-2s';
+      } else if (ms < 10000) {
+        return '2-10s';
+      } else if (ms < 30000) {
+        return '10-30s';
+      } else if (ms < 60000) {
+        return '30-60s';
+      }
+      return '60s+';
+    };
+    /*
+     * Anything thrown in here would otherwise escape into the client's
+     * recovery sequence. The client guards its own triggers too; this makes
+     * sure the failure is attributed to VFB's listener and reaches GA
+     * (console.error is routed to an errorlog event above).
+     */
+    var onConnectionEvent = function (event, handler) {
+      GEPPETTO.on(event, function (info) {
+        try {
+          handler(info || {});
+        } catch (err) {
+          console.error('VFB connection listener failed for ' + event + ': '
+            + (err && err.stack ? err.stack : err));
+        }
+      });
+    };
+
+    onConnectionEvent(GEPPETTO.Events.Websocket_reconnecting, function (info) {
+      if (!droppedNoticeShown) {
+        safeGa('vfb.send', 'event', 'disconnected', 'websocket-disconnect', gaPage());
+        droppedNoticeShown = true;
+      }
+      safeGa('vfb.send', 'event', 'reconnect-attempt:' + info.attempt, 'websocket-disconnect', gaPage());
+      if (info.elapsedMs >= NOTICE_GRACE_MS) {
+        clearNoticeGrace();
+        showConnectionNotice(reconnectingMessage(info.elapsedMs), { level: 'warn' });
+      } else if (!noticeGraceTimer) {
+        noticeGraceTimer = setTimeout(function () {
+          noticeGraceTimer = null;
+          if (GEPPETTO.MessageSocket.socketStatus === GEPPETTO.Resources.SocketStatus.RECONNECTING) {
+            showConnectionNotice(reconnectingMessage(NOTICE_GRACE_MS), { level: 'warn' });
+          }
+        }, NOTICE_GRACE_MS);
+      }
+    });
+
+    onConnectionEvent(GEPPETTO.Events.Websocket_session_lost, function () {
+      clearNoticeGrace();
+      safeGa('vfb.send', 'event', 'reconnect-session-lost', 'websocket-disconnect', gaPage());
+      /*
+       * The server could not resume our session (another container, or the
+       * retained manager was evicted), so the client would now re-establish
+       * a FRESH project on this socket while keeping its own model. That
+       * cannot be made consistent: Geppetto references types positionally
+       * (//@libraries.N/@types.K) and a fresh server has none of the types
+       * this client added, so every later fetch_variable resolves K against
+       * the wrong list - Term Info shows JRC2018U, then GNG, VES, PED, FB
+       * for clicks on medulla, SLP, wedge... (seen 16 Sep, Connection109) -
+       * and the server rejects run_query / resolve_import_type for anything
+       * loaded earlier ("is neither an instance variable nor a library id").
+       * A reload from the URL (which keeps every id in the scene) is the one
+       * recovery that is correct. Counted as reconnect-failed-reloading so
+       * the reload rate stays comparable with the earlier baseline.
+       */
+      var detail = 'session-lost | ' + gaPage();
+      safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', detail);
+      gaDetail('ws-reload', 'session-lost');
+      console.log('%c Websocket session lost on the server, reloading from the URL ', 'background: #444; color: #bada55');
+      showConnectionNotice('Reconnected, reloading your view…', { level: 'warn' });
+      window.location.reload();
+    });
+
+    onConnectionEvent(GEPPETTO.Events.Websocket_reconnected, function (info) {
+      var wasNoticed = droppedNoticeShown && !noticeGraceTimer;
+      clearNoticeGrace();
+      stopAutoRetry();
+      droppedNoticeShown = false;
+      safeGa('vfb.send', 'event', info.resumed ? 'reconnected-resumed' : 'reconnected-reestablished', 'websocket-disconnect', gaPage());
+      /*
+       * How long the user was without a session, and what it cost to get it
+       * back. Without these a recovery that took two minutes and replayed
+       * nothing looks the same in GA as one that took a second.
+       */
+      gaDetail('ws-back', info.resumed ? 'resumed' : 'reest', downtimeBucket(info.downtimeMs || 0),
+        'a' + (info.attempts || 0), 'r' + (info.replayed || 0));
+      safeGa('vfb.send', 'event', 'reconnect-downtime:' + downtimeBucket(info.downtimeMs || 0),
+        'websocket-disconnect', (info.resumed ? 'resumed' : 'reestablished')
+          + ' | attempts:' + (info.attempts || 0)
+          + ' | replayed:' + (info.replayed || 0)
+          + ' | ms:' + (info.downtimeMs || 0));
+      console.log('%c VFB reconnected (' + (info.resumed ? 'resumed' : 're-established') + ') after '
+        + (info.downtimeMs || 0) + 'ms, ' + (info.attempts || 0) + ' attempt(s), replayed '
+        + (info.replayed || 0) + ' command(s) ', 'background: #444; color: #bada55');
+      if (wasNoticed || !info.resumed) {
+        showConnectionNotice('Reconnected.', { level: 'ok', autoHideMs: 3000 });
+      } else {
+        hideConnectionNotice();
+      }
+    });
+
+    onConnectionEvent(GEPPETTO.Events.Websocket_disconnected, function (info) {
+      var reason = (info && info.reason) || 'unknown';
+      clearNoticeGrace();
+      droppedNoticeShown = false;
       if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
         console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
         location.replace(`https:${location.href.substring(location.protocol.length)}`);
+        return;
       }
-      if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-        if (GEPPETTO.MessageSocket.attempts < 2) {
-          safeGa('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
-          GEPPETTO.MessageSocket.reconnect();
-        } else if (GEPPETTO.MessageSocket.getClientID() == null) {
-          /*
-           * The socket never completed a handshake in this session, so a
-           * reload would fail the same way and loop forever. Warn the user
-           * and report instead.
-           */
-          reportWebsocketFailure('reconnect-exhausted');
-        } else {
-          safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
-          console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
-          window.location.reload();
-        }
-      } else {
-        setTimeout(() => {
-          if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-            safeGa('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
-            GEPPETTO.MessageSocket.reconnect();
+      if (GEPPETTO.MessageSocket.getClientID() == null) {
+        /*
+         * The socket never completed a handshake in this session, so a
+         * reload would fail the same way and loop forever. Warn the user
+         * and report instead.
+         */
+        reportWebsocketFailure('reconnect-exhausted');
+        return;
+      }
+      if (reason === 'resync-failed' || reason === 'resync-impossible') {
+        /*
+         * We got a socket back but could not re-establish the session on
+         * it. A reload starts clean from the URL; this is the one path
+         * that still reloads, and it is the Phase 1 success metric.
+         */
+        var detail = reason + ' | ' + (info.detail || 'no detail') + ' | ' + gaPage();
+        safeGa('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', detail);
+        gaDetail('ws-reload', reason, (info.detail || '').split(' ').slice(0, 3).join('_'));
+        /*
+         * Also as an error, so the reason travels with the browser and page
+         * context rather than only as a label, and shows up in the same place
+         * as every other client failure.
+         */
+        console.error('Websocket session could not be re-established, reloading: ' + detail);
+        window.location.reload();
+        return;
+      }
+      /*
+       * Budget exhausted: the server has been unreachable for minutes. Keep
+       * the page - the user may just be offline - and let them choose.
+       */
+      var exhaustedDetail = 'attempts:' + (info.attempts || GEPPETTO.MessageSocket.attempts)
+        + ' | ms:' + (info.elapsedMs || 0)
+        + ' | closeCode:' + (info.closeCode || 'unknown')
+        + ' | online:' + (typeof navigator.onLine === 'boolean' ? navigator.onLine : 'unknown')
+        + ' | ' + gaPage();
+      safeGa('vfb.send', 'event', 'reconnect-exhausted', 'websocket-disconnect', exhaustedDetail);
+      gaDetail('ws-exhausted', reason, 'c' + (info.closeCode || 'na'),
+        'a' + (info.attempts || GEPPETTO.MessageSocket.attempts),
+        (typeof navigator.onLine === 'boolean' ? (navigator.onLine ? 'online' : 'offline') : 'na'));
+      console.error('Websocket reconnection gave up: ' + exhaustedDetail);
+      var retryNow = function (how) {
+        safeGa('vfb.send', 'event', how === 'user' ? 'reconnect-retry-clicked' : 'reconnect-retry-auto', 'websocket-disconnect', gaPage());
+        stopAutoRetry();
+        hideConnectionNotice();
+        GEPPETTO.MessageSocket.attempts = 0;
+        GEPPETTO.MessageSocket.reconnect();
+      };
+      showConnectionNotice('Could not reach the VFB server. Your view is kept and VFB keeps trying in the background; anything you click will load once it is back.', {
+        level: 'error',
+        action: {
+          label: 'Retry now',
+          onClick: function () {
+            retryNow('user');
           }
-        }, 3000);
+        }
+      });
+      /*
+       * Only three of ~190 users who saw this banner on 16 Sep clicked Retry;
+       * the rest left or reloaded by hand. So do not wait for the click: keep
+       * retrying at a slow, fixed cadence while the page is open, and at once
+       * when the network comes back or the tab is looked at again. The client
+       * holds the commands the user issued meanwhile and replays them once a
+       * session is back, so a retry that succeeds delivers what was clicked.
+       */
+      startAutoRetry(retryNow);
+    });
+
+    /*
+     * A request whose reply died with the socket and could not be replayed.
+     * The loader drains it, so the user sees no error - but the term or query
+     * they asked for silently never arrives, which is exactly the kind of
+     * failure this release needs to be able to see.
+     */
+    var requestFailedNoticeAt = 0;
+    GEPPETTO.on('geppetto:request_failed', function (requestID) {
+      try {
+        safeGa('vfb.send', 'event', 'request-failed', 'websocket-disconnect',
+          'requestID:' + requestID + ' | socketStatus:' + GEPPETTO.MessageSocket.socketStatus + ' | ' + gaPage());
+      } catch (err) {
+        console.error('Failed to report a dropped request: ' + (err && err.message ? err.message : err));
+      }
+      /*
+       * With the client now holding and replaying commands across a drop this
+       * is rare (a request replayed three times and lost each time, or one
+       * the server answered with an error), but when it happens the user must
+       * hear about it rather than wait for a term that will never arrive.
+       * One notice per burst, on the logo float so it does not cover the page.
+       */
+      if (Date.now() - requestFailedNoticeAt > 30000
+        && GEPPETTO.MessageSocket.socketStatus !== GEPPETTO.Resources.SocketStatus.RECONNECTING) {
+        requestFailedNoticeAt = Date.now();
+        showConnectionNotice('Something you asked for could not be loaded after the connection dropped. Click it again to retry.', {
+          level: 'warn',
+          autoHideMs: 15000
+        });
       }
     });
   }
@@ -2320,6 +2626,8 @@ class VFBMain extends React.Component {
         <Logo
           logo='gpt-fly'
           id="geppettologo" />
+
+        <VFBOrientationGizmo getCanvas={() => this.canvasReference} />
 
         <FlexLayout.Layout
           ref="layout"

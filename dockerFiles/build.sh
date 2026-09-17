@@ -42,14 +42,35 @@ echo "useSSL:${USESSL}"
 grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/
 grep -rls '"useSsl"' $HOME/workspace/org.geppetto.frontend/ | xargs sed -i "s@\"useSsl\"[[:space:]]*:[[:space:]]*\(true\|false\)@\"useSsl\": ${USESSL}@g"
 
+# The frontend build runs `npm ci`, which installs exactly what package-lock.json
+# pins and ignores package.json. Fail fast if the lock doesn't pin the
+# geppetto-client release this image is meant to ship, otherwise the build
+# silently bundles whatever older client the lock still points at.
+if [ -n "${geppettoClientRelease}" ]; then
+  LOCKED_CLIENT=$(grep -A2 '"@geppettoengine/geppetto-client": {' $HOME/workspace/org.geppetto.frontend/src/main/webapp/package-lock.json | grep '"from"' | head -1)
+  echo "Locked geppetto-client: ${LOCKED_CLIENT}"
+  grep -A1 '"@geppettoengine/geppetto-client": {' $HOME/workspace/org.geppetto.frontend/src/main/webapp/package-lock.json | grep '"version"' || true
+  if ! echo "${LOCKED_CLIENT}" | grep -q "geppetto-client#${geppettoClientRelease}\""; then
+    echo -e "\e[91mpackage-lock.json does not pin geppetto-client#${geppettoClientRelease} - update the lock to match the Dockerfile/package.json pin.\e[0m"
+    exit 1
+  fi
+fi
+
 # Temporarily disable exit on error so we can check for npm logs if the build fails
 set +e
 
-# Frontend final build
+# Frontend final build.
+# Every backend module above builds with ${mvnOpt} (which carries -Pmaster),
+# but this line never did, so the frontend fell through to the pom's
+# activeByDefault "development" profile: `npm run build-dev`, i.e. webpack with
+# --devtool eval and NODE_ENV=development. The site has been shipping the
+# unminified React development build - 16.7 MB main bundle, PropTypes checks
+# and dev-only warnings on every page, which is most of the ~250k errorlog
+# events GA records a month. -Pmaster selects `npm run build` (webpack -p).
 cd $HOME/workspace/org.geppetto.frontend
 /bin/echo -e "\e[96mMaven install org.geppetto.frontend\e[0m"
 echo "mvnOpt: ${mvnOpt}"
-mvn -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} install -e
+mvn -Pmaster -DcontextPath=org.geppetto.frontend -DuseSsl=${USESSL} install -e
 BUILD_STATUS=$?
 
 # If build failed, check for npm logs

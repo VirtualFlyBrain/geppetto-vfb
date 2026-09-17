@@ -36,10 +36,6 @@ function carouselTemplateOf (element) {
   }
 }
 
-function carouselImageIdOf (element) {
-  return element.initialValue && element.initialValue.reference ? element.initialValue.reference : '';
-}
-
 function carouselTemplateRank (template) {
   if (window.templateID !== undefined && template === window.templateID) {
     return -1;
@@ -48,22 +44,26 @@ function carouselTemplateRank (template) {
   return i >= 0 ? i : 1000;
 }
 
-/* Sort a copy of the carousel elements; see the call site for the ordering rationale. */
+/*
+ * Sort a copy of the carousel elements by template; see the call site for the
+ * ordering rationale. Within a template the server order is kept (ties fall
+ * back to the original position), since VFBquery already puts the template's
+ * own indexed domain image first and the rest newest first.
+ */
 function orderCarouselElements (elements) {
-  return elements.slice().sort(function (a, b) {
-    var templateA = carouselTemplateOf(a), templateB = carouselTemplateOf(b);
-    var rankA = carouselTemplateRank(templateA), rankB = carouselTemplateRank(templateB);
+  return elements.map(function (element, position) {
+    return { element: element, position: position, template: carouselTemplateOf(element) };
+  }).sort(function (a, b) {
+    var rankA = carouselTemplateRank(a.template), rankB = carouselTemplateRank(b.template);
     if (rankA !== rankB) {
       return rankA - rankB;
     }
-    if (rankA === 1000 && templateA !== templateB) {
-      return templateA < templateB ? 1 : -1;
+    if (rankA === 1000 && a.template !== b.template) {
+      return a.template < b.template ? 1 : -1;
     }
-    var idA = carouselImageIdOf(a), idB = carouselImageIdOf(b);
-    if (idA === idB) {
-      return 0;
-    }
-    return idA < idB ? 1 : -1;
+    return a.position - b.position;
+  }).map(function (entry) {
+    return entry.element;
   });
 }
 
@@ -299,9 +299,11 @@ class VFBTermInfo extends React.Component {
           this.imagesData.list = [];
           /*
            * Order Available Images: current template first, then the preferred
-           * templates, then the rest by descending template id, and within each
-           * template by descending image id (newest first). Done client-side so
-           * a stale cache cannot pin the wrong current template to the front.
+           * templates, then the rest by descending template id. Within each
+           * template keep the server order: the template's own indexed image
+           * first, then newest first (VFB2#500). Template order is done
+           * client-side so a stale cache cannot pin the wrong current template
+           * to the front.
            */
           var sortedElements = orderCarouselElements(value.elements);
           for (var j = 0; j < sortedElements.length; j++) {

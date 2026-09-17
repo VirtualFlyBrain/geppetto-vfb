@@ -13,12 +13,12 @@ VOLUME /tmp/error
 ARG geppettoRelease=vfb_20200604_a
 ARG geppettoModelRelease=vfb_20200604_a
 ARG geppettoCoreRelease=VFBv2.3.8.2
-ARG geppettoSimulationRelease=VFBv2.1.0.3
+ARG geppettoSimulationRelease=VFBv2.1.0.4
 ARG geppettoDatasourceRelease=VFBv2.3.8.4
 ARG geppettoModelSwcRelease=v1.0.1
-ARG geppettoFrontendRelease=VFBv2.3.8.4
-ARG geppettoClientRelease=VFBv2.3.8.9
-ARG ukAcVfbGeppettoRelease=v2.2.5.3
+ARG geppettoFrontendRelease=VFBv2.4.0.2
+ARG geppettoClientRelease=VFBv2.4.0.5
+ARG ukAcVfbGeppettoRelease=v2.2.5.4
 
 ARG mvnOpt="-Dhttps.protocols=TLSv1.2 -DskipTests --quiet -Pmaster"
 
@@ -74,26 +74,26 @@ RUN rm -rf /home/developer/geppetto
 # get geppetto
 RUN mkdir -p workspace &&\
   cd workspace &&\
-  git clone http://github.com/openworm/org.geppetto.git -q -b "${geppettoRelease}" --single-branch 
+  git clone https://github.com/VirtualFlyBrain/org.geppetto.git -q -b "${geppettoRelease}" --single-branch 
 
 WORKDIR $HOME/workspace
 
-RUN git clone https://github.com/openworm/org.geppetto.model.git -q -b "${geppettoModelRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.model.git -q -b "${geppettoModelRelease}" --single-branch &&\
   cd org.geppetto.model &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.core.git -q -b "${geppettoCoreRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.core.git -q -b "${geppettoCoreRelease}" --single-branch &&\
   cd org.geppetto.core &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.core\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.simulation.git -q -b "${geppettoSimulationRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.simulation.git -q -b "${geppettoSimulationRelease}" --single-branch &&\
   cd org.geppetto.simulation &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.simulation\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.datasources.git -q -b "${geppettoDatasourceRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.datasources.git -q -b "${geppettoDatasourceRelease}" --single-branch &&\
   cd org.geppetto.datasources &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.datasources\e[0m" &&\
   mvn ${mvnOpt} install
@@ -109,12 +109,12 @@ RUN cd uk.ac.vfb.geppetto &&\
   /bin/echo -e "\e[96mMaven install uk.ac.vfb.geppetto\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.model.swc.git -q -b "${geppettoModelSwcRelease}" --single-branch &&\
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.model.swc.git -q -b "${geppettoModelSwcRelease}" --single-branch &&\
   cd org.geppetto.model.swc &&\
   /bin/echo -e "\e[96mMaven install org.geppetto.model.swc\e[0m" &&\
   mvn ${mvnOpt} install
 
-RUN git clone https://github.com/openworm/org.geppetto.frontend.git -q -b "${geppettoFrontendRelease}" --single-branch 
+RUN git clone https://github.com/VirtualFlyBrain/org.geppetto.frontend.git -q -b "${geppettoFrontendRelease}" --single-branch
 
 RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
   git clone https://github.com/VirtualFlyBrain/geppetto-vfb.git -q -b "${targetBranch}" --single-branch &&\
@@ -126,7 +126,7 @@ RUN cd $HOME/workspace/org.geppetto.frontend/src/main &&\
 
 RUN /bin/echo -e "\e[1;35mGEPPETTO CLIENT RELEASE ------------ $geppettoClientRelease\e[0m" &&\
   cd $HOME/workspace/org.geppetto.frontend/src/main/webapp &&\
-  $HOME/rename.sh https://github.com/openworm/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
+  $HOME/rename.sh https://github.com/VirtualFlyBrain/geppetto-client.git "${geppettoClientRelease}" "${geppettoClientRelease}" "${geppettoClientRelease}"
 
 COPY dockerFiles/geppetto.plan $HOME/workspace/org.geppetto/geppetto.plan
 COPY dockerFiles/config.json $HOME/workspace/org.geppetto/utilities/source_setup/config.json
