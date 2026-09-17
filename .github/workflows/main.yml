@@ -52,12 +52,29 @@ jobs:
             REF="$(echo "${GITHUB_REF}" | sed 's@refs/heads/@@g' | sed 's@refs/tags/@@g')"
             SHA="${GITHUB_SHA}"
           fi
-          echo "::set-output name=value::${REF}"
-          echo "::set-output name=clean::$(echo "${REF}" | sed 's@[/\\]@-@g')"
-          echo "::set-output name=sha::${SHA}"
+          # Docker tags can't contain "/" (or "\"), so branches like fix/foo or
+          # feature/bar -- and PR head refs, which are branch names too -- need a
+          # slash-free "clean" form for image tags. A Docker tag also can't start
+          # with "." or "-", so guard the (unlikely, but not impossible if REF is
+          # ever empty) case of `clean` collapsing to something starting with one
+          # of those, or to nothing at all.
+          CLEAN="$(echo "${REF}" | sed 's@[/\\]@-@g')"
+          CLEAN="$(echo "${CLEAN}" | sed 's@^[-.]*@@')"
+          if [ -z "${CLEAN}" ]; then
+            CLEAN="unknown"
+          fi
+          {
+            echo "value=${REF}"
+            echo "clean=${CLEAN}"
+            echo "sha=${SHA}"
+          } >> "${GITHUB_OUTPUT}"
 
-      # Publishing needs Docker Hub credentials. They are absent on Dependabot runs and
-      # on pull requests from forks, so build locally and skip the push instead of failing.
+      # Publishing needs Docker Hub credentials, which are absent on Dependabot runs
+      # and on pull requests from forks -- but present on a same-repo pull_request
+      # (its secrets come from the base repo), where we still never want to push:
+      # a PR build is just for the tests, and its images would tag-collide with the
+      # branch's own push-triggered build. So pull_request never pushes, credentials
+      # or not; everything else pushes only when credentials are present.
       - name: Registry credentials
         id: registry
         shell: bash
@@ -65,12 +82,15 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          if [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_TOKEN}" ]; then
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "::notice::Pull request build - building locally, images will not be pushed"
+            echo "push=false" >> "${GITHUB_OUTPUT}"
+          elif [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_TOKEN}" ]; then
             echo "::notice::Docker Hub credentials present - images will be pushed"
-            echo "::set-output name=push::true"
+            echo "push=true" >> "${GITHUB_OUTPUT}"
           else
             echo "::notice::No Docker Hub credentials - building locally, images will not be pushed"
-            echo "::set-output name=push::false"
+            echo "push=false" >> "${GITHUB_OUTPUT}"
           fi
       - name: Setup local servers
         id: local-servers
@@ -187,6 +207,14 @@ jobs:
         timeout-minutes: 290
         uses: docker/build-push-action@v2
         with:
+          # Without an explicit context, build-push-action falls back to buildx's
+          # own git-context resolution, which does its own remote fetch of the
+          # current ref instead of using actions/checkout's local worktree. That
+          # remote fetch fails outright for a pull_request build (its ref is the
+          # ephemeral refs/pull/<n>/merge, which git doesn't serve as a normal
+          # fetchable ref: "repository does not contain ref refs/pull/<n>/merge").
+          # `.` forces the already-checked-out local files instead.
+          context: .
           push: true
           tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote.wss"
           build-args: |
@@ -210,6 +238,10 @@ jobs:
         timeout-minutes: 290
         uses: docker/build-push-action@v2
         with:
+          # See the "Build and push remote wss" step above -- same fix, and this
+          # is the image the tests below actually run against, so it's the one
+          # that made every pull_request run fail outright.
+          context: .
           push: ${{ steps.registry.outputs.push == 'true' }}
           load: ${{ steps.registry.outputs.push != 'true' }}
           tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote"
