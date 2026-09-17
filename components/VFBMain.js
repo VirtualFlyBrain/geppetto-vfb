@@ -222,6 +222,7 @@ class VFBMain extends React.Component {
     this.urlQueryLoader = [];
     this.quickHelpRender = undefined;
     this.firstLoad = true;
+    this.templateViewFramed = false;
     this.quickHelpOpen = true;
 
     this.UIElementsVisibility = {};
@@ -425,6 +426,21 @@ class VFBMain extends React.Component {
   ThreeDViewerIdLoaded (id) {
     this.props.vfbIdLoaded(id, "ThreeDViewer");
     this.loadManager.noteComponentLoaded(id);
+    /*
+     * The canvas frames the scene once, the first time every visual instance it
+     * knows about has a mesh. On a URL load that is true well before the
+     * template arrives -- with only a neuron or two in the scene -- so the
+     * opening view was zoomed onto whichever term happened to load first (and
+     * never corrected, since the canvas only does it once; pressing Home
+     * afterwards looked right, because by then the template was there).
+     * Frame it again, once, when the template's own mesh lands.
+     */
+    if (id === window.templateID && !this.templateViewFramed) {
+      this.templateViewFramed = true;
+      if (this.canvasReference !== undefined && this.canvasReference !== null) {
+        this.canvasReference.resetCamera();
+      }
+    }
   }
 
   StackViewerIdLoaded (id) {
