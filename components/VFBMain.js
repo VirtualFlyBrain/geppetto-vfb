@@ -2449,6 +2449,18 @@ class VFBMain extends React.Component {
         gaDetail('direct-terminfo', info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
       });
     }
+    /*
+     * VFB2 #502 phase 3: queries run against v3-cached from the client and
+     * the table is built locally (the server's query processors ported to
+     * JavaScript). Goes with phase 2: the server cannot run a query on a
+     * term it never built. Same switch; counted as direct-query:<run|count>.
+     */
+    if (GEPPETTO.DirectQueries !== undefined) {
+      GEPPETTO.DirectQueries.enabled = !directOff;
+      GEPPETTO.on('geppetto:direct_query', function (info) {
+        gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+      });
+    }
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
       try {
         safeGa('vfb.send', 'event', 'request-failed', 'websocket-disconnect',
