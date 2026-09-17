@@ -669,7 +669,16 @@ class VFBMain extends React.Component {
             var anchorElement = domObj.filter('a');
             // extract ID
             var templateID = anchorElement.attr('data-instancepath');
-            this.addVfbId(templateID);
+            /*
+             * Queue the template SILENTLY. This used to go through addVfbId,
+             * which also made the template the display target (lastRequestedFocusId,
+             * loadManager.focusId, URL id=) -- so whenever a non-template term's
+             * variable arrived before the template's, the template quietly took
+             * over term info / selection from the term the user actually asked
+             * for, and any later completion for it re-applied that. The template
+             * only needs to be in the model; focus stays with the requested term.
+             */
+            this.loadManager.request(templateID, { display: false });
             setTimeout(function (){
               window.resolve3D(path);
             }, 5000);
@@ -1466,10 +1475,25 @@ class VFBMain extends React.Component {
   }
   
   componentWillReceiveProps (nextProps) {
-    // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
-    if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
+    /*
+     * When a setTermInfo action lands in the store, adopt its instance as the
+     * live focus. Two fixes here:
+     *  - it compared the Redux instance OBJECT to this.instanceOnFocus.getId()
+     *    (a string), which is never equal, so the "only if it changed" guard
+     *    never skipped anything;
+     *  - this hook runs on EVERY store change, and handlerInstanceUpdate never
+     *    writes the store, so the store copy is stale most of the time. Without
+     *    the action-type check any unrelated action (loader status, visibility,
+     *    ...) re-applied that stale instance over the live focus -- one more
+     *    "last writer wins" path in the term-info focus race.
+     */
+    if ( nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO
+      && nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
       if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
-        if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
+        var nextId = (typeof nextProps.generals.instanceOnFocus.getId === "function")
+          ? nextProps.generals.instanceOnFocus.getId()
+          : undefined;
+        if ( nextId !== undefined && nextId !== this.instanceOnFocus.getId() ){
           this.instanceOnFocus = nextProps.generals.instanceOnFocus;
         }
       }
