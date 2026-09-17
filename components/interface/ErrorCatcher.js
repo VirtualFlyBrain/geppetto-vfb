@@ -93,6 +93,7 @@ class ErrorCatcher extends React.Component {
 
     handleClose = () => {
       try {
+        safeGa('vfb.send', 'event', 'error-report-clicked', 'react', String((this.state.error || {}).message || 'unknown'));
         var error = this.state.error || {};
         var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?"
           + "title=" + encodeURIComponent("Error: " + String(error.message || "unknown").slice(0, 120))

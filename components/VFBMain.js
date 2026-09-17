@@ -125,6 +125,14 @@ window.vfbObjOversized = function (instanceId) {
 window.vfbExplainObjTooLarge = function (instanceId) {
   var url = objUrlForInstance(instanceId);
   var size = formatMeshSize(url == null ? undefined : objSizeCache[url]);
+  // Worth counting: how often a term is only viewable as a skeleton.
+  try {
+    if (typeof window.vfbGaDetail === "function") {
+      window.vfbGaDetail('mesh-too-large', instanceId);
+    }
+  } catch (e) {
+    /* reporting must never block the notice */
+  }
   GEPPETTO.ModalFactory.infoDialog("Mesh too large for the browser",
     size + ". Showing the 3D skeleton instead - use Download for the full mesh.");
 };
@@ -223,6 +231,7 @@ class VFBMain extends React.Component {
     this.quickHelpRender = undefined;
     this.firstLoad = true;
     this.templateViewFramed = false;
+    this.firstTermReported = false;
     this.quickHelpOpen = true;
 
     this.UIElementsVisibility = {};
@@ -257,7 +266,21 @@ class VFBMain extends React.Component {
       onFocus: id => this.managerFocus(id),
       onFailed: id => this.props.invalidIdLoaded(id),
       publish: snapshot => this.props.setLoadStatus(snapshot),
-      isLoaded: id => this.managerIsLoaded(id)
+      isLoaded: id => this.managerIsLoaded(id),
+      /*
+       * How long a term the user asked for actually took to arrive, and
+       * whether it arrived at all -- the load path's own responsiveness,
+       * separate from the direct-* counts which say which path served it.
+       */
+      onSettled: (id, ok, ms) => {
+        try {
+          if (typeof window.vfbGaDetail === "function") {
+            window.vfbGaDetail('term-load', ok ? 'ok' : 'failed', window.vfbSecondsBucket(ms));
+          }
+        } catch (e) {
+          /* reporting must never affect loading */
+        }
+      }
     });
     /*
      * Progressive query load-all (geppetto-client queryBuilder): page size,
@@ -2076,6 +2099,18 @@ class VFBMain extends React.Component {
     });
 
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+      /*
+       * Startup responsiveness, measured from the navigation itself so it is
+       * what the user waited for: the model arriving, and (in
+       * handlerInstanceUpdate) the first term actually on screen.
+       */
+      try {
+        if (typeof window.vfbGaDetail === "function") {
+          window.vfbGaDetail('startup-model', window.vfbSecondsBucket(Math.round(performance.now())));
+        }
+      } catch (eStartup) {
+        /* reporting must never delay loading */
+      }
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
@@ -2312,6 +2347,95 @@ class VFBMain extends React.Component {
       }).join(':').substring(0, 40);
       safeGa('vfb.send', 'event', name, 'websocket-detail', gaPage());
     };
+    /*
+     * Shared so the rest of the app (and code outside this component) reports
+     * in the same shape: name:parts joined with ':', page as the label.
+     */
+    window.vfbGaDetail = gaDetail;
+    /*
+     * Seconds, coarse enough to be readable as an event name but fine enough
+     * to show a regression: tenths under 10s, whole seconds to a minute, then
+     * 10s buckets.
+     */
+    var secondsBucket = function (ms) {
+      var s = (ms || 0) / 1000;
+      if (s < 10) {
+        return (Math.round(s * 10) / 10) + 's';
+      }
+      if (s < 60) {
+        return Math.round(s) + 's';
+      }
+      return (Math.floor(s / 10) * 10) + 's';
+    };
+    window.vfbSecondsBucket = secondsBucket;
+    var sizeBucket = function (n) {
+      var v = n || 0;
+      if (v === 0) {
+        return '0';
+      }
+      if (v < 10) {
+        return '1-9';
+      }
+      if (v < 100) {
+        return '10-99';
+      }
+      if (v < 1000) {
+        return '100-999';
+      }
+      if (v < 10000) {
+        return '1k-10k';
+      }
+      return '10k+';
+    };
+    /*
+     * Time every query the user runs, whichever path serves it (client-direct
+     * or the server), with how long it took and how much came back. The
+     * direct-query counts say which path ran; this says what the user waited
+     * for and whether anything arrived.
+     */
+    try {
+      var qc = GEPPETTO.QueriesController;
+      if (qc !== undefined && typeof qc.runQuery === "function" && !qc.vfbTimed) {
+        var innerRunQuery = qc.runQuery.bind(qc);
+        qc.runQuery = function (queryDTOs, callback, offset, limit) {
+          var startedAt = Date.now();
+          var queryName = 'na';
+          try {
+            queryName = (queryDTOs && queryDTOs[0] && queryDTOs[0].query && queryDTOs[0].query.getId)
+              ? queryDTOs[0].query.getId() : 'na';
+          } catch (eName) { /* name is best effort */ }
+          var compound = (queryDTOs && queryDTOs.length > 1) ? 'compound' : 'single';
+          var reported = false;
+          var timedCallback = function (results) {
+            if (!reported) {
+              reported = true;
+              var rows = 0;
+              try {
+                var parsed = (typeof results === "string") ? JSON.parse(results) : results;
+                rows = (parsed && parsed.results) ? parsed.results.length : 0;
+              } catch (eRows) { /* count is best effort */ }
+              gaDetail('query-run', compound, queryName, secondsBucket(Date.now() - startedAt));
+              gaDetail('query-rows', compound, queryName, sizeBucket(rows));
+            }
+            return callback.apply(this, arguments);
+          };
+          /*
+           * A query that never calls back (the server erroring mid-run, a
+           * dropped request) is exactly what needs reporting, so time it out.
+           */
+          setTimeout(function () {
+            if (!reported) {
+              reported = true;
+              gaDetail('query-noresult', compound, queryName, secondsBucket(Date.now() - startedAt));
+            }
+          }, 120000);
+          return innerRunQuery(queryDTOs, timedCallback, offset, limit);
+        };
+        qc.vfbTimed = true;
+      }
+    } catch (eQueryTiming) {
+      console.error('Could not instrument query timing', eQueryTiming);
+    }
     var droppedNoticeShown = false;
     /*
      * Background retry after the client's reconnection budget is spent. Slow
@@ -2667,6 +2791,21 @@ class VFBMain extends React.Component {
         this.idsFromURL.splice(counter, 1);
         this.firstLoad = false;
         break;
+      }
+    }
+
+    /*
+     * The moment the user first has a term in front of them: the end of the
+     * startup path that startup-model begins.
+     */
+    if (!this.firstTermReported) {
+      this.firstTermReported = true;
+      try {
+        if (typeof window.vfbGaDetail === "function") {
+          window.vfbGaDetail('startup-first-term', window.vfbSecondsBucket(Math.round(performance.now())));
+        }
+      } catch (eFirstTerm) {
+        /* reporting must never affect the panel */
       }
     }
 
