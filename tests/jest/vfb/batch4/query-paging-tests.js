@@ -95,13 +95,14 @@ describe('VFB Query Paging Tests', () => {
 
 		it('Does not show the same row twice', async () => {
 			/*
-			 * The duplicates were exact repeats of a whole row, so compare rows as
-			 * rendered. Griddle virtualises, so this covers what is on screen --
-			 * enough to catch a page that came back repeated, which is how the 824
-			 * duplicates in the download appeared.
+			 * The count check above is what really catches duplication -- repeats
+			 * would push the loaded total past the backend's own count. This is the
+			 * visible half of it: griddle renders a page of rows at a time
+			 * (.standard-row; .griddle-row is the header), so it covers what is on
+			 * screen.
 			 */
 			const duplicates = await page.evaluate(() => {
-				const rows = Array.from(document.querySelectorAll('.griddle-row'))
+				const rows = Array.from(document.querySelectorAll('.standard-row'))
 					.map((row) => (row.innerText || '').replace(/\s+/g, ' ').trim())
 					.filter((text) => text.length > 0);
 				const seen = {};
@@ -112,9 +113,10 @@ describe('VFB Query Paging Tests', () => {
 					}
 					seen[text] = true;
 				});
-				return repeated;
+				return { repeated: repeated, rowsSeen: rows.length };
 			});
-			expect(duplicates).toEqual([]);
+			expect(duplicates.rowsSeen).toBeGreaterThan(0);
+			expect(duplicates.repeated).toEqual([]);
 		}, 240000);
 	});
 });
