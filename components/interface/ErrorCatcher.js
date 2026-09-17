@@ -12,6 +12,9 @@ import { safeGa } from './utils/utils';
 require('../../css/VFBMain.less');
 require('../../css/colors.less');
 
+// GitHub rejects issue URLs much past 8k; keep the body comfortably inside that.
+const MAX_REPORT_BODY = 5000;
+
 const styles = {
   rootTitle: {
     fontFamily: "Khand",
@@ -45,45 +48,71 @@ class ErrorCatcher extends React.Component {
       error: undefined
     };
   }
-    handleClose = () => {
-      var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new";
-      var customMessage = "Steps to reproduce the problem: \n\nPlease fill the below with the necessary steps to reproduce the problem\n\n\n\nError Information:\n\n"
-      // return as much of the log up to the last 10 events < 1000 characters:
-      var logLength = -1;
-      var limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
-        /\&/g,escape('&')
-      ).replace(
-        /\#/g,escape('#')
-      ).replace(
-        /\-/g,'%2D'
-      ).replace(
-        /\+/g,'%2B'
-      );
-      while (limitedLog.length < 1000 && logLength > -50) {
-        logLength -= 1;
-        limitedLog = window.console.logs.slice(logLength).join('%0A').replace(
-          /\&/g,escape('&')
-        ).replace(
-          /\#/g,escape('#')
-        ).replace(
-          /\-/g,'%2D'
-        ).replace(
-          /\+/g,'%2B'
-        );
+    /*
+     * Open a prefilled GitHub issue. This used to build the body from up to 50
+     * console lines and submit it as a GET form, which quietly did nothing:
+     * the URL ran past what GitHub accepts, and any missing piece
+     * (console.logs, error.stack) threw inside the click handler. Cap the body,
+     * guard every part, and fall back to the clipboard if the window is blocked.
+     */
+    buildReportBody = () => {
+      var error = this.state.error || {};
+      var parts = [
+        "Steps to reproduce the problem:",
+        "",
+        "Please fill the below with the necessary steps to reproduce the problem",
+        "",
+        "",
+        "Error Information:",
+        "",
+        String(error.message || "(no message)"),
+        "",
+        String(error.stack || "(no stack)")
+      ];
+      var logs = (window.console && Array.isArray(window.console.logs)) ? window.console.logs : [];
+      if (logs.length > 0) {
+        /*
+         * Newest lines are the interesting ones, and the whole report has to fit
+         * in a URL -- GitHub rejects much beyond 8k, so keep the body well under.
+         */
+        var budget = MAX_REPORT_BODY - parts.join("\n").length - 32;
+        var tail = [];
+        for (var i = logs.length - 1; i >= 0 && budget > 0; i--) {
+          var line = String(logs[i]);
+          budget -= line.length + 1;
+          if (budget > 0) {
+            tail.unshift(line);
+          }
+        }
+        if (tail.length > 0) {
+          parts.push("", "```", tail.join("\n"), "```");
+        }
       }
-      var body = customMessage + this.state.error.message + "\n\n" + this.state.error.stack.replace("#",escape("#")) + "\n\n```diff\n" + limitedLog + "\n```\n";
-      var form = document.createElement("form");
-      form.setAttribute("method", "get");
-      form.setAttribute("action", url);
-      form.setAttribute("target", "view");
-      var hiddenField = document.createElement("input");
-      hiddenField.setAttribute("type", "hidden");
-      hiddenField.setAttribute("name", "body");
-      hiddenField.setAttribute("value", body);
-      form.appendChild(hiddenField);
-      document.body.appendChild(form);
-      window.open('', 'view');
-      form.submit();
+      return parts.join("\n").slice(0, MAX_REPORT_BODY);
+    };
+
+    handleClose = () => {
+      try {
+        var error = this.state.error || {};
+        var url = "https://github.com/VirtualFlyBrain/VFB2/issues/new?"
+          + "title=" + encodeURIComponent("Error: " + String(error.message || "unknown").slice(0, 120))
+          + "&body=" + encodeURIComponent(this.buildReportBody());
+        var opened = window.open(url, "_blank");
+        if (opened === null || opened === undefined) {
+          // Popup blocked: leave the report where the user can paste it themselves.
+          if (navigator.clipboard !== undefined && navigator.clipboard.writeText !== undefined) {
+            navigator.clipboard.writeText(this.buildReportBody());
+          }
+          window.alert("Couldn't open GitHub (the window was blocked). The report has been copied to your"
+            + " clipboard - please paste it into a new issue at"
+            + " https://github.com/VirtualFlyBrain/VFB2/issues/new");
+        }
+      } catch (e) {
+        // Reporting must never throw on top of the error being reported.
+        console.error("Could not open the error report", e);
+        window.alert("Couldn't open the report form. Please raise an issue at"
+          + " https://github.com/VirtualFlyBrain/VFB2/issues/new");
+      }
     };
 
     componentDidCatch (error, info) {
