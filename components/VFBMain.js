@@ -1727,6 +1727,51 @@ class VFBMain extends React.Component {
       this.addVfbId(idFromOutside);
     }.bind(this);
 
+    /*
+     * Load a query-result image reference. Aligned images are referenced as
+     * "<template>,<image>" (or "[<template>,<image>]"), and the same image id is
+     * used for every template it is aligned to -- the prefix is the only thing
+     * that says which alignment was clicked. This used to go straight to
+     * addVfbId, which loaded BOTH ids: picking, say, a VNC alignment while the
+     * brain template was open pulled a second template and the other
+     * alignment's geometry into the scene. Offer the other template in a new
+     * tab instead, exactly as the term info panel does for the same reference.
+     */
+    window.vfbLoadImageRef = function (reference) {
+      var parts = String(reference).replace(/[[\]]/g, '').split(',');
+      var imageId = parts[parts.length - 1].trim();
+      var templateId = parts.length > 1 ? parts[0].trim() : undefined;
+      if (templateId !== undefined && VFB_TEMPLATES.indexOf(templateId) > -1 && templateId !== window.templateID) {
+        safeGa('vfb.send', 'event', 'request', 'newtemplate', templateId);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to stay here.")) {
+          var curHost = window.EMBEDDED ? parent.document.location.host : document.location.host;
+          var curProto = window.EMBEDDED ? parent.document.location.protocol : document.location.protocol;
+          safeGa('vfb.send', 'event', 'opening', 'newtemplate', templateId);
+          window.open(window.redirectURL.replace(/\$VFB_ID\$/gi, imageId).replace(/\$TEMPLATE\$/gi, templateId)
+            .replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto), '_blank');
+        } else {
+          safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', templateId);
+        }
+        return;
+      }
+      this.addVfbId(imageId);
+    }.bind(this);
+
+    // Delete what vfbLoadImageRef loaded: the image, never the template prefix.
+    window.vfbDeleteImageRef = function (reference) {
+      var parts = String(reference).replace(/[[\]]/g, '').split(',');
+      var imageId = parts[parts.length - 1].trim();
+      var instance;
+      try {
+        instance = Instances.getInstance(imageId);
+      } catch (e) {
+        instance = undefined;
+      }
+      if (instance !== undefined && typeof instance.delete === "function") {
+        instance.delete();
+      }
+    };
+
     window.setTermInfo = function (meta, id) {
       this.handlerInstanceUpdate(meta);
       this.props.setTermInfo(meta, true);
