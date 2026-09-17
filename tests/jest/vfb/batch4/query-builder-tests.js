@@ -55,4 +55,53 @@ describe('VFB Query Builder Tests', () => {
 			expect(parseInt(resultSummary, 10)).toBeGreaterThan(0);
 		}, 220000)
 	})
+
+	/*
+	 * A query row's images are referenced by the plain image id, and the same id
+	 * serves every template the image is aligned to -- so every slide of a
+	 * multi-alignment carousel carried the same reference and clicking the VNC
+	 * slide loaded the brain one. The reference now carries its template.
+	 */
+	describe('Tests Alignments in Query Result Images', () => {
+		it('Results with images arrive', async () => {
+			await page.goto(baseURL + "/geppetto?q=FBbt_00003748,ImagesNeurons", { timeout : 220000 });
+			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 });
+			closeModalWindow(page);
+			await wait4selector(page, '#querybuilder', { visible: true, timeout : 240000 });
+			await page.waitForFunction(
+				() => document.querySelectorAll('.query-results-images-column img').length > 0,
+				{ timeout : 300000 }
+			);
+		}, 500000)
+
+		it('An image aligned to a second template is referenced by that template', async () => {
+			/*
+			 * The reference is what the click acts on, and the component puts it in
+			 * the checkbox/loader element id. A row aligned to one template only is
+			 * still "<template>,<image>" -- what matters is that two alignments of
+			 * one image are no longer the same reference.
+			 */
+			const references = await page.evaluate(() => Array.from(
+				document.querySelectorAll('[id$="-checkbox"], [id$="-loader"]')
+			).map((element) => element.id.replace(/-(checkbox|loader)$/, '')));
+
+			const aligned = references.filter((reference) => /^VFB_\d+,VFB_\w+/.test(reference));
+			expect(aligned.length).toBeGreaterThan(0);
+
+			// The same image under two templates must not produce one reference.
+			const byImage = {};
+			aligned.forEach((reference) => {
+				const parts = reference.split(',');
+				const image = parts[parts.length - 1];
+				byImage[image] = byImage[image] || [];
+				if (byImage[image].indexOf(reference) < 0) {
+					byImage[image].push(reference);
+				}
+			});
+			Object.keys(byImage).forEach((image) => {
+				const templates = byImage[image].map((reference) => reference.split(',')[0]);
+				expect(templates.length).toEqual(new Set(templates).size);
+			});
+		}, 240000)
+	})
 })
