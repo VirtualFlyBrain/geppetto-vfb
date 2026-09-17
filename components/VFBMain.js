@@ -2422,6 +2422,20 @@ class VFBMain extends React.Component {
      * failure this release needs to be able to see.
      */
     var requestFailedNoticeAt = 0;
+    /*
+     * VFB2 #502 phase 1: OBJ and SWC meshes are fetched by the client and
+     * merged locally instead of being streamed through the websocket by the
+     * server. On by default; ?direct=0 goes back to the server for a
+     * side-by-side check. Counted in GA per resolution so the two paths can
+     * be compared, and the fallback (a fetch that failed and went to the
+     * server after all) is counted separately.
+     */
+    if (GEPPETTO.DirectGeometry !== undefined) {
+      GEPPETTO.DirectGeometry.enabled = (new URLSearchParams(window.location.search).get('direct') !== '0');
+      GEPPETTO.on('geppetto:direct_geometry', function (info) {
+        gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+      });
+    }
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
       try {
         safeGa('vfb.send', 'event', 'request-failed', 'websocket-disconnect',
