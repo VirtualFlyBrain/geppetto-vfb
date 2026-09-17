@@ -2430,10 +2430,35 @@ class VFBMain extends React.Component {
      * be compared, and the fallback (a fetch that failed and went to the
      * server after all) is counted separately.
      */
+    var directOff = (new URLSearchParams(window.location.search).get('direct') === '0');
     if (GEPPETTO.DirectGeometry !== undefined) {
-      GEPPETTO.DirectGeometry.enabled = (new URLSearchParams(window.location.search).get('direct') !== '0');
+      GEPPETTO.DirectGeometry.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_geometry', function (info) {
         gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+      });
+    }
+    /*
+     * VFB2 #502 phase 2: a term's info is fetched from v3-cached by the
+     * client and its model built locally (the server's term-info processor
+     * ported to JavaScript) instead of asking the server over the
+     * websocket. Same switch and the same kind of GA count as the meshes.
+     */
+    if (GEPPETTO.DirectTermInfo !== undefined) {
+      GEPPETTO.DirectTermInfo.enabled = !directOff;
+      GEPPETTO.on('geppetto:direct_terminfo', function (info) {
+        gaDetail('direct-terminfo', info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+      });
+    }
+    /*
+     * VFB2 #502 phase 3: queries run against v3-cached from the client and
+     * the table is built locally (the server's query processors ported to
+     * JavaScript). Goes with phase 2: the server cannot run a query on a
+     * term it never built. Same switch; counted as direct-query:<run|count>.
+     */
+    if (GEPPETTO.DirectQueries !== undefined) {
+      GEPPETTO.DirectQueries.enabled = !directOff;
+      GEPPETTO.on('geppetto:direct_query', function (info) {
+        gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
       });
     }
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
