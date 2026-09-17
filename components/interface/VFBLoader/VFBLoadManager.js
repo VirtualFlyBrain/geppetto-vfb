@@ -62,6 +62,7 @@ export default class VFBLoadManager {
     this._onFailed = opts.onFailed; // (id, error) => void -- drain loader entry
     this._publish = opts.publish; // (snapshot) => void  -- push status to the UI
     this._isLoaded = opts.isLoaded; // (id) => bool -- already present in the model/scene
+    this._onSettled = opts.onSettled; // (id, ok, ms) => void -- report how long it took
 
     this.items = new Map(); // id -> { status, label, startedAt, bootstrapTimer, hardTimer, renderTimer, error }
     this._queryLoad = null; // { loaded } while a progressive query load-all streams; drives the overlay
@@ -300,11 +301,24 @@ export default class VFBLoadManager {
     it.status = LOAD_STATUS.LOADED;
     this.loaded.add(id);
     this._settled++;
+    this._reportSettled(id, true, it);
     if (id === this.focusId) {
       this._applyFocus(id);
     }
     this._publishSnapshot();
     this._pump();
+  }
+
+  /* How long this term took, for whoever is counting (GA). Never throws. */
+  _reportSettled (id, ok, item) {
+    if (typeof this._onSettled !== 'function') {
+      return;
+    }
+    try {
+      this._onSettled(id, ok, Date.now() - ((item && item.startedAt) || Date.now()));
+    } catch (e) {
+      /* reporting must never affect loading */
+    }
   }
 
   _fail (id, err) {
@@ -316,6 +330,7 @@ export default class VFBLoadManager {
     it.status = LOAD_STATUS.FAILED;
     it.error = (err && err.message) || String(err);
     this._settled++;
+    this._reportSettled(id, false, it);
     console.warn('VFBLoadManager: giving up on ' + id + ' (' + it.error + '); draining so the rest can finish');
     try {
       if (this._onFailed) {
