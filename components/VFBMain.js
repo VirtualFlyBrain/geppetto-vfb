@@ -125,6 +125,14 @@ window.vfbObjOversized = function (instanceId) {
 window.vfbExplainObjTooLarge = function (instanceId) {
   var url = objUrlForInstance(instanceId);
   var size = formatMeshSize(url == null ? undefined : objSizeCache[url]);
+  // Worth counting: how often a term is only viewable as a skeleton.
+  try {
+    if (typeof window.vfbGaDetail === "function") {
+      window.vfbGaDetail('mesh-too-large', instanceId);
+    }
+  } catch (e) {
+    /* reporting must never block the notice */
+  }
   GEPPETTO.ModalFactory.infoDialog("Mesh too large for the browser",
     size + ". Showing the 3D skeleton instead - use Download for the full mesh.");
 };
@@ -144,6 +152,15 @@ window.vfbGuardedObjResolve = function (instanceId, proceed) {
     }
   });
 };
+
+/*
+ * The VFB template ids. When a URL loads, the first of its ids that is one of
+ * these becomes the scene's template straight away (see componentDidMount).
+ */
+const VFB_TEMPLATES = [
+  'VFB_00017894', 'VFB_00101567', 'VFB_00101384', 'VFB_00050000',
+  'VFB_00049000', 'VFB_00100000', 'VFB_00030786', 'VFB_00200000'
+];
 
 class VFBMain extends React.Component {
 
@@ -213,6 +230,8 @@ class VFBMain extends React.Component {
     this.urlQueryLoader = [];
     this.quickHelpRender = undefined;
     this.firstLoad = true;
+    this.templateViewFramed = false;
+    this.firstTermReported = false;
     this.quickHelpOpen = true;
 
     this.UIElementsVisibility = {};
@@ -247,7 +266,21 @@ class VFBMain extends React.Component {
       onFocus: id => this.managerFocus(id),
       onFailed: id => this.props.invalidIdLoaded(id),
       publish: snapshot => this.props.setLoadStatus(snapshot),
-      isLoaded: id => this.managerIsLoaded(id)
+      isLoaded: id => this.managerIsLoaded(id),
+      /*
+       * How long a term the user asked for actually took to arrive, and
+       * whether it arrived at all -- the load path's own responsiveness,
+       * separate from the direct-* counts which say which path served it.
+       */
+      onSettled: (id, ok, ms) => {
+        try {
+          if (typeof window.vfbGaDetail === "function") {
+            window.vfbGaDetail('term-load', ok ? 'ok' : 'failed', window.vfbSecondsBucket(ms));
+          }
+        } catch (e) {
+          /* reporting must never affect loading */
+        }
+      }
     });
     /*
      * Progressive query load-all (geppetto-client queryBuilder): page size,
@@ -416,6 +449,21 @@ class VFBMain extends React.Component {
   ThreeDViewerIdLoaded (id) {
     this.props.vfbIdLoaded(id, "ThreeDViewer");
     this.loadManager.noteComponentLoaded(id);
+    /*
+     * The canvas frames the scene once, the first time every visual instance it
+     * knows about has a mesh. On a URL load that is true well before the
+     * template arrives -- with only a neuron or two in the scene -- so the
+     * opening view was zoomed onto whichever term happened to load first (and
+     * never corrected, since the canvas only does it once; pressing Home
+     * afterwards looked right, because by then the template was there).
+     * Frame it again, once, when the template's own mesh lands.
+     */
+    if (id === window.templateID && !this.templateViewFramed) {
+      this.templateViewFramed = true;
+      if (this.canvasReference !== undefined && this.canvasReference !== null) {
+        this.canvasReference.resetCamera();
+      }
+    }
   }
 
   StackViewerIdLoaded (id) {
@@ -635,94 +683,109 @@ class VFBMain extends React.Component {
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
-    if (window.templateID == undefined) {
-      var superTypes = rootInstance.getType().getSuperType();
-      for (var i = 0; i < superTypes.length; i++) {
-        if (superTypes[i].getId() == 'Template') {
-          window.templateID = rootInstance.getId();
-          // Set wireframe by template:
-          switch (window.templateID) {
-          case "VFB_00030786":
-            this.canvasReference.setWireframe(false);
-            break;
-          case "VFB_00050000":
-            this.canvasReference.setWireframe(false);
-            break;
-          case "VFB_00101384":
-            this.canvasReference.setWireframe(false);
-            this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
-            // TOOD: Fix Orientaion
-            break;
-          default:
-            this.canvasReference.setWireframe(false);
-            break;
-          }
-        }
+    var superTypes = rootInstance.getType().getSuperType();
+    var isTemplate = false;
+    var isClass = false;
+    var alignedTo = [];
+    for (var i = 0; i < superTypes.length; i++) {
+      var superId = superTypes[i].getId();
+      if (superId == 'Template') {
+        isTemplate = true;
+      } else if (superId == 'Class') {
+        isClass = true;
+      } else if (VFB_TEMPLATES.indexOf(superId) > -1) {
+        // Every template the term has an image on is one of its super-types.
+        alignedTo.push(superId);
       }
-      // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
-      if (window.templateID == undefined) {
-        var meta = rootInstance[rootInstance.getId() + '_meta'];
-        if (meta != undefined) {
-          if (typeof meta.getType().template != "undefined") {
-            var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-            var domObj = $(templateMarkup);
-            var anchorElement = domObj.filter('a');
-            // extract ID
-            var templateID = anchorElement.attr('data-instancepath');
-            this.addVfbId(templateID);
-            setTimeout(function (){
-              window.resolve3D(path);
-            }, 5000);
-            return; // Don't load until the template has
-          }
-        }
-      }
-    } else {
-      // check if the user is adding to the scene something belonging to another template
-      var superTypes = rootInstance.getType().getSuperType();
-      var templateID = "unknown";
-      for (var i = 0; i < superTypes.length; i++) {
-        if (superTypes[i].getId() == window.templateID) {
-          templateID = superTypes[i].getId()
-        }
-        if (superTypes[i].getId() == 'Class') {
-          templateID = window.templateID;
-          return; // Exit if Class - Class doesn't have image types.
-        }
-      }
+    }
 
+    /*
+     * The scene's template may already be known before its own term has loaded
+     * (it is set from the URL, see componentDidMount), so apply the template's
+     * view settings when the template itself resolves, not only when it is the
+     * first thing to resolve.
+     */
+    if (isTemplate && (window.templateID == undefined || window.templateID == rootInstance.getId())) {
+      window.templateID = rootInstance.getId();
+      this.applyTemplateView(window.templateID);
+    }
+
+    if (window.templateID == undefined) {
+      // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
       var meta = rootInstance[rootInstance.getId() + '_meta'];
-      if (meta != undefined) {
-        if (typeof meta.getType().template != "undefined") {
+      if (meta != undefined && typeof meta.getType().template != "undefined") {
+        var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+        var anchorElement = $(templateMarkup).filter('a');
+        var templateID = anchorElement.attr('data-instancepath');
+        /*
+         * Queue the template SILENTLY (not through addVfbId, which would make it
+         * the display target) and claim it as the scene's template now, so
+         * terms resolving meanwhile are checked against it rather than each
+         * picking their own.
+         */
+        window.templateID = templateID;
+        this.loadManager.request(templateID, { display: false });
+        /*
+         * Retry with the SAME callback. This used to call window.resolve3D,
+         * whose callback selects the instance unconditionally -- that selection
+         * went through the Select listener into handlerInstanceUpdate, so any
+         * term that resolved before the template stole Term Info / URL id=
+         * from the requested focus ~5s later.
+         */
+        var self = this;
+        setTimeout(function () {
+          self.resolve3D(path, callback);
+        }, 5000);
+        return; // Don't load until the template has
+      }
+    } else if (!(isTemplate && rootInstance.getId() == window.templateID)) {
+      if (isClass) {
+        return; // Exit if Class - Class doesn't have image types.
+      }
+      /*
+       * Check if the user is adding to the scene something belonging to another
+       * template. A term can be aligned to several templates: it is only
+       * "another template" if none of them is the scene's. Comparing against
+       * just the first template listed in its term info (as before) prompted
+       * for images that do have an alignment to the loaded template.
+       */
+      var otherTemplate = undefined;
+      if (alignedTo.length > 0 && alignedTo.indexOf(window.templateID) < 0) {
+        otherTemplate = alignedTo[0];
+      } else if (alignedTo.length == 0) {
+        // No template super-types (older model shapes): fall back to the term info's template link.
+        var meta = rootInstance[rootInstance.getId() + '_meta'];
+        if (meta != undefined && typeof meta.getType().template != "undefined") {
           var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-          var domObj = $(templateMarkup);
-          var anchorElement = domObj.filter('a');
-          // extract ID
-          var templateID = anchorElement.attr('data-instancepath');
-          if (window.EMBEDDED) {
-            var curHost = parent.document.location.host;
-            var curProto = parent.document.location.protocol;
-          } else {
-            var curHost = document.location.host;
-            var curProto = document.location.protocol;
-          }
-          if (templateID != window.templateID) {
-            // open new window with the new template and the instance ID
-            safeGa('vfb.send', 'event', 'request', 'newtemplate', templateID);
-            var targetWindow = '_blank';
-            var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
-            if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              safeGa('vfb.send', 'event', 'opening', 'newtemplate', templateID);
-              window.open(newUrl, targetWindow);
-              this.instancesFromDifferentTemplates(rootInstance);
-            } else {
-              safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
-              this.instancesFromDifferentTemplates(rootInstance);
-            }
-            // stop flow here, we don't want to add to scene something with a different template
-            return;
+          var linkedTemplates = $(templateMarkup).filter('a').map(function () {
+            return $(this).attr('data-instancepath');
+          }).get();
+          if (linkedTemplates.length > 0 && linkedTemplates.indexOf(window.templateID) < 0) {
+            otherTemplate = linkedTemplates[0];
           }
         }
+      }
+      if (otherTemplate !== undefined) {
+        if (window.EMBEDDED) {
+          var curHost = parent.document.location.host;
+          var curProto = parent.document.location.protocol;
+        } else {
+          var curHost = document.location.host;
+          var curProto = document.location.protocol;
+        }
+        // open new window with the new template and the instance ID
+        safeGa('vfb.send', 'event', 'request', 'newtemplate', otherTemplate);
+        var targetWindow = '_blank';
+        var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, otherTemplate).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+          safeGa('vfb.send', 'event', 'opening', 'newtemplate', otherTemplate);
+          window.open(newUrl, targetWindow);
+        } else {
+          safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', otherTemplate);
+        }
+        this.instancesFromDifferentTemplates(rootInstance);
+        // stop flow here, we don't want to add to scene something with a different template
+        return;
       }
     }
 
@@ -813,8 +876,25 @@ class VFBMain extends React.Component {
     }
   }
 
+  applyTemplateView (templateID) {
+    // Set wireframe by template:
+    switch (templateID) {
+    case "VFB_00101384":
+      this.canvasReference.setWireframe(false);
+      this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
+      // TOOD: Fix Orientaion
+      break;
+    default:
+      this.canvasReference.setWireframe(false);
+      break;
+    }
+  }
+
   instancesFromDifferentTemplates (instance) {
-    this.handlerInstanceUpdate(instance);
+    // Show its metadata only if it is the term asked for; a silent load stays silent.
+    if (this.lastRequestedFocusId === undefined || instance.getId() === this.lastRequestedFocusId) {
+      this.handlerInstanceUpdate(instance);
+    }
 
     var children = instance.getChildren();
     for ( let i = 0; i < children.length; i++) {
@@ -1466,10 +1546,25 @@ class VFBMain extends React.Component {
   }
   
   componentWillReceiveProps (nextProps) {
-    // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
-    if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
+    /*
+     * When a setTermInfo action lands in the store, adopt its instance as the
+     * live focus. Two fixes here:
+     *  - it compared the Redux instance OBJECT to this.instanceOnFocus.getId()
+     *    (a string), which is never equal, so the "only if it changed" guard
+     *    never skipped anything;
+     *  - this hook runs on EVERY store change, and handlerInstanceUpdate never
+     *    writes the store, so the store copy is stale most of the time. Without
+     *    the action-type check any unrelated action (loader status, visibility,
+     *    ...) re-applied that stale instance over the live focus -- one more
+     *    "last writer wins" path in the term-info focus race.
+     */
+    if ( nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO
+      && nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
       if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
-        if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
+        var nextId = (typeof nextProps.generals.instanceOnFocus.getId === "function")
+          ? nextProps.generals.instanceOnFocus.getId()
+          : undefined;
+        if ( nextId !== undefined && nextId !== this.instanceOnFocus.getId() ){
           this.instanceOnFocus = nextProps.generals.instanceOnFocus;
         }
       }
@@ -1646,9 +1741,59 @@ class VFBMain extends React.Component {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
 
+    // Terms still loading, so a URL rebuilt mid-load keeps them in i=.
+    window.vfbPendingIds = function () {
+      return this.loadManager ? this.loadManager.pendingIds() : [];
+    }.bind(this);
+
     window.addVfbId = function (idFromOutside) {
       this.addVfbId(idFromOutside);
     }.bind(this);
+
+    /*
+     * Load a query-result image reference. Aligned images are referenced as
+     * "<template>,<image>" (or "[<template>,<image>]"), and the same image id is
+     * used for every template it is aligned to -- the prefix is the only thing
+     * that says which alignment was clicked. This used to go straight to
+     * addVfbId, which loaded BOTH ids: picking, say, a VNC alignment while the
+     * brain template was open pulled a second template and the other
+     * alignment's geometry into the scene. Offer the other template in a new
+     * tab instead, exactly as the term info panel does for the same reference.
+     */
+    window.vfbLoadImageRef = function (reference) {
+      var parts = String(reference).replace(/[[\]]/g, '').split(',');
+      var imageId = parts[parts.length - 1].trim();
+      var templateId = parts.length > 1 ? parts[0].trim() : undefined;
+      if (templateId !== undefined && VFB_TEMPLATES.indexOf(templateId) > -1 && templateId !== window.templateID) {
+        safeGa('vfb.send', 'event', 'request', 'newtemplate', templateId);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to stay here.")) {
+          var curHost = window.EMBEDDED ? parent.document.location.host : document.location.host;
+          var curProto = window.EMBEDDED ? parent.document.location.protocol : document.location.protocol;
+          safeGa('vfb.send', 'event', 'opening', 'newtemplate', templateId);
+          window.open(window.redirectURL.replace(/\$VFB_ID\$/gi, imageId).replace(/\$TEMPLATE\$/gi, templateId)
+            .replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto), '_blank');
+        } else {
+          safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', templateId);
+        }
+        return;
+      }
+      this.addVfbId(imageId);
+    }.bind(this);
+
+    // Delete what vfbLoadImageRef loaded: the image, never the template prefix.
+    window.vfbDeleteImageRef = function (reference) {
+      var parts = String(reference).replace(/[[\]]/g, '').split(',');
+      var imageId = parts[parts.length - 1].trim();
+      var instance;
+      try {
+        instance = Instances.getInstance(imageId);
+      } catch (e) {
+        instance = undefined;
+      }
+      if (instance !== undefined && typeof instance.delete === "function") {
+        instance.delete();
+      }
+    };
 
     window.setTermInfo = function (meta, id) {
       this.handlerInstanceUpdate(meta);
@@ -1911,6 +2056,22 @@ class VFBMain extends React.Component {
       this.idsFromURL.push(this.idFromURL);
       this.idsFromURL = [... new Set(this.idsFromURL)];
       this.idsFinalList = this.idsFromURL;
+      /*
+       * Claim the scene's template now -- the first template id the URL lists --
+       * rather than when its term happens to resolve. Terms load several at a
+       * time, so an image often resolves before its template; without this it
+       * was checked against no template (or built its geometry for whichever
+       * template its term info listed first) and could be wrongly flagged as
+       * "aligned to another template".
+       */
+      if (window.templateID === undefined) {
+        var urlTemplate = this.idsFromURL.find(function (id) {
+          return VFB_TEMPLATES.indexOf(id) > -1;
+        });
+        if (urlTemplate !== undefined) {
+          window.templateID = urlTemplate;
+        }
+      }
       // The id= term is the intended focus on a URL load; others load silently.
       this.lastRequestedFocusId = this.idFromURL;
       console.log("Loading IDS to add to the scene from url");
@@ -1938,6 +2099,18 @@ class VFBMain extends React.Component {
     });
 
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+      /*
+       * Startup responsiveness, measured from the navigation itself so it is
+       * what the user waited for: the model arriving, and (in
+       * handlerInstanceUpdate) the first term actually on screen.
+       */
+      try {
+        if (typeof window.vfbGaDetail === "function") {
+          window.vfbGaDetail('startup-model', window.vfbSecondsBucket(Math.round(performance.now())));
+        }
+      } catch (eStartup) {
+        /* reporting must never delay loading */
+      }
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
@@ -2174,6 +2347,95 @@ class VFBMain extends React.Component {
       }).join(':').substring(0, 40);
       safeGa('vfb.send', 'event', name, 'websocket-detail', gaPage());
     };
+    /*
+     * Shared so the rest of the app (and code outside this component) reports
+     * in the same shape: name:parts joined with ':', page as the label.
+     */
+    window.vfbGaDetail = gaDetail;
+    /*
+     * Seconds, coarse enough to be readable as an event name but fine enough
+     * to show a regression: tenths under 10s, whole seconds to a minute, then
+     * 10s buckets.
+     */
+    var secondsBucket = function (ms) {
+      var s = (ms || 0) / 1000;
+      if (s < 10) {
+        return (Math.round(s * 10) / 10) + 's';
+      }
+      if (s < 60) {
+        return Math.round(s) + 's';
+      }
+      return (Math.floor(s / 10) * 10) + 's';
+    };
+    window.vfbSecondsBucket = secondsBucket;
+    var sizeBucket = function (n) {
+      var v = n || 0;
+      if (v === 0) {
+        return '0';
+      }
+      if (v < 10) {
+        return '1-9';
+      }
+      if (v < 100) {
+        return '10-99';
+      }
+      if (v < 1000) {
+        return '100-999';
+      }
+      if (v < 10000) {
+        return '1k-10k';
+      }
+      return '10k+';
+    };
+    /*
+     * Time every query the user runs, whichever path serves it (client-direct
+     * or the server), with how long it took and how much came back. The
+     * direct-query counts say which path ran; this says what the user waited
+     * for and whether anything arrived.
+     */
+    try {
+      var qc = GEPPETTO.QueriesController;
+      if (qc !== undefined && typeof qc.runQuery === "function" && !qc.vfbTimed) {
+        var innerRunQuery = qc.runQuery.bind(qc);
+        qc.runQuery = function (queryDTOs, callback, offset, limit) {
+          var startedAt = Date.now();
+          var queryName = 'na';
+          try {
+            queryName = (queryDTOs && queryDTOs[0] && queryDTOs[0].query && queryDTOs[0].query.getId)
+              ? queryDTOs[0].query.getId() : 'na';
+          } catch (eName) { /* name is best effort */ }
+          var compound = (queryDTOs && queryDTOs.length > 1) ? 'compound' : 'single';
+          var reported = false;
+          var timedCallback = function (results) {
+            if (!reported) {
+              reported = true;
+              var rows = 0;
+              try {
+                var parsed = (typeof results === "string") ? JSON.parse(results) : results;
+                rows = (parsed && parsed.results) ? parsed.results.length : 0;
+              } catch (eRows) { /* count is best effort */ }
+              gaDetail('query-run', compound, queryName, secondsBucket(Date.now() - startedAt));
+              gaDetail('query-rows', compound, queryName, sizeBucket(rows));
+            }
+            return callback.apply(this, arguments);
+          };
+          /*
+           * A query that never calls back (the server erroring mid-run, a
+           * dropped request) is exactly what needs reporting, so time it out.
+           */
+          setTimeout(function () {
+            if (!reported) {
+              reported = true;
+              gaDetail('query-noresult', compound, queryName, secondsBucket(Date.now() - startedAt));
+            }
+          }, 120000);
+          return innerRunQuery(queryDTOs, timedCallback, offset, limit);
+        };
+        qc.vfbTimed = true;
+      }
+    } catch (eQueryTiming) {
+      console.error('Could not instrument query timing', eQueryTiming);
+    }
     var droppedNoticeShown = false;
     /*
      * Background retry after the client's reconnection budget is spent. Slow
@@ -2430,10 +2692,35 @@ class VFBMain extends React.Component {
      * be compared, and the fallback (a fetch that failed and went to the
      * server after all) is counted separately.
      */
+    var directOff = (new URLSearchParams(window.location.search).get('direct') === '0');
     if (GEPPETTO.DirectGeometry !== undefined) {
-      GEPPETTO.DirectGeometry.enabled = (new URLSearchParams(window.location.search).get('direct') !== '0');
+      GEPPETTO.DirectGeometry.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_geometry', function (info) {
         gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+      });
+    }
+    /*
+     * VFB2 #502 phase 2: a term's info is fetched from v3-cached by the
+     * client and its model built locally (the server's term-info processor
+     * ported to JavaScript) instead of asking the server over the
+     * websocket. Same switch and the same kind of GA count as the meshes.
+     */
+    if (GEPPETTO.DirectTermInfo !== undefined) {
+      GEPPETTO.DirectTermInfo.enabled = !directOff;
+      GEPPETTO.on('geppetto:direct_terminfo', function (info) {
+        gaDetail('direct-terminfo', info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+      });
+    }
+    /*
+     * VFB2 #502 phase 3: queries run against v3-cached from the client and
+     * the table is built locally (the server's query processors ported to
+     * JavaScript). Goes with phase 2: the server cannot run a query on a
+     * term it never built. Same switch; counted as direct-query:<run|count>.
+     */
+    if (GEPPETTO.DirectQueries !== undefined) {
+      GEPPETTO.DirectQueries.enabled = !directOff;
+      GEPPETTO.on('geppetto:direct_query', function (info) {
+        gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
       });
     }
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
@@ -2504,6 +2791,21 @@ class VFBMain extends React.Component {
         this.idsFromURL.splice(counter, 1);
         this.firstLoad = false;
         break;
+      }
+    }
+
+    /*
+     * The moment the user first has a term in front of them: the end of the
+     * startup path that startup-model begins.
+     */
+    if (!this.firstTermReported) {
+      this.firstTermReported = true;
+      try {
+        if (typeof window.vfbGaDetail === "function") {
+          window.vfbGaDetail('startup-first-term', window.vfbSecondsBucket(Math.round(performance.now())));
+        }
+      } catch (eFirstTerm) {
+        /* reporting must never affect the panel */
       }
     }
 
