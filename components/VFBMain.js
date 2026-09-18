@@ -672,6 +672,31 @@ class VFBMain extends React.Component {
     this.selectAndResolve3D(path, callback);
   }
 
+  /*
+   * Fall back to the SWC skeleton for a term whose mesh could not be loaded.
+   * Quietly does nothing when the term has no skeleton, or already shows one.
+   */
+  showSkeletonFor (id) {
+    try {
+      var swc = Instances.getInstance(id + "." + id + "_swc");
+      if (swc === undefined || swc === null) {
+        return;
+      }
+      if (swc.getType().getMetaType() === GEPPETTO.Resources.IMPORT_TYPE) {
+        console.warn("VFB: no mesh for " + id + ", showing the skeleton instead");
+        swc.getType().resolve(function () {
+          if (typeof swc.show === "function") {
+            swc.show();
+          }
+        });
+      } else if (typeof swc.show === "function" && !GEPPETTO.SceneController.isVisible([swc])) {
+        swc.show();
+      }
+    } catch (ignore) {
+      // No skeleton for this term: nothing more we can offer.
+    }
+  }
+
   selectAndResolve3D (path, callback) {
     var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var instance = undefined;
@@ -2566,6 +2591,15 @@ class VFBMain extends React.Component {
       GEPPETTO.DirectGeometry.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_geometry', function (info) {
         gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+        /*
+         * A mesh the browser cannot load leaves the term with no geometry at
+         * all: it vanishes from the scene and from i=, with nothing said. Show
+         * the SWC skeleton instead. The server fallback runs in parallel and
+         * replaces this if it succeeds.
+         */
+        if (!info.ok && info.kind === 'obj' && info.path !== undefined) {
+          self.showSkeletonFor(String(info.path).split('.')[0]);
+        }
       });
     }
     /*
