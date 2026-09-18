@@ -131,6 +131,7 @@ class VFBMain extends React.Component {
     this.setSepCol = require('./interface/utils/utils').setSepCol;
     this.hasVisualType = require('./interface/utils/utils').hasVisualType;
     this.hasUnresolvedVisualType = require('./interface/utils/utils').hasUnresolvedVisualType;
+    this.hasGeometryMissingFromScene = require('./interface/utils/utils').hasGeometryMissingFromScene;
     this.isVariableLoaded = require('./interface/utils/utils').isVariableLoaded;
 
     /*
@@ -500,7 +501,16 @@ class VFBMain extends React.Component {
      * re-focus. Treating "variable exists" as "loaded" is what made a Term Info
      * thumbnail click show the term and never its image.
      */
-    return !this.hasUnresolvedVisualType(id);
+    if (this.hasUnresolvedVisualType(id)) {
+      return false;
+    }
+    /*
+     * Resolved is still not loaded if the geometry has left the scene. Clear
+     * deletes every instance but leaves the resolved types in the model, so a
+     * term that was cleared and then asked for again looked loaded here, was
+     * only re-focused, and never came back -- for the rest of the session.
+     */
+    return !this.hasGeometryMissingFromScene(id);
   }
 
   /* Best-effort human label for the status line (falls back to the id). */

@@ -443,6 +443,38 @@ var hasVisualType = function (variableId) {
  * window[id] on its own only tells us the VARIABLE exists (Term Info has been
  * fetched), which is a weaker condition and must not be mistaken for it.
  */
+/*
+ * True when a term's geometry has been resolved but is no longer in the scene.
+ * Clear deletes the instances, so the meshes go, while the resolved types stay
+ * in the model -- the term then looks loaded but shows nothing, and asking for
+ * it again has to put its geometry back rather than just re-focus it.
+ *
+ * Only the geometry the 3D viewer draws counts. A term whose mesh is in the
+ * scene is loaded even if its skeleton was never displayed, and a term with no
+ * resolved geometry at all (a class with no image) is left to the check above.
+ */
+var hasGeometryMissingFromScene = function (variableId) {
+  var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
+  var extensions = ["_obj", "_swc"];
+  var resolved = 0;
+  var inScene = 0;
+  for (var i = 0; i < extensions.length; i++) {
+    try {
+      var child = Instances.getInstance(variableId + "." + variableId + extensions[i]);
+      if ((child === undefined) || (child.getType() instanceof ImportType)) {
+        continue;
+      }
+      resolved++;
+      if (GEPPETTO.SceneController.isInstancePresent(child)) {
+        inScene++;
+      }
+    } catch (ignore) {
+      // No such child on this term: nothing to account for.
+    }
+  }
+  return resolved > 0 && inScene === 0;
+};
+
 var hasUnresolvedVisualType = function (variableId) {
   var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
   var extensions = ["_swc", "_obj", "_slices"];
@@ -500,6 +532,7 @@ module.exports = {
   getStackViewerDefaultY,
   hasVisualType,
   hasUnresolvedVisualType,
+  hasGeometryMissingFromScene,
   isVariableLoaded,
   labelTypeToID,
   safeGa
