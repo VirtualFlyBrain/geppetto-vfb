@@ -1738,9 +1738,18 @@ class VFBMain extends React.Component {
       if (window._vfbQueryTypesCache[id] !== undefined) {
         return Promise.resolve(window._vfbQueryTypesCache[id]);
       }
-      return fetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
-        .then(function (r) {
-          return r.ok ? r.json() : null;
+      /*
+       * Retried like the other v3-cached calls: a single blip here left the
+       * term with no query list at all, which reads as "this term has no
+       * queries" rather than as a failure.
+       */
+      var retryFetch = require('@geppettoengine/geppetto-client/common/RetryFetch').fetchWithRetry;
+      return retryFetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
+        .then(function (result) {
+          return result.response.ok ? result.response.json() : null;
+        })
+        .catch(function () {
+          return null;
         })
         .then(function (d) {
           var set = null;

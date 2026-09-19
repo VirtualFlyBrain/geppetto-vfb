@@ -2,6 +2,7 @@
 import React from 'react';
 import { ChromePicker } from 'react-color';
 import Tree from '@geppettoengine/geppetto-ui/tree-viewer/Tree';
+import { fetchWithRetry } from '@geppettoengine/geppetto-client/common/RetryFetch';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 import { setTermInfo } from './../../../actions/generals';
@@ -260,7 +261,12 @@ class VFBTree extends React.Component {
     var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     this._fetchController = controller;
 
-    fetch(treeQueryUrl(instance), controller ? { signal: controller.signal } : undefined)
+    /*
+     * Retried: one dropped connection used to empty the tree. An abort is not
+     * a transient failure, so switching instance still cancels immediately.
+     */
+    fetchWithRetry(treeQueryUrl(instance), undefined, controller ? { signal: controller.signal } : undefined)
+      .then(result => result.response)
       .then(r => {
         if (!r.ok) {
           throw new Error("HTTP " + r.status + " from vfbquery TemplateROIBrowser");
@@ -306,7 +312,8 @@ class VFBTree extends React.Component {
         this.applyResponse(data);
       })
       .catch(e => {
-        if (e && e.name === 'AbortError') {
+        /* .reason as well as .name: the retry wrapper reports an abort as both. */
+        if (e && (e.name === 'AbortError' || e.reason === 'aborted')) {
           return;
         }
         if (!this._mounted || this._fetchController !== controller) {
