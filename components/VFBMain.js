@@ -170,6 +170,28 @@ class VFBMain extends React.Component {
     if (typeof window !== 'undefined') {
       window.VFB_QUERY_PAGE_SIZE = window.VFB_QUERY_PAGE_SIZE || 10000;
       window.VFB_STREAMABLE_QUERIES = window.VFB_STREAMABLE_QUERIES || ['AllAlignedImages'];
+      /*
+       * The Rancher ingress nodes, named directly so a session can take its
+       * data from one of them instead of everyone queueing on the round-robin
+       * name. Each node has its own 1Gb link, so spreading sessions across
+       * them is the cheapest bandwidth available; a node that does not answer
+       * is dropped for the session and the published name serves instead.
+       *
+       * Names, not addresses: DNS drops a host that goes down, and the
+       * certificate is issued for names. vfbk8s10 to 12 are deliberately
+       * absent -- no ingress yet -- and vfbk8s10 will want a weight
+       * ('vfbk8s10.virtualflybrain.org*10') when it arrives, as it has a
+       * 10Gb link where these have 1Gb.
+       */
+      window.VFB_DATA_HOSTS = window.VFB_DATA_HOSTS || [
+        'buttermilk.virtualflybrain.org',
+        'parsley.virtualflybrain.org',
+        'sourcream.virtualflybrain.org',
+        'chive.virtualflybrain.org',
+        'mayo.virtualflybrain.org',
+        'dill.virtualflybrain.org',
+        'cayenne.virtualflybrain.org'
+      ];
       var vfbMainSelf = this;
       window.vfbQueryLoadStatus = function (loaded, done) {
         try {
