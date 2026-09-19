@@ -436,11 +436,15 @@ describe('VFB Layer Component Tests', () => {
 					await new Promise(r => setTimeout(r, 250));
 					if (shownName().indexOf(instanceId) > -1) { break; }
 				}
-				return { before: before, after: shownName() };
+				let selected = null;
+				try { selected = Instances.getInstance(instanceId).isSelected(); } catch (e) { selected = 'err'; }
+				return { before: before, after: shownName(), selected: selected };
 			}, INSTANCE_ID);
 
 			expect(outcome.error).toBeUndefined();
 			expect(outcome.after).toContain(INSTANCE_ID);
+			// the row is marked too: the list and the panel agree on the term
+			expect(outcome.selected).toEqual(true);
 		}, 120000)
 
 		// Open color picker to change color of VFB_jrchk4wj
