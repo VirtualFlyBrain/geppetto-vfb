@@ -170,6 +170,28 @@ class VFBMain extends React.Component {
     if (typeof window !== 'undefined') {
       window.VFB_QUERY_PAGE_SIZE = window.VFB_QUERY_PAGE_SIZE || 10000;
       window.VFB_STREAMABLE_QUERIES = window.VFB_STREAMABLE_QUERIES || ['AllAlignedImages'];
+      /*
+       * The Rancher ingress nodes, named directly so a session can take its
+       * data from one of them instead of everyone queueing on the round-robin
+       * name. Each node has its own 1Gb link, so spreading sessions across
+       * them is the cheapest bandwidth available; a node that does not answer
+       * is dropped for the session and the published name serves instead.
+       *
+       * Names, not addresses: DNS drops a host that goes down, and the
+       * certificate is issued for names. vfbk8s10 to 12 are deliberately
+       * absent -- no ingress yet -- and vfbk8s10 will want a weight
+       * ('vfbk8s10.virtualflybrain.org*10') when it arrives, as it has a
+       * 10Gb link where these have 1Gb.
+       */
+      window.VFB_DATA_HOSTS = window.VFB_DATA_HOSTS || [
+        'buttermilk.virtualflybrain.org',
+        'parsley.virtualflybrain.org',
+        'sourcream.virtualflybrain.org',
+        'chive.virtualflybrain.org',
+        'mayo.virtualflybrain.org',
+        'dill.virtualflybrain.org',
+        'cayenne.virtualflybrain.org'
+      ];
       var vfbMainSelf = this;
       window.vfbQueryLoadStatus = function (loaded, done) {
         try {
@@ -1716,9 +1738,18 @@ class VFBMain extends React.Component {
       if (window._vfbQueryTypesCache[id] !== undefined) {
         return Promise.resolve(window._vfbQueryTypesCache[id]);
       }
-      return fetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
-        .then(function (r) {
-          return r.ok ? r.json() : null;
+      /*
+       * Retried like the other v3-cached calls: a single blip here left the
+       * term with no query list at all, which reads as "this term has no
+       * queries" rather than as a failure.
+       */
+      var retryFetch = require('@geppettoengine/geppetto-client/common/RetryFetch').fetchWithRetry;
+      return retryFetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
+        .then(function (result) {
+          return result.response.ok ? result.response.json() : null;
+        })
+        .catch(function () {
+          return null;
         })
         .then(function (d) {
           var set = null;
@@ -2602,6 +2633,15 @@ class VFBMain extends React.Component {
       GEPPETTO.on('geppetto:direct_geometry', function (info) {
         gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
         /*
+         * The counts above say how often a path fell back; this says what
+         * went wrong and on which call, which the duration alone could not.
+         * Separate event so the counts stay comparable, and short enough to
+         * survive GA4's 40-character event names.
+         */
+        if (!info.ok) {
+          gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+        }
+        /*
          * A mesh the browser cannot load leaves the term with no geometry at
          * all: it vanishes from the scene and from i=, with nothing said. Show
          * the SWC skeleton instead. The server fallback runs in parallel and
@@ -2622,6 +2662,9 @@ class VFBMain extends React.Component {
       GEPPETTO.DirectTermInfo.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_terminfo', function (info) {
         gaDetail('direct-terminfo', info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+        if (!info.ok) {
+          gaDetail('tifail', info.reason, info.call, 'a' + (info.attempts || 1));
+        }
       });
     }
     /*
@@ -2634,6 +2677,9 @@ class VFBMain extends React.Component {
       GEPPETTO.DirectQueries.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_query', function (info) {
         gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+        if (!info.ok) {
+          gaDetail('queryfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+        }
       });
     }
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
