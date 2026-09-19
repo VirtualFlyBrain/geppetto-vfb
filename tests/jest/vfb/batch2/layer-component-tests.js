@@ -404,6 +404,45 @@ describe('VFB Layer Component Tests', () => {
 			await wait4selector(page, 'div.listviewer-container', { visible: true, timeout : 120000 });
 		}, 120000)
 
+		/*
+		 * The name cell's click handler sits on the div that wraps the <a>, so
+		 * a click landing on the cell's padding rather than the text has no id
+		 * on the event target. Looking that id up used to throw and take the
+		 * rest of the handler with it, so those clicks silently did nothing --
+		 * the term info stayed on whatever was shown before. Click the cell
+		 * away from the text and assert the term info still follows.
+		 */
+		it('Clicking the name cell beside the text still switches the term info', async () => {
+			await selectTab(page, "Layers");
+			await page.waitFor(1000);
+
+			const outcome = await page.evaluate(async (instanceId) => {
+				const shownName = () => {
+					const el = document.getElementById('vfbterminfowidget');
+					if (!el) { return ''; }
+					const lines = (el.innerText || '').split('\n').map(t => t.trim()).filter(Boolean);
+					const i = lines.indexOf('Name');
+					return i > -1 ? lines[i + 1] : (lines[0] || '');
+				};
+				const link = document.getElementById(instanceId);
+				if (link === null) { return { error: 'no name link for ' + instanceId }; }
+				const cell = link.parentElement;          // the div carrying onClick
+				const before = shownName();
+
+				// click the cell itself, not the <a>: event.target has no id
+				cell.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+				for (let waited = 0; waited < 20000; waited += 250) {
+					await new Promise(r => setTimeout(r, 250));
+					if (shownName().indexOf(instanceId) > -1) { break; }
+				}
+				return { before: before, after: shownName() };
+			}, INSTANCE_ID);
+
+			expect(outcome.error).toBeUndefined();
+			expect(outcome.after).toContain(INSTANCE_ID);
+		}, 120000)
+
 		// Open color picker to change color of VFB_jrchk4wj
 		it('Color Picker Appears for VFB_jrchk4wj', async () => {
 			await openControls(page, INSTANCE_ROW_LABEL);

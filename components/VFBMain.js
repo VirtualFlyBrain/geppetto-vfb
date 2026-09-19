@@ -1290,7 +1290,6 @@ class VFBMain extends React.Component {
     if (component === "text") {
       return (<div className="">Panel {node.getName()}</div>);
     } else if (component === "canvas") {
-      this.UIElementsVisibility;
       node.setEventListener("close", () => {
         this.setState({
           UIUpdated: false,
@@ -1425,7 +1424,6 @@ class VFBMain extends React.Component {
         <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
-      let listViewerVisibility = node.isVisible();
       node.setEventListener("close", () => {
         this.setState({
           UIUpdated: false,

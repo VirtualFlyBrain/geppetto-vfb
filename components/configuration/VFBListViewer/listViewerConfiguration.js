@@ -43,8 +43,16 @@ const conf = [
       let instance = Instances.getInstance(path);
       var self = this;
 
-      let click = value => {
-        let instance = Instances.getInstance(value.target.id);
+      /*
+       * The id is on the inner <a>, but the handler is on the div that wraps
+       * it, so a click on the cell's padding -- or the gap beside a name that
+       * wrapped to two lines -- has no id on the target. Looking that id up
+       * threw ("The instance  does not exist in the current model") and took
+       * the rest of the handler with it, so those clicks silently did nothing
+       * while clicks that landed on the text worked. The lookup was never used
+       * anyway: path is already in scope and is what sets the term info.
+       */
+      let click = () => {
         window.setTermInfo(Instances.getInstance(path)[path + "_meta"], path);
       };
       // Create new HTML string with the Type name and tags only
