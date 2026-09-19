@@ -33,10 +33,18 @@ describe('VFB Circuit Browser Tab Tests', () => {
 		}, 300000);
 	});
 
+	/*
+	 * The two waits for the panel are 150s rather than 120s. The file passed in
+	 * 73s the run before it first failed, then the first wait timed out at
+	 * 121s, with the same fixture and the panel verified working on v2-dev --
+	 * so it was the runner being slow, not the panel. This fixture is a heavy
+	 * neuron and its meshes can block the renderer long enough that the tab
+	 * click does not take effect within the old budget.
+	 */
 	describe('The tab opens', () => {
 		it('Circuit Browser shows its connectivity query controls', async () => {
 			await selectTab(page, 'Circuit Browser');
-			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout: 120 * ONE_SECOND });
+			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout: 150 * ONE_SECOND });
 			await wait4selector(page, '#clearCircuitBrowser', { visible: true, timeout: 30 * ONE_SECOND });
 			await wait4selector(page, '#weightField', { visible: true, timeout: 30 * ONE_SECOND });
 			expect(await page.evaluate(() => !!document.querySelector('.neuron1 input'))).toEqual(true);
@@ -60,7 +68,7 @@ describe('VFB Circuit Browser Tab Tests', () => {
 
 		it('The term becomes the first neuron of the query', async () => {
 			await page.click('#circuitBrowserLink');
-			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout: 120 * ONE_SECOND });
+			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout: 150 * ONE_SECOND });
 			// Filled through a Redux dispatch chain, so wait for the value.
 			await page.waitForFunction(() => {
 				const input = document.querySelector('.neuron1 input');
