@@ -2602,6 +2602,15 @@ class VFBMain extends React.Component {
       GEPPETTO.on('geppetto:direct_geometry', function (info) {
         gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
         /*
+         * The counts above say how often a path fell back; this says what
+         * went wrong and on which call, which the duration alone could not.
+         * Separate event so the counts stay comparable, and short enough to
+         * survive GA4's 40-character event names.
+         */
+        if (!info.ok) {
+          gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+        }
+        /*
          * A mesh the browser cannot load leaves the term with no geometry at
          * all: it vanishes from the scene and from i=, with nothing said. Show
          * the SWC skeleton instead. The server fallback runs in parallel and
@@ -2622,6 +2631,9 @@ class VFBMain extends React.Component {
       GEPPETTO.DirectTermInfo.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_terminfo', function (info) {
         gaDetail('direct-terminfo', info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+        if (!info.ok) {
+          gaDetail('tifail', info.reason, info.call, 'a' + (info.attempts || 1));
+        }
       });
     }
     /*
@@ -2634,6 +2646,9 @@ class VFBMain extends React.Component {
       GEPPETTO.DirectQueries.enabled = !directOff;
       GEPPETTO.on('geppetto:direct_query', function (info) {
         gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
+        if (!info.ok) {
+          gaDetail('queryfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+        }
       });
     }
     GEPPETTO.on('geppetto:request_failed', function (requestID) {
