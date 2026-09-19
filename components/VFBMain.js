@@ -183,6 +183,15 @@ class VFBMain extends React.Component {
        * ('vfbk8s10.virtualflybrain.org*10') when it arrives, as it has a
        * 10Gb link where these have 1Gb.
        */
+      /*
+       * Parse meshes in a worker pool rather than on the main thread, so the
+       * page stays responsive while several load. On for v2-dev to be measured
+       * against the main-thread path before it becomes the default; any
+       * failure falls back to parsing inline, so this cannot lose a mesh.
+       */
+      if (window.VFB_OBJ_WORKERS === undefined) {
+        window.VFB_OBJ_WORKERS = /(^|\.)v2-dev\./.test(window.location.hostname);
+      }
       window.VFB_DATA_HOSTS = window.VFB_DATA_HOSTS || [
         'buttermilk.virtualflybrain.org',
         'parsley.virtualflybrain.org',
