@@ -43,9 +43,33 @@ const conf = [
       let instance = Instances.getInstance(path);
       var self = this;
 
-      let click = value => {
-        let instance = Instances.getInstance(value.target.id);
-        window.setTermInfo(Instances.getInstance(path)[path + "_meta"], path);
+      /*
+       * The id is on the inner <a>, but the handler is on the div that wraps
+       * it, so a click on the cell's padding -- or the gap beside a name that
+       * wrapped to two lines -- has no id on the target. Looking that id up
+       * threw ("The instance  does not exist in the current model") and took
+       * the rest of the handler with it, so those clicks silently did nothing
+       * while clicks that landed on the text worked. path is already in scope
+       * and is all the handler needs.
+       *
+       * Select rather than only setting the term info. Setting it alone left
+       * the row unmarked while its term filled the panel, so the list and the
+       * panel disagreed about which term you were looking at; selecting marks
+       * the row and sets the term info on the way. Checked on a live instance:
+       * selecting one that is already selected does not toggle it off and does
+       * re-show its term info, so a repeat click still brings the panel back.
+       *
+       * Partial instance shapes turn up here -- the same clear-then-re-add
+       * case the isSelected guard below covers -- so fall back to setting the
+       * term info directly when select is missing.
+       */
+      let click = () => {
+        let clicked = Instances.getInstance(path);
+        if (typeof clicked.select === 'function') {
+          clicked.select();
+          return;
+        }
+        window.setTermInfo(clicked[path + "_meta"], path);
       };
       // Create new HTML string with the Type name and tags only
       let typeHTML = '<a id="' + instance.id + '" style="color:white;text-decoration: none;cursor:pointer">' + instance.getName() + "</a>" ;
