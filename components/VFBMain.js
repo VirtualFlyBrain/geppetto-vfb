@@ -2638,6 +2638,13 @@ class VFBMain extends React.Component {
          */
         if (!info.ok) {
           gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+        } else if (info.attempts > 1) {
+          /*
+           * A load that needed a retry -- a host that dropped the stream, or
+           * answered with an error -- and came good from another. Invisible
+           * to the user, so this is the only place it shows.
+           */
+          gaDetail('georecover', info.kind, info.call, 'a' + info.attempts);
         }
         /*
          * A mesh the browser cannot load leaves the term with no geometry at
@@ -2645,7 +2652,7 @@ class VFBMain extends React.Component {
          * the SWC skeleton instead. The server fallback runs in parallel and
          * replaces this if it succeeds.
          */
-        if (!info.ok && info.kind === 'obj' && info.path !== undefined) {
+        if (!info.ok && info.reason !== 'unload' && info.kind === 'obj' && info.path !== undefined) {
           self.showSkeletonFor(String(info.path).split('.')[0]);
         }
       });
