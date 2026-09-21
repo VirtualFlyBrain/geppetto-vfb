@@ -2296,6 +2296,36 @@ class VFBMain extends React.Component {
      */
     window.vfbGaDetail = gaDetail;
     /*
+     * The extra diagnostics RetryFetch/Direct* attach to a failure (tab
+     * visibility, online status, whether a Page Lifecycle freeze happened
+     * mid-call, connection type) don't fit alongside kind/reason/call/attempts
+     * in the 40-character geomfail/tifail/queryfail name, so they go out as a
+     * second, short event next to it. Same event across a session's failures
+     * is enough to see whether fails cluster on hidden tabs, offline blips,
+     * a freeze, or a slow connection -- it does not need to join back to the
+     * specific geomfail row to answer that.
+     */
+    var diagBits = function (info) {
+      return [
+        info.visibility === undefined ? 'na' : (info.visibility === 'visible' ? 'v1' : 'v0'),
+        info.online === undefined ? 'na' : (info.online ? 'o1' : 'o0'),
+        'f' + (info.frozeDuringCall ? '1' : '0')
+      ];
+    };
+    /*
+     * How far an OBJ body got before it died, against what the server said
+     * it would be: 0/25/50/75/100 buckets, 'pna' when either figure is
+     * missing (not every failure is a mid-stream body read).
+     */
+    var progressBucket = function (info) {
+      if (typeof info.bytesReceived !== 'number' || typeof info.contentLength !== 'number' || !info.contentLength) {
+        return 'pna';
+      }
+      var pct = Math.min(100, Math.round((info.bytesReceived / info.contentLength) * 100));
+      var bucket = pct >= 100 ? 100 : (pct >= 75 ? 75 : (pct >= 50 ? 50 : (pct >= 25 ? 25 : 0)));
+      return 'p' + bucket;
+    };
+    /*
      * Seconds, coarse enough to be readable as an event name but fine enough
      * to show a regression: tenths under 10s, whole seconds to a minute, then
      * 10s buckets.
@@ -2648,6 +2678,9 @@ class VFBMain extends React.Component {
          */
         if (!info.ok) {
           gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+          var geomBits = diagBits(info);
+          gaDetail('geomdiag', info.kind, geomBits[0], geomBits[1], geomBits[2],
+            progressBucket(info), info.effectiveType || 'na');
         } else if (info.attempts > 1) {
           /*
            * A load that needed a retry -- a host that dropped the stream, or
@@ -2679,6 +2712,8 @@ class VFBMain extends React.Component {
         gaDetail('direct-terminfo', info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
         if (!info.ok) {
           gaDetail('tifail', info.reason, info.call, 'a' + (info.attempts || 1));
+          var tiBits = diagBits(info);
+          gaDetail('tidiag', tiBits[0], tiBits[1], tiBits[2], info.effectiveType || 'na');
         }
       });
     }
@@ -2694,6 +2729,8 @@ class VFBMain extends React.Component {
         gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fallback', Math.round((info.ms || 0) / 100) / 10 + 's');
         if (!info.ok) {
           gaDetail('queryfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+          var qBits = diagBits(info);
+          gaDetail('qdiag', info.kind, qBits[0], qBits[1], qBits[2], info.effectiveType || 'na');
         }
       });
     }
