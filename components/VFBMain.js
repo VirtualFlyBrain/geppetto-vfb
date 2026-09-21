@@ -12,6 +12,7 @@ import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/q
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
 import { safeGa } from './interface/utils/utils';
 import { showConnectionNotice, hideConnectionNotice } from './interface/utils/connectionNotice';
+import { initTermPageMetadata, updateTermPageMetadata } from './interface/utils/pageMetadata';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
@@ -1648,6 +1649,15 @@ class VFBMain extends React.Component {
       + '{"@type": "ScholarlyArticle","citation":"http://dx.doi.org/10.1098/rstb.2017.0380","sameAs":"http://dx.doi.org/10.1098/rstb.2017.0380","headline":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","name":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","author":"Cantarelli, Matteo and Marin, Boris and Quintana, Adrian and Earnshaw, Matt and Court, Robert and Gleeson, Padraig and Dura-Bernal, Salvador and Silver, R. Angus and Idili, Giovanni","publisher": "Philosophical Transactions of the Royal Society B: Biological Sciences","datePublished": "2018"}'
       + ']}';
     document.getElementsByTagName('head')[0].appendChild(script);
+
+    /*
+     * The values above describe the site as a whole. When the URL names a term
+     * (id=<id>), replace them with that term's own title, description, canonical
+     * and summary, fetched over plain HTTPS so it works for crawlers that never
+     * open the WebSocket. Also called whenever the focus term changes.
+     */
+    window.vfbUpdatePageMetadata = updateTermPageMetadata;
+    initTermPageMetadata(this.props.location.search);
   }
 
   componentWillUnmount () {

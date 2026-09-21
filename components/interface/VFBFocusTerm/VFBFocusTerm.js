@@ -508,6 +508,12 @@ class VFBFocusTerm extends React.Component {
             title = instance.getName();
             safeGa('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
           } catch (ignore) { }
+          try {
+            // Keep the title, description and canonical in step with the focus term.
+            if (window.vfbUpdatePageMetadata) {
+              window.vfbUpdatePageMetadata(instance.getId().replace('_meta',''));
+            }
+          } catch (ignore) { }
 
           if (window.history.state == null) {
             window.history.replaceState({ s:1, n:title, b:"", f:"" }, title, window.location.pathname + "?" + items);
