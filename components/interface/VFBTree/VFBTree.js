@@ -604,7 +604,7 @@ class VFBTree extends React.Component {
     if (window.templateID !== undefined) {
       this.initTree(window.templateID);
     } else {
-      this.setState({ errors: "Template not loaded yet." });
+      this.setState({ errors: "Waiting for the template to load\u2026" });
     }
   }
 
@@ -612,7 +612,7 @@ class VFBTree extends React.Component {
     if (window.templateID !== undefined) {
       this.initTree(window.templateID);
     } else {
-      this.setState({ errors: "Template not loaded yet." });
+      this.setState({ errors: "Waiting for the template to load\u2026" });
     }
   }
 

@@ -70,3 +70,12 @@
     }
 }
     
+// An empty Layers list is the normal state before anything is loaded, so
+// swap Griddle's "No results found." for a neutral message.
+.vfbListViewer .griddle-noResults {
+  font-size: 0;
+  &::after {
+    content: "Nothing loaded yet.";
+    font-size: 13px;
+  }
+}
