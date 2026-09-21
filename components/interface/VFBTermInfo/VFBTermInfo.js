@@ -7,6 +7,7 @@ import ButtonBarComponent from './ButtonBarComponent';
 import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
 import { labelTypeToID, safeGa } from '../utils/utils';
+import { renderVisibleSummary } from '../utils/pageMetadata';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -591,9 +592,11 @@ class VFBTermInfo extends React.Component {
 
     // Add click handlers to label tags
     this.attachLabelClickHandlers();
+    renderVisibleSummary();
   }
   
   componentDidUpdate (prevProps, prevState) {
+    renderVisibleSummary();
     const domTermInfo = ReactDOM.findDOMNode(this.refs.termInfoInnerRef);
     if (this.state.termInfoId !== this.innerHandler.id) {
       this.innerHandler = { funct: this.props.customHandler, event: 'click', meta: undefined, hooked: false };
@@ -693,8 +696,14 @@ class VFBTermInfo extends React.Component {
       this.contentBackup.values = this.contentTermInfo.values;
       this.contentTermInfo.values = [];
     }
+    /*
+     * Until Term Info has content of its own, show the summary fetched over
+     * HTTPS (see utils/pageMetadata), so the pane is never an empty box.
+     */
+    var summary = toRender.length === 0 ? <div id="vfbTermSummary" className="vfb-term-summary" /> : null;
     return (
       <div id={this.props.id} ref="termInfoInnerRef">
+        {summary}
         {toRender}
       </div>);
   }

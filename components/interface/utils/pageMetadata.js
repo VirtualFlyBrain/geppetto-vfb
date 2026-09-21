@@ -17,6 +17,7 @@ var REPORTS_BASE = 'https://virtualflybrain.org/reports/';
 var SITE_NAME = 'Virtual Fly Brain';
 var CONTENT_ID = 'content';
 var TERM_JSONLD_ID = 'termMetaDesc';
+var VISIBLE_SUMMARY_ID = 'vfbTermSummary';
 var MAX_DESCRIPTION = 300;
 var MAX_LIST = 25;
 
@@ -26,6 +27,7 @@ var MARKDOWN_LINK = /\[([^\]]*)\]\(([^)\s]*)\)/g;
 var termInfoCache = {};
 var defaults = null;
 var latestRequest = 0;
+var lastInfo = null;
 
 export function isTermId (id) {
   return typeof id === 'string' && id.length < 100 && ID_PATTERN.test(id);
@@ -266,12 +268,41 @@ export function renderSummary (info) {
   while (container.firstChild) {
     container.removeChild(container.firstChild);
   }
-  if (!info) {
-    return container;
+  if (info) {
+    container.appendChild(buildArticle(info, 'h1'));
   }
+  return container;
+}
+
+/**
+ * Fills the Term Info placeholder (rendered only while Term Info has nothing
+ * of its own to show) with the summary fetched over HTTPS. This is what a
+ * crawler without the websocket sees on screen; React removes the placeholder
+ * as soon as the real Term Info arrives.
+ */
+export function renderVisibleSummary () {
+  var holder = document.getElementById(VISIBLE_SUMMARY_ID);
+  if (!holder) {
+    return false;
+  }
+  if (!lastInfo) {
+    return false;
+  }
+  if (holder.getAttribute('data-term') === lastInfo.Id) {
+    return true;
+  }
+  while (holder.firstChild) {
+    holder.removeChild(holder.firstChild);
+  }
+  holder.appendChild(buildArticle(lastInfo, 'h2'));
+  holder.setAttribute('data-term', lastInfo.Id);
+  return true;
+}
+
+function buildArticle (info, headingTag) {
   var meta = info.Meta || {};
   var article = document.createElement('article');
-  var heading = document.createElement('h1');
+  var heading = document.createElement(headingTag);
   heading.textContent = info.Name + ' [' + info.Id + ']';
   article.appendChild(heading);
 
@@ -319,8 +350,7 @@ export function renderSummary (info) {
     return xref.label + (xref.accession ? ' ' + xref.accession : '');
   }));
 
-  container.appendChild(article);
-  return container;
+  return article;
 }
 
 export function applyTermMetadata (info) {
@@ -354,7 +384,9 @@ export function applyTermMetadata (info) {
   // "<" cannot appear literally inside a script element.
   script.textContent = JSON.stringify(buildJsonLd(info)).replace(/</g, '\\u003c');
 
+  lastInfo = info;
   renderSummary(info);
+  renderVisibleSummary();
   return true;
 }
 
