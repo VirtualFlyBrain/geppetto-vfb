@@ -2676,8 +2676,18 @@ class VFBMain extends React.Component {
          * Separate event so the counts stay comparable, and short enough to
          * survive GA4's 40-character event names.
          */
+        /*
+         * aN is every request the load made; rN, when present, is how many of
+         * them picked a dropped download up from where it stopped (client
+         * VFBv2.4.5.8). Absent when none did, so the names stay as they were.
+         */
+        var resumed = (info.resumes > 0) ? 'r' + info.resumes : null;
         if (!info.ok) {
-          gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+          if (resumed !== null) {
+            gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1), resumed);
+          } else {
+            gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+          }
           var geomBits = diagBits(info);
           gaDetail('geomdiag', info.kind, geomBits[0], geomBits[1], geomBits[2],
             progressBucket(info), info.effectiveType || 'na');
@@ -2687,7 +2697,11 @@ class VFBMain extends React.Component {
            * answered with an error -- and came good from another. Invisible
            * to the user, so this is the only place it shows.
            */
-          gaDetail('georecover', info.kind, info.call, 'a' + info.attempts);
+          if (resumed !== null) {
+            gaDetail('georecover', info.kind, info.call, 'a' + info.attempts, resumed);
+          } else {
+            gaDetail('georecover', info.kind, info.call, 'a' + info.attempts);
+          }
         }
         /*
          * A mesh the browser cannot load leaves the term with no geometry at
