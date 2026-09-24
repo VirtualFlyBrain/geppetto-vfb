@@ -30,6 +30,9 @@ export const HELP_PAGES = {
   search: "search_query/#the-search-tool",
   queryBuilder: "search_query/#the-query-tool",
   queryResults: "search_query/#query-results",
+  // Toolbar dialogs
+  download: "download/",
+  upload: "upload/",
   // Term Info query panel rows
   query: "queries/#", // + VFBquery query name
   graphLocation: "termcontext/#location",

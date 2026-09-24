@@ -122,6 +122,19 @@ class VFBMain extends React.Component {
 
     this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    /*
+     * Help "?" beside the "Filters" heading of the search panel. geppetto-ui's
+     * Search renders filter_name as a React child, so a heading can carry the
+     * shared HelpLink without touching the client. Only the string form is
+     * wrapped, so a second construction does not nest it.
+     */
+    (this.searchConfiguration.filters || []).forEach(function (filter) {
+      if (filter.key === "facets_annotation" && typeof filter.filter_name === "string") {
+        filter.filter_name = (
+          <span>{filter.filter_name}<HelpLink helpKey="search" label="search filters" className="vfb-help-filters" /></span>
+        );
+      }
+    });
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;

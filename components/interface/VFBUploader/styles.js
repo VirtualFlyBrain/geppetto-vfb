@@ -1,7 +1,12 @@
 import { createMuiTheme } from "@material-ui/core/styles";
 
 export const CustomStyle = theme => ({
-  dropzoneArea: { minHeight: "20vh !important" },
+  dropzoneArea: {
+    minHeight: "20vh !important",
+    backgroundColor: "#141313 !important",
+    borderColor: "#0AB7FE !important",
+    color: "rgba(255, 255, 255, 0.7) !important",
+  },
   marginTop: { marginTop: "2vh !important" },
   checked: { "&$checked": { color: "#0AB7FE" } },
   dialog: {
@@ -14,19 +19,26 @@ export const CustomStyle = theme => ({
     position: 'absolute',
     left: '90%',
     top: '2%',
-    backgroundColor: '#F5F5F5',
-    color: 'gray',
+    backgroundColor: 'transparent',
+    color: '#c0c0c0',
+  },
+  // Dark, to match the rest of the UI (was a white Material dialog).
+  paper: {
+    backgroundColor: "#1e1e1e",
+    border: "2px solid #11bffe",
+    // Cookie-consent "Learn More" link: default link blue is unreadable here.
+    "& a:not(.vfb-help)": { color: "#11bffe" },
   },
   errorButton : {
-    backgroundColor : "rgba(252, 231, 231, 1)",
-    color : "red",
-    borderColor : "red",
+    backgroundColor : "#3b1d1d",
+    color : "#ff6b6b",
+    borderColor : "#ff6b6b",
     "&:hover": {
-      backgroundColor: "rgba(252, 231, 231, 1)",
-      color: "red"
+      backgroundColor: "#3b1d1d",
+      color: "#ff6b6b"
     }
   },
-  vfbColor : { backgroundColor : "#EEF9FF" },
+  vfbColor : { backgroundColor : "#141313" },
   cookiesBox : {
     width : "100%",
     display : "contents"
@@ -39,7 +51,7 @@ export const CustomTheme = createMuiTheme({
       fontSize: 22,
       fontWeight: 400,
       fontStyle: "normal",
-      color : "#181818",
+      color : "#f1f1f1",
       lineHeight: "26.4px",
       fontFamily: "Barlow Condensed",
     },
@@ -47,7 +59,7 @@ export const CustomTheme = createMuiTheme({
       fontSize: 11,
       fontWeight: 500,
       fontStyle: "normal",
-      color : "#181818",
+      color : "#f1f1f1",
       lineHeight: "13.2px",
       fontFamily: "Barlow Condensed",
     },
@@ -55,12 +67,18 @@ export const CustomTheme = createMuiTheme({
       fontSize: 11,
       fontWeight: 500,
       fontStyle: "normal",
-      color : "rgba(0, 0, 0, 0.4)",
+      color : "rgba(255, 255, 255, 0.7)",
       lineHeight: "13.2px",
       fontFamily: "Barlow Condensed",
     }
   },
-  palette: { primary: { main: '#0AB7FE' }, secondary : { main : "#fff" }, error : { main : "#ff0000" } },
+  palette: {
+    type: "dark",
+    primary: { main: '#0AB7FE' },
+    secondary : { main : "#fff" },
+    error : { main : "#ff6b6b" },
+    background: { paper: "#1e1e1e", default: "#141313" }
+  },
   overrides: {
     MuiButton: {
       contained: {
@@ -85,7 +103,7 @@ export const CustomTheme = createMuiTheme({
       },
     },
     MuiFilledInput : {
-      root : { backgroundColor : "#EEF9FF" },
+      root : { backgroundColor : "#141313" },
       input : {
         color : "#0AB7FE !important",
         borderColor : "#0AB7FE !important"
