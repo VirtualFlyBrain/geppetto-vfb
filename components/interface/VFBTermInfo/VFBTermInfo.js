@@ -22,6 +22,57 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 require('../../../css/VFBTermInfo.less');
 
 /*
+ * Per-row help links on the query panel. Every "Query for" row, graph link and
+ * Circuit Browser link gets a small "?" that opens the matching section of the
+ * website docs. The Queries Reference page carries one {#QueryName} anchor per
+ * VFBquery query, so the query name from the row's data-instancepath is the
+ * anchor; graphs and the Circuit Browser have fixed anchors of their own.
+ */
+const DOCS_BASE = "https://virtualflybrain.org/docs/website-features/";
+const QUERY_DOCS = DOCS_BASE + "queries/#";
+const GRAPH_DOCS = [DOCS_BASE + "termcontext/#location", DOCS_BASE + "termcontext/#classification"];
+const CIRCUIT_BROWSER_DOCS = DOCS_BASE + "circuitbrowser/#add-a-neuron-from-term-info";
+
+function escapeAttr (s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function helpLinkHtml (url, label) {
+  var title = escapeAttr("About " + (label || "this") + " (opens the documentation)");
+  return "<a class=\"terminfo-help\" href=\"" + url + "\" target=\"_blank\" rel=\"noopener\""
+    + " title=\"" + title + "\" aria-label=\"" + title + "\">?</a>";
+}
+
+/*
+ * Append a help link to each query row of the server-rendered "Query for" HTML.
+ * Rows come as <div class="terminfo-query">badge <a data-instancepath="QUERY,ID,NAME">label</a></div>
+ * (VFBquery processor) or, in the older layout, as badge <a data-instancepath=...>label</a><br/>.
+ * Only anchors with an instancepath are touched; anything unexpected is left as is.
+ */
+function addQueryHelpLinks (html) {
+  try {
+    var root = $('<div>').html(html);
+    root.find('a[data-instancepath]').each(function () {
+      var path = $(this).attr('data-instancepath') || '';
+      var query = path.split(',')[0];
+      if (!/^[A-Za-z0-9_]+$/.test(query)) {
+        return;
+      }
+      var help = $(helpLinkHtml(QUERY_DOCS + query, $(this).text().trim()));
+      var row = $(this).closest('.terminfo-query');
+      if (row.length) {
+        row.append(help);
+      } else {
+        $(this).after(help);
+      }
+    });
+    return root.html();
+  } catch (e) {
+    return html;
+  }
+}
+
+/*
  * Preferred template ordering for the Available Images carousel, after the
  * currently loaded template: JRC2018U, JRC2018VNCU, L1EM, L3CNS.
  */
@@ -270,9 +321,13 @@ class VFBTermInfo extends React.Component {
       if (counter !== undefined) {
         prevCounter = counter;
       }
+      var html = value.html;
+      if (this.contentTermInfo.keys[prevCounter] === "Query for") {
+        html = addQueryHelpLinks(html);
+      }
       this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
         <div>
-          <HTMLViewer id={id} content={value.html} />
+          <HTMLViewer id={id} content={html} />
         </div>
       </Collapsible>);
     } else if (metaType == GEPPETTO.Resources.TEXT_TYPE) {
@@ -368,11 +423,13 @@ class VFBTermInfo extends React.Component {
       let values = anyInstance.values;
       let graphs = new Array();
       for (var j = 0; j < values.length; j++) {
-        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
-          <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }> 
-            { values[j].item.label(values[j].instance.parent.name) }
+        var graphLabel = values[j].item.label(values[j].instance.parent.name);
+        graphs.push(<div className="terminfo-query"><i className="popup-icon-link fa fa-cogs" ></i>
+          <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }>
+            { graphLabel }
           </a>
-          <br/>
+          <a className="terminfo-help" href={ GRAPH_DOCS[values[j].index] || GRAPH_DOCS[0] } target="_blank" rel="noopener"
+            title={ "About " + graphLabel + " (opens the documentation)" } aria-label={ "About " + graphLabel + " (opens the documentation)" }>?</a>
         </div>
         );
       }
@@ -397,11 +454,13 @@ class VFBTermInfo extends React.Component {
       let values = anyInstance.values;
       let graphs = new Array();
       for (var j = 0; j < values.length; j++) {
-        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
+        var cbLabel = "Add " + values[j].instance.parent.name + " to Circuit Browser Query";
+        graphs.push(<div className="terminfo-query"><i className="popup-icon-link fa fa-cogs" ></i>
           <a id="circuitBrowserLink" style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.name + "," + values[j].instance.parent.id + "," + values[j].index }>
-            { "Add " + values[j].instance.parent.name + " to Circuit Browser Query" }
+            { cbLabel }
           </a>
-          <br/>
+          <a className="terminfo-help" href={ CIRCUIT_BROWSER_DOCS } target="_blank" rel="noopener"
+            title={ "About " + cbLabel + " (opens the documentation)" } aria-label={ "About " + cbLabel + " (opens the documentation)" }>?</a>
         </div>
         );
       }

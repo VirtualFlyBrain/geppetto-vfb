@@ -1351,3 +1351,47 @@ details[open] > summary > i.fa-chevron-circle-right {
     color: @primary_color;
   }
 }
+
+/*
+ * Query panel rows (Query for / Graphs for / Circuit Browser) with a per-row
+ * help link on the right that opens the matching docs section. Gold matches
+ * the gear icons (.popup-icon-link) so it reads as an action, not a count.
+ */
+.terminfo-query {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  clear: both;
+}
+
+.terminfo-query > a:not(.terminfo-help) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+a.terminfo-help,
+.popup a.terminfo-help {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background-color: #ffe406;
+  color: #1a1a1a;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+a.terminfo-help:hover,
+.popup a.terminfo-help:hover {
+  opacity: 1;
+  color: #000;
+  background-color: #fff176;
+  text-decoration: none;
+}
