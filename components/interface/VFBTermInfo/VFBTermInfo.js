@@ -8,6 +8,7 @@ import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
 import { labelTypeToID, safeGa } from '../utils/utils';
 import { renderVisibleSummary } from '../utils/pageMetadata';
+import { helpUrl, helpLinkHtml, HelpLink, GRAPH_HELP_KEYS } from '../../configuration/VFBMain/helpLinks';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -22,31 +23,10 @@ const CIRCUIT_BROWSER = "CircuitBrowser";
 require('../../../css/VFBTermInfo.less');
 
 /*
- * Per-row help links on the query panel. Every "Query for" row, graph link and
- * Circuit Browser link gets a small "?" that opens the matching section of the
- * website docs. The Queries Reference page carries one {#QueryName} anchor per
- * VFBquery query, so the query name from the row's data-instancepath is the
- * anchor; graphs and the Circuit Browser have fixed anchors of their own.
- */
-const DOCS_BASE = "https://virtualflybrain.org/docs/website-features/";
-const QUERY_DOCS = DOCS_BASE + "queries/#";
-const GRAPH_DOCS = [DOCS_BASE + "termcontext/#location", DOCS_BASE + "termcontext/#classification"];
-const CIRCUIT_BROWSER_DOCS = DOCS_BASE + "circuitbrowser/#add-a-neuron-from-term-info";
-
-function escapeAttr (s) {
-  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function helpLinkHtml (url, label) {
-  var title = escapeAttr("About " + (label || "this") + " (opens the documentation)");
-  return "<a class=\"terminfo-help\" href=\"" + url + "\" target=\"_blank\" rel=\"noopener\""
-    + " title=\"" + title + "\" aria-label=\"" + title + "\">?</a>";
-}
-
-/*
  * Append a help link to each query row of the server-rendered "Query for" HTML.
  * Rows come as <div class="terminfo-query">badge <a data-instancepath="QUERY,ID,NAME">label</a></div>
  * (VFBquery processor) or, in the older layout, as badge <a data-instancepath=...>label</a><br/>.
+ * The query name is the docs anchor (the Queries Reference has one per query).
  * Only anchors with an instancepath are touched; anything unexpected is left as is.
  */
 function addQueryHelpLinks (html) {
@@ -58,7 +38,7 @@ function addQueryHelpLinks (html) {
       if (!/^[A-Za-z0-9_]+$/.test(query)) {
         return;
       }
-      var help = $(helpLinkHtml(QUERY_DOCS + query, $(this).text().trim()));
+      var help = $(helpLinkHtml(helpUrl('query', query), $(this).text().trim()));
       var row = $(this).closest('.terminfo-query');
       if (row.length) {
         row.append(help);
@@ -428,8 +408,7 @@ class VFBTermInfo extends React.Component {
           <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }>
             { graphLabel }
           </a>
-          <a className="terminfo-help" href={ GRAPH_DOCS[values[j].index] || GRAPH_DOCS[0] } target="_blank" rel="noopener"
-            title={ "About " + graphLabel + " (opens the documentation)" } aria-label={ "About " + graphLabel + " (opens the documentation)" }>?</a>
+          <HelpLink url={ helpUrl(GRAPH_HELP_KEYS[values[j].index] || 'vfbGraph') } label={ graphLabel } />
         </div>
         );
       }
@@ -459,8 +438,7 @@ class VFBTermInfo extends React.Component {
           <a id="circuitBrowserLink" style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.name + "," + values[j].instance.parent.id + "," + values[j].index }>
             { cbLabel }
           </a>
-          <a className="terminfo-help" href={ CIRCUIT_BROWSER_DOCS } target="_blank" rel="noopener"
-            title={ "About " + cbLabel + " (opens the documentation)" } aria-label={ "About " + cbLabel + " (opens the documentation)" }>?</a>
+          <HelpLink helpKey="circuitBrowserAdd" label={ cbLabel } />
         </div>
         );
       }
