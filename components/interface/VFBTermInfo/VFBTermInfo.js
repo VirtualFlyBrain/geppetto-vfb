@@ -8,6 +8,7 @@ import { SHOW_GRAPH, UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { connect } from "react-redux";
 import { labelTypeToID, safeGa } from '../utils/utils';
 import { renderVisibleSummary } from '../utils/pageMetadata';
+import { helpUrl, helpLinkHtml, HelpLink, GRAPH_HELP_KEYS } from '../../configuration/VFBMain/helpLinks';
 
 var $ = require('jquery');
 var GEPPETTO = require('geppetto');
@@ -20,6 +21,36 @@ const GRAPHS = "Graph";
 const CIRCUIT_BROWSER = "CircuitBrowser";
 
 require('../../../css/VFBTermInfo.less');
+
+/*
+ * Append a help link to each query row of the server-rendered "Query for" HTML.
+ * Rows come as <div class="terminfo-query">badge <a data-instancepath="QUERY,ID,NAME">label</a></div>
+ * (VFBquery processor) or, in the older layout, as badge <a data-instancepath=...>label</a><br/>.
+ * The query name is the docs anchor (the Queries Reference has one per query).
+ * Only anchors with an instancepath are touched; anything unexpected is left as is.
+ */
+function addQueryHelpLinks (html) {
+  try {
+    var root = $('<div>').html(html);
+    root.find('a[data-instancepath]').each(function () {
+      var path = $(this).attr('data-instancepath') || '';
+      var query = path.split(',')[0];
+      if (!/^[A-Za-z0-9_]+$/.test(query)) {
+        return;
+      }
+      var help = $(helpLinkHtml(helpUrl('query', query), $(this).text().trim()));
+      var row = $(this).closest('.terminfo-query');
+      if (row.length) {
+        row.append(help);
+      } else {
+        $(this).after(help);
+      }
+    });
+    return root.html();
+  } catch (e) {
+    return html;
+  }
+}
 
 /*
  * Preferred template ordering for the Available Images carousel, after the
@@ -270,9 +301,13 @@ class VFBTermInfo extends React.Component {
       if (counter !== undefined) {
         prevCounter = counter;
       }
+      var html = value.html;
+      if (this.contentTermInfo.keys[prevCounter] === "Query for") {
+        html = addQueryHelpLinks(html);
+      }
       this.contentTermInfo.values[prevCounter] = (<Collapsible open={true} trigger={this.contentTermInfo.keys[prevCounter]}>
         <div>
-          <HTMLViewer id={id} content={value.html} />
+          <HTMLViewer id={id} content={html} />
         </div>
       </Collapsible>);
     } else if (metaType == GEPPETTO.Resources.TEXT_TYPE) {
@@ -368,11 +403,12 @@ class VFBTermInfo extends React.Component {
       let values = anyInstance.values;
       let graphs = new Array();
       for (var j = 0; j < values.length; j++) {
-        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
-          <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }> 
-            { values[j].item.label(values[j].instance.parent.name) }
+        var graphLabel = values[j].item.label(values[j].instance.parent.name);
+        graphs.push(<div className="terminfo-query"><i className="popup-icon-link fa fa-cogs" ></i>
+          <a style={{ cursor: "pointer" }} data-instancepath={ GRAPHS + "," + values[j].instance.parent.id + "," + values[j].index }>
+            { graphLabel }
           </a>
-          <br/>
+          <HelpLink url={ helpUrl(GRAPH_HELP_KEYS[values[j].index] || 'vfbGraph') } label={ graphLabel } />
         </div>
         );
       }
@@ -397,11 +433,12 @@ class VFBTermInfo extends React.Component {
       let values = anyInstance.values;
       let graphs = new Array();
       for (var j = 0; j < values.length; j++) {
-        graphs.push(<div><i className="popup-icon-link fa fa-cogs" ></i>
+        var cbLabel = "Add " + values[j].instance.parent.name + " to Circuit Browser Query";
+        graphs.push(<div className="terminfo-query"><i className="popup-icon-link fa fa-cogs" ></i>
           <a id="circuitBrowserLink" style={{ cursor: "pointer" }} data-instancepath={ CIRCUIT_BROWSER + "," + values[j].instance.parent.name + "," + values[j].instance.parent.id + "," + values[j].index }>
-            { "Add " + values[j].instance.parent.name + " to Circuit Browser Query" }
+            { cbLabel }
           </a>
-          <br/>
+          <HelpLink helpKey="circuitBrowserAdd" label={ cbLabel } />
         </div>
         );
       }

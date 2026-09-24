@@ -5,6 +5,7 @@ import VFBFocusTerm from './interface/VFBFocusTerm/VFBFocusTerm';
 import VFBTree from './interface/VFBTree/VFBTree';
 import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
 import TutorialWidget from './interface/VFBOverview/TutorialWidget';
+import { HelpLink, watchInjectedHelpButtons } from './configuration/VFBMain/helpLinks';
 import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
@@ -121,6 +122,19 @@ class VFBMain extends React.Component {
 
     this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    /*
+     * Help "?" beside the "Filters" heading of the search panel. geppetto-ui's
+     * Search renders filter_name as a React child, so a heading can carry the
+     * shared HelpLink without touching the client. Only the string form is
+     * wrapped, so a second construction does not nest it.
+     */
+    (this.searchConfiguration.filters || []).forEach(function (filter) {
+      if (filter.key === "facets_annotation" && typeof filter.filter_name === "string") {
+        filter.filter_name = (
+          <span>{filter.filter_name}<HelpLink helpKey="search" label="search filters" className="vfb-help-filters" /></span>
+        );
+      }
+    });
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
@@ -1666,6 +1680,8 @@ class VFBMain extends React.Component {
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
+    // "?" help buttons on the query builder / results, which geppetto-client renders.
+    watchInjectedHelpButtons();
 
     let self = this;
     GEPPETTO.G.setIdleTimeOut(-1);
@@ -2876,6 +2892,16 @@ class VFBMain extends React.Component {
     var key = 0;
     var onRenderTabSet = function (node, renderValues) {
       if (node.getType() === "tabset") {
+        /*
+         * "?" for the selected tab, resolved from its layout component name
+         * (helpLinks.js). Same control on every window, so help is always in
+         * the same place: the tab header, left of the minimise button.
+         */
+        var selected = node.getSelectedNode();
+        if (selected && typeof selected.getComponent === "function") {
+          renderValues.buttons.push(<HelpLink key={"help" + key} className="vfb-help-tab"
+            helpKey={selected.getComponent()} label={selected.getName()} />);
+        }
         renderValues.buttons.push(<div key={key} className="fa fa-window-minimize customIconFlexLayout" onClick={() => {
           this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_bottom", FlexLayout.DockLocation.CENTER, 0));
         }} />);

@@ -24,6 +24,7 @@ import SWCIcon from "../../configuration/VFBDownloadContents/swc.png";
 import ReferenceIcon from "../../configuration/VFBDownloadContents/reference.png";
 import CloseIcon from "@material-ui/icons/Close";
 import { connect } from "react-redux";
+import { HelpLink } from "../../configuration/VFBMain/helpLinks";
 
 const iconsMap = {
   obj: OBJIcon,
@@ -36,20 +37,25 @@ const ALL_INSTANCES = { id: "ALL_INSTANCES", name: "All Instances" };
 
 const styles = theme => ({
   downloadButton: { backgroundColor: "#0AB7FE", color: "white !important" },
-  downloadErrorButton: { backgroundColor: "#FCE7E7", color: "#E53935", border : "1px solid #E53935" },
-  error: { color: "#E53935" },
+  downloadErrorButton: { backgroundColor: "#3b1d1d", color: "#ff6b6b", border : "1px solid #ff6b6b" },
+  error: { color: "#ff6b6b" },
   errorMessage: { wordWrap: "break-word" },
   downloadButtonText: { color: "white !important" },
   checkedBox: { borderColor: "#0AB7FE" },
-  footer: { backgroundColor: "#EEF9FF" },
-  errorFooter: { backgroundColor: "#FCE7E7" },
+  footer: { backgroundColor: "#141313" },
+  errorFooter: { backgroundColor: "#3b1d1d" },
   listItemText: { fontSize: "1em" },
   customizedButton: {
     position: "absolute",
     left: "95%",
     top: "2%",
-    backgroundColor: "#F5F5F5",
-    color: "gray",
+    backgroundColor: "transparent",
+    color: "#c0c0c0",
+  },
+  // Dark, to match the rest of the UI (was a white Material dialog).
+  paper: {
+    backgroundColor: "#1e1e1e",
+    border: "2px solid #11bffe",
   },
   dialog: {
     overflow: "unset",
@@ -61,19 +67,24 @@ const styles = theme => ({
   },
   checked: { "&$checked": { color: "#0AB7FE" } },
   "@global": {
-    ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "white" },
-    ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "white" }
+    ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "rgba(10, 183, 254, 0.2)" },
+    ".MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover, .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content .MuiTreeItem-label": { backgroundColor: "rgba(10, 183, 254, 0.2)" }
   },
 });
 
 const theme = createMuiTheme({
+  palette: {
+    type: "dark",
+    primary: { main: "#0AB7FE" },
+    background: { paper: "#1e1e1e", default: "#141313" },
+  },
   typography: {
     h2: {
       fontSize: 22,
       fontWeight: 400,
       fontStyle: "normal",
       lineHeight: "26.4px",
-      color: "#181818",
+      color: "#f1f1f1",
       fontFamily: "Barlow",
     },
     h5: {
@@ -82,7 +93,7 @@ const theme = createMuiTheme({
       fontStyle: "normal",
       lineHeight: "13.2px",
       fontFamily: "Barlow",
-      color: "rgba(0, 0, 0, 0.54)",
+      color: "rgba(255, 255, 255, 0.7)",
     },
     subtitle2: {
       fontSize: 11,
@@ -90,7 +101,7 @@ const theme = createMuiTheme({
       fontStyle: "normal",
       lineHeight: "13.2px",
       fontFamily: "Barlow",
-      color: "rgba(0, 0, 0, 0.24)",
+      color: "rgba(255, 255, 255, 0.5)",
     },
     error: {
       fontSize: 11,
@@ -98,7 +109,7 @@ const theme = createMuiTheme({
       fontStyle: "normal",
       lineHeight: "13.2px",
       fontFamily: "Barlow",
-      color: "#E53935",
+      color: "#ff6b6b",
     },
     button: {
       fontSize: 11,
@@ -334,7 +345,7 @@ class VFBDownloadContents extends React.Component {
           open={this.state.open}
           onClose={this.handleCloseDialog}
           aria-labelledby="max-width-dialog-title"
-          classes={{ root: self.props.classes.dialog }}
+          classes={{ root: self.props.classes.dialog, paper: self.props.classes.paper }}
           id="downloadContents"
         >
           <DialogTitle
@@ -342,7 +353,7 @@ class VFBDownloadContents extends React.Component {
             align="center"
             onClose={this.handleCloseDialog}
           >
-            <Typography variant="h2">{this.configuration.text.title}</Typography>
+            <Typography variant="h2">{this.configuration.text.title}<HelpLink helpKey="download" label="downloading images" className="vfb-help-dialog" /></Typography>
           </DialogTitle>
           <DialogContent key="dialog-contents" classes={{ root: self.props.classes.dialogContent }}>
             { !this.state.downloadError ? (
@@ -368,7 +379,7 @@ class VFBDownloadContents extends React.Component {
                             }
                             p={2}
                             border={1}
-                            borderColor="#E5E5E5"
+                            borderColor="#444444"
                             key={option.label}
                           >
                             <img src={iconsMap[key]} alt="" />

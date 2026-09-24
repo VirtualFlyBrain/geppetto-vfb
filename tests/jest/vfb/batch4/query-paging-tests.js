@@ -90,14 +90,21 @@ describe('VFB Query Paging Tests', () => {
 				expect(loaded).toBeGreaterThan(PAGE_SIZE);
 				return;
 			}
-			expect(loaded).toEqual(backendCount);
+			/*
+			 * At least, not exactly: the backend's count comes from the v3 cache
+			 * and can lag the live data by a few rows (seen 636 vs 647 loaded), so
+			 * equality made this test flap on data releases. What we are guarding
+			 * against is stopping early at the first short page, and >= still
+			 * catches that.
+			 */
+			expect(loaded).toBeGreaterThanOrEqual(backendCount);
 		}, 420000);
 
 		it('Does not show the same row twice', async () => {
 			/*
-			 * The count check above is what really catches duplication -- repeats
-			 * would push the loaded total past the backend's own count. This is the
-			 * visible half of it: griddle renders a page of rows at a time
+			 * The count check above no longer catches duplication (it allows the
+			 * loaded total to exceed a stale backend count), so this is the check
+			 * that does. griddle renders a page of rows at a time
 			 * (.standard-row; .griddle-row is the header), so it covers what is on
 			 * screen.
 			 */

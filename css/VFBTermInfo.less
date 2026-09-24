@@ -1351,3 +1351,24 @@ details[open] > summary > i.fa-chevron-circle-right {
     color: @primary_color;
   }
 }
+
+/*
+ * Query panel rows (Query for / Graphs for / Circuit Browser): flex row with
+ * the shared .vfb-help "?" (VFBMain.less) pushed to the right.
+ */
+.terminfo-query {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  clear: both;
+}
+
+.terminfo-query > a:not(.vfb-help) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.terminfo-query > .vfb-help {
+  flex: 0 0 auto;
+  margin-left: 6px;
+}

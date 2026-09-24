@@ -18,6 +18,7 @@ import UploadIcon from "../../configuration/VFBUploader/upload-icon.png";
 import { customAlphabet } from '../utils/customAlphabet';
 import FileIcon from "../../configuration/VFBUploader/file-icon.png";
 import { CustomStyle, CustomTheme } from "./styles";
+import { HelpLink } from "../../configuration/VFBMain/helpLinks";
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8);
 const UNIQUE_ID = "UNIQUE_ID";
@@ -93,7 +94,14 @@ class VFBUploader extends React.Component {
     let newURL = window.location.origin + window.location.pathname + "?id=" + _id + "&q=" + _id + "," + this.configuration.queryType;
 
     this.setState({ fileNBLASTURL: newURL, uploading : true });
-    window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
+    /*
+     * Only remember the link if the user ticked the cookie box -- the dialog
+     * asks for consent, so storing it regardless made the checkbox decorative.
+     * The link is still shown to copy either way.
+     */
+    if (this.state.cookies) {
+      window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
+    }
 
     axios.put(url,
       formData, { headers: { 'Content-Type': this.configuration.contentType } }
@@ -110,7 +118,7 @@ class VFBUploader extends React.Component {
   getTitleHead () {
     return (<Grid container spacing={1}>
       <Grid item xs={12}>
-        <Typography variant="h2">{this.configuration.text.dialogTitle}</Typography>
+        <Typography variant="h2">{this.configuration.text.dialogTitle}<HelpLink helpKey="upload" label="uploading a neuron for NBLAST" className="vfb-help-dialog" /></Typography>
       </Grid>
       <Grid item xs={12}>
         <Typography variant="h5">{this.configuration.text.dialogSubtitle}</Typography>
@@ -329,7 +337,7 @@ class VFBUploader extends React.Component {
           onClose={self.handleCloseDialog}
           aria-labelledby="max-width-dialog-title"
           maxWidth="lg"
-          classes={{ root: classes.dialog }}
+          classes={{ root: classes.dialog, paper: classes.paper }}
         >
           <DialogTitle
             align="center"
