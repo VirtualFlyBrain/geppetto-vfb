@@ -7,7 +7,7 @@
 	"maxFileSize" : 5242880,
 	"queryType": "SimilarMorphologyToUserData",
 	"cookieStorageDays" : 100,
-	"cookiesLearnLink" : "https://en.wikipedia.org/wiki/HTTP_cookie",
+	"cookiesLearnLink" : "https://virtualflybrain.org/about/cookies/#functional-cookies",
 	"text" : {
 		"dialogTitle" : "Upload Data File",
 		"dialogSubtitle" : "Generate a nblast query from your own data.",

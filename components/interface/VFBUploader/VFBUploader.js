@@ -94,7 +94,14 @@ class VFBUploader extends React.Component {
     let newURL = window.location.origin + window.location.pathname + "?id=" + _id + "&q=" + _id + "," + this.configuration.queryType;
 
     this.setState({ fileNBLASTURL: newURL, uploading : true });
-    window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
+    /*
+     * Only remember the link if the user ticked the cookie box -- the dialog
+     * asks for consent, so storing it regardless made the checkbox decorative.
+     * The link is still shown to copy either way.
+     */
+    if (this.state.cookies) {
+      window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
+    }
 
     axios.put(url,
       formData, { headers: { 'Content-Type': this.configuration.contentType } }
