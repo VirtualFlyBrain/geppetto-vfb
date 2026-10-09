@@ -1564,8 +1564,12 @@ class VFBMain extends React.Component {
 
   componentWillMount () {
     if ((window.Model == undefined) && (this.state.modelLoaded == false)) {
-      // read by the client itself, with the vfb.xmi it names, from the same origin as the page
-      Project.loadFromURL(window.location.origin + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/build/vfb.json');
+      /*
+       * VFB only ever loads its own model, so it is built into the bundle
+       * (model/vfb.json and the vfb.xmi it names) rather than fetched: one
+       * less request to fail before anything can show.
+       */
+      Project.loadFromContent(require('../model/vfb.json'), require('!!raw-loader!../model/vfb.xmi'));
       this.setState({ modelLoaded: true });
     }
 
@@ -2187,8 +2191,7 @@ class VFBMain extends React.Component {
       }
       gaDetail('boot-fail', info.reason);
       GEPPETTO.ModalFactory.infoDialog('Unable to start Virtual Fly Brain',
-        'Virtual Fly Brain could not load the files it starts from. This is usually a network problem rather than '
-        + 'a fault with the service.<br/><br/>Please try reloading the page.'
+        'Virtual Fly Brain could not set up its model. Please try reloading the page.'
         + '<br/><br/>This failure has been reported automatically to help us investigate.');
     });
 
@@ -2412,7 +2415,8 @@ class VFBMain extends React.Component {
          * the SWC skeleton instead.
          */
         if (!info.ok && info.reason !== 'unload' && info.kind === 'obj' && info.path !== undefined) {
-          self.showSkeletonFor(String(info.path).split('.')[0]);
+          // the path is Model.OBJLibrary.<id>_obj
+          self.showSkeletonFor(String(info.path).split('.').pop().replace(/_obj$/, ''));
         }
       });
     }
