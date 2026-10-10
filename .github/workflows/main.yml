@@ -21,12 +21,12 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # Deploy the local and remote versions of geppetto-vfb
+  # Build the static image, publish it, and run the browser tests against it
   deploy-test:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
     # total job timeout:
-    timeout-minutes: 590
+    timeout-minutes: 120
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -92,87 +92,28 @@ jobs:
             echo "::notice::No Docker Hub credentials - building locally, images will not be pushed"
             echo "push=false" >> "${GITHUB_OUTPUT}"
           fi
-      - name: Setup local servers
-        id: local-servers
+      # The only endpoints compiled into the client (dockerFiles/configure.sh):
+      # the tree/circuit/graph PDB and the search Solr. The development group
+      # tests against the cluster pdb; alpha has its own; everything else is live.
+      - name: Endpoints
+        id: endpoints
         shell: bash
-        run: echo "::set-output name=BUILD_TYPE::release";
-          echo "::set-output name=RUNTIME_BUILD::true";
-          if [ "${{ steps.branch.outputs.value }}" == master ] || [[ "${{ steps.branch.outputs.value }}" == v* ]]; then
-            echo "::debug::Set to master setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=RUNTIME_BUILD::false";
-          elif [ "${{ steps.branch.outputs.value }}" == debug ] || [ "${{ steps.branch.outputs.value }}" == pipeline2 ] || [ "${{ steps.branch.outputs.value }}" == vfb_geppetto_application ] || [ "${{ steps.branch.outputs.value }}" == development ] || [[ "${{ steps.branch.outputs.value }}" == f* ]]; then
-            echo "::debug::Set to dev setup";
-            echo "::set-output name=BUILD_TYPE::development";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-dev.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr-dev.virtualflybrain.org/solr/ontology/select";
-          elif [ "${{ steps.branch.outputs.value }}" == alpha ] ; then
-            echo "::debug::Set to alpha setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
-            echo "::set-output name=RUNTIME_BUILD::false";
-          else 
-            echo "::debug::Set to default setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb:7474";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl:8080/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://ocpu:80/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-          fi
-      - name: Setup remote servers
-        id: remote-servers
-        shell: bash
-        run: echo "::set-output name=BUILD_TYPE::release";
-          echo "::set-output name=RUNTIME_BUILD::false";
-          if [ "${{ steps.branch.outputs.value }}" == master ] || [[ "${{ steps.branch.outputs.value }}" == v* ]]; then
-            echo "::debug::Set to master setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-          elif [ "${{ steps.branch.outputs.value }}" == debug ] || [ "${{ steps.branch.outputs.value }}" == pipeline2 ] || [ "${{ steps.branch.outputs.value }}" == vfb_geppetto_application ] || [ "${{ steps.branch.outputs.value }}" == development ] || [[ "${{ steps.branch.outputs.value }}" == f* ]]; then
-            echo "::debug::Set to dev (live servers) setup";
-            echo "::set-output name=BUILD_TYPE::development";
-            echo "::set-output name=VFB_PDB_SERVER::https://pdb.k8s.virtualflybrain.org";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.k8s.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-          elif [ "${{ steps.branch.outputs.value }}" == alpha ] ; then
-            echo "::debug::Set to alpha setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb-alpha.virtualflybrain.org";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl-alpha.virtualflybrain.org/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb-alpha.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr-alpha.virtualflybrain.org/solr/ontology/select";
-          else 
-            echo "::debug::Set to default setup";
-            echo "::set-output name=VFB_PDB_SERVER::http://pdb.v4.virtualflybrain.org";
-            echo "::set-output name=VFB_OWL_SERVER::http://owl.virtualflybrain.org/kbs/vfb/";
-            echo "::set-output name=VFB_R_SERVER::http://r.virtualflybrain.org/ocpu/library/vfbr/R/vfb_nblast";
-            echo "::set-output name=VFB_TREE_PDB_SERVER::https://pdb.v4.virtualflybrain.org";
-            echo "::set-output name=SOLR_SERVER::https://solr.virtualflybrain.org/solr/ontology/select";
-          fi
-      
-      # Output the chosen servers
-      - name: Used remote servers
         run: |
-          echo PDB:${{ steps.remote-servers.outputs.VFB_PDB_SERVER }}
-          echo OWL:${{ steps.remote-servers.outputs.VFB_OWL_SERVER }}
-          echo SOLR:${{ steps.remote-servers.outputs.SOLR_SERVER }}
-          echo TREE_PDB:${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
-          echo R:${{ steps.remote-servers.outputs.VFB_R_SERVER }}
+          BRANCH="${{ steps.branch.outputs.value }}"
+          PDB=https://pdb.v4.virtualflybrain.org
+          SOLR=https://solr.virtualflybrain.org/solr/ontology/select
+          if [ "$BRANCH" == master ] || [[ "$BRANCH" == v* ]]; then
+            :
+          elif [ "$BRANCH" == alpha ]; then
+            PDB=https://pdb-alpha.virtualflybrain.org
+            SOLR=https://solr-alpha.virtualflybrain.org/solr/ontology/select
+          elif [ "$BRANCH" == debug ] || [ "$BRANCH" == pipeline2 ] || [ "$BRANCH" == vfb_geppetto_application ] || [ "$BRANCH" == development ] || [[ "$BRANCH" == f* ]]; then
+            PDB=https://pdb.k8s.virtualflybrain.org
+          fi
+          echo "VFB_TREE_PDB_SERVER=$PDB" >> "$GITHUB_OUTPUT"
+          echo "SOLR_SERVER=$SOLR" >> "$GITHUB_OUTPUT"
+          echo "PDB: $PDB"
+          echo "SOLR: $SOLR"
 
       # Loading the built image into the local daemon needs far more disk than pushing it
       # straight to the registry, so reclaim the runner's preinstalled toolchains first.
@@ -186,9 +127,6 @@ jobs:
           sudo docker image prune -af || true
           df -h /
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       
@@ -199,85 +137,44 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # For the remote WSS build (GA-built like -remote, no runtime compile, WSS on)
-      # Nothing below tests this image, so skip it when we cannot publish it.
-      - name: Build and push remote wss
-        id: docker_build_remotewss
-        if: steps.registry.outputs.push == 'true'
-        timeout-minutes: 290
+      # One static image (webpack bundles + nginx), published under both names
+      # the Rancher stacks pull: -remote.wss was the production flavour and
+      # -remote the tested one; without a server they are the same image.
+      - name: Build and push
+        id: docker_build
+        timeout-minutes: 60
         uses: docker/build-push-action@v2
         with:
-          # Without an explicit context, build-push-action falls back to buildx's
-          # own git-context resolution, which does its own remote fetch of the
-          # current ref instead of using actions/checkout's local worktree. That
-          # remote fetch fails outright for a pull_request build (its ref is the
-          # ephemeral refs/pull/<n>/merge, which git doesn't serve as a normal
-          # fetchable ref: "repository does not contain ref refs/pull/<n>/merge").
-          # `.` forces the already-checked-out local files instead.
-          context: .
-          push: true
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote.wss"
-          build-args: |
-            VFB_TREE_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
-            SOLR_SERVER_ARG=${{ steps.remote-servers.outputs.SOLR_SERVER }}
-            VFB_R_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_R_SERVER }}
-            VFB_OWL_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_OWL_SERVER }}
-            VFB_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_PDB_SERVER }}
-            build_type=${{ steps.remote-servers.outputs.BUILD_TYPE }}
-            runtime_build=${{ steps.remote-servers.outputs.RUNTIME_BUILD }}
-            targetBranch=${{ steps.branch.outputs.value }}
-            originBranch=${{ steps.branch.outputs.value }} 
-            defaultBranch=development
-            buildRef=${{ steps.branch.outputs.sha }}
-            finalBuild=true
-      
-      # For the remote build. This is the image the tests below run against, so it is
-      # always built; when we cannot publish it, load it into the local daemon instead.
-      - name: Build and push remote
-        id: docker_build_remote
-        timeout-minutes: 290
-        uses: docker/build-push-action@v2
-        with:
-          # See the "Build and push remote wss" step above -- same fix, and this
-          # is the image the tests below actually run against, so it's the one
-          # that made every pull_request run fail outright.
+          # `.` uses the checked-out files; buildx's own git context cannot fetch
+          # a pull_request's refs/pull/<n>/merge.
           context: .
           push: ${{ steps.registry.outputs.push == 'true' }}
           load: ${{ steps.registry.outputs.push != 'true' }}
-          tags: "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote"
+          tags: |
+            virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote
+            virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote.wss
           build-args: |
-            VFB_TREE_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_TREE_PDB_SERVER }}
-            SOLR_SERVER_ARG=${{ steps.remote-servers.outputs.SOLR_SERVER }}
-            VFB_R_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_R_SERVER }}
-            VFB_OWL_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_OWL_SERVER }}
-            VFB_PDB_SERVER_ARG=${{ steps.remote-servers.outputs.VFB_PDB_SERVER }}
-            build_type=${{ steps.remote-servers.outputs.BUILD_TYPE }}
-            runtime_build=${{ steps.remote-servers.outputs.RUNTIME_BUILD }}
-            targetBranch=${{ steps.branch.outputs.value }}
-            originBranch=${{ steps.branch.outputs.value }} 
-            defaultBranch=development
-            buildRef=${{ steps.branch.outputs.sha }}
-            finalBuild=false
-      
+            VFB_TREE_PDB_SERVER_ARG=${{ steps.endpoints.outputs.VFB_TREE_PDB_SERVER }}
+            SOLR_SERVER_ARG=${{ steps.endpoints.outputs.SOLR_SERVER }}
+
       - name: Image digest
-        run: |
-          echo "remote.wss:${{ steps.docker_build_remotewss.outputs.digest }}"
-          echo "remote:${{ steps.docker_build_remote.outputs.digest }}"
-      
+        run: echo "${{ steps.docker_build.outputs.digest }}"
+
       - name: Install Puppeteer
         run: npm install jest@24.8.0 jest-image-snapshot@4.1.0 puppeteer@1.17.0 jest-puppeteer@4.3.0 @babel/preset-env@7.4.5 url-join@4.0.0 @babel/core@7.4.5
+      # nginx serves at once; wait for it rather than for a fixed time
       - name: Start VFB server
-        timeout-minutes: 490
-        run: docker run -t -dit --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean}}-remote";
-            sleep 600;
-            docker logs testServer;
-            if [ $(docker logs testServer | grep "fixable with the " | wc -l) -gt 0 ]; then echo "Lint Error!"; exit 1; fi;
-      - name: Wait for VFB server to spin up
-        timeout-minutes: 490
-        run: |  
-          export LANDING_PAGE="http://localhost:8080/org.geppetto.frontend/geppetto"  
-          Test () { export http_status=$(curl -s -i $LANDING_PAGE | grep HTTP/1.1 | awk {'print $2'}); echo "Returned status \"$http_status\""; if [ "$http_status" != "200" ]; then echo "Waiting for docker to finish building..."; iterations=$((iterations+1)); if [ "$iterations" != "100" ]; then sleep 500; Test; fi; else echo "$(date) - connected successfully"; fi; }
-          Test;
+        run: docker run -d --name=testServer -p 8080:8080 "virtualflybrain/geppetto-vfb:${{ steps.branch.outputs.clean }}-remote"
+      - name: Wait for VFB server
+        run: |
+          for i in $(seq 1 30); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/org.geppetto.frontend/geppetto)" == "200" ]; then
+              echo "$(date) - serving"; exit 0
+            fi
+            sleep 2
+          done
+          docker logs testServer
+          exit 1
       - name: Test batch 1   
         run: npm test -- --verbose --colors --forceExit --testPathPattern='geppetto-vfb/tests/jest/vfb/batch1/.*js'
       - name: Test batch 2   
