@@ -6,7 +6,8 @@ set -e
 echo "Tree browser / circuit browser / graph PDB: ${VFB_TREE_PDB_SERVER}"
 for f in components/configuration/VFBTree/VFBTreeConfiguration.js \
          components/configuration/VFBCircuitBrowser/circuitBrowserConfiguration.js \
-         components/configuration/VFBGraph/graphConfiguration.js; do
+         components/configuration/VFBGraph/graphConfiguration.js \
+         model/vfb.xmi; do
   sed -i "s@https://pdb.*virtualflybrain.org@${VFB_TREE_PDB_SERVER}@g" "$f"
 done
 
