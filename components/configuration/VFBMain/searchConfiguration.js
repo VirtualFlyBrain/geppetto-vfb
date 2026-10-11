@@ -95,7 +95,8 @@ var datasourceConfiguration = {
       "indent": "true",
       "fl": "short_form,label,synonym,id,facets_annotation,unique_facets",
       "start": "0",
-      "pf":"true",
+      "pf": "label^250 synonym^120",
+      "ps": "0",
       "fq": [
         "(short_form:VFB* OR short_form:FB* OR facets_annotation:DataSet OR facets_annotation:pub) AND NOT short_form:VFBc_*",
         "NOT facets_annotation:Deprecated"
@@ -113,7 +114,14 @@ var searchConfiguration = {
       "id": "short_form",
       "labels" : "unique_facets"
     },
-  "label_manipulation" : label => label,
+  /*
+   * The SOLR label field can carry a stray backslash-escaping of a quote or
+   * apostrophe from over-escaped source data (e.g. "y5B\'2a" for a label whose
+   * real value is "y5B'2a"). Strip a backslash that precedes a quote/apostrophe
+   * so search results display the clean label. Never legitimate in a label, so
+   * this is safe and idempotent.
+   */
+  "label_manipulation" : label => (typeof label === 'string' ? label.replace(/\\(['"])/g, '$1') : label),
   "filters_expanded": true,
   "filter_positive" : "^100",
   "filter_negative" : "^0.001",
@@ -235,6 +243,37 @@ var searchConfiguration = {
     var aShortFormLC = aShortForm.toLowerCase();
     var bShortFormLC = bShortForm.toLowerCase();
     var InputStringLC = InputString.toLowerCase();
+
+    /*
+     * Exact label match wins outright — decided BEFORE the "official symbol"
+     * occurrence-count heuristic below. Compare against the label's MAIN part
+     * (before the " (short_form)" that refineResults appends). Without this, a
+     * longer subtype whose label AND synonyms both contain the term (count>=2)
+     * outranks the exact match (count 1 when the term is not also a synonym):
+     * e.g. searching "neuron" must rank "neuron" above "gnathal ganglion neuron".
+     */
+    var aExactLabelLC = InputStringLC === aShortFormLC;
+    var bExactLabelLC = InputStringLC === bShortFormLC;
+    if (aExactLabelLC && !bExactLabelLC) {
+      return -1;
+    }
+    if (bExactLabelLC && !aExactLabelLC) {
+      return 1;
+    }
+    if (aExactLabelLC && bExactLabelLC) {
+      /* both exact: prefer class terms unless the search specifies a type */
+      var xVFB = InputString.indexOf("VFB") === 0;
+      var xFBbt = InputString.indexOf("FBbt") === 0;
+      var xFBgn = InputString.indexOf("FBgn") === 0;
+      if (!xVFB && !xFBbt && !xFBgn) {
+        if (aIsClass && !bIsClass) {
+          return -1;
+        }
+        if (bIsClass && !aIsClass) {
+          return 1;
+        }
+      }
+    }
 
     /*
      * Detect official symbol matches vs synonym matches

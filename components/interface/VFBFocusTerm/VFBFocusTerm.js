@@ -9,6 +9,7 @@ import {
 import { connect } from 'react-redux';
 import { SHOW_LIST_VIEWER } from './../../../actions/generals';
 import focusTermConfiguration from '../../configuration/VFBFocusTerm/focusTermConfiguration';
+import { safeGa } from '../utils/utils';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -35,7 +36,7 @@ class VFBFocusTerm extends React.Component {
     if (Instances !== undefined && Instances.length > 1) {
       for (var i = 1; i < Instances.length; i++) {
         if (Instances[i].getId() !== window.templateID) {
-          window.addVfbId(window[window.templateID].getId());
+          window.addVfbId(window.templateID);
           if (Instances[i].parent != null) {
             Instances[i].parent.delete();
             // Delete instance too after deleting parent
@@ -289,17 +290,52 @@ class VFBFocusTerm extends React.Component {
       var otherId = click.parameters[0].getId();
       var otherName = click.parameters[0].getName();
       var callback = function () {
-        // check if any results with count flag
-        if (that.props.queryBuilder.props.model.count > 0) {
-          // runQuery if any results
-          that.props.queryBuilder.runQuery();
-        } else {
-          that.props.queryBuilder.switchView(false);
+        // Response is in: cancel the pending slow-query notice.
+        if (that._vfbQueryNoticeTimer) {
+          clearTimeout(that._vfbQueryNoticeTimer);
+          that._vfbQueryNoticeTimer = null;
         }
+        /*
+         * Query settled: clear the "Counting..." flag (covers no-query paths
+         * where setCount never runs).
+         */
+        if (that.props.queryBuilder.props.model) {
+          that.props.queryBuilder.props.model.counting = false;
+        }
+        /*
+         * The preview count (from the term-info cache) is only a hint, not a
+         * verified result -- it can be a stale 0 frozen months ago (the
+         * VFBquery term_info cache never re-validates a query whose count
+         * reads exactly 0, only ones reading -1). Never trust a preview 0 as
+         * confirmed-empty: always run the query, the same as an unknown (-1)
+         * preview already does, and let the real result rows decide.
+         */
+        that.props.queryBuilder.runQuery({ force: true });
+        /*
+         * Watchdog the auto-run: geppetto-client shows the cog and hides the
+         * footer while run_query is in flight, so a slow/cold query leaves
+         * "just a spinning cog and no count". If the cog is still up after the
+         * grace window, stop it, drop the counting flag and hand the builder
+         * back so the count/footer show and the user can retry. A late
+         * response still lands via runQuery's callback.
+         */
+        if (that._vfbQueryWatchdog) {
+          clearTimeout(that._vfbQueryWatchdog);
+        }
+        that._vfbQueryWatchdog = setTimeout(function () {
+          var qb = that.props.queryBuilder;
+          if (qb && qb.state && qb.state.showSpinner) {
+            if (qb.props.model) {
+              qb.props.model.counting = false;
+            }
+            qb.showBrentSpiner(false);
+            qb.setErrorMessage("The server is taking longer than expected to return this query — please try again.", "info");
+            qb.switchView(false);
+          }
+        }, 45000);
         // show query component
         that.props.queryBuilder.open();
         $("body").css("cursor", "default");
-        GEPPETTO.trigger('stop_spin_logo');
       };
       var entity = Model[otherId];
       // clear query builder unless ctrl pressed them add to compound.
@@ -309,25 +345,34 @@ class VFBFocusTerm extends React.Component {
         this.props.queryBuilder.clearAllQueryItems();
       }
 
-      GEPPETTO.trigger('spin_logo');
       $("body").css("cursor", "progress");
-      if (window[otherId] === undefined) {
-        window.fetchVariableThenRun(otherId, function () {
-          if ($('#add-new-query-container')[0] !== undefined) {
-            $('#add-new-query-container')[0].hidden = true;
-            $('#query-builder-items-container')[0].hidden = true;
-          }
-          this.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback) 
-        }.bind(this));
-      } else {
-        setTimeout(function () {
-          if ($('#add-new-query-container')[0] !== undefined) {
-            $('#add-new-query-container')[0].hidden = true;
-            $('#query-builder-items-container')[0].hidden = true;
-          }
-          this.props.queryBuilder.addQueryItem({ term: otherName, id: otherId, queryObj: click.parameters[1] }, callback); 
-        }.bind(this), 100);
+      /*
+       * Clear any stale notice/timer, then arm a fresh slow-query reassurance.
+       * React-owned (queryBuilder.setErrorMessage) so it clears reliably.
+       */
+      if (that._vfbQueryNoticeTimer) {
+        clearTimeout(that._vfbQueryNoticeTimer);
       }
+      if (that._vfbQueryWatchdog) {
+        clearTimeout(that._vfbQueryWatchdog);
+      }
+      that.props.queryBuilder.clearErrorMessage();
+      that._vfbQueryNoticeTimer = setTimeout(function () {
+        that.props.queryBuilder.setErrorMessage("Fetching results — this can take a moment for complex queries.", "info");
+      }, 10000);
+      /*
+       * Resolve the query's real target id (takes.default.short_form -- the
+       * class for painted domains) so it runs against the entity that has the
+       * data, not the focus individual.
+       */
+      var qType = (click.parameters[1] && click.parameters[1].getId) ? click.parameters[1].getId() : undefined;
+      window.vfbResolveAndPrepQuery(that.props.queryBuilder.props.model, otherId, qType, function (targetId, previewCount) {
+        if ($('#add-new-query-container')[0] !== undefined) {
+          $('#add-new-query-container')[0].hidden = true;
+          $('#query-builder-items-container')[0].hidden = true;
+        }
+        that.props.queryBuilder.addQueryItem({ term: otherName, id: targetId, queryObj: click.parameters[1], skipCount: true, previewCount: previewCount }, callback);
+      });
       break;
     case 'showInstance':
       click.value.getParent().show();
@@ -442,13 +487,32 @@ class VFBFocusTerm extends React.Component {
             items = items + ',' + compositeInstance.getId()
           }
         });
+        /*
+         * Only terms already in the scene are listed above, so a focus change
+         * while a URL load is still running (e.g. the id= term finishing first)
+         * dropped the rest from i= -- a reload or a copied link then lost them.
+         * Keep the ones still loading.
+         */
+        if (typeof window.vfbPendingIds === "function") {
+          window.vfbPendingIds().forEach(function (pendingId) {
+            if (!items.split(/[=,]/).includes(pendingId)) {
+              items = items + ',' + pendingId;
+            }
+          });
+        }
         items = items.replace(',,', ',').replace('i=,', 'i=');
         if (items != "i=") {
           var title = null;
           try {
             items = 'id=' + instance.getId().replace('_meta','') + '&' + items;
             title = instance.getName();
-            window.ga('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
+            safeGa('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
+          } catch (ignore) { }
+          try {
+            // Keep the title, description and canonical in step with the focus term.
+            if (window.vfbUpdatePageMetadata) {
+              window.vfbUpdatePageMetadata(instance.getId().replace('_meta',''));
+            }
           } catch (ignore) { }
 
           if (window.history.state == null) {
@@ -480,12 +544,20 @@ class VFBFocusTerm extends React.Component {
             }
           }
         }
-        window.ga('vfb.send', 'pageview', (window.location.pathname + window.location.search));
+        safeGa('vfb.send', 'pageview', (window.location.pathname + window.location.search));
         window.vfbUpdatingHistory = false;
       }
-    } catch (ignore) {
-      console.error("Focus term URL update error!");
-      window.vfbUpdatingHistory = true; // block further updates
+    } catch (e) {
+      /*
+       * Reset the guard on error rather than latching it true. Previously this
+       * set window.vfbUpdatingHistory = true ("block further updates"), so a
+       * single transient failure here permanently disabled URL syncing -- id=
+       * then stayed frozen on the last term for the rest of the session even as
+       * Term Info moved on (the reported bug). Self-heal: log the real error so
+       * the underlying throw is diagnosable, and let the next focus change retry.
+       */
+      console.error("Focus term URL update error!", e);
+      window.vfbUpdatingHistory = false;
     }
   }
 
@@ -526,7 +598,7 @@ class VFBFocusTerm extends React.Component {
             <div className="focusTermDivL">
               <Tabs>
                 <TabList>
-                  <Tab>{(window.templateID !== undefined) ? window[window.templateID].getName() : "Template"}</Tab>
+                  <Tab>{(window.templateID !== undefined && window[window.templateID] !== undefined && typeof window[window.templateID].getName === "function") ? window[window.templateID].getName() : "Template"}</Tab>
                   <Tab disabled={true} style={{ display: "none" }}>&nbsp; + &nbsp;</Tab>
                 </TabList>
                 <TabPanel style={{ display: "none" }}/>

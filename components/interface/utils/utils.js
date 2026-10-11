@@ -422,7 +422,7 @@ var hasVisualType = function (variableId) {
   var extEnum = {
     0 : { extension: "_swc" },
     1 : { extension: "_obj" },
-    2 : { extension: "_slice" }
+    2 : { extension: "_slices" }
   };
   while ((instance == undefined) && (counter < 3)) {
     try {
@@ -437,10 +437,103 @@ var hasVisualType = function (variableId) {
   }
 };
 
+/*
+ * True when the term still has a visual child type that is an unresolved
+ * ImportType -- the mesh/stack has not been pulled into the scene yet.
+ * window[id] on its own only tells us the VARIABLE exists (Term Info has been
+ * fetched), which is a weaker condition and must not be mistaken for it.
+ */
+/*
+ * True when a term's geometry has been resolved but is no longer in the scene.
+ * Clear deletes the instances, so the meshes go, while the resolved types stay
+ * in the model -- the term then looks loaded but shows nothing, and asking for
+ * it again has to put its geometry back rather than just re-focus it.
+ *
+ * Only the geometry the 3D viewer draws counts. A term whose mesh is in the
+ * scene is loaded even if its skeleton was never displayed, and a term with no
+ * resolved geometry at all (a class with no image) is left to the check above.
+ */
+var hasGeometryMissingFromScene = function (variableId) {
+  var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
+  var extensions = ["_obj", "_swc"];
+  var resolved = 0;
+  var inScene = 0;
+  for (var i = 0; i < extensions.length; i++) {
+    try {
+      var child = Instances.getInstance(variableId + "." + variableId + extensions[i]);
+      if ((child === undefined) || (child.getType() instanceof ImportType)) {
+        continue;
+      }
+      resolved++;
+      if (GEPPETTO.SceneController.isInstancePresent(child)) {
+        inScene++;
+      }
+    } catch (ignore) {
+      // No such child on this term: nothing to account for.
+    }
+  }
+  return resolved > 0 && inScene === 0;
+};
+
+var hasUnresolvedVisualType = function (variableId) {
+  var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
+  var extensions = ["_swc", "_obj", "_slices"];
+  for (var i = 0; i < extensions.length; i++) {
+    try {
+      var child = Instances.getInstance(variableId + "." + variableId + extensions[i]);
+      if ((child !== undefined) && (child.getType() instanceof ImportType)) {
+        return true;
+      }
+    } catch (ignore) {
+      // No such child type on this term: nothing outstanding for this extension.
+    }
+  }
+  return false;
+};
+
+/*
+ * True when the term's VARIABLE is in the Geppetto model (its Term Info has
+ * been fetched). Deliberately not `window[id] !== undefined`: named access on
+ * window also resolves DOM elements, and several panels give elements the term
+ * id (the class links in the Layers list, the tree/ROI nodes), so window[id] is
+ * truthy for a term that was never loaded. Ask the model factory instead.
+ */
+var isVariableLoaded = function (variableId) {
+  try {
+    return GEPPETTO.ModelFactory.getTopLevelVariablesById([variableId]).length > 0;
+  } catch (ignore) {
+    return false;
+  }
+};
+
+/*
+ * window.ga can be undefined -- for a moment right after page load while the
+ * GA script is still fetching, or permanently if a browser/extension blocks
+ * it. Calling it directly throws in that case, and since most call sites in
+ * VFBMain.js fire it as a side-effect before the "real" work (opening a
+ * term, a new tab, a reconnect attempt, even logging the original error via
+ * the console.error override), an uncaught throw here silently kills
+ * whatever it was guarding, with no console error to explain why. Route
+ * every analytics ping through this instead of calling window.ga directly.
+ */
+var safeGa = function () {
+  if (typeof window !== "undefined" && typeof window.ga === "function") {
+    try {
+      window.ga.apply(window, arguments);
+    } catch (ignore) {
+      // Analytics must never be able to break the feature it's instrumenting.
+    }
+  }
+};
+
 module.exports = {
   setSepCol,
   getStackViewerDefaultX,
   getStackViewerDefaultY,
   hasVisualType,
-  labelTypeToID
+  hasUnresolvedVisualType,
+  hasGeometryMissingFromScene,
+  isVariableLoaded,
+  labelTypeToID,
+  safeGa
 };

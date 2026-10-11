@@ -3,23 +3,51 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
     {
       "statement" : "WITH [" + instances + "] AS neurons"
       + " WITH neurons[0] as a, neurons[1] AS b"
-      + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a}), (target:Neuron:has_neuron_connectivity {short_form: b})"
-      + " CALL gds.beta.shortestPath.yens.stream({"
-      + "  nodeQuery: 'MATCH (n:Neuron:has_neuron_connectivity) RETURN id(n) AS id',"
-      + "  relationshipQuery: 'MATCH (a:Neuron:has_neuron_connectivity)-[r:synapsed_to]->(b:Neuron:has_neuron_connectivity) WHERE exists(r.weight) AND r.weight[0] >= "
-      + weight?.toString() + " RETURN id(a) AS source, id(b) AS target, type(r) as type, 5000-r.weight[0] as weight_p',"
-      + "  sourceNode: id(source),"
-      + "  targetNode: id(target),"
-      + "  k: " + paths?.toString() + ","
-      + "  relationshipWeightProperty: 'weight_p',"
-      + "  relationshipTypes: ['*'],"
-      + "  path: true"
-      + "})"
-      + " YIELD index, sourceNode, targetNode, nodeIds, path"
+      /*
+       * Route to the pre-built named GDS projection for this pair's connectome
+       * (cb_<connectome short_form>), rebuilt per KB load by the polishing
+       * pipeline (see build_connectome_projections.sh). Both neurons must share
+       * the same :Connectome:Site; if they do not the second MATCH fails and the
+       * query returns no paths. This replaces the old anonymous per-request
+       * projection over the whole 34.7M-edge synapsed_to graph, which timed out.
+       */
+      + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a})-[:database_cross_reference]->(site:Connectome)"
+      + " MATCH (target:Neuron:has_neuron_connectivity {short_form: b})-[:database_cross_reference]->(site)"
+      + " WITH a, b, source, target, 'cb_' + site.short_form AS graphName"
+      /*
+       * Yen's k-shortest-paths. GDS 1.x (Neo4j 4.2 pdb) only has the beta procedure and
+       * needs `path: true`; GDS 2.x (Neo4j 4.4 pdb on the cluster) only has the
+       * production one and rejects `path`. Pick whichever the server offers, so the
+       * same build works against either database during the migration.
+       */
+      + " CALL dbms.procedures() YIELD name"
+      + " WHERE name IN ['gds.shortestPath.yens.stream', 'gds.beta.shortestPath.yens.stream']"
+      + " WITH a, b, source, target, graphName, collect(name) AS yensProcs"
+      + " WITH a, b, source, target, graphName,"
+      + "  CASE WHEN 'gds.shortestPath.yens.stream' IN yensProcs THEN 'gds.shortestPath.yens.stream'"
+      + "       ELSE 'gds.beta.shortestPath.yens.stream' END AS yens"
+      + " CALL apoc.cypher.run('CALL ' + yens + '($g, {sourceNode: $s, targetNode: $t, k: $k,"
+      + "  relationshipWeightProperty: \"weight_p\"'"
+      + "  + (CASE WHEN yens STARTS WITH 'gds.beta' THEN ', path: true' ELSE '' END)"
+      + "  + '}) YIELD index, sourceNode, targetNode, nodeIds, path"
+      + "  RETURN index, sourceNode, targetNode, nodeIds, path',"
+      + "  {g: graphName, s: id(source), t: id(target), k: " + paths?.toString() + "}) YIELD value"
+      + " WITH a, b, source, target, value.index AS index, value.sourceNode AS sourceNode,"
+      + "  value.targetNode AS targetNode, value.nodeIds AS nodeIds, value.path AS path"
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
       + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
-      + " OPTIONAL MATCH (x)-[xio:INSTANCEOF]->(xpc:Class) OPTIONAL MATCH (y)-[yio:INSTANCEOF]->(ypc:Class) WITH *,'\"'+ x.short_form+'\":{\"'+xpc.short_form+'\":\"' + coalesce(xpc.symbol[0], xpc.label) + '\"},\"'+ y.short_form+'\":{\"'+ypc.short_form+'\":\"' + coalesce(ypc.symbol[0], ypc.label) + '\"}' as Class"
+      /*
+       * Pick ONE class per neuron deterministically. Prefer a class that has a symbol
+       * (specific named cell types carry one, e.g. MBON21; broad NT/grouping classes
+       * like "adult cholinergic neuron" do not), then fall back to a stable short_form
+       * order. collect(c)[0] returns exactly one row so the path row is never dropped.
+       * The label shown is the class symbol, else the instance's own symbol/label with
+       * any trailing accession suffix " (SOURCE:id)" stripped (e.g. FlyWire cells).
+       */
+      + " CALL { WITH x OPTIONAL MATCH (x)-[:INSTANCEOF]->(c:Class) WITH c ORDER BY (CASE WHEN size(coalesce(c.symbol, [])) > 0 THEN 0 ELSE 1 END), c.short_form RETURN collect(c)[0] AS xpc }"
+      + " CALL { WITH y OPTIONAL MATCH (y)-[:INSTANCEOF]->(c:Class) WITH c ORDER BY (CASE WHEN size(coalesce(c.symbol, [])) > 0 THEN 0 ELSE 1 END), c.short_form RETURN collect(c)[0] AS ypc }"
+      + " WITH *,'\"'+ x.short_form+'\":{\"'+coalesce(xpc.short_form, x.short_form)+'\":\"' + apoc.text.regreplace(coalesce(xpc.symbol[0], x.symbol[0], x.label), ' *[(][^()]*:[^()]*[)] *$', '') + '\"},\"'+ y.short_form+'\":{\"'+coalesce(ypc.short_form, y.short_form)+'\":\"' + apoc.text.regreplace(coalesce(ypc.symbol[0], y.symbol[0], y.label), ' *[(][^()]*:[^()]*[)] *$', '') + '\"}' as Class"
       + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY, "
       + " apoc.convert.fromJsonMap('{' + apoc.text.join(collect(Class),',') + '}') as class ",
       "resultDataContents": ["row", "graph"]

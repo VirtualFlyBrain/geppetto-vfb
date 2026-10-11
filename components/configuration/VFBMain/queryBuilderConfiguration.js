@@ -83,7 +83,7 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": MarkdownLinkComponent,
     "actions": "window.addVfbId('$entity$');",
-    "displayName": "Cell type",
+    "displayName": "Cell_Type",
     "cssClassName": "query-results-type-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -299,7 +299,8 @@ var queryResultsColMeta = [
     "visible": true,
     "customComponent": SlideshowImageComponent,
     "displayName": "Images",
-    "actions": { addInstance : "window.addVfbId('$entity$');" , deleteInstance : '$entity$.delete()' },
+    // "<template>,<image>" references: window.vfbLoadImageRef honours the alignment clicked.
+    "actions": { addInstance : "window.vfbLoadImageRef('$entity$');" , deleteInstance : "window.vfbDeleteImageRef('$entity$');" },
     "cssClassName": "query-results-images-column",
     "sortDirectionCycle": ['asc', 'desc', null]
   },
@@ -405,15 +406,167 @@ var queryResultsColMeta = [
     "displayName": "Avg_Weight",
     "cssClassName": "query-results-stage-column",
     "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  /*
+   * FindStocks (FlyBase stock report). The row's selection id is the FBst
+   * stock id, carried in the hidden ID column and also shown in the visible
+   * Stock_ID column; the four columns below are everything the report shows.
+   * A stock is a FlyBase record, not a VFB term, so none of these resolve to
+   * a VFB id -- but Stock_ID, Stock_Number and Collection arrive as markdown
+   * pointing at FlyBase, the stock centre's catalogue and the centre itself,
+   * so they go through MarkdownLinkComponent for its external-link branch (no
+   * addVfbId action). Genotype stays plain: FlyBase notation is full of
+   * brackets and must not be read as markdown.
+   */
+  {
+    "columnName": "stock_id",
+    "order": 1,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "Stock_ID",
+    "cssClassName": "query-results-stock_id-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "stock_number",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "Stock_Number",
+    "cssClassName": "query-results-stock_number-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "genotype",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Genotype",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "collection",
+    "order": 4,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "Collection",
+    "cssClassName": "query-results-collection-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  /*
+   * FindComboPublications (FlyBase publications for a split combination).
+   * The row's selection id is the FBrf, carried in the hidden ID column and
+   * also shown in the visible FBrf column; unlike a stock that id IS a VFB
+   * pub individual, so the row resolves. FlyBase_ID, DOI, PMID and PMCID
+   * arrive as markdown linking out to FlyBase, doi.org, PubMed and PMC, so
+   * they render through MarkdownLinkComponent. Title and Citation stay plain
+   * text -- a citation can contain brackets.
+   */
+  {
+    "columnName": "fbrf",
+    "order": 1,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "FlyBase_ID",
+    "cssClassName": "query-results-fbrf-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "title",
+    "order": 2,
+    "locked": false,
+    "visible": true,
+    "displayName": "Title",
+    "cssClassName": "query-results-name-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "miniref",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Citation",
+    "cssClassName": "query-results-reference-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "year",
+    "order": 4,
+    "locked": false,
+    "visible": true,
+    "displayName": "Year",
+    "cssClassName": "query-results-year-column",
+    "sortDirectionCycle": ['desc', 'asc', null]
+  },
+  {
+    "columnName": "pub_type",
+    "order": 5,
+    "locked": false,
+    "visible": true,
+    "displayName": "Publication_Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "doi",
+    "order": 6,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "DOI",
+    "cssClassName": "query-results-doi-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "pmid",
+    "order": 7,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "PMID",
+    "cssClassName": "query-results-pmid-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  {
+    "columnName": "pmcid",
+    "order": 8,
+    "locked": false,
+    "visible": true,
+    "customComponent": MarkdownLinkComponent,
+    "displayName": "PMCID",
+    "cssClassName": "query-results-pmcid-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
+  },
+  /* TermsForPub: how the term relates to the publication. */
+  {
+    "columnName": "reference_type",
+    "order": 3,
+    "locked": false,
+    "visible": true,
+    "displayName": "Reference_Type",
+    "cssClassName": "query-results-type-column",
+    "sortDirectionCycle": ['asc', 'desc', null]
   }
 ];
 
 // which columns to display in the results
-var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight'];
+var queryResultsColumns = ['name', 'cluster', 'gene', 'neuron_A', 'type', 'cell_type', 'downstream', 'tbars', 'upstream', 'level', 'extent', 'function', 'weight', 'neuron_B', 'region', 'target', 'parent', 'expressed_in', 'dataset', 'description', 'reference', 'gross_type', 'stage', 'license', 'template', 'technique', 'controls', 'images', 'score', 'image_count', 'upstream_class', 'downstream_class', 'total_n', 'connected_n', 'percent_connected', 'pairwise_connections', 'total_weight', 'avg_weight', 'stock_id', 'stock_number', 'genotype', 'collection', 'fbrf', 'title', 'miniref', 'year', 'pub_type', 'doi', 'pmid', 'pmcid', 'reference_type'];
 
 var queryResultsControlConfig = {
   "Common": {
     "info": {
+      /*
+       * FindStocks rows are identified by a FlyBase FBst stock id. Stocks are
+       * not VFB terms -- get_term_info on FBst0602932 comes back empty -- so
+       * addVfbId would spin on an id that can never load. Those rows get the
+       * FlyBase stock button below instead.
+       */
+      "showCondition": "!'$ID$'.startsWith('FBst')",
       "id": "info",
       "actions": [
         "window.addVfbId('$ID$');"
@@ -421,6 +574,16 @@ var queryResultsControlConfig = {
       "icon": "fa-info-circle",
       "label": "Info",
       "tooltip": "Info"
+    },
+    "flybasestock": {
+      "showCondition": "'$ID$'.startsWith('FBst')",
+      "id": "flybasestock",
+      "actions": [
+        "window.open('http://flybase.org/reports/' + '$ID$', '_blank').focus()"
+      ],
+      "icon": "gpt-fly",
+      "label": "FlyBase",
+      "tooltip": "FlyBase Stock"
     },
     "flybase": {
       "showCondition": "'$ID$'.startsWith('FBbt')",
@@ -446,11 +609,11 @@ var queryBuilderDatasourceConfig = {
     explode_arrays: [{ field: "synonym", formatting: "$VALUE$ ($LABEL$)" }],
     type: {
       class: {
-        actions: ["window.getVFBQueryTypes && window.getVFBQueryTypes('$ID$'); window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+        actions: ["window.fetchVariableThenRun('$ID$', function(){ (window.withVFBQueryTypes || function(i, cb){ cb(); })('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); }); });"],
         icon: "fa-dot-circle-o"
       },
       individual: {
-        actions: ["window.getVFBQueryTypes && window.getVFBQueryTypes('$ID$'); window.fetchVariableThenRun('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); });"],
+        actions: ["window.fetchVariableThenRun('$ID$', function(){ (window.withVFBQueryTypes || function(i, cb){ cb(); })('$ID$', function(){ GEPPETTO.QueryBuilder.addQueryItem({ term: '$LABEL$', id: '$ID$'}); }); });"],
         icon: "fa-square-o"
       }
     },
@@ -479,16 +642,34 @@ var queryBuilderDatasourceConfig = {
         return record[5]
       },
       getRecords: function (payload) {
-        return payload.results.map(function (item) {
-          return item.values
-        })
+        /*
+         * A query with no results comes back without a `results` array (the
+         * backend omits/nulls it for 0 rows), so payload.results.map threw here
+         * -- aborting queryDoneCallback before it could stop the spinner, which
+         * left the query cog spinning forever on any empty result. Treat a
+         * missing/!array results as zero rows.
+         */
+        return (payload && Array.isArray(payload.results))
+          ? payload.results.map(function (item) {
+            return item.values;
+          })
+          : [];
       },
       getHeaders: function (payload) {
-        return payload.header;
+        return (payload && payload.header) ? payload.header : [];
       }
     },
     bloodhoundConfig: {
       datumTokenizer: function (d) {
+        /*
+         * The SOLR label field can carry a stray backslash-escaping of a quote
+         * or apostrophe from over-escaped source data (e.g. "y5B\'2a"). Strip a
+         * backslash that precedes a quote/apostrophe in place so the query-builder
+         * suggestion display, sorting and tokenizing all use the clean label.
+         */
+        if (d && typeof d.label === 'string') {
+          d.label = d.label.replace(/\\(['"])/g, '$1');
+        }
         return Bloodhound.tokenizers.nonword(d.label.replace('_', ' '));
       },
       queryTokenizer: function (q) {

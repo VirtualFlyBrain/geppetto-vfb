@@ -1,6 +1,7 @@
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListViewerControlsMenu from '../../interface/VFBListViewer/ListViewerControlsMenu';
+import { getMetaHtml } from '../../interface/VFBListViewer/metaHtml';
 
 /**
  * Create component to display controls
@@ -42,13 +43,42 @@ const conf = [
       let instance = Instances.getInstance(path);
       var self = this;
 
-      let click = value => {
-        let instance = Instances.getInstance(value.target.id);
-        window.setTermInfo(Instances.getInstance(path)[path + "_meta"], path);
+      /*
+       * The id is on the inner <a>, but the handler is on the div that wraps
+       * it, so a click on the cell's padding -- or the gap beside a name that
+       * wrapped to two lines -- has no id on the target. Looking that id up
+       * threw ("The instance  does not exist in the current model") and took
+       * the rest of the handler with it, so those clicks silently did nothing
+       * while clicks that landed on the text worked. path is already in scope
+       * and is all the handler needs.
+       *
+       * Select rather than only setting the term info. Setting it alone left
+       * the row unmarked while its term filled the panel, so the list and the
+       * panel disagreed about which term you were looking at; selecting marks
+       * the row and sets the term info on the way. Checked on a live instance:
+       * selecting one that is already selected does not toggle it off and does
+       * re-show its term info, so a repeat click still brings the panel back.
+       *
+       * Partial instance shapes turn up here -- the same clear-then-re-add
+       * case the isSelected guard below covers -- so fall back to setting the
+       * term info directly when select is missing.
+       */
+      let click = () => {
+        let clicked = Instances.getInstance(path);
+        if (typeof clicked.select === 'function') {
+          clicked.select();
+          return;
+        }
+        window.setTermInfo(clicked[path + "_meta"], path);
       };
       // Create new HTML string with the Type name and tags only
       let typeHTML = '<a id="' + instance.id + '" style="color:white;text-decoration: none;cursor:pointer">' + instance.getName() + "</a>" ;
-      if (instance.isSelected()) {
+      /*
+       * Same partial-instance-shape issue as the isVisible guard in
+       * ListViewerControlsMenu (VFB2 #clear-then-re-add) - isSelected may be
+       * briefly missing rather than undefined, so guard it too.
+       */
+      if (instance.isSelected !== undefined && instance.isSelected()) {
         typeHTML = '<a id="' + instance.id + '" style="color:yellow;text-decoration: none;cursor:pointer">' + instance.getName() + "</a>" ;
       }
 
@@ -70,14 +100,13 @@ const conf = [
         return null;
       }
 
-      // Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string
-      let html = instance.getTypes().map(function (t) {
-        return t.type.getInitialValue().value
-      })[0].html;
+      /*
+       * Retrieve the HTML type from the Instance, it's in the form of an HTML element saved as a string.
+       * Empty when the image has no instance_of class in the KB (VFB2#499).
+       */
+      let html = getMetaHtml(instance, "type") || "";
 
-      let htmlLabels = instance.getTypes().map(function (t) {
-        return t.label.getInitialValue().value
-      })[0].html;
+      let htmlLabels = getMetaHtml(instance, "label") || "";
 
       // Extract HTML element anchor from html string
       var matchAnchor = /<a[^>]*>([\s\S]*?)<\/a>/g
@@ -130,8 +159,11 @@ const conf = [
         return null;
       }
       
-      let value = GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0].getInitialValues()[0].value;
+      let value = GEPPETTO.ModelFactory.getAllVariablesOfMetaType(instance.getType(), 'ImageType')[0]?.getInitialValues()?.[0]?.value;
       let img = "";
+      if ( value === undefined ) {
+        return img;
+      }
       if ( value.elements != undefined ) {
         img = value.elements[0].initialValue.data;
       } else if ( value.data != undefined ) {

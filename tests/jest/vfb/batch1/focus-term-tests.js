@@ -81,4 +81,60 @@ describe('VFB Focus Term Tests', () => {
 			await wait4selector(page, '#query-builder-container', { visible: true , timeout : 50000 })
 		}, 120000)
 	})
+
+	/*
+	 * Clear (the eraser in this bar) deletes every instance, which takes the
+	 * meshes out of the scene, but the types it resolved stay in the model.
+	 * A term asked for again then looked loaded -- instance present, nothing
+	 * outstanding -- so it was only re-focused and its geometry never came
+	 * back, for the rest of the session. Reported against a query's images,
+	 * but it is the same path however the term is asked for.
+	 */
+	describe('Clear and ask for the same term again', () => {
+		const TEMPLATE_ID = 'VFB_00017894';
+		// The painted medulla domain on this template: the class itself has no
+		// mesh here, and this test is about geometry leaving and coming back.
+		const MEDULLA_ID = 'VFB_00030624';
+
+		const meshKeys = async () => page.evaluate(() => (
+			(typeof CanvasContainer !== 'undefined' && CanvasContainer.engine && CanvasContainer.engine.meshes)
+				? Object.keys(CanvasContainer.engine.meshes) : []
+		));
+
+		it('Medulla is in the scene to start with', async () => {
+			await page.evaluate((id) => window.addVfbId(id), MEDULLA_ID);
+			await page.waitForFunction(
+				(id) => Object.keys(CanvasContainer.engine.meshes).some((key) => key.indexOf(id) > -1),
+				{ timeout : 240000 },
+				MEDULLA_ID
+			);
+		}, 300000)
+
+		it('Clear empties the scene down to the template', async () => {
+			await page.evaluate(() => {
+				const eraser = document.querySelector('i.fa-eraser');
+				if (eraser) {
+					eraser.click();
+				}
+			});
+			await page.waitForFunction(
+				(template) => {
+					const keys = Object.keys(CanvasContainer.engine.meshes);
+					return keys.length === 1 && keys[0].indexOf(template) > -1;
+				},
+				{ timeout : 120000 },
+				TEMPLATE_ID
+			);
+		}, 180000)
+
+		it('Asking for it again brings its geometry back', async () => {
+			await page.evaluate((id) => window.addVfbId(id), MEDULLA_ID);
+			await page.waitForFunction(
+				(id) => Object.keys(CanvasContainer.engine.meshes).some((key) => key.indexOf(id) > -1),
+				{ timeout : 240000 },
+				MEDULLA_ID
+			);
+			expect((await meshKeys()).filter((key) => key.indexOf(MEDULLA_ID) > -1).length).toBeGreaterThan(0);
+		}, 300000)
+	})
 })

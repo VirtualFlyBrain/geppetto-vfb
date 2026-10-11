@@ -46,7 +46,7 @@ const resetCircuitBrowserToDefaultState = async () => {
 	await page.goto(projectURL);
 	await testLandingPage(page, 'VFB_jrchjrch');
 	await selectTab(page, "Circuit Browser");
-	await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+	await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 };
 
 const setSecondNeuron = async (id) => {
@@ -102,9 +102,15 @@ const setSecondNeuron = async (id) => {
 	return true;
 };
 
-/**
- * TODO: Work in progress, need to expand, right now only tests Circuit Browser opens
- * Tests Circuit Browser Component
+/*
+ * What is left under review is the graph itself: a two-neuron connectivity
+ * query, its legend and the weight filter. It depends on live connectivity
+ * data and on the autocomplete finding a second neuron, and it skips itself
+ * when it cannot (secondNeuronConfigured), so it is not a gate.
+ *
+ * The parts that should hold on every run -- the tab opening, opening it from
+ * a term and carrying that term in, and the controls -- are in
+ * tests/jest/vfb/batch3/circuit-browser-tests.js.
  */
 describe('VFB Circuit Browser Tests', () => {
 	beforeAll(async () => {
@@ -123,8 +129,9 @@ describe('VFB Circuit Browser Tests', () => {
 		it('Open Circuit Browser', async () => {
 			await selectTab(page, "Circuit Browser");
 
-			// Check that the Tree Browser is visible
-			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+			// The panel is its connectivity query controls; the old
+			// div#VFBCircuitBrowser wrapper no longer exists.
+			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 		})
 		
 		it('Open Term Info', async () => {
@@ -138,7 +145,7 @@ describe('VFB Circuit Browser Tests', () => {
 			await page.click("#circuitBrowserLink");
 
 			// Check that the Circuit Browser is visible
-			await wait4selector(page, 'div#VFBCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 
 			// Wait for the neuron1 input to be populated via Redux dispatch chain
 			await page.waitForFunction(() => {

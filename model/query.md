@@ -2794,6 +2794,186 @@ id=$ID&query_type=ImagesThatDevelopFrom
 vfbqueryJsonProcessor
 ```
 
+## Query Name: VFBquery NeuronsCapableOf
+
+**ID:** vfbquery_neuronscapableof
+
+**Description:** Cached NeuronsCapableOf via VFBquery (v3-cached).
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch NeuronsCapableOf from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=NeuronsCapableOf.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=NeuronsCapableOf
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery SplitsTargeting
+
+**ID:** vfbquery_splitstargeting
+
+**Description:** Cached SplitsTargeting via VFBquery (v3-cached).
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch SplitsTargeting from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=SplitsTargeting.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=SplitsTargeting
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery TargetNeurons
+
+**ID:** vfbquery_targetneurons
+
+**Description:** Cached TargetNeurons via VFBquery (v3-cached).
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch TargetNeurons from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=TargetNeurons.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=TargetNeurons
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery FindStocks
+
+**ID:** vfbquery_findstocks
+
+**Description:** Cached FindStocks via VFBquery (v3-cached).
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch FindStocks from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=FindStocks.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=FindStocks
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
+## Query Name: VFBquery FindComboPublications
+
+**ID:** vfbquery_findcombopublications
+
+**Description:** Cached FindComboPublications via VFBquery (v3-cached).
+
+**Type:** gep_2:CompoundQuery
+
+### Query Name: Fetch FindComboPublications from v3-cached
+
+**ID:** None
+
+**Description:** GET /run_query?id=$ID&query_type=FindComboPublications.
+
+**Type:** gep_2:SimpleQuery
+
+**Query:**
+
+```java
+id=$ID&query_type=FindComboPublications
+```
+
+### Query Name: Process VFBquery JSON to QueryResults
+
+**ID:** None
+
+**Description:** Generic JSON-to-QueryResults conversion via vfbqueryJsonProcessor.
+
+**Type:** gep_2:ProcessQuery
+
+**Query:**
+
+```java
+vfbqueryJsonProcessor
+```
+
 ## Query Name: List all available images for class with examples
 
 **ID:** ListAllAvailableImages
@@ -2935,6 +3115,46 @@ vfbqueryJsonProcessor
 **ID:** SubclassesOf
 
 **Description:** Subclasses of $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Neurons capable of
+
+**ID:** NeuronsCapableOf
+
+**Description:** Neurons capable of $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Splits targeting
+
+**ID:** SplitsTargeting
+
+**Description:** Split drivers targeting $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Neurons targeted
+
+**ID:** TargetNeurons
+
+**Description:** Neurons targeted by $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Find stocks
+
+**ID:** FindStocks
+
+**Description:** Fly stocks for $NAME
+
+**Type:** gep_2:CompoundRefQuery
+
+## Query Name: Find publications
+
+**ID:** FindComboPublications
+
+**Description:** Publications for $NAME
 
 **Type:** gep_2:CompoundRefQuery
 

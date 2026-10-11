@@ -5,11 +5,15 @@ import VFBFocusTerm from './interface/VFBFocusTerm/VFBFocusTerm';
 import VFBTree from './interface/VFBTree/VFBTree';
 import VFBStackViewer from './interface/VFBStackViewer/VFBStackViewer';
 import TutorialWidget from './interface/VFBOverview/TutorialWidget';
+import { HelpLink, watchInjectedHelpButtons } from './configuration/VFBMain/helpLinks';
 import VFBTermInfoWidget from './interface/VFBTermInfo/VFBTermInfo';
 import Logo from '@geppettoengine/geppetto-client/components/interface/logo/Logo';
 import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanvas/Canvas';
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
+import { safeGa } from './interface/utils/utils';
+import { showConnectionNotice } from './interface/utils/connectionNotice';
+import { initTermPageMetadata, updateTermPageMetadata } from './interface/utils/pageMetadata';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
 import VFBUploader from './interface/VFBUploader/VFBUploader';
 import HTMLViewer from '@geppettoengine/geppetto-ui/html-viewer/HTMLViewer';
@@ -19,6 +23,7 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
 import { connect } from "react-redux";
 import * as ACTIONS from './../actions/generals';
 
@@ -29,6 +34,15 @@ var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
+
+/*
+ * The VFB template ids. When a URL loads, the first of its ids that is one of
+ * these becomes the scene's template straight away (see componentDidMount).
+ */
+const VFB_TEMPLATES = [
+  'VFB_00017894', 'VFB_00101567', 'VFB_00101384', 'VFB_00050000',
+  'VFB_00049000', 'VFB_00100000', 'VFB_00030786', 'VFB_00200000'
+];
 
 class VFBMain extends React.Component {
 
@@ -74,7 +88,6 @@ class VFBMain extends React.Component {
     this.handleSceneAndTermInfoCallback = this.handleSceneAndTermInfoCallback.bind(this);
     this.instancesFromDifferentTemplates = this.instancesFromDifferentTemplates.bind(this);
 
-    this.vfbLoadBuffer = [];
     this.tutorialRender = undefined;
     this.htmlToolbarRender = undefined;
     this.urlIdsLoaded = false;
@@ -90,9 +103,17 @@ class VFBMain extends React.Component {
     this.instanceOnFocus = undefined;
     this.idFromURL = undefined;
     this.idsFromURL = [];
+    /*
+     * The most recently requested term (last click, or the id= focus on a URL
+     * load). Only this term drives the term-info panel / selection; other loads
+     * complete silently. A newer request supersedes an in-flight one.
+     */
+    this.lastRequestedFocusId = undefined;
     this.urlQueryLoader = [];
     this.quickHelpRender = undefined;
     this.firstLoad = true;
+    this.templateViewFramed = false;
+    this.firstTermReported = false;
     this.quickHelpOpen = true;
 
     this.UIElementsVisibility = {};
@@ -101,6 +122,19 @@ class VFBMain extends React.Component {
 
     this.searchStyle = require('./configuration/VFBMain/searchConfiguration').searchStyle;
     this.searchConfiguration = require('./configuration/VFBMain/searchConfiguration').searchConfiguration;
+    /*
+     * Help "?" beside the "Filters" heading of the search panel. geppetto-ui's
+     * Search renders filter_name as a React child, so a heading can carry the
+     * shared HelpLink without touching the client. Only the string form is
+     * wrapped, so a second construction does not nest it.
+     */
+    (this.searchConfiguration.filters || []).forEach(function (filter) {
+      if (filter.key === "facets_annotation" && typeof filter.filter_name === "string") {
+        filter.filter_name = (
+          <span>{filter.filter_name}<HelpLink helpKey="search" label="search filters" className="vfb-help-filters" /></span>
+        );
+      }
+    });
     this.datasourceConfiguration = require('./configuration/VFBMain/searchConfiguration').datasourceConfiguration;
 
     this.queryResultsColMeta = require('./configuration/VFBMain/queryBuilderConfiguration').queryResultsColMeta;
@@ -111,6 +145,77 @@ class VFBMain extends React.Component {
 
     this.setSepCol = require('./interface/utils/utils').setSepCol;
     this.hasVisualType = require('./interface/utils/utils').hasVisualType;
+    this.hasUnresolvedVisualType = require('./interface/utils/utils').hasUnresolvedVisualType;
+    this.hasGeometryMissingFromScene = require('./interface/utils/utils').hasGeometryMissingFromScene;
+    this.isVariableLoaded = require('./interface/utils/utils').isVariableLoaded;
+
+    /*
+     * Single owner of term loading. Everything that loads a term goes through
+     * this: it caps how many fetch at once, remembers the last id requested for
+     * display (focusId), dedups repeat requests, lets a slow term step aside so
+     * neighbours load, and publishes a live status for the progress overlay.
+     */
+    var VFBLoadManager = require('./interface/VFBLoader/VFBLoadManager').default;
+    this.loadManager = new VFBLoadManager({
+      concurrency: 3,
+      fetch: (id, callbacks) => this.managerFetch(id, callbacks),
+      onFocus: id => this.managerFocus(id),
+      onFailed: id => this.props.invalidIdLoaded(id),
+      publish: snapshot => this.props.setLoadStatus(snapshot),
+      isLoaded: id => this.managerIsLoaded(id),
+      /*
+       * How long a term the user asked for actually took to arrive, and
+       * whether it arrived at all -- the load path's own responsiveness,
+       * separate from the direct-* counts which say which path served it.
+       */
+      onSettled: (id, ok, ms) => {
+        try {
+          if (typeof window.vfbGaDetail === "function") {
+            window.vfbGaDetail('term-load', ok ? 'ok' : 'failed', window.vfbSecondsBucket(ms));
+          }
+        } catch (e) {
+          /* reporting must never affect loading */
+        }
+      }
+    });
+    /*
+     * Progressive query load-all (geppetto-client queryBuilder): page size,
+     * the streamable query allowlist, and a status bridge to the loader overlay.
+     */
+    if (typeof window !== 'undefined') {
+      window.VFB_QUERY_PAGE_SIZE = window.VFB_QUERY_PAGE_SIZE || 10000;
+      window.VFB_STREAMABLE_QUERIES = window.VFB_STREAMABLE_QUERIES || ['AllAlignedImages'];
+      /*
+       * The Rancher ingress nodes, named directly so a session can take its
+       * data from one of them instead of everyone queueing on the round-robin
+       * name. Each node has its own 1Gb link, so spreading sessions across
+       * them is the cheapest bandwidth available; a node that does not answer
+       * is dropped for the session and the published name serves instead.
+       *
+       * Names, not addresses: DNS drops a host that goes down, and the
+       * certificate is issued for names. vfbk8s10 to 12 are deliberately
+       * absent -- no ingress yet -- and vfbk8s10 will want a weight
+       * ('vfbk8s10.virtualflybrain.org*10') when it arrives, as it has a
+       * 10Gb link where these have 1Gb.
+       */
+      window.VFB_DATA_HOSTS = window.VFB_DATA_HOSTS || [
+        'buttermilk.virtualflybrain.org',
+        'parsley.virtualflybrain.org',
+        'sourcream.virtualflybrain.org',
+        'chive.virtualflybrain.org',
+        'mayo.virtualflybrain.org',
+        'dill.virtualflybrain.org',
+        'cayenne.virtualflybrain.org'
+      ];
+      var vfbMainSelf = this;
+      window.vfbQueryLoadStatus = function (loaded, done) {
+        try {
+          vfbMainSelf.loadManager.setQueryLoadStatus(loaded, done);
+        } catch (e) {
+          /* overlay status is best-effort */
+        }
+      };
+    }
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
     this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
@@ -124,7 +229,6 @@ class VFBMain extends React.Component {
     if (this.refs.querybuilderRef && (!GEPPETTO.isKeyPressed("shift"))) {
       this.refs.querybuilderRef.close();
     }
-    this.sliceViewerReference.checkConnection();
   }
 
   addToQueryCallback (variableId, label) {
@@ -160,6 +264,10 @@ class VFBMain extends React.Component {
         }
       }
       idsList = Array.from(new Set(idsList));
+      // Latest requested term wins focus/term-info (idsFromURL keeps id= last).
+      if (idsList.length > 0) {
+        this.lastRequestedFocusId = idsList[idsList.length - 1];
+      }
       /*
        * Update URL in case of reload before items loaded. Rebuild a clean,
        * de-duplicated id=/i= URL rather than appending the id list onto the
@@ -167,31 +275,33 @@ class VFBMain extends React.Component {
        * growing the URL and desyncing the loader when ids repeat).
        */
       if (window.history.state != null && (window.history.state.s == 1 || window.history.state.s == 4) && window.location.search.indexOf("i=") > -1) {
-        var cleanIds = Array.from(new Set(idsList));
+        /*
+         * Keep what the URL already lists and add the new ids to it. Writing
+         * only the ids of this request dropped everything already in the
+         * scene from i=, so a reload (including the one the reconnect logic
+         * falls back to) came back with just the last term.
+         */
+        var existingIds = (new URLSearchParams(window.location.search).get('i') || '').split(',').filter(Boolean);
+        var cleanIds = Array.from(new Set(existingIds.concat(idsList)));
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
         window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
       }
-      window.ga('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
       if (idsList != null && idsList.length > 0) {
-        for (var singleId = 0; idsList.length > singleId; singleId++) {
-          if ($.inArray(idsList[singleId], this.vfbLoadBuffer) == -1) {
-            this.vfbLoadBuffer.push(idsList[singleId]);
-          }
-          if (Instances.getInstance(idsList[singleId]) !== undefined) {
-            this.handleSceneAndTermInfoCallback(idsList[singleId]);
-            idsList.splice($.inArray(idsList[singleId], idsList), 1);
-            this.vfbLoadBuffer.splice($.inArray(idsList[singleId], this.vfbLoadBuffer), 1);
-          }
-        }
-        if (idsList.length > 0) {
-          this.props.vfbLoadId(idsList);
-          this.fetchVariableThenRun(idsList, this.handleSceneAndTermInfoCallback);
-          this.setState({
-            UIUpdated: false,
-            idSelected: idsList[idsList.length - 1]
-          });
-        }
+        /*
+         * Hand the whole request to the load manager. The last id is the display
+         * target (focus); the rest load silently. The manager caps concurrency,
+         * dedups repeats, and drives the overlay + focus -- replacing the old
+         * per-item fetch loop and its focus race.
+         */
+        this.loadManager.focusId = idsList[idsList.length - 1];
+        this.loadManager.requestMany(idsList, { displayLast: true });
+        this.setState({
+          UIUpdated: false,
+          idSelected: idsList[idsList.length - 1]
+        });
       }
+      // Analytics ping only -- must never be able to abort the load above.
+      safeGa('vfb.send', 'event', 'request', 'addvfbid', idsList.join(','));
 
     } else {
       console.log("model has not been loaded, in the old initialization here I was triggering a"
@@ -202,29 +312,70 @@ class VFBMain extends React.Component {
   fetchVariableThenRun (variableId, callback, label) {
     GEPPETTO.SceneController.deselectAll(); // signal something is happening!
     var variables = GEPPETTO.ModelFactory.getTopLevelVariablesById(variableId);
-    if (!variables.length > 0) {
-      Model.getDatasources()[5].fetchVariable(variableId, function () {
-        if (callback != undefined) {
-          callback(variableId, label);
-        }
-      });
-    } else {
+    if (variables.length > 0) {
       if (callback != undefined) {
         callback(variableId, label);
       }
+      return;
     }
+
+    /*
+     * The term is fetched and built in the client; that ends in exactly one of
+     * the two callbacks. A failure drains this loader entry (invalidIdLoaded,
+     * handled by the reducer) so the progress bar completes rather than
+     * sticking at "Loading N/M ..." forever.
+     */
+    var self = this;
+    var settled = false;
+    var finish = function () {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (callback != undefined) {
+        callback(variableId, label);
+      }
+    };
+    var failed = function () {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (self.props && typeof self.props.invalidIdLoaded === "function") {
+        self.props.invalidIdLoaded(variableId);
+      }
+    };
+    Model.getDatasources()[5].fetchVariable(variableId, finish, failed);
   }
 
   ThreeDViewerIdLoaded (id) {
     this.props.vfbIdLoaded(id, "ThreeDViewer");
+    this.loadManager.noteComponentLoaded(id);
+    /*
+     * The canvas frames the scene once, the first time every visual instance it
+     * knows about has a mesh. On a URL load that is true well before the
+     * template arrives -- with only a neuron or two in the scene -- so the
+     * opening view was zoomed onto whichever term happened to load first (and
+     * never corrected, since the canvas only does it once; pressing Home
+     * afterwards looked right, because by then the template was there).
+     * Frame it again, once, when the template's own mesh lands.
+     */
+    if (id === window.templateID && !this.templateViewFramed) {
+      this.templateViewFramed = true;
+      if (this.canvasReference !== undefined && this.canvasReference !== null) {
+        this.canvasReference.resetCamera();
+      }
+    }
   }
 
   StackViewerIdLoaded (id) {
     this.props.vfbIdLoaded(id, "StackViewer");
+    this.loadManager.noteComponentLoaded(id);
   }
 
   TermInfoIdLoaded (id) {
     this.props.vfbIdLoaded(id, "TermInfo");
+    this.loadManager.noteComponentLoaded(id);
   }
 
   handleSceneAndTermInfoCallback (variableIds) {
@@ -243,14 +394,27 @@ class VFBMain extends React.Component {
       } catch (e) {
         console.log('Instance for ' + variableIds[singleId] + '.' + variableIds[singleId] + '_meta' + ' does not exist in the current model');
         this.props.invalidIdLoaded(variableIds[singleId])
-        // this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
         continue;
       }
+      /*
+       * Only the most recently requested term (last click / id= focus) drives
+       * the term-info panel and selection. Everything else still loads into the
+       * model and scene, but silently -- so clicking several terms in quick
+       * succession while one is loading no longer has each completion fight for
+       * focus (which piled up and looked like a stuck load). Evaluated against
+       * the CURRENT latest request, so a newer click supersedes an in-flight one.
+       */
+      var isFocusTarget = (this.lastRequestedFocusId === undefined)
+        || (variableIds[singleId] === this.lastRequestedFocusId);
       if (this.hasVisualType(variableIds[singleId])) {
-        if (!this.firstLoad) {
+        if (!this.firstLoad && isFocusTarget) {
           this.handlerInstanceUpdate(meta);
         }
         this.resolve3D(variableIds[singleId], function (id) {
+          // Superseded terms: geometry still loads, but take no focus/selection.
+          if (this.lastRequestedFocusId !== undefined && id !== this.lastRequestedFocusId) {
+            return;
+          }
           var instance = Instances.getInstance(id);
           GEPPETTO.SceneController.deselectAll();
           if ((instance != undefined) && (typeof instance.select === "function")) {
@@ -262,117 +426,309 @@ class VFBMain extends React.Component {
           }
         }.bind(this));
       } else {
-        this.handlerInstanceUpdate(meta);
-        this.setActiveTab("termInfo");
-      }
-      // if the element is not invalid (try-catch) or it is part of the scene then remove it from the buffer
-      if (window[variableIds[singleId]] != undefined) {
-        this.vfbLoadBuffer.splice($.inArray(variableIds[singleId], window.vfbLoadBuffer), 1);
+        /*
+         * Term with no visual type (a class / neuromere etc.): there is nothing
+         * for the 3D or slice viewers to load, so no viewer ever dispatches its
+         * loaded-signal and this id's loader entry (empty components) would stick
+         * forever -- e.g. "Loading 2/2" -- keeping the progress overlay up so the
+         * Term Info panel never surfaces. Resolve the loader entry here so the
+         * load completes and the term simply appears in Term Info, with NO
+         * geometry pulled in. Only the focus term drives the panel/tab.
+         */
+        if (isFocusTarget) {
+          this.handlerInstanceUpdate(meta);
+          this.setActiveTab("termInfo");
+        }
+        this.props.invalidIdLoaded(variableIds[singleId]);
       }
     }
-    if (this.vfbLoadBuffer.length > 0) {
-      GEPPETTO.trigger('spin_logo');
+  }
+
+  /*
+   * Per-item worker the load manager calls under its concurrency cap. Fetches
+   * the term once (the fetch retries and resumes on its own), runs the
+   * scene/term-info handling and reports the term resolved, or failed, so the
+   * manager can free the slot and start the next one.
+   */
+  managerFetch (id, callbacks) {
+    var self = this;
+    var cb = callbacks || {};
+    var resolved = cb.onResolved || function () {};
+    var fetched = cb.onFetched || function () {};
+    var failed = cb.onFailed || function () {};
+
+    /* Already in the scene: nothing to fetch or paint -- done now. */
+    if (Instances.getInstance(id) !== undefined) {
+      this.handleSceneAndTermInfoCallback(id);
+      this.managerLabel(id);
+      resolved();
+      return;
+    }
+
+    try {
+      Model.getDatasources()[5].fetchVariable(id, function () {
+        self.handleSceneAndTermInfoCallback(id);
+        self.managerLabel(id);
+        /*
+         * Loading is owned by VFBLoadManager -- its status drives
+         * generals.loading (loadStatus.active). A visual term (any image,
+         * painted domains included) is reported fetched and completes when its
+         * viewer paints (noteComponentLoaded) or the render grace elapses; a term
+         * with no geometry resolves immediately. The old idsMap/vfbLoadId counter
+         * is deliberately NOT written any more: it never cleared for a term
+         * rendered as part of another mesh (a painted domain reports no separate
+         * component load), so its idsMap entry held generals.loading true forever
+         * and left the fly logo spinning. No term type is special-cased here.
+         */
+        if (self.hasVisualType(id)) {
+          fetched();
+        } else {
+          resolved();
+        }
+      }, failed);
+    } catch (e) {
+      failed(e);
+    }
+  }
+
+  /*
+   * True when the term is already present in the model/scene, so a re-request
+   * (a click to view it) should just re-focus rather than load and count it
+   * again. Covers terms that came in with the initial scene (templates, painted
+   * domains) which the manager itself never requested.
+   */
+  managerIsLoaded (id) {
+    /*
+     * Geppetto sets window[<id>] AND window.Instances[<id>] when a term's
+     * top-level instance is created (Manager.augmentInstancesArray). Testing
+     * window[id] is not safe: named access also resolves any DOM element with
+     * that id, and the Layers list gives its class links the class id, so a
+     * slice-viewer click on such a domain was taken as "already loaded" and
+     * silently did nothing. Testing the model factory instead (#1755) was too
+     * weak the other way: window.Model[id] exists as soon as the variable is
+     * merged, before its instance and geometry exist, so a term requested
+     * again in that window was skipped and its mesh never loaded (batch-2
+     * tests: Term Info populated, empty 3D viewer, no deselect button).
+     * window.Instances[id] is exactly what window[id] meant, minus the DOM.
+     */
+    if ((typeof window === "undefined") || !window.Instances || (window.Instances[id] === undefined)) {
+      return false;
+    }
+    /*
+     * A loaded variable only means Term Info has been fetched. The term is not loaded until its visual types have been
+     * resolved into the scene; while any of them is still an ImportType there
+     * is geometry outstanding, and a re-request must load it rather than just
+     * re-focus. Treating "variable exists" as "loaded" is what made a Term Info
+     * thumbnail click show the term and never its image.
+     */
+    if (this.hasUnresolvedVisualType(id)) {
+      return false;
+    }
+    /*
+     * Resolved is still not loaded if the geometry has left the scene. Clear
+     * deletes every instance but leaves the resolved types in the model, so a
+     * term that was cleared and then asked for again looked loaded here, was
+     * only re-focused, and never came back -- for the rest of the session.
+     */
+    return !this.hasGeometryMissingFromScene(id);
+  }
+
+  /* Best-effort human label for the status line (falls back to the id). */
+  managerLabel (id) {
+    try {
+      var instance = Instances.getInstance(id);
+      var name = (instance && typeof instance.getName === "function") ? instance.getName() : undefined;
+      if (name && name !== id) {
+        this.loadManager.setLabel(id, name);
+      }
+    } catch (e) {
+      // label is cosmetic; ignore
+    }
+  }
+
+  /*
+   * Apply focus for the manager's current display target: show it in Term Info
+   * and, if it has geometry, select it in the scene. Idempotent -- safe to call
+   * again when an already-loaded term is re-requested (re-click).
+   */
+  managerFocus (id) {
+    var meta;
+    try {
+      meta = Instances.getInstance(id + '.' + id + '_meta');
+    } catch (e) {
+      meta = undefined;
+    }
+    if (meta === undefined) {
+      /*
+       * Focus was applied to a term the manager believes is loaded but whose
+       * meta instance isn't in the model. Don't return silently -- that leaves
+       * Term Info unchanged with nothing in the console -- fetch it properly.
+       * Once per id: request() re-enters here if it still judges the term
+       * loaded, and a second pass would recurse without end.
+       */
+      this.focusReloadTried = this.focusReloadTried || {};
+      if (this.focusReloadTried[id]) {
+        console.warn("managerFocus: still no meta instance for " + id + " after reloading it");
+        return;
+      }
+      this.focusReloadTried[id] = true;
+      console.warn("managerFocus: no meta instance for " + id + "; loading it");
+      this.loadManager.loaded.delete(id);
+      this.loadManager.items.delete(id);
+      this.loadManager.request(id, { display: true });
+      return;
+    }
+    delete (this.focusReloadTried || {})[id];
+    this.handlerInstanceUpdate(meta);
+    var instance = Instances.getInstance(id);
+    if (this.hasVisualType(id) && instance !== undefined && typeof instance.select === "function") {
+      GEPPETTO.SceneController.deselectAll();
+      instance.select();
     } else {
-      GEPPETTO.trigger('stop_spin_logo');
+      this.setActiveTab("termInfo");
     }
   }
 
   resolve3D (path, callback) {
-    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var rootInstance = Instances.getInstance(path);
     GEPPETTO.SceneController.deselectAll();
 
-    if (window.templateID == undefined) {
-      var superTypes = rootInstance.getType().getSuperType();
-      for (var i = 0; i < superTypes.length; i++) {
-        if (superTypes[i].getId() == 'Template') {
-          window.templateID = rootInstance.getId();
-          // Set wireframe by template:
-          switch (window.templateID) {
-          case "VFB_00030786":
-            this.canvasReference.setWireframe(false);
-            break;
-          case "VFB_00050000":
-            this.canvasReference.setWireframe(false);
-            break;
-          case "VFB_00101384":
-            this.canvasReference.setWireframe(false);
-            this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
-            // TOOD: Fix Orientaion
-            break;
-          default:
-            this.canvasReference.setWireframe(false);
-            break;
-          }
-        }
-      }
-      // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
-      if (window.templateID == undefined) {
-        var meta = rootInstance[rootInstance.getId() + '_meta'];
-        if (meta != undefined) {
-          if (typeof meta.getType().template != "undefined") {
-            var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-            var domObj = $(templateMarkup);
-            var anchorElement = domObj.filter('a');
-            // extract ID
-            var templateID = anchorElement.attr('data-instancepath');
-            this.addVfbId(templateID);
-            setTimeout(function (){
-              window.resolve3D(path);
-            }, 5000);
-            return; // Don't load until the template has
-          }
-        }
-      }
-    } else {
-      // check if the user is adding to the scene something belonging to another template
-      var superTypes = rootInstance.getType().getSuperType();
-      var templateID = "unknown";
-      for (var i = 0; i < superTypes.length; i++) {
-        if (superTypes[i].getId() == window.templateID) {
-          templateID = superTypes[i].getId()
-        }
-        if (superTypes[i].getId() == 'Class') {
-          templateID = window.templateID;
-          return; // Exit if Class - Class doesn't have image types.
-        }
-      }
-
-      var meta = rootInstance[rootInstance.getId() + '_meta'];
-      if (meta != undefined) {
-        if (typeof meta.getType().template != "undefined") {
-          var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
-          var domObj = $(templateMarkup);
-          var anchorElement = domObj.filter('a');
-          // extract ID
-          var templateID = anchorElement.attr('data-instancepath');
-          if (window.EMBEDDED) {
-            var curHost = parent.document.location.host;
-            var curProto = parent.document.location.protocol;
-          } else {
-            var curHost = document.location.host;
-            var curProto = document.location.protocol;
-          }
-          if (templateID != window.templateID) {
-            // open new window with the new template and the instance ID
-            window.ga('vfb.send', 'event', 'request', 'newtemplate', templateID);
-            var targetWindow = '_blank';
-            var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, templateID).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
-            if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
-              window.ga('vfb.send', 'event', 'opening', 'newtemplate', templateID);
-              window.open(newUrl, targetWindow);
-              this.instancesFromDifferentTemplates(rootInstance);
-            } else {
-              window.ga('vfb.send', 'event', 'cancelled', 'newtemplate', templateID);
-              this.instancesFromDifferentTemplates(rootInstance);
-            }
-            // stop flow here, we don't want to add to scene something with a different template
-            return;
-          }
-        }
+    var superTypes = rootInstance.getType().getSuperType();
+    var isTemplate = false;
+    var isClass = false;
+    var alignedTo = [];
+    for (var i = 0; i < superTypes.length; i++) {
+      var superId = superTypes[i].getId();
+      if (superId == 'Template') {
+        isTemplate = true;
+      } else if (superId == 'Class') {
+        isClass = true;
+      } else if (VFB_TEMPLATES.indexOf(superId) > -1) {
+        // Every template the term has an image on is one of its super-types.
+        alignedTo.push(superId);
       }
     }
 
+    /*
+     * The scene's template may already be known before its own term has loaded
+     * (it is set from the URL, see componentDidMount), so apply the template's
+     * view settings when the template itself resolves, not only when it is the
+     * first thing to resolve.
+     */
+    if (isTemplate && (window.templateID == undefined || window.templateID == rootInstance.getId())) {
+      window.templateID = rootInstance.getId();
+      this.applyTemplateView(window.templateID);
+    }
+
+    if (window.templateID == undefined) {
+      // Assume the template associated with the first item loaded and ensure the template is added to the cue for loading.
+      var meta = rootInstance[rootInstance.getId() + '_meta'];
+      if (meta != undefined && typeof meta.getType().template != "undefined") {
+        var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+        var anchorElement = $(templateMarkup).filter('a');
+        var templateID = anchorElement.attr('data-instancepath');
+        /*
+         * Queue the template SILENTLY (not through addVfbId, which would make it
+         * the display target) and claim it as the scene's template now, so
+         * terms resolving meanwhile are checked against it rather than each
+         * picking their own.
+         */
+        window.templateID = templateID;
+        this.loadManager.request(templateID, { display: false });
+        /*
+         * Retry with the SAME callback. This used to call window.resolve3D,
+         * whose callback selects the instance unconditionally -- that selection
+         * went through the Select listener into handlerInstanceUpdate, so any
+         * term that resolved before the template stole Term Info / URL id=
+         * from the requested focus ~5s later.
+         */
+        var self = this;
+        setTimeout(function () {
+          self.resolve3D(path, callback);
+        }, 5000);
+        return; // Don't load until the template has
+      }
+    } else if (!(isTemplate && rootInstance.getId() == window.templateID)) {
+      if (isClass) {
+        return; // Exit if Class - Class doesn't have image types.
+      }
+      /*
+       * Check if the user is adding to the scene something belonging to another
+       * template. A term can be aligned to several templates: it is only
+       * "another template" if none of them is the scene's. Comparing against
+       * just the first template listed in its term info (as before) prompted
+       * for images that do have an alignment to the loaded template.
+       */
+      var otherTemplate = undefined;
+      if (alignedTo.length > 0 && alignedTo.indexOf(window.templateID) < 0) {
+        otherTemplate = alignedTo[0];
+      } else if (alignedTo.length == 0) {
+        // No template super-types (older model shapes): fall back to the term info's template link.
+        var meta = rootInstance[rootInstance.getId() + '_meta'];
+        if (meta != undefined && typeof meta.getType().template != "undefined") {
+          var templateMarkup = meta.getType().template.getValue().wrappedObj.value.html;
+          var linkedTemplates = $(templateMarkup).filter('a').map(function () {
+            return $(this).attr('data-instancepath');
+          }).get();
+          if (linkedTemplates.length > 0 && linkedTemplates.indexOf(window.templateID) < 0) {
+            otherTemplate = linkedTemplates[0];
+          }
+        }
+      }
+      if (otherTemplate !== undefined) {
+        if (window.EMBEDDED) {
+          var curHost = parent.document.location.host;
+          var curProto = parent.document.location.protocol;
+        } else {
+          var curHost = document.location.host;
+          var curProto = document.location.protocol;
+        }
+        // open new window with the new template and the instance ID
+        safeGa('vfb.send', 'event', 'request', 'newtemplate', otherTemplate);
+        var targetWindow = '_blank';
+        var newUrl = window.redirectURL.replace(/\$VFB_ID\$/gi, rootInstance.getId()).replace(/\$TEMPLATE\$/gi, otherTemplate).replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to just view the image metadata.")) {
+          safeGa('vfb.send', 'event', 'opening', 'newtemplate', otherTemplate);
+          window.open(newUrl, targetWindow);
+        } else {
+          safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', otherTemplate);
+        }
+        this.instancesFromDifferentTemplates(rootInstance);
+        // stop flow here, we don't want to add to scene something with a different template
+        return;
+      }
+    }
+
+    this.selectAndResolve3D(path, callback);
+  }
+
+  /*
+   * Fall back to the SWC skeleton for a term whose mesh could not be loaded.
+   * Quietly does nothing when the term has no skeleton, or already shows one.
+   */
+  showSkeletonFor (id) {
+    try {
+      var swc = Instances.getInstance(id + "." + id + "_swc");
+      if (swc === undefined || swc === null) {
+        return;
+      }
+      if (swc.getType().getMetaType() === GEPPETTO.Resources.IMPORT_TYPE) {
+        console.warn("VFB: no mesh for " + id + ", showing the skeleton instead");
+        swc.getType().resolve(function () {
+          if (typeof swc.show === "function") {
+            swc.show();
+          }
+        });
+      } else if (typeof swc.show === "function" && !GEPPETTO.SceneController.isVisible([swc])) {
+        swc.show();
+      }
+    } catch (ignore) {
+      // No skeleton for this term: nothing more we can offer.
+    }
+  }
+
+  selectAndResolve3D (path, callback) {
+    var ImportType = require('@geppettoengine/geppetto-core/model/ImportType');
     var instance = undefined;
     var flagRendering = true;
     // check if we have a full mesh
@@ -444,8 +800,25 @@ class VFBMain extends React.Component {
     }
   }
 
+  applyTemplateView (templateID) {
+    // Set wireframe by template:
+    switch (templateID) {
+    case "VFB_00101384":
+      this.canvasReference.setWireframe(false);
+      this.canvasReference.setCameraRotation(-1.812, 0, 3.121, 403.231);
+      // TOOD: Fix Orientaion
+      break;
+    default:
+      this.canvasReference.setWireframe(false);
+      break;
+    }
+  }
+
   instancesFromDifferentTemplates (instance) {
-    this.handlerInstanceUpdate(instance);
+    // Show its metadata only if it is the term asked for; a silent load stays silent.
+    if (this.lastRequestedFocusId === undefined || instance.getId() === this.lastRequestedFocusId) {
+      this.handlerInstanceUpdate(instance);
+    }
 
     var children = instance.getChildren();
     for ( let i = 0; i < children.length; i++) {
@@ -569,7 +942,6 @@ class VFBMain extends React.Component {
       this.refs.uploaderContentsRef?.openDialog();
       break;
     case 'triggerRunQuery':
-      GEPPETTO.trigger('spin_logo');
       var that = this;
       var otherId = click.parameters[0].split(',')[1];
       var otherName = click.parameters[0].split(',')[2];
@@ -593,10 +965,9 @@ class VFBMain extends React.Component {
         // show query component
         that.refs.querybuilderRef.open();
         $("body").css("cursor", "default");
-        GEPPETTO.trigger('stop_spin_logo');
       };
       // add query item + selection
-      if (window[otherId] == undefined) {
+      if (!this.isVariableLoaded(otherId)) {
         window.fetchVariableThenRun(otherId, function () {
           that.refs.querybuilderRef.addQueryItem({ term: otherName, id: otherId, queryObj: entity }, callback)
         });
@@ -917,7 +1288,6 @@ class VFBMain extends React.Component {
     if (component === "text") {
       return (<div className="">Panel {node.getName()}</div>);
     } else if (component === "canvas") {
-      this.UIElementsVisibility;
       node.setEventListener("close", () => {
         this.setState({
           UIUpdated: false,
@@ -1052,7 +1422,6 @@ class VFBMain extends React.Component {
         <VFBGraph instance={this.instanceOnFocus} ref={ref => this.graphReference = ref}visible={graphVisibility} />
       </div>);
     } else if (component === "vfbListViewer") {
-      let listViewerVisibility = node.isVisible();
       node.setEventListener("close", () => {
         this.setState({
           UIUpdated: false,
@@ -1099,10 +1468,25 @@ class VFBMain extends React.Component {
   }
   
   componentWillReceiveProps (nextProps) {
-    // When state in redux store changes, we update the 'instanceOnFocus' with the one in the redux store
-    if ( nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
+    /*
+     * When a setTermInfo action lands in the store, adopt its instance as the
+     * live focus. Two fixes here:
+     *  - it compared the Redux instance OBJECT to this.instanceOnFocus.getId()
+     *    (a string), which is never equal, so the "only if it changed" guard
+     *    never skipped anything;
+     *  - this hook runs on EVERY store change, and handlerInstanceUpdate never
+     *    writes the store, so the store copy is stale most of the time. Without
+     *    the action-type check any unrelated action (loader status, visibility,
+     *    ...) re-applied that stale instance over the live focus -- one more
+     *    "last writer wins" path in the term-info focus race.
+     */
+    if ( nextProps.generals.type === ACTIONS.VFB_LOAD_TERM_INFO
+      && nextProps.generals.instanceOnFocus !== undefined && this.instanceOnFocus !== undefined) {
       if ( Object.keys(nextProps.generals.instanceOnFocus).length > 0 ) {
-        if ( nextProps.generals.instanceOnFocus !== this.instanceOnFocus.getId() ){
+        var nextId = (typeof nextProps.generals.instanceOnFocus.getId === "function")
+          ? nextProps.generals.instanceOnFocus.getId()
+          : undefined;
+        if ( nextId !== undefined && nextId !== this.instanceOnFocus.getId() ){
           this.instanceOnFocus = nextProps.generals.instanceOnFocus;
         }
       }
@@ -1180,12 +1564,12 @@ class VFBMain extends React.Component {
 
   componentWillMount () {
     if ((window.Model == undefined) && (this.state.modelLoaded == false)) {
-      if (location.host.indexOf('localhost:8081') < 0){
-        Project.loadFromURL(window.location.origin.replace('https:','http:') + '/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto/build/vfb.json');
-      } else {
-        // Local deployment for development.
-        Project.loadFromURL(window.location.origin.replace(":8081", ":8989").replace('https:','http:') + '/' + 'vfb.json');
-      }
+      /*
+       * VFB only ever loads its own model, so it is built into the bundle
+       * (model/vfb.json and the vfb.xmi it names) rather than fetched: one
+       * less request to fail before anything can show.
+       */
+      Project.loadFromContent(require('../model/vfb.json'), require('!!raw-loader!../model/vfb.xmi'));
       this.setState({ modelLoaded: true });
     }
 
@@ -1262,6 +1646,16 @@ class VFBMain extends React.Component {
       + '{"@type": "ScholarlyArticle","citation":"http://dx.doi.org/10.1098/rstb.2017.0380","sameAs":"http://dx.doi.org/10.1098/rstb.2017.0380","headline":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","name":"Geppetto: a reusable modular open platform for exploring neuroscience data and models","author":"Cantarelli, Matteo and Marin, Boris and Quintana, Adrian and Earnshaw, Matt and Court, Robert and Gleeson, Padraig and Dura-Bernal, Salvador and Silver, R. Angus and Idili, Giovanni","publisher": "Philosophical Transactions of the Royal Society B: Biological Sciences","datePublished": "2018"}'
       + ']}';
     document.getElementsByTagName('head')[0].appendChild(script);
+
+    /*
+     * The values above describe the site as a whole. When the URL names a term
+     * (id=<id>), replace them with that term's own title, description, canonical
+     * and summary, fetched straight from VFBquery so it is there before (or
+     * without) the viewer loading the term. Also called whenever the focus
+     * term changes.
+     */
+    window.vfbUpdatePageMetadata = updateTermPageMetadata;
+    initTermPageMetadata(this.props.location.search);
   }
 
   componentWillUnmount () {
@@ -1270,18 +1664,69 @@ class VFBMain extends React.Component {
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
+    // "?" help buttons on the query builder / results, which geppetto-client renders.
+    watchInjectedHelpButtons();
 
     let self = this;
-    GEPPETTO.G.setIdleTimeOut(-1);
 
     // Global functions linked to VFBMain functions
     window.stackViewerRequest = function (idFromStack) {
       this.stackViewerRequest(idFromStack);
     }.bind(this);
 
+    // Terms still loading, so a URL rebuilt mid-load keeps them in i=.
+    window.vfbPendingIds = function () {
+      return this.loadManager ? this.loadManager.pendingIds() : [];
+    }.bind(this);
+
     window.addVfbId = function (idFromOutside) {
       this.addVfbId(idFromOutside);
     }.bind(this);
+
+    /*
+     * Load a query-result image reference. Aligned images are referenced as
+     * "<template>,<image>" (or "[<template>,<image>]"), and the same image id is
+     * used for every template it is aligned to -- the prefix is the only thing
+     * that says which alignment was clicked. This used to go straight to
+     * addVfbId, which loaded BOTH ids: picking, say, a VNC alignment while the
+     * brain template was open pulled a second template and the other
+     * alignment's geometry into the scene. Offer the other template in a new
+     * tab instead, exactly as the term info panel does for the same reference.
+     */
+    window.vfbLoadImageRef = function (reference) {
+      var parts = String(reference).replace(/[[\]]/g, '').split(',');
+      var imageId = parts[parts.length - 1].trim();
+      var templateId = parts.length > 1 ? parts[0].trim() : undefined;
+      if (templateId !== undefined && VFB_TEMPLATES.indexOf(templateId) > -1 && templateId !== window.templateID) {
+        safeGa('vfb.send', 'event', 'request', 'newtemplate', templateId);
+        if (confirm("The image you requested is aligned to another template. \nClick OK to open in a new tab or Cancel to stay here.")) {
+          var curHost = window.EMBEDDED ? parent.document.location.host : document.location.host;
+          var curProto = window.EMBEDDED ? parent.document.location.protocol : document.location.protocol;
+          safeGa('vfb.send', 'event', 'opening', 'newtemplate', templateId);
+          window.open(window.redirectURL.replace(/\$VFB_ID\$/gi, imageId).replace(/\$TEMPLATE\$/gi, templateId)
+            .replace(/\$HOST\$/gi, curHost).replace(/\$PROTOCOL\$/gi, curProto), '_blank');
+        } else {
+          safeGa('vfb.send', 'event', 'cancelled', 'newtemplate', templateId);
+        }
+        return;
+      }
+      this.addVfbId(imageId);
+    }.bind(this);
+
+    // Delete what vfbLoadImageRef loaded: the image, never the template prefix.
+    window.vfbDeleteImageRef = function (reference) {
+      var parts = String(reference).replace(/[[\]]/g, '').split(',');
+      var imageId = parts[parts.length - 1].trim();
+      var instance;
+      try {
+        instance = Instances.getInstance(imageId);
+      } catch (e) {
+        instance = undefined;
+      }
+      if (instance !== undefined && typeof instance.delete === "function") {
+        instance.delete();
+      }
+    };
 
     window.setTermInfo = function (meta, id) {
       this.handlerInstanceUpdate(meta);
@@ -1300,9 +1745,18 @@ class VFBMain extends React.Component {
       if (window._vfbQueryTypesCache[id] !== undefined) {
         return Promise.resolve(window._vfbQueryTypesCache[id]);
       }
-      return fetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
-        .then(function (r) {
-          return r.ok ? r.json() : null;
+      /*
+       * Retried like the other v3-cached calls: a single blip here left the
+       * term with no query list at all, which reads as "this term has no
+       * queries" rather than as a failure.
+       */
+      var retryFetch = require('@geppettoengine/geppetto-client/common/RetryFetch').fetchWithRetry;
+      return retryFetch("https://v3-cached.virtualflybrain.org/get_term_info?id=" + encodeURIComponent(id) + "&preview=false")
+        .then(function (result) {
+          return result.response.ok ? result.response.json() : null;
+        })
+        .catch(function () {
+          return null;
         })
         .then(function (d) {
           var set = null;
@@ -1310,7 +1764,18 @@ class VFBMain extends React.Component {
             set = {};
             d.Queries.forEach(function (q) {
               if (q && q.query) {
-                set[q.query] = true;
+                /*
+                 * Cache each query's real target id (takes.default.short_form --
+                 * the parent CLASS for painted domains, else the term itself) and
+                 * its preview count (-1 = unknown). The count is refreshed from
+                 * the actual results after a run (window.vfbUpdateQueryCount), so
+                 * a subsequent open reuses it instead of running another count.
+                 * Stored as an object; still truthy for the geppetto-client
+                 * query-sourcing membership test.
+                 */
+                var target = (q.takes && q.takes.default && q.takes.default.short_form) ? q.takes.default.short_form : id;
+                var count = (typeof q.count === "number") ? q.count : -1;
+                set[q.query] = { target: target, count: count };
               }
             });
           }
@@ -1321,6 +1786,127 @@ class VFBMain extends React.Component {
           window._vfbQueryTypesCache[id] = null;
           return null;
         });
+    };
+
+    /*
+     * Warm the term's get_term_info.Queries set (memoised) and then run cb,
+     * whatever the outcome. Queries can be invoked before the term/model has
+     * loaded (e.g. a ?q= deep link), so this must never block or throw: if the
+     * set can't be fetched the builder just falls back to type-matched queries.
+     * Guarantees cb runs exactly once.
+     */
+    window.withVFBQueryTypes = function (id, cb) {
+      var ran = false;
+      var run = function () {
+        if (!ran) {
+          ran = true;
+          cb();
+        }
+      };
+      try {
+        var p = (id && window.getVFBQueryTypes) ? window.getVFBQueryTypes(id) : null;
+        if (p && typeof p.then === "function") {
+          p.then(run, run);
+          return;
+        }
+      } catch (e) { /* fall through to run */ }
+      run();
+    };
+
+    /*
+     * Resolve the real id a query should run against. Painted-domain (and some
+     * individual) "Query For" entries are parameterised against a parent CLASS,
+     * not the focus term -- get_term_info gives the true target in each query's
+     * takes.default.short_form, cached as the value in _vfbQueryTypesCache.
+     * Running against the focus individual returns 0 rows; the class has the
+     * data. Falls back to the focus id when the target is unknown.
+     */
+    window.vfbQueryTargetId = function (focusId, queryType) {
+      var s = (window._vfbQueryTypesCache) ? window._vfbQueryTypesCache[focusId] : null;
+      var e = (s && queryType) ? s[queryType] : null;
+      var t = (e && typeof e === "object") ? e.target : e;
+      return (typeof t === "string" && t) ? t : focusId;
+    };
+
+    /*
+     * Preview count for a term's query (get_term_info.Queries[].count), cached
+     * per query. -1 = unknown. Lets the auto-run path skip the count step when
+     * the preview already knows the number.
+     */
+    window.vfbQueryPreviewCount = function (focusId, queryType) {
+      var s = (window._vfbQueryTypesCache) ? window._vfbQueryTypesCache[focusId] : null;
+      var e = (s && queryType) ? s[queryType] : null;
+      return (e && typeof e === "object" && typeof e.count === "number") ? e.count : -1;
+    };
+
+    /*
+     * Write a query's real result count back into the cached term-info metadata
+     * after a run. Keyed by the query's target id, so every cached term whose
+     * "Query For" entry runs against that target (the class itself and any
+     * painted-domain individual of it) picks up the fresh count.
+     */
+    window.vfbUpdateQueryCount = function (targetId, queryType, count) {
+      try {
+        var cache = window._vfbQueryTypesCache;
+        if (!cache || typeof count !== "number" || !queryType) {
+          return;
+        }
+        Object.keys(cache).forEach(function (fid) {
+          var s = cache[fid];
+          var e = s ? s[queryType] : null;
+          if (e && typeof e === "object" && (e.target === targetId || fid === targetId)) {
+            e.count = count;
+          }
+        });
+      } catch (err) { /* best-effort metadata refresh */ }
+    };
+
+    /*
+     * Warm the focus term's query set, resolve the real target id for queryType,
+     * load + warm that target, then invoke done(targetId). Never blocks/throws,
+     * so a query fired before anything has loaded still proceeds (against the
+     * focus id as a fallback).
+     */
+    window.vfbResolveAndPrepQuery = function (model, focusId, queryType, done) {
+      /*
+       * Signal "running" immediately so the footer reads "Counting..." for the
+       * whole resolve/fetch/count phase instead of a misleading "0 results".
+       * getCount keeps it true; setCount clears it when the count returns, and
+       * the completion callback clears it on any terminal (no-query) path.
+       */
+      try {
+        if (model) {
+          model.counting = true;
+          model.notifyChange();
+        }
+      } catch (e) { /* non-fatal */ }
+      window.withVFBQueryTypes(focusId, function () {
+        var targetId = window.vfbQueryTargetId(focusId, queryType);
+        var previewCount = window.vfbQueryPreviewCount(focusId, queryType);
+        var proceed = function () {
+          window.withVFBQueryTypes(targetId, function () {
+            done(targetId, previewCount);
+          });
+        };
+        /*
+         * Fetch the target unless it is already a loaded top-level variable.
+         * NB: `window[id]` is unreliable -- a DOM element with that id (e.g. the
+         * class node in the ROI tree) makes it truthy even though the geppetto
+         * variable isn't loaded, which would make addQueryItem throw. Check the
+         * model factory instead.
+         */
+        var targetLoaded = false;
+        try {
+          targetLoaded = !!(GEPPETTO.ModelFactory.getTopLevelVariablesById([targetId])[0]);
+        } catch (e) {
+          targetLoaded = false;
+        }
+        if (!targetLoaded) {
+          window.fetchVariableThenRun(targetId, proceed);
+        } else {
+          proceed();
+        }
+      });
     };
 
     window.fetchVariableThenRun = function (idsList, cb, label) {
@@ -1378,7 +1964,7 @@ class VFBMain extends React.Component {
               setTimeout(function () {
                 if (window[querySplit[0].trim()] == undefined) {
                   if (confirm("The image you uploaded is still being analysed; this can take over an hour. \nClick OK to check again or Cancel to just open VFB.")) {
-                    window.ga('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
+                    safeGa('vfb.send', 'event', 'opening', 'uploadQuery', querySplit[0].trim());
                     window.open(url, "_self");
                   }
                 }
@@ -1412,6 +1998,24 @@ class VFBMain extends React.Component {
       this.idsFromURL.push(this.idFromURL);
       this.idsFromURL = [... new Set(this.idsFromURL)];
       this.idsFinalList = this.idsFromURL;
+      /*
+       * Claim the scene's template now -- the first template id the URL lists --
+       * rather than when its term happens to resolve. Terms load several at a
+       * time, so an image often resolves before its template; without this it
+       * was checked against no template (or built its geometry for whichever
+       * template its term info listed first) and could be wrongly flagged as
+       * "aligned to another template".
+       */
+      if (window.templateID === undefined) {
+        var urlTemplate = this.idsFromURL.find(function (id) {
+          return VFB_TEMPLATES.indexOf(id) > -1;
+        });
+        if (urlTemplate !== undefined) {
+          window.templateID = urlTemplate;
+        }
+      }
+      // The id= term is the intended focus on a URL load; others load silently.
+      this.lastRequestedFocusId = this.idFromURL;
       console.log("Loading IDS to add to the scene from url");
     } else {
       this.urlIdsLoaded = true;
@@ -1437,46 +2041,85 @@ class VFBMain extends React.Component {
     });
 
     GEPPETTO.on(GEPPETTO.Events.Model_loaded, function () {
+      /*
+       * Startup responsiveness, measured from the navigation itself so it is
+       * what the user waited for: the model arriving, and (in
+       * handlerInstanceUpdate) the first term actually on screen.
+       */
+      try {
+        if (typeof window.vfbGaDetail === "function") {
+          window.vfbGaDetail('startup-model', window.vfbSecondsBucket(Math.round(performance.now())));
+        }
+      } catch (eStartup) {
+        /* reporting must never delay loading */
+      }
       that.addVfbId(that.idsFinalList);
 
       var callback = function () {
-        if ( that.urlQueryLoader.length == 0 && that.refs.querybuilderRef.props.model.count > 0 ) {
-          // runQuery if any results
+        // Response is in: cancel the pending slow-query notice.
+        if (that._vfbQueryNoticeTimer) {
+          clearTimeout(that._vfbQueryNoticeTimer);
+          that._vfbQueryNoticeTimer = null;
+        }
+        /*
+         * Query settled: clear the "Counting..." flag (covers no-query paths
+         * where setCount never runs).
+         */
+        if (that.refs.querybuilderRef.props.model) {
+          that.refs.querybuilderRef.props.model.counting = false;
+        }
+        var qbModel = that.refs.querybuilderRef.props.model;
+        /*
+         * Deep-link (?q=) path keeps the counted flow: a compound query needs
+         * the count to combine its parts and to show the count in the builder
+         * (the skipCount/run-once optimisation is used on the interactive click
+         * paths, not here). Still resolves the query's real target via
+         * vfbResolveAndPrepQuery.
+         */
+        if (that.urlQueryLoader.length == 0 && qbModel.count > 0) {
+          // Single / last query with results -- run it.
           that.refs.querybuilderRef.runQuery();
-        } else if (that.urlQueryLoader.length > 0 && that.refs.querybuilderRef.props.model.count > 0) {
-          // Remove query from stack, and perform the next query
+        } else if (that.urlQueryLoader.length > 0 && qbModel.count > 0) {
+          // Compound: drop the current query and combine the next (counted).
           that.urlQueryLoader.shift();
           const query = that.urlQueryLoader[0];
-          // Fetch variable and addQuery, if no more queries left then run query.
           query
-            ? window[query.id] === undefined 
-              ? window.fetchVariableThenRun(query.id, function () {
-                that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
-              })
-              : that.refs.querybuilderRef.addQueryItem({ term: "", id: query.id, queryObj: Model[query.selection] }, callback)
-            : that.refs.querybuilderRef.props.model.count > 0
+            ? window.vfbResolveAndPrepQuery(qbModel, query.id, query.selection, function (targetId) {
+              that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[query.selection] }, callback);
+            })
+            : qbModel.count > 0
               ? that.refs.querybuilderRef.runQuery()
-              : null
+              : null;
         } else {
+          /*
+           * No results (count 0) -- say so instead of leaving a bare "0 results"
+           * that reads like an in-flight query.
+           */
+          that.refs.querybuilderRef.setErrorMessage("No results for this query.", "info");
           that.refs.querybuilderRef.switchView(false);
         }
         // show query component
         that.refs.querybuilderRef.open();
         $("body").css("cursor", "default");
-        GEPPETTO.trigger('stop_spin_logo');
       };
 
       // Initial queries specified on URL
-      if (that.urlQueryLoader !== undefined) {
-        if (window[that.urlQueryLoader[0]] == undefined) {
-          that.urlQueryLoader[0]?.id && window.fetchVariableThenRun(that.urlQueryLoader[0]?.id, function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback)
-          });
-        } else {
-          setTimeout(function () {
-            that.refs.querybuilderRef.addQueryItem({ term: "", id: that.urlQueryLoader[0]?.id, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
-          }, 100);
+      if (that.urlQueryLoader !== undefined && that.urlQueryLoader[0]?.id) {
+        /*
+         * Arm a React-owned slow-query reassurance. The fly logo is driven
+         * solely by generals.loading (VFBLoadManager) via VFBLoader; query paths
+         * no longer trigger it directly. The footer covers query progress.
+         */
+        that.refs.querybuilderRef?.clearErrorMessage?.();
+        if (that._vfbQueryNoticeTimer) {
+          clearTimeout(that._vfbQueryNoticeTimer);
         }
+        that._vfbQueryNoticeTimer = setTimeout(function () {
+          that.refs.querybuilderRef?.setErrorMessage?.("Fetching results — this can take a moment for complex queries.", "info");
+        }, 10000);
+        window.vfbResolveAndPrepQuery(that.refs.querybuilderRef.props.model, that.urlQueryLoader[0].id, that.urlQueryLoader[0].selection, function (targetId) {
+          that.refs.querybuilderRef.addQueryItem({ term: "", id: targetId, queryObj: Model[that.urlQueryLoader[0]?.selection] }, callback);
+        });
       }
     });
 
@@ -1505,8 +2148,16 @@ class VFBMain extends React.Component {
       }
     }
 
-    // google analytics vfb specific tracker
-    ga('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
+    /*
+     * google analytics vfb specific tracker
+     * Bare (not window.) call, and the very first GA touchpoint in this
+     * component -- if the GA loader script hasn't executed yet (or never
+     * will), this used to throw a ReferenceError straight out of
+     * componentDidMount, aborting everything after it: the console.log /
+     * console.error overrides below, and the load listeners further down
+     * this same method.
+     */
+    safeGa('create', 'G-K7DDZVVXM7', 'auto', 'vfb');
     window.console.stdlog = console.log.bind(console);
     window.console.stderr = console.error.bind(console);
     window.console.logs = [];
@@ -1519,11 +2170,30 @@ class VFBMain extends React.Component {
     }
     console.error = function () {
       if (Array.from(arguments).join("\n").indexOf('www.pixijs.com') < 0 && Array.from(arguments).join("\n").indexOf("Warning: Failed prop type: There should be an equal number of 'Tab' and 'TabPanel' in `UncontrolledTabs`. Received 2 'Tab' and 0 'TabPanel'.") < 0 ) {
-        window.ga('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
+        safeGa('vfb.send', 'event', 'errorlog', Array.from(arguments).join("\n"));
         window.console.logs.push('- ' + Array.from(arguments).join('\n'));
         window.console.stderr.apply(console, arguments);
       }
     }
+
+    /*
+     * Everything starts from the model (geppetto/build/vfb.json and the
+     * vfb.xmi it names), which the client reads itself. If it cannot be
+     * loaded the page is unusable, so say so and report it at the highest
+     * severity GA offers; reloading in a loop would not help.
+     */
+    GEPPETTO.on('geppetto:project_load_failed', function (info) {
+      var details = 'reason:' + info.reason + ' | url:' + info.url + ' | page:' + gaPage();
+      // Routed to GA as an errorlog event by the console.error override above
+      console.error('VFB could not load its model: ' + details);
+      if (typeof gtag === 'function') {
+        gtag('event', 'exception', { description: 'model-load-failed | ' + details, fatal: true });
+      }
+      gaDetail('boot-fail', info.reason);
+      GEPPETTO.ModalFactory.infoDialog('Unable to start Virtual Fly Brain',
+        'Virtual Fly Brain could not set up its model. Please try reloading the page.'
+        + '<br/><br/>This failure has been reported automatically to help us investigate.');
+    });
 
     // Selection listener
     GEPPETTO.on(GEPPETTO.Events.Select, function (instance) {
@@ -1547,7 +2217,7 @@ class VFBMain extends React.Component {
           }
         }
       }
-      if (window.StackViewer1 != undefined) {
+      if (this.sliceViewerReference !== undefined && this.sliceViewerReference !== null) {
         this.sliceViewerReference.updateStackWidget();
       }
 
@@ -1558,28 +2228,246 @@ class VFBMain extends React.Component {
       self.props.instanceVisibilityChanged(instance);
     }.bind(this));
 
-    GEPPETTO.on(GEPPETTO.Events.Websocket_disconnected, function () {
-      window.ga('vfb.send', 'event', 'disconnected', 'websocket-disconnect', (window.location.pathname + window.location.search));
-      if (GEPPETTO.MessageSocket.protocol == 'wss://' && location.protocol !== 'https:') {
-        console.log("%c Unsecure connection used reloading with HTTPS connection... ", 'background: #444; color: #bada55');
-        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+    /*
+     * Analytics for what the client loads: counts, timings and, on a
+     * failure, what went wrong and where.
+     */
+    var gaPage = function () {
+      return window.location.pathname + window.location.search;
+    };
+    /*
+     * GA4 only reports event parameters that have been registered as custom
+     * dimensions, and none are, so everything passed as the label (reason,
+     * close code, attempt count) is invisible in the Data API and the
+     * reports. Put the facts that decide what a failure WAS into the event
+     * name itself, as a second event alongside the baseline one so the
+     * existing counts stay comparable. GA4 caps event names at 40 characters.
+     */
+    var gaDetail = function () {
+      var name = Array.prototype.slice.call(arguments).map(function (part) {
+        return String(part === undefined || part === null || part === '' ? 'na' : part)
+          .toLowerCase().replace(/[^a-z0-9._-]+/g, '_');
+      }).join(':').substring(0, 40);
+      safeGa('vfb.send', 'event', name, 'vfb-detail', gaPage());
+    };
+    /*
+     * Shared so the rest of the app (and code outside this component) reports
+     * in the same shape: name:parts joined with ':', page as the label.
+     */
+    window.vfbGaDetail = gaDetail;
+    /*
+     * The extra diagnostics RetryFetch/Direct* attach to a failure (tab
+     * visibility, online status, whether a Page Lifecycle freeze happened
+     * mid-call, connection type) don't fit alongside kind/reason/call/attempts
+     * in the 40-character geomfail/tifail/queryfail name, so they go out as a
+     * second, short event next to it. Same event across a session's failures
+     * is enough to see whether fails cluster on hidden tabs, offline blips,
+     * a freeze, or a slow connection -- it does not need to join back to the
+     * specific geomfail row to answer that.
+     */
+    var diagBits = function (info) {
+      return [
+        info.visibility === undefined ? 'na' : (info.visibility === 'visible' ? 'v1' : 'v0'),
+        info.online === undefined ? 'na' : (info.online ? 'o1' : 'o0'),
+        'f' + (info.frozeDuringCall ? '1' : '0')
+      ];
+    };
+    /*
+     * How far an OBJ body got before it died, against what the server said
+     * it would be: 0/25/50/75/100 buckets, 'pna' when either figure is
+     * missing (not every failure is a mid-stream body read).
+     */
+    var progressBucket = function (info) {
+      if (typeof info.bytesReceived !== 'number' || typeof info.contentLength !== 'number' || !info.contentLength) {
+        return 'pna';
       }
-      if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-        if (GEPPETTO.MessageSocket.attempts < 2) {
-          window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
-          GEPPETTO.MessageSocket.reconnect();
-        } else {
-          window.ga('vfb.send', 'event', 'reconnect-failed-reloading', 'websocket-disconnect', (window.location.pathname + window.location.search));
-          console.log("%c Websocket reconnection failed reloading content... ", 'background: #444; color: #bada55');
-          window.location.reload();
-        }
-      } else {
-        setTimeout(() => {
-          if (GEPPETTO.MessageSocket.socketStatus == GEPPETTO.Resources.SocketStatus.CLOSE) {
-            window.ga('vfb.send', 'event', 'reconnect-attempt:' + GEPPETTO.MessageSocket.attempts, 'websocket-disconnect', (window.location.pathname + window.location.search));
-            GEPPETTO.MessageSocket.reconnect();
+      var pct = Math.min(100, Math.round((info.bytesReceived / info.contentLength) * 100));
+      var bucket = pct >= 100 ? 100 : (pct >= 75 ? 75 : (pct >= 50 ? 50 : (pct >= 25 ? 25 : 0)));
+      return 'p' + bucket;
+    };
+    /*
+     * Seconds, coarse enough to be readable as an event name but fine enough
+     * to show a regression: tenths under 10s, whole seconds to a minute, then
+     * 10s buckets.
+     */
+    var secondsBucket = function (ms) {
+      var s = (ms || 0) / 1000;
+      if (s < 10) {
+        return (Math.round(s * 10) / 10) + 's';
+      }
+      if (s < 60) {
+        return Math.round(s) + 's';
+      }
+      return (Math.floor(s / 10) * 10) + 's';
+    };
+    window.vfbSecondsBucket = secondsBucket;
+    var sizeBucket = function (n) {
+      var v = n || 0;
+      if (v === 0) {
+        return '0';
+      }
+      if (v < 10) {
+        return '1-9';
+      }
+      if (v < 100) {
+        return '10-99';
+      }
+      if (v < 1000) {
+        return '100-999';
+      }
+      if (v < 10000) {
+        return '1k-10k';
+      }
+      return '10k+';
+    };
+    /*
+     * Time every query the user runs, whichever path serves it (client-direct
+     * or the server), with how long it took and how much came back. The
+     * direct-query counts say which path ran; this says what the user waited
+     * for and whether anything arrived.
+     */
+    try {
+      var qc = GEPPETTO.QueriesController;
+      if (qc !== undefined && typeof qc.runQuery === "function" && !qc.vfbTimed) {
+        var innerRunQuery = qc.runQuery.bind(qc);
+        qc.runQuery = function (queryDTOs, callback, offset, limit) {
+          var startedAt = Date.now();
+          var queryName = 'na';
+          try {
+            queryName = (queryDTOs && queryDTOs[0] && queryDTOs[0].query && queryDTOs[0].query.getId)
+              ? queryDTOs[0].query.getId() : 'na';
+          } catch (eName) { /* name is best effort */ }
+          var compound = (queryDTOs && queryDTOs.length > 1) ? 'compound' : 'single';
+          var reported = false;
+          var timedCallback = function (results) {
+            if (!reported) {
+              reported = true;
+              var rows = 0;
+              try {
+                var parsed = (typeof results === "string") ? JSON.parse(results) : results;
+                rows = (parsed && parsed.results) ? parsed.results.length : 0;
+              } catch (eRows) { /* count is best effort */ }
+              gaDetail('query-run', compound, queryName, secondsBucket(Date.now() - startedAt));
+              gaDetail('query-rows', compound, queryName, sizeBucket(rows));
+            }
+            return callback.apply(this, arguments);
+          };
+          /*
+           * A query that never calls back (the server erroring mid-run, a
+           * dropped request) is exactly what needs reporting, so time it out.
+           */
+          setTimeout(function () {
+            if (!reported) {
+              reported = true;
+              gaDetail('query-noresult', compound, queryName, secondsBucket(Date.now() - startedAt));
+            }
+          }, 120000);
+          return innerRunQuery(queryDTOs, timedCallback, offset, limit);
+        };
+        qc.vfbTimed = true;
+      }
+    } catch (eQueryTiming) {
+      console.error('Could not instrument query timing', eQueryTiming);
+    }
+    /*
+     * OBJ and SWC meshes are fetched by the client and merged locally
+     * (VFB2 #502 phase 1). Counted in GA per resolution, ok or fail.
+     */
+    if (GEPPETTO.DirectGeometry !== undefined) {
+      GEPPETTO.on('geppetto:direct_geometry', function (info) {
+        gaDetail('direct-geom', info.kind, info.ok ? 'ok' : 'fail', Math.round((info.ms || 0) / 100) / 10 + 's');
+        /*
+         * The counts above say how often a load failed; this says what
+         * went wrong and on which call, which the duration alone could not.
+         * Separate event so the counts stay comparable, and short enough to
+         * survive GA4's 40-character event names.
+         */
+        /*
+         * aN is every request the load made; rN, when present, is how many of
+         * them picked a dropped download up from where it stopped (client
+         * VFBv2.4.5.8). Absent when none did, so the names stay as they were.
+         */
+        var resumed = (info.resumes > 0) ? 'r' + info.resumes : null;
+        if (!info.ok) {
+          if (resumed !== null) {
+            gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1), resumed);
+          } else {
+            gaDetail('geomfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
           }
-        }, 3000);
+          var geomBits = diagBits(info);
+          gaDetail('geomdiag', info.kind, geomBits[0], geomBits[1], geomBits[2],
+            progressBucket(info), info.effectiveType || 'na');
+        } else if (info.attempts > 1) {
+          /*
+           * A load that needed a retry -- a host that dropped the stream, or
+           * answered with an error -- and came good from another. Invisible
+           * to the user, so this is the only place it shows.
+           */
+          if (resumed !== null) {
+            gaDetail('georecover', info.kind, info.call, 'a' + info.attempts, resumed);
+          } else {
+            gaDetail('georecover', info.kind, info.call, 'a' + info.attempts);
+          }
+        }
+        /*
+         * A mesh the browser cannot load leaves the term with no geometry at
+         * all: it vanishes from the scene and from i=, with nothing said. Show
+         * the SWC skeleton instead.
+         */
+        if (!info.ok && info.reason !== 'unload' && info.kind === 'obj' && info.path !== undefined) {
+          // the path is Model.OBJLibrary.<id>_obj
+          self.showSkeletonFor(String(info.path).split('.').pop().replace(/_obj$/, ''));
+        }
+      });
+    }
+    /*
+     * A term's info is fetched from v3-cached by the client and its model
+     * built locally (VFB2 #502 phase 2). Same kind of GA count as the meshes.
+     */
+    if (GEPPETTO.DirectTermInfo !== undefined) {
+      GEPPETTO.on('geppetto:direct_terminfo', function (info) {
+        gaDetail('direct-terminfo', info.ok ? 'ok' : 'fail', Math.round((info.ms || 0) / 100) / 10 + 's');
+        if (!info.ok) {
+          gaDetail('tifail', info.reason, info.call, 'a' + (info.attempts || 1));
+          var tiBits = diagBits(info);
+          gaDetail('tidiag', tiBits[0], tiBits[1], tiBits[2], info.effectiveType || 'na');
+        }
+      });
+    }
+    /*
+     * Queries run against v3-cached from the client and the table is built
+     * locally (VFB2 #502 phase 3); counted as direct-query:<run|count>.
+     */
+    if (GEPPETTO.DirectQueries !== undefined) {
+      GEPPETTO.on('geppetto:direct_query', function (info) {
+        gaDetail('direct-query', info.kind, info.ok ? 'ok' : 'fail', Math.round((info.ms || 0) / 100) / 10 + 's');
+        if (!info.ok) {
+          gaDetail('queryfail', info.kind, info.reason, info.call, 'a' + (info.attempts || 1));
+          var qBits = diagBits(info);
+          gaDetail('qdiag', info.kind, qBits[0], qBits[1], qBits[2], info.effectiveType || 'na');
+        }
+      });
+    }
+    /*
+     * Something asked for could not be loaded, after the fetch's own retries.
+     * The loader drains it, but the user must hear about it rather than wait
+     * for a term or query that will never arrive. One notice per burst, on
+     * the logo float so it does not cover the page; nothing when the page is
+     * being left anyway.
+     */
+    var requestFailedNoticeAt = 0;
+    GEPPETTO.on('geppetto:request_failed', function (info) {
+      var failure = info || {};
+      if (failure.reason === 'unload') {
+        return;
+      }
+      gaDetail('reqfail', failure.command, failure.reason);
+      if (Date.now() - requestFailedNoticeAt > 30000) {
+        requestFailedNoticeAt = Date.now();
+        showConnectionNotice('Something you asked for could not be loaded. Click it again to retry.', {
+          level: 'warn',
+          autoHideMs: 15000
+        });
       }
     });
   }
@@ -1630,6 +2518,21 @@ class VFBMain extends React.Component {
       }
     }
 
+    /*
+     * The moment the user first has a term in front of them: the end of the
+     * startup path that startup-model begins.
+     */
+    if (!this.firstTermReported) {
+      this.firstTermReported = true;
+      try {
+        if (typeof window.vfbGaDetail === "function") {
+          window.vfbGaDetail('startup-first-term', window.vfbSecondsBucket(Math.round(performance.now())));
+        }
+      } catch (eFirstTerm) {
+        /* reporting must never affect the panel */
+      }
+    }
+
     // Update the term info component
     if (this.termInfoReference !== undefined && this.termInfoReference !== null) {
       this.termInfoReference.setTermInfo(this.instanceOnFocus, this.idOnFocus);
@@ -1672,6 +2575,16 @@ class VFBMain extends React.Component {
     var key = 0;
     var onRenderTabSet = function (node, renderValues) {
       if (node.getType() === "tabset") {
+        /*
+         * "?" for the selected tab, resolved from its layout component name
+         * (helpLinks.js). Same control on every window, so help is always in
+         * the same place: the tab header, left of the minimise button.
+         */
+        var selected = node.getSelectedNode();
+        if (selected && typeof selected.getComponent === "function") {
+          renderValues.buttons.push(<HelpLink key={"help" + key} className="vfb-help-tab"
+            helpKey={selected.getComponent()} label={selected.getName()} />);
+        }
         renderValues.buttons.push(<div key={key} className="fa fa-window-minimize customIconFlexLayout" onClick={() => {
           this.model.doAction(FlexLayout.Actions.moveNode(node.getSelectedNode().getId(), "border_bottom", FlexLayout.DockLocation.CENTER, 0));
         }} />);
@@ -1763,6 +2676,8 @@ class VFBMain extends React.Component {
         <Logo
           logo='gpt-fly'
           id="geppettologo" />
+
+        <VFBOrientationGizmo getCanvas={() => this.canvasReference} />
 
         <FlexLayout.Layout
           ref="layout"

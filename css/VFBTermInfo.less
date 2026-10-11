@@ -1320,3 +1320,55 @@ details[open] > summary > i.fa-chevron-circle-right {
     opacity: 0.8;
   }
 }
+
+// Summary shown in Term Info until the full term information arrives.
+.vfb-term-summary {
+  padding: 8px 12px 24px;
+  color: #ffffff;
+  font-family: arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  h2 {
+    font-size: 14px;
+    margin: 12px 0 4px;
+    color: @primary_color;
+  }
+  article > h2:first-child {
+    font-size: 18px;
+    margin: 0 0 8px;
+    color: #ffffff;
+  }
+  img {
+    max-width: 100%;
+    max-height: 200px;
+    margin: 6px 0;
+  }
+  ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  a {
+    color: @primary_color;
+  }
+}
+
+/*
+ * Query panel rows (Query for / Graphs for / Circuit Browser): flex row with
+ * the shared .vfb-help "?" (VFBMain.less) pushed to the right.
+ */
+.terminfo-query {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  clear: both;
+}
+
+.terminfo-query > a:not(.vfb-help) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.terminfo-query > .vfb-help {
+  flex: 0 0 auto;
+  margin-left: 6px;
+}

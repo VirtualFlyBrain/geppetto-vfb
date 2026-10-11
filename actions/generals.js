@@ -12,6 +12,7 @@ export const INSTANCE_DELETED = 'INSTANCE_DELETED';
 export const INSTANCE_VISIBILITY_CHANGED = 'INSTANCE_VISIBILITY_CHANGED';
 export const SHOW_LIST_VIEWER = 'SHOW_LIST_VIEWER';
 export const INVALID_ID = 'INVALID_ID';
+export const LOAD_STATUS = 'LOAD_STATUS';
 
 export const vfbError = errorMessage => ({
   type: VFB_ERROR,
@@ -90,4 +91,13 @@ export const showListViewer = () => ({
 export const invalidIdLoaded = id => ({
   type: INVALID_ID,
   data : { id: id }
+});
+
+/*
+ * Status snapshot published by VFBLoadManager: the single source of truth for
+ * the progress overlay. { active, total, settled, failed:[], message }.
+ */
+export const setLoadStatus = snapshot => ({
+  type: LOAD_STATUS,
+  data : snapshot
 });

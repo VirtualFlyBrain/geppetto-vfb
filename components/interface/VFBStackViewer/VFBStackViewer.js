@@ -28,7 +28,6 @@ export default class VFBStackViewer extends React.Component {
     this.removeSlice = this.removeSlice.bind(this);
     this.changedStacks = this.changedStacks.bind(this);
     this.updateCanvasRef = this.updateCanvasRef.bind(this);
-    this.checkConnection = this.checkConnection.bind(this);
     this.updateStackWidget = this.updateStackWidget.bind(this);
     this.getSliceInstances = this.getSliceInstances.bind(this);
 
@@ -66,19 +65,6 @@ export default class VFBStackViewer extends React.Component {
       }
     }
     return true;
-  }
-
-  checkConnection () {
-    try {
-      if (GEPPETTO.MessageSocket.socket.readyState == WebSocket.CLOSED && window.vfbRelaodMessage) {
-        window.vfbRelaodMessage = false;
-        if (confirm("Sorry but your connection to our servers has timed out. \nClick OK to reconnect and reload your current items or click Cancel to do nothing.")) {
-          location.reload(true);
-        }
-      }
-    } catch (err) {
-      console.error(err.message);
-    }
   }
 
   updateStackWidget () {
@@ -179,9 +165,7 @@ export default class VFBStackViewer extends React.Component {
   }
 
   componentDidMount () {
-    if (GEPPETTO.MessageSocket.socket !== null) {
-      this.updateStackWidget();
-    }
+    this.updateStackWidget();
 
     if (this.refs.StackViewerRef._isMounted === false && this.refs.StackViewerRef !== undefined) {
       this.refs.StackViewerRef._isMounted = true;

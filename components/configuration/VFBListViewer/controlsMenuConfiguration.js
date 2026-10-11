@@ -15,6 +15,20 @@ var ACTIONS = {
   HIDE_SKELETON : 'hide_skeleton',
 };
 
+/*
+ * A term only has isVisible() once it has geometry in the scene: the capability
+ * is added when its OBJ/SWC import resolves. A row whose mesh never arrives
+ * (an oversized volume that fell back to SWC, an import still resolving, a term
+ * with no image at all) has the variable on its type but no instance to ask, so
+ * calling isVisible() on it threw and took the whole app down through the error
+ * boundary as soon as the Layers row menu rendered.
+ */
+var isShownIn3D = function (candidate) {
+  return candidate != undefined
+    && typeof candidate.isVisible === "function"
+    && GEPPETTO.SceneController.isVisible([candidate]);
+};
+
 const controlsMenuConf = {
   itemOptions: { customArrow: <i style={ { float : "right" } } className="fa fa-caret-right" /> },
   // Global configuration for Menu buttons and drop down
@@ -91,7 +105,7 @@ const controlsMenuConf = {
         {
           toggle : {
             condition : entity => entity.isSelected(),
-            isVisible : entity => entity.isVisible(),
+            isVisible : entity => isShownIn3D(entity),
             options : {
               false : {
                 label: "Select",
@@ -108,7 +122,7 @@ const controlsMenuConf = {
         },
         {
           toggle : {
-            condition : entity => entity.isVisible(),
+            condition : entity => isShownIn3D(entity),
             options : {
               false : {
                 label: "Show",
@@ -133,7 +147,7 @@ const controlsMenuConf = {
           label: "Zoom To",
           icon: "fa fa-search-plus",
           action: { handlerAction: ACTIONS.ZOOM_TO },
-          isVisible : entity => entity.isVisible()
+          isVisible : entity => isShownIn3D(entity)
         },
         {
           label: "Show Volume",
@@ -143,13 +157,7 @@ const controlsMenuConf = {
           list: [
             {
               toggle : {
-                condition : entity => {
-                  var visible = false;
-                  if (entity.getType()[entity.getId() + "_obj"] != undefined && entity[entity.getId() + "_obj"] != undefined) { 
-                    visible = GEPPETTO.SceneController.isVisible([entity[entity.getId() + "_obj"]]);
-                  }
-                  return visible;
-                },
+                condition : entity => isShownIn3D(entity[entity.getId() + "_obj"]),
                 isVisible : entity => entity.getType().hasVariable(entity.getId() + '_obj'),
                 options : {
                   false : {
@@ -175,13 +183,7 @@ const controlsMenuConf = {
           list: [
             {
               toggle : {
-                condition : entity => {
-                  var visible = false;
-                  if (entity.getType()[entity.getId() + "_swc"] != undefined && entity.getType()[entity.getId() + "_swc"].getType().getMetaType() != GEPPETTO.Resources.IMPORT_TYPE && entity[entity.getId() + "_swc"] != undefined) { 
-                    visible = GEPPETTO.SceneController.isVisible([entity[entity.getId() + "_swc"]]);
-                  }
-                  return visible;
-                },
+                condition : entity => isShownIn3D(entity[entity.getId() + "_swc"]),
                 isVisible : entity => entity.getType().hasVariable(entity.getId() + '_swc'),
                 options : {
                   false : {
@@ -204,7 +206,7 @@ const controlsMenuConf = {
           label: "Color",
           icon: "fa fa-tint",
           action: { handlerAction: ACTIONS.COLOR },
-          isVisible : entity => entity.isVisible()
+          isVisible : entity => isShownIn3D(entity)
         },
       ]
     }

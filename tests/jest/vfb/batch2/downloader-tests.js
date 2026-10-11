@@ -75,8 +75,35 @@ describe('VFB Downloader Tests', () => {
 		
 		it('Download Contents Dialog goes away', async () => {
 			await page.click('#downloadContentsButton');
-			await wait4selector(page, '#downloadContents', { hidden: true , timeout : 120000 })
-		}, 120000)
+
+			/*
+			 * The dialog only closes when the POST to the zip service
+			 * (configuration.json postURL) resolves; on any error or hang it
+			 * stays open and switches to the error footer (the "Try Again"
+			 * button carries i.fa-refresh). Race both outcomes so a backend
+			 * failure reports as a clean assertion rather than timing out and
+			 * rejecting after teardown (which crashes the jest worker). Keep
+			 * the waits below the it() timeout for the same reason.
+			 *
+			 * The budget is generous because the zip is real work: this test
+			 * asks for every file of every instance, which has been measured
+			 * at 76-92s. At the old 90s it failed on variance alone rather
+			 * than on anything being wrong, so the wait is twice the observed
+			 * time -- it asserts the dialog closes, not that it is quick.
+			 */
+			const outcome = await Promise.race([
+				page.waitForSelector('#downloadContents', { hidden: true, timeout: 150000 })
+					.then(() => 'closed').catch(() => null),
+				page.waitForSelector('#downloadContents .fa-refresh', { visible: true, timeout: 150000 })
+					.then(() => 'error').catch(() => null)
+			]);
+
+			if (outcome === 'error') {
+				throw new Error('Zip download failed: the download dialog showed the error '
+					+ 'footer instead of closing. Check the zip service (configuration.json postURL).');
+			}
+			expect(outcome).toBe('closed');
+		}, 180000)
 		
 	})
 })
