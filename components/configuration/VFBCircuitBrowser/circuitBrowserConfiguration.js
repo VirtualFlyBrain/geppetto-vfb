@@ -14,14 +14,26 @@ var locationCypherQuery = ( instances, paths, weight ) => ({
       + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a})-[:database_cross_reference]->(site:Connectome)"
       + " MATCH (target:Neuron:has_neuron_connectivity {short_form: b})-[:database_cross_reference]->(site)"
       + " WITH a, b, source, target, 'cb_' + site.short_form AS graphName"
-      + " CALL gds.beta.shortestPath.yens.stream(graphName, {"
-      + "  sourceNode: id(source),"
-      + "  targetNode: id(target),"
-      + "  k: " + paths?.toString() + ","
-      + "  relationshipWeightProperty: 'weight_p',"
-      + "  path: true"
-      + "})"
-      + " YIELD index, sourceNode, targetNode, nodeIds, path"
+      /*
+       * Yen's k-shortest-paths. GDS 1.x (Neo4j 4.2 pdb) only has the beta procedure and
+       * needs `path: true`; GDS 2.x (Neo4j 4.4 pdb on the cluster) only has the
+       * production one and rejects `path`. Pick whichever the server offers, so the
+       * same build works against either database during the migration.
+       */
+      + " CALL dbms.procedures() YIELD name"
+      + " WHERE name IN ['gds.shortestPath.yens.stream', 'gds.beta.shortestPath.yens.stream']"
+      + " WITH a, b, source, target, graphName, collect(name) AS yensProcs"
+      + " WITH a, b, source, target, graphName,"
+      + "  CASE WHEN 'gds.shortestPath.yens.stream' IN yensProcs THEN 'gds.shortestPath.yens.stream'"
+      + "       ELSE 'gds.beta.shortestPath.yens.stream' END AS yens"
+      + " CALL apoc.cypher.run('CALL ' + yens + '($g, {sourceNode: $s, targetNode: $t, k: $k,"
+      + "  relationshipWeightProperty: \"weight_p\"'"
+      + "  + (CASE WHEN yens STARTS WITH 'gds.beta' THEN ', path: true' ELSE '' END)"
+      + "  + '}) YIELD index, sourceNode, targetNode, nodeIds, path"
+      + "  RETURN index, sourceNode, targetNode, nodeIds, path',"
+      + "  {g: graphName, s: id(source), t: id(target), k: " + paths?.toString() + "}) YIELD value"
+      + " WITH a, b, source, target, value.index AS index, value.sourceNode AS sourceNode,"
+      + "  value.targetNode AS targetNode, value.nodeIds AS nodeIds, value.path AS path"
       + " WITH * ORDER BY index DESC"
       + " UNWIND relationships(path) as sr"
       + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()

@@ -1,0 +1,5 @@
+.git
+node_modules
+build
+coverage
+tests/jest/vfb/snapshots

@@ -5,17 +5,15 @@ extended.devServer = {
   port : 8081,
   inline : true,
 
+  /*
+   * The bundles come from this dev server; the page and the static files it
+   * does not build come from the image running on 8080
+   * (docker run -p 8080:8080 virtualflybrain/geppetto-vfb:...).
+   */
   proxy : [ {
     path : '/',
     target : 'http://localhost:8080/'
-  }, {
-    path : '/geppetto',
-    target : 'http://localhost:8080/org.geppetto.frontend'
-  }, {
-    path : '/org.geppetto.frontend',
-    target : 'ws://localhost:8080',
-    ws : true
-  }, ],
+  } ],
 };
 
 extended.devtool = 'source-map';

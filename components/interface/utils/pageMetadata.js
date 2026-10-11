@@ -1,13 +1,12 @@
 /*
  * Per-term page metadata for search engines and link previews.
  *
- * Googlebot's renderer does not hold a WebSocket open, so everything the
- * viewer loads through Geppetto is invisible to it: a term URL rendered as an
- * empty shell with the home page's title and canonical, which Search Console
- * reported as a soft 404. VFBquery serves the same term info over plain HTTPS,
- * which the renderer does fetch, so the title, description, canonical, JSON-LD
- * and a text summary of the term are filled in from that instead. Nothing here
- * touches the socket or the Geppetto model, and every failure leaves the
+ * A term URL used to render for Googlebot as an empty shell with the home
+ * page's title and canonical (the viewer needed a WebSocket the renderer did
+ * not hold open), which Search Console reported as a soft 404. The title,
+ * description, canonical, JSON-LD and a text summary of the term are filled
+ * in straight from VFBquery's term info instead, independent of the viewer.
+ * Nothing here touches the Geppetto model, and every failure leaves the
  * site-wide defaults in place.
  */
 
@@ -277,8 +276,8 @@ export function renderSummary (info) {
 /**
  * Fills the Term Info placeholder (rendered only while Term Info has nothing
  * of its own to show) with the summary fetched over HTTPS. This is what a
- * crawler without the websocket sees on screen; React removes the placeholder
- * as soon as the real Term Info arrives.
+ * crawler sees on screen before the viewer has loaded the term; React
+ * removes the placeholder as soon as the real Term Info arrives.
  */
 export function renderVisibleSummary () {
   var holder = document.getElementById(VISIBLE_SUMMARY_ID);

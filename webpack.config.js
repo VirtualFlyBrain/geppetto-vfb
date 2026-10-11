@@ -59,10 +59,7 @@ module.exports = function (env){
   console.log('Geppetto configuration \n');
   console.log(JSON.stringify(geppettoConfig, null, 2), '\n');
   
-  var entries = {
-    main: path.resolve(__dirname, "Main.js"),
-    admin: path.resolve(__dirname, geppetto_client_path, "js/pages/admin/admin.js"),
-  };
+  var entries = { main: path.resolve(__dirname, "Main.js") };
 
   console.log("\nThe Webpack entries are:");
   console.log(entries);
@@ -70,20 +67,6 @@ module.exports = function (env){
   return {
     entry: entries,
 
-    optimization: {
-      splitChunks: {
-        cacheGroups: {
-          commons: {
-            name: 'common',                   
-            minChunks: 2, // Minimum # of chunks which need to contain a module before it's moved into the commons chunk.
-            chunks: 'initial', // initial, async or all
-            reuseExistingChunk: true, // use existing chunk if available instead of creating new one
-            enforce: true // form this chunk irrespective of the size of the chunk
-          }
-        }
-      }
-    },
-    
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: '[name].bundle.js',
@@ -96,8 +79,12 @@ module.exports = function (env){
        * }),
        */
       new CopyWebpackPlugin(availableExtensions),
+      /*
+       * The page itself. Served as-is (nginx) at <contextPath>/geppetto;
+       * there is no server-side template step any more.
+       */
       new HtmlWebpackPlugin({
-        filename: 'geppetto.vm',
+        filename: 'geppetto.html',
         template: path.resolve(__dirname, geppetto_client_path, 'js/pages/geppetto/geppetto.ejs'),
         GEPPETTO_CONFIGURATION: geppettoConfig,
         /*
@@ -105,29 +92,6 @@ module.exports = function (env){
          * yet (need to go to Webpack2) to specify UTF-8 as charset without
          * which we have errors
          */
-        chunks: []
-      }),
-      new HtmlWebpackPlugin({
-        filename: 'admin.vm',
-        template: path.resolve(__dirname, geppetto_client_path, 'js/pages/admin/admin.ejs'),
-        GEPPETTO_CONFIGURATION: geppettoConfig,
-        /*
-         * chunks: ['admin'] Not specifying the chunk since its not possible
-         * yet (need to go to Webpack2) to specify UTF-8 as charset without
-         * which we have errors
-         */
-        chunks: []
-      }),
-      new HtmlWebpackPlugin({
-        filename: 'dashboard.vm',
-        template: path.resolve(__dirname, geppetto_client_path, 'js/pages/dashboard/dashboard.ejs'),
-        GEPPETTO_CONFIGURATION: geppettoConfig,
-        chunks: []
-      }),
-      new HtmlWebpackPlugin({
-        filename: '../WEB-INF/web.xml',
-        template: path.resolve(__dirname, 'WEB-INF/web.ejs'),
-        GEPPETTO_CONFIGURATION: geppettoConfig,
         chunks: []
       }),
       new webpack.DefinePlugin({ 'process.env': { 'NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'), } }),
