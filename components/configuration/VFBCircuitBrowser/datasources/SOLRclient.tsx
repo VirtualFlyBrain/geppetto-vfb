@@ -1,24 +1,32 @@
 import axios from 'axios';
 
+/*
+ * Default used only when getResultsSOLR is called without a configuration (Controls.js always passes
+ * datasourceConfiguration below). Kept identical to it: the old default asked for fields the ontology core
+ * does not have (synonym_autosuggest_e, has_*_synonym_annotation, ontology_name, is_obsolete,
+ * in_subset_annotation), which Solr rejects with HTTP 400.
+ */
 const globalConfiguration:any = {
     "url": "https://solr.virtualflybrain.org/solr/ontology/select",
     "query_settings":
     {
-        "q": "$SEARCH_TERM$ OR $SEARCH_TERM$* OR *$SEARCH_TERM$*",
+        "q": "$SEARCH_TERM$",
+        "q.op": "OR",
         "defType": "edismax",
-        "qf": "label synonym label_autosuggest_ws label_autosuggest_e label_autosuggest synonym_autosuggest_ws synonym_autosuggest_e synonym_autosuggest shortform_autosuggest has_narrow_synonym_annotation has_broad_synonym_annotation",
+        "mm": "45%",
+        "qf": "label^110 synonym^100 label_autosuggest synonym_autosuggest shortform_autosuggest",
         "indent": "true",
-        "fl": "short_form,label,synonym,id,type,has_narrow_synonym_annotation,has_broad_synonym_annotation,facets_annotation",
+        "fl": "short_form,label,synonym,id,facets_annotation",
         "start": "0",
+        "pf": "true",
         "fq": [
-            "type:class OR type:individual OR type:property",
-            "ontology_name:(vfb)",
             "facets_annotation:has_neuron_connectivity",
-            "shortform_autosuggest:VFB* OR shortform_autosuggest:FB* OR is_defining_ontology:true"
+            "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*",
+            "NOT facets_annotation:Deprecated"
         ],
         "rows": "100",
         "wt": "json",
-        "bq": "is_obsolete:false^100.0 shortform_autosuggest:VFB*^110.0 shortform_autosuggest:FBbt*^100.0 is_defining_ontology:true^100.0 label_s:\"\"^2 synonym_s:\"\" in_subset_annotation:BRAINNAME^3 short_form:FBbt_00003982^2"
+        "bq": "short_form:VFB*^110.0 short_form:FBbt*^100.0 short_form:FBbt_00003982^2 facets_annotation:Deprecated^0.001"
     }
 };
 
