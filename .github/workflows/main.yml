@@ -93,22 +93,20 @@ jobs:
             echo "push=false" >> "${GITHUB_OUTPUT}"
           fi
       # The only endpoints compiled into the client (dockerFiles/configure.sh):
-      # the tree/circuit/graph PDB and the search Solr. The development group
-      # tests against the cluster pdb; alpha has its own; everything else is live.
+      # the tree/circuit/graph PDB and the search Solr. Every build uses the
+      # public pdb.virtualflybrain.org (served by the cluster); alpha has its own.
       - name: Endpoints
         id: endpoints
         shell: bash
         run: |
           BRANCH="${{ steps.branch.outputs.value }}"
-          PDB=https://pdb.v4.virtualflybrain.org
+          PDB=https://pdb.virtualflybrain.org
           SOLR=https://solr.virtualflybrain.org/solr/ontology/select
           if [ "$BRANCH" == master ] || [[ "$BRANCH" == v* ]]; then
             :
           elif [ "$BRANCH" == alpha ]; then
             PDB=https://pdb-alpha.virtualflybrain.org
             SOLR=https://solr-alpha.virtualflybrain.org/solr/ontology/select
-          elif [ "$BRANCH" == debug ] || [ "$BRANCH" == pipeline2 ] || [ "$BRANCH" == vfb_geppetto_application ] || [ "$BRANCH" == development ] || [[ "$BRANCH" == f* ]]; then
-            PDB=https://pdb.k8s.virtualflybrain.org
           fi
           echo "VFB_TREE_PDB_SERVER=$PDB" >> "$GITHUB_OUTPUT"
           echo "SOLR_SERVER=$SOLR" >> "$GITHUB_OUTPUT"

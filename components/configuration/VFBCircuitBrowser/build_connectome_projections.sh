@@ -16,12 +16,12 @@
 # for the full ~34.7M edges across all connectomes).
 #
 # Usage:
-#   NEO4J_URL=https://pdb.v4.virtualflybrain.org NEO4J_AUTH=neo4j:vfb \
+#   NEO4J_URL=https://pdb.virtualflybrain.org NEO4J_AUTH=neo4j:vfb \
 #     ./build_connectome_projections.sh
 #
 set -euo pipefail
 
-NEO4J_URL="${NEO4J_URL:-https://pdb.v4.virtualflybrain.org}"
+NEO4J_URL="${NEO4J_URL:-https://pdb.virtualflybrain.org}"
 NEO4J_AUTH="${NEO4J_AUTH:-neo4j:vfb}"
 TX="${NEO4J_URL%/}/db/neo4j/tx/commit"
 
