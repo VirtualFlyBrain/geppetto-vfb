@@ -75,7 +75,19 @@ class VFBUploader extends React.Component {
     this.setState({ open: true });
   }
 
+  /*
+   * A real template must be chosen: the upload name is "<template>&<id>", and the
+   * pipeline can only NBLAST against a template it knows ("" and the "Select"
+   * placeholder both arrive as uploads it has to reject).
+   */
+  templateChosen () {
+    return this.configuration.templates.some(template => template.label === this.state.templateSelected);
+  }
+
   handleNBLASTAction () {
+    if (!this.templateChosen()) {
+      return;
+    }
     let newId = "VFBu_" + nanoid();
     let url = this.configuration.nblastURL.replace(UNIQUE_ID, this.state.templateSelected + "&" + newId);
     var formData = new FormData();
@@ -289,7 +301,7 @@ class VFBUploader extends React.Component {
               <Grid item xs={12}>
                 <Button
                   fullWidth
-                  disabled={this.state.files.length == 0 || this.state.uploading}
+                  disabled={this.state.files.length == 0 || !this.templateChosen() || this.state.uploading}
                   onClick={this.handleNBLASTAction}
                   variant="contained"
                   classes={{ root : classes.nblastButton }}
