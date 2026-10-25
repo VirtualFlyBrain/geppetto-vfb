@@ -600,12 +600,16 @@ var searchConfiguration = {
   },
   "clickHandler": function (id) {
     window.addVfbId(id);
-  },
-  "Neo4jLabels" : {
-    "FAFB" : "FAFB",
-    "L1EM" : "L1EM",
-    "FlyEM_HB" : "FlyEM_HB"
   }
+  /*
+   * No Neo4jLabels here on purpose. When the search component sees that key it
+   * pushes facets_annotation:<label> into the Solr fq the first time a result
+   * carrying that label (FAFB, L1EM, FlyEM_HB) is clicked, and nothing removes
+   * it: every later search in the session is silently restricted to that
+   * dataset. Restricting a search to one connectome is only wanted in the
+   * Circuit Browser, which handles it itself (connectomePrefix in
+   * VFBCircuitBrowser/Controls.js with its own Neo4jLabels).
+   */
 };
 
 module.exports = {
