@@ -165,7 +165,19 @@ const conf = [
         return img;
       }
       if ( value.elements != undefined ) {
-        img = value.elements[0].initialValue.data;
+        /*
+         * A term aligned to several templates carries one thumbnail per
+         * template, and the first is not necessarily the loaded one. Taking
+         * elements[0] showed another template's thumbnail -- a 404 when its
+         * image has not been rendered yet. The template short_form is the
+         * second-to-last segment of the thumbnail URL, so pick the element
+         * for the loaded template and only fall back to the first.
+         */
+        let loaded = value.elements.find(el => {
+          let parts = String(el.initialValue.data).split("/");
+          return parts[parts.length - 2] === window.templateID;
+        });
+        img = (loaded || value.elements[0]).initialValue.data;
       } else if ( value.data != undefined ) {
         img = value.data;
       }
