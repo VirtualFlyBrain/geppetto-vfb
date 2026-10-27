@@ -66,8 +66,11 @@ function markdownInlineToHtml (md) {
  * the new applyResponse - those entries have a graph/relationships
  * payload that the new code wouldn't know how to consume. The prefix
  * will only need bumping again if the response shape changes.
+ * v2: the response now also carries fallback representative images
+ * (painted_domain entries flagged fallback: true) for classes with no
+ * indexed domain, so v1 entries would hide those eyes.
  */
-const TREE_CACHE_KEY_PREFIX = "treeData_vfbquery_v1_";
+const TREE_CACHE_KEY_PREFIX = "treeData_vfbquery_v2_";
 
 class VFBTree extends React.Component {
 

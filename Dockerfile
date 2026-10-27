@@ -8,7 +8,7 @@ FROM node:14.21.3-bullseye AS build
 LABEL maintainer="rcourt@ed.ac.uk"
 
 # Endpoints compiled into the client configuration (see dockerFiles/configure.sh)
-ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.v4.virtualflybrain.org
+ARG VFB_TREE_PDB_SERVER_ARG=https://pdb.virtualflybrain.org
 ARG SOLR_SERVER_ARG=https://solr.virtualflybrain.org/solr/ontology/select
 
 WORKDIR /webapp
