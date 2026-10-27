@@ -721,7 +721,12 @@ class VFBTree extends React.Component {
         }
         var found = container.querySelector('.nodeFound');
         if (found) {
-          found.scrollIntoView({ block: 'center', inline: 'nearest' });
+          /*
+           * inline: 'start' keeps the row's left edge (expand arrow) in view;
+           * 'nearest' scrolled a row wider than a narrow pane to its right
+           * edge and hid the arrow.
+           */
+          found.scrollIntoView({ block: 'center', inline: 'start' });
           return;
         }
         if (pos >= maxScroll || guard > 200) {
