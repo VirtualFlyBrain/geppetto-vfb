@@ -21,7 +21,18 @@
  * that left div.rst__tree unrendered in CI.
  */
 
-const VFBQUERY_BASE = "https://v3-cached.virtualflybrain.org";
+/*
+ * The v2-dev site (v2-dev.virtualflybrain.org / v2.dev.k8s.virtualflybrain.org)
+ * reads the tree from the separate dev VFBquery so VFBquery changes can be
+ * tested there before they reach the shared production backend. Every other
+ * host, including production, keeps using v3-cached.
+ */
+const IS_V2_DEV = typeof window !== "undefined" && window.location
+  && /^v2[-.]dev\./.test(window.location.hostname);
+
+const VFBQUERY_BASE = IS_V2_DEV
+  ? "https://vfbquery-dev.k8s.virtualflybrain.org"
+  : "https://v3-cached.virtualflybrain.org";
 
 var treeQueryUrl = templateShortForm =>
   `${VFBQUERY_BASE}/run_query?query_type=TemplateROIBrowser&id=${encodeURIComponent(templateShortForm)}`;
