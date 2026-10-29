@@ -154,6 +154,10 @@ jobs:
           build-args: |
             VFB_TREE_PDB_SERVER_ARG=${{ steps.endpoints.outputs.VFB_TREE_PDB_SERVER }}
             SOLR_SERVER_ARG=${{ steps.endpoints.outputs.SOLR_SERVER }}
+          # the upload token (repository secret UPLOAD_TOKEN) as a BuildKit secret: not in the repo, not in the
+          # image history; pull_request builds from forks get none and their uploader is refused
+          secrets: |
+            upload_token=${{ secrets.UPLOAD_TOKEN }}
 
       - name: Image digest
         run: echo "${{ steps.docker_build.outputs.digest }}"
