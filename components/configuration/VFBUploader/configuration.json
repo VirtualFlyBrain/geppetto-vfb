@@ -5,7 +5,7 @@
 	"templates" : [{"short_form":"VFB_00101567","label":"JRC2018Unisex"},{"short_form":"VFB_00200000","label":"JRC2018UnisexVNC"},{"short_form":"VFB_00050000","label":"L1EM"}] ,
 	"acceptedFiles" : [".swc", ".nrrd"],
 	"filesLimit" : 1,
-	"maxFileSize" : 5242880,
+	"maxFileSize" : 52428800,
 	"queryType": "SimilarMorphologyToUserData",
 	"cookieStorageDays" : 100,
 	"cookiesLearnLink" : "https://virtualflybrain.org/about/cookies/#functional-cookies",
