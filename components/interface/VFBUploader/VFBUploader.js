@@ -136,6 +136,23 @@ class VFBUploader extends React.Component {
       });
   }
   
+  /*
+   * Why a dropped file was refused. material-ui-dropzone's own message compares the browser's MIME type with
+   * acceptedFiles, which lists extensions, so it said "File type not supported" for every rejected file; name only
+   * the real reasons.
+   */
+  rejectMessage (file, acceptedFiles, maxFileSize) {
+    let ext = "." + (file.name.split(".").pop() || "").toLowerCase();
+    let reasons = [];
+    if (!acceptedFiles.includes(ext)) {
+      reasons.push("only " + acceptedFiles.join(" and ") + " files can be uploaded");
+    }
+    if (file.size > maxFileSize) {
+      reasons.push("it is " + (file.size / 1048576).toFixed(1) + " MB and the limit is " + Math.round(maxFileSize / 1048576) + " MB");
+    }
+    return "File " + file.name + " was rejected: " + (reasons.join("; ") || "it could not be added") + ".";
+  }
+
   getTitleHead () {
     return (<Grid container spacing={1}>
       <Grid item xs={12}>
@@ -216,6 +233,7 @@ class VFBUploader extends React.Component {
               acceptedFiles={self.configuration.acceptedFiles}
               maxFileSize={self.configuration.maxFileSize}
               filesLimit={self.configuration.filesLimit}
+              getDropRejectMessage={self.rejectMessage}
               dropzoneText={self.configuration.text.dropZoneMessage}
               Icon={() => <img src={UploadIcon} alt="upload" />}
               showAlerts={["error"]}
