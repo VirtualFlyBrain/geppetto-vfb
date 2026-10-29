@@ -17,3 +17,13 @@ grep -rls "https://solr.*virtualflybrain.org/solr/ontology/select" components/co
 
 echo "Non-standard servers still in the client configuration (if any):"
 grep -rlE "(dev|alpha)\.virtualflybrain\.org/solr/ontology/select" components/ || true
+
+# Upload token for upload.virtualflybrain.org (VFBUploader), from the BuildKit secret upload_token (GitHub
+# secret UPLOAD_TOKEN). It is not kept in the repository. A build without it (pull requests, forks) still
+# works, but its uploader gets 401 from the upload server.
+if [ -n "${UPLOAD_TOKEN:-}" ]; then
+  sed -i "s@__UPLOAD_TOKEN__@${UPLOAD_TOKEN}@" components/configuration/VFBUploader/configuration.json
+  echo "Upload token: set"
+else
+  echo "Upload token: NOT set (the uploader will be refused by the upload server)"
+fi

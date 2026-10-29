@@ -115,8 +115,17 @@ class VFBUploader extends React.Component {
       window.setCookie(_id, newURL, this.configuration.cookieStorageDays);
     }
 
+    /*
+     * The upload token goes in a header, not the URL, so it stays out of access logs, browser history and
+     * referrers. It is filled in at build time (dockerFiles/configure.sh, from the UPLOAD_TOKEN build secret).
+     */
+    let headers = { 'Content-Type': this.configuration.contentType };
+    let token = this.configuration.uploadToken;
+    if (token && token !== "__UPLOAD_TOKEN__") {
+      headers.Authorization = "Bearer " + token;
+    }
     axios.put(url,
-      formData, { headers: { 'Content-Type': this.configuration.contentType } }
+      formData, { headers: headers }
     ).then(function (response) {
       console.log('SUCCESS!!', response);
       self.setState({ uploading : false, nblastEnabled: true });
