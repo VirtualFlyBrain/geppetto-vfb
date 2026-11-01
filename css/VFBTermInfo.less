@@ -5,6 +5,25 @@
   margin-top: 20px;
 }
 
+/*
+ * The FlexLayout tab, not the widget, is what scrolls Term Info. With
+ * overflow: auto its scrollbar toggles when content is near the tab height:
+ * the scrollbar narrows the carousel, the image shrinks, content fits, the
+ * scrollbar goes, the image grows, and the panel flickers every frame.
+ * Reserve the scrollbar's width permanently so the width never changes.
+ * scrollbar-gutter leaves a blank gutter when nothing scrolls; browsers
+ * without it (Safari < 18.2) fall back to an always-on scrollbar.
+ */
+.flexlayout__tab:has(#vfbterminfowidget) {
+  overflow-y: scroll;
+  color-scheme: dark;
+
+  @supports (scrollbar-gutter: stable) {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+}
+
 #bar-div-vfbterminfowidget {
     margin-top: -8px;
     position: fixed;
