@@ -87,10 +87,17 @@ describe('VFB Query Builder Tests', () => {
 	 * carousel, and only a carousel puts the per-image reference in the DOM (a
 	 * single-image row's checkbox is keyed on the row's own id). This query has
 	 * rows aligned to both JRC2018U and JRCVNC2018U within its first page.
+	 *
+	 * The fixture is live data, so it can drift: the previous one (Am1_L,
+	 * VFB_jrmc3jgx) stopped having any such row on its first page once its
+	 * partner list changed, and this test timed out. The giant fibre DNp01(GF)_L
+	 * has partners with arbors in both brain and VNC. If this starts timing out
+	 * again, check the first page of the query for multi-template rows before
+	 * suspecting the carousel code.
 	 */
 	describe('Tests Alignments in Query Result Images', () => {
 		it('Results with carousels arrive', async () => {
-			await page.goto(baseURL + "/geppetto?q=VFB_jrmc3jgx,NeuronNeuronConnectivityQuery", { timeout : 220000 });
+			await page.goto(baseURL + "/geppetto?q=VFB_jrmc30mz,NeuronNeuronConnectivityQuery", { timeout : 220000 });
 			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 });
 			closeModalWindow(page);
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 240000 });
