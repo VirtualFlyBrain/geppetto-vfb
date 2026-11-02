@@ -96,16 +96,51 @@ describe('VFB Query Builder Tests', () => {
 	 * suspecting the carousel code.
 	 */
 	describe('Tests Alignments in Query Result Images', () => {
+		/*
+		 * Once in a while the page loads but the ?q= query never opens the
+		 * query builder and the app sits on the default template (seen in CI
+		 * with a healthy backend, and passing on the runs either side). Waiting
+		 * longer does not help, so give the load one more go instead of one long
+		 * wait, and log what failed on the way so a repeat can be explained.
+		 */
 		it('Results with carousels arrive', async () => {
-			await page.goto(baseURL + "/geppetto?q=VFB_jrmc30mz,NeuronNeuronConnectivityQuery", { timeout : 220000 });
-			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 });
-			closeModalWindow(page);
-			await wait4selector(page, '#querybuilder', { visible: true, timeout : 240000 });
+			const url = baseURL + "/geppetto?q=VFB_jrmc30mz,NeuronNeuronConnectivityQuery";
+			const problems = [];
+			const onRequestFailed = (request) => problems.push(
+				`${request.method()} ${request.url().slice(0, 140)} ${request.failure() ? request.failure().errorText : ''}`
+			);
+			const onResponse = (response) => {
+				if (response.status() >= 400) {
+					problems.push(`${response.status()} ${response.url().slice(0, 140)}`);
+				}
+			};
+			page.on('requestfailed', onRequestFailed);
+			page.on('response', onResponse);
+
+			const openQueryResults = async () => {
+				await page.goto(url, { timeout : 90000 });
+				await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 60000 });
+				closeModalWindow(page);
+				await wait4selector(page, '#querybuilder', { visible: true, timeout : 60000 });
+			};
+
+			try {
+				try {
+					await openQueryResults();
+				} catch (error) {
+					console.log(`The query builder did not open (${error.message}); loading ${url} once more. Failed requests so far:\n${problems.join('\n') || '(none)'}`);
+					problems.length = 0;
+					await openQueryResults();
+				}
+			} finally {
+				page.removeListener('requestfailed', onRequestFailed);
+				page.removeListener('response', onResponse);
+			}
 			await page.waitForFunction(
 				() => document.querySelectorAll('.query-results-slick .query-results-checkbox').length > 0,
-				{ timeout : 300000 }
+				{ timeout : 120000 }
 			);
-		}, 500000)
+		}, 600000)
 
 		it('An image aligned to a second template is referenced by that template', async () => {
 			/*
