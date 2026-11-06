@@ -222,6 +222,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "Open in Neuroglass",
+          icon: "fa fa-external-link",
+          action: {
+            handlerAction: "openNeuroglass",
+            parameters: []
+          }
+        },
+        {
           label: "Template ROI Browser",
           icon: "fa fa-indent",
           action: {
