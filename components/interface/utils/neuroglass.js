@@ -36,19 +36,33 @@ const TEMPLATE_VIEWS = {
   VFB_00200000: { projectionOrientation: [0, 0, 0, 1] }
 };
 
+const VOLUME_SAMPLE_ALPHA = 0.03;
+
 const DIMENSIONS = {
   x: [1e-9, "m"],
   y: [1e-9, "m"],
   z: [1e-9, "m"]
 };
 
+/*
+ * 3D rendering, tuned on a real scene (template + medulla + neurons + a GAL4
+ * pattern, 2026-11-06). The v3 widget's settings turn the template's volume
+ * render into an opaque grey cloud: every sample has alpha = contrast, so the
+ * ray saturates at the front of the brain and everything inside shows as a
+ * dark shadow. The "alpha" control scales the per-sample opacity in the 3D
+ * (volume) branch only, so the 2D slices are unchanged, and the gain
+ * (log2 exposure) sets how bright the cloud is. A domain or tract is drawn as
+ * a silhouette shell, so the neurons inside it stay visible; neurons are thin
+ * and stay opaque.
+ */
 const LAYER_SHADER = [
   "#uicontrol invlerp contrast",
   "#uicontrol vec3 color color",
+  "#uicontrol float alpha slider(min=0, max=1, default=" + VOLUME_SAMPLE_ALPHA + ")",
   "void main() {",
   "  float contrast_value = contrast();",
   "  if (VOLUME_RENDERING) {",
-  "    emitRGBA(vec4(color * contrast_value, contrast_value));",
+  "    emitRGBA(vec4(color * contrast_value, contrast_value * alpha));",
   "  }",
   "  else {",
   "    emitRGB(color * contrast_value);",
@@ -57,6 +71,28 @@ const LAYER_SHADER = [
 ].join("\n");
 
 const DEFAULT_CONTRAST_RANGE = [0, 123];
+/*
+ * log2 exposure of the volume renders: a faint grey ghost of the template,
+ * expression patterns dimmed but still the data
+ */
+const TEMPLATE_VOLUME_GAIN = -6;
+const EXPRESSION_VOLUME_GAIN = -3;
+/* meshSilhouetteRendering power for domains and tracts */
+const REGION_SILHOUETTE = 4;
+
+/*
+ * Gross types (the label-<Type> classes v2 puts on a term's label) whose mesh
+ * is a filled region rather than a neuron, so it is drawn as a silhouette.
+ */
+const REGION_TYPES = [
+  "Synaptic_neuropil",
+  "Synaptic_neuropil_domain",
+  "Synaptic_neuropil_subdomain",
+  "Synaptic_neuropil_block",
+  "Neuron_projection_bundle",
+  "Ganglion",
+  "Neuromere"
+];
 
 /*
  * VFB_00101567 -> VFB/i/0010/1567/<template>/precomputed.zip, the same layout
@@ -108,6 +144,34 @@ function callSafely (fn, fallback) {
 }
 
 /*
+ * The gross types of a loaded term, read from the label-<Type> classes of its
+ * <id>_meta.label HTML (e.g. "label-Synaptic_neuropil_domain", "label-Neuron"),
+ * which is what the Term Info header shows as type badges.
+ */
+export function grossTypes (id) {
+  const html = callSafely(function () {
+    const value = window.Instances.getInstance(id + "." + id + "_meta.label").getValue();
+    return value.html || value.value.html;
+  }, "") || "";
+  const types = [];
+  const pattern = /\blabel-([A-Za-z0-9_]+)/g;
+  let match = pattern.exec(html);
+  while (match) {
+    types.push(match[1]);
+    match = pattern.exec(html);
+  }
+  return types;
+}
+
+export function isRegion (term) {
+  const types = term.types || [];
+  if (types.indexOf("Neuron") !== -1) {
+    return false;
+  }
+  return types.some(type => REGION_TYPES.indexOf(type) !== -1);
+}
+
+/*
  * The terms in the scene, template first: the same set the share link (i=)
  * lists, i.e. the composite instances of everything with geometry.
  */
@@ -123,7 +187,8 @@ export function sceneTerms () {
     terms.push({
       id: id,
       colour: colourToHex(callSafely(() => instance.getColor(), "#ffffff")),
-      visible: callSafely(() => typeof instance.isVisible !== "function" || instance.isVisible(), true)
+      visible: callSafely(() => typeof instance.isVisible !== "function" || instance.isVisible(), true),
+      types: grossTypes(id)
     });
   };
 
@@ -132,7 +197,7 @@ export function sceneTerms () {
     if (template) {
       add(template);
     } else {
-      terms.push({ id: window.templateID, colour: "#ffffff", visible: true });
+      terms.push({ id: window.templateID, colour: "#ffffff", visible: true, types: ["Template"] });
       seen[window.templateID] = true;
     }
   }
@@ -149,7 +214,7 @@ export function sceneTerms () {
   return terms;
 }
 
-function buildLayer (term, source, type) {
+function buildLayer (term, source, type, templateId) {
   const layer = {
     type: type,
     source: source + "|zip:|neuroglancer-precomputed:",
@@ -163,10 +228,12 @@ function buildLayer (term, source, type) {
       shader: LAYER_SHADER,
       shaderControls: {
         contrast: { range: DEFAULT_CONTRAST_RANGE },
-        color: term.colour
+        color: term.colour,
+        alpha: VOLUME_SAMPLE_ALPHA
       },
       volumeRenderingDepthSamples: 256,
-      volumeRendering: "on"
+      volumeRendering: "on",
+      volumeRenderingGain: term.id === templateId ? TEMPLATE_VOLUME_GAIN : EXPRESSION_VOLUME_GAIN
     });
   } else if (type === "segmentation") {
     Object.assign(layer, {
@@ -174,6 +241,9 @@ function buildLayer (term, source, type) {
       segmentColors: { "1": term.colour },
       segmentDefaultColor: term.colour
     });
+    if (isRegion(term)) {
+      layer.meshSilhouetteRendering = REGION_SILHOUETTE;
+    }
   }
   if (!term.visible) {
     layer.visible = false;
@@ -248,7 +318,7 @@ export function buildNeuroglassState (terms, templateId, focusId) {
     if (!url) {
       return Promise.resolve(null);
     }
-    return zipLayerType(url).then(type => (type ? buildLayer(term, url, type) : null));
+    return zipLayerType(url).then(type => (type ? buildLayer(term, url, type, templateId) : null));
   })).then(function (results) {
     const layers = results.filter(layer => layer !== null);
     const missing = terms.filter((term, i) => results[i] === null).map(term => term.id);
