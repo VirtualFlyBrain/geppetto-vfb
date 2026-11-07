@@ -75,46 +75,52 @@ export const testLandingPage = async (page, ID) => {
 /**
  * Open component by clicking on tab.
  * @tabName : Name of the tab to select/click
+ *
+ * A tab that does not fit its tabset's bar is not rendered as a tab button:
+ * flexlayout lists it under the tabset's overflow button. At the CI window size
+ * "Term Context" is one of them (it is the third tab of the ROI/Circuit Browser
+ * tabset), so look for it in every tabset's overflow menu too. The menu is
+ * rendered asynchronously after the overflow button is pressed, so wait for
+ * its items before giving up on that tabset.
  */
 export const selectTab = async (page, tabName) => {
-	await page.evaluate(async (tabName) => {
-		let termContextTab = null;
+	const how = await page.evaluate(async (tabName) => {
+		const press = (element) => {
+			['mousedown', 'mouseup', 'click'].forEach((type) => {
+				element.dispatchEvent(new MouseEvent(type, { view: window, bubbles: true, cancelable: true }));
+			});
+		};
+		const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-		// Find the tab we want to click
-		let tabs = document.getElementsByClassName('flexlayout__tab_button');
-		for ( var i = 0 ; i < tabs.length; i++ ) {
-			if ( tabs[i].innerText === tabName) {
-				termContextTab = tabs[i];
-			}
+		const tab = Array.from(document.getElementsByClassName('flexlayout__tab_button'))
+			.find((button) => button.innerText.trim() === tabName);
+		if (tab) {
+			press(tab);
+			return 'tab';
 		}
 
-		// If the tab was found, click on it
-		if ( termContextTab !== null && termContextTab !== undefined ) {
-			let clickEvent = new MouseEvent('mousedown', {
-				view: window,
-				bubbles: true,
-				cancelable: true
-			});
-			termContextTab.dispatchEvent(clickEvent);
-
-			clickEvent = new MouseEvent('mouseup', {
-				view: window,
-				bubbles: true,
-				cancelable: true
-			});
-			termContextTab.dispatchEvent(clickEvent);
-		}
-		// If the tab was not found, click on the overflow button to display the rest of tabs and look for it there
-		else {
-			let unselectedTab = document.getElementsByClassName('flexlayout__tab_button_overflow')[0].click();
-			let tabs = document.getElementsByClassName('flexlayout__popup_menu_item');
-			for ( var i = 0; i < tabs.length ; i ++ ) {
-				if ( tabs[i].innerText === tabName ) {
-					tabs[i].click();
+		const overflowButtons = Array.from(document.getElementsByClassName('flexlayout__tab_button_overflow'));
+		for (const overflow of overflowButtons) {
+			press(overflow);
+			for (let i = 0; i < 20; i++) {
+				await sleep(100);
+				const item = Array.from(document.getElementsByClassName('flexlayout__popup_menu_item'))
+					.find((menuItem) => menuItem.innerText.trim() === tabName);
+				if (item) {
+					press(item);
+					return 'overflow';
 				}
-			} 
+			}
+			// Not in this tabset: close its menu before trying the next one
+			document.body.dispatchEvent(new MouseEvent('mousedown', { view: window, bubbles: true, cancelable: true }));
+			await sleep(100);
 		}
+		return null;
 	}, tabName);
+
+	if (!how) {
+		console.log(`Tab "${tabName}" not found, neither as a tab button nor in an overflow menu.`);
+	}
 }
 
 export const click = async (page, selector) => {

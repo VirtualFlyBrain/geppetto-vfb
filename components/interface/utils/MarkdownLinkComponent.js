@@ -76,7 +76,7 @@ var VFB_HOST = /^https?:\/\/([a-z0-9-]+\.)*virtualflybrain\.org\//i;
  * Accepts three shapes:
  *   1. a bare short_form, e.g. `VFB_00101567` / `Matsuo2016`
  *   2. a VFB self-link with the short_form in the `id` query parameter,
- *      e.g. `https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=Matsuo2016`
+ *      e.g. `https://v3.virtualflybrain.org/org.geppetto.frontend/geppetto?id=Matsuo2016`
  *      (the form VFBquery AllDatasets emits for the dataset name column)
  *   3. a VFB self-link with the short_form in a `/reports/<short_form>` path,
  *      e.g. `https://virtualflybrain.org/reports/Matsuo2016`

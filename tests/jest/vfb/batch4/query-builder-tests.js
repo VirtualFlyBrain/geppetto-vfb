@@ -39,9 +39,24 @@ describe('VFB Query Builder Tests', () => {
 	})
 
 	describe('Tests Compound Queries from URL', () => {
+		/*
+		 * The URL's queries show up as items in the BUILD view only while the
+		 * compound runs. With the results now cached that is about 3 s, after
+		 * which the builder switches to the results view and the items go; by
+		 * the time this test starts (after the landing-page tests) they are
+		 * usually gone. Accept either: the first query's item in the build
+		 * view, or the results view whose count label names the same query.
+		 */
 		it('Wait for First Query', async () => {
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 150000 });
-			await wait4selector(page, '#queryitem-fru-M-200266_0', { visible: true, timeout : 150000 });
+			await page.waitForFunction(() => {
+				const item = document.getElementById('queryitem-fru-M-200266_0');
+				if (item && item.offsetParent !== null) {
+					return true;
+				}
+				const label = document.querySelector('#querybuilder .result-verbose-label');
+				return !!label && /similar morphology to fru-M-200266/.test(label.innerText || '');
+			}, { timeout: 150000, polling: 500 });
 		}, 220000)
 		
 		/*
