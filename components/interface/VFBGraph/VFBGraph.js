@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 import GeppettoGraphVisualization from '@geppettoengine/geppetto-ui/graph-visualization/Graph'
+import GraphFitter from '../utils/graphFit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { queryParser } from './QueryParser';
 import DropDownQueries from './DropDownQueries';
@@ -61,6 +62,8 @@ class VFBGraph extends Component {
 
     this.graphRef = React.createRef();
     this.__isMounted = false;
+    // Fits the graph once its panel is measured and its layout has settled
+    this.fitter = new GraphFitter(() => this.graphRef.current, () => this.state.graph.nodes);
     this.shiftOn = false;
     this.objectsLoaded = 0;
     this.focused = false;
@@ -175,9 +178,7 @@ class VFBGraph extends Component {
         this.props.vfbGraph(UPDATE_GRAPH, this.focusedInstance, -1, true, false);
       }
       this.firstLoad = true;
-      
-      // Reset camera view after graph component becomes visible
-      this.updateCameraAtStart();
+      this.fitter.cancel();
     } else if ( this.props.visible && this.focused) {
       /*
        * If graph is visible, update contents based on properties passed by redux store
@@ -208,35 +209,35 @@ class VFBGraph extends Component {
         }
       }
       
-      this.updateCameraAtStart();
+      this.updateCameraAtStart(false);
     }
   }
 
-  updateCameraAtStart () {
+  updateCameraAtStart (fit = true) {
     let self = this;
-    // Reset camera view after graph component becomes visible
+    /*
+     * Ask for a fit when the graph is shown or resized; the fitter waits until
+     * the panel has its real size, then fits again when the layout settles.
+     */
+    if ( fit && !self.focused ) {
+      self.fitter.request();
+    } else if ( fit && self.graphResized ) {
+      self.fitter.request();
+    }
     setTimeout( function () {
-      self.resetCamera();
       self.focused = true;
       self.loading = false;
       self.graphResized = false;
-    }, (self.objectsLoaded * 20));
+    }, 0);
   }
   componentWillUnmount () {
     this.__isMounted = false;
+    this.fitter.cancel();
   }
 
   resetCamera () {
     if ( this.graphRef.current !== null ) {
-      // If more than one graph node, use library's 'zoomToFit' method to center camera
-      if ( this.state.graph.nodes.length > 1 ) {
-        this.graphRef.current.ggv.current.zoomToFit();
-      } else if ( this.state.graph.nodes.length == 1 ) {
-        // Only one graph node, center camera around it
-        let x = this.state.graph.nodes[0].x;
-        let y = this.state.graph.nodes[0].y;
-        this.graphRef.current.ggv.current.centerAt(x,y);
-      }
+      this.fitter.fitNow();
       this.focused = true;
     }
   }
@@ -409,9 +410,9 @@ class VFBGraph extends Component {
           // Update state with results and current query
           self.setState( { graph : e.data.params.results, currentQuery : query });
           self.objectsLoaded = e.data.params.results.nodes.length;
-          // Reset camera after loading new graph
+          // Fit the new graph once it is laid out in a measured panel
+          self.fitter.request();
           setTimeout( function () {
-            self.resetCamera();
             if ( self.graphRef.current !== null ) {
               self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
             }
@@ -581,6 +582,8 @@ class VFBGraph extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="bu"
             dagLevelDistance = {100}
+            // Fit again once the force layout has settled
+            onEngineStop={this.fitter.engineStopped}
             // Handles clicking event on an individual node
             onNodeClick = { (node,event) => this.handleNodeLeftClick(node,event) }
             // Handles clicking event on an individual node
