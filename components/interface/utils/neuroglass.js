@@ -393,3 +393,11 @@ export function openSceneInNeuroglass (focusId) {
     return result;
   });
 }
+
+/*
+ * True when the scene's template has Neuroglass (precomputed) data, so the
+ * 3D viewer's Neuroglass button is only offered where it can work.
+ */
+export function neuroglassAvailable (templateId) {
+  return Boolean(templateId && TEMPLATE_VIEWS[templateId]);
+}

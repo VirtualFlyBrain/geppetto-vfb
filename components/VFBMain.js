@@ -24,6 +24,7 @@ import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
 import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
+import VFBNeuroglassButton from './interface/VFBNeuroglassButton/VFBNeuroglassButton';
 import { connect } from "react-redux";
 import * as ACTIONS from './../actions/generals';
 
@@ -2678,6 +2679,8 @@ class VFBMain extends React.Component {
           id="geppettologo" />
 
         <VFBOrientationGizmo getCanvas={() => this.canvasReference} />
+
+        <VFBNeuroglassButton getCanvas={() => this.canvasReference} />
 
         <FlexLayout.Layout
           ref="layout"
