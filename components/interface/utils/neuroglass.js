@@ -18,7 +18,8 @@
  * the ones without one are left out.
  */
 
-export const NEUROGLASS_URL = "https://www.research.neuroglass.dev.metacell.us/embed";
+/* VFB's own Neuroglass instance; the embed view needs no login. */
+export const NEUROGLASS_URL = "https://vfb.neuroglass.io/embed";
 export const PRECOMPUTED_BASE_URL = "https://www.virtualflybrain.org/data";
 
 /*
