@@ -18,7 +18,8 @@
  * the ones without one are left out.
  */
 
-export const NEUROGLASS_URL = "https://www.research.neuroglass.dev.metacell.us/embed";
+/* VFB's own Neuroglass instance; the embed view needs no login. */
+export const NEUROGLASS_URL = "https://vfb.neuroglass.io/embed";
 export const PRECOMPUTED_BASE_URL = "https://www.virtualflybrain.org/data";
 
 /*
@@ -391,4 +392,12 @@ export function openSceneInNeuroglass (focusId) {
     }
     return result;
   });
+}
+
+/*
+ * True when the scene's template has Neuroglass (precomputed) data, so the
+ * 3D viewer's Neuroglass button is only offered where it can work.
+ */
+export function neuroglassAvailable (templateId) {
+  return Boolean(templateId && TEMPLATE_VIEWS[templateId]);
 }
