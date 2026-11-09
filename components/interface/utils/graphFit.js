@@ -29,6 +29,9 @@ export default class GraphFitter {
     this.deadline = 0;
     this.userMoved = false;
     this.listening = null;
+    this.observed = null;
+    this.observer = null;
+    this.lastSize = '';
     this.onUserMove = () => {
       this.userMoved = true;
     };
@@ -59,7 +62,13 @@ export default class GraphFitter {
     clearTimeout(this.timer);
     this.timer = null;
     this.pending = false;
+  }
+
+  /* The viewer is unmounting: stop watching its panel. */
+  dispose () {
+    this.cancel();
     this.unlisten();
+    this.unobserve();
   }
 
   schedule () {
@@ -101,6 +110,7 @@ export default class GraphFitter {
     if (!host || !host.parentNode) {
       return false;
     }
+    this.observe(host.parentNode);
     const panel = host.parentNode.getBoundingClientRect();
     const dims = wrapper.dimensions || {};
     /*
@@ -130,6 +140,40 @@ export default class GraphFitter {
       graph.zoomToFit(FIT_MS, FIT_PADDING);
     }
     return true;
+  }
+
+  /*
+   * Watch the panel's size. The viewers' own "visible" prop stays true while
+   * their tab is hidden behind another, so a hidden tab being shown (and any
+   * resize) is only visible here: when the panel gets a usable new size, ask
+   * for a fit.
+   */
+  observe (panel) {
+    if (this.observed === panel || typeof window.ResizeObserver !== 'function') {
+      return;
+    }
+    this.unobserve();
+    this.observer = new window.ResizeObserver(entries => {
+      const box = entries[entries.length - 1].contentRect;
+      const size = Math.round(box.width) + 'x' + Math.round(box.height);
+      if (box.width >= MIN_SIZE && box.height >= MIN_SIZE && size !== this.lastSize) {
+        this.lastSize = size;
+        this.request();
+      } else if (box.width < MIN_SIZE || box.height < MIN_SIZE) {
+        this.lastSize = '';
+      }
+    });
+    this.observer.observe(panel);
+    this.observed = panel;
+  }
+
+  unobserve () {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+    this.observer = null;
+    this.observed = null;
+    this.lastSize = '';
   }
 
   /* Notice the user zooming or panning, so a settle-time fit doesn't undo it. */

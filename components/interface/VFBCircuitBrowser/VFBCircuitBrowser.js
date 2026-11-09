@@ -119,7 +119,7 @@ class VFBCircuitBrowser extends Component {
 
   componentWillUnmount () {
     this.__isMounted = false;
-    this.fitter.cancel();
+    this.fitter.dispose();
   }
   
   /**
