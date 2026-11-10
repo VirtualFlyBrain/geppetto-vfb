@@ -721,7 +721,18 @@ class VFBTree extends React.Component {
         }
         var found = container.querySelector('.nodeFound');
         if (found) {
+          /*
+           * Bring the focused row into view vertically, then undo any
+           * horizontal scroll it caused: in a narrow pane scrollIntoView
+           * pushed the wide row to the right and hid the expand arrow at
+           * its left.
+           */
           found.scrollIntoView({ block: 'center', inline: 'nearest' });
+          for (var el = found; el && el !== document.body; el = el.parentElement) {
+            if (el.scrollLeft > 0) {
+              el.scrollLeft = 0;
+            }
+          }
           return;
         }
         if (pos >= maxScroll || guard > 200) {

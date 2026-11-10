@@ -11,8 +11,15 @@
  */
 
 var TERM_INFO_API = 'https://v3-cached.virtualflybrain.org/get_term_info?id=';
-// /reports/<id> is the stable public address of a term; it forwards to the viewer.
+/* /reports/<id> is the stable public address of a term; it forwards to the viewer. */
 var REPORTS_BASE = 'https://virtualflybrain.org/reports/';
+/*
+ * /term/<id>/ is the static, server-rendered page for the same term on the main
+ * site. It is the canonical URL for the term: the viewer's metadata is filled in
+ * client-side, so a crawler that does not run this script would otherwise index
+ * every viewer URL as a bare shell. The sitemap lists only the /term/ pages.
+ */
+var TERM_PAGE_BASE = 'https://www.virtualflybrain.org/term/';
 var SITE_NAME = 'Virtual Fly Brain';
 var CONTENT_ID = 'content';
 var TERM_JSONLD_ID = 'termMetaDesc';
@@ -20,7 +27,11 @@ var VISIBLE_SUMMARY_ID = 'vfbTermSummary';
 var MAX_DESCRIPTION = 300;
 var MAX_LIST = 25;
 
-var ID_PATTERN = /^[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+$/;
+/*
+ * PREFIX_nnn (FBbt_00003748, VFB_00101567, GO_0007608 ...) or a FlyBase accession
+ * without an underscore (FBgn0000092, FBal0307220, FBtp0001220, FBti..., FBrf...).
+ */
+var ID_PATTERN = /^(?:[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|FB[a-z]{2}[0-9]{7,})$/;
 var MARKDOWN_LINK = /\[([^\]]*)\]\(([^)\s]*)\)/g;
 
 var termInfoCache = {};
@@ -34,6 +45,10 @@ export function isTermId (id) {
 
 export function reportUrl (id) {
   return REPORTS_BASE + encodeURIComponent(id);
+}
+
+export function termPageUrl (id) {
+  return TERM_PAGE_BASE + encodeURIComponent(id) + '/';
 }
 
 /* The focus term of a viewer URL: id=<id>. i=<a,b,c> only lists what is loaded, so it is ignored. */
@@ -134,7 +149,7 @@ export function buildTitle (info) {
 }
 
 export function buildJsonLd (info) {
-  var url = reportUrl(info.Id);
+  var url = termPageUrl(info.Id);
   var data = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
@@ -359,7 +374,7 @@ export function applyTermMetadata (info) {
   rememberDefaults();
   var title = buildTitle(info);
   var description = buildDescription(info);
-  var url = reportUrl(info.Id);
+  var url = termPageUrl(info.Id);
   document.title = title;
   setMeta('meta[name="description"]', description);
   setMeta('meta[property="og:title"]', title);
@@ -421,8 +436,8 @@ export function updateTermPageMetadata (id) {
   }
   rememberDefaults();
   var request = ++latestRequest;
-  setCanonical(reportUrl(id));
-  setMeta('meta[property="og:url"]', reportUrl(id));
+  setCanonical(termPageUrl(id));
+  setMeta('meta[property="og:url"]', termPageUrl(id));
   return fetchTermInfo(id).then(function (info) {
     if (request !== latestRequest || !info) {
       return false;
