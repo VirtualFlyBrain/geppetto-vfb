@@ -187,6 +187,7 @@ export function sceneTerms () {
     seen[id] = true;
     terms.push({
       id: id,
+      label: callSafely(() => instance.getName(), null) || id,
       colour: colourToHex(callSafely(() => instance.getColor(), "#ffffff")),
       visible: callSafely(() => typeof instance.isVisible !== "function" || instance.isVisible(), true),
       types: grossTypes(id)
@@ -198,7 +199,7 @@ export function sceneTerms () {
     if (template) {
       add(template);
     } else {
-      terms.push({ id: window.templateID, colour: "#ffffff", visible: true, types: ["Template"] });
+      terms.push({ id: window.templateID, label: window.templateID, colour: "#ffffff", visible: true, types: ["Template"] });
       seen[window.templateID] = true;
     }
   }
@@ -220,7 +221,7 @@ function buildLayer (term, source, type, templateId) {
     type: type,
     source: source + "|zip:|neuroglancer-precomputed:",
     tab: "rendering",
-    name: term.id
+    name: term.layerName || term.id
   };
   if (type === "image") {
     Object.assign(layer, {
@@ -313,7 +314,25 @@ function zipLayerType (url) {
     });
 }
 
-export function buildNeuroglassState (terms, templateId, focusId) {
+/*
+ * Layer names are what users see in Neuroglass's layer tabs, so use each term's
+ * label rather than its VFB id. Neuroglancer needs the names to be unique: a
+ * label that repeats gets its id added, e.g. "medulla [VFB_00102107]".
+ */
+function nameLayers (terms) {
+  const counts = {};
+  terms.forEach(function (term) {
+    const label = String(term.label || term.id).trim() || term.id;
+    counts[label] = (counts[label] || 0) + 1;
+  });
+  return terms.map(function (term) {
+    const label = String(term.label || term.id).trim() || term.id;
+    return Object.assign({}, term, { layerName: counts[label] > 1 ? label + " [" + term.id + "]" : label });
+  });
+}
+
+export function buildNeuroglassState (rawTerms, templateId, focusId) {
+  const terms = nameLayers(rawTerms);
   return Promise.all(terms.map(function (term) {
     const url = precomputedZipUrl(term.id, templateId);
     if (!url) {
@@ -326,7 +345,8 @@ export function buildNeuroglassState (terms, templateId, focusId) {
     if (layers.length === 0) {
       return { state: null, missing: missing };
     }
-    const selected = focusId && layers.some(layer => layer.name === focusId) ? focusId : layers[0].name;
+    const focusTerm = terms.find((term, i) => term.id === focusId && results[i] !== null);
+    const selected = focusTerm ? focusTerm.layerName : layers[0].name;
     const state = Object.assign(
       { dimensions: DIMENSIONS },
       TEMPLATE_VIEWS[templateId] || {},
