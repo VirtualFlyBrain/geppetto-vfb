@@ -23,9 +23,11 @@ export const NEUROGLASS_URL = "https://vfb.neuroglass.io/embed";
 export const PRECOMPUTED_BASE_URL = "https://www.virtualflybrain.org/data";
 
 /*
- * Templates with precomputed data. The view is the v3 one for JRC2018U: nm
- * space, centred on the template, anterior view. Other templates get no
- * position, so Neuroglancer centres on the first layer.
+ * Templates with precomputed data, in nm space, centred on the template,
+ * anterior view. JRC2018U is the v3 view. JRC2018U VNC is 660x1290x382 at
+ * 0.4 um, so its centre is (132000, 258000, 76400) nm; the zoom is the one
+ * Robbie set by hand (2026-11-10). Without a crossSectionScale Neuroglancer
+ * opens the slices at 1 nm per pixel, i.e. far too zoomed in.
  */
 const TEMPLATE_VIEWS = {
   VFB_00101567: {
@@ -34,7 +36,12 @@ const TEMPLATE_VIEWS = {
     projectionOrientation: [0, 0, 0, 1],
     projectionScale: 700000
   },
-  VFB_00200000: { projectionOrientation: [0, 0, 0, 1] }
+  VFB_00200000: {
+    position: [132000, 258000, 76400],
+    crossSectionScale: 755,
+    projectionOrientation: [0, 0, 0, 1],
+    projectionScale: 226000
+  }
 };
 
 const VOLUME_SAMPLE_ALPHA = 0.03;
