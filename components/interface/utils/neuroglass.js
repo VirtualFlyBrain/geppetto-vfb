@@ -164,6 +164,72 @@ export function grossTypes (id) {
   return types;
 }
 
+/*
+ * The 3D viewer paints selected instances in Geppetto's selection colour
+ * (yellow) without changing their colour, so getColor() still returns the
+ * term's own colour; Neuroglass shows the same yellow.
+ */
+const FALLBACK_SELECTED_COLOUR = "#ffcc00";
+
+function selectedColour () {
+  return colourToHex(callSafely(() => GEPPETTO.Resources.COLORS.SELECTED, FALLBACK_SELECTED_COLOUR));
+}
+
+/*
+ * Opacity as the 3D viewer last set it on the term (Canvas keeps it per path in
+ * viewState.custom.opacityMap), or null when it was never set.
+ */
+function sceneOpacity (path) {
+  const canvases = callSafely(() => GEPPETTO.SceneController.canvasComponents, []) || [];
+  for (let i = 0; i < canvases.length; i++) {
+    const opacityMap = callSafely(() => canvases[i].viewState.custom.opacityMap, null);
+    if (opacityMap && typeof opacityMap[path] === "number") {
+      return opacityMap[path];
+    }
+  }
+  return null;
+}
+
+/*
+ * The opacities setSepCol (utils.js) gives every term when it is loaded. The
+ * Neuroglass rendering is tuned for those, so it follows the 3D viewer
+ * relative to them: a term set to half its loaded opacity is drawn at half
+ * strength, a term made more opaque stays as tuned.
+ */
+const LOADED_TEMPLATE_OPACITY = 0.4;
+const LOADED_OPACITY = 0.3;
+
+function opacityScale (opacity, isTemplate) {
+  if (typeof opacity !== "number") {
+    return 1;
+  }
+  const loaded = isTemplate ? LOADED_TEMPLATE_OPACITY : LOADED_OPACITY;
+  // Rounded so that tiny float differences don't make a new state
+  return Math.round(Math.max(0, Math.min(1, opacity / loaded)) * 100) / 100;
+}
+
+/*
+ * Geppetto's setOpacity fires no event, unlike setColor, show/hide and select.
+ * Wrap it once so a change can be followed: OPACITY_SET_EVENT is triggered
+ * with (instancePath, opacity) after every call.
+ */
+export const OPACITY_SET_EVENT = "vfb:opacity_set";
+
+export function watchOpacityChanges () {
+  const controller = callSafely(() => GEPPETTO.SceneController, null);
+  if (!controller || typeof controller.setOpacity !== "function" || controller.setOpacity.neuroglassWatched) {
+    return;
+  }
+  const setOpacity = controller.setOpacity;
+  const watched = function (instancePath, opacity) {
+    const result = setOpacity.apply(this, arguments);
+    GEPPETTO.trigger(OPACITY_SET_EVENT, instancePath, opacity);
+    return result;
+  };
+  watched.neuroglassWatched = true;
+  controller.setOpacity = watched;
+}
+
 export function isRegion (term) {
   const types = term.types || [];
   if (types.indexOf("Neuron") !== -1) {
@@ -185,10 +251,14 @@ export function sceneTerms () {
       return;
     }
     seen[id] = true;
+    const children = callSafely(() => instance.getChildren(), []) || [];
     terms.push({
       id: id,
       colour: colourToHex(callSafely(() => instance.getColor(), "#ffffff")),
       visible: callSafely(() => typeof instance.isVisible !== "function" || instance.isVisible(), true),
+      // A click in the 3D viewer can select the mesh rather than the term
+      selected: [instance].concat(children).some(item => callSafely(() => item.isSelected() === true, false)),
+      opacity: sceneOpacity(id),
       types: grossTypes(id)
     });
   };
@@ -198,7 +268,7 @@ export function sceneTerms () {
     if (template) {
       add(template);
     } else {
-      terms.push({ id: window.templateID, colour: "#ffffff", visible: true, types: ["Template"] });
+      terms.push({ id: window.templateID, colour: "#ffffff", visible: true, selected: false, opacity: null, types: ["Template"] });
       seen[window.templateID] = true;
     }
   }
@@ -222,26 +292,33 @@ function buildLayer (term, source, type, templateId) {
     tab: "rendering",
     name: term.id
   };
+  const isTemplate = term.id === templateId;
+  const colour = term.selected ? selectedColour() : term.colour;
+  const scale = opacityScale(term.opacity, isTemplate);
   if (type === "image") {
     Object.assign(layer, {
-      opacity: 1,
+      // 2D slices; the 3D volume render follows the "alpha" control
+      opacity: scale,
       blend: "additive",
       shader: LAYER_SHADER,
       shaderControls: {
         contrast: { range: DEFAULT_CONTRAST_RANGE },
-        color: term.colour,
-        alpha: VOLUME_SAMPLE_ALPHA
+        color: colour,
+        alpha: VOLUME_SAMPLE_ALPHA * scale
       },
       volumeRenderingDepthSamples: 256,
       volumeRendering: "on",
-      volumeRenderingGain: term.id === templateId ? TEMPLATE_VOLUME_GAIN : EXPRESSION_VOLUME_GAIN
+      volumeRenderingGain: isTemplate ? TEMPLATE_VOLUME_GAIN : EXPRESSION_VOLUME_GAIN
     });
   } else if (type === "segmentation") {
     Object.assign(layer, {
       segments: ["1"],
-      segmentColors: { "1": term.colour },
-      segmentDefaultColor: term.colour
+      segmentColors: { "1": colour },
+      segmentDefaultColor: colour
     });
+    if (scale < 1) {
+      layer.objectAlpha = scale;
+    }
     if (isRegion(term)) {
       layer.meshSilhouetteRendering = REGION_SILHOUETTE;
     }
@@ -355,6 +432,11 @@ export function buildNeuroglassState (terms, templateId, focusId, layout = "4pan
   });
 }
 
+/*
+ * Neuroglass applies a new #! state in place (checked 2026-11-12): the page
+ * isn't reloaded and data already fetched isn't fetched again, but the layers
+ * are rebuilt from the state and the camera goes back to what the state says.
+ */
 export function neuroglassUrl (state) {
   return NEUROGLASS_URL + "#!" + encodeURIComponent(JSON.stringify(state));
 }
