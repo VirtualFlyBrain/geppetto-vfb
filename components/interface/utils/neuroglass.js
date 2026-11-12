@@ -313,13 +313,26 @@ function zipLayerType (url) {
     });
 }
 
-export function buildNeuroglassState (terms, templateId, focusId) {
+/*
+ * zip URL -> Promise of its layer type. The Neuroglass widget rebuilds the
+ * state on every scene change, so each zip is only checked once per page.
+ */
+const zipLayerTypes = new Map();
+
+function cachedZipLayerType (url) {
+  if (!zipLayerTypes.has(url)) {
+    zipLayerTypes.set(url, zipLayerType(url));
+  }
+  return zipLayerTypes.get(url);
+}
+
+export function buildNeuroglassState (terms, templateId, focusId, layout = "4panel-alt") {
   return Promise.all(terms.map(function (term) {
     const url = precomputedZipUrl(term.id, templateId);
     if (!url) {
       return Promise.resolve(null);
     }
-    return zipLayerType(url).then(type => (type ? buildLayer(term, url, type, templateId) : null));
+    return cachedZipLayerType(url).then(type => (type ? buildLayer(term, url, type, templateId) : null));
   })).then(function (results) {
     const layers = results.filter(layer => layer !== null);
     const missing = terms.filter((term, i) => results[i] === null).map(term => term.id);
@@ -334,7 +347,7 @@ export function buildNeuroglassState (terms, templateId, focusId) {
         layers: layers,
         showSlices: false,
         selectedLayer: { visible: false, layer: selected },
-        layout: "4panel-alt",
+        layout: layout,
         layerListPanel: { visible: false }
       }
     );

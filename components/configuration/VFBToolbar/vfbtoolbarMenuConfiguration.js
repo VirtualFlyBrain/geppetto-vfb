@@ -254,6 +254,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "Neuroglass Viewer",
+          icon: "fa fa-cube",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["neuroglassViewerVisible"]
+          }
+        },
+        {
           label: "Download Contents",
           icon: "fa fa-download",
           action: {

@@ -23,6 +23,7 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBNeuroglassViewer from './interface/VFBNeuroglass/VFBNeuroglassViewer';
 import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
 import { connect } from "react-redux";
 import * as ACTIONS from './../actions/generals';
@@ -55,6 +56,8 @@ class VFBMain extends React.Component {
       listViewerVisible: true,
       graphVisible : true,
       circuitBrowserVisible : true,
+      // Not part of the default layout, opened from the toolbar
+      neuroglassViewerVisible : false,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -97,6 +100,7 @@ class VFBMain extends React.Component {
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
     this.circuitBrowserReference = undefined;
+    this.neuroglassViewerReference = undefined;
     this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
@@ -863,6 +867,9 @@ class VFBMain extends React.Component {
     case 'circuitBrowserVisible':
       this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
       break;
+    case 'neuroglassViewerVisible':
+      this.UIUpdateItem(buttonState, "vfbNeuroglassViewer");
+      break;
     case 'spotlightVisible':
       this.setState({
         UIUpdated: true,
@@ -1184,6 +1191,17 @@ class VFBMain extends React.Component {
         circuitBrowserVisible: true
       });
     }
+    if ((this.state.neuroglassViewerVisible !== prevState.neuroglassViewerVisible) && (this.state.neuroglassViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Neuroglass Viewer",
+        component: "vfbNeuroglassViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        neuroglassViewerVisible: true
+      });
+    }
     if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
@@ -1236,6 +1254,12 @@ class VFBMain extends React.Component {
       case 'circuitBrowserVisible':
         if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
           this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'neuroglassViewerVisible':
+        if (this.neuroglassViewerReference !== undefined && this.neuroglassViewerReference !== null) {
+          this.restoreUIComponent("vfbNeuroglassViewer");
         }
         this.setState({ UIUpdated: false });
         break;
@@ -1454,6 +1478,20 @@ class VFBMain extends React.Component {
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
+      </div>);
+    } else if (component === "vfbNeuroglassViewer") {
+      let neuroglassViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          neuroglassViewerVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "hidden", height: _height, width: _width }}>
+        <VFBNeuroglassViewer ref={ref => this.neuroglassViewerReference = ref} visible={neuroglassViewerVisibility} />
       </div>);
     }
   }
