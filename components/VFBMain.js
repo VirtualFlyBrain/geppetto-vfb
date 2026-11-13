@@ -57,8 +57,7 @@ class VFBMain extends React.Component {
       listViewerVisible: true,
       graphVisible : true,
       circuitBrowserVisible : true,
-      // Not part of the default layout, opened from the toolbar
-      neuroglassViewerVisible : false,
+      neuroglassViewerVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,

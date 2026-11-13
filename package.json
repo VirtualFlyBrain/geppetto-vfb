@@ -75,26 +75,6 @@
     "typescript": "^2.0.0",
     "webpack-dev-server": "^3.7.2"
   },
-  "overrides": {
-    "@geppettoengine/geppetto-client": {
-      "ami.js": {
-        "three": "0.167.0"
-      },
-      "react-force-graph-3d": {
-        "3d-force-graph": {
-          "three": "0.167.0"
-        }
-      }
-    },
-    "ami.js": {
-        "three": "0.167.0"
-    },
-    "react-force-graph-3d": {
-        "3d-force-graph": {
-          "three": "0.167.0"
-        }
-      }
-  },
   "buildOptions": {
     "emitEntryPoint": true,
     "compile": {
