@@ -23,9 +23,15 @@ export const NEUROGLASS_URL = "https://vfb.neuroglass.io/embed";
 export const PRECOMPUTED_BASE_URL = "https://www.virtualflybrain.org/data";
 
 /*
- * Templates with precomputed data. The view is the v3 one for JRC2018U: nm
- * space, centred on the template, anterior view. Other templates get no
- * position, so Neuroglancer centres on the first layer.
+ * Templates with precomputed data, in nm space, centred on the template
+ * (half its NRRD extent), anterior view. JRC2018U is the v3 view. The VNC zoom
+ * was set by hand (2026-11-10: 755 nm/pixel and 226000 for its 516 um length);
+ * the larval templates scale it by their longest axis. Without a
+ * crossSectionScale Neuroglancer opens the slices at 1 nm per pixel, i.e. far
+ * too zoomed in.
+ *   JRC2018U VNC  VFB_00200000  660x1290x382 at 0.4 um
+ *   L3 CNS        VFB_00049000  982x2000x365 at 0.29/0.29/0.5 um (580 um)
+ *   L1 CNS        VFB_00050000  512x512x484 at 0.243/0.243/0.5 um (242 um)
  */
 const TEMPLATE_VIEWS = {
   VFB_00101567: {
@@ -34,7 +40,24 @@ const TEMPLATE_VIEWS = {
     projectionOrientation: [0, 0, 0, 1],
     projectionScale: 700000
   },
-  VFB_00200000: { projectionOrientation: [0, 0, 0, 1] }
+  VFB_00200000: {
+    position: [132000, 258000, 76400],
+    crossSectionScale: 755,
+    projectionOrientation: [0, 0, 0, 1],
+    projectionScale: 226000
+  },
+  VFB_00049000: {
+    position: [142390, 290000, 91250],
+    crossSectionScale: 850,
+    projectionOrientation: [0, 0, 0, 1],
+    projectionScale: 254000
+  },
+  VFB_00050000: {
+    position: [62208, 62208, 121025],
+    crossSectionScale: 355,
+    projectionOrientation: [0, 0, 0, 1],
+    projectionScale: 106000
+  }
 };
 
 const VOLUME_SAMPLE_ALPHA = 0.03;
@@ -254,6 +277,7 @@ export function sceneTerms () {
     const children = callSafely(() => instance.getChildren(), []) || [];
     terms.push({
       id: id,
+      label: callSafely(() => instance.getName(), null) || id,
       colour: colourToHex(callSafely(() => instance.getColor(), "#ffffff")),
       visible: callSafely(() => typeof instance.isVisible !== "function" || instance.isVisible(), true),
       // A click in the 3D viewer can select the mesh rather than the term
@@ -268,7 +292,7 @@ export function sceneTerms () {
     if (template) {
       add(template);
     } else {
-      terms.push({ id: window.templateID, colour: "#ffffff", visible: true, selected: false, opacity: null, types: ["Template"] });
+      terms.push({ id: window.templateID, label: window.templateID, colour: "#ffffff", visible: true, selected: false, opacity: null, types: ["Template"] });
       seen[window.templateID] = true;
     }
   }
@@ -290,7 +314,7 @@ function buildLayer (term, source, type, templateId) {
     type: type,
     source: source + "|zip:|neuroglancer-precomputed:",
     tab: "rendering",
-    name: term.id
+    name: term.layerName || term.id
   };
   const isTemplate = term.id === templateId;
   const colour = term.selected ? selectedColour() : term.colour;
@@ -403,7 +427,25 @@ function cachedZipLayerType (url) {
   return zipLayerTypes.get(url);
 }
 
-export function buildNeuroglassState (terms, templateId, focusId, layout = "4panel-alt") {
+/*
+ * Layer names are what users see in Neuroglass's layer tabs, so use each term's
+ * label rather than its VFB id. Neuroglancer needs the names to be unique: a
+ * label that repeats gets its id added, e.g. "medulla [VFB_00102107]".
+ */
+function nameLayers (terms) {
+  const counts = {};
+  terms.forEach(function (term) {
+    const label = String(term.label || term.id).trim() || term.id;
+    counts[label] = (counts[label] || 0) + 1;
+  });
+  return terms.map(function (term) {
+    const label = String(term.label || term.id).trim() || term.id;
+    return Object.assign({}, term, { layerName: counts[label] > 1 ? label + " [" + term.id + "]" : label });
+  });
+}
+
+export function buildNeuroglassState (rawTerms, templateId, focusId, layout = "4panel-alt") {
+  const terms = nameLayers(rawTerms);
   return Promise.all(terms.map(function (term) {
     const url = precomputedZipUrl(term.id, templateId);
     if (!url) {
@@ -416,7 +458,8 @@ export function buildNeuroglassState (terms, templateId, focusId, layout = "4pan
     if (layers.length === 0) {
       return { state: null, missing: missing };
     }
-    const selected = focusId && layers.some(layer => layer.name === focusId) ? focusId : layers[0].name;
+    const focusTerm = terms.find((term, i) => term.id === focusId && results[i] !== null);
+    const selected = focusTerm ? focusTerm.layerName : layers[0].name;
     const state = Object.assign(
       { dimensions: DIMENSIONS },
       TEMPLATE_VIEWS[templateId] || {},
