@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # Virtual Fly Brain (Geppetto v2) is a static web app: the browser loads the
 # page, the webpack bundles and the model files (vfb.json + vfb.xmi) from here
 # and fetches everything else itself (VFBquery, the data hosts, Solr). Nothing
@@ -29,7 +30,9 @@ RUN git config --global url."https://github.com/".insteadOf git://github.com/ \
   && npm ci
 
 COPY . .
-RUN VFB_TREE_PDB_SERVER="${VFB_TREE_PDB_SERVER_ARG}" SOLR_SERVER="${SOLR_SERVER_ARG}" sh dockerFiles/configure.sh \
+RUN --mount=type=secret,id=upload_token,required=false \
+  UPLOAD_TOKEN="$(cat /run/secrets/upload_token 2>/dev/null || true)" \
+  VFB_TREE_PDB_SERVER="${VFB_TREE_PDB_SERVER_ARG}" SOLR_SERVER="${SOLR_SERVER_ARG}" sh dockerFiles/configure.sh \
   && npm run build
 
 FROM nginx:1.27-alpine

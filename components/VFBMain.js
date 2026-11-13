@@ -23,7 +23,9 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBNeuroglassViewer from './interface/VFBNeuroglass/VFBNeuroglassViewer';
 import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
+import VFBNeuroglassButton from './interface/VFBNeuroglassButton/VFBNeuroglassButton';
 import { connect } from "react-redux";
 import * as ACTIONS from './../actions/generals';
 
@@ -55,6 +57,8 @@ class VFBMain extends React.Component {
       listViewerVisible: true,
       graphVisible : true,
       circuitBrowserVisible : true,
+      // Not part of the default layout, opened from the toolbar
+      neuroglassViewerVisible : false,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -97,6 +101,7 @@ class VFBMain extends React.Component {
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
     this.circuitBrowserReference = undefined;
+    this.neuroglassViewerReference = undefined;
     this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
@@ -863,6 +868,9 @@ class VFBMain extends React.Component {
     case 'circuitBrowserVisible':
       this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
       break;
+    case 'neuroglassViewerVisible':
+      this.UIUpdateItem(buttonState, "vfbNeuroglassViewer");
+      break;
     case 'spotlightVisible':
       this.setState({
         UIUpdated: true,
@@ -1184,6 +1192,17 @@ class VFBMain extends React.Component {
         circuitBrowserVisible: true
       });
     }
+    if ((this.state.neuroglassViewerVisible !== prevState.neuroglassViewerVisible) && (this.state.neuroglassViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Neuroglass Viewer",
+        component: "vfbNeuroglassViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        neuroglassViewerVisible: true
+      });
+    }
     if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
@@ -1236,6 +1255,12 @@ class VFBMain extends React.Component {
       case 'circuitBrowserVisible':
         if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
           this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'neuroglassViewerVisible':
+        if (this.neuroglassViewerReference !== undefined && this.neuroglassViewerReference !== null) {
+          this.restoreUIComponent("vfbNeuroglassViewer");
         }
         this.setState({ UIUpdated: false });
         break;
@@ -1455,6 +1480,20 @@ class VFBMain extends React.Component {
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
       </div>);
+    } else if (component === "vfbNeuroglassViewer") {
+      let neuroglassViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          neuroglassViewerVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "hidden", height: _height, width: _width }}>
+        <VFBNeuroglassViewer ref={ref => this.neuroglassViewerReference = ref} visible={neuroglassViewerVisibility} />
+      </div>);
     }
   }
 
@@ -1629,17 +1668,17 @@ class VFBMain extends React.Component {
     var script = document.createElement('script');
     script.type = 'application/ld+json';
     script.id = 'metaDesc';
-    script.innerHTML = '{"@context": "https://schema.org","@type": "Organization","url": "https://virtualflybrain.org","logo": "https://v2.virtualflybrain.org/images/vfbbrain_icon.png","brand":"Virtual Fly Brain","name":"Virtual Fly Brain","legalName":"Virtual Fly Brain",'
+    script.innerHTML = '{"@context": "https://schema.org","@type": "Organization","url": "https://virtualflybrain.org","logo": "https://v3.virtualflybrain.org/images/vfbbrain_icon.png","brand":"Virtual Fly Brain","name":"Virtual Fly Brain","legalName":"Virtual Fly Brain",'
       + '"description":"VFB integrates data curated from the literature with image data from many bulk sources. The search system allows you to search for neurons and neuroanatomical structures using almost any name found in the literature. The query system can identify neurons innervating any specified neuropil or fasciculating with any specified tract. It also allows queries for genes, transgenes and phenotypes expressed in any brain region or neuron. Search and query results combine referenced textual descriptions with 3D images and links to originating data sources. VFB features tens of thousands of 3D images of neurons, clones and expression patterns, registered to standard template brains. Any combination of these images can be viewed together. A BLAST-type query system (NBLAST) allows you to find similar neurons and drivers starting from a registered neuron.",'
       + '"headline":"A hub for fruit fly (Drosophila melanogaster) neuronal anatomy, connectivity & imaging data",'
       + '"affiliation":['
-      + '{"@type": "Organization","name":"Institute for Adaptive and Neural Computation, School of Informatics, University of Edinburgh","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/InformaticsLogo.gif","url":"https://web.inf.ed.ac.uk/anc"},'
-      + '{"@type": "Organization","name":"Department of Genetics, University of Cambridge","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/CUnibig.png","url":"http://www.gen.cam.ac.uk/"},'
+      + '{"@type": "Organization","name":"Institute for Adaptive and Neural Computation, School of Informatics, University of Edinburgh","logo":"https://www.virtualflybrain.org/images/logos/InformaticsLogo.gif","url":"https://web.inf.ed.ac.uk/anc"},'
+      + '{"@type": "Organization","name":"Department of Genetics, University of Cambridge","logo":"https://www.virtualflybrain.org/images/logos/CUnibig.png","url":"http://www.gen.cam.ac.uk/"},'
       + '{"@type": "Organization","name":"Department of Physiology, Development and Neuroscience, University of Cambridge", "url":"https://www.pdn.cam.ac.uk/","logo":"https://www.pdn.cam.ac.uk/images/157071101713274785.png/image_logo"},'
       + '{"@type": "Organization","name":"FlyBase","url":"https://flybase.org","logo":"http://flybase.org/images/fly_logo.png"},'
-      + '{"@type": "Organization","name":"MRC Laboratory of Molecular Biology, Cambridge","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/MRC-LMB_logo.png","url":"http://www2.mrc-lmb.cam.ac.uk/"},'
-      + '{"@type": "Organization","name":"European Bioinformatics Institute (EMBL-EBI), Cambridge","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/EMBL_EBI_logo_180pixels_RGB.png","url":"http://www.ebi.ac.uk/"}'
-      + '],"funder":{"@type": "Organization","name":"Wellcome Trust","logo":"https://v2.virtualflybrain.org/images/vfb/project/logos/wtvm050446.png","url":"https://wellcome.org/"},'
+      + '{"@type": "Organization","name":"MRC Laboratory of Molecular Biology, Cambridge","logo":"https://www.virtualflybrain.org/images/logos/MRC-LMB_logo.png","url":"http://www2.mrc-lmb.cam.ac.uk/"},'
+      + '{"@type": "Organization","name":"European Bioinformatics Institute (EMBL-EBI), Cambridge","logo":"https://www.virtualflybrain.org/images/logos/EMBL_EBI_logo_180pixels_RGB.png","url":"http://www.ebi.ac.uk/"}'
+      + '],"funder":{"@type": "Organization","name":"Wellcome Trust","logo":"https://www.virtualflybrain.org/images/logos/wtvm050446.png","url":"https://wellcome.org/"},'
       + '"sameAs":["https://en.wikipedia.org/wiki/Virtual_Fly_Brain","https://www.youtube.com/channel/UC1g10aJo13fXpO9VwRJPdHg","https://www.facebook.com/Virtual-Fly-Brain-131151036987118","https://twitter.com/virtualflybrain","https://virtualflybrain.tumblr.com/"],"alternateName":"VFB",'
       + '"subjectOf":['
       + '{"@type": "ScholarlyArticle","citation":"http://dx.doi.org/10.1093/bioinformatics/btr677","sameAs":"http://dx.doi.org/10.1093/bioinformatics/btr677","headline":"The Virtual Fly Brain browser and query interface","name":"The Virtual Fly Brain browser and query interface","datePublished":"2012","author":[{"@type":"person","name":"Milyaev, N."},{"@type":"person","name":"Osumi-Sutherland, D."},{"@type":"person","name":"Reeve, S."},{"@type":"person","name":"Burton, N."},{"@type":"person","name":"Baldock, R. A."},{"@type":"person","name":"Armstrong, J. D."}],"publisher":"Bioinformatics"},'
@@ -2678,6 +2717,8 @@ class VFBMain extends React.Component {
           id="geppettologo" />
 
         <VFBOrientationGizmo getCanvas={() => this.canvasReference} />
+
+        <VFBNeuroglassButton getCanvas={() => this.canvasReference} />
 
         <FlexLayout.Layout
           ref="layout"
