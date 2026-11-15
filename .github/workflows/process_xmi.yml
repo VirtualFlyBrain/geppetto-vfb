@@ -16,7 +16,7 @@ on:
 
 jobs:
   update-readme:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ubuntu-latest is now 26.04, which this job's toolchain does not support yet
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
