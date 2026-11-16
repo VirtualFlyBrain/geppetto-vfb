@@ -1,114 +1,114 @@
 # Neuroglass widget in geppetto-vfb — implementation plan (VFB-246)
 
-Status: **draft, under review** · Branch: `feature/VFB-246` · Drafted: 2026-10-27
+Branch: `feature/VFB-246` · Drafted 2026-10-27 · Updated 2026-11-12
 
-Port the Neuroglass viewer widget that already exists in `virtual-fly-brain` into `geppetto-vfb`.
+Bring the Neuroglass viewer widget from `virtual-fly-brain` (v3) into `geppetto-vfb`, which stays on React 16 / webpack 4.
 
-## Source implementation (virtual-fly-brain)
+## Status
 
-All paths relative to `virtual-fly-brain/applications/virtual-fly-brain/frontend/`.
-
-| File | Role |
-|---|---|
-| `src/components/NeuroglassViewer.jsx` | iframe pointing at `${NEUROGLASS_URL}/embed#!<encodeURIComponent(JSON state)>`. Rebuilds the src when loaded instances, focused instance, layout or screen size change. 300 ms debounce; an `AbortController` cancels stale builds. |
-| `src/utils/neuroglassStateConfig.js` | Shared viewport, fixed GLSL shader, one image layer per instance, and the datasource URL builder (`gs://`/`s3://` direct; HTTP walks directory listings to find the `VFB_*/neuroglancer/` folder). Results are cached per instance. |
-| `src/utils/neuroglassActions.js` | show / hide / toggle the widget. |
-| `src/utils/constants.js` | `KNOWN_NG_VIEWS`, `NG_LAYOUT_URL_PARAM = 'layout'`, defaults `4panel-alt` (desktop) and `3d` (mobile). |
-| `src/reducers/...` | `SET_NEUROGLASS_VIEW` action and `globalInfo.neuroglassView` state. |
-| `src/reducers/middleware/urlUpdaterMiddleware.js` | Reads `?layout=` on first load (removes invalid values); writes it back on `SET_NEUROGLASS_VIEW`. |
-| `src/components/layout/widgets.js`, `minimized.js`, `componentMap.js` | Widget registration (hidden by default, right panel). |
-| `src/components/configuration/VFBToolbar/vfbtoolbarMenuConfiguration.jsx` | "Neuroglass Viewer" menu entry (`fa fa-brain`). |
-| `vite.config.js` | `NEUROGLASS_URL`, `NEUROGLASS_DATA_BASE_URL`, `NEUROGLASS_DATA_PROTOCOL` env vars. |
-
-How an instance maps to a Neuroglancer layer:
-
-| VFB instance | Neuroglancer layer |
-|---|---|
-| `metadata.Id` | `name` |
-| `color.{r,g,b}` | `shaderControls.color` (hex) |
-| `color.a` | `opacity` |
-| `visibleMesh === false` | `visible: false` |
-| focused instance | `selectedLayer.layer` |
-| removed | layer absent |
-
-The design history is in commits `1f4f2e7` to `8f0e1b0` (VFB-229, VFB-233, VFB-240). The original design doc, `NEUROGLASS_INTEGRATION_DESIGN.md`, was later removed; read it with `git show cb0a879:NEUROGLASS_INTEGRATION_DESIGN.md` in `virtual-fly-brain`.
-
-## How geppetto-vfb differs
-
-| | virtual-fly-brain | geppetto-vfb |
+| Phase | Scope | State |
 |---|---|---|
-| Stack | React 18, MUI 5, Vite | React 16.14 (hooks available), MUI 4.12, webpack 4 |
-| Instance state | `allLoadedInstances` in redux | Geppetto model (`Instances`) and `GEPPETTO.Events`. Redux only has `generals.idsList` and `generals.instanceOnFocus` |
-| Change signals | redux actions | `GEPPETTO.Events.Color_set`, `Visibility_changed`, `Instance_deleted`, `Instances_created` (see `components/VFBMain.js` ~L2027, `components/interface/VFBStackViewer/VFBStackViewer.js` ~L220). `getColor()` returns a hex string |
-| Layout | geppetto-meta widget registry | FlexLayout: `factory()`, `UIElementHandler` switch, `*Visible` state flags and `restoreUIComponent` in `components/VFBMain.js`; default model in `components/configuration/VFBMain/layoutModel.js` |
-| Config | `import.meta.env` | Defaults hard-coded in configuration files, overwritten by `sed` in `dockerFiles/configure.sh` at Docker build time (Dockerfile `ARG`s) |
-| URL | middleware | Direct `history.replaceState`/`pushState` calls that rebuild `?id=&i=` (`components/VFBMain.js` ~L287, `components/interface/VFBFocusTerm/VFBFocusTerm.js` ~L519-543). They drop any other parameter |
+| 1 | Widget shows the Neuroglass iframe; its layers are the terms with a visual capability in the 3D scene, kept in sync on add/remove | **Done** (commit `399e5cba3`) |
+| 2 | Sync colour, opacity, hide/show, selection; updates applied in place (no reload) | **Done, not committed** (2026-11-12) |
+| 3 | Housekeeping: deployment config, URL `layout` param, tests | To do |
 
-Use CircuitBrowser (`vfbCircuitBrowser`) as the example of how a widget is wired end to end in `VFBMain.js`.
+## How phase 1 works
 
-## Steps (one commit each)
+### Data
+- One zip per instance and template:
+  `https://www.virtualflybrain.org/data/VFB/i/<id[4:8]>/<id[8:]>/<templateId>/precomputed.zip`
+  e.g. `VFB_00000001` on JRC2018U → `.../0000/0001/VFB_00101567/precomputed.zip`.
+  Ids can be alphanumeric (`VFB_jrchk00s` → `jrch/k00s`).
+- Index: `https://precomputed.k8s.virtualflybrain.org/precomputed.csv` (211 MB; columns `vfb_id,label,gross_types,template,precomputed_url,thumbnail_url`). On 2026-11-10 it had 809k rows / 801k ids, only two templates (`VFB_00101567` JRC2018U: 667k rows, `VFB_00200000` VNC: 142k rows), and 8k ids on both. Too big for the browser; it's only used as a reference.
+- Neuroglancer reads the zip directly: `<zip url>|zip:|neuroglancer-precomputed:`. It uses HEAD plus explicit byte ranges, so no CORS preflight. The server sends `Access-Control-Allow-Origin: *` and `Accept-Ranges: bytes`. `OPTIONS` returns 405, so anything that needs a preflight (e.g. a suffix range `bytes=-N`) would fail.
+- Zip content: `info`, `provenance.json`, chunks in `0/`, legacy meshes in `mesh/` (segment `1`).
+  - Templates (category `template`) and expression patterns (category `expression`) are `image` layers.
+  - Neurons, painted domains and other `object`s are `segmentation` layers with a mesh.
+  - The layer type is read from `info`, which the pipeline writes as the first zip entry: one `Range: bytes=0-4095` request, then the local file header is parsed and the entry inflated with `DecompressionStream('deflate-raw')`. A 404 means no data for that term on this template, and the term is left out.
 
-### 1. Configuration and state builder
-- New `components/configuration/VFBNeuroglass/neuroglassConfiguration.js`:
-  - endpoints with defaults copied from the Vite config: protocol `neuroglancer-precomputed`, base `gs://neuroglass/vfb`, URL `https://www.research.neuroglass.dev.metacell.us`
-  - allowed layouts and the `layout` URL parameter name
-  - shared viewport, shader, layout resolver, address builder (with cache) and `buildNeuroglassState`
-- Change from the source: the builder takes a plain list `{ id, color, opacity, visible }` instead of VFB instance objects, so it never touches Geppetto and is easy to test.
-- Colour conversion accepts hex strings as well as `{r,g,b}`.
-- Jest unit tests for the pure functions: layer mapping, layout resolution, address building for gs/n5/http.
+### Code
+- `components/interface/utils/neuroglass.js` (from master, commit `281806acc`, "Tools > Open in Neuroglass") holds all the state logic:
+  - `sceneTerms()`: template first, then the composite instances of everything with a visual capability (the same set as the share link `i=`), with colour, visibility and gross types
+  - `buildNeuroglassState(terms, templateId, focusId, layout)`: layer types from the zip `info`, tuned shaders (faint template volume, silhouettes for regions), per-template view
+  - `neuroglassUrl()` → `https://vfb.neuroglass.io/embed#!<state>` (VFB's own Neuroglass; it allows framing with `frame-ancestors *`)
+  - **Changed on this branch:** `buildNeuroglassState` takes an optional `layout` (default `4panel-alt`); zip type probes are cached per page (`cachedZipLayerType`), so rebuilds don't refetch.
+- `components/interface/VFBNeuroglass/VFBNeuroglassViewer.js`: new class component, `connect`ed to `generals.idsList` / `generals.instanceOnFocus`.
+  - Rebuilds, debounced by 300 ms, when `idsList` changes, on `GEPPETTO.Events.Instances_created` (idsList can change before the term's visual instances exist), on a mobile/desktop switch, and when its tab becomes visible.
+  - Focus changes alone don't rebuild; the focused term becomes the selected layer on the next build. (Phase 2 replaced the iframe reloads with in-place hash updates.)
+  - Layout: `3d` at ≤1199 px, else `4panel-alt`.
+  - Messages for: no template, template without precomputed data, no term with data.
+- `components/VFBMain.js`: wired like the Circuit Browser:
+  - `neuroglassViewerVisible` state flag (default `false`, so it isn't in the default layout)
+  - `UIUpdateManager` case
+  - reopen in `componentDidUpdate` and restore in the `UIUpdated` switch
+  - `factory()` branch for `vfbNeuroglassViewer`
+- `components/configuration/VFBToolbar/vfbtoolbarMenuConfiguration.js`: Tools → "Neuroglass Viewer" (`fa fa-cube`; this app uses Font Awesome 4, which has no `fa-brain`), next to "Open in Neuroglass" (new tab).
 
-### 2. Geppetto adapter
-- `getNeuroglassInstances(idsList)`: for each id, `Instances.getInstance(id)` → `{ id, color: getColor(), opacity, visible }`.
-- Visibility comes from the `_obj` child (open question 4); opacity per open question 2.
-- Skip ids with no volume (open question 3).
+### Verified (2026-11-10)
+- `eslint` clean on changed files; dev build compiles.
+- Headless Chrome against the dev server (proxying live v2), scene `?id=VFB_00000001&i=VFB_00101567,VFB_00000001`:
+  - Opening Tools → Neuroglass Viewer gives an iframe on `vfb.neuroglass.io/embed` with the template (image) and the neuron (segmentation, its 3D colour).
+  - `addVfbId('VFB_001012vj')`: the expression pattern appears as an image layer within ~10 s.
+  - Deleting `VFB_001012vj`: its layer is gone within ~5 s.
+  - No page errors.
+- The state renders in Neuroglass with template, neuron, expression pattern and painted domain.
 
-### 3. `VFBNeuroglassViewer` component
-- Location: `components/interface/VFBNeuroglass/VFBNeuroglassViewer.js`.
-- Connected to redux for `idsList`, `instanceOnFocus` and `neuroglassView`.
-- Listens to `Color_set`, `Visibility_changed`, `Instance_deleted` and `Instances_created`, and removes the listeners with `GEPPETTO.off` on unmount (VFBStackViewer never removes its listeners; don't copy that).
-- Keeps the 300 ms debounce and cancellation, and the same iframe `sandbox`/`allow` attributes.
-- Screen-size check uses an explicit `(min-width:1200px)` media query, because MUI 4's `lg` breakpoint is 1280 px.
-- Takes a `visible` prop and skips rebuilds while its tab is hidden, as CircuitBrowser does; rebuilds when shown again.
-- Empty state: "No layers selected…"; while building: "Loading Neuroglass viewer…".
+## Phase 2: feature sync (done 2026-11-12)
 
-### 4. Wiring into VFBMain
-- `neuroglassViewerVisible` state flag, default `false`.
-- `UIElementHandler` case `neuroglassViewerVisible` → `UIUpdateItem(..., "vfbNeuroglassViewer")`.
-- `componentDidUpdate` adds the tab; `factory()` branch for `vfbNeuroglassViewer`; `restoreUIComponent` handling.
-- Toolbar entry "Neuroglass Viewer" (`fa fa-brain`) next to Circuit Browser in `components/configuration/VFBToolbar/vfbtoolbarMenuConfiguration.js`.
-- Not in the default `layoutModel.js` (hidden by default, as in virtual-fly-brain).
-- Optionally a `helpLinks.js` entry.
+### In-place updates
+Neuroglass has no external update API: the embed bundle only posts messages to itself (`STATE_UPDATE`, `CREATE_FIGURE`, ...), nothing to or from the parent. It does apply a new `#!` hash in place. Checked with headless Chrome:
+- `iframe.contentWindow.location.replace(<same /embed URL, new #!state>)` keeps the page (a marker variable survives) and refetches nothing.
+- Layers are rebuilt from the state, so colour, visibility, opacity, added and removed layers all apply.
+- `replace` adds no history entry to the VFB page.
+- **The camera is reset** to what the state says (the template view). Leaving the camera keys out resets it to Neuroglancer's defaults, and the iframe is cross-origin, so its current camera can't be read back.
 
-### 5. `?layout=` URL parameter
-- `SET_NEUROGLASS_VIEW` action plus `neuroglassView: null` in `actions/generals.js` and `reducers/generals.js`.
-- Read at startup, checked against the allowed layouts; invalid values are removed from the URL.
-- Patch the `replaceState`/`pushState` calls in `VFBMain.js` and `VFBFocusTerm.js` so `layout` survives URL rewrites.
+The widget therefore loads the iframe once, then only replaces the hash, and skips a state identical to the one shown.
 
-### 6. Docker and configuration
-- Dockerfile `ARG`s: `NEUROGLASS_URL_ARG`, `NEUROGLASS_DATA_BASE_URL_ARG`, `NEUROGLASS_DATA_PROTOCOL_ARG`, passed to `configure.sh`.
-- `configure.sh`: `sed` lines replacing the defaults in `neuroglassConfiguration.js`, and log the values used, like the existing PDB/Solr entries.
+### What is followed
+| VFB | Event | Neuroglass |
+|---|---|---|
+| add / delete term | `idsList`, `Instances_created`, `Instance_deleted` | layer added / removed |
+| colour | `Color_set` | segment colour / image `color` control |
+| show / hide | `Visibility_changed` | layer `visible` |
+| select / deselect | `Select` | layer drawn in `GEPPETTO.Resources.COLORS.SELECTED` (`#ffcc00`), like the 3D viewer; the base colour comes back on deselect |
+| opacity | none in Geppetto: `watchOpacityChanges()` wraps `SceneController.setOpacity` once and triggers `vfb:opacity_set` | relative to the load opacity `setSepCol` gives (0.4 template, 0.3 others): segmentation `objectAlpha`, image `opacity` (2D) and volume `alpha` scaled by `min(1, opacity / load opacity)` |
 
-### 7. QA
-- `eslint` (runs on `prestart`/`prebuild`) and jest.
-- Manual checks:
-  - add, remove, recolour, hide and show from the list viewer and term info
-  - focus change updates the selected layer
-  - `?layout=3d`; an invalid `?layout=foo` is removed
-  - mobile width defaults to `3d`
-  - several quick colour changes cause only one iframe reload
-  - the iframe loads on v2 (no CSP set in `dockerFiles/nginx.conf`; the Neuroglass host must allow being framed by `v2.virtualflybrain.org`)
-- Optionally a puppeteer test under `tests/jest/vfb` that opens the widget.
+- Selection is read from the term and its children (a 3D click can select the mesh).
+- Opacity is read from `canvas.viewState.custom.opacityMap[termId]`; opacity set on a child path only (e.g. `VFB_x.VFB_x_obj.setOpacity()`) is not followed.
+- The VFB UI has no opacity control today; opacity changes come from the console/API.
+- Focus alone still doesn't rebuild (each rebuild resets the camera); focusing selects, and selection is followed.
+- "Open in Neuroglass" (new tab) uses the same state, so it also shows the selected terms in yellow.
 
-## Open questions
+### Verified (2026-11-12)
+Headless Chrome on the dev server, scene `VFB_00101567, VFB_00000001`, reading `viewer.state` inside the iframe after each step: deselect → green; `setColor('#0000ff')` → blue; select → `#ffcc00`; hide/show template → `visible` false/true; neuron `setOpacity(0.15)` → `objectAlpha 0.5`; template `setOpacity(0.2)` → `opacity 0.5`; `addVfbId('VFB_001012vj')` → new layer (selected, yellow); `delete()` → gone. Same page throughout, iframe `src` attribute unchanged, no history entries from the widget, no errors. eslint clean.
 
-1. **Data source:** default to the GCS bucket or to a VFB HTTP file server? Do we keep the directory-listing crawl, which is fragile and costs two fetches per instance on first load?
-2. **Opacity:** Geppetto keeps opacity per mesh in the scene controller and has no `getOpacity`. Read it from the mesh material, or fix layer opacity at 1 for now?
-3. **Which instances become layers:** everything in `idsList`, or only the template plus instances with volumes (`_obj`)? What about skeleton-only neurons (`_swc`)?
-4. **Visibility source:** use the 3D `_obj` visibility (matches VFB's `visibleMesh`) or the instance-level visibility?
-5. **Default placement:** a hidden tab that opens in the canvas tabset, or its own tabset to the right?
-6. **Drift from virtual-fly-brain:** port as-is and accept that, or put the shared pure logic (state builder, address builder) in a package both apps import?
+### Next for sync
+1. **Ask the Neuroglass team** for a `postMessage` API (apply a state patch without touching the camera; send selection/camera out). That removes the camera reset and allows Neuroglass → VFB selection.
+2. Alternative without them: serve the embed from the VFB origin (reverse proxy), so the widget can drive `iframe.contentWindow.viewer` directly.
 
-## Housekeeping
+## Default layout (2026-11-13)
 
-- When the branch was created, `master` had unrelated uncommitted changes, which carried over: `package.json` (`--openssl-legacy-provider` on `start`), `webpack.config.dev.js` (dev proxy pointing at `VFB_BACKEND`) and `package-lock.json`. Decide whether they stay on this branch, move to their own branch, or get stashed.
+`components/configuration/VFBMain/layoutModel.js`, requested by the user:
+- Left 70%: top tabset (75% of the height) with **Neuroglass Viewer** (selected), 3D Viewer, Slice Viewer; below it Layers (25%).
+- Right 30%: Term Info (selected), Template ROI Browser, Circuit Browser, Term Context. The strip is narrow, so FlexLayout puts the last tabs in its "»" overflow menu.
+- 3D Viewer and Slice Viewer have `enableRenderOnDemand: false`: they mount hidden at startup, as before. VFBMain calls `canvasReference` unguarded while loading, and the Neuroglass widget reads colours/opacity from the 3D canvas.
+- `neuroglassViewerVisible` now defaults to `true` in VFBMain.
+- Checked in headless Chrome: layout as above; Neuroglass shows the scene with the right colours; 3D and Slice viewers render when their tabs are selected; no page errors.
+
+## Phase 3: housekeeping
+
+- **Deployment config:** `https://vfb.neuroglass.io/embed` and the data root are constants in `utils/neuroglass.js`. If they need to differ per environment, add Dockerfile `ARG`s and `sed` lines in `dockerFiles/configure.sh`, as for PDB/Solr.
+- **`?layout=` URL parameter** (as in v3): redux `neuroglassView`, read at startup, and preserve it in the `replaceState`/`pushState` rewrites in `VFBMain.js` / `VFBFocusTerm.js`.
+- **Tests:** jest here is jest-puppeteer only (no unit-test setup). Add an e2e test under `tests/jest/vfb` that opens the widget and checks the iframe `src` layers.
+- Templates other than JRC2018U/VNC show the "not available" message (`neuroglassAvailable` → `TEMPLATE_VIEWS`); extend when the pipeline converts more.
+
+## Open issues
+
+1. **Camera reset on every scene change** (see phase 2): colour, visibility, selection, opacity, add/remove all put the Neuroglass camera back to the template view. Needs a Neuroglass API or a same-origin proxy.
+2. **"Limited viewing area" dialog:** Neuroglass shows it when the iframe is small (the default tab is ~460×420). With in-place updates it only appears once per load. Ask Neuroglass for an embed option to suppress it, or open the tab larger.
+3. **Probe cache:** a term whose zip check failed on the network stays cached as "missing"/`auto` until reload.
+
+## Housekeeping on the branch
+
+- Phase 1 was committed together with the local dev changes (`package.json` `--openssl-legacy-provider`, `webpack.config.dev.js` dev proxy, `package-lock.json`); check they are wanted in the PR.
 - Delete this file, or move it to `docs/`, before merging.
