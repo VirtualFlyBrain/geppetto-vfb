@@ -12,6 +12,10 @@ import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanva
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
 import { safeGa } from './interface/utils/utils';
+import {
+  MY_VIEW, tabId, componentsOf, buildView, restoreSaved, viewSignature, loadSavedView, saveView,
+  getStartView, setStartView, viewFromUrl, viewUrlSuffix, setViewInUrl
+} from './interface/utils/layoutViews';
 import { showConnectionNotice } from './interface/utils/connectionNotice';
 import { initTermPageMetadata, updateTermPageMetadata } from './interface/utils/pageMetadata';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
@@ -35,6 +39,7 @@ var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
+var { layoutViews, alwaysRendered, componentStateFlags } = require('./configuration/VFBMain/layoutViews');
 
 /*
  * The VFB template ids. When a URL loads, the first of its ids that is one of
@@ -220,7 +225,14 @@ class VFBMain extends React.Component {
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
     this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
-    this.model = FlexLayout.Model.fromJson(modelJson)
+    /*
+     * Start in the view the URL names (?view=), else the one the user chose to
+     * start in (View menu), else the default layout.
+     */
+    var startJson = this.viewJson(viewFromUrl()) || this.viewJson(getStartView()) || this.viewJson("default");
+    this.model = FlexLayout.Model.fromJson(startJson);
+    Object.assign(this.state, this.viewStateFlags(startJson));
+    this.watchTabClose();
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
@@ -285,7 +297,7 @@ class VFBMain extends React.Component {
         var existingIds = (new URLSearchParams(window.location.search).get('i') || '').split(',').filter(Boolean);
         var cleanIds = Array.from(new Set(existingIds.concat(idsList)));
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
-        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
+        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(',') + viewUrlSuffix());
       }
       if (idsList != null && idsList.length > 0) {
         /*
@@ -838,9 +850,155 @@ class VFBMain extends React.Component {
         UIUpdated: true,
         [itemState]: !this.state[itemState]
       });
-    } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
-      this.setState({ UIUpdated: itemState });
+      return;
     }
+    /*
+     * The window exists. Ask the layout where it is rather than relying on
+     * UIElementsVisibility, which is only filled in once a window has rendered:
+     * a view can park a window in the bottom bar, or put it behind another tab,
+     * before it has ever been shown.
+     */
+    var tab = this.findTabNode(visibilityAnchor);
+    if (tab === undefined) {
+      if (this.UIElementsVisibility[visibilityAnchor] === false) {
+        this.setState({ UIUpdated: itemState });
+      }
+    } else if (tab.getParent() instanceof FlexLayout.BorderNode) {
+      this.restoreUIComponent(visibilityAnchor);
+    } else if (!tab.isVisible()) {
+      this.model.doAction(FlexLayout.Actions.selectTab(tab.getId()));
+    }
+  }
+
+  /* The layout's tab for a window (by component name), wherever it is, or undefined. */
+  findTabNode (component) {
+    var found = undefined;
+    this.model.visitNodes(node => {
+      if (found === undefined && node.getType() === "tab" && node.getComponent() === component) {
+        found = node;
+      }
+    });
+    return found;
+  }
+
+  /*
+   * The model JSON for a view id from the View menu: one of layoutViews, or
+   * the user's saved view. Undefined for an unknown id or when nothing is saved.
+   */
+  viewJson (id) {
+    if (id === MY_VIEW) {
+      return restoreSaved(loadSavedView(), modelJson, alwaysRendered);
+    }
+    var view = layoutViews.find(v => v.id === id);
+    return view ? buildView(view, modelJson, alwaysRendered) : undefined;
+  }
+
+  /* The *Visible state flags a model JSON implies: true for each window it has. */
+  viewStateFlags (json) {
+    var present = componentsOf(json);
+    var flags = {};
+    Object.keys(componentStateFlags).forEach(component => {
+      // Leave alone the flag of a window this build does not have.
+      if (this.state[componentStateFlags[component]] !== undefined) {
+        flags[componentStateFlags[component]] = present.indexOf(component) > -1;
+      }
+    });
+    return flags;
+  }
+
+  /*
+   * Keep the *Visible flags right when a tab is closed before it has rendered.
+   * factory() sets the same listener, but only runs for a window once it is
+   * shown, and a view can start with windows parked or behind other tabs.
+   */
+  watchTabClose () {
+    this.model.visitNodes(node => {
+      if (node.getType() === "tab" && componentStateFlags[node.getComponent()] !== undefined) {
+        var flag = componentStateFlags[node.getComponent()];
+        var closed = { UIUpdated: false, [flag]: false };
+        if (node.getComponent() === "canvas") {
+          closed.canvasAvailable = false;
+        }
+        node.setEventListener("close", () => {
+          this.setState(closed);
+        });
+      }
+    });
+  }
+
+  /*
+   * Switch to a view. The model is replaced rather than rearranged; tabs keep
+   * their id (see tabId), so windows that are in both keep their mounted
+   * component and nothing is reloaded.
+   */
+  applyView (id) {
+    var json = this.viewJson(id);
+    if (json === undefined) {
+      return;
+    }
+    this.model = FlexLayout.Model.fromJson(json);
+    this.watchTabClose();
+    this.setState(Object.assign({ UIUpdated: true }, this.viewStateFlags(json)));
+    /*
+     * Name the view in the URL so a reload or a copied link opens the same
+     * way. Default needs naming only when the user starts in another view.
+     */
+    setViewInUrl(id === "default" && getStartView() === undefined ? undefined : id);
+    safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=View_' + id));
+  }
+
+  /* The id of the view the current arrangement matches, or undefined. */
+  currentView () {
+    var current = viewSignature(this.model.toJson());
+    var ids = layoutViews.map(v => v.id).concat([MY_VIEW]);
+    return ids.find(id => {
+      var json = this.viewJson(id);
+      return json !== undefined && viewSignature(FlexLayout.Model.fromJson(json).toJson()) === current;
+    });
+  }
+
+  /* The View menu, rebuilt each time it opens so it shows the current state. */
+  viewMenu () {
+    var signature = id => viewSignature(FlexLayout.Model.fromJson(this.viewJson(id)).toJson());
+    var current = this.currentView();
+    var start = getStartView() || "default";
+    var labels = { [MY_VIEW]: "My view" };
+    layoutViews.forEach(v => {
+      labels[v.id] = v.label;
+    });
+    var item = id => ({
+      label: labels[id],
+      icon: current === id ? "fa fa-check" : "",
+      action: { handlerAction: "setView", parameters: [id] }
+    });
+    var defaultSignature = signature("default");
+    var list = layoutViews
+      // A view that is the same arrangement as Default (Classic, until the default changes) is not listed twice.
+      .filter(v => v.id === "default" || signature(v.id) !== defaultSignature)
+      .map(v => item(v.id));
+    if (this.viewJson(MY_VIEW) !== undefined) {
+      list.push(item(MY_VIEW));
+    }
+    list.push({
+      label: "Save current as My view",
+      icon: "fa fa-save",
+      action: { handlerAction: "saveView", parameters: [] }
+    });
+    if (current !== undefined && current !== start) {
+      list.push({
+        label: "Always start in this view",
+        icon: "fa fa-thumb-tack",
+        action: { handlerAction: "setStartView", parameters: [current] }
+      });
+    }
+    if (start !== "default") {
+      list.push({
+        label: "Start in the Default view again",
+        icon: "fa fa-undo",
+        action: { handlerAction: "setStartView", parameters: ["default"] }
+      });
+    }
+    return list;
   }
 
   // Children handlers
@@ -917,6 +1075,18 @@ class VFBMain extends React.Component {
     switch (click.handlerAction) {
     case 'UIElementHandler':
       this.UIUpdateManager(click.parameters[0]);
+      break;
+    case 'viewMenuInjector':
+      return this.viewMenu();
+    case 'setView':
+      this.applyView(click.parameters[0]);
+      break;
+    case 'saveView':
+      // Only the arrangement of the windows is saved, in this browser.
+      saveView(this.model.toJson());
+      break;
+    case 'setStartView':
+      setStartView(click.parameters[0]);
       break;
     case 'historyMenuInjector':
       var historyList = [];
@@ -1038,6 +1208,15 @@ class VFBMain extends React.Component {
    *(2 columns and bottom-right corner)
    */
   reopenUIComponent (json) {
+    /*
+     * Nothing to do if the window is already in the layout: switching view
+     * creates the tabs itself and then sets the *Visible flags, which lands here.
+     */
+    if (this.findTabNode(json.component) !== undefined) {
+      return;
+    }
+    // The window's fixed id, so it stays mounted through later view switches.
+    json = Object.assign({ id: tabId(json.component) }, json);
     let idChild = 0;
     let rightChild = 0;
     let tempModel = this.model;
