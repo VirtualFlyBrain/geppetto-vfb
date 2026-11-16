@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import { getCommandLineArg, getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, testLandingPage, flexWindowClick, findElementByText } from '../utils';
+import { wait4selector, click, testLandingPage, flexWindowClick, findElementByText, selectTab } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -67,6 +67,8 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the Slice Viewer exists and the instance is loaded
 		it('Mesh from batch request id : VFB_00017894.VFB_00017894_obj present in stack viewer component', async () => {
 			// Check slice viewer is visible
+			// The Slice Viewer shares its tabset with Neuroglass and the 3D Viewer
+			await selectTab(page, "Slice Viewer");
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 60000})
 			// Check Slice Viewer has instance loaded
 			expect(
@@ -125,6 +127,8 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the Slice Viewer exists and has the 2 instances loaded
 		it("Slice Viewer created with 2 instances, VFB_00000001 and VFB_00017894", async () => {
 			// Check Slice Viewer is visible
+			// The Slice Viewer shares its tabset with Neuroglass and the 3D Viewer
+			await selectTab(page, "Slice Viewer");
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 60000})
 			// Check Slice Viewer has 2 instances loaded
 			expect(
@@ -189,6 +193,8 @@ describe('VFB Loader Component Tests', () => {
 		// Check that the Slice Viewer has 2 instances loaded, FBbt_00003678 isn't a visual capability so we don't search for it here
 		it("Slice Viewer created with 2 instances, VFB_00030624 and VFB_00017894", async () => {
 			// Check Slice Viewer exists
+			// The Slice Viewer shares its tabset with Neuroglass and the 3D Viewer
+			await selectTab(page, "Slice Viewer");
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 60000});
 			// Checks instances are loaded inside Slice Viewer
 			expect(

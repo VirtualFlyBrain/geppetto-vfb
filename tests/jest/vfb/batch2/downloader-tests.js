@@ -39,6 +39,11 @@ describe('VFB Downloader Tests', () => {
 		
 				//Tests canvas has 5 meshes rendered
 		it('Canvas container component has 3 meshes rendered', async () => {
+			// Meshes can still be loading when the term info is ready
+			await page.waitForFunction(
+				() => typeof CanvasContainer !== 'undefined' && CanvasContainer.engine && Object.keys(CanvasContainer.engine.meshes).length >= 3,
+				{ timeout: 110000 }
+			).catch(() => {});
 			expect(
 					await page.evaluate(async () => Object.keys(CanvasContainer.engine.meshes).length)
 			).toBe(3)

@@ -38,6 +38,13 @@ var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 
 /*
+ * Tools that share the Term Info tabset and load terms themselves (eye icons,
+ * clicks on graph nodes). While one of them is in front, a term loading
+ * updates Term Info behind it instead of hiding the tool.
+ */
+const TERM_INFO_TABSET_TOOLS = ["treeBrowser", "vfbCircuitBrowser", "vfbGraph"];
+
+/*
  * The VFB template ids. When a URL loads, the first of its ids that is one of
  * these becomes the scene's template straight away (see componentDidMount).
  */
@@ -1420,6 +1427,7 @@ class VFBMain extends React.Component {
         <VFBTree
           id="treeWidget"
           instance={this.instanceOnFocus}
+          visible={node.isVisible()}
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}
           selectionHandler={this.addVfbId} />
@@ -2585,9 +2593,31 @@ class VFBMain extends React.Component {
   }
 
   /**
+   * True when the tabset holding Term Info shows one of TERM_INFO_TABSET_TOOLS.
+   */
+  toolInFrontOfTermInfo () {
+    let toolInFront = false;
+    this.model.visitNodes(node => {
+      if (node.getType() !== "tabset") {
+        return;
+      }
+      const holdsTermInfo = node.getChildren().some(child => typeof child.getComponent === "function" && child.getComponent() === "termInfo");
+      const selected = node.getSelectedNode();
+      if (holdsTermInfo && selected && typeof selected.getComponent === "function"
+          && TERM_INFO_TABSET_TOOLS.includes(selected.getComponent())) {
+        toolInFront = true;
+      }
+    });
+    return toolInFront;
+  }
+
+  /**
    * Makes tab named 'tabName' become active.
    */
   setActiveTab (tabComponentName, children) {
+    if (tabComponentName === "termInfo" && children === undefined && this.toolInFrontOfTermInfo()) {
+      return;
+    }
     let matchTab = 0;
     let layoutChildren = children == undefined || children == null ? this.model.toJson().layout.children : children;
     for ( var i = 0; i < layoutChildren.length; i++){

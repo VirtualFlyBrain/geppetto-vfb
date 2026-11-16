@@ -33,6 +33,23 @@ function sceneEvents () {
   ];
 }
 
+/*
+ * Neuroglass ships modern JavaScript (optional chaining, nullish coalescing).
+ * A browser that can't parse it (e.g. Chrome < 80) would get a blank viewer
+ * and a page error from the iframe, so show a message instead of loading it.
+ * Only a SyntaxError means the syntax is unsupported; anything else (such as
+ * a policy blocking new Function) says nothing about the browser.
+ */
+function browserRunsNeuroglass () {
+  try {
+    // eslint-disable-next-line no-new-func
+    new Function("a", "return a?.b ?? 0");
+    return true;
+  } catch (error) {
+    return !(error instanceof SyntaxError);
+  }
+}
+
 const messageStyle = {
   display: "flex",
   alignItems: "center",
@@ -145,6 +162,10 @@ class VFBNeuroglassViewer extends Component {
   async updateSource () {
     // Rebuilt when it is shown again; no point loading a hidden viewer
     if (this.props.visible === false) {
+      return;
+    }
+    if (!browserRunsNeuroglass()) {
+      this.showMessage("The Neuroglass viewer needs a newer browser. Please update your browser to use it.");
       return;
     }
     const templateId = window.templateID;

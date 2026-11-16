@@ -123,6 +123,54 @@ export const selectTab = async (page, tabName) => {
 	}
 }
 
+/**
+ * Minimize a tab to the bottom border: select it, then press the minimize
+ * button of its own tabset (the button minimizes the tabset's selected tab).
+ * @tabName : Name of the tab to minimize
+ */
+export const minimizeTab = async (page, tabName) => {
+	await selectTab(page, tabName);
+	await page.waitFor(500);
+	const minimized = await page.evaluate((tabName) => {
+		const tab = Array.from(document.getElementsByClassName('flexlayout__tab_button'))
+			.find((button) => button.innerText.trim() === tabName);
+		let tabset = tab;
+		while (tabset && !tabset.querySelector('.fa-window-minimize')) {
+			tabset = tabset.parentElement;
+		}
+		if (!tabset) {
+			return false;
+		}
+		tabset.querySelector('.fa-window-minimize').click();
+		return true;
+	}, tabName);
+	if (!minimized) {
+		throw new Error(`No minimize button found for tab "${tabName}".`);
+	}
+}
+
+/**
+ * Restore a minimized tab by pressing its button in the bottom border.
+ * flexlayout listens to mousedown/mouseup there, click() alone does nothing.
+ * @tabName : Name of the minimized tab
+ */
+export const restoreTab = async (page, tabName) => {
+	const restored = await page.evaluate((tabName) => {
+		const button = Array.from(document.getElementsByClassName('flexlayout__border_button'))
+			.find((element) => element.innerText.trim() === tabName);
+		if (!button) {
+			return false;
+		}
+		['mousedown', 'mouseup'].forEach((type) => {
+			button.dispatchEvent(new MouseEvent(type, { view: window, bubbles: true, cancelable: true }));
+		});
+		return true;
+	}, tabName);
+	if (!restored) {
+		throw new Error(`Tab "${tabName}" is not in the bottom border.`);
+	}
+}
+
 export const click = async (page, selector) => {
 	await wait4selector(page, selector, { visible: true, timeout: 500000});
 	try {
