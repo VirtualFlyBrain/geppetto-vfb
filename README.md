@@ -3,7 +3,7 @@
 # geppetto-vfb
 Virtual Fly Brain project customised Geppetto build
 
-Running latest here: https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto
+Running latest here: https://v3.virtualflybrain.org/org.geppetto.frontend/geppetto
 
 To run server locally:
 

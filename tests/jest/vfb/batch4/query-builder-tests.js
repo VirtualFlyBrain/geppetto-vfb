@@ -39,9 +39,24 @@ describe('VFB Query Builder Tests', () => {
 	})
 
 	describe('Tests Compound Queries from URL', () => {
+		/*
+		 * The URL's queries show up as items in the BUILD view only while the
+		 * compound runs. With the results now cached that is about 3 s, after
+		 * which the builder switches to the results view and the items go; by
+		 * the time this test starts (after the landing-page tests) they are
+		 * usually gone. Accept either: the first query's item in the build
+		 * view, or the results view whose count label names the same query.
+		 */
 		it('Wait for First Query', async () => {
 			await wait4selector(page, '#querybuilder', { visible: true, timeout : 150000 });
-			await wait4selector(page, '#queryitem-fru-M-200266_0', { visible: true, timeout : 150000 });
+			await page.waitForFunction(() => {
+				const item = document.getElementById('queryitem-fru-M-200266_0');
+				if (item && item.offsetParent !== null) {
+					return true;
+				}
+				const label = document.querySelector('#querybuilder .result-verbose-label');
+				return !!label && /similar morphology to fru-M-200266/.test(label.innerText || '');
+			}, { timeout: 150000, polling: 500 });
 		}, 220000)
 		
 		/*
@@ -87,18 +102,60 @@ describe('VFB Query Builder Tests', () => {
 	 * carousel, and only a carousel puts the per-image reference in the DOM (a
 	 * single-image row's checkbox is keyed on the row's own id). This query has
 	 * rows aligned to both JRC2018U and JRCVNC2018U within its first page.
+	 *
+	 * The fixture is live data, so it can drift: the previous one (Am1_L,
+	 * VFB_jrmc3jgx) stopped having any such row on its first page once its
+	 * partner list changed, and this test timed out. The giant fibre DNp01(GF)_L
+	 * has partners with arbors in both brain and VNC. If this starts timing out
+	 * again, check the first page of the query for multi-template rows before
+	 * suspecting the carousel code.
 	 */
 	describe('Tests Alignments in Query Result Images', () => {
+		/*
+		 * Once in a while the page loads but the ?q= query never opens the
+		 * query builder and the app sits on the default template (seen in CI
+		 * with a healthy backend, and passing on the runs either side). Waiting
+		 * longer does not help, so give the load one more go instead of one long
+		 * wait, and log what failed on the way so a repeat can be explained.
+		 */
 		it('Results with carousels arrive', async () => {
-			await page.goto(baseURL + "/geppetto?q=VFB_jrmc3jgx,NeuronNeuronConnectivityQuery", { timeout : 220000 });
-			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 });
-			closeModalWindow(page);
-			await wait4selector(page, '#querybuilder', { visible: true, timeout : 240000 });
+			const url = baseURL + "/geppetto?q=VFB_jrmc30mz,NeuronNeuronConnectivityQuery";
+			const problems = [];
+			const onRequestFailed = (request) => problems.push(
+				`${request.method()} ${request.url().slice(0, 140)} ${request.failure() ? request.failure().errorText : ''}`
+			);
+			const onResponse = (response) => {
+				if (response.status() >= 400) {
+					problems.push(`${response.status()} ${response.url().slice(0, 140)}`);
+				}
+			};
+			page.on('requestfailed', onRequestFailed);
+			page.on('response', onResponse);
+
+			const openQueryResults = async () => {
+				await page.goto(url, { timeout : 90000 });
+				await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 60000 });
+				closeModalWindow(page);
+				await wait4selector(page, '#querybuilder', { visible: true, timeout : 60000 });
+			};
+
+			try {
+				try {
+					await openQueryResults();
+				} catch (error) {
+					console.log(`The query builder did not open (${error.message}); loading ${url} once more. Failed requests so far:\n${problems.join('\n') || '(none)'}`);
+					problems.length = 0;
+					await openQueryResults();
+				}
+			} finally {
+				page.removeListener('requestfailed', onRequestFailed);
+				page.removeListener('response', onResponse);
+			}
 			await page.waitForFunction(
 				() => document.querySelectorAll('.query-results-slick .query-results-checkbox').length > 0,
-				{ timeout : 300000 }
+				{ timeout : 120000 }
 			);
-		}, 500000)
+		}, 600000)
 
 		it('An image aligned to a second template is referenced by that template', async () => {
 			/*

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 import GeppettoGraphVisualization from '@geppettoengine/geppetto-ui/graph-visualization/Graph'
+import GraphFitter from '../utils/graphFit';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
@@ -65,6 +66,8 @@ class VFBCircuitBrowser extends Component {
     this.queryResults = this.queryResults.bind(this);
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.resetCamera = this.resetCamera.bind(this);
+    // Fits the graph once its panel is measured and its layout has settled
+    this.fitter = new GraphFitter(() => this.graphRef.current, () => this.state.graph.nodes);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.clearGraph = this.clearGraph.bind(this);
@@ -100,13 +103,13 @@ class VFBCircuitBrowser extends Component {
   componentDidUpdate () {
     let self = this;
     if ( this.props.visible && ( !this.focused || this.graphResized ) ) {
-      setTimeout( function () {
-        self.resetCamera();
-        self.focused = true;
-        self.graphResized = false;
-      }, (self.objectsLoaded * 20));
+      // Shown or resized: fit once the panel is measured and the layout settles
+      this.fitter.request();
+      this.focused = true;
+      this.graphResized = false;
     } else if ( !this.props.visible ) {
       this.focused = false;
+      this.fitter.cancel();
     }
     
     if ( this.circuitQuerySelected !== this.props.circuitQuerySelected ) {
@@ -116,6 +119,7 @@ class VFBCircuitBrowser extends Component {
 
   componentWillUnmount () {
     this.__isMounted = false;
+    this.fitter.dispose();
   }
   
   /**
@@ -147,7 +151,7 @@ class VFBCircuitBrowser extends Component {
 
   resetCamera () {
     if ( this.graphRef.current !== null ) {
-      this.graphRef.current.ggv.current.zoomToFit();
+      this.fitter.fitNow();
       this.focused = true;
     }
   }
@@ -241,8 +245,9 @@ class VFBCircuitBrowser extends Component {
         case "OK":
           self.setState( { graph : e.data.params.results , legend : e.data.params.colorLabels, loading : false, queryLoaded : true });
           self.objectsLoaded = e.data.params.results.nodes.length;
+          // Fit the new graph once it is laid out in a measured panel
+          self.fitter.request();
           setTimeout( function () {
-            self.resetCamera();
             if ( self.graphRef.current !== null ) {
               self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
             }
@@ -446,6 +451,8 @@ class VFBCircuitBrowser extends Component {
             data={this.state.graph}
             // Create the Graph as 2 Dimensional
             d2={true}
+            // Fit again once the force layout has settled
+            onEngineStop={this.fitter.engineStopped}
             nodeLabel={node => node.name + " [" + node.title + "]"}
             // Relationship label, placed in Link
             linkLabel={link => link.label}

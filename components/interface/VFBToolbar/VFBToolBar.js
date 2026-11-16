@@ -2,6 +2,7 @@
 import React from 'react';
 import Menu from '@geppettoengine/geppetto-ui/menu/Menu';
 import { safeGa } from '../utils/utils';
+import { openSceneInNeuroglass } from '../utils/neuroglass';
 var VFBLoader = require('../VFBLoader/VFBLoaderContainer').default;
 var Rnd = require('react-rnd').default;
 
@@ -234,6 +235,10 @@ export default class VFBToolBar extends React.Component {
       break;
     case 'clickQuickHelp':
       this.clickQuickHelp();
+      break;
+    case 'openNeuroglass':
+      safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=Neuroglass'));
+      openSceneInNeuroglass(new URLSearchParams(window.location.search).get('id'));
       break;
     default:
       return this.props.menuHandler(click);

@@ -10,6 +10,8 @@ import { connect } from 'react-redux';
 import { SHOW_LIST_VIEWER } from './../../../actions/generals';
 import focusTermConfiguration from '../../configuration/VFBFocusTerm/focusTermConfiguration';
 import { safeGa } from '../utils/utils';
+import { openSceneInNeuroglass, neuroglassAvailable } from '../utils/neuroglass';
+import NeuroglassLogo from '../../configuration/VFBMain/neuroglass-logo.png';
 
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
@@ -684,6 +686,22 @@ class VFBFocusTerm extends React.Component {
                       this.props.showListViewer(SHOW_LIST_VIEWER);
                     }} />
                 </Tooltip>
+                {/*
+                  * Same as Tools > Open in Neuroglass, with Neuroglass's own logo
+                  * (used with MetaCell's agreement); only offered while the
+                  * scene's template has Neuroglass (precomputed) data.
+                  */}
+                {neuroglassAvailable(window.templateID)
+                  ? <Tooltip placement="top-end"
+                    title="Open this 3D scene in Neuroglass">
+                    <img className="arrowsStyle neuroglassButton"
+                      src={NeuroglassLogo}
+                      alt="Open in Neuroglass"
+                      onClick={() => {
+                        openSceneInNeuroglass(new URLSearchParams(window.location.search).get('id'));
+                      }} />
+                  </Tooltip>
+                  : null}
               </MuiThemeProvider>
             </div>
           </div>

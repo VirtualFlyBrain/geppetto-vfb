@@ -721,7 +721,18 @@ class VFBTree extends React.Component {
         }
         var found = container.querySelector('.nodeFound');
         if (found) {
+          /*
+           * Bring the focused row into view vertically, then undo any
+           * horizontal scroll it caused: in a narrow pane scrollIntoView
+           * pushed the wide row to the right and hid the expand arrow at
+           * its left.
+           */
           found.scrollIntoView({ block: 'center', inline: 'nearest' });
+          for (var el = found; el && el !== document.body; el = el.parentElement) {
+            if (el.scrollLeft > 0) {
+              el.scrollLeft = 0;
+            }
+          }
           return;
         }
         if (pos >= maxScroll || guard > 200) {
@@ -755,6 +766,13 @@ class VFBTree extends React.Component {
     var prevKey = prevSel ? (prevSel.subtitle + '|' + prevSel.instanceId) : '';
     var selKey = sel ? (sel.subtitle + '|' + sel.instanceId) : '';
     if (sel !== undefined && selKey !== prevKey && this.state.loading !== true) {
+      this.scrollSelectedIntoView();
+    } else if (sel !== undefined && this.props.visible && prevProps.visible === false && this.state.loading !== true) {
+      /*
+       * The Tree Browser shares a tabset with Term Info. A term focused
+       * while it was hidden was selected, but the scroll ran against a
+       * zero-height grid; scroll again now that the rows can be measured.
+       */
       this.scrollSelectedIntoView();
     }
   }
