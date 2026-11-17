@@ -51,10 +51,27 @@ const resetCircuitBrowserToDefaultState = async () => {
 
 const setSecondNeuron = async (id) => {
 	await wait4selector(page, '.neuron2 input', { visible: true, timeout: 60 * ONE_SECOND });
-	const triggerAutocomplete = async (searchValue) => {
+	const typeIntoNeuron2 = async (searchValue) => {
 		await page.click('.neuron2 input', { clickCount: 3 });
 		await page.keyboard.press('Backspace');
 		await page.keyboard.type(searchValue, { delay: 35 });
+		return page.evaluate(() => document.querySelector('.neuron2 input').value);
+	};
+	/*
+	 * Opening the Circuit Browser from Term Info sets neuron 1 a moment after
+	 * the tab comes forward, and that update redraws the neuron fields. Text
+	 * being typed into neuron 2 at that moment loses its first characters
+	 * ("VFB_jrchjsfu" arrived as "chjsfu"), the search then finds nothing and
+	 * the test fell back to a neuron from another connectome, which has no path
+	 * to neuron 1. So check what the field holds and type again if it differs.
+	 */
+	const triggerAutocomplete = async (searchValue) => {
+		for (let attempt = 0; attempt < 3; attempt++) {
+			if (await typeIntoNeuron2(searchValue) === searchValue) {
+				break;
+			}
+			await page.waitFor(ONE_SECOND);
+		}
 		return page.waitForSelector('ul.MuiAutocomplete-listbox', { visible: true, timeout: AUTOCOMPLETE_TIMEOUT })
 			.then(() => true)
 			.catch(() => false);
