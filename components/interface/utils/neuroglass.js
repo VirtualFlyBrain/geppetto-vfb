@@ -62,11 +62,48 @@ const TEMPLATE_VIEWS = {
 
 const VOLUME_SAMPLE_ALPHA = 0.03;
 
-const DIMENSIONS = {
-  x: [1e-9, "m"],
-  y: [1e-9, "m"],
-  z: [1e-9, "m"]
+/*
+ * Voxel size of each template, in nm. The state's dimensions are set to this
+ * rather than to 1 nm, because one turn of the mouse wheel over a slice panel
+ * moves one unit of the state's dimensions: at 1 nm the position counted up
+ * but ten turns covered 10 nm of a stack whose slices are 400-1000 nm apart.
+ * With the voxel size, one turn is one slice.
+ */
+const TEMPLATE_VOXELS = {
+  VFB_00101567: [518.9161, 518.9161, 1000],
+  VFB_00200000: [400, 400, 400],
+  VFB_00049000: [290, 290, 500],
+  VFB_00050000: [243, 243, 500.1033]
 };
+
+const NM = [1, 1, 1];
+
+/*
+ * The dimensions and view for a template, in the units Neuroglancer wants.
+ * TEMPLATE_VIEWS stays in nm, which is what the numbers were measured in;
+ * here the position becomes voxels and the two zooms, which Neuroglancer
+ * counts in units of the smallest dimension, are divided by it.
+ */
+export function templateView (templateId) {
+  const voxel = TEMPLATE_VOXELS[templateId] || NM;
+  const view = Object.assign({}, TEMPLATE_VIEWS[templateId] || {});
+  const smallest = Math.min.apply(null, voxel);
+  if (view.position) {
+    view.position = view.position.map((nm, axis) => nm / voxel[axis]);
+  }
+  ["crossSectionScale", "projectionScale"].forEach(function (zoom) {
+    if (view[zoom] !== undefined) {
+      view[zoom] = view[zoom] / smallest;
+    }
+  });
+  return Object.assign({
+    dimensions: {
+      x: [voxel[0] / 1e9, "m"],
+      y: [voxel[1] / 1e9, "m"],
+      z: [voxel[2] / 1e9, "m"]
+    }
+  }, view);
+}
 
 /*
  * 3D rendering, tuned on a real scene (template + medulla + neurons + a GAL4
@@ -461,8 +498,7 @@ export function buildNeuroglassState (rawTerms, templateId, focusId, layout = "4
     const focusTerm = terms.find((term, i) => term.id === focusId && results[i] !== null);
     const selected = focusTerm ? focusTerm.layerName : layers[0].name;
     const state = Object.assign(
-      { dimensions: DIMENSIONS },
-      TEMPLATE_VIEWS[templateId] || {},
+      templateView(templateId),
       {
         layers: layers,
         showSlices: false,
