@@ -78,7 +78,8 @@ describe('VFB Spotlight Tests', () => {
       await page.keyboard.type(' ');
       await page.waitFor(5000);
       await wait4selector(page, '#paperResults', { visible: true , timeout : 50000 })
-    }, 30000)
+    // 15 s of fixed waits plus up to 50 s for the results: a 30 s cap failed whenever the search took over 15 s.
+    }, 90000)
 
     it('fru-M-200266 (VFB_00000001) selected and spotlight has closed', async () => {
     	await page.evaluate(async () => {
