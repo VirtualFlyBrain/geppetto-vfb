@@ -9,6 +9,9 @@ const PARKED = ".flexlayout__border_button";
 
 const parkedCount = async page => page.evaluate(selector => document.querySelectorAll(selector).length, PARKED);
 
+// How many windows Term Info only parked: every window but Term Info, however many the default layout has.
+let parkedByTermInfoOnly = 0;
+
 const openViewMenu = async page => {
   await page.evaluate(async () => document.getElementById("View").click());
   await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 });
@@ -50,7 +53,8 @@ describe('VFB View Menu Tests', () => {
 
   it('Term Info only parks the other windows and names the view in the URL', async () => {
     await chooseView(page, "Term Info only");
-    await page.waitForFunction(selector => document.querySelectorAll(selector).length === 6, { timeout : 120000 }, PARKED);
+    await page.waitForFunction(selector => document.querySelectorAll(selector).length >= 6, { timeout : 120000 }, PARKED);
+    parkedByTermInfoOnly = await parkedCount(page);
     await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
     expect(await page.evaluate(() => new URLSearchParams(window.location.search).get("view"))).toEqual("term");
   });
@@ -72,7 +76,7 @@ describe('VFB View Menu Tests', () => {
 
   it('My view restores the saved arrangement', async () => {
     await chooseView(page, "My view");
-    await page.waitForFunction(selector => document.querySelectorAll(selector).length === 6, { timeout : 120000 }, PARKED);
+    await page.waitForFunction((selector, count) => document.querySelectorAll(selector).length === count, { timeout : 120000 }, PARKED, parkedByTermInfoOnly);
     // Leave the browser as the other test files expect to find it.
     await chooseView(page, "Default");
     await page.evaluate(() => window.localStorage.removeItem("vfb_view_saved"));

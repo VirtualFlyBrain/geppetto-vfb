@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText} from '../utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText, minimizeTab, restoreTab } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -59,8 +59,9 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 
 		it('3DViewer minimized', async () => {
-			// There are three flexlayout_tab components open with the same minimize icon, the second one belongs to the 3d viewer
-			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[1].click());
+			// The 3D Viewer shares its tabset with Neuroglass and the Slice Viewer: select it, then minimize it
+			await minimizeTab(page, "3D Viewer");
+			await page.waitFor(1000);
 			// Check 3d viewer is visible again by checking css property 'display : none'
 			let minimized = await page.evaluate(async () => {
 				return document.getElementById("CanvasContainer_component").parentElement.style.getPropertyValue("display")
@@ -69,24 +70,8 @@ describe('VFB 3D Viewer Component Tests', () => {
 		})
 
 		it('3DViewer maximized', async () => {
-			// Using 'click()' function on minimized element doesn't work, needs to dispatch 'mouseup' and 'mousedown' events instead
-			await page.evaluate(async () => {
-				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[0]
-				let clickEvent = new MouseEvent('mousedown', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				mouseUp.dispatchEvent(clickEvent);
-
-				let mouseDown = document.getElementsByClassName('flexlayout__border_button')[0]
-				clickEvent = new MouseEvent('mouseup', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				mouseDown.dispatchEvent(clickEvent);
-			});
+			await restoreTab(page, "3D Viewer");
+			await page.waitFor(1000);
 
 			// Check 3d viewer is visible again by checking css property 'display : block'
 			let maximized = await page.evaluate(async () => {

@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
 import {  getUrlFromProjectId } from '../cmdline.js';
-import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText } from '../utils';
+import { wait4selector, click, closeModalWindow, flexWindowClick, findElementByText, selectTab, minimizeTab, restoreTab } from '../utils';
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
@@ -176,6 +176,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 	//Tests slice viewer component, tests there's 2 visible meshes rendered
 	describe('Test Slice Viewer Component', () => {
 		it('SliceViewer present', async () => {
+			// The Slice Viewer shares its tabset with Neuroglass and the 3D Viewer
+			await selectTab(page, "Slice Viewer");
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true , timeout : 500000})
 		})
 
@@ -231,7 +233,7 @@ describe('VFB Slice Viewer Component Tests', () => {
 
 	describe('Test Stack Viewer Component Maximizes/Minimizes/Opens/Closes', () => {
 		it('SliceViewer minimized', async () => {
-			await page.evaluate(async () => document.getElementsByClassName("fa-window-minimize")[0].click());
+			await minimizeTab(page, "Slice Viewer");
 			await page.waitFor(1000);
 			// Check slice viewer is visible again by checking css property 'display : none'
 			let minimized = await page.evaluate(async () => {
@@ -241,24 +243,8 @@ describe('VFB Slice Viewer Component Tests', () => {
 		})
 
 		it('SliceViewer maximized', async () => {
-			// Using 'click()' function on minimized element doesn't work, needs to dispatch 'mouseup' and 'mousedown' events instead
-			await page.evaluate(async () => {
-				let mouseUp = document.getElementsByClassName('flexlayout__border_button')[0]
-				let clickEvent = new MouseEvent('mousedown', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				mouseUp.dispatchEvent(clickEvent);
-
-				let mouseDown = document.getElementsByClassName('flexlayout__border_button')[0]
-				clickEvent = new MouseEvent('mouseup', {
-					view: window,
-					bubbles: true,
-					cancelable: true
-				});
-				mouseDown.dispatchEvent(clickEvent);
-			});
+			await restoreTab(page, "Slice Viewer");
+			await page.waitFor(1000);
 
 			// Check slice viewer is visible again by checking css property 'display : block'
 			let maximized = await page.evaluate(async () => {

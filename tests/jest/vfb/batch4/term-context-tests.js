@@ -114,6 +114,8 @@ describe('VFB Term Context Component Tests', () => {
 		// run 25308773215 the assertion fired with "Queries for JRC2018Unisex" still
 		// showing (the previous focus). Poll until it switches to medulla.
 		it('Medulla Loaded', async () => {
+			// Term Context stays in front when a term loads; Term Info shares its tabset
+			await selectTab(page, "Term Info");
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
 			await page.waitForFunction(
 				() => {

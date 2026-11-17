@@ -27,6 +27,7 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBNeuroglassViewer from './interface/VFBNeuroglass/VFBNeuroglassViewer';
 import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
 import VFBNeuroglassButton from './interface/VFBNeuroglassButton/VFBNeuroglassButton';
 import { connect } from "react-redux";
@@ -40,6 +41,13 @@ var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
 var { layoutViews, alwaysRendered, componentStateFlags } = require('./configuration/VFBMain/layoutViews');
+
+/*
+ * Tools that share the Term Info tabset and load terms themselves (eye icons,
+ * clicks on graph nodes). While one of them is in front, a term loading
+ * updates Term Info behind it instead of hiding the tool.
+ */
+const TERM_INFO_TABSET_TOOLS = ["treeBrowser", "vfbCircuitBrowser", "vfbGraph"];
 
 /*
  * The VFB template ids. When a URL loads, the first of its ids that is one of
@@ -61,6 +69,7 @@ class VFBMain extends React.Component {
       listViewerVisible: true,
       graphVisible : true,
       circuitBrowserVisible : true,
+      neuroglassViewerVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -80,6 +89,7 @@ class VFBMain extends React.Component {
 
     this.addVfbId = this.addVfbId.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
+    this.refreshCanvasControls = this.refreshCanvasControls.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
     this.closeQuickHelp = this.closeQuickHelp.bind(this);
@@ -103,6 +113,7 @@ class VFBMain extends React.Component {
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
     this.circuitBrowserReference = undefined;
+    this.neuroglassViewerReference = undefined;
     this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
@@ -1022,6 +1033,9 @@ class VFBMain extends React.Component {
     case 'circuitBrowserVisible':
       this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
       break;
+    case 'neuroglassViewerVisible':
+      this.UIUpdateItem(buttonState, "vfbNeuroglassViewer");
+      break;
     case 'spotlightVisible':
       this.setState({
         UIUpdated: true,
@@ -1364,6 +1378,17 @@ class VFBMain extends React.Component {
         circuitBrowserVisible: true
       });
     }
+    if ((this.state.neuroglassViewerVisible !== prevState.neuroglassViewerVisible) && (this.state.neuroglassViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Neuroglass Viewer",
+        component: "vfbNeuroglassViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        neuroglassViewerVisible: true
+      });
+    }
     if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
@@ -1416,6 +1441,12 @@ class VFBMain extends React.Component {
       case 'circuitBrowserVisible':
         if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
           this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'neuroglassViewerVisible':
+        if (this.neuroglassViewerReference !== undefined && this.neuroglassViewerReference !== null) {
+          this.restoreUIComponent("vfbNeuroglassViewer");
         }
         this.setState({ UIUpdated: false });
         break;
@@ -1576,6 +1607,7 @@ class VFBMain extends React.Component {
         <VFBTree
           id="treeWidget"
           instance={this.instanceOnFocus}
+          visible={node.isVisible()}
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}
           selectionHandler={this.addVfbId} />
@@ -1634,6 +1666,20 @@ class VFBMain extends React.Component {
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
+      </div>);
+    } else if (component === "vfbNeuroglassViewer") {
+      let neuroglassViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          neuroglassViewerVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "hidden", height: _height, width: _width }}>
+        <VFBNeuroglassViewer ref={ref => this.neuroglassViewerReference = ref} visible={neuroglassViewerVisibility} />
       </div>);
     }
   }
@@ -1840,10 +1886,41 @@ class VFBMain extends React.Component {
 
   componentWillUnmount () {
     document.removeEventListener('mousedown', this.handleClickOutside);
+    ['mousedown', 'touchstart', 'wheel'].forEach(type => {
+      document.removeEventListener(type, this.refreshCanvasControls, true);
+    });
+  }
+
+  /*
+   * Tell the 3D viewer's mouse controls where the canvas is on screen.
+   *
+   * The controls turn a drag into a rotation using a copy of the canvas's
+   * position and size that they only take when asked. componentDidUpdate asks,
+   * but FlexLayout redraws itself without updating VFBMain: selecting the 3D
+   * Viewer tab, bringing it back from the bottom bar, dragging a splitter and
+   * resizing the window all move the canvas with the copy left as it was. A
+   * canvas first drawn while hidden (behind another tab, or parked by a view)
+   * keeps a size of 0 x 0, and dragging then does not rotate at all.
+   *
+   * So measure again as each gesture starts, on the capture phase so it is done
+   * before the controls' own handler on the canvas reads it.
+   */
+  refreshCanvasControls (event) {
+    var controls = this.canvasReference && this.canvasReference.engine && this.canvasReference.engine.controls;
+    if (!controls || !controls.domElement || typeof controls.handleResize !== "function") {
+      return;
+    }
+    var canvas = controls.domElement;
+    if (event.target === canvas || (typeof canvas.contains === "function" && canvas.contains(event.target))) {
+      controls.handleResize();
+    }
   }
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
+    ['mousedown', 'touchstart', 'wheel'].forEach(type => {
+      document.addEventListener(type, this.refreshCanvasControls, { capture: true, passive: true });
+    });
     // "?" help buttons on the query builder / results, which geppetto-client renders.
     watchInjectedHelpButtons();
 
@@ -2727,9 +2804,31 @@ class VFBMain extends React.Component {
   }
 
   /**
+   * True when the tabset holding Term Info shows one of TERM_INFO_TABSET_TOOLS.
+   */
+  toolInFrontOfTermInfo () {
+    let toolInFront = false;
+    this.model.visitNodes(node => {
+      if (node.getType() !== "tabset") {
+        return;
+      }
+      const holdsTermInfo = node.getChildren().some(child => typeof child.getComponent === "function" && child.getComponent() === "termInfo");
+      const selected = node.getSelectedNode();
+      if (holdsTermInfo && selected && typeof selected.getComponent === "function"
+          && TERM_INFO_TABSET_TOOLS.includes(selected.getComponent())) {
+        toolInFront = true;
+      }
+    });
+    return toolInFront;
+  }
+
+  /**
    * Makes tab named 'tabName' become active.
    */
   setActiveTab (tabComponentName, children) {
+    if (tabComponentName === "termInfo" && children === undefined && this.toolInFrontOfTermInfo()) {
+      return;
+    }
     let matchTab = 0;
     let layoutChildren = children == undefined || children == null ? this.model.toJson().layout.children : children;
     for ( var i = 0; i < layoutChildren.length; i++){

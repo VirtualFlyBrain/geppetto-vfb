@@ -87,7 +87,9 @@ describe('VFB Menu Component Tests', () => {
     it('Close the Virtual Fly Brain Menu', async () => {
       // close the menu
       await page.evaluate(async () => document.getElementById("Virtual Fly Brain").click());
-      await wait4selector(page, "ul.MuiList-root", { visible: true, timeout : 120000 })
+      // The menu fades out before it unmounts; wait until its items are gone so
+      // they aren't counted with the next menu's
+      await page.waitForFunction(() => document.getElementsByClassName("MuiListItem-root").length === 0, { timeout : 120000 });
     })
 
     it('Help Menu Appears', async () => {

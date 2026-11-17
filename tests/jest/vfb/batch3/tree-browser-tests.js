@@ -195,6 +195,8 @@ describe('VFB Tree Browser Component Tests', () => {
 			await page.evaluate(() => {
 				VFB_00030867.deselect();
 			});
+			// Term Info stays behind the Template ROI Browser, which shares its tabset
+			await selectTab(page, "Term Info");
 			await wait4selector(page, '#VFB_00030867_select_buttonBar_btn', { visible: true, timeout : 800000 });
 			const newColor = await page.evaluate(async () => {
 				const mesh = CanvasContainer.engine.meshes["VFB_00030867.VFB_00030867_obj"];
@@ -207,8 +209,13 @@ describe('VFB Tree Browser Component Tests', () => {
 		}, 240000)
 
 		it('Click on Node "adult mushroom body"', async () => {
+			await selectTab(page, "Template ROI Browser");
+			await wait4selector(page, 'div.rst__tree', { visible: true, timeout : 120000 });
 			await clickTreeNode(page, "adult mushroom body");
-			// Check Term Info is now populated with adult cerebral ganglion name
+			// The tree stays in front: switch to Term Info to check it followed the click
+			await selectTab(page, "Term Info");
+			await page.waitFor(2000);
+			// Check Term Info is now populated with adult mushroom body name
 			let element = await findElementByText(page, "adult mushroom body");
 			expect(element).toBe("adult mushroom body");
 			await wait4selector(page, '#VFB_00030867_deselect_buttonBar_btn', { visible: true , timeout : 120000 });
