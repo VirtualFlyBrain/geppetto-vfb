@@ -80,6 +80,7 @@ class VFBMain extends React.Component {
 
     this.addVfbId = this.addVfbId.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
+    this.refreshCanvasControls = this.refreshCanvasControls.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
     this.closeQuickHelp = this.closeQuickHelp.bind(this);
@@ -1840,10 +1841,41 @@ class VFBMain extends React.Component {
 
   componentWillUnmount () {
     document.removeEventListener('mousedown', this.handleClickOutside);
+    ['mousedown', 'touchstart', 'wheel'].forEach(type => {
+      document.removeEventListener(type, this.refreshCanvasControls, true);
+    });
+  }
+
+  /*
+   * Tell the 3D viewer's mouse controls where the canvas is on screen.
+   *
+   * The controls turn a drag into a rotation using a copy of the canvas's
+   * position and size that they only take when asked. componentDidUpdate asks,
+   * but FlexLayout redraws itself without updating VFBMain: selecting the 3D
+   * Viewer tab, bringing it back from the bottom bar, dragging a splitter and
+   * resizing the window all move the canvas with the copy left as it was. A
+   * canvas first drawn while hidden (behind another tab, or parked by a view)
+   * keeps a size of 0 x 0, and dragging then does not rotate at all.
+   *
+   * So measure again as each gesture starts, on the capture phase so it is done
+   * before the controls' own handler on the canvas reads it.
+   */
+  refreshCanvasControls (event) {
+    var controls = this.canvasReference && this.canvasReference.engine && this.canvasReference.engine.controls;
+    if (!controls || !controls.domElement || typeof controls.handleResize !== "function") {
+      return;
+    }
+    var canvas = controls.domElement;
+    if (event.target === canvas || (typeof canvas.contains === "function" && canvas.contains(event.target))) {
+      controls.handleResize();
+    }
   }
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
+    ['mousedown', 'touchstart', 'wheel'].forEach(type => {
+      document.addEventListener(type, this.refreshCanvasControls, { capture: true, passive: true });
+    });
     // "?" help buttons on the query builder / results, which geppetto-client renders.
     watchInjectedHelpButtons();
 
