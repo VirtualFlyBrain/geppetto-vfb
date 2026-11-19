@@ -20,7 +20,8 @@ const globalConfiguration:any = {
         "start": "0",
         "pf": "true",
         "fq": [
-            "facets_annotation:has_neuron_connectivity",
+            // Neurons with connectivity, and neuron types (classes) for class-level paths
+            "facets_annotation:has_neuron_connectivity OR (facets_annotation:Class AND facets_annotation:Neuron)",
             "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*",
             "NOT facets_annotation:Deprecated"
         ],
@@ -479,7 +480,8 @@ export const datasourceConfiguration = {
       "start": "0",
       "pf":"true",
       "fq": [
-        "facets_annotation:has_neuron_connectivity",
+        // Neurons with connectivity, and neuron types (classes) for class-level paths
+        "facets_annotation:has_neuron_connectivity OR (facets_annotation:Class AND facets_annotation:Neuron)",
         "shortform_autosuggest:VFB* OR shortform_autosuggest:FB*",
         "NOT facets_annotation:Deprecated"
       ],

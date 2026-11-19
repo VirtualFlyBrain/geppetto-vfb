@@ -6,7 +6,7 @@ import { wait4selector, click, testLandingPage, flexWindowClick, findElementByTe
 import * as ST from '../selectors';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const projectURL = baseURL + "/geppetto?id=VFB_jrchjrch";
+const projectURL = baseURL + "/geppetto?id=VFB_jrmc26km";
 
 const ONE_SECOND = 1000;
 const TEN_MINUTES = 600 * ONE_SECOND;
@@ -44,7 +44,7 @@ const refreshCircuitBrowserWithFallback = async () => {
 
 const resetCircuitBrowserToDefaultState = async () => {
 	await page.goto(projectURL);
-	await testLandingPage(page, 'VFB_jrchjrch');
+	await testLandingPage(page, 'VFB_jrmc26km');
 	await selectTab(page, "Circuit Browser");
 	await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
 };
@@ -79,10 +79,10 @@ const setSecondNeuron = async (id) => {
 
 	let autocompleteVisible = await triggerAutocomplete(id);
 	if (!autocompleteVisible) {
-		autocompleteVisible = await triggerAutocomplete('VFB_jr');
+		autocompleteVisible = await triggerAutocomplete('VFB_jrmc');
 	}
 	if (!autocompleteVisible) {
-		autocompleteVisible = await triggerAutocomplete('5-HT');
+		autocompleteVisible = await triggerAutocomplete('DNp01');
 	}
 	if (!autocompleteVisible) {
 		return false;
@@ -140,7 +140,7 @@ describe('VFB Circuit Browser Tests', () => {
 	describe('Test Circuit Browser Component', () => {
 		//Tests components in landing page are present
 		it('Test Landing Page', async () => {
-			await testLandingPage(page, 'VFB_jrchjrch');
+			await testLandingPage(page, 'VFB_jrmc26km');
 		})
 		
 		it('Open Circuit Browser', async () => {
@@ -158,7 +158,7 @@ describe('VFB Circuit Browser Tests', () => {
 			await wait4selector(page, '#circuitBrowserLink', { visible: true, timeout : 150 * ONE_SECOND });
 		})
 		
-		it('Open Circuit Browser from Term Info with ID : VFB_jrchjrch', async () => {
+		it('Open Circuit Browser from Term Info with ID : VFB_jrmc26km', async () => {
 			await page.click("#circuitBrowserLink");
 
 			// Check that the Circuit Browser is visible
@@ -172,18 +172,18 @@ describe('VFB Circuit Browser Tests', () => {
 			}, { timeout: 30 * ONE_SECOND });
 
 			const neuron1Input = await page.evaluate(() => document.querySelector(".neuron1 input").value);
-		    expect(neuron1Input).toBe("5-HTPLP01_R (FlyEM-HB:1324365879) (VFB_jrchjrch)");
+		    expect(neuron1Input).toBe("LC12_L (MaleCNS:49415) (VFB_jrmc26km)");
 		})
 		
-		it('Set Neuron 2, VFB_jrchjsfu', async () => {
-			secondNeuronConfigured = await setSecondNeuron("VFB_jrchjsfu");
+		it('Set Neuron 2, VFB_jrmc30mz', async () => {
+			secondNeuronConfigured = await setSecondNeuron("VFB_jrmc30mz");
 			if (!secondNeuronConfigured) {
 				return;
 			}
 			expect(secondNeuronConfigured).toBe(true);
 		})
 		
-		it('Refresh Graph with VFB_jrchjrch and VFB_jrchjsfu', async () => {
+		it('Refresh Graph with VFB_jrmc26km and VFB_jrmc30mz', async () => {
 			if (!secondNeuronConfigured) {
 				return;
 			}
@@ -220,6 +220,54 @@ describe('VFB Circuit Browser Tests', () => {
 			
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
 		    expect(legendLabels).toBeGreaterThanOrEqual(minimumLegendRows);
+		})
+	})
+
+	/*
+	 * Class level: LC12 to the giant fiber neuron (DNp01). Paths come back for
+	 * each connectome that has both types, and one is shown at a time.
+	 */
+	describe('Circuit Browser at class level', () => {
+		let classQueryConfigured = false;
+
+		it('Open the Circuit Browser from LC12', async () => {
+			await page.goto(baseURL + "/geppetto?id=FBbt_00100484");
+			await testLandingPage(page, 'FBbt_00100484');
+			await selectTab(page, "Term Info");
+			await wait4selector(page, '#circuitBrowserLink', { visible: true, timeout : 150 * ONE_SECOND });
+			await page.click("#circuitBrowserLink");
+			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout : 90 * ONE_SECOND });
+			await page.waitForFunction(() => {
+				const input = document.querySelector('.neuron1 input');
+				return input && input.value.includes('FBbt_00100484');
+			}, { timeout: 30 * ONE_SECOND });
+		})
+
+		it('Set the target to the giant fiber neuron, FBbt_00004020', async () => {
+			secondNeuronConfigured = await setSecondNeuron("FBbt_00004020");
+			classQueryConfigured = secondNeuronConfigured
+				&& await page.evaluate(() => document.querySelector('.neuron2 input').value.includes('FBbt_00004020'));
+		})
+
+		it('Paths are found in more than one dataset', async () => {
+			if (!classQueryConfigured) {
+				return;
+			}
+			await refreshCircuitBrowser(2);
+			const datasets = await page.evaluate(() => document.querySelectorAll('#circuitBrowserDataset option').length);
+			expect(datasets).toBeGreaterThanOrEqual(2);
+		})
+
+		it('Example neurons can be shown for the class paths', async () => {
+			if (!classQueryConfigured) {
+				return;
+			}
+			await page.click('#circuitBrowserShowNeurons');
+			await waitForLegendWithRows(2);
+			await page.waitForFunction(() => {
+				const box = document.querySelector('#circuitBrowserShowNeurons');
+				return box && box.checked;
+			}, { timeout: LEGEND_TIMEOUT });
 		})
 	})
 })

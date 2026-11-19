@@ -122,11 +122,16 @@ const linksConfiguration = {
     "visibility": true,
     "superType": "Anatomy"
   },
-  // CircuitBrowser Links configuration, name of key "CircuitBrowser" must not be changed
+  /*
+   * CircuitBrowser Links configuration, name of key "CircuitBrowser" must not be changed.
+   * Offered for neurons with connectivity and for neuron types (classes), which
+   * the Circuit Browser searches at class level. A list in superType means any
+   * of its entries; an entry that is itself a list needs all of its types.
+   */
   "CircuitBrowser": {
-    "title": "Add Neuron to Circuit Browser Query",
+    "title": "Add to Circuit Browser Query",
     "visibility": true,
-    "superType": "has_neuron_connectivity"
+    "superType": ["has_neuron_connectivity", ["Class", "Neuron"]]
   }
 }
 

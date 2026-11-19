@@ -5,9 +5,13 @@ import { wait4selector, testLandingPage, selectTab } from '../utils.js';
 import * as ST from '../selectors.js';
 
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
-const NEURON_ID = 'VFB_jrchjrch';
-const NEURON_LABEL = '5-HTPLP01_R';
+// A male CNS neuron: hemibrain is left out of class-level searches by default
+const NEURON_ID = 'VFB_jrmc26km';
+const NEURON_LABEL = 'LC12_L';
 const PROJECT_URL = `${baseURL}/geppetto?id=${NEURON_ID}`;
+// A neuron type, which the Circuit Browser searches at class level
+const CLASS_ID = 'FBbt_00100484';
+const CLASS_URL = `${baseURL}/geppetto?id=${CLASS_ID}`;
 
 const ONE_SECOND = 1000;
 
@@ -80,6 +84,13 @@ describe('VFB Circuit Browser Tab Tests', () => {
 			expect(neuron1).toContain(NEURON_ID);
 			expect(neuron1).toContain(NEURON_LABEL);
 		}, 300000);
+
+		it('The term is tagged as an Individual', async () => {
+			await page.waitForFunction(() => {
+				const tag = document.querySelector('.neuron1 .circuitTermKind');
+				return tag && tag.textContent === 'Individual';
+			}, { timeout: 30 * ONE_SECOND });
+		}, 60000);
 	});
 
 	describe('Clearing the query', () => {
@@ -92,5 +103,27 @@ describe('VFB Circuit Browser Tab Tests', () => {
 			}, { timeout: 60 * ONE_SECOND });
 			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout: 30 * ONE_SECOND });
 		}, 180000);
+	});
+
+	describe('Opening it from a neuron type', () => {
+		it('Term info for a neuron type offers it to the Circuit Browser', async () => {
+			await page.goto(CLASS_URL, { timeout: 220000 });
+			await testLandingPage(page, CLASS_ID);
+			await selectTab(page, 'Term Info');
+			await wait4selector(page, '#circuitBrowserLink', { visible: true, timeout: 240 * ONE_SECOND });
+		}, 400000);
+
+		it('The type becomes the first term of the query, tagged as a Class', async () => {
+			await page.click('#circuitBrowserLink');
+			await wait4selector(page, '#refreshCircuitBrowser', { visible: true, timeout: 150 * ONE_SECOND });
+			await page.waitForFunction((id) => {
+				const input = document.querySelector('.neuron1 input');
+				return input && input.value.includes(id);
+			}, { timeout: 60 * ONE_SECOND }, CLASS_ID);
+			await page.waitForFunction(() => {
+				const tag = document.querySelector('.neuron1 .circuitTermKind');
+				return tag && tag.textContent === 'Class';
+			}, { timeout: 30 * ONE_SECOND });
+		}, 300000);
 	});
 });
