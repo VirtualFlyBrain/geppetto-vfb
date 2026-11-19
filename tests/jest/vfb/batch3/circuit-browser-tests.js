@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const { TimeoutError } = require('puppeteer/Errors');
 
-import { wait4selector, testLandingPage, selectTab } from '../utils.js';
+import { wait4selector, testLandingPage, selectTab, closeModalWindow } from '../utils.js';
 import * as ST from '../selectors.js';
 
 const baseURL = process.env.url || 'http://localhost:8080/org.geppetto.frontend';
@@ -108,7 +108,9 @@ describe('VFB Circuit Browser Tab Tests', () => {
 	describe('Opening it from a neuron type', () => {
 		it('Term info for a neuron type offers it to the Circuit Browser', async () => {
 			await page.goto(CLASS_URL, { timeout: 220000 });
-			await testLandingPage(page, CLASS_ID);
+			// testLandingPage waits for a deselect button, which only individuals have
+			await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout: 120 * ONE_SECOND });
+			await closeModalWindow(page);
 			await selectTab(page, 'Term Info');
 			await wait4selector(page, '#circuitBrowserLink', { visible: true, timeout: 240 * ONE_SECOND });
 		}, 400000);
