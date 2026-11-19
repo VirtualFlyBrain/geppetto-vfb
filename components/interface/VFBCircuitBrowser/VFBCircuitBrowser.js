@@ -54,8 +54,10 @@ class VFBCircuitBrowser extends Component {
       paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
       // Minimum synapses per connection, the /circuit_paths default
       weight : 5,
-      // Last /circuit_paths response, the dataset shown from it and whether
-      // class paths are shown as example neurons
+      /*
+       * Last /circuit_paths response, the dataset shown from it and whether
+       * class paths are shown as example neurons
+       */
       response : null,
       datasets : [],
       dataset : null,
