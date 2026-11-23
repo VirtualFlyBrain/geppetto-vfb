@@ -6,7 +6,8 @@ import { wait4selector, click, testLandingPage, selectTab } from '../utils.js';
 import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const projectURL = baseURL + "/geppetto";
+// The snapshots were taken in the V3 default layout; the page now opens in V2 default.
+const projectURL = baseURL + "/geppetto?view=v3";
 
 //Snapshot settings
 const SNAPSHOT_OPTIONS = { 
