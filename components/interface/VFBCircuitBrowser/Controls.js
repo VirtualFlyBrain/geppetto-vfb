@@ -28,6 +28,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
+import { termKind } from './circuitPaths';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -103,15 +104,58 @@ const styles = theme => ({
     fontFamily: ['Barlow Condensed', 'Khand', "sans-serif"]
   },
   slider : { color: '#0AB7FE' },
-  typography : { fontSize : "15px" }
+  typography : { fontSize : "15px" },
+  // Class / Individual tag on search results and on the chosen term
+  kindTag : {
+    display : "inline-block",
+    flexShrink : 0,
+    marginRight : "6px",
+    padding : "0 4px",
+    borderRadius : "3px",
+    fontSize : "11px",
+    lineHeight : "16px",
+    color : "white"
+  },
+  kindClass : { backgroundColor : "#0A7FB0" },
+  kindIndividual : { backgroundColor : "#6D6D6D" },
+  legendSelect : {
+    marginLeft : "6px",
+    backgroundColor : "#80808040",
+    color : "white",
+    border : "none",
+    fontFamily : "inherit",
+    fontSize : "14px"
+  },
+  legendNote : { maxWidth : "22rem", whiteSpace : "normal" }
 });
+
+/**
+ * "Class" for a neuron type, "Individual" for a neuron. Solr's facets say
+ * which when we have them; otherwise go by the id (FBbt_ classes, VFB_ neurons).
+ */
+const kindOf = (id, facets) => {
+  if ( Array.isArray(facets) ) {
+    if ( facets.includes("Class") ) {
+      return "Class";
+    }
+    if ( facets.includes("Individual") ) {
+      return "Individual";
+    }
+  }
+  return termKind(id);
+};
+
+const KindTag = ({ kind, classes }) => (
+  <span
+    className={classes.kindTag + " " + (kind === "Class" ? classes.kindClass : classes.kindIndividual) + " circuitTermKind"}
+    title={kind === "Class" ? "Class: a neuron type, searched in every connectome that has it" : "Individual: one neuron, in its own connectome"}
+  >{kind}</span>
+);
 
 /**
  * Read configuration from circuitBrowserConfiguration
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
-const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
 const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
 const defaultDatasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
@@ -170,8 +214,15 @@ class AutocompleteResults extends Component {
   }
   
   render () {
-    const label = "Neuron " + (this.props.index + 1) .toString();
+    const { classes } = this.props;
+    // The first field is where paths start, the last where they end
+    const label = (this.props.index === 0 ? "From" : "To") + ": neuron or neuron type";
+    // Kept as neuron1/neuron2 for the tests
+    const fieldClass = "neuron" + (this.props.index + 1).toString();
     const options = Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label);
+    // Tag the chosen term; text still being typed has its label equal to its id
+    const fieldId = this.props.field?.id;
+    const fieldKind = fieldId && fieldId.match(pattern) && this.fieldLabel && this.fieldLabel !== fieldId ? termKind(fieldId) : null;
     
     return (
       <Autocomplete
@@ -186,15 +237,25 @@ class AutocompleteResults extends Component {
         id={this.props.index.toString()}
         ListboxProps={{ style: { maxHeight: "10rem", fontSize: "15px" } }}
         onChange={this.props.resultSelectedChanged}
-        options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
+        options={options}
+        renderOption={option => {
+          const result = this.state.filteredResults[option];
+          return (
+            <React.Fragment>
+              <KindTag kind={kindOf(result?.short_form, result?.facets_annotation)} classes={classes} />
+              {option}
+            </React.Fragment>
+          );
+        }}
         renderInput={params => (
           <TextField
             {...params}
             label={label}
             key={this.props.field.id}
-            className={label.replace(/ +/g, "").toLowerCase()}
+            className={fieldClass}
             onChange={this.props.neuronTextfieldModified}
             onBlur={this.props.textFieldLoseFocus}
+            InputProps={{ ...params.InputProps, startAdornment : fieldKind ? <KindTag kind={fieldKind} classes={classes} /> : null }}
             inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
           />
@@ -356,13 +417,16 @@ class Controls extends Component {
   
   /**
    * Wraps the autocomplete handleResults callback to filter results by connectome prefix.
-   * When a neuron has been selected, subsequent searches only show neurons from the same connectome.
+   * When a neuron has been selected, subsequent searches only show neurons from the same
+   * connectome, as paths between neurons stay within one. Neuron types (classes) are
+   * always offered: a type is searched in the neuron's connectome.
    */
   wrapResultsCallback (handleResults) {
     const self = this;
     return function (status, data, value) {
       if ( self.connectomePrefix && data ) {
-        data = data.filter(item => item.label && item.label.includes(self.connectomePrefix + ':'));
+        data = data.filter(item => kindOf(item.short_form, item.facets_annotation) === "Class"
+          || (item.label && item.label.includes(self.connectomePrefix + ':')));
       }
       handleResults(status, data, value);
     };
@@ -524,6 +588,7 @@ class Controls extends Component {
     }
     
     let disabledRun = !self.fieldsValidated(self.neuronFields);
+    const summary = this.props.datasetSummary;
     
     // Show delete icon on neuron text fields only if there's more than the minimum allowed
     let deleteIconVisible = neuronFields.length > configuration.minNeurons;
@@ -542,11 +607,49 @@ class Controls extends Component {
           </div>
           { this.props.resultsAvailable()
             ? <ul className={classes.legend} id="circuitBrowserLegend">
+              <li>
+                Dataset
+                <select
+                  id="circuitBrowserDataset"
+                  className={classes.legendSelect}
+                  value={this.props.dataset || ""}
+                  onChange={event => this.props.selectDataset(event.target.value)}
+                >
+                  { (this.props.datasets || []).map(option => (
+                    <option key={option.dataset} value={option.dataset}>{option.name + " (" + option.paths + (option.paths === 1 ? " path)" : " paths)")}</option>
+                  ))}
+                </select>
+              </li>
+              { summary?.level === "class"
+                ? <li>
+                  <label>
+                    <input
+                      type="checkbox"
+                      id="circuitBrowserShowNeurons"
+                      checked={!!this.props.showNeurons}
+                      onChange={event => this.props.toggleNeurons(event.target.checked)}
+                    /> Show example neurons (slower)
+                  </label>
+                </li>
+                : null
+              }
+              { summary?.alsoFoundIn?.length
+                ? <li className={classes.legendNote}>Some of these paths are also found in {summary.alsoFoundIn.join(", ")}</li>
+                : null
+              }
+              { summary?.level === "class" && summary?.neuronsLeftOut
+                ? <li className={classes.legendNote}>{summary.neuronsLeftOut} neurons without a type in this dataset are not included</li>
+                : null
+              }
+              { this.props.message
+                ? <li className={classes.legendNote}>{this.props.message}</li>
+                : null
+              }
               { this.props.legend.map((label, index) => (
-                <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li>
+                <li key={label}><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li>
               ))
               }
-              <li>WEIGHT -Forward [Reverse]→</li>
+              <li>Links: synapses · share of target's input →</li>
             </ul>
             : null
           }
@@ -581,6 +684,7 @@ class Controls extends Component {
                           textFieldLoseFocus={this.textFieldLoseFocus}
                           getLatestNeuronFields={this.getUpdatedNeuronFields}
                           resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
+                          classes={classes}
                           ref={this.autocompleteRef[index.toString()]}
                         />
                       </Grid>
@@ -654,7 +758,7 @@ class Controls extends Component {
                 </Grid>
                 <Grid container spacing={1} alignItems="flex-end">
                   <Grid item sm={3}>
-                    <Typography classes={{ root : classes.typography }}>Min Weight</Typography>
+                    <Typography classes={{ root : classes.typography }} title="Minimum synapses per connection">Min Weight</Typography>
                   </Grid>
                   <Grid item sm={9}>
                     <Input className={classes.weightInputDiv} label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />

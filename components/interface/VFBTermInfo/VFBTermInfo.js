@@ -233,12 +233,10 @@ class VFBTermInfo extends React.Component {
         superTypes = anyInstance.getParent().getType().getSuperType();
       }
       
-      for ( var i = 0 ; i < superTypes.length ; i++ ){
-        if ( superTypes[i].wrappedObj.id == superType ){
-          hasSuperType = true;
-          break;
-        }
-      }
+      // superType: a type id, or a list of alternatives, each a type id or a list of ids all needed
+      const typeIds = Array.from(superTypes || []).map(type => type?.wrappedObj?.id);
+      const alternatives = Array.isArray(superType) ? superType : [superType];
+      hasSuperType = alternatives.some(alternative => (Array.isArray(alternative) ? alternative : [alternative]).every(id => typeIds.includes(id)));
       
       // Check if link has been added already, if it has, don't add it again
       for ( var i = 0; i < variables.length; i++ ){
