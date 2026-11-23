@@ -1,83 +1,54 @@
-var locationCypherQuery = ( instances, paths, weight ) => ({
-  "statements": [
-    {
-      "statement" : "WITH [" + instances + "] AS neurons"
-      + " WITH neurons[0] as a, neurons[1] AS b"
-      /*
-       * Route to the pre-built named GDS projection for this pair's connectome
-       * (cb_<connectome short_form>), rebuilt per KB load by the polishing
-       * pipeline (see build_connectome_projections.sh). Both neurons must share
-       * the same :Connectome:Site; if they do not the second MATCH fails and the
-       * query returns no paths. This replaces the old anonymous per-request
-       * projection over the whole 34.7M-edge synapsed_to graph, which timed out.
-       */
-      + " MATCH (source:Neuron:has_neuron_connectivity {short_form: a})-[:database_cross_reference]->(site:Connectome)"
-      + " MATCH (target:Neuron:has_neuron_connectivity {short_form: b})-[:database_cross_reference]->(site)"
-      + " WITH a, b, source, target, 'cb_' + site.short_form AS graphName"
-      /*
-       * Yen's k-shortest-paths. GDS 1.x (Neo4j 4.2 pdb) only has the beta procedure and
-       * needs `path: true`; GDS 2.x (Neo4j 4.4 pdb on the cluster) only has the
-       * production one and rejects `path`. Pick whichever the server offers, so the
-       * same build works against either database during the migration.
-       */
-      + " CALL dbms.procedures() YIELD name"
-      + " WHERE name IN ['gds.shortestPath.yens.stream', 'gds.beta.shortestPath.yens.stream']"
-      + " WITH a, b, source, target, graphName, collect(name) AS yensProcs"
-      + " WITH a, b, source, target, graphName,"
-      + "  CASE WHEN 'gds.shortestPath.yens.stream' IN yensProcs THEN 'gds.shortestPath.yens.stream'"
-      + "       ELSE 'gds.beta.shortestPath.yens.stream' END AS yens"
-      + " CALL apoc.cypher.run('CALL ' + yens + '($g, {sourceNode: $s, targetNode: $t, k: $k,"
-      + "  relationshipWeightProperty: \"weight_p\"'"
-      + "  + (CASE WHEN yens STARTS WITH 'gds.beta' THEN ', path: true' ELSE '' END)"
-      + "  + '}) YIELD index, sourceNode, targetNode, nodeIds, path"
-      + "  RETURN index, sourceNode, targetNode, nodeIds, path',"
-      + "  {g: graphName, s: id(source), t: id(target), k: " + paths?.toString() + "}) YIELD value"
-      + " WITH a, b, source, target, value.index AS index, value.sourceNode AS sourceNode,"
-      + "  value.targetNode AS targetNode, value.nodeIds AS nodeIds, value.path AS path"
-      + " WITH * ORDER BY index DESC"
-      + " UNWIND relationships(path) as sr"
-      + " OPTIONAL MATCH cp=(x:Neuron:has_neuron_connectivity)-[:synapsed_to]-(y:Neuron:has_neuron_connectivity) WHERE x=apoc.rel.startNode(sr) AND y=apoc.rel.endNode(sr) OPTIONAL MATCH fp=(x)-[r:synapsed_to]->(y) WHERE r.weight[0] >= " + weight?.toString()
-      /*
-       * Pick ONE class per neuron deterministically. Prefer a class that has a symbol
-       * (specific named cell types carry one, e.g. MBON21; broad NT/grouping classes
-       * like "adult cholinergic neuron" do not), then fall back to a stable short_form
-       * order. collect(c)[0] returns exactly one row so the path row is never dropped.
-       * The label shown is the class symbol, else the instance's own symbol/label with
-       * any trailing accession suffix " (SOURCE:id)" stripped (e.g. FlyWire cells).
-       */
-      + " CALL { WITH x OPTIONAL MATCH (x)-[:INSTANCEOF]->(c:Class) WITH c ORDER BY (CASE WHEN size(coalesce(c.symbol, [])) > 0 THEN 0 ELSE 1 END), c.short_form RETURN collect(c)[0] AS xpc }"
-      + " CALL { WITH y OPTIONAL MATCH (y)-[:INSTANCEOF]->(c:Class) WITH c ORDER BY (CASE WHEN size(coalesce(c.symbol, [])) > 0 THEN 0 ELSE 1 END), c.short_form RETURN collect(c)[0] AS ypc }"
-      + " WITH *,'\"'+ x.short_form+'\":{\"'+coalesce(xpc.short_form, x.short_form)+'\":\"' + apoc.text.regreplace(coalesce(xpc.symbol[0], x.symbol[0], x.label), ' *[(][^()]*:[^()]*[)] *$', '') + '\"},\"'+ y.short_form+'\":{\"'+coalesce(ypc.short_form, y.short_form)+'\":\"' + apoc.text.regreplace(coalesce(ypc.symbol[0], y.symbol[0], y.label), ' *[(][^()]*:[^()]*[)] *$', '') + '\"}' as Class"
-      + " RETURN distinct a as root, collect(distinct fp) as pp, collect(distinct cp) as p, collect(distinct id(r)) as fr, sourceNode as source, targetNode as target, max(length(path)) as maxHops, collect(distinct toString(id(r))+':'+toString(index)) as relationshipY, "
-      + " apoc.convert.fromJsonMap('{' + apoc.text.join(collect(Class),',') + '}') as class ",
-      "resultDataContents": ["row", "graph"]
-    }
-  ]
-});
+/*
+ * Paths come from VFBquery's /circuit_paths (VirtualFlyBrain/VFBquery#114),
+ * through the v3-cached proxy like the other VFBquery calls. It searches the
+ * class graphs built with each release, separately in each connectome, and
+ * takes neuron types (FBbt classes) or individual neurons (VFB ids) at either
+ * end. This replaces the Cypher query that ran Yen's paths on the cb_<site>
+ * GDS projections in pdb.
+ */
+var circuitPathsConfig = {
+  url: "https://v3-cached.virtualflybrain.org/circuit_paths",
+  // Example neurons for class paths (instance_graph) can take 10-25s
+  timeout: 90000,
+  // Example neuron paths fetched for each class path
+  instanceK: 2
+};
 
-var Neo4jLabels = {
-  FAFB : "FAFB",
-  L1EM : "L1EM",
-  FlyEM_HB : "FlyEM_HB"
-}
+/**
+ * Query parameters for /circuit_paths.
+ * ends: [{ id }, { id }], the first is the source and the last the target.
+ * When either end is an individual neuron, every dataset is searched: the
+ * endpoint leaves out hemibrain and FAFB by default because newer connectomes
+ * cover the same cells, which is right for classes but would leave a hemibrain
+ * neuron with nothing to search.
+ */
+var circuitPathsParams = ( ends, paths, weight, showNeurons ) => {
+  const ids = ends.map(end => end.id);
+  const params = {
+    source: ids[0],
+    target: ids[ids.length - 1],
+    k: paths,
+    min_synapses: weight
+  };
+  if ( ids.some(id => !/^FBbt_\d{8}$/.test(id)) ) {
+    params.exclude_dbs = "";
+  } else if ( showNeurons ) {
+    params.instance_graph = true;
+    params.instance_k = circuitPathsConfig.instanceK;
+  }
+  return params;
+};
 
-// See query explanation on https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md 
+/*
+ * Labels and facets (for the node colours) of the nodes on the paths. The
+ * paths name each neuron's class but not the neuron itself.
+ */
+var termLookupConfig = {
+  url: "https://solr.virtualflybrain.org/solr/ontology/select",
+  fields: "short_form,label,facets_annotation"
+};
 
 var configuration = {
-  resultsMapping:
-  {
-    "node": { 
-      "title" : "short_form",
-      "label" : "label",
-      "tooltip" : "id"
-    },
-    "link" : {
-      "label" : "label",
-      "weight" : "weight",
-      "visible" : true,
-      "tooltip" : "label"
-    }
-  },
   // Minimum amount of paths allowed
   minPaths : 1,
   // Maximum amount of paths allowed
@@ -181,15 +152,10 @@ var styling = {
   }
 }
 
-var restPostConfig = {
-  url: "https://pdb.virtualflybrain.org/db/neo4j/tx/commit",
-  contentType: "application/json"
-};
-
 module.exports = { 
   configuration,
   styling,
-  restPostConfig,
-  locationCypherQuery,
-  Neo4jLabels
+  circuitPathsConfig,
+  circuitPathsParams,
+  termLookupConfig
 };

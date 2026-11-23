@@ -555,6 +555,17 @@ var toolbarMenu = {
       ]
     },
     {
+      // Built by VFBMain each time it opens: the views, the user's saved view and the start view.
+      label: "View",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      dynamicListInjector: {
+        handlerAction: "viewMenuInjector",
+        parameters: ["undefined"]
+      }
+    },
+    {
       label: "History",
       icon: "",
       action: "",
