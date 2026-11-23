@@ -12,8 +12,38 @@
 
 const CLASS_ID = /^FBbt_\d{8}$/;
 
-const NO_SINGLE_TYPE = "no single type";
-const NO_SINGLE_TYPE_NOTE = "Not in the class graph: this neuron has no single most specific type in this dataset";
+/**
+ * The card title and hover note for a neuron left out of its connectome's
+ * class graph, from the status and types the server gives (VFBquery
+ * report.tsv). Older servers send neither: then just "no single type".
+ */
+function leftOut (n) {
+  const types = Array.isArray(n.types) ? n.types.map(t => t.label || t.id) : [];
+  const listed = types.join("; ");
+  const prefix = "Not in the class graph: ";
+  switch (n.status) {
+  case "multi_leaf":
+    return {
+      title: (types.length || "several") + " types",
+      note: prefix + "it has " + (types.length || "several") + " most specific types in this connectome" + (listed ? " (" + listed + ")" : "")
+    };
+  case "no_leaf":
+    return {
+      title: "general type only",
+      note: prefix + "typed only to " + (listed || "general classes") + ", which "
+        + (types.length > 1 ? "have" : "has") + " more specific types in this connectome"
+    };
+  case "only_axis":
+    return {
+      title: "lineage/transmitter only",
+      note: prefix + "typed only to transmitter, lineage or similar classes" + (listed ? " (" + listed + ")" : "")
+    };
+  case "untyped":
+    return { title: "untyped", note: prefix + "this neuron has no type" };
+  default:
+    return { title: "no single type", note: prefix + "this neuron has no single most specific type in this connectome" };
+  }
+}
 
 /** "Class" for an FBbt term, "Individual" for a VFB neuron. */
 function termKind (id) {
@@ -119,18 +149,20 @@ function alsoFoundIn (data, dataset) {
 function pathsToDraw (block, showNeurons, terms) {
   const label = id => (terms && terms[id] && terms[id].label) || id;
   /*
-   * A neuron without a class was left out of the dataset's class graph: it has
-   * no type, only transmitter or lineage types, or more than one most specific
-   * type (e.g. a fruitless cluster and a cell type). Neuron-level paths still
-   * pass through it.
+   * A neuron without a class was left out of the dataset's class graph (see
+   * leftOut). Neuron-level paths still pass through it.
    */
-  const neuronNode = n => ({
-    id: n.id,
-    kind: "neuron",
-    title: n.class_symbol || n.class_label || NO_SINGLE_TYPE,
-    description: label(n.id),
-    typeLabel: n.class_label || NO_SINGLE_TYPE_NOTE
-  });
+  const neuronNode = n => {
+    const hasClass = !!(n.class_symbol || n.class_label);
+    const why = hasClass ? null : leftOut(n);
+    return {
+      id: n.id,
+      kind: "neuron",
+      title: hasClass ? n.class_symbol || n.class_label : why.title,
+      description: label(n.id),
+      typeLabel: hasClass ? n.class_label : why.note
+    };
+  };
   const classNode = n => ({
     id: n.id,
     kind: "class",
@@ -336,6 +368,7 @@ function nodeIds (block) {
 
 module.exports = {
   termKind,
+  leftOut,
   connectomeOf,
   connectomeFilter,
   datasetName,

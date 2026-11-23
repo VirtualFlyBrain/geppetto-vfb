@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, leftOut, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -165,6 +165,44 @@ describe('Circuit paths parsing', () => {
     expect(graph.nodes[0].typeLabel).toContain('Not in the class graph');
     expect(graph.nodes[1].classLabel).toBe('DNp01');
     expect(graph.links[0].label).toContain('SMP.PRW.8 (FlyWire:720575940619451989) → VFB_fw036981');
+  });
+
+  it('says why a neuron has no class, from the status the server gives', () => {
+    const t = (id, label) => ({ id, label });
+    const two = leftOut({ status: 'multi_leaf', types: [t('FBbt_00110501', 'adult fruitless pMP-b (female) neuron'), t('FBbt_20003151', 'adult descending neuron of the posterior brain DNpe033')] });
+    expect(two.title).toBe('2 types');
+    expect(two.note).toBe('Not in the class graph: it has 2 most specific types in this connectome (adult fruitless pMP-b (female) neuron; adult descending neuron of the posterior brain DNpe033)');
+    const three = leftOut({ status: 'multi_leaf', types: [t('A', 'type A'), t('B', 'type B'), t('C', 'type C')] });
+    expect(three.title).toBe('3 types');
+    expect(three.note).toContain('(type A; type B; type C)');
+    const general = leftOut({ status: 'no_leaf', types: [t('FBbt_00049539', 'adult ascending neuron')] });
+    expect(general.title).toBe('general type only');
+    expect(general.note).toBe('Not in the class graph: typed only to adult ascending neuron, which has more specific types in this connectome');
+    expect(leftOut({ status: 'no_leaf', types: [t('A', 'type A'), t('B', 'type B')] }).note).toContain('type A; type B, which have more specific types');
+    const axis = leftOut({ status: 'only_axis', types: [t('FBbt_00052205', 'DPMpm1 lineage neuron')] });
+    expect(axis.title).toBe('lineage/transmitter only');
+    expect(axis.note).toContain('(DPMpm1 lineage neuron)');
+    expect(leftOut({ status: 'untyped', types: [] }).title).toBe('untyped');
+    // A server without report.tsv support
+    expect(leftOut({}).title).toBe('no single type');
+  });
+
+  it('uses the status on a left-out neuron in a path', () => {
+    const block = {
+      dataset: 'flywire783', level: 'neuron',
+      paths: [{
+        score: 1e-5, hops: 1,
+        nodes: [
+          { id: 'VFB_fw005285', class: null, status: 'multi_leaf', types: [{ id: 'X', label: 'type X' }, { id: 'Y', label: 'type Y' }] },
+          { id: 'VFB_fw036981', class: GF.id, class_label: GF.label, class_symbol: 'DNp01' }
+        ],
+        edges: [edge('VFB_fw005285', 'VFB_fw036981', 12, 0.018)]
+      }]
+    };
+    const graph = buildGraph(block, {});
+    expect(graph.nodes[0].classLabel).toBe('2 types');
+    expect(graph.nodes[0].typeLabel).toContain('(type X; type Y)');
+    expect(graph.nodes[1].typeLabel).toBe('giant fiber neuron');
   });
   it('reads the connectome from a neuron label, BANC included', () => {
     expect(connectomeOf('LC12_L (MaleCNS:49415)')).toBe('MaleCNS');
