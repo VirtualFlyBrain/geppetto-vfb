@@ -40,7 +40,10 @@ var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
-var { layoutViews, alwaysRendered, componentStateFlags } = require('./configuration/VFBMain/layoutViews');
+var { layoutViews, defaultView, viewAliases, alwaysRendered, componentStateFlags } = require('./configuration/VFBMain/layoutViews');
+
+/* A view id with old names (see viewAliases) mapped to the current one. */
+const canonicalView = id => (id !== undefined && viewAliases[id] !== undefined ? viewAliases[id] : id);
 
 /*
  * Tools that share the Term Info tabset and load terms themselves (eye icons,
@@ -238,9 +241,9 @@ class VFBMain extends React.Component {
 
     /*
      * Start in the view the URL names (?view=), else the one the user chose to
-     * start in (View menu), else the default layout.
+     * start in (View menu), else the default view (V2 default).
      */
-    var startJson = this.viewJson(viewFromUrl()) || this.viewJson(getStartView()) || this.viewJson("default");
+    var startJson = this.viewJson(viewFromUrl()) || this.viewJson(getStartView()) || this.viewJson(defaultView);
     this.model = FlexLayout.Model.fromJson(startJson);
     Object.assign(this.state, this.viewStateFlags(startJson));
     this.watchTabClose();
@@ -897,6 +900,7 @@ class VFBMain extends React.Component {
    * the user's saved view. Undefined for an unknown id or when nothing is saved.
    */
   viewJson (id) {
+    id = canonicalView(id);
     if (id === MY_VIEW) {
       return restoreSaved(loadSavedView(), modelJson, alwaysRendered);
     }
@@ -952,9 +956,10 @@ class VFBMain extends React.Component {
     this.setState(Object.assign({ UIUpdated: true }, this.viewStateFlags(json)));
     /*
      * Name the view in the URL so a reload or a copied link opens the same
-     * way. Default needs naming only when the user starts in another view.
+     * way. The default view needs naming only when the user starts in another.
      */
-    setViewInUrl(id === "default" && getStartView() === undefined ? undefined : id);
+    id = canonicalView(id);
+    setViewInUrl(id === defaultView && getStartView() === undefined ? undefined : id);
     safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=View_' + id));
   }
 
@@ -972,7 +977,7 @@ class VFBMain extends React.Component {
   viewMenu () {
     var signature = id => viewSignature(FlexLayout.Model.fromJson(this.viewJson(id)).toJson());
     var current = this.currentView();
-    var start = getStartView() || "default";
+    var start = canonicalView(getStartView()) || defaultView;
     var labels = { [MY_VIEW]: "My view" };
     layoutViews.forEach(v => {
       labels[v.id] = v.label;
@@ -982,10 +987,10 @@ class VFBMain extends React.Component {
       icon: current === id ? "fa fa-check" : "",
       action: { handlerAction: "setView", parameters: [id] }
     });
-    var defaultSignature = signature("default");
+    var defaultSignature = signature(defaultView);
     var list = layoutViews
-      // A view that is the same arrangement as Default (Classic, until the default changes) is not listed twice.
-      .filter(v => v.id === "default" || signature(v.id) !== defaultSignature)
+      // A view that is the same arrangement as the default view (V3 default on a build whose layoutModel.js is the V2 one) is not listed twice.
+      .filter(v => v.id === defaultView || signature(v.id) !== defaultSignature)
       .map(v => item(v.id));
     if (this.viewJson(MY_VIEW) !== undefined) {
       list.push(item(MY_VIEW));
@@ -1002,11 +1007,11 @@ class VFBMain extends React.Component {
         action: { handlerAction: "setStartView", parameters: [current] }
       });
     }
-    if (start !== "default") {
+    if (start !== defaultView) {
       list.push({
-        label: "Start in the Default view again",
+        label: "Start in the V2 default view again",
         icon: "fa fa-undo",
-        action: { handlerAction: "setStartView", parameters: ["default"] }
+        action: { handlerAction: "setStartView", parameters: [defaultView] }
       });
     }
     return list;
@@ -1100,7 +1105,8 @@ class VFBMain extends React.Component {
       saveView(this.model.toJson());
       break;
     case 'setStartView':
-      setStartView(click.parameters[0]);
+      // Starting in the default view needs nothing stored.
+      setStartView(canonicalView(click.parameters[0]) === defaultView ? undefined : canonicalView(click.parameters[0]));
       break;
     case 'historyMenuInjector':
       var historyList = [];

@@ -248,7 +248,8 @@ export const saveView = json => write(SAVED_KEY, JSON.stringify({ version: SAVED
 /* The id of the view the user asked to start in, or undefined for the default. */
 export const getStartView = () => read(START_KEY) || undefined;
 
-export const setStartView = id => write(START_KEY, id && id !== "default" ? id : null);
+/* Remember the view to start in; undefined forgets it, so the default is used. */
+export const setStartView = id => write(START_KEY, id || null);
 
 const validId = id => (typeof id === "string" && /^[a-z0-9-]{1,32}$/.test(id) ? id : undefined);
 
