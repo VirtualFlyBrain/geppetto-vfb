@@ -11,6 +11,8 @@ const parkedCount = async page => page.evaluate(selector => document.querySelect
 
 // How many windows Term Info only parked: every window but Term Info, however many the default layout has.
 let parkedByTermInfoOnly = 0;
+// How many windows V2 default parks: none on a build without windows newer than the original layout.
+let parkedByV2Default = 0;
 
 const openViewMenu = async page => {
   await page.evaluate(async () => document.getElementById("View").click());
@@ -34,17 +36,19 @@ describe('VFB View Menu Tests', () => {
     await page.goto(projectURL);
   });
 
-  it('Page loads in the default view', async () => {
+  it('Page loads in the V2 default view', async () => {
     await wait4selector(page, ST.SPINNER_SELECTOR, { hidden: true, timeout : 120000 });
     closeModalWindow(page);
     await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
-    expect(await parkedCount(page)).toEqual(0);
+    // V2 default parks only the windows the original layout did not have (such as Neuroglass).
+    parkedByV2Default = await parkedCount(page);
+    expect(await page.evaluate(() => new URLSearchParams(window.location.search).get("view"))).toBeNull();
   }, 240000);
 
   it('View menu lists the views', async () => {
     await openViewMenu(page);
     const labels = await page.evaluate(async () => Array.from(document.getElementsByClassName("menu-item-label")).map(e => e.innerText));
-    ["Default", "Term Info only", "Viewers", "Circuit", "Save current as My view"].forEach(label => expect(labels).toContain(label));
+    ["V2 default", "Term Info only", "Viewers", "Circuit", "Save current as My view"].forEach(label => expect(labels).toContain(label));
     // Nothing is saved yet, so there is no My view to open.
     expect(labels).not.toContain("My view");
     await page.evaluate(async () => document.getElementById("View").click());
@@ -68,9 +72,15 @@ describe('VFB View Menu Tests', () => {
     await page.waitForFunction(() => document.getElementsByClassName("MuiListItem-root").length === 0, { timeout : 120000 });
   });
 
-  it('Default brings every window back and clears the URL parameter', async () => {
-    await chooseView(page, "Default");
+  it('V3 default brings every window back and names the view in the URL', async () => {
+    await chooseView(page, "V3 default");
     await page.waitForFunction(selector => document.querySelectorAll(selector).length === 0, { timeout : 120000 }, PARKED);
+    expect(await page.evaluate(() => new URLSearchParams(window.location.search).get("view"))).toEqual("v3");
+  });
+
+  it('V2 default goes back to the start view and clears the URL parameter', async () => {
+    await chooseView(page, "V2 default");
+    await page.waitForFunction((selector, count) => document.querySelectorAll(selector).length === count, { timeout : 120000 }, PARKED, parkedByV2Default);
     expect(await page.evaluate(() => new URLSearchParams(window.location.search).get("view"))).toBeNull();
   });
 
@@ -78,7 +88,7 @@ describe('VFB View Menu Tests', () => {
     await chooseView(page, "My view");
     await page.waitForFunction((selector, count) => document.querySelectorAll(selector).length === count, { timeout : 120000 }, PARKED, parkedByTermInfoOnly);
     // Leave the browser as the other test files expect to find it.
-    await chooseView(page, "Default");
+    await chooseView(page, "V2 default");
     await page.evaluate(() => window.localStorage.removeItem("vfb_view_saved"));
   });
 });

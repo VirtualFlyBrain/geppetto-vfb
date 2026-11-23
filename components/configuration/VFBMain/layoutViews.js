@@ -2,10 +2,12 @@
  * The views offered in the View menu. A view is an arrangement of the windows
  * in the FlexLayout model; it never changes what is loaded.
  *
- * "default" is whatever layoutModel.js defines, so changing the default layout
- * there changes the Default view with it and nothing here needs to follow.
- * "classic" keeps the original three-column arrangement available once the
- * default has moved on; it is hidden from the menu while the two are the same.
+ * "v2" (V2 default) is the original three-column arrangement and is the view
+ * the page starts in (defaultView below) unless the URL or the user's own
+ * start view names another.
+ * "v3" (V3 default) is whatever layoutModel.js defines, so changing the layout
+ * there changes the V3 default view with it and nothing here needs to follow.
+ * It is hidden from the menu while it is the same arrangement as V2 default.
  *
  * Every other view gives only the windows it shows, as a FlexLayout "layout"
  * tree whose tabs are component names. Windows a view leaves out are parked in
@@ -15,7 +17,7 @@
  * window such as the Neuroglass viewer before every build ships it.
  */
 
-var classicLayout = {
+var v2Layout = {
   "type": "row",
   "weight": 100,
   "children": [
@@ -84,15 +86,24 @@ var circuitLayout = {
  * id: used in the ?view= URL parameter and in local storage, so keep it short,
  *     lower case and stable.
  * label: the menu text.
- * layout: omitted for "default", which uses layoutModel.js as it stands.
+ * layout: omitted for "v3", which uses layoutModel.js as it stands.
  */
 var layoutViews = [
-  { id: "default", label: "Default" },
-  { id: "classic", label: "Classic", layout: classicLayout },
+  { id: "v2", label: "V2 default", layout: v2Layout },
+  { id: "v3", label: "V3 default" },
   { id: "term", label: "Term Info only", layout: termInfoLayout },
   { id: "viewers", label: "Viewers", layout: viewersLayout },
   { id: "circuit", label: "Circuit", layout: circuitLayout }
 ];
+
+/* The view the page starts in when neither the URL nor the user names one. */
+var defaultView = "v2";
+
+/*
+ * Old view ids, still accepted from links and local storage: "classic" was the
+ * V2 arrangement and "default" the layoutModel.js one before the rename.
+ */
+var viewAliases = { classic: "v2", "default": "v3" };
 
 /*
  * Windows that must exist from startup even while hidden: VFBMain drives the
@@ -113,4 +124,4 @@ var componentStateFlags = {
   vfbNeuroglassViewer: "neuroglassViewerVisible"
 };
 
-module.exports = { layoutViews, alwaysRendered, componentStateFlags };
+module.exports = { layoutViews, defaultView, viewAliases, alwaysRendered, componentStateFlags };
