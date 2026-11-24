@@ -28,7 +28,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
-import { termKind } from './circuitPaths';
+import { termKind, connectomeOf, connectomeFilter } from './circuitPaths';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -400,7 +400,7 @@ class Controls extends Component {
 
     this.neuronFields = neurons;
     const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
-    getResultsSOLR( target.value, callback, searchConfiguration.sorter, datasourceConfiguration );
+    getResultsSOLR( target.value, callback, searchConfiguration.sorter, this.searchSettings() );
   }
   
   textFieldLoseFocus (event) {
@@ -415,6 +415,20 @@ class Controls extends Component {
   }
   
   
+  /**
+   * The search settings, limited in SOLR to the chosen neuron's connectome (and
+   * neuron types) once a neuron has been chosen, so the row limit does not cut
+   * that connectome's neurons out of the results.
+   */
+  searchSettings () {
+    if ( !this.connectomePrefix ) {
+      return datasourceConfiguration;
+    }
+    const settings = JSON.parse(JSON.stringify(datasourceConfiguration));
+    settings.query_settings.fq.push(connectomeFilter(this.connectomePrefix));
+    return settings;
+  }
+
   /**
    * Wraps the autocomplete handleResults callback to filter results by connectome prefix.
    * When a neuron has been selected, subsequent searches only show neurons from the same
@@ -458,7 +472,7 @@ class Controls extends Component {
       this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     } else {
       const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
-      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, datasourceConfiguration );
+      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, this.searchSettings() );
     }
     this.neuronFields = neurons;
 
@@ -472,12 +486,11 @@ class Controls extends Component {
   
   /**
    * Extract the connectome database name from a neuron label.
-   * Labels follow the pattern: "NeuronName (DB-NAME:RemoteID) (VFB_id)"
-   * e.g. "5-HTPLP01_R (FlyEM-HB:1324365879) (VFB_jrchjrch)" → "FlyEM-HB"
+   * e.g. "5-HTPLP01_R (FlyEM-HB:1324365879)" → "FlyEM-HB", and for BANC's
+   * bare-id labels "BANC_888:720575941548059681" → "BANC_888"
    */
   extractConnectomePrefix (label) {
-    const match = label && label.match(/\(([^:)]+):\d+\)/);
-    return match ? match[1] : null;
+    return connectomeOf(label);
   }
 
   /**

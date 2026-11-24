@@ -12,9 +12,63 @@
 
 const CLASS_ID = /^FBbt_\d{8}$/;
 
+/**
+ * The card title and hover note for a neuron left out of its connectome's
+ * class graph, from the status and types the server gives (VFBquery
+ * report.tsv). Older servers send neither: then just "no single type".
+ */
+function leftOut (n) {
+  const types = Array.isArray(n.types) ? n.types.map(t => t.label || t.id) : [];
+  const listed = types.join("; ");
+  const prefix = "Not in the class graph: ";
+  switch (n.status) {
+  case "multi_leaf":
+    return {
+      title: (types.length || "several") + " types",
+      note: prefix + "it has " + (types.length || "several") + " most specific types in this connectome" + (listed ? " (" + listed + ")" : "")
+    };
+  case "no_leaf":
+    return {
+      title: "general type only",
+      note: prefix + "typed only to " + (listed || "general classes") + ", which "
+        + (types.length > 1 ? "have" : "has") + " more specific types in this connectome"
+    };
+  case "only_axis":
+    return {
+      title: "lineage/transmitter only",
+      note: prefix + "typed only to transmitter, lineage or similar classes" + (listed ? " (" + listed + ")" : "")
+    };
+  case "untyped":
+    return { title: "untyped", note: prefix + "this neuron has no type" };
+  default:
+    return { title: "no single type", note: prefix + "this neuron has no single most specific type in this connectome" };
+  }
+}
+
 /** "Class" for an FBbt term, "Individual" for a VFB neuron. */
 function termKind (id) {
   return CLASS_ID.test(id || "") ? "Class" : "Individual";
+}
+
+/**
+ * The connectome a neuron belongs to, from its label: "LC12_L (MaleCNS:49415)"
+ * gives "MaleCNS". BANC labels are the bare id, "BANC_888:720575941548059681".
+ * null for anything else, e.g. a class.
+ */
+function connectomeOf (label) {
+  const match = (label || "").match(/\(([^:()\s]+):\d+\)|^([^:()\s]+):\d+/);
+  return match ? match[1] || match[2] : null;
+}
+
+/**
+ * A SOLR filter (fq) for search results from one connectome, plus neuron
+ * types: labels hold the connectome as "(MaleCNS:49415)" or, for BANC, as the
+ * bare "BANC_888:720575941548059681", and label is a whole-string field, so
+ * this is a wildcard match on "<connectome>:".
+ */
+function connectomeFilter (connectome) {
+  const escaped = connectome.replace(/([+\-&|!(){}[\]^"~*?:\\/\s])/g, "\\$1");
+  return "(facets_annotation:Class AND facets_annotation:Neuron) OR label:*" + escaped + "\\:*";
 }
 
 /** A short dataset name from the connectome's site label. */
@@ -94,13 +148,21 @@ function alsoFoundIn (data, dataset) {
  */
 function pathsToDraw (block, showNeurons, terms) {
   const label = id => (terms && terms[id] && terms[id].label) || id;
-  const neuronNode = n => ({
-    id: n.id,
-    kind: "neuron",
-    title: n.class_symbol || n.class_label || "untyped",
-    description: label(n.id),
-    typeLabel: n.class_label || ""
-  });
+  /*
+   * A neuron without a class was left out of the dataset's class graph (see
+   * leftOut). Neuron-level paths still pass through it.
+   */
+  const neuronNode = n => {
+    const hasClass = !!(n.class_symbol || n.class_label);
+    const why = hasClass ? null : leftOut(n);
+    return {
+      id: n.id,
+      kind: "neuron",
+      title: hasClass ? n.class_symbol || n.class_label : why.title,
+      description: label(n.id),
+      typeLabel: hasClass ? n.class_label : why.note
+    };
+  };
   const classNode = n => ({
     id: n.id,
     kind: "class",
@@ -133,10 +195,55 @@ function pathsToDraw (block, showNeurons, terms) {
 }
 
 /**
+ * Orders the nodes in each column to cut down crossing links (the barycentre
+ * heuristic): each node moves towards the mean height of its neighbours in the
+ * column before it, sweeping left to right, then right to left, a few times.
+ * Starts from path rank, so the best paths stay near the top. Sets positionY.
+ */
+function orderColumns (columns, paths, byId, rowHeight) {
+  const neighbours = new Map();
+  paths.forEach(path => {
+    (path.edges || []).forEach(edge => {
+      const a = byId.get(edge.source);
+      const b = byId.get(edge.target);
+      if (a && b && a !== b) {
+        (neighbours.get(a) || neighbours.set(a, []).get(a)).push(b);
+        (neighbours.get(b) || neighbours.set(b, []).get(b)).push(a);
+      }
+    });
+  });
+  const place = column => column.forEach((node, i) => {
+    node.positionY = (i - (column.length - 1) / 2) * rowHeight;
+  });
+  const sortBy = (column, before) => {
+    const keyed = column.map((node, i) => {
+      const near = (neighbours.get(node) || []).filter(n => before(n.column));
+      const key = near.length ? near.reduce((sum, n) => sum + n.positionY, 0) / near.length : node.positionY;
+      return { node, key, i };
+    });
+    keyed.sort((a, b) => a.key - b.key || a.i - b.i);
+    keyed.forEach((k, i) => {
+      column[i] = k.node;
+    });
+    place(column);
+  };
+
+  columns.forEach(place);
+  for (let sweep = 0; sweep < 4; sweep++) {
+    for (let c = 1; c < columns.length; c++) {
+      sortBy(columns[c], col => col < c);
+    }
+    for (let c = columns.length - 2; c >= 0; c--) {
+      sortBy(columns[c], col => col > c);
+    }
+  }
+}
+
+/**
  * Nodes and links for react-force-graph, laid out left to right: the source on
  * the left, the target on the right, each node in the column for its place
- * along the first (best) path it appears in and in that path's row. A node on
- * several paths is drawn once.
+ * along the first (best) path it appears in, ordered within its column to cut
+ * down crossing links. A node on several paths is drawn once.
  *
  * options: { showNeurons, terms: { id: { label, facets } }, styling,
  *            nodeWidth, nodeHeight, columnWidth, rowHeight }
@@ -159,8 +266,7 @@ function buildGraph (block, options) {
 
   const maxHops = Math.max(1, ...paths.map(p => p.nodes.length - 1));
   const width = maxHops * columnWidth;
-  const sources = [];
-  const targets = [];
+  const columns = Array.from({ length: maxHops + 1 }, () => []);
 
   paths.forEach((path, rank) => {
     const last = path.nodes.length - 1;
@@ -178,6 +284,8 @@ function buildGraph (block, options) {
           }
         }
       });
+      // Shorter paths are spread over the same columns as the longest
+      const column = last > 0 ? Math.round(i / last * maxHops) : 0;
       const node = {
         id: n.id,
         // Used by the click handler to open the term
@@ -190,28 +298,20 @@ function buildGraph (block, options) {
         width: opts.nodeWidth,
         height: opts.nodeHeight,
         rank,
-        positionX: (last > 0 ? i / last : 0) * width - width / 2,
+        column,
+        positionX: column / maxHops * width - width / 2,
         positionY: 0
       };
-      if (i === 0) {
-        sources.push(node);
-      } else if (i === last) {
-        targets.push(node);
-      } else {
-        node.positionY = (rank - (paths.length - 1) / 2) * rowHeight;
-      }
       byId.set(n.id, node);
       nodes.push(node);
+      columns[column].push(node);
     });
   });
 
-  // Several sources or targets (a broad class's leaf classes) are stacked
-  [sources, targets].forEach(ends => {
-    ends.forEach((node, i) => {
-      node.positionY = (i - (ends.length - 1) / 2) * rowHeight;
-    });
-  });
+  orderColumns(columns, paths, byId, rowHeight);
 
+  // Link tooltips name a neuron by its own label, not its class
+  const linkName = node => (node.kind === "neuron" ? node.name : node.classLabel);
   const seen = new Map();
   paths.forEach(path => {
     (path.edges || []).forEach(edge => {
@@ -222,17 +322,17 @@ function buildGraph (block, options) {
         return;
       }
       const lines = [
-        source.classLabel + " → " + target.classLabel,
+        linkName(source) + " → " + linkName(target),
         "Synapses: " + edge.synapses
       ];
       if (typeof edge.pairs === "number") {
         lines.push("Connected neuron pairs: " + edge.pairs);
       }
       if (typeof edge.inprop_in === "number") {
-        lines.push("Share of " + target.classLabel + " input: " + percent(edge.inprop_in));
+        lines.push("Share of " + linkName(target) + " input: " + percent(edge.inprop_in));
       }
       if (typeof edge.inprop_out === "number") {
-        lines.push("Share of " + source.classLabel + " output: " + percent(edge.inprop_out));
+        lines.push("Share of " + linkName(source) + " output: " + percent(edge.inprop_out));
       }
       const link = {
         source,
@@ -268,6 +368,9 @@ function nodeIds (block) {
 
 module.exports = {
   termKind,
+  leftOut,
+  connectomeOf,
+  connectomeFilter,
   datasetName,
   percent,
   summariseResponse,

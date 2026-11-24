@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, leftOut, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -114,6 +114,7 @@ describe('Circuit paths parsing', () => {
     expect(graph.nodes[1].name).toBe('VFB_fw005842');
     expect(graph.nodes[0].nodeColorLabels).toEqual(['#0000aa', '#bebada']);
     expect(graph.legendLabels).toEqual(['Visual_system', 'Cholinergic']);
+    expect(graph.links[0].label).toContain('LO.PVLP.1465 (FlyWire:720575940642770592) → VFB_fw005842');
   });
 
   it('collects every id to look up, example neurons included', () => {
@@ -141,5 +142,98 @@ describe('Circuit paths parsing', () => {
     expect(graph.nodes[0].name).toBe('LC12_L (MaleCNS:49415)');
     expect(graph.links[0].weightLabel).toBe('45 · 0.50%');
     expect(graph.links[0].label).not.toContain('pairs');
+    // Link tooltips name the neurons, not their classes
+    expect(graph.links[0].label).toContain('LC12_L (MaleCNS:49415) → VFB_jrmc1kei');
+    expect(graph.links[0].label).toContain('Share of VFB_jrmc1kei input');
+  });
+
+  it('marks a neuron left out of the class graph as having no single type', () => {
+    const block = {
+      dataset: 'flywire783', level: 'neuron', label: 'FlyWire web interface v783',
+      paths: [{
+        score: 1e-5, hops: 1,
+        nodes: [
+          { id: 'VFB_fw005285', class: null },
+          { id: 'VFB_fw036981', class: GF.id, class_label: GF.label, class_symbol: 'DNp01' }
+        ],
+        edges: [edge('VFB_fw005285', 'VFB_fw036981', 12, 0.018)]
+      }]
+    };
+    const terms = { VFB_fw005285: { label: 'SMP.PRW.8 (FlyWire:720575940619451989)' } };
+    const graph = buildGraph(block, { terms });
+    expect(graph.nodes[0].classLabel).toBe('no single type');
+    expect(graph.nodes[0].typeLabel).toContain('Not in the class graph');
+    expect(graph.nodes[1].classLabel).toBe('DNp01');
+    expect(graph.links[0].label).toContain('SMP.PRW.8 (FlyWire:720575940619451989) → VFB_fw036981');
+  });
+
+  it('says why a neuron has no class, from the status the server gives', () => {
+    const t = (id, label) => ({ id, label });
+    const two = leftOut({ status: 'multi_leaf', types: [t('FBbt_00110501', 'adult fruitless pMP-b (female) neuron'), t('FBbt_20003151', 'adult descending neuron of the posterior brain DNpe033')] });
+    expect(two.title).toBe('2 types');
+    expect(two.note).toBe('Not in the class graph: it has 2 most specific types in this connectome (adult fruitless pMP-b (female) neuron; adult descending neuron of the posterior brain DNpe033)');
+    const three = leftOut({ status: 'multi_leaf', types: [t('A', 'type A'), t('B', 'type B'), t('C', 'type C')] });
+    expect(three.title).toBe('3 types');
+    expect(three.note).toContain('(type A; type B; type C)');
+    const general = leftOut({ status: 'no_leaf', types: [t('FBbt_00049539', 'adult ascending neuron')] });
+    expect(general.title).toBe('general type only');
+    expect(general.note).toBe('Not in the class graph: typed only to adult ascending neuron, which has more specific types in this connectome');
+    expect(leftOut({ status: 'no_leaf', types: [t('A', 'type A'), t('B', 'type B')] }).note).toContain('type A; type B, which have more specific types');
+    const axis = leftOut({ status: 'only_axis', types: [t('FBbt_00052205', 'DPMpm1 lineage neuron')] });
+    expect(axis.title).toBe('lineage/transmitter only');
+    expect(axis.note).toContain('(DPMpm1 lineage neuron)');
+    expect(leftOut({ status: 'untyped', types: [] }).title).toBe('untyped');
+    // A server without report.tsv support
+    expect(leftOut({}).title).toBe('no single type');
+  });
+
+  it('uses the status on a left-out neuron in a path', () => {
+    const block = {
+      dataset: 'flywire783', level: 'neuron',
+      paths: [{
+        score: 1e-5, hops: 1,
+        nodes: [
+          { id: 'VFB_fw005285', class: null, status: 'multi_leaf', types: [{ id: 'X', label: 'type X' }, { id: 'Y', label: 'type Y' }] },
+          { id: 'VFB_fw036981', class: GF.id, class_label: GF.label, class_symbol: 'DNp01' }
+        ],
+        edges: [edge('VFB_fw005285', 'VFB_fw036981', 12, 0.018)]
+      }]
+    };
+    const graph = buildGraph(block, {});
+    expect(graph.nodes[0].classLabel).toBe('2 types');
+    expect(graph.nodes[0].typeLabel).toContain('(type X; type Y)');
+    expect(graph.nodes[1].typeLabel).toBe('giant fiber neuron');
+  });
+  it('reads the connectome from a neuron label, BANC included', () => {
+    expect(connectomeOf('LC12_L (MaleCNS:49415)')).toBe('MaleCNS');
+    expect(connectomeOf('LPC2 (FlyEM-HB:5813000992)')).toBe('FlyEM-HB');
+    expect(connectomeOf('ME.31828 (FlyWire:720575940638778943)')).toBe('FlyWire');
+    expect(connectomeOf('BANC_888:720575941548059681')).toBe('BANC_888');
+    expect(connectomeOf('giant fiber neuron')).toBeNull();
+    expect(connectomeOf(undefined)).toBeNull();
+  });
+
+  it('filters a search to one connectome in SOLR, escaping the name', () => {
+    expect(connectomeFilter('MaleCNS')).toBe('(facets_annotation:Class AND facets_annotation:Neuron) OR label:*MaleCNS\\:*');
+    expect(connectomeFilter('FlyEM-HB')).toContain('label:*FlyEM\\-HB\\:*');
+    expect(connectomeFilter('BANC_888')).toContain('label:*BANC_888\\:*');
+  });
+
+  it('orders each column so links do not cross where they need not', () => {
+    const n = id => ({ id, class: GF.id, class_label: GF.label, class_symbol: id });
+    const path = ids => ({
+      score: 1e-5, hops: ids.length - 1, nodes: ids.map(n),
+      edges: ids.slice(1).map((id, i) => edge(ids[i], id, 10, 0.01))
+    });
+    // Path rank alone puts X, Y, Z in rows and T1 above T2, so Y->T2 crosses Z->T1
+    const block = { dataset: 'BANC888', level: 'neuron', paths: [path(['A', 'X', 'T1']), path(['A', 'Y', 'T2']), path(['A', 'Z', 'T1'])] };
+    const graph = buildGraph(block, {});
+    const crossings = graph.links.filter((a, i) => graph.links.slice(i + 1).some(b =>
+      a.source.column === b.source.column && a.target.column === b.target.column
+      && (a.source.positionY - b.source.positionY) * (a.target.positionY - b.target.positionY) < 0));
+    expect(crossings).toHaveLength(0);
+    // Nodes in a column never share a position
+    const spots = graph.nodes.map(node => node.positionX + ',' + node.positionY);
+    expect(new Set(spots).size).toBe(spots.length);
   });
 });
