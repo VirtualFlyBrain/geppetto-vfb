@@ -71,6 +71,15 @@ function connectomeFilter (connectome) {
   return "(facets_annotation:Class AND facets_annotation:Neuron) OR label:*" + escaped + "\\:*";
 }
 
+/**
+ * False for a neuron type with no neurons in the circuit graphs, given the
+ * terms from /circuit_paths/terms (known: a Set, or null while not loaded, when
+ * every term is allowed). Searching from such a class finds nothing.
+ */
+function hasConnectomeNeurons (id, kind, known) {
+  return !(known && kind === "Class" && CLASS_ID.test(id || "") && !known.has(id));
+}
+
 /** A short dataset name from the connectome's site label. */
 function datasetName (block) {
   const label = (block && block.label) || "";
@@ -100,11 +109,25 @@ function percent (fraction) {
 }
 
 /**
+ * A query term's name for messages: the label chosen in the search box
+ * without the id the search adds to it ("Kenyon cell (FBbt_00003686)"), or
+ * the id if there is no label.
+ */
+function termName (end) {
+  const id = (end && end.id) || "";
+  const label = ((end && end.label) || "").replace(" (" + id + ")", "").trim();
+  return label && label !== id ? label : id;
+}
+
+const NOT_FOUND = /^(\S+) was not found in any searched dataset$/;
+
+/**
  * The datasets with paths, best top path first, plus what to tell the user:
  * the endpoint's warnings and per-dataset notes, and the datasets searched
- * that had no paths.
+ * that had no paths. ends ([{ id, label }], the query terms) name the terms
+ * the endpoint reports by id only.
  */
-function summariseResponse (data) {
+function summariseResponse (data, ends) {
   const blocks = data && Array.isArray(data.datasets) ? data.datasets : [];
   const best = block => Math.max(...block.paths.map(p => (typeof p.score === "number" ? p.score : 0)));
   const withPaths = blocks
@@ -112,7 +135,18 @@ function summariseResponse (data) {
     .sort((a, b) => best(b) - best(a));
   const withoutPaths = blocks.filter(block => !Array.isArray(block.paths) || block.paths.length === 0);
 
-  const messages = Array.isArray(data && data.warnings) ? data.warnings.slice() : [];
+  const names = {};
+  (ends || []).forEach(end => {
+    if (end && end.id) {
+      names[end.id] = termName(end);
+    }
+  });
+  const messages = (Array.isArray(data && data.warnings) ? data.warnings : []).map(warning => {
+    const missing = warning.match(NOT_FOUND);
+    return missing
+      ? (names[missing[1]] || missing[1]) + " has no neurons in the connectomes searched, so it has no paths."
+      : warning;
+  });
   blocks.forEach(block => {
     if (block.note) {
       messages.push(datasetName(block) + ": " + block.note);
@@ -368,6 +402,8 @@ function nodeIds (block) {
 
 module.exports = {
   termKind,
+  hasConnectomeNeurons,
+  termName,
   leftOut,
   connectomeOf,
   connectomeFilter,

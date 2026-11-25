@@ -28,7 +28,8 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
-import { termKind, connectomeOf, connectomeFilter } from './circuitPaths';
+import axios from 'axios';
+import { termKind, connectomeOf, connectomeFilter, hasConnectomeNeurons } from './circuitPaths';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -118,6 +119,15 @@ const styles = theme => ({
   },
   kindClass : { backgroundColor : "#0A7FB0" },
   kindIndividual : { backgroundColor : "#6D6D6D" },
+  noNeuronsTag : {
+    marginLeft : "6px",
+    padding : "0 4px",
+    borderRadius : "3px",
+    fontSize : "11px",
+    lineHeight : "16px",
+    border : "1px solid #9E9E9E",
+    color : "#BDBDBD"
+  },
   legendSelect : {
     marginLeft : "6px",
     backgroundColor : "#80808040",
@@ -157,6 +167,7 @@ const KindTag = ({ kind, classes }) => (
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
+const circuitPathsConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').circuitPathsConfig;
 const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
 const defaultDatasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
 const datasourceConfiguration = JSON.parse(JSON.stringify(defaultDatasourceConfiguration));
@@ -179,6 +190,26 @@ const customMarks = () => {
 }
 
 const pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
+
+/*
+ * The neuron types with neurons in the circuit graphs being served, from
+ * /circuit_paths/terms, fetched once. Until it arrives (or if it fails, when
+ * it is asked for again next time) every type can be chosen.
+ */
+let knownTerms = null;
+let knownTermsRequest = null;
+const loadKnownTerms = () => {
+  if ( !knownTermsRequest ) {
+    knownTermsRequest = axios.get(circuitPathsConfig.url + "/terms", { timeout : 30000 })
+      .then(response => {
+        knownTerms = new Set(response.data.terms || []);
+      })
+      .catch(() => {
+        knownTermsRequest = null;
+      });
+  }
+  return knownTermsRequest;
+};
 
 class AutocompleteResults extends Component {
   constructor (props) {
@@ -219,7 +250,14 @@ class AutocompleteResults extends Component {
     const label = (this.props.index === 0 ? "From" : "To") + ": neuron or neuron type";
     // Kept as neuron1/neuron2 for the tests
     const fieldClass = "neuron" + (this.props.index + 1).toString();
-    const options = Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label);
+    const results = this.state.filteredResults;
+    const usable = option => {
+      const result = results[option];
+      return hasConnectomeNeurons(result?.short_form, kindOf(result?.short_form, result?.facets_annotation), knownTerms);
+    };
+    // Types with no connectome neurons are listed last, and cannot be chosen
+    const options = Object.keys(results).map(option => results[option].label)
+      .sort((a, b) => Number(!usable(a)) - Number(!usable(b)));
     // Tag the chosen term; text still being typed has its label equal to its id
     const fieldId = this.props.field?.id;
     const fieldKind = fieldId && fieldId.match(pattern) && this.fieldLabel && this.fieldLabel !== fieldId ? termKind(fieldId) : null;
@@ -238,12 +276,15 @@ class AutocompleteResults extends Component {
         ListboxProps={{ style: { maxHeight: "10rem", fontSize: "15px" } }}
         onChange={this.props.resultSelectedChanged}
         options={options}
+        getOptionDisabled={option => !usable(option)}
         renderOption={option => {
-          const result = this.state.filteredResults[option];
+          const result = results[option];
           return (
             <React.Fragment>
               <KindTag kind={kindOf(result?.short_form, result?.facets_annotation)} classes={classes} />
               {option}
+              {usable(option) ? null
+                : <span className={classes.noNeuronsTag + " circuitNoNeurons"} title="No neurons of this type in any connectome, so it has no circuit paths">no connectome neurons</span>}
             </React.Fragment>
           );
         }}
@@ -307,6 +348,8 @@ class Controls extends Component {
   }
   
   componentDidMount () {
+    this.mounted = true;
+    loadKnownTerms().then(() => this.mounted && this.forceUpdate());
     this.neuronFields = [...this.props.neurons];
     this.setState( { expanded : !this.props.resultsAvailable() } );
     this.circuitQuerySelected = this.props.circuitQuerySelected;
@@ -314,6 +357,10 @@ class Controls extends Component {
   }
   
   componentDidUpdate () {}
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
 
   /**
    * Deletes neuron field, updates control component right after
