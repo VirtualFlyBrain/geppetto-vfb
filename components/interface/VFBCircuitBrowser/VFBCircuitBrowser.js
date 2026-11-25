@@ -6,7 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
-import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName } from './circuitPaths';
+import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName } from './circuitPaths';
 import { connect } from "react-redux";
 
 const styles = theme => ({
@@ -242,7 +242,7 @@ class VFBCircuitBrowser extends Component {
           return;
         }
         const data = response.data;
-        const summary = summariseResponse(data);
+        const summary = summariseResponse(data, self.state.neurons);
         const ids = Array.from(new Set([].concat(...summary.datasets.map(nodeIds))));
         return self.lookupTerms(ids).then(terms => {
           if ( !current() ) {
@@ -254,7 +254,7 @@ class VFBCircuitBrowser extends Component {
           if ( !dataset && summary.withoutPaths.length ) {
             const ends = self.state.neurons;
             const searched = summary.withoutPaths.map(datasetName).join(", ");
-            message = [message, "No paths found from " + ends[0].label + " to " + ends[ends.length - 1].label + " in " + searched + "."].filter(Boolean).join(" ");
+            message = [message, "No paths found from " + termName(ends[0]) + " to " + termName(ends[ends.length - 1]) + " in " + searched + "."].filter(Boolean).join(" ");
           }
           self.setState({ response : data, datasets : summary.datasets, terms, message });
           self.drawDataset(dataset, self.state.showNeurons, terms);
@@ -508,7 +508,7 @@ class VFBCircuitBrowser extends Component {
     if ( this.state.message ) {
       errorMessage = this.state.message;
     } else if ( this.state.queryLoaded && this.state.neurons?.[0]?.id && this.state.neurons?.[1]?.id ){
-      errorMessage = "No paths found from " + this.state.neurons[0].label + " to " + this.state.neurons[1].label;
+      errorMessage = "No paths found from " + termName(this.state.neurons[0]) + " to " + termName(this.state.neurons[this.state.neurons.length - 1]) + ".";
     }
     const controlsProps = {
       updateGraph : self.updateGraph,

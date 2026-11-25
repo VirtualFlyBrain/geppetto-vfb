@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, leftOut, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, termName, hasConnectomeNeurons, leftOut, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -74,10 +74,33 @@ describe('Circuit paths parsing', () => {
     expect(summary.withoutPaths.map(b => b.dataset)).toEqual(['male_cns_v1_0']);
   });
 
+  it('rules out neuron types with no connectome neurons, once the list has loaded', () => {
+    const known = new Set(['FBbt_00100484', 'FBbt_00003686']);
+    expect(hasConnectomeNeurons('FBbt_00100484', 'Class', known)).toBe(true);
+    expect(hasConnectomeNeurons('FBbt_00004075', 'Class', known)).toBe(false);
+    // Neurons are always allowed, and everything is until the list arrives
+    expect(hasConnectomeNeurons('VFB_jrmc26km', 'Individual', known)).toBe(true);
+    expect(hasConnectomeNeurons('FBbt_00004075', 'Class', null)).toBe(true);
+  });
+
+  it('names a query term the endpoint found in no dataset', () => {
+    const ends = [
+      { id: 'FBbt_00004075', label: 'indirect flight muscle motor neuron DLMN1 (FBbt_00004075)' },
+      { id: 'FBbt_00004020', label: 'giant fiber neuron' }
+    ];
+    const summary = summariseResponse({ datasets: [], warnings: ['FBbt_00004075 was not found in any searched dataset'] }, ends);
+    expect(summary.messages).toEqual(['indirect flight muscle motor neuron DLMN1 has no neurons in the connectomes searched, so it has no paths.']);
+    // Without a label, the id
+    expect(summariseResponse({ warnings: ['FBbt_99999999 was not found in any searched dataset'] }, []).messages[0]).toMatch(/^FBbt_99999999 has no neurons/);
+    expect(termName(ends[0])).toBe('indirect flight muscle motor neuron DLMN1');
+    expect(termName({ id: 'VFB_jrmc26km', label: 'LC12_L (MaleCNS:49415) (VFB_jrmc26km)' })).toBe('LC12_L (MaleCNS:49415)');
+    expect(termName({ id: 'FBbt_00004020', label: '' })).toBe('FBbt_00004020');
+  });
+
   it('passes on the endpoint warnings', () => {
-    const summary = summariseResponse({ datasets: [], warnings: ['FBbt_99999999 was not found in any searched dataset'] });
+    const summary = summariseResponse({ datasets: [], warnings: ['Time limit (30 s) reached'] });
     expect(summary.datasets).toEqual([]);
-    expect(summary.messages).toEqual(['FBbt_99999999 was not found in any searched dataset']);
+    expect(summary.messages).toEqual(['Time limit (30 s) reached']);
   });
 
   it('names the other datasets where the same class path was found', () => {
