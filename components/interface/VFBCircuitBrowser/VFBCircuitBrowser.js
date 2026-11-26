@@ -6,7 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
-import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName, wrapLines } from './circuitPaths';
+import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName, wrapLines, linkWidth, linkPlacement } from './circuitPaths';
 import { connect } from "react-redux";
 
 const styles = theme => ({
@@ -36,6 +36,8 @@ const COMPONENT_ID = "VFBCircuitBrowser";
 const NODE_WIDTH = 120;
 const NODE_HEIGHT = 80;
 const NODE_BORDER_THICKNESS = 2;
+// force-graph's node radius (nodeRelSize, with the default nodeVal of 1)
+const NODE_RADIUS = 50;
 
 /**
  * Component for VFB Circuit Browser between Neurons
@@ -542,12 +544,13 @@ class VFBCircuitBrowser extends Component {
             nodeLabel={node => node.name + " [" + node.title + "]" + (node.kind === "neuron" && node.typeLabel ? "<br/>" + node.typeLabel : "")}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
-            // Width of links, log(synapses)
-            linkWidth={link => link.weight > 1 ? Math.log(link.weight) : 1 }
+            // Width of links, from log(synapses)
+            linkWidth={link => linkWidth(link.weight)}
             // Links that would pass behind a node are bowed around it (buildGraph)
             linkCurvature={link => link.curvature || configuration.linkCurvature}
-            linkDirectionalArrowLength={link => link.weight > 1 ? Math.max(10, Math.log(link.weight) * 5) : 10}
-            linkDirectionalArrowRelPos={.75}
+            // Arrowhead tip at the target card's edge, label clear of it
+            linkDirectionalArrowLength={link => linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).arrowLength}
+            linkDirectionalArrowRelPos={link => linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).arrowRelPos}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
             linkCanvasObject={(link, ctx) => {
@@ -563,11 +566,12 @@ class VFBCircuitBrowser extends Component {
               }
               
               // calculate label positioning
-              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
+              const labelAt = linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).labelAt;
+              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) * labelAt })));
 
               if (link?.__controlPoints ) {
                 textPos = this.getQuadraticXY(
-                  .3,
+                  labelAt,
                   start.x,
                   start.y,
                   link?.__controlPoints[0],

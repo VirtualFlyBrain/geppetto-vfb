@@ -307,6 +307,42 @@ function orderColumns (columns, paths, byId, rowHeight) {
   }
 }
 
+/** Link width for a connection: grows with log(synapses), but gently. */
+function linkWidth (synapses) {
+  return synapses > 1 ? 1 + 1.5 * Math.log10(synapses) : 1;
+}
+
+/**
+ * Where to draw a link's arrowhead and label, as react-force-graph places
+ * them. The library puts the arrowhead between circles of radius nodeRadius
+ * round the two nodes (arrowRelPos 0 at the source circle, 1 at the target
+ * one), but the nodes are wider cards, so the arrowhead is placed by hand with
+ * its tip at the target card's edge, and the label in the middle of what is
+ * left of the visible line. The arrowhead is wider than the line (the library
+ * makes it 1/1.6 as wide as long) but short. Positions are along the straight
+ * line from source to target, which is close enough for the gently curved ones.
+ */
+function linkPlacement (link, nodeWidth, nodeHeight, nodeRadius) {
+  const arrowLength = Math.max(8, 3 * linkWidth(link.weight));
+  const s = link.source;
+  const t = link.target;
+  const dx = (t && t.x) - (s && s.x);
+  const dy = (t && t.y) - (s && s.y);
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (!length) {
+    return { arrowLength, arrowRelPos: 0.75, labelAt: 0.5 };
+  }
+  // Distance from a card's centre to its edge along the link
+  const ux = Math.abs(dx / length);
+  const uy = Math.abs(dy / length);
+  const edge = Math.min(ux ? nodeWidth / 2 / ux : Infinity, uy ? nodeHeight / 2 / uy : Infinity);
+  const tip = length - edge;
+  const free = length - 2 * nodeRadius - arrowLength;
+  const arrowRelPos = free > 0 ? Math.min(1, Math.max(0, (tip - nodeRadius - arrowLength) / free)) : 1;
+  const labelAt = Math.min(1, Math.max(0, (edge + tip - arrowLength) / 2 / length));
+  return { arrowLength, arrowRelPos, labelAt };
+}
+
 /**
  * Gives a link that would pass behind a node (one spanning several columns)
  * a curvature that bows it around the node(s) in the way, as react-force-graph
@@ -482,6 +518,8 @@ function nodeIds (block) {
 module.exports = {
   termKind,
   wrapLines,
+  linkWidth,
+  linkPlacement,
   hasConnectomeNeurons,
   termName,
   leftOut,

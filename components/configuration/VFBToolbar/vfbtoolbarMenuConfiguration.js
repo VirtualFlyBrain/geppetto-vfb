@@ -856,12 +856,12 @@ var toolbarMenu = {
           }
         },
         {
-          label: "Circuit Browser Query (Shortest Weighted Path Algorithm)",
+          label: "Circuit Browser: how paths are found",
           icon: "fa fa-connectdevelop",
           trailerIcon: "fa fa-external-link",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md"]
+            parameters: ["https://www.virtualflybrain.org/docs/website-features/circuitbrowser/#how-paths-are-found"]
           }
         },
         {

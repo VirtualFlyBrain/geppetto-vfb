@@ -111,19 +111,22 @@
 		"image" : "geppetto/build/circuit1.png",
 		"instructions": [{
 			"icon" : "",
-			"label" : "The Circuit Browser allows you to find the strongest paths from one neuron (the source neuron) to another (the target neuron). The 'strongest' paths are the shortest/highest weighted paths. Paths are arranged from the 'strongest' at the bottom to the 'weakest' at the top. A detailed explanation for the algorithm used to determine path strengths can be found under help."
+			"label" : "The Circuit Browser finds the strongest paths from one neuron or neuron type to another, in each connectome separately. A connection's strength is the share of the target's input that comes from the source; a path is strong when every step is. See Help for details."
 		},{
 			"icon" : "fa fa-dot-circle-o",
-			"label" : "Search for the source neuron to start from (Note: query is directional)"
+			"label" : "From: search for the neuron or neuron type to start from (the search is directional)"
 		},{
 			"icon" : "fa fa-map-marker",
-			"label" : "Search for the target neuron"
+			"label" : "To: search for the neuron or neuron type to end at"
 		},{
 			"icon" : "fa fa-arrows-h",
-			"label" : "Maximum number of paths to return (only the 'strongest' paths will be returned)"
+			"label" : "# Paths: how many paths to return for each connectome, strongest first"
 		},{
 			"icon" : "fa fa-balance-scale",
-			"label" : "A minimum weight for the synapse count of each connection can be applied, paths containing individual connections below this minimum will not be returned"
+			"label" : "Min Weight: the minimum number of synapses for each connection on a path"
+		},{
+			"icon" : "fa fa-list",
+			"label" : "Legend: choose which connectome's paths to show, and for neuron types, tick Show example neurons to see chains of individual neurons. Links are labelled with synapses and the share of the target's input"
 		}]
 	}]
 }

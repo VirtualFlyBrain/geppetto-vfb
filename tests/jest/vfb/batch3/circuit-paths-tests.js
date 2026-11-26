@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, termName, hasConnectomeNeurons, leftOut, wrapLines, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, termName, hasConnectomeNeurons, leftOut, wrapLines, linkWidth, linkPlacement, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -231,6 +231,30 @@ describe('Circuit paths parsing', () => {
     expect(connectomeOf('BANC_888:720575941548059681')).toBe('BANC_888');
     expect(connectomeOf('giant fiber neuron')).toBeNull();
     expect(connectomeOf(undefined)).toBeNull();
+  });
+
+  it('keeps thick links and their arrowheads in proportion', () => {
+    expect(linkWidth(1)).toBe(1);
+    expect(linkWidth(100)).toBeCloseTo(4);
+    // The thickest class links (tens of thousands of synapses) stay under 8
+    expect(linkWidth(29830)).toBeLessThan(8);
+    expect(linkPlacement({ weight: 29830, source: { x: 0, y: 0 }, target: { x: 250, y: 0 } }, 120, 80, 50).arrowLength).toBeLessThan(25);
+  });
+
+  it('puts the arrowhead tip at the target card and the label clear of it', () => {
+    const link = { weight: 29830, source: { x: 0, y: 0 }, target: { x: 250, y: 0 } };
+    const { arrowLength, arrowRelPos, labelAt } = linkPlacement(link, 120, 80, 50);
+    // force-graph: tip = r + a + (L - 2r - a) * relPos; the card edge is at 250 - 60
+    expect(50 + arrowLength + (250 - 100 - arrowLength) * arrowRelPos).toBeCloseTo(190);
+    // Label centred between the source card's edge and the arrowhead's tail
+    expect(labelAt * 250).toBeCloseTo((60 + 190 - arrowLength) / 2);
+    // A diagonal link: the card edge is further along it
+    const diagonal = linkPlacement({ weight: 10, source: { x: 0, y: 0 }, target: { x: 300, y: 100 } }, 120, 80, 50);
+    const length = Math.sqrt(300 * 300 + 100 * 100);
+    const edge = 60 / (300 / length);
+    expect(50 + diagonal.arrowLength + (length - 100 - diagonal.arrowLength) * diagonal.arrowRelPos).toBeCloseTo(length - edge);
+    // Where the card edge is inside force-graph's node circle, the arrowhead stops at the circle
+    expect(linkPlacement({ weight: 10, source: { x: 0, y: 0 }, target: { x: 0, y: 300 } }, 120, 80, 50).arrowRelPos).toBe(1);
   });
 
   it('limits a search to the connectome of a neuron chosen in another field', () => {
