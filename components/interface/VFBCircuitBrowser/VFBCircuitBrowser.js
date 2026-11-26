@@ -6,7 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
-import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName } from './circuitPaths';
+import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName, wrapLines } from './circuitPaths';
 import { connect } from "react-redux";
 
 const styles = theme => ({
@@ -381,26 +381,9 @@ class VFBCircuitBrowser extends Component {
    * Breaks Description texts into lines to fit within a certain width value.
    */
   wrapText (context, text, x, y, fontSize, maxWidth, maxHeight) {
-    let lines = new Array();
-    let width = 0, i, j;
-    let result, tempLine, baseFont = fontSize;
-
-    while ( text.length ) {
-      for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
-
-      result = text.substr(0,i);
-      tempLine = result.substr(0, result.length);
-      
-      // Break line by spaces if avaiable
-      if ( tempLine.indexOf(" ") >= 0 && ( text.charAt(i + 1) != ' ' && text.charAt(i + 1) != "" ) ) {
-        tempLine = tempLine.split(" ")[0];
-        lines.push( tempLine );
-        text = text.substr( tempLine.length + 1, text.length );
-      } else {
-        lines.push( tempLine );
-        text = text.substr( tempLine.length, text.length );
-      }
-    }
+    let baseFont = fontSize;
+    // As many words per line as fit
+    const lines = wrapLines(text, maxWidth, line => context.measureText(line).width);
     
     // Only one line, center it
     if ( lines.length == 1 ) { 
@@ -561,7 +544,8 @@ class VFBCircuitBrowser extends Component {
             linkLabel={link => link.label}
             // Width of links, log(synapses)
             linkWidth={link => link.weight > 1 ? Math.log(link.weight) : 1 }
-            linkCurvature={ configuration.linkCurvature }
+            // Links that would pass behind a node are bowed around it (buildGraph)
+            linkCurvature={link => link.curvature || configuration.linkCurvature}
             linkDirectionalArrowLength={link => link.weight > 1 ? Math.max(10, Math.log(link.weight) * 5) : 10}
             linkDirectionalArrowRelPos={.75}
             // Node label, used in tooltip when hovering over Node
