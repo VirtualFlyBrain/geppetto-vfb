@@ -74,6 +74,27 @@ function connectomeOf (label) {
 }
 
 /**
+ * The connectome that searches in field `editing` are limited to: that of the
+ * first neuron chosen in any other field. Worked out afresh for each search, so
+ * swapping that neuron for a class, or for a neuron from another connectome,
+ * changes or lifts the filter. Text still being typed (id equal to the label)
+ * does not count.
+ */
+function fieldsConnectome (fields, editing) {
+  for (let i = 0; i < (fields || []).length; i++) {
+    const field = fields[i];
+    if (i === Number(editing) || !field || !field.id || field.id === field.label) {
+      continue;
+    }
+    const connectome = connectomeOf(field.label);
+    if (connectome) {
+      return connectome;
+    }
+  }
+  return null;
+}
+
+/**
  * A SOLR filter (fq) for search results from one connectome, plus neuron
  * types: labels hold the connectome as "(MaleCNS:49415)" or, for BANC, as the
  * bare "BANC_888:720575941548059681", and label is a whole-string field, so
@@ -465,6 +486,7 @@ module.exports = {
   termName,
   leftOut,
   connectomeOf,
+  fieldsConnectome,
   connectomeFilter,
   datasetName,
   percent,

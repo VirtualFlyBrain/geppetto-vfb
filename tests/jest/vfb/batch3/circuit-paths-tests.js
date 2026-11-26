@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, termName, hasConnectomeNeurons, leftOut, wrapLines, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, termName, hasConnectomeNeurons, leftOut, wrapLines, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -231,6 +231,20 @@ describe('Circuit paths parsing', () => {
     expect(connectomeOf('BANC_888:720575941548059681')).toBe('BANC_888');
     expect(connectomeOf('giant fiber neuron')).toBeNull();
     expect(connectomeOf(undefined)).toBeNull();
+  });
+
+  it('limits a search to the connectome of a neuron chosen in another field', () => {
+    const fw = { id: 'VFB_fw137243', label: 'MBON11 (FlyWire:720575940617749538)' };
+    const banc = { id: 'VFB_00105jjh', label: 'BANC_888:720575941535127274' };
+    const kc = { id: 'FBbt_00003686', label: 'Kenyon cell' };
+    const typing = { id: 'banc', label: 'banc' };
+    expect(fieldsConnectome([fw, typing], 1)).toBe('FlyWire');
+    expect(fieldsConnectome([typing, banc], 0)).toBe('BANC_888');
+    // The field being edited does not limit itself
+    expect(fieldsConnectome([fw, typing], 0)).toBeNull();
+    // Once the FlyWire neuron is swapped for a class, the filter is lifted
+    expect(fieldsConnectome([kc, typing], 1)).toBeNull();
+    expect(fieldsConnectome([{ id: '', label: '' }, typing], '1')).toBeNull();
   });
 
   it('filters a search to one connectome in SOLR, escaping the name', () => {
