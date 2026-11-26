@@ -14,35 +14,48 @@ const CLASS_ID = /^FBbt_\d{8}$/;
 
 /**
  * The card title and hover note for a neuron left out of its connectome's
- * class graph, from the status and types the server gives (VFBquery
- * report.tsv). Older servers send neither: then just "no single type".
+ * class graph (no single most specific type). It is shown by the types it
+ * does have, "/"-separated: a general type, several specific ones, or only
+ * transmitter or lineage classes. The card gives each type's symbol where it
+ * has one (graphs built since report.tsv gained symbols), the hover the
+ * full labels. Users looking at neuron paths need the types, not why the
+ * class graph left the neuron out. Servers without the
+ * types (before VFBquery#151) give neither: then "no single type".
  */
 function leftOut (n) {
-  const types = Array.isArray(n.types) ? n.types.map(t => t.label || t.id) : [];
-  const listed = types.join("; ");
-  const prefix = "Not in the class graph: ";
-  switch (n.status) {
-  case "multi_leaf":
+  const types = (Array.isArray(n.types) ? n.types : []).filter(t => t && (t.label || t.id));
+  if (types.length) {
     return {
-      title: (types.length || "several") + " types",
-      note: prefix + "it has " + (types.length || "several") + " most specific types in this connectome" + (listed ? " (" + listed + ")" : "")
+      title: types.map(t => t.symbol || t.label || t.id).join(" / "),
+      note: types.map(t => t.label || t.id).join(" / ")
     };
-  case "no_leaf":
-    return {
-      title: "general type only",
-      note: prefix + "typed only to " + (listed || "general classes") + ", which "
-        + (types.length > 1 ? "have" : "has") + " more specific types in this connectome"
-    };
-  case "only_axis":
-    return {
-      title: "lineage/transmitter only",
-      note: prefix + "typed only to transmitter, lineage or similar classes" + (listed ? " (" + listed + ")" : "")
-    };
-  case "untyped":
-    return { title: "untyped", note: prefix + "this neuron has no type" };
-  default:
-    return { title: "no single type", note: prefix + "this neuron has no single most specific type in this connectome" };
   }
+  if (n.status === "untyped") {
+    return { title: "untyped", note: "This neuron has no type" };
+  }
+  return { title: "no single type", note: "This neuron has no single most specific type in this connectome" };
+}
+
+/**
+ * Splits text into lines no wider than maxWidth (measured with measure(text)),
+ * breaking after the last space that fits, or mid-word if a word is too long.
+ */
+function wrapLines (text, maxWidth, measure) {
+  const lines = [];
+  let rest = String(text || "").trim();
+  while (rest.length) {
+    let fit = rest.length;
+    while (fit > 1 && measure(rest.substr(0, fit)) > maxWidth) {
+      fit--;
+    }
+    let line = rest.substr(0, fit);
+    if (fit < rest.length && rest.charAt(fit) !== " " && line.lastIndexOf(" ") > 0) {
+      line = line.substr(0, line.lastIndexOf(" "));
+    }
+    lines.push(line.trim());
+    rest = rest.substr(line.length).trim();
+  }
+  return lines;
 }
 
 /** "Class" for an FBbt term, "Individual" for a VFB neuron. */
@@ -274,6 +287,50 @@ function orderColumns (columns, paths, byId, rowHeight) {
 }
 
 /**
+ * Gives a link that would pass behind a node (one spanning several columns)
+ * a curvature that bows it around the node(s) in the way, as react-force-graph
+ * draws it: a quadratic curve whose control point is curvature x length off
+ * the line's midpoint, to the left of the direction of travel.
+ */
+function bendAroundNodes (link, nodes, nodeWidth, nodeHeight) {
+  const margin = 15;
+  const sx = link.source.positionX, sy = link.source.positionY;
+  const ex = link.target.positionX, ey = link.target.positionY;
+  const dx = ex - sx, dy = ey - sy;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (Math.abs(dx) < 1 || !length) {
+    return 0;
+  }
+  const lineAt = x => sy + dy * (x - sx) / dx;
+  const blocking = nodes.filter(node => {
+    if (node === link.source || node === link.target) {
+      return false;
+    }
+    const t = (node.positionX - sx) / dx;
+    if (t <= 0 || t >= 1) {
+      return false;
+    }
+    const ys = [lineAt(node.positionX - nodeWidth / 2), lineAt(node.positionX + nodeWidth / 2)];
+    return Math.max(...ys) > node.positionY - nodeHeight / 2 - margin
+      && Math.min(...ys) < node.positionY + nodeHeight / 2 + margin;
+  });
+  if (!blocking.length) {
+    return 0;
+  }
+  // Bow away from where the nodes in the way mostly are (canvas y points down)
+  const below = blocking.reduce((sum, node) => sum + node.positionY - lineAt(node.positionX), 0);
+  const dir = below >= 0 ? -1 : 1;
+  const offset = Math.max(...blocking.map(node => {
+    const t = (node.positionX - sx) / dx;
+    const needed = nodeHeight / 2 + margin + (node.positionY - lineAt(node.positionX)) * dir;
+    return needed / (2 * t * (1 - t));
+  }));
+  // The control point sits off the line in direction (sin a, -cos a)
+  const curvature = -dir * Math.sign(dx) * offset / length;
+  return Math.max(-1.5, Math.min(1.5, curvature));
+}
+
+/**
  * Nodes and links for react-force-graph, laid out left to right: the source on
  * the left, the target on the right, each node in the column for its place
  * along the first (best) path it appears in, ordered within its column to cut
@@ -377,6 +434,7 @@ function buildGraph (block, options) {
         weightLabel: edge.synapses + (typeof edge.inprop_in === "number" ? " · " + percent(edge.inprop_in) : ""),
         label: lines.join("<br/>")
       };
+      link.curvature = bendAroundNodes(link, nodes, opts.nodeWidth || 120, opts.nodeHeight || 80);
       seen.set(key, link);
       links.push(link);
 
@@ -402,6 +460,7 @@ function nodeIds (block) {
 
 module.exports = {
   termKind,
+  wrapLines,
   hasConnectomeNeurons,
   termName,
   leftOut,

@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, termName, hasConnectomeNeurons, leftOut, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, termName, hasConnectomeNeurons, leftOut, wrapLines, connectomeOf, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -185,32 +185,29 @@ describe('Circuit paths parsing', () => {
     const terms = { VFB_fw005285: { label: 'SMP.PRW.8 (FlyWire:720575940619451989)' } };
     const graph = buildGraph(block, { terms });
     expect(graph.nodes[0].classLabel).toBe('no single type');
-    expect(graph.nodes[0].typeLabel).toContain('Not in the class graph');
+    expect(graph.nodes[0].typeLabel).toContain('no single most specific type');
     expect(graph.nodes[1].classLabel).toBe('DNp01');
     expect(graph.links[0].label).toContain('SMP.PRW.8 (FlyWire:720575940619451989) → VFB_fw036981');
   });
 
-  it('says why a neuron has no class, from the status the server gives', () => {
+  it('shows a neuron outside the class graph by the types it has', () => {
     const t = (id, label) => ({ id, label });
     const two = leftOut({ status: 'multi_leaf', types: [t('FBbt_00110501', 'adult fruitless pMP-b (female) neuron'), t('FBbt_20003151', 'adult descending neuron of the posterior brain DNpe033')] });
-    expect(two.title).toBe('2 types');
-    expect(two.note).toBe('Not in the class graph: it has 2 most specific types in this connectome (adult fruitless pMP-b (female) neuron; adult descending neuron of the posterior brain DNpe033)');
-    const three = leftOut({ status: 'multi_leaf', types: [t('A', 'type A'), t('B', 'type B'), t('C', 'type C')] });
-    expect(three.title).toBe('3 types');
-    expect(three.note).toContain('(type A; type B; type C)');
-    const general = leftOut({ status: 'no_leaf', types: [t('FBbt_00049539', 'adult ascending neuron')] });
-    expect(general.title).toBe('general type only');
-    expect(general.note).toBe('Not in the class graph: typed only to adult ascending neuron, which has more specific types in this connectome');
-    expect(leftOut({ status: 'no_leaf', types: [t('A', 'type A'), t('B', 'type B')] }).note).toContain('type A; type B, which have more specific types');
-    const axis = leftOut({ status: 'only_axis', types: [t('FBbt_00052205', 'DPMpm1 lineage neuron')] });
-    expect(axis.title).toBe('lineage/transmitter only');
-    expect(axis.note).toContain('(DPMpm1 lineage neuron)');
+    expect(two.title).toBe('adult fruitless pMP-b (female) neuron / adult descending neuron of the posterior brain DNpe033');
+    expect(two.note).toBe(two.title);
+    expect(leftOut({ status: 'multi_leaf', types: [t('A', 'type A'), t('B', 'type B'), t('C', 'type C')] }).title).toBe('type A / type B / type C');
+    expect(leftOut({ status: 'no_leaf', types: [t('FBbt_00049539', 'adult ascending neuron')] }).title).toBe('adult ascending neuron');
+    expect(leftOut({ status: 'only_axis', types: [t('FBbt_00052205', 'DPMpm1 lineage neuron')] }).title).toBe('DPMpm1 lineage neuron');
+    // Symbols on the card where the server gives them, labels in the hover
+    const sym = leftOut({ status: 'multi_leaf', types: [{ id: 'FBbt_20003151', label: 'adult descending neuron of the posterior brain DNpe033', symbol: 'DNpe033' }, t('FBbt_00110501', 'adult fruitless pMP-b (female) neuron')] });
+    expect(sym.title).toBe('DNpe033 / adult fruitless pMP-b (female) neuron');
+    expect(sym.note).toBe('adult descending neuron of the posterior brain DNpe033 / adult fruitless pMP-b (female) neuron');
     expect(leftOut({ status: 'untyped', types: [] }).title).toBe('untyped');
-    // A server without report.tsv support
+    // A server without the types (before VFBquery#151)
     expect(leftOut({}).title).toBe('no single type');
   });
 
-  it('uses the status on a left-out neuron in a path', () => {
+  it('shows the types on a left-out neuron in a path', () => {
     const block = {
       dataset: 'flywire783', level: 'neuron',
       paths: [{
@@ -223,8 +220,8 @@ describe('Circuit paths parsing', () => {
       }]
     };
     const graph = buildGraph(block, {});
-    expect(graph.nodes[0].classLabel).toBe('2 types');
-    expect(graph.nodes[0].typeLabel).toContain('(type X; type Y)');
+    expect(graph.nodes[0].classLabel).toBe('type X / type Y');
+    expect(graph.nodes[0].typeLabel).toBe('type X / type Y');
     expect(graph.nodes[1].typeLabel).toBe('giant fiber neuron');
   });
   it('reads the connectome from a neuron label, BANC included', () => {
@@ -258,5 +255,43 @@ describe('Circuit paths parsing', () => {
     // Nodes in a column never share a position
     const spots = graph.nodes.map(node => node.positionX + ',' + node.positionY);
     expect(new Set(spots).size).toBe(spots.length);
+  });
+
+  it('wraps titles after the last word that fits', () => {
+    const measure = text => text.length;          // one unit per character
+    expect(wrapLines('wing axillary muscle III1 motor neuron', 14, measure))
+      .toEqual(['wing axillary', 'muscle III1', 'motor neuron']);
+    expect(wrapLines('LC12', 14, measure)).toEqual(['LC12']);
+    // A word longer than the line is split
+    expect(wrapLines('BANC_888:720575941544529340', 14, measure)).toEqual(['BANC_888:72057', '5941544529340']);
+    expect(wrapLines('', 14, measure)).toEqual([]);
+  });
+
+  it('bows a long link around a node in its way, and leaves others straight', () => {
+    // DNp11 -> IN21A026 -> I1_MN, plus DNp11 -> I1_MN directly: the direct
+    // link would pass behind IN21A026, which sits on the same row
+    const n = (id, symbol) => ({ id, label: id, symbol });
+    const block = {
+      dataset: 'manc', level: 'class',
+      paths: [
+        { score: 1e-3, hops: 1, nodes: [n('S', 'DNp11'), n('T', 'I1_MN')], edges: [edge('S', 'T', 36, 0.0012)] },
+        { score: 1e-4, hops: 2, nodes: [n('S', 'DNp11'), n('M', 'IN21A026'), n('T', 'I1_MN')], edges: [edge('S', 'M', 146, 0.027), edge('M', 'T', 80, 0.01)] }
+      ]
+    };
+    const graph = buildGraph(block, { nodeWidth: 120, nodeHeight: 80 });
+    const link = (a, b) => graph.links.find(l => l.source.id === a && l.target.id === b);
+    expect(link('S', 'M').curvature).toBe(0);
+    expect(link('M', 'T').curvature).toBe(0);
+    const direct = link('S', 'T');
+    expect(direct.curvature).not.toBe(0);
+    // Where react-force-graph puts the curve at the middle node: clear of its card
+    const { source: s, target: t } = direct;
+    const len = Math.hypot(t.positionX - s.positionX, t.positionY - s.positionY);
+    const a = Math.atan2(t.positionY - s.positionY, t.positionX - s.positionX);
+    const cpY = (s.positionY + t.positionY) / 2 + len * direct.curvature * Math.sin(a - Math.PI / 2);
+    const m = graph.nodes.find(node => node.id === 'M');
+    const u = (m.positionX - s.positionX) / (t.positionX - s.positionX);
+    const curveY = (1 - u) * (1 - u) * s.positionY + 2 * u * (1 - u) * cpY + u * u * t.positionY;
+    expect(Math.abs(curveY - m.positionY)).toBeGreaterThan(40);
   });
 });
