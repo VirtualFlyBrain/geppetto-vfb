@@ -29,7 +29,7 @@ import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
 import axios from 'axios';
-import { termKind, connectomeOf, connectomeFilter, hasConnectomeNeurons } from './circuitPaths';
+import { termKind, fieldsConnectome, connectomeFilter, hasConnectomeNeurons } from './circuitPaths';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -335,7 +335,6 @@ class Controls extends Component {
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     this.autoCompleteInput = React.createRef();
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
-    this.connectomePrefix = null;
     this.createRefs = this.createRefs.bind(this);
     this.createRefs();
   }
@@ -379,9 +378,8 @@ class Controls extends Component {
     delete this.autocompleteRef[id.toString()];
     this.neuronFields = neurons;
     if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
-      // reset configuration of fq to default and clear connectome filter
+      // reset configuration of fq to default
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
-      this.connectomePrefix = null;
     }
 
     this.forceUpdate();
@@ -446,8 +444,8 @@ class Controls extends Component {
     }
 
     this.neuronFields = neurons;
-    const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
-    getResultsSOLR( target.value, callback, searchConfiguration.sorter, this.searchSettings() );
+    const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults, this.setInputValue);
+    getResultsSOLR( target.value, callback, searchConfiguration.sorter, this.searchSettings(this.setInputValue) );
   }
   
   textFieldLoseFocus (event) {
@@ -463,31 +461,32 @@ class Controls extends Component {
   
   
   /**
-   * The search settings, limited in SOLR to the chosen neuron's connectome (and
-   * neuron types) once a neuron has been chosen, so the row limit does not cut
-   * that connectome's neurons out of the results.
+   * The search settings for field `editing`, limited in SOLR to the connectome
+   * of a neuron chosen in another field (and to neuron types), so the row limit
+   * does not cut that connectome's neurons out of the results.
    */
-  searchSettings () {
-    if ( !this.connectomePrefix ) {
+  searchSettings (editing) {
+    const connectome = fieldsConnectome(this.neuronFields, editing);
+    if ( !connectome ) {
       return datasourceConfiguration;
     }
     const settings = JSON.parse(JSON.stringify(datasourceConfiguration));
-    settings.query_settings.fq.push(connectomeFilter(this.connectomePrefix));
+    settings.query_settings.fq.push(connectomeFilter(connectome));
     return settings;
   }
 
   /**
-   * Wraps the autocomplete handleResults callback to filter results by connectome prefix.
-   * When a neuron has been selected, subsequent searches only show neurons from the same
-   * connectome, as paths between neurons stay within one. Neuron types (classes) are
-   * always offered: a type is searched in the neuron's connectome.
+   * Wraps the autocomplete handleResults callback to filter results by connectome.
+   * When a neuron has been chosen in another field, searches in field `editing` only
+   * show neurons from the same connectome, as paths between neurons stay within one.
+   * Neuron types (classes) are always offered: a type is searched in the neuron's connectome.
    */
-  wrapResultsCallback (handleResults) {
-    const self = this;
+  wrapResultsCallback (handleResults, editing) {
+    const connectome = fieldsConnectome(this.neuronFields, editing);
     return function (status, data, value) {
-      if ( self.connectomePrefix && data ) {
+      if ( connectome && data ) {
         data = data.filter(item => kindOf(item.short_form, item.facets_annotation) === "Class"
-          || (item.label && item.label.includes(self.connectomePrefix + ':')));
+          || (item.label && item.label.includes(connectome + ':')));
       }
       handleResults(status, data, value);
     };
@@ -518,28 +517,18 @@ class Controls extends Component {
     if ( event?.nativeEvent?.inputType === "deleteContentBackward" && neurons?.find( (neuron, index) => neuron.id === "" && index.toString() === event.target.id )){
       this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     } else {
-      const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
-      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, this.searchSettings() );
+      const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults, this.setInputValue);
+      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, this.searchSettings(this.setInputValue) );
     }
     this.neuronFields = neurons;
 
     if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
-      // reset configuration of fq to default and clear connectome filter
+      // reset configuration of fq to default
       this.autocompleteRef[this.setInputValue].current.clearResults();
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
-      this.connectomePrefix = null;
     }
   }
   
-  /**
-   * Extract the connectome database name from a neuron label.
-   * e.g. "5-HTPLP01_R (FlyEM-HB:1324365879)" → "FlyEM-HB", and for BANC's
-   * bare-id labels "BANC_888:720575941548059681" → "BANC_888"
-   */
-  extractConnectomePrefix (label) {
-    return connectomeOf(label);
-  }
-
   /**
    * Handle SOLR result selection, activated by selecting from drop down menu under textfield
    */
@@ -550,12 +539,6 @@ class Controls extends Component {
     let result = this.autocompleteRef[textFieldId].current.getFilteredResults()[value];
     let shortForm = result && result.short_form;
     neurons[index] = { id : shortForm, label : value };
-
-    // Extract connectome prefix from label to filter subsequent searches
-    const prefix = this.extractConnectomePrefix(value);
-    if ( prefix && !this.connectomePrefix ) {
-      this.connectomePrefix = prefix;
-    }
 
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -580,7 +563,6 @@ class Controls extends Component {
 
   setNeurons () {
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
-    this.connectomePrefix = null;
     while (this?.props?.circuitQuerySelected.length > 0) {
       this?.props?.circuitQuerySelected.pop();
     }
@@ -591,7 +573,6 @@ class Controls extends Component {
   
   clearGraph () {
     datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
-    this.connectomePrefix = null;
     this.props.clearGraph()
   }
   
@@ -615,10 +596,6 @@ class Controls extends Component {
           neuronFields[emptyIndex] = { id : selectedId, label : selectedLabel };
           added = true;
           fieldExists = true;
-          // Extract connectome prefix from neurons added via Term Info link
-          if ( !this.connectomePrefix ) {
-            this.connectomePrefix = this.extractConnectomePrefix(selectedLabel);
-          }
           break;
         } else {
           neuronFields.pop();
