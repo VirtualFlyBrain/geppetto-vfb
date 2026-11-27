@@ -19,11 +19,24 @@ const GIVE_UP_MS = 10000;
 const MIN_SIZE = 50;
 const FIT_MS = 400;
 const FIT_PADDING = 20;
+// Padding round a drawing fitted to its extent, and the closest such a fit zooms in
+const EXTENT_PADDING = 24;
+const MAX_FIT_ZOOM = 2.5;
+// A free area is used only if the fit in it is at least this share of a whole-panel fit
+const MIN_FREE_SHARE = 0.6;
 
 export default class GraphFitter {
-  constructor (getWrapper, getNodes) {
+  /*
+   * options.getExtent: () => { minX, maxX, minY, maxY } of the drawing in graph
+   * units, to fit that rather than the node positions. options.getObstacles:
+   * () => elements laid over the graph, to fit the drawing clear of them
+   * where there is room. options.onResize: (width, height) => called when the
+   * panel gets a new usable size, before the fit.
+   */
+  constructor (getWrapper, getNodes, options) {
     this.getWrapper = getWrapper;
     this.getNodes = getNodes;
+    this.options = options || {};
     this.pending = false;
     this.timer = null;
     this.deadline = 0;
@@ -32,8 +45,11 @@ export default class GraphFitter {
     this.observed = null;
     this.observer = null;
     this.lastSize = '';
-    this.onUserMove = () => {
-      this.userMoved = true;
+    this.onUserMove = event => {
+      // Only moves made on the graph itself, not clicks on controls laid over it
+      if (!event || !event.target || event.target.tagName === 'CANVAS') {
+        this.userMoved = true;
+      }
     };
     this.engineStopped = this.engineStopped.bind(this);
   }
@@ -50,6 +66,13 @@ export default class GraphFitter {
   engineStopped () {
     if (this.pending && !this.userMoved && this.fit()) {
       this.pending = false;
+    }
+  }
+
+  /* Something laid over the graph changed size: fit again, unless the user has set their own view. */
+  refit () {
+    if (!this.userMoved) {
+      this.fit();
     }
   }
 
@@ -134,11 +157,75 @@ export default class GraphFitter {
       return false;
     }
     this.listen(host);
+    const extent = this.options.getExtent && this.options.getExtent();
+    if (extent && Number.isFinite(extent.minX) && this.fitExtent(graph, host, extent)) {
+      return true;
+    }
     if (nodes.length === 1) {
       graph.centerAt(nodes[0].x, nodes[0].y, FIT_MS);
     } else {
       graph.zoomToFit(FIT_MS, FIT_PADDING);
     }
+    return true;
+  }
+
+  /*
+   * Fit a drawing's extent into the largest part of the canvas that the
+   * obstacles leave free. If that part is too small to be worth it (the fit
+   * would be much smaller than one using the whole canvas), use the whole
+   * canvas and let the obstacles overlap the drawing.
+   */
+  fitExtent (graph, host, extent) {
+    const canvas = host.querySelector('canvas');
+    if (!canvas || typeof graph.zoom !== 'function') {
+      return false;
+    }
+    const area = canvas.getBoundingClientRect();
+    const drawingWidth = Math.max(1, extent.maxX - extent.minX);
+    const drawingHeight = Math.max(1, extent.maxY - extent.minY);
+    const zoomFor = rect => Math.min((rect.right - rect.left - 2 * EXTENT_PADDING) / drawingWidth, (rect.bottom - rect.top - 2 * EXTENT_PADDING) / drawingHeight);
+    const whole = { left: 0, top: 0, right: area.width, bottom: area.height };
+    if (zoomFor(whole) <= 0) {
+      return false;
+    }
+    const obstacles = ((this.options.getObstacles && this.options.getObstacles()) || [])
+      .map(element => element.getBoundingClientRect())
+      .map(box => ({
+        left: Math.max(0, box.left - area.left), top: Math.max(0, box.top - area.top),
+        right: Math.min(area.width, box.right - area.left), bottom: Math.min(area.height, box.bottom - area.top)
+      }))
+      .filter(box => box.right > box.left && box.bottom > box.top);
+    let best = whole;
+    if (obstacles.length) {
+      // Every rectangle whose sides lie on the canvas or an obstacle's edge and that holds no obstacle
+      const xs = [0, area.width].concat(...obstacles.map(o => [o.left, o.right]));
+      const ys = [0, area.height].concat(...obstacles.map(o => [o.top, o.bottom]));
+      let free = null;
+      xs.forEach(left => xs.forEach(right => ys.forEach(top => ys.forEach(bottom => {
+        if (right <= left || bottom <= top) {
+          return;
+        }
+        const rect = { left, top, right, bottom };
+        if (obstacles.some(o => o.left < right && o.right > left && o.top < bottom && o.bottom > top)) {
+          return;
+        }
+        if (!free || zoomFor(rect) > zoomFor(free)) {
+          free = rect;
+        }
+      }))));
+      if (free && zoomFor(free) >= MIN_FREE_SHARE * zoomFor(whole)) {
+        best = free;
+      }
+    }
+    const zoom = Math.min(MAX_FIT_ZOOM, zoomFor(best));
+    if (!(zoom > 0)) {
+      return false;
+    }
+    // centerAt puts a graph point at the middle of the canvas: offset it so the drawing's middle lands in the free area's
+    const x = (extent.minX + extent.maxX) / 2 - ((best.left + best.right) / 2 - area.width / 2) / zoom;
+    const y = (extent.minY + extent.maxY) / 2 - ((best.top + best.bottom) / 2 - area.height / 2) / zoom;
+    graph.zoom(zoom, FIT_MS);
+    graph.centerAt(x, y, FIT_MS);
     return true;
   }
 
@@ -158,6 +245,9 @@ export default class GraphFitter {
       const size = Math.round(box.width) + 'x' + Math.round(box.height);
       if (box.width >= MIN_SIZE && box.height >= MIN_SIZE && size !== this.lastSize) {
         this.lastSize = size;
+        if (this.options.onResize) {
+          this.options.onResize(box.width, box.height);
+        }
         this.request();
       } else if (box.width < MIN_SIZE || box.height < MIN_SIZE) {
         this.lastSize = '';
