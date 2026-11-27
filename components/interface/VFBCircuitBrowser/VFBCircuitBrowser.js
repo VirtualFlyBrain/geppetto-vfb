@@ -6,7 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
-import { queryParser } from './QueryParser';
+import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName, wrapLines, linkWidth, linkPlacement } from './circuitPaths';
 import { connect } from "react-redux";
 
 const styles = theme => ({
@@ -27,22 +27,17 @@ const styles = theme => ({
  * Read configuration from circuitBrowserConfiguration
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
-const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
+const circuitPathsConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').circuitPathsConfig;
+const circuitPathsParams = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').circuitPathsParams;
+const termLookupConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').termLookupConfig;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
-
-/**
- * If no configuration is given for queries in graphConfiguration.js, we use this configuration.
- */
-const defaultHTTPConfiguration = {
-  url: "https://pdb.virtualflybrain.org/db/data/transaction/192/commit",
-  contentType: "application/json"
-}
 
 const COMPONENT_ID = "VFBCircuitBrowser";
 const NODE_WIDTH = 120;
 const NODE_HEIGHT = 80;
 const NODE_BORDER_THICKNESS = 2;
+// force-graph's node radius (nodeRelSize, with the default nodeVal of 1)
+const NODE_RADIUS = 50;
 
 /**
  * Component for VFB Circuit Browser between Neurons
@@ -53,17 +48,34 @@ class VFBCircuitBrowser extends Component {
     super(props);
     this.state = {
       graph : { nodes : [], links : [] } ,
-      legend : {},
+      legend : [],
+      // The key over the graph can be folded away; the choice is kept between queries
+      legendOpen : true,
       loading : true,
       queryLoaded : false,
       dropDownAnchorEl : null,
       neurons : [{ id : "", label : "" } , { id : "", label : "" }],
       paths : Math.ceil((configuration.maxPaths - configuration.minPaths) / 2),
-      weight : 10, // default graph weight; 0 projected the entire synapse graph and timed out
+      // Minimum synapses per connection, the /circuit_paths default
+      weight : 5,
+      /*
+       * Last /circuit_paths response, the dataset shown from it and whether
+       * class paths are shown as example neurons
+       */
+      response : null,
+      datasets : [],
+      dataset : null,
+      showNeurons : false,
+      terms : {},
+      message : "",
       reload : false
     }
     this.updateGraph = this.updateGraph.bind(this);
     this.queryResults = this.queryResults.bind(this);
+    this.selectDataset = this.selectDataset.bind(this);
+    this.toggleNeurons = this.toggleNeurons.bind(this);
+    // Only the latest request's results are drawn
+    this.requestCount = 0;
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.resetCamera = this.resetCamera.bind(this);
     // Fits the graph once its panel is measured and its layout has settled
@@ -180,7 +192,8 @@ class VFBCircuitBrowser extends Component {
   }
   
   clearGraph () {
-    this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] } });
+    this.requestCount++;
+    this.setState({ neurons : [{ id : "", label : "" } , { id : "", label : "" }], graph : { nodes : [], links : [] }, response : null, datasets : [], dataset : null, message : "" });
     this.controlsRef.current.setNeurons()
   }
   
@@ -201,78 +214,160 @@ class VFBCircuitBrowser extends Component {
   }
   
   /**
-   * Re-render graph with a new instance
+   * Query paths between the neurons or neuron types entered.
    */
-  updateGraph (neurons, paths, weight) {
+  updateGraph (neurons, paths, weight, showNeurons) {
     if (this.__isMounted){
-      // Show loading spinner while cypher query search occurs
-      this.setState({ loading : true , neurons : neurons ? neurons : this.state.neurons, paths : paths ? paths : this.state.paths, weight : weight ? weight : this.state.weight, queryLoaded : false });
-      // Perform cypher query. TODO: Remove hardcoded weight once edge weight is implemented
-      this.queryResults(cypherQuery(neurons ? neurons.map(a => `'${a.id}'`).join(",") : this.state.neurons, paths ? paths : this.state.paths, weight ? weight : this.state.weight));
+      const ends = neurons ? neurons : this.state.neurons;
+      const k = paths ? paths : this.state.paths;
+      const minSynapses = weight !== undefined && weight !== null && weight !== "" ? weight : this.state.weight;
+      const withNeurons = showNeurons !== undefined ? showNeurons : this.state.showNeurons;
+      this.setState({ loading : true, neurons : ends, paths : k, weight : minSynapses, showNeurons : withNeurons, queryLoaded : false, message : "" });
+      if ( !ends?.[0]?.id || !ends?.[ends.length - 1]?.id ) {
+        this.setState({ loading : false, graph : { nodes : [], links : [] }, response : null, datasets : [], dataset : null });
+        return;
+      }
+      this.queryResults(circuitPathsParams(ends, k, minSynapses, withNeurons));
     }
-  }    
+  }
 
   /**
-   * Perform a cypher query to retrieve  cypher query
+   * Fetch paths from /circuit_paths, then the labels and facets of the terms on
+   * them, and draw the best dataset's paths.
    */
-  queryResults (requestQuery) {
-    var url = restPostConfig.url;
+  queryResults (params) {
+    const self = this;
+    const request = ++this.requestCount;
+    const current = () => self.__isMounted && request === self.requestCount;
 
-    if (restPostConfig.url === undefined) {
-      url = defaultHTTPConfiguration.url;
-    }
-
-    let contentType = restPostConfig.contentType.length !== 0 ? restPostConfig.contentType : defaultHTTPConfiguration.contentType;
-
-    // Make cypher query request statement into string
-    let request = JSON.parse(JSON.stringify(requestQuery));
-
-    let self = this;
-
-    // Axios HTTP Post request with cypher query
-    axios({
-      method: 'post',
-      url: url,
-      headers: { 'content-type': contentType },
-      data: request,
-    }).then( function (response) {
-      var blob = new Blob(["onmessage = " + queryParser ]);
-      var blobUrl = window.URL.createObjectURL(blob);
-
-      var worker = new Worker(blobUrl);
-      worker.onmessage = function (e) {
-        switch (e.data.resultMessage) {
-        case "OK":
-          self.setState( { graph : e.data.params.results , legend : e.data.params.colorLabels, loading : false, queryLoaded : true });
-          self.objectsLoaded = e.data.params.results.nodes.length;
-          // Fit the new graph once it is laid out in a measured panel
-          self.fitter.request();
-          setTimeout( function () {
-            if ( self.graphRef.current !== null ) {
-              self.graphRef.current.ggv.current.d3Force('charge').strength(-(self.objectsLoaded * 100 ))
-            }
-          }, (self.objectsLoaded * 20));
-          break;
+    axios.get(circuitPathsConfig.url, { params, timeout : circuitPathsConfig.timeout })
+      .then(response => {
+        if ( !current() ) {
+          return;
         }
-      };
-
-      let params = {
-        results: response.data,
-        configuration : configuration,
-        styling : stylingConfiguration,
-        paths : self.state.paths,
-        weight : self.state.weight,
-        NODE_WIDTH : NODE_WIDTH, NODE_HEIGHT : NODE_HEIGHT
-      }
-      
-      // Invoke web worker to perform conversion of graph data into format
-      worker.postMessage({ message: "refine", params: params });
-    })
-      .catch( function (error) {
-        self.setState( { loading : false } );
+        const data = response.data;
+        const summary = summariseResponse(data, self.state.neurons);
+        const ids = Array.from(new Set([].concat(...summary.datasets.map(nodeIds))));
+        return self.lookupTerms(ids).then(terms => {
+          if ( !current() ) {
+            return;
+          }
+          const previous = self.state.dataset;
+          const dataset = summary.datasets.find(block => block.dataset === previous) || summary.datasets[0] || null;
+          let message = summary.messages.join(" ");
+          if ( !dataset && summary.withoutPaths.length ) {
+            const ends = self.state.neurons;
+            const searched = summary.withoutPaths.map(datasetName).join(", ");
+            message = [message, "No paths found from " + termName(ends[0]) + " to " + termName(ends[ends.length - 1]) + " in " + searched + "."].filter(Boolean).join(" ");
+          }
+          self.setState({ response : data, datasets : summary.datasets, terms, message });
+          self.drawDataset(dataset, self.state.showNeurons, terms);
+        });
       })
+      .catch(error => {
+        if ( !current() ) {
+          return;
+        }
+        let message = "The circuit query failed. Please try again.";
+        if ( error?.response?.status === 503 ) {
+          message = "The circuit graphs are loading. Please try again in a minute.";
+        } else if ( error?.response?.data?.error ) {
+          message = error.response.data.error;
+        } else if ( error?.code === "ECONNABORTED" ) {
+          message = "The circuit query took too long. Try fewer paths or a higher minimum weight.";
+        }
+        self.setState({ loading : false, queryLoaded : true, graph : { nodes : [], links : [] }, response : null, datasets : [], dataset : null, message });
+      });
   }
-  
+
+  /**
+   * Labels and facets of the given ids from Solr. Paths are still drawn, with
+   * ids and no colours, if this fails.
+   */
+  lookupTerms (ids) {
+    if ( ids.length === 0 ) {
+      return Promise.resolve({});
+    }
+    const params = {
+      q : "short_form:(" + ids.join(" OR ") + ")",
+      fl : termLookupConfig.fields,
+      rows : ids.length,
+      wt : "json"
+    };
+    return axios.get(termLookupConfig.url, { params })
+      .then(response => {
+        const terms = {};
+        (response?.data?.response?.docs || []).forEach(doc => {
+          terms[doc.short_form] = { label : doc.label, facets : doc.facets_annotation || [] };
+        });
+        return terms;
+      })
+      .catch(() => ({}));
+  }
+
+  /**
+   * Draw one dataset's paths from the last response.
+   */
+  drawDataset (block, showNeurons, terms) {
+    if ( !block ) {
+      this.setState({ graph : { nodes : [], links : [] }, legend : [], dataset : null, loading : false, queryLoaded : true });
+      return;
+    }
+    const graph = buildGraph(block, {
+      showNeurons,
+      terms : terms || this.state.terms,
+      styling : stylingConfiguration,
+      nodeWidth : NODE_WIDTH,
+      nodeHeight : NODE_HEIGHT
+    });
+    this.setState({ graph : { nodes : graph.nodes, links : graph.links }, legend : graph.legendLabels, dataset : block.dataset, loading : false, queryLoaded : true });
+    this.objectsLoaded = graph.nodes.length;
+    // Fit the new graph once it is laid out in a measured panel
+    this.fitter.request();
+  }
+
+  /**
+   * Show the paths found in another dataset.
+   */
+  selectDataset (dataset) {
+    const block = this.state.datasets.find(b => b.dataset === dataset);
+    if ( block ) {
+      this.drawDataset(block, this.state.showNeurons);
+    }
+  }
+
+  /**
+   * Show class paths as example neurons, or back as classes. Example neurons
+   * are only fetched when first asked for, as they are slow.
+   */
+  toggleNeurons (showNeurons) {
+    const block = this.state.datasets.find(b => b.dataset === this.state.dataset);
+    const hasInstances = block && block.paths.some(path => Array.isArray(path.instances));
+    if ( showNeurons && block && block.level === "class" && !hasInstances ) {
+      this.updateGraph(this.state.neurons, this.state.paths, this.state.weight, true);
+      return;
+    }
+    this.setState({ showNeurons });
+    if ( block ) {
+      this.drawDataset(block, showNeurons);
+    }
+  }
+
+  /**
+   * What the legend says about the dataset shown.
+   */
+  datasetSummary () {
+    const block = this.state.datasets.find(b => b.dataset === this.state.dataset);
+    if ( !block ) {
+      return null;
+    }
+    return {
+      level : block.level,
+      neuronsLeftOut : block.neurons_left_out,
+      alsoFoundIn : block.level === "class" ? alsoFoundIn(this.state.response, block.dataset) : []
+    };
+  }
+
   getFontSize (context, fontSize, maxWidth, text, textLength) {
     let baseSize = fontSize;
     context.font = `${baseSize}px ${stylingConfiguration.defaultNodeFont}`;
@@ -290,26 +385,9 @@ class VFBCircuitBrowser extends Component {
    * Breaks Description texts into lines to fit within a certain width value.
    */
   wrapText (context, text, x, y, fontSize, maxWidth, maxHeight) {
-    let lines = new Array();
-    let width = 0, i, j;
-    let result, tempLine, baseFont = fontSize;
-
-    while ( text.length ) {
-      for ( i = text.length; context.measureText(text.substr(0,i)).width > maxWidth; i-- ) {}
-
-      result = text.substr(0,i);
-      tempLine = result.substr(0, result.length);
-      
-      // Break line by spaces if avaiable
-      if ( tempLine.indexOf(" ") >= 0 && ( text.charAt(i + 1) != ' ' && text.charAt(i + 1) != "" ) ) {
-        tempLine = tempLine.split(" ")[0];
-        lines.push( tempLine );
-        text = text.substr( tempLine.length + 1, text.length );
-      } else {
-        lines.push( tempLine );
-        text = text.substr( tempLine.length, text.length );
-      }
-    }
+    let baseFont = fontSize;
+    // As many words per line as fit
+    const lines = wrapLines(text, maxWidth, line => context.measureText(line).width);
     
     // Only one line, center it
     if ( lines.length == 1 ) { 
@@ -413,10 +491,38 @@ class VFBCircuitBrowser extends Component {
     const { classes, circuitQuerySelected } = this.props;
     this.circuitQuerySelected = circuitQuerySelected;
     
-    let errorMessage = "Enter a root/target neuron below to query connectivity paths";
-    if ( this.state.neurons?.[0]?.id != "" && this.state.neurons?.[1]?.id != "" ){
-      errorMessage = "No paths found between " + this.state.neurons.map(a => `'${a.id}'`).join(",");
+    let errorMessage = "Enter neurons or neuron types below to find the paths between them";
+    if ( this.state.message ) {
+      errorMessage = this.state.message;
+    } else if ( this.state.queryLoaded && this.state.neurons?.[0]?.id && this.state.neurons?.[1]?.id ){
+      errorMessage = "No paths found from " + termName(this.state.neurons[0]) + " to " + termName(this.state.neurons[this.state.neurons.length - 1]) + ".";
     }
+    const controlsProps = {
+      updateGraph : self.updateGraph,
+      updatePaths : self.updatePaths,
+      updateWeight : self.updateWeight,
+      neurons : this.state.neurons,
+      queryLoaded : this.state.queryLoaded,
+      paths : this.state.paths,
+      weight : this.state.weight,
+      resultsAvailable : () => this.state.graph.nodes.length > 0,
+      resetCamera : self.resetCamera,
+      zoomIn : self.zoomIn,
+      zoomOut : self.zoomOut,
+      clearGraph : self.clearGraph,
+      clearNeurons : self.clearNeurons,
+      legend : self.state.legend,
+      legendOpen : this.state.legendOpen,
+      toggleLegend : () => this.setState(state => ({ legendOpen : !state.legendOpen })),
+      datasets : this.state.datasets.map(block => ({ dataset : block.dataset, name : datasetName(block), paths : block.paths.length })),
+      dataset : this.state.dataset,
+      selectDataset : self.selectDataset,
+      datasetSummary : self.datasetSummary(),
+      showNeurons : this.state.showNeurons,
+      toggleNeurons : self.toggleNeurons,
+      message : this.state.message,
+      ref : self.controlsRef
+    };
     return (
       this.state.loading
         ? <CircularProgress id= { COMPONENT_ID } classes={{ root : classes.loader }}
@@ -425,23 +531,9 @@ class VFBCircuitBrowser extends Component {
           ? <div>
             <h4 className={classes.errorMessage}>{errorMessage}</h4>
             <Controls
-              updateGraph={self.updateGraph}
-              updatePaths={self.updatePaths}
-              updateWeight={self.updateWeight}
-              neurons={this.state.neurons}
-              queryLoaded={this.state.queryLoaded}
-              paths={this.state.paths}
-              weight={this.state.weight}
-              resultsAvailable={ () => this.state.graph.nodes.length > 0 }
-              resetCamera={self.resetCamera}
-              zoomIn={self.zoomIn}
-              zoomOut={self.zoomOut}
+              {...controlsProps}
               circuitQuerySelected={circuitQuerySelected}
               datasource="SOLR"
-              legend = {self.state.legend}
-              ref={self.controlsRef}
-              clearGraph={self.clearGraph}
-              clearNeurons={self.clearNeurons}
               key="controls"
             />
           </div>
@@ -453,14 +545,16 @@ class VFBCircuitBrowser extends Component {
             d2={true}
             // Fit again once the force layout has settled
             onEngineStop={this.fitter.engineStopped}
-            nodeLabel={node => node.name + " [" + node.title + "]"}
+            nodeLabel={node => node.name + " [" + node.title + "]" + (node.kind === "neuron" && node.typeLabel ? "<br/>" + node.typeLabel : "")}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
-            // Width of links, log(weight)
-            linkWidth={link => link.weight ? Math.log(link.weight) : 1 }
-            linkCurvature={ configuration.linkCurvature }
-            linkDirectionalArrowLength={link => link.weight ? Math.max(10, Math.log(link.weight) * 5) : 2}
-            linkDirectionalArrowRelPos={.75}
+            // Width of links, from log(synapses)
+            linkWidth={link => linkWidth(link.weight)}
+            // Links that would pass behind a node are bowed around it (buildGraph)
+            linkCurvature={link => link.curvature || configuration.linkCurvature}
+            // Arrowhead tip at the target card's edge, label clear of it
+            linkDirectionalArrowLength={link => linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).arrowLength}
+            linkDirectionalArrowRelPos={link => linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).arrowRelPos}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
             linkCanvasObject={(link, ctx) => {
@@ -476,11 +570,12 @@ class VFBCircuitBrowser extends Component {
               }
               
               // calculate label positioning
-              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) / 2 })));
+              const labelAt = linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).labelAt;
+              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) * labelAt })));
 
               if (link?.__controlPoints ) {
                 textPos = this.getQuadraticXY(
-                  .3,
+                  labelAt,
                   start.x,
                   start.y,
                   link?.__controlPoints[0],
@@ -543,8 +638,9 @@ class VFBCircuitBrowser extends Component {
             // bu = Bottom Up, creates Graph with root at bottom
             dagMode="lr"
             nodeVal = { node => {
+              // Fixed layout: column along the path, row by path rank
               node.fx = node.positionX;
-              node.fy = -150 * node.level
+              node.fy = node.positionY;
             }}
             dagLevelDistance = {75}
             onDagError={loopNodeIds => {}}
@@ -559,22 +655,8 @@ class VFBCircuitBrowser extends Component {
             enableZoomPanInteraction={true}
             controls = {
               <Controls
-                updateGraph={self.updateGraph}
-                updatePaths={self.updatePaths}
-                updateWeight={self.updateWeight}
-                neurons={this.state.neurons}
-                queryLoaded={this.state.queryLoaded}
-                paths={this.state.paths}
-                weight={this.state.weight}
-                resultsAvailable={ () => this.state.graph.nodes.length > 0 }
-                resetCamera={self.resetCamera}
-                zoomIn={self.zoomIn}
-                zoomOut={self.zoomOut}
-                clearGraph={self.clearGraph}
-                clearNeurons={self.clearNeurons}
+                {...controlsProps}
                 circuitQuerySelected={this.circuitQuerySelected}
-                legend = {self.state.legend}
-                ref={self.controlsRef}
               />
             }
             // Function triggered when hovering over a nodeoptions

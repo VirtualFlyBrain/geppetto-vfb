@@ -6,7 +6,8 @@ import { wait4selector, click, testLandingPage, selectTab } from '../utils.js';
 import * as ST from '../selectors.js';
 
 const baseURL = process.env.url ||  'http://localhost:8080/org.geppetto.frontend';
-const projectURL = baseURL + "/geppetto";
+// The snapshots were taken in the V3 default layout; the page now opens in V2 default.
+const projectURL = baseURL + "/geppetto?view=v3";
 
 //Snapshot settings
 const SNAPSHOT_OPTIONS = { 
@@ -114,6 +115,8 @@ describe('VFB Term Context Component Tests', () => {
 		// run 25308773215 the assertion fired with "Queries for JRC2018Unisex" still
 		// showing (the previous focus). Poll until it switches to medulla.
 		it('Medulla Loaded', async () => {
+			// Term Context stays in front when a term loads; Term Info shares its tabset
+			await selectTab(page, "Term Info");
 			await wait4selector(page, 'div#bar-div-vfbterminfowidget', { visible: true, timeout : 120000 });
 			await page.waitForFunction(
 				() => {

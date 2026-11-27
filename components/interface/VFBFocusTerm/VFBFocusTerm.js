@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { SHOW_LIST_VIEWER } from './../../../actions/generals';
 import focusTermConfiguration from '../../configuration/VFBFocusTerm/focusTermConfiguration';
 import { safeGa } from '../utils/utils';
+import { viewUrlSuffix } from '../utils/layoutViews';
 import { openSceneInNeuroglass, neuroglassAvailable } from '../utils/neuroglass';
 import NeuroglassLogo from '../../configuration/VFBMain/neuroglass-logo.png';
 
@@ -510,6 +511,8 @@ class VFBFocusTerm extends React.Component {
             title = instance.getName();
             safeGa('vfb.send', 'pageview', (window.location.pathname + '?id=' + instance.getId().replace('_meta','') ));
           } catch (ignore) { }
+          // Keep the view (View menu, ?view=) the URL names through this rewrite.
+          items = items + viewUrlSuffix();
           try {
             // Keep the title, description and canonical in step with the focus term.
             if (window.vfbUpdatePageMetadata) {

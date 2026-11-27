@@ -94,7 +94,9 @@ jobs:
           fi
       # The only endpoints compiled into the client (dockerFiles/configure.sh):
       # the tree/circuit/graph PDB and the search Solr. Every build uses the
-      # public pdb.virtualflybrain.org (served by the cluster); alpha has its own.
+      # public pdb.virtualflybrain.org and solr.virtualflybrain.org (served by the
+      # cluster). alpha used pdb-alpha / solr-alpha until 2026-11; those no longer
+      # answer, so its build left search and the browsers on v2a with no data.
       - name: Endpoints
         id: endpoints
         shell: bash
@@ -102,12 +104,6 @@ jobs:
           BRANCH="${{ steps.branch.outputs.value }}"
           PDB=https://pdb.virtualflybrain.org
           SOLR=https://solr.virtualflybrain.org/solr/ontology/select
-          if [ "$BRANCH" == master ] || [[ "$BRANCH" == v* ]]; then
-            :
-          elif [ "$BRANCH" == alpha ]; then
-            PDB=https://pdb-alpha.virtualflybrain.org
-            SOLR=https://solr-alpha.virtualflybrain.org/solr/ontology/select
-          fi
           echo "VFB_TREE_PDB_SERVER=$PDB" >> "$GITHUB_OUTPUT"
           echo "SOLR_SERVER=$SOLR" >> "$GITHUB_OUTPUT"
           echo "PDB: $PDB"

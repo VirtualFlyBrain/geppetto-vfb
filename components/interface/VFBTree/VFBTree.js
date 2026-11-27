@@ -767,6 +767,13 @@ class VFBTree extends React.Component {
     var selKey = sel ? (sel.subtitle + '|' + sel.instanceId) : '';
     if (sel !== undefined && selKey !== prevKey && this.state.loading !== true) {
       this.scrollSelectedIntoView();
+    } else if (sel !== undefined && this.props.visible && prevProps.visible === false && this.state.loading !== true) {
+      /*
+       * The Tree Browser shares a tabset with Term Info. A term focused
+       * while it was hidden was selected, but the scroll ran against a
+       * zero-height grid; scroll again now that the rows can be measured.
+       */
+      this.scrollSelectedIntoView();
     }
   }
 

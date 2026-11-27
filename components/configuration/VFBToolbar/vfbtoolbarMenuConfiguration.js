@@ -254,6 +254,14 @@ var toolbarMenu = {
           }
         },
         {
+          label: "Neuroglass Viewer",
+          icon: "fa fa-cube",
+          action: {
+            handlerAction: "UIElementHandler",
+            parameters: ["neuroglassViewerVisible"]
+          }
+        },
+        {
           label: "Download Contents",
           icon: "fa fa-download",
           action: {
@@ -547,6 +555,17 @@ var toolbarMenu = {
       ]
     },
     {
+      // Built by VFBMain each time it opens: the views, the user's saved view and the start view.
+      label: "View",
+      icon: "",
+      action: "",
+      position: "bottom-start",
+      dynamicListInjector: {
+        handlerAction: "viewMenuInjector",
+        parameters: ["undefined"]
+      }
+    },
+    {
       label: "History",
       icon: "",
       action: "",
@@ -837,12 +856,12 @@ var toolbarMenu = {
           }
         },
         {
-          label: "Circuit Browser Query (Shortest Weighted Path Algorithm)",
+          label: "Circuit Browser: how paths are found",
           icon: "fa fa-connectdevelop",
           trailerIcon: "fa fa-external-link",
           action: {
             handlerAction: "openNewTab",
-            parameters: ["https://github.com/VirtualFlyBrain/graph_queries/blob/main/weighted_path.md"]
+            parameters: ["https://www.virtualflybrain.org/docs/website-features/circuitbrowser/#how-paths-are-found"]
           }
         },
         {

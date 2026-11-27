@@ -12,6 +12,10 @@ import Canvas from '@geppettoengine/geppetto-client/components/interface/3dCanva
 import QueryBuilder from '@geppettoengine/geppetto-client/components/interface/query/queryBuilder';
 import GrossTypeLabelsComponent from './interface/utils/GrossTypeLabelsComponent';
 import { safeGa } from './interface/utils/utils';
+import {
+  MY_VIEW, tabId, componentsOf, buildView, restoreSaved, viewSignature, loadSavedView, saveView,
+  getStartView, setStartView, viewFromUrl, viewUrlSuffix, setViewInUrl
+} from './interface/utils/layoutViews';
 import { showConnectionNotice } from './interface/utils/connectionNotice';
 import { initTermPageMetadata, updateTermPageMetadata } from './interface/utils/pageMetadata';
 import VFBDownloadContents from './interface/VFBDownloadContents/VFBDownloadContents';
@@ -23,6 +27,7 @@ import Search from '@geppettoengine/geppetto-ui/search/Search';
 import VFBQuickHelp from './interface/VFBOverview/QuickHelp';
 import VFBGraph from './interface/VFBGraph/VFBGraph';
 import VFBCircuitBrowser from './interface/VFBCircuitBrowser/VFBCircuitBrowser';
+import VFBNeuroglassViewer from './interface/VFBNeuroglass/VFBNeuroglassViewer';
 import VFBOrientationGizmo from './interface/VFBOrientationGizmo/VFBOrientationGizmo';
 import VFBNeuroglassButton from './interface/VFBNeuroglassButton/VFBNeuroglassButton';
 import { connect } from "react-redux";
@@ -35,6 +40,17 @@ var $ = require('jquery');
 var GEPPETTO = require('geppetto');
 var Rnd = require('react-rnd').default;
 var modelJson = require('./configuration/VFBMain/layoutModel').modelJson;
+var { layoutViews, defaultView, viewAliases, alwaysRendered, componentStateFlags } = require('./configuration/VFBMain/layoutViews');
+
+/* A view id with old names (see viewAliases) mapped to the current one. */
+const canonicalView = id => (id !== undefined && viewAliases[id] !== undefined ? viewAliases[id] : id);
+
+/*
+ * Tools that share the Term Info tabset and load terms themselves (eye icons,
+ * clicks on graph nodes). While one of them is in front, a term loading
+ * updates Term Info behind it instead of hiding the tool.
+ */
+const TERM_INFO_TABSET_TOOLS = ["treeBrowser", "vfbCircuitBrowser", "vfbGraph"];
 
 /*
  * The VFB template ids. When a URL loads, the first of its ids that is one of
@@ -56,6 +72,7 @@ class VFBMain extends React.Component {
       listViewerVisible: true,
       graphVisible : true,
       circuitBrowserVisible : true,
+      neuroglassViewerVisible : true,
       htmlFromToolbar: undefined,
       idSelected: undefined,
       instanceOnFocus: undefined,
@@ -75,6 +92,7 @@ class VFBMain extends React.Component {
 
     this.addVfbId = this.addVfbId.bind(this);
     this.menuHandler = this.menuHandler.bind(this);
+    this.refreshCanvasControls = this.refreshCanvasControls.bind(this);
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.htmlToolbarRef = this.htmlToolbarRef.bind(this);
     this.closeQuickHelp = this.closeQuickHelp.bind(this);
@@ -98,6 +116,7 @@ class VFBMain extends React.Component {
     this.treeBrowserReference = undefined;
     this.graphReference = undefined;
     this.circuitBrowserReference = undefined;
+    this.neuroglassViewerReference = undefined;
     this.listViewerReference = undefined;
     this.focusTermReference = undefined;
     this.idOnFocus = undefined;
@@ -220,7 +239,14 @@ class VFBMain extends React.Component {
     this.getStackViewerDefaultX = require('./interface/utils/utils').getStackViewerDefaultX;
     this.getStackViewerDefaultY = require('./interface/utils/utils').getStackViewerDefaultY;
 
-    this.model = FlexLayout.Model.fromJson(modelJson)
+    /*
+     * Start in the view the URL names (?view=), else the one the user chose to
+     * start in (View menu), else the default view (V2 default).
+     */
+    var startJson = this.viewJson(viewFromUrl()) || this.viewJson(getStartView()) || this.viewJson(defaultView);
+    this.model = FlexLayout.Model.fromJson(startJson);
+    Object.assign(this.state, this.viewStateFlags(startJson));
+    this.watchTabClose();
 
     window.redirectURL = '$PROTOCOL$//$HOST$/' + GEPPETTO_CONFIGURATION.contextPath + '/geppetto?i=$TEMPLATE$,$VFB_ID$&id=$VFB_ID$';
     window.customAction = [];
@@ -285,7 +311,7 @@ class VFBMain extends React.Component {
         var existingIds = (new URLSearchParams(window.location.search).get('i') || '').split(',').filter(Boolean);
         var cleanIds = Array.from(new Set(existingIds.concat(idsList)));
         var focusForUrl = (this.idFromURL !== undefined && this.idFromURL !== "") ? this.idFromURL : cleanIds[0];
-        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(','));
+        window.history.replaceState({ s:0, n:window.history.state.n, b:window.history.state.b, f:window.history.state.f, u:window.location.search }, "Loading", location.pathname + "?id=" + focusForUrl + "&i=" + cleanIds.join(',') + viewUrlSuffix());
       }
       if (idsList != null && idsList.length > 0) {
         /*
@@ -838,9 +864,157 @@ class VFBMain extends React.Component {
         UIUpdated: true,
         [itemState]: !this.state[itemState]
       });
-    } else if (this.UIElementsVisibility[visibilityAnchor] === false) {
-      this.setState({ UIUpdated: itemState });
+      return;
     }
+    /*
+     * The window exists. Ask the layout where it is rather than relying on
+     * UIElementsVisibility, which is only filled in once a window has rendered:
+     * a view can park a window in the bottom bar, or put it behind another tab,
+     * before it has ever been shown.
+     */
+    var tab = this.findTabNode(visibilityAnchor);
+    if (tab === undefined) {
+      if (this.UIElementsVisibility[visibilityAnchor] === false) {
+        this.setState({ UIUpdated: itemState });
+      }
+    } else if (tab.getParent() instanceof FlexLayout.BorderNode) {
+      this.restoreUIComponent(visibilityAnchor);
+    } else if (!tab.isVisible()) {
+      this.model.doAction(FlexLayout.Actions.selectTab(tab.getId()));
+    }
+  }
+
+  /* The layout's tab for a window (by component name), wherever it is, or undefined. */
+  findTabNode (component) {
+    var found = undefined;
+    this.model.visitNodes(node => {
+      if (found === undefined && node.getType() === "tab" && node.getComponent() === component) {
+        found = node;
+      }
+    });
+    return found;
+  }
+
+  /*
+   * The model JSON for a view id from the View menu: one of layoutViews, or
+   * the user's saved view. Undefined for an unknown id or when nothing is saved.
+   */
+  viewJson (id) {
+    id = canonicalView(id);
+    if (id === MY_VIEW) {
+      return restoreSaved(loadSavedView(), modelJson, alwaysRendered);
+    }
+    var view = layoutViews.find(v => v.id === id);
+    return view ? buildView(view, modelJson, alwaysRendered) : undefined;
+  }
+
+  /* The *Visible state flags a model JSON implies: true for each window it has. */
+  viewStateFlags (json) {
+    var present = componentsOf(json);
+    var flags = {};
+    Object.keys(componentStateFlags).forEach(component => {
+      // Leave alone the flag of a window this build does not have.
+      if (this.state[componentStateFlags[component]] !== undefined) {
+        flags[componentStateFlags[component]] = present.indexOf(component) > -1;
+      }
+    });
+    return flags;
+  }
+
+  /*
+   * Keep the *Visible flags right when a tab is closed before it has rendered.
+   * factory() sets the same listener, but only runs for a window once it is
+   * shown, and a view can start with windows parked or behind other tabs.
+   */
+  watchTabClose () {
+    this.model.visitNodes(node => {
+      if (node.getType() === "tab" && componentStateFlags[node.getComponent()] !== undefined) {
+        var flag = componentStateFlags[node.getComponent()];
+        var closed = { UIUpdated: false, [flag]: false };
+        if (node.getComponent() === "canvas") {
+          closed.canvasAvailable = false;
+        }
+        node.setEventListener("close", () => {
+          this.setState(closed);
+        });
+      }
+    });
+  }
+
+  /*
+   * Switch to a view. The model is replaced rather than rearranged; tabs keep
+   * their id (see tabId), so windows that are in both keep their mounted
+   * component and nothing is reloaded.
+   */
+  applyView (id) {
+    var json = this.viewJson(id);
+    if (json === undefined) {
+      return;
+    }
+    this.model = FlexLayout.Model.fromJson(json);
+    this.watchTabClose();
+    this.setState(Object.assign({ UIUpdated: true }, this.viewStateFlags(json)));
+    /*
+     * Name the view in the URL so a reload or a copied link opens the same
+     * way. The default view needs naming only when the user starts in another.
+     */
+    id = canonicalView(id);
+    setViewInUrl(id === defaultView && getStartView() === undefined ? undefined : id);
+    safeGa('vfb.send', 'pageview', (window.location.pathname + '?page=View_' + id));
+  }
+
+  /* The id of the view the current arrangement matches, or undefined. */
+  currentView () {
+    var current = viewSignature(this.model.toJson());
+    var ids = layoutViews.map(v => v.id).concat([MY_VIEW]);
+    return ids.find(id => {
+      var json = this.viewJson(id);
+      return json !== undefined && viewSignature(FlexLayout.Model.fromJson(json).toJson()) === current;
+    });
+  }
+
+  /* The View menu, rebuilt each time it opens so it shows the current state. */
+  viewMenu () {
+    var signature = id => viewSignature(FlexLayout.Model.fromJson(this.viewJson(id)).toJson());
+    var current = this.currentView();
+    var start = canonicalView(getStartView()) || defaultView;
+    var labels = { [MY_VIEW]: "My view" };
+    layoutViews.forEach(v => {
+      labels[v.id] = v.label;
+    });
+    var item = id => ({
+      label: labels[id],
+      icon: current === id ? "fa fa-check" : "",
+      action: { handlerAction: "setView", parameters: [id] }
+    });
+    var defaultSignature = signature(defaultView);
+    var list = layoutViews
+      // A view that is the same arrangement as the default view (V3 default on a build whose layoutModel.js is the V2 one) is not listed twice.
+      .filter(v => v.id === defaultView || signature(v.id) !== defaultSignature)
+      .map(v => item(v.id));
+    if (this.viewJson(MY_VIEW) !== undefined) {
+      list.push(item(MY_VIEW));
+    }
+    list.push({
+      label: "Save current as My view",
+      icon: "fa fa-save",
+      action: { handlerAction: "saveView", parameters: [] }
+    });
+    if (current !== undefined && current !== start) {
+      list.push({
+        label: "Always start in this view",
+        icon: "fa fa-thumb-tack",
+        action: { handlerAction: "setStartView", parameters: [current] }
+      });
+    }
+    if (start !== defaultView) {
+      list.push({
+        label: "Start in the V2 default view again",
+        icon: "fa fa-undo",
+        action: { handlerAction: "setStartView", parameters: [defaultView] }
+      });
+    }
+    return list;
   }
 
   // Children handlers
@@ -863,6 +1037,9 @@ class VFBMain extends React.Component {
       break;
     case 'circuitBrowserVisible':
       this.UIUpdateItem(buttonState, "vfbCircuitBrowser");
+      break;
+    case 'neuroglassViewerVisible':
+      this.UIUpdateItem(buttonState, "vfbNeuroglassViewer");
       break;
     case 'spotlightVisible':
       this.setState({
@@ -917,6 +1094,19 @@ class VFBMain extends React.Component {
     switch (click.handlerAction) {
     case 'UIElementHandler':
       this.UIUpdateManager(click.parameters[0]);
+      break;
+    case 'viewMenuInjector':
+      return this.viewMenu();
+    case 'setView':
+      this.applyView(click.parameters[0]);
+      break;
+    case 'saveView':
+      // Only the arrangement of the windows is saved, in this browser.
+      saveView(this.model.toJson());
+      break;
+    case 'setStartView':
+      // Starting in the default view needs nothing stored.
+      setStartView(canonicalView(click.parameters[0]) === defaultView ? undefined : canonicalView(click.parameters[0]));
       break;
     case 'historyMenuInjector':
       var historyList = [];
@@ -1038,6 +1228,15 @@ class VFBMain extends React.Component {
    *(2 columns and bottom-right corner)
    */
   reopenUIComponent (json) {
+    /*
+     * Nothing to do if the window is already in the layout: switching view
+     * creates the tabs itself and then sets the *Visible flags, which lands here.
+     */
+    if (this.findTabNode(json.component) !== undefined) {
+      return;
+    }
+    // The window's fixed id, so it stays mounted through later view switches.
+    json = Object.assign({ id: tabId(json.component) }, json);
     let idChild = 0;
     let rightChild = 0;
     let tempModel = this.model;
@@ -1185,6 +1384,17 @@ class VFBMain extends React.Component {
         circuitBrowserVisible: true
       });
     }
+    if ((this.state.neuroglassViewerVisible !== prevState.neuroglassViewerVisible) && (this.state.neuroglassViewerVisible === true)) {
+      this.reopenUIComponent({
+        type: "tab",
+        name: "Neuroglass Viewer",
+        component: "vfbNeuroglassViewer"
+      });
+      this.setState({
+        UIUpdated: true,
+        neuroglassViewerVisible: true
+      });
+    }
     if ((this.state.listViewerVisible !== prevState.listViewerVisible) && (this.state.listViewerVisible === true)) {
       this.reopenUIComponent({
         type: "tab",
@@ -1237,6 +1447,12 @@ class VFBMain extends React.Component {
       case 'circuitBrowserVisible':
         if (this.circuitBrowserReference !== undefined && this.circuitBrowserReference !== null) {
           this.restoreUIComponent("vfbCircuitBrowser");
+        }
+        this.setState({ UIUpdated: false });
+        break;
+      case 'neuroglassViewerVisible':
+        if (this.neuroglassViewerReference !== undefined && this.neuroglassViewerReference !== null) {
+          this.restoreUIComponent("vfbNeuroglassViewer");
         }
         this.setState({ UIUpdated: false });
         break;
@@ -1397,6 +1613,7 @@ class VFBMain extends React.Component {
         <VFBTree
           id="treeWidget"
           instance={this.instanceOnFocus}
+          visible={node.isVisible()}
           size={{ height: _height, width: _width }}
           ref={ref => this.treeBrowserReference = ref}
           selectionHandler={this.addVfbId} />
@@ -1455,6 +1672,20 @@ class VFBMain extends React.Component {
       let _width = node.getRect().width;
       return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "scroll", height: _height, width: _width }}>
         <VFBCircuitBrowser ref={ref => this.circuitBrowserReference = ref} instance={this.instanceOnFocus} visible={circuitBrowserVisibility} />
+      </div>);
+    } else if (component === "vfbNeuroglassViewer") {
+      let neuroglassViewerVisibility = node.isVisible();
+      node.setEventListener("close", () => {
+        self.setState({
+          UIUpdated: true,
+          neuroglassViewerVisible: false
+        });
+      });
+      this.UIElementsVisibility[component] = node.isVisible();
+      let _height = node.getRect().height;
+      let _width = node.getRect().width;
+      return (<div className="flexChildContainer" style={{ position : "fixed", overflow : "hidden", height: _height, width: _width }}>
+        <VFBNeuroglassViewer ref={ref => this.neuroglassViewerReference = ref} visible={neuroglassViewerVisibility} />
       </div>);
     }
   }
@@ -1661,10 +1892,41 @@ class VFBMain extends React.Component {
 
   componentWillUnmount () {
     document.removeEventListener('mousedown', this.handleClickOutside);
+    ['mousedown', 'touchstart', 'wheel'].forEach(type => {
+      document.removeEventListener(type, this.refreshCanvasControls, true);
+    });
+  }
+
+  /*
+   * Tell the 3D viewer's mouse controls where the canvas is on screen.
+   *
+   * The controls turn a drag into a rotation using a copy of the canvas's
+   * position and size that they only take when asked. componentDidUpdate asks,
+   * but FlexLayout redraws itself without updating VFBMain: selecting the 3D
+   * Viewer tab, bringing it back from the bottom bar, dragging a splitter and
+   * resizing the window all move the canvas with the copy left as it was. A
+   * canvas first drawn while hidden (behind another tab, or parked by a view)
+   * keeps a size of 0 x 0, and dragging then does not rotate at all.
+   *
+   * So measure again as each gesture starts, on the capture phase so it is done
+   * before the controls' own handler on the canvas reads it.
+   */
+  refreshCanvasControls (event) {
+    var controls = this.canvasReference && this.canvasReference.engine && this.canvasReference.engine.controls;
+    if (!controls || !controls.domElement || typeof controls.handleResize !== "function") {
+      return;
+    }
+    var canvas = controls.domElement;
+    if (event.target === canvas || (typeof canvas.contains === "function" && canvas.contains(event.target))) {
+      controls.handleResize();
+    }
   }
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside);
+    ['mousedown', 'touchstart', 'wheel'].forEach(type => {
+      document.addEventListener(type, this.refreshCanvasControls, { capture: true, passive: true });
+    });
     // "?" help buttons on the query builder / results, which geppetto-client renders.
     watchInjectedHelpButtons();
 
@@ -2548,9 +2810,31 @@ class VFBMain extends React.Component {
   }
 
   /**
+   * True when the tabset holding Term Info shows one of TERM_INFO_TABSET_TOOLS.
+   */
+  toolInFrontOfTermInfo () {
+    let toolInFront = false;
+    this.model.visitNodes(node => {
+      if (node.getType() !== "tabset") {
+        return;
+      }
+      const holdsTermInfo = node.getChildren().some(child => typeof child.getComponent === "function" && child.getComponent() === "termInfo");
+      const selected = node.getSelectedNode();
+      if (holdsTermInfo && selected && typeof selected.getComponent === "function"
+          && TERM_INFO_TABSET_TOOLS.includes(selected.getComponent())) {
+        toolInFront = true;
+      }
+    });
+    return toolInFront;
+  }
+
+  /**
    * Makes tab named 'tabName' become active.
    */
   setActiveTab (tabComponentName, children) {
+    if (tabComponentName === "termInfo" && children === undefined && this.toolInFrontOfTermInfo()) {
+      return;
+    }
     let matchTab = 0;
     let layoutChildren = children == undefined || children == null ? this.model.toJson().layout.children : children;
     for ( var i = 0; i < layoutChildren.length; i++){

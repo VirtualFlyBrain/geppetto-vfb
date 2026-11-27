@@ -82,6 +82,8 @@ describe('VFB Batch Requests Tests', () => {
 	//Expects stack viewer component to have the expected meshes rendered and visible.
 	describe('Tests Batch Requests in Stack Viewer Component', () => {
 		it('Slice viewer present', async () => {
+			// The Slice Viewer shares its tabset with Neuroglass and the 3D Viewer
+			await selectTab(page, "Slice Viewer");
 			await wait4selector(page, 'div#NewStackViewerdisplayArea', { visible: true, timeout: 600000 })
 		}, 600000)
 

@@ -10,6 +10,7 @@ import Divider from '@material-ui/core/Divider';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
@@ -28,6 +29,8 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { UPDATE_CIRCUIT_QUERY } from './../../../actions/generals';
 import { getResultsSOLR } from "../../configuration/VFBCircuitBrowser/datasources/SOLRclient";
+import axios from 'axios';
+import { termKind, splitLabel, fieldsConnectome, connectomeFilter, hasConnectomeNeurons } from './circuitPaths';
 
 /**
  * Create a local theme to override some default values in material-ui components
@@ -52,6 +55,10 @@ const styles = theme => ({
     bottom: "0",
     zIndex: "100",
     width : "30rem",
+    // Never wider or taller than the panel it sits in
+    maxWidth : "100%",
+    maxHeight : "100%",
+    overflowY : "auto",
     background: "#413C3C",
     color : "white"
   },
@@ -63,21 +70,35 @@ const styles = theme => ({
   deleteNeuron : { padding : "2vh 0px 0px 4px" },
   dottedIcon : { margin : "1rem 0 1rem 0 " },
   legend : {
-    padding: "2vh",
+    margin : 0,
+    padding: "0.6rem 1rem",
     listStyleType : "none",
     position: "absolute",
-    right : "1rem",
+    top : 0,
+    right : 0,
+    boxSizing : "border-box",
+    // Leave the zoom buttons on the left clear, and scroll rather than run off a short panel
+    maxWidth : "calc(100% - 4rem)",
+    maxHeight : "100%",
+    overflowY : "auto",
     backgroundColor : "#413C3C",
     fontFamily : "'Barlow Condensed', 'Khand', sans-serif",
+    fontSize : "14px",
     zIndex: "100"
   },
+  // First row: the dataset shown and the button that folds the key away
+  legendHeader : { display : "flex", alignItems : "center", whiteSpace : "nowrap" },
+  legendToggle : { marginLeft : "auto", padding : "0 0 0 0.6rem", transition : "transform 150ms" },
+  legendToggleOpen : { transform : "rotate(180deg)" },
+  // Colours sit side by side and wrap, rather than one to a row
+  legendColour : { display : "inline-block", marginRight : "1.2rem", whiteSpace : "nowrap" },
   legendItem :{
     position: "relative",
     top: "2px",
     display : "inline-block",
-    marginRight : "5vh",
-    height : "2vh",
-    width : "2vh"
+    marginRight : "0.5rem",
+    height : "1.3rem",
+    width : "1.3rem"
   },
   weightInput : { 
     color : "white !important",
@@ -103,16 +124,118 @@ const styles = theme => ({
     fontFamily: ['Barlow Condensed', 'Khand', "sans-serif"]
   },
   slider : { color: '#0AB7FE' },
-  typography : { fontSize : "15px" }
+  typography : { fontSize : "15px" },
+  // Class / Individual tag on search results and on the chosen term
+  kindTag : {
+    display : "inline-block",
+    flexShrink : 0,
+    marginRight : "6px",
+    padding : "0 4px",
+    borderRadius : "3px",
+    fontSize : "11px",
+    lineHeight : "16px",
+    color : "white"
+  },
+  kindClass : { backgroundColor : "#0A7FB0" },
+  kindIndividual : { backgroundColor : "#6D6D6D" },
+  noNeuronsTag : {
+    marginLeft : "6px",
+    padding : "0 4px",
+    borderRadius : "3px",
+    fontSize : "11px",
+    lineHeight : "16px",
+    border : "1px solid #9E9E9E",
+    color : "#BDBDBD"
+  },
+  legendSelect : {
+    marginLeft : "6px",
+    minWidth : 0,
+    maxWidth : "20rem",
+    textOverflow : "ellipsis",
+    backgroundColor : "#80808040",
+    color : "white",
+    border : "none",
+    fontFamily : "inherit",
+    fontSize : "14px"
+  },
+  legendNote : { maxWidth : "24rem", whiteSpace : "normal" },
+  // A search result: its tag, then the name over what the search adds in brackets
+  option : { padding : "3px 8px", alignItems : "flex-start" },
+  optionRow : { display : "flex", alignItems : "flex-start", width : "100%", minWidth : 0 },
+  optionText : { flex : "1 1 auto", minWidth : 0, lineHeight : "16px" },
+  optionName : { display : "block", overflow : "hidden", textOverflow : "ellipsis", whiteSpace : "nowrap" },
+  optionDetail : { display : "block", overflow : "hidden", textOverflow : "ellipsis", whiteSpace : "nowrap", fontSize : "12px", color : "#757575" },
+  optionNoNeurons : { flexShrink : 0, marginLeft : "6px" }
 });
+
+// Height of a row of the results list, and the most rows shown before it scrolls
+const OPTION_HEIGHT = 38;
+const MAX_OPTIONS_SHOWN = 8;
+// The list's paper margins and padding, with a little clearance from the panel edge
+const LIST_SURROUND = 28;
+
+/**
+ * The panel the query box sits in, and the box itself, for a search field.
+ */
+const fieldSurroundings = field => {
+  const box = field && field.closest ? field.closest(".MuiAccordion-root") : null;
+  return { box, panel : box ? box.offsetParent : null };
+};
+
+/**
+ * The results list as wide as the whole query box rather than the search
+ * field, and opening above the field when the panel has no room below it.
+ * It is drawn in the panel rather than inside the query box, so the box can
+ * scroll on a short panel without cutting the list off.
+ */
+const ResultsPopper = props => {
+  const { box, panel } = fieldSurroundings(props.anchorEl);
+  const width = box ? box.clientWidth - 16 : props.style?.width;
+  return (
+    <Popper
+      {...props}
+      container={panel}
+      disablePortal={!panel}
+      style={{ ...props.style, width }}
+      placement="bottom-start"
+      modifiers={{
+        // Keep it inside the query box sideways, and inside the panel up and down
+        preventOverflow : { boundariesElement : box || "scrollParent", priority : ["left", "right"], padding : 8 },
+        flip : { boundariesElement : panel || "viewport", padding : 0 }
+      }}
+    />
+  );
+};
+
+/**
+ * "Class" for a neuron type, "Individual" for a neuron. Solr's facets say
+ * which when we have them; otherwise go by the id (FBbt_ classes, VFB_ neurons).
+ */
+const kindOf = (id, facets) => {
+  if ( Array.isArray(facets) ) {
+    if ( facets.includes("Class") ) {
+      return "Class";
+    }
+    if ( facets.includes("Individual") ) {
+      return "Individual";
+    }
+  }
+  return termKind(id);
+};
+
+const KindTag = ({ kind, classes }) => (
+  <span
+    className={classes.kindTag + " " + (kind === "Class" ? classes.kindClass : classes.kindIndividual) + " circuitTermKind"}
+    title={kind === "Class" ? "Class: a neuron type, searched in every connectome that has it" : "Individual: one neuron, in its own connectome"}
+  >{kind}</span>
+);
 
 /**
  * Read configuration from circuitBrowserConfiguration
  */
 const configuration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').configuration;
-const restPostConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').restPostConfig;
-const cypherQuery = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').locationCypherQuery;
 const stylingConfiguration = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').styling;
+const circuitPathsConfig = require('../../configuration/VFBCircuitBrowser/circuitBrowserConfiguration').circuitPathsConfig;
 const searchConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').searchConfiguration;
 const defaultDatasourceConfiguration = require('./../../configuration/VFBCircuitBrowser/datasources/SOLRclient').datasourceConfiguration;
 const datasourceConfiguration = JSON.parse(JSON.stringify(defaultDatasourceConfiguration));
@@ -136,10 +259,31 @@ const customMarks = () => {
 
 const pattern = /^[a-zA-Z0-9].*_[a-zA-Z0-9]{8}$/;
 
+/*
+ * The neuron types with neurons in the circuit graphs being served, from
+ * /circuit_paths/terms, fetched once. Until it arrives (or if it fails, when
+ * it is asked for again next time) every type can be chosen.
+ */
+let knownTerms = null;
+let knownTermsRequest = null;
+const loadKnownTerms = () => {
+  if ( !knownTermsRequest ) {
+    knownTermsRequest = axios.get(circuitPathsConfig.url + "/terms", { timeout : 30000 })
+      .then(response => {
+        knownTerms = new Set(response.data.terms || []);
+      })
+      .catch(() => {
+        knownTermsRequest = null;
+      });
+  }
+  return knownTermsRequest;
+};
+
 class AutocompleteResults extends Component {
   constructor (props) {
     super(props);
-    this.state = { filteredResults: {} };
+    this.state = { filteredResults: {}, listHeight : OPTION_HEIGHT * 4 };
+    this.listOpened = this.listOpened.bind(this);
     this.handleResults = this.handleResults.bind(this);
     this.fieldLabel = this.props.field.label;
   }
@@ -156,6 +300,26 @@ class AutocompleteResults extends Component {
     this.setState({ filteredResults : results });
   }
   
+  /**
+   * The results list takes the room the panel has above or below the field,
+   * whichever is larger, up to MAX_OPTIONS_SHOWN rows.
+   */
+  listOpened (event) {
+    const field = event?.target?.closest ? event.target.closest(".MuiAutocomplete-root") : null;
+    const { panel } = fieldSurroundings(field);
+    if ( !field || !panel ) {
+      return;
+    }
+    const at = field.getBoundingClientRect();
+    const within = panel.getBoundingClientRect();
+    // Less the list's own margins and padding, so it fits on the side it opens
+    const room = Math.max(at.top - within.top, within.bottom - at.bottom) - LIST_SURROUND;
+    const listHeight = Math.max(OPTION_HEIGHT * 2, Math.min(OPTION_HEIGHT * MAX_OPTIONS_SHOWN, Math.floor(room)));
+    if ( listHeight !== this.state.listHeight ) {
+      this.setState({ listHeight });
+    }
+  }
+
   clearResults () {
     this.setState({ filteredResults : {} });  
   }
@@ -170,8 +334,22 @@ class AutocompleteResults extends Component {
   }
   
   render () {
-    const label = "Neuron " + (this.props.index + 1) .toString();
-    const options = Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label);
+    const { classes } = this.props;
+    // The first field is where paths start, the last where they end
+    const label = (this.props.index === 0 ? "From" : "To") + ": neuron or neuron type";
+    // Kept as neuron1/neuron2 for the tests
+    const fieldClass = "neuron" + (this.props.index + 1).toString();
+    const results = this.state.filteredResults;
+    const usable = option => {
+      const result = results[option];
+      return hasConnectomeNeurons(result?.short_form, kindOf(result?.short_form, result?.facets_annotation), knownTerms);
+    };
+    // Types with no connectome neurons are listed last, and cannot be chosen
+    const options = Object.keys(results).map(option => results[option].label)
+      .sort((a, b) => Number(!usable(a)) - Number(!usable(b)));
+    // Tag the chosen term; text still being typed has its label equal to its id
+    const fieldId = this.props.field?.id;
+    const fieldKind = fieldId && fieldId.match(pattern) && this.fieldLabel && this.fieldLabel !== fieldId ? termKind(fieldId) : null;
     
     return (
       <Autocomplete
@@ -179,23 +357,42 @@ class AutocompleteResults extends Component {
         freeSolo
         disableClearable
         clearOnEscape
-        disablePortal
         autoHighlight
         clearOnBlur
         value={this.fieldLabel}
         id={this.props.index.toString()}
-        ListboxProps={{ style: { maxHeight: "10rem", fontSize: "15px" } }}
+        PopperComponent={ResultsPopper}
+        onOpen={this.listOpened}
+        classes={{ option : classes.option }}
+        ListboxProps={{ style: { maxHeight: this.state.listHeight + "px", fontSize: "15px", padding : "4px 0" } }}
         onChange={this.props.resultSelectedChanged}
-        options={Object.keys(this.state.filteredResults).map(option => this.state.filteredResults[option].label)}
+        options={options}
+        getOptionDisabled={option => !usable(option)}
+        renderOption={option => {
+          const result = results[option];
+          const { name, detail } = splitLabel(option);
+          return (
+            <span className={classes.optionRow + " circuitOption"} title={option}>
+              <KindTag kind={kindOf(result?.short_form, result?.facets_annotation)} classes={classes} />
+              <span className={classes.optionText}>
+                <span className={classes.optionName + " circuitOptionName"}>{name}</span>
+                { detail ? <span className={classes.optionDetail + " circuitOptionDetail"}>{" (" + detail + ")"}</span> : null }
+              </span>
+              {usable(option) ? null
+                : <span className={classes.noNeuronsTag + " " + classes.optionNoNeurons + " circuitNoNeurons"} title="No neurons of this type in any connectome, so it has no circuit paths">no connectome neurons</span>}
+            </span>
+          );
+        }}
         renderInput={params => (
           <TextField
             {...params}
             label={label}
             key={this.props.field.id}
-            className={label.replace(/ +/g, "").toLowerCase()}
+            className={fieldClass}
             onChange={this.props.neuronTextfieldModified}
             onBlur={this.props.textFieldLoseFocus}
-            inputProps={{ ...params.inputProps, id: this.props.index, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
+            InputProps={{ ...params.InputProps, startAdornment : fieldKind ? <KindTag kind={fieldKind} classes={classes} /> : null }}
+            inputProps={{ ...params.inputProps, id: this.props.index, title: this.fieldLabel || undefined, style: { height : "20px", color: "white" ,paddingLeft : "10px", fontSize: "15px", border : "none", backgroundColor: "#80808040" } }}
             InputLabelProps={{ ...params.inputProps,style: { color: "white", paddingLeft : "10px", fontSize: "15px" } }}
           />
         )}
@@ -233,7 +430,6 @@ class Controls extends Component {
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     this.autoCompleteInput = React.createRef();
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
-    this.connectomePrefix = null;
     this.createRefs = this.createRefs.bind(this);
     this.createRefs();
   }
@@ -246,6 +442,8 @@ class Controls extends Component {
   }
   
   componentDidMount () {
+    this.mounted = true;
+    loadKnownTerms().then(() => this.mounted && this.forceUpdate());
     this.neuronFields = [...this.props.neurons];
     this.setState( { expanded : !this.props.resultsAvailable() } );
     this.circuitQuerySelected = this.props.circuitQuerySelected;
@@ -253,6 +451,10 @@ class Controls extends Component {
   }
   
   componentDidUpdate () {}
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
 
   /**
    * Deletes neuron field, updates control component right after
@@ -271,9 +473,8 @@ class Controls extends Component {
     delete this.autocompleteRef[id.toString()];
     this.neuronFields = neurons;
     if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
-      // reset configuration of fq to default and clear connectome filter
+      // reset configuration of fq to default
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
-      this.connectomePrefix = null;
     }
 
     this.forceUpdate();
@@ -338,8 +539,8 @@ class Controls extends Component {
     }
 
     this.neuronFields = neurons;
-    const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
-    getResultsSOLR( target.value, callback, searchConfiguration.sorter, datasourceConfiguration );
+    const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults, this.setInputValue);
+    getResultsSOLR( target.value, callback, searchConfiguration.sorter, this.searchSettings(this.setInputValue) );
   }
   
   textFieldLoseFocus (event) {
@@ -355,14 +556,32 @@ class Controls extends Component {
   
   
   /**
-   * Wraps the autocomplete handleResults callback to filter results by connectome prefix.
-   * When a neuron has been selected, subsequent searches only show neurons from the same connectome.
+   * The search settings for field `editing`, limited in SOLR to the connectome
+   * of a neuron chosen in another field (and to neuron types), so the row limit
+   * does not cut that connectome's neurons out of the results.
    */
-  wrapResultsCallback (handleResults) {
-    const self = this;
+  searchSettings (editing) {
+    const connectome = fieldsConnectome(this.neuronFields, editing);
+    if ( !connectome ) {
+      return datasourceConfiguration;
+    }
+    const settings = JSON.parse(JSON.stringify(datasourceConfiguration));
+    settings.query_settings.fq.push(connectomeFilter(connectome));
+    return settings;
+  }
+
+  /**
+   * Wraps the autocomplete handleResults callback to filter results by connectome.
+   * When a neuron has been chosen in another field, searches in field `editing` only
+   * show neurons from the same connectome, as paths between neurons stay within one.
+   * Neuron types (classes) are always offered: a type is searched in the neuron's connectome.
+   */
+  wrapResultsCallback (handleResults, editing) {
+    const connectome = fieldsConnectome(this.neuronFields, editing);
     return function (status, data, value) {
-      if ( self.connectomePrefix && data ) {
-        data = data.filter(item => item.label && item.label.includes(self.connectomePrefix + ':'));
+      if ( connectome && data ) {
+        data = data.filter(item => kindOf(item.short_form, item.facets_annotation) === "Class"
+          || (item.label && item.label.includes(connectome + ':')));
       }
       handleResults(status, data, value);
     };
@@ -393,45 +612,31 @@ class Controls extends Component {
     if ( event?.nativeEvent?.inputType === "deleteContentBackward" && neurons?.find( (neuron, index) => neuron.id === "" && index.toString() === event.target.id )){
       this.props.vfbCircuitBrowser(UPDATE_CIRCUIT_QUERY, neurons);
     } else {
-      const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults);
-      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, datasourceConfiguration );
+      const callback = this.wrapResultsCallback(this.autocompleteRef[this.setInputValue].current.handleResults, this.setInputValue);
+      getResultsSOLR( event.target.value, callback, searchConfiguration.sorter, this.searchSettings(this.setInputValue) );
     }
     this.neuronFields = neurons;
 
     if ( !this.neuronFields.find( neuron => neuron.id != "") ) {
-      // reset configuration of fq to default and clear connectome filter
+      // reset configuration of fq to default
       this.autocompleteRef[this.setInputValue].current.clearResults();
       datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
-      this.connectomePrefix = null;
     }
   }
   
-  /**
-   * Extract the connectome database name from a neuron label.
-   * Labels follow the pattern: "NeuronName (DB-NAME:RemoteID) (VFB_id)"
-   * e.g. "5-HTPLP01_R (FlyEM-HB:1324365879) (VFB_jrchjrch)" → "FlyEM-HB"
-   */
-  extractConnectomePrefix (label) {
-    const match = label && label.match(/\(([^:)]+):\d+\)/);
-    return match ? match[1] : null;
-  }
-
   /**
    * Handle SOLR result selection, activated by selecting from drop down menu under textfield
    */
   resultSelectedChanged (event, value, index) {
     // Copy neurons and add selection to correct array index
     let neurons = this.neuronFields;
-    let textFieldId = event.target.id.toString().split("-")[0];
-    let result = this.autocompleteRef[textFieldId].current.getFilteredResults()[value];
+    /*
+     * The field the result was chosen in. Not read from the element clicked:
+     * a click can land on the parts of a result row, which have no id.
+     */
+    let result = this.autocompleteRef[index.toString()]?.current?.getFilteredResults()[value];
     let shortForm = result && result.short_form;
     neurons[index] = { id : shortForm, label : value };
-
-    // Extract connectome prefix from label to filter subsequent searches
-    const prefix = this.extractConnectomePrefix(value);
-    if ( prefix && !this.connectomePrefix ) {
-      this.connectomePrefix = prefix;
-    }
 
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -456,7 +661,6 @@ class Controls extends Component {
 
   setNeurons () {
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
-    this.connectomePrefix = null;
     while (this?.props?.circuitQuerySelected.length > 0) {
       this?.props?.circuitQuerySelected.pop();
     }
@@ -467,7 +671,6 @@ class Controls extends Component {
   
   clearGraph () {
     datasourceConfiguration.query_settings.fq = defaultDatasourceConfiguration.query_settings.fq;
-    this.connectomePrefix = null;
     this.props.clearGraph()
   }
   
@@ -491,10 +694,6 @@ class Controls extends Component {
           neuronFields[emptyIndex] = { id : selectedId, label : selectedLabel };
           added = true;
           fieldExists = true;
-          // Extract connectome prefix from neurons added via Term Info link
-          if ( !this.connectomePrefix ) {
-            this.connectomePrefix = this.extractConnectomePrefix(selectedLabel);
-          }
           break;
         } else {
           neuronFields.pop();
@@ -524,6 +723,9 @@ class Controls extends Component {
     }
     
     let disabledRun = !self.fieldsValidated(self.neuronFields);
+    const summary = this.props.datasetSummary;
+    // Open unless the user has folded the key away
+    const legendOpen = this.props.legendOpen !== false;
     
     // Show delete icon on neuron text fields only if there's more than the minimum allowed
     let deleteIconVisible = neuronFields.length > configuration.minNeurons;
@@ -538,15 +740,65 @@ class Controls extends Component {
           <div style={ { position: "absolute", width: ".75vh", height: "10vh",zIndex: "100" } }>
             <i style={ { zIndex : "1000" , cursor : "pointer", top : "10px", left : "10px" } } className={stylingConfiguration.controlIcons.home} onClick={self.props.resetCamera }></i>
             <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "20px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomIn} onClick={self.props.zoomIn }></i>
-            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.clear }></i>
+            <i style={ { zIndex : "1000" , cursor : "pointer", marginTop : "5px", left : "10px" } } className={stylingConfiguration.controlIcons.zoomOut} onClick={self.props.zoomOut }></i>
           </div>
           { this.props.resultsAvailable()
             ? <ul className={classes.legend} id="circuitBrowserLegend">
-              { this.props.legend.map((label, index) => (
-                <li><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li>
+              <li className={classes.legendHeader}>
+                Dataset
+                <select
+                  id="circuitBrowserDataset"
+                  className={classes.legendSelect}
+                  value={this.props.dataset || ""}
+                  onChange={event => this.props.selectDataset(event.target.value)}
+                >
+                  { (this.props.datasets || []).map(option => (
+                    <option key={option.dataset} value={option.dataset}>{option.name + " (" + option.paths + (option.paths === 1 ? " path)" : " paths)")}</option>
+                  ))}
+                </select>
+                <IconButton
+                  id="circuitBrowserLegendToggle"
+                  size="small"
+                  color="inherit"
+                  className={classes.legendToggle + (legendOpen ? " " + classes.legendToggleOpen : "")}
+                  onClick={this.props.toggleLegend}
+                  aria-expanded={legendOpen}
+                  aria-label={legendOpen ? "Hide the key" : "Show the key"}
+                  title={legendOpen ? "Hide the key" : "Show the key"}
+                >
+                  <ExpandMoreIcon fontSize="large" />
+                </IconButton>
+              </li>
+              { legendOpen && summary?.level === "class"
+                ? <li>
+                  <label>
+                    <input
+                      type="checkbox"
+                      id="circuitBrowserShowNeurons"
+                      checked={!!this.props.showNeurons}
+                      onChange={event => this.props.toggleNeurons(event.target.checked)}
+                    /> Show example neurons (slower)
+                  </label>
+                </li>
+                : null
+              }
+              { legendOpen && summary?.alsoFoundIn?.length
+                ? <li className={classes.legendNote}>Some of these paths are also found in {summary.alsoFoundIn.join(", ")}</li>
+                : null
+              }
+              { legendOpen && summary?.level === "class" && summary?.neuronsLeftOut
+                ? <li className={classes.legendNote}>{summary.neuronsLeftOut} neurons without a type in this dataset are not included</li>
+                : null
+              }
+              { legendOpen && this.props.message
+                ? <li className={classes.legendNote}>{this.props.message}</li>
+                : null
+              }
+              { (legendOpen ? this.props.legend : []).map((label, index) => (
+                <li key={label} className={classes.legendColour}><div className={classes.legendItem} style={{ backgroundColor : stylingConfiguration.nodeColorsByLabel[label] }}></div>{label}</li>
               ))
               }
-              <li>WEIGHT -Forward [Reverse]→</li>
+              { legendOpen ? <li>Links: synapses · share of target's input →</li> : null }
             </ul>
             : null
           }
@@ -581,6 +833,7 @@ class Controls extends Component {
                           textFieldLoseFocus={this.textFieldLoseFocus}
                           getLatestNeuronFields={this.getUpdatedNeuronFields}
                           resultSelectedChanged={(event, value) => this.resultSelectedChanged(event, value, index)}
+                          classes={classes}
                           ref={this.autocompleteRef[index.toString()]}
                         />
                       </Grid>
@@ -654,7 +907,7 @@ class Controls extends Component {
                 </Grid>
                 <Grid container spacing={1} alignItems="flex-end">
                   <Grid item sm={3}>
-                    <Typography classes={{ root : classes.typography }}>Min Weight</Typography>
+                    <Typography classes={{ root : classes.typography }} title="Minimum synapses per connection">Min Weight</Typography>
                   </Grid>
                   <Grid item sm={9}>
                     <Input className={classes.weightInputDiv} label="Graph weight" defaultValue={this.weight} onChange={this.weightChange} inputProps={{ 'aria-label': 'description', id : "weightField", className : classes.weightInput }} />
