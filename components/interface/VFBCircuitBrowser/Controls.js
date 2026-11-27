@@ -802,7 +802,7 @@ class Controls extends Component {
             </ul>
             : null
           }
-          <Accordion key={this.state.key} className={classes.root} defaultExpanded={expanded} >
+          <Accordion key={this.state.key} id="circuitBrowserQuery" className={classes.root} defaultExpanded={expanded} onChange={() => this.props.overlaysChanged && this.props.overlaysChanged()} >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon fontSize="large" />}
               onClick={() => self.setState({ expanded : !expanded })}
