@@ -630,8 +630,11 @@ class Controls extends Component {
   resultSelectedChanged (event, value, index) {
     // Copy neurons and add selection to correct array index
     let neurons = this.neuronFields;
-    let textFieldId = event.target.id.toString().split("-")[0];
-    let result = this.autocompleteRef[textFieldId].current.getFilteredResults()[value];
+    /*
+     * The field the result was chosen in. Not read from the element clicked:
+     * a click can land on the parts of a result row, which have no id.
+     */
+    let result = this.autocompleteRef[index.toString()]?.current?.getFilteredResults()[value];
     let shortForm = result && result.short_form;
     neurons[index] = { id : shortForm, label : value };
 
