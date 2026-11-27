@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, termName, hasConnectomeNeurons, leftOut, wrapLines, linkWidth, linkPlacement, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, termName, splitLabel, hasConnectomeNeurons, leftOut, wrapLines, linkWidth, linkPlacement, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -331,5 +331,14 @@ describe('Circuit paths parsing', () => {
     const u = (m.positionX - s.positionX) / (t.positionX - s.positionX);
     const curveY = (1 - u) * (1 - u) * s.positionY + 2 * u * (1 - u) * cpY + u * u * t.positionY;
     expect(Math.abs(curveY - m.positionY)).toBeGreaterThan(40);
+  });
+
+  test('search labels split into the name and what follows in brackets', () => {
+    expect(splitLabel('LC14 to medulla (adult contralateral medulla LC14 neuron)')).toEqual({ name: 'LC14 to medulla', detail: 'adult contralateral medulla LC14 neuron' });
+    expect(splitLabel('LC12_L (MaleCNS:49415) (VFB_jrmc26km)')).toEqual({ name: 'LC12_L (MaleCNS:49415)', detail: 'VFB_jrmc26km' });
+    expect(splitLabel('neuron (a (b)) (FBbt_00000001)')).toEqual({ name: 'neuron (a (b))', detail: 'FBbt_00000001' });
+    expect(splitLabel('giant fiber neuron')).toEqual({ name: 'giant fiber neuron', detail: '' });
+    expect(splitLabel('(odd)')).toEqual({ name: '(odd)', detail: '' });
+    expect(splitLabel('')).toEqual({ name: '', detail: '' });
   });
 });
