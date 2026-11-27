@@ -79,8 +79,10 @@ class VFBCircuitBrowser extends Component {
     this.requestCount = 0;
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.resetCamera = this.resetCamera.bind(this);
-    // Fits the graph once its panel is measured and its layout has settled
-    // Fit the drawing into the part of the panel the key and the query box leave free
+    /*
+     * Fits the graph once its panel is measured and its layout has settled,
+     * into the part of the panel the key and the query box leave free
+     */
     this.fitter = new GraphFitter(() => this.graphRef.current, () => this.state.graph.nodes, {
       getExtent : () => this.graphExtent,
       getObstacles : () => ["circuitBrowserLegend", "circuitBrowserQuery"].map(id => document.getElementById(id)).filter(Boolean),
