@@ -153,6 +153,33 @@ function termName (end) {
   return label && label !== id ? label : id;
 }
 
+/**
+ * A search result's label in two parts for the results list: the name that
+ * matched, and what the search adds after it in brackets (the type's full
+ * label for a synonym, otherwise the id). "LC12_L (MaleCNS:49415) (VFB_jrmc26km)"
+ * gives "LC12_L (MaleCNS:49415)" and "VFB_jrmc26km".
+ */
+function splitLabel (label) {
+  const text = String(label || "").trim();
+  if ( !text.endsWith(")") ) {
+    return { name : text, detail : "" };
+  }
+  // Walk back to the bracket that opens the last group
+  let depth = 0;
+  for ( let i = text.length - 1; i > 0; i-- ) {
+    if ( text[i] === ")" ) {
+      depth++;
+    } else if ( text[i] === "(" ) {
+      depth--;
+      if ( depth === 0 ) {
+        const name = text.substring(0, i).trim();
+        return name ? { name, detail : text.substring(i + 1, text.length - 1).trim() } : { name : text, detail : "" };
+      }
+    }
+  }
+  return { name : text, detail : "" };
+}
+
 const NOT_FOUND = /^(\S+) was not found in any searched dataset$/;
 
 /**
@@ -522,6 +549,7 @@ module.exports = {
   linkPlacement,
   hasConnectomeNeurons,
   termName,
+  splitLabel,
   leftOut,
   connectomeOf,
   fieldsConnectome,

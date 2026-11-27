@@ -49,6 +49,8 @@ class VFBCircuitBrowser extends Component {
     this.state = {
       graph : { nodes : [], links : [] } ,
       legend : [],
+      // The key over the graph can be folded away; the choice is kept between queries
+      legendOpen : true,
       loading : true,
       queryLoaded : false,
       dropDownAnchorEl : null,
@@ -510,6 +512,8 @@ class VFBCircuitBrowser extends Component {
       clearGraph : self.clearGraph,
       clearNeurons : self.clearNeurons,
       legend : self.state.legend,
+      legendOpen : this.state.legendOpen,
+      toggleLegend : () => this.setState(state => ({ legendOpen : !state.legendOpen })),
       datasets : this.state.datasets.map(block => ({ dataset : block.dataset, name : datasetName(block), paths : block.paths.length })),
       dataset : this.state.dataset,
       selectDataset : self.selectDataset,

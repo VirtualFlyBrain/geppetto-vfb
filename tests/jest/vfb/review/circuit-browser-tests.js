@@ -193,6 +193,20 @@ describe('VFB Circuit Browser Tests', () => {
 			const legendLabels =  await page.evaluate( () => document.querySelectorAll("#circuitBrowserLegend li").length)
 		    expect(legendLabels).toBeGreaterThanOrEqual(minimumLegendRows);
 		})
+
+		it('The key folds away, keeping the dataset selector, and opens again', async () => {
+			if (!secondNeuronConfigured) {
+				return;
+			}
+			const rows = () => page.evaluate(() => document.querySelectorAll("#circuitBrowserLegend li").length);
+			const openRows = await rows();
+			await page.click('#circuitBrowserLegendToggle');
+			await page.waitForFunction(() => document.querySelectorAll("#circuitBrowserLegend li").length === 1, { timeout : 10 * ONE_SECOND });
+			expect(await page.evaluate(() => !!document.querySelector('#circuitBrowserLegend #circuitBrowserDataset'))).toBe(true);
+			await page.click('#circuitBrowserLegendToggle');
+			await page.waitForFunction((n) => document.querySelectorAll("#circuitBrowserLegend li").length === n, { timeout : 10 * ONE_SECOND }, openRows);
+			expect(await rows()).toBe(openRows);
+		})
 		
 		it('Set weight field to 20', async () => {
 			if (!secondNeuronConfigured) {
