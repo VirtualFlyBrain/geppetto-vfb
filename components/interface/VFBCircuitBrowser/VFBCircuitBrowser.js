@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom';
 import axios from 'axios';
 import GeppettoGraphVisualization from '@geppettoengine/geppetto-ui/graph-visualization/Graph'
 import GraphFitter from '../utils/graphFit';
@@ -6,7 +7,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Controls from './Controls';
-import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName, wrapLines, linkWidth, linkPlacement } from './circuitPaths';
+import { summariseResponse, buildGraph, nodeIds, alsoFoundIn, datasetName, termName, wrapLines, linkWidth, linkPlacement, drawLinkLabel } from './circuitPaths';
 import { connect } from "react-redux";
 
 const styles = theme => ({
@@ -78,8 +79,20 @@ class VFBCircuitBrowser extends Component {
     this.requestCount = 0;
     this.handleNodeLeftClick = this.handleNodeLeftClick.bind(this);
     this.resetCamera = this.resetCamera.bind(this);
-    // Fits the graph once its panel is measured and its layout has settled
-    this.fitter = new GraphFitter(() => this.graphRef.current, () => this.state.graph.nodes);
+    /*
+     * Fits the graph once its panel is measured and its layout has settled,
+     * into the part of the panel the key and the query box leave free
+     */
+    this.fitter = new GraphFitter(() => this.graphRef.current, () => this.state.graph.nodes, {
+      getExtent : () => this.graphExtent,
+      getObstacles : () => ["circuitBrowserLegend", "circuitBrowserQuery"].map(id => document.getElementById(id)).filter(Boolean),
+      onResize : (width, height) => this.panelResized(width, height)
+    });
+    // Whether the graph is drawn top to bottom, as it is in a panel much taller than wide
+    this.vertical = false;
+    this.panelResized = this.panelResized.bind(this);
+    this.graphExtent = null;
+    this.overlaysChanged = this.overlaysChanged.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.clearGraph = this.clearGraph.bind(this);
@@ -131,6 +144,7 @@ class VFBCircuitBrowser extends Component {
 
   componentWillUnmount () {
     this.__isMounted = false;
+    clearTimeout(this.overlayTimer);
     this.fitter.dispose();
   }
   
@@ -166,6 +180,48 @@ class VFBCircuitBrowser extends Component {
       this.fitter.fitNow();
       this.focused = true;
     }
+  }
+
+  /**
+   * A panel much taller than it is wide gets the graph drawn top to bottom.
+   */
+  tallPanel (width, height) {
+    return width > 0 && height > width * 1.2;
+  }
+
+  /**
+   * The panel's size, measured from this component's place in the page.
+   */
+  panelSize () {
+    try {
+      const host = ReactDOM.findDOMNode(this);
+      const box = host && host.parentNode && host.parentNode.getBoundingClientRect();
+      return box ? { width : box.width, height : box.height } : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * The panel changed size: lay the graph out again if it should now run the other way.
+   */
+  panelResized (width, height) {
+    if ( this.__isMounted && this.state.graph.nodes.length > 0 && this.tallPanel(width, height) !== this.vertical ) {
+      const block = this.state.datasets.find(b => b.dataset === this.state.dataset);
+      if ( block ) {
+        this.drawDataset(block, this.state.showNeurons);
+      }
+    }
+  }
+
+  /**
+   * The key or the query box was opened or folded away: fit the graph to the
+   * room there is now, unless the user has set their own view.
+   */
+  overlaysChanged () {
+    clearTimeout(this.overlayTimer);
+    // After the box has finished opening or closing
+    this.overlayTimer = setTimeout(() => this.__isMounted && this.fitter.refit(), 350);
   }
 
   resize (){
@@ -313,13 +369,18 @@ class VFBCircuitBrowser extends Component {
       this.setState({ graph : { nodes : [], links : [] }, legend : [], dataset : null, loading : false, queryLoaded : true });
       return;
     }
+    const size = this.panelSize();
+    this.vertical = !!size && this.tallPanel(size.width, size.height);
     const graph = buildGraph(block, {
+      vertical : this.vertical,
       showNeurons,
       terms : terms || this.state.terms,
       styling : stylingConfiguration,
       nodeWidth : NODE_WIDTH,
-      nodeHeight : NODE_HEIGHT
+      nodeHeight : NODE_HEIGHT,
+      nodeRadius : NODE_RADIUS
     });
+    this.graphExtent = graph.extent;
     this.setState({ graph : { nodes : graph.nodes, links : graph.links }, legend : graph.legendLabels, dataset : block.dataset, loading : false, queryLoaded : true });
     this.objectsLoaded = graph.nodes.length;
     // Fit the new graph once it is laid out in a measured panel
@@ -428,6 +489,14 @@ class VFBCircuitBrowser extends Component {
     const colorBarHeight = cardHeight * stylingConfiguration.nodeColorAreaHeight;
     let borderThickness = this.highlightNodes.has(node) ? NODE_BORDER_THICKNESS : 1;
 
+    /*
+     * Link labels are drawn here, with the first card: the cards are drawn
+     * after every link, so no link's line runs over another link's label.
+     */
+    if ( node === this.state.graph.nodes[0] ) {
+      this.state.graph.links.forEach(link => drawLinkLabel(ctx, link, stylingConfiguration.canvasColor));
+    }
+
     // Node border color
     ctx.fillStyle = self.hoverNode == node || node?.id === self.hoverNode?.id ? stylingConfiguration.defaultNodeHoverBoderColor : (this.highlightNodes.has(node) ? stylingConfiguration.defaultNeighborNodesHoverColor : stylingConfiguration.defaultNodeBorderColor) ;
     // Create Border
@@ -513,7 +582,8 @@ class VFBCircuitBrowser extends Component {
       clearNeurons : self.clearNeurons,
       legend : self.state.legend,
       legendOpen : this.state.legendOpen,
-      toggleLegend : () => this.setState(state => ({ legendOpen : !state.legendOpen })),
+      toggleLegend : () => this.setState(state => ({ legendOpen : !state.legendOpen }), this.overlaysChanged),
+      overlaysChanged : this.overlaysChanged,
       datasets : this.state.datasets.map(block => ({ dataset : block.dataset, name : datasetName(block), paths : block.paths.length })),
       dataset : this.state.dataset,
       selectDataset : self.selectDataset,
@@ -548,8 +618,16 @@ class VFBCircuitBrowser extends Component {
             nodeLabel={node => node.name + " [" + node.title + "]" + (node.kind === "neuron" && node.typeLabel ? "<br/>" + node.typeLabel : "")}
             // Relationship label, placed in Link
             linkLabel={link => link.label}
-            // Width of links, from log(synapses)
-            linkWidth={link => linkWidth(link.weight)}
+            /*
+             * Width of links, from log(synapses). react-force-graph keeps a
+             * width the same on screen at any zoom, while cards and arrowheads
+             * shrink, so zoomed out the lines swallowed their arrowheads: scale
+             * the width with the zoom instead.
+             */
+            linkWidth={link => Math.max(0.75, linkWidth(link.weight) * (this.zoomLevel || 1))}
+            onZoom={zoom => {
+              this.zoomLevel = zoom && zoom.k;
+            }}
             // Links that would pass behind a node are bowed around it (buildGraph)
             linkCurvature={link => link.curvature || configuration.linkCurvature}
             // Arrowhead tip at the target card's edge, label clear of it
@@ -557,67 +635,8 @@ class VFBCircuitBrowser extends Component {
             linkDirectionalArrowRelPos={link => linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).arrowRelPos}
             // Node label, used in tooltip when hovering over Node
             linkCanvasObjectMode={() => "after"}
-            linkCanvasObject={(link, ctx) => {
-              const MAX_FONT_SIZE = 16;
-              const LABEL_NODE_MARGIN = 1 * 1.5;
-
-              const start = link.source;
-              const end = link.target;
-              
-              // ignore unbound links
-              if (typeof start !== 'object' || typeof end !== 'object') {
-                return;
-              }
-              
-              // calculate label positioning
-              const labelAt = linkPlacement(link, NODE_WIDTH, NODE_HEIGHT, NODE_RADIUS).labelAt;
-              let textPos = Object.assign({},...['x', 'y'].map(c => ({ [c]: start[c] + (end[c] - start[c]) * labelAt })));
-
-              if (link?.__controlPoints ) {
-                textPos = this.getQuadraticXY(
-                  labelAt,
-                  start.x,
-                  start.y,
-                  link?.__controlPoints[0],
-                  link?.__controlPoints[1],
-                  end.x,
-                  end.y
-                );
-              }
-              const relLink = { x: end.x - start.x, y: end.y - start.y };
-
-              const maxTextLength = Math.sqrt(Math.pow(relLink.x, 2) + Math.pow(relLink.y, 2)) - LABEL_NODE_MARGIN * 2;
-
-              let textAngle = Math.atan2(relLink.y, relLink.x);
-              // maintain label vertical orientation for legibility
-              if (textAngle > Math.PI / 2) {
-                textAngle = -(Math.PI - textAngle);
-              }
-              if (textAngle < -Math.PI / 2) {
-                textAngle = -(-Math.PI - textAngle);
-              }
-
-              const label = link.weightLabel;
-
-              // estimate fontSize to fit in link length
-              const fontSize = MAX_FONT_SIZE;
-              ctx.font = `${fontSize}px Sans-Serif`;
-              const textWidth = ctx.measureText(label).width;
-              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-              // draw text label (with background rect)
-              ctx.save();
-              ctx.translate(textPos.x,textPos.y);
-              ctx.rotate(textAngle);
-              ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-              ctx.fillRect(- bckgDimensions[0] / 2, - bckgDimensions[1] / 2, ...bckgDimensions);
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.fillStyle = 'white';
-              ctx.setLineDash([5, 5]);
-              ctx.fillText(label, 0, 0);
-              ctx.restore();
-            }}
+            // Labels are drawn with the cards (nodeRendering), after all the links
+            linkCanvasObject={() => {}}
             nodeRelSize={50}
             nodeSize={30}
             enableNodeDrag={true}

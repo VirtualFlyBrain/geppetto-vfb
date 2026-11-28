@@ -4,7 +4,7 @@
  * the fixtures are cut down from live responses for LC12 -> giant fiber neuron.
  */
 const {
-  termKind, termName, splitLabel, hasConnectomeNeurons, leftOut, wrapLines, linkWidth, linkPlacement, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
+  termKind, termName, splitLabel, hasConnectomeNeurons, leftOut, wrapLines, linkWidth, linkPlacement, linkCurve, connectomeOf, fieldsConnectome, connectomeFilter, datasetName, percent, summariseResponse, alsoFoundIn, buildGraph, nodeIds
 } = require('../../../../components/interface/VFBCircuitBrowser/circuitPaths');
 
 const LC12 = { id: 'FBbt_00100484', label: 'lobula columnar neuron LC12', symbol: 'LC12', neurons: 381 };
@@ -277,22 +277,31 @@ describe('Circuit paths parsing', () => {
     expect(connectomeFilter('BANC_888')).toContain('label:*BANC_888\\:*');
   });
 
-  it('orders each column so links do not cross where they need not', () => {
+  // Whether two links' straight lines cross, other than at a node they share
+  const crosses = (a, b) => {
+    if ([a.source, a.target].some(n => n === b.source || n === b.target)) {
+      return false;
+    }
+    const side = (p, q, r) => Math.sign((q.positionX - p.positionX) * (r.positionY - p.positionY) - (q.positionY - p.positionY) * (r.positionX - p.positionX));
+    return side(a.source, a.target, b.source) !== side(a.source, a.target, b.target)
+      && side(b.source, b.target, a.source) !== side(b.source, b.target, a.target);
+  };
+
+  it('gives each path a lane so links do not cross where they need not', () => {
     const n = id => ({ id, class: GF.id, class_label: GF.label, class_symbol: id });
     const path = ids => ({
       score: 1e-5, hops: ids.length - 1, nodes: ids.map(n),
       edges: ids.slice(1).map((id, i) => edge(ids[i], id, 10, 0.01))
     });
-    // Path rank alone puts X, Y, Z in rows and T1 above T2, so Y->T2 crosses Z->T1
     const block = { dataset: 'BANC888', level: 'neuron', paths: [path(['A', 'X', 'T1']), path(['A', 'Y', 'T2']), path(['A', 'Z', 'T1'])] };
     const graph = buildGraph(block, {});
-    const crossings = graph.links.filter((a, i) => graph.links.slice(i + 1).some(b =>
-      a.source.column === b.source.column && a.target.column === b.target.column
-      && (a.source.positionY - b.source.positionY) * (a.target.positionY - b.target.positionY) < 0));
-    expect(crossings).toHaveLength(0);
-    // Nodes in a column never share a position
+    expect(graph.links.filter((a, i) => graph.links.slice(i + 1).some(b => crosses(a, b)))).toHaveLength(0);
+    // No two nodes share a position
     const spots = graph.nodes.map(node => node.positionX + ',' + node.positionY);
     expect(new Set(spots).size).toBe(spots.length);
+    // The two paths that end at T1 are in neighbouring lanes
+    const lane = Object.fromEntries(graph.nodes.map(node => [node.id, node.lane]));
+    expect(Math.abs(lane.X - lane.Z)).toBe(1);
   });
 
   it('wraps titles after the last word that fits', () => {
@@ -305,32 +314,101 @@ describe('Circuit paths parsing', () => {
     expect(wrapLines('', 14, measure)).toEqual([]);
   });
 
-  it('bows a long link around a node in its way, and leaves others straight', () => {
-    // DNp11 -> IN21A026 -> I1_MN, plus DNp11 -> I1_MN directly: the direct
-    // link would pass behind IN21A026, which sits on the same row
-    const n = (id, symbol) => ({ id, label: id, symbol });
-    const block = {
-      dataset: 'manc', level: 'class',
-      paths: [
-        { score: 1e-3, hops: 1, nodes: [n('S', 'DNp11'), n('T', 'I1_MN')], edges: [edge('S', 'T', 36, 0.0012)] },
-        { score: 1e-4, hops: 2, nodes: [n('S', 'DNp11'), n('M', 'IN21A026'), n('T', 'I1_MN')], edges: [edge('S', 'M', 146, 0.027), edge('M', 'T', 80, 0.01)] }
-      ]
-    };
+  const cls = (id, symbol) => ({ id, label: id, symbol });
+  const classPath = (ids, score) => ({
+    score: score || 1e-4, hops: ids.length - 1, nodes: ids.map(id => cls(id, id)),
+    edges: ids.slice(1).map((id, i) => edge(ids[i], id, 100, 0.01))
+  });
+  const linkOf = (graph, a, b) => graph.links.find(l => l.source.id === a && l.target.id === b);
+  // Whether a link, as drawn, runs behind the card of a node that is not one of its ends
+  const behindCard = (graph, link) => {
+    const curve = linkCurve(link.source.positionX, link.source.positionY, link.target.positionX, link.target.positionY, link.curvature);
+    return graph.nodes.some(node => node !== link.source && node !== link.target
+      && Array.from({ length: 99 }, (_, i) => curve.at((i + 1) / 100))
+        .some(p => Math.abs(p.x - node.positionX) < 60 && Math.abs(p.y - node.positionY) < 40));
+  };
+
+  it('keeps the centre line for a direct link, with the other paths either side', () => {
+    // M-DCN -> Mi13 directly, by Pm12, and by Dm12 and L3 (male-cns): the direct
+    // link used to bow behind the Pm12 card and read as a link into it
+    const block = { dataset: 'male_cns_v1_0', level: 'class', paths: [classPath(['S', 'T']), classPath(['S', 'Pm12', 'T']), classPath(['S', 'Dm12', 'L3', 'T'])] };
     const graph = buildGraph(block, { nodeWidth: 120, nodeHeight: 80 });
-    const link = (a, b) => graph.links.find(l => l.source.id === a && l.target.id === b);
-    expect(link('S', 'M').curvature).toBe(0);
-    expect(link('M', 'T').curvature).toBe(0);
-    const direct = link('S', 'T');
-    expect(direct.curvature).not.toBe(0);
-    // Where react-force-graph puts the curve at the middle node: clear of its card
-    const { source: s, target: t } = direct;
-    const len = Math.hypot(t.positionX - s.positionX, t.positionY - s.positionY);
-    const a = Math.atan2(t.positionY - s.positionY, t.positionX - s.positionX);
-    const cpY = (s.positionY + t.positionY) / 2 + len * direct.curvature * Math.sin(a - Math.PI / 2);
-    const m = graph.nodes.find(node => node.id === 'M');
-    const u = (m.positionX - s.positionX) / (t.positionX - s.positionX);
-    const curveY = (1 - u) * (1 - u) * s.positionY + 2 * u * (1 - u) * cpY + u * u * t.positionY;
-    expect(Math.abs(curveY - m.positionY)).toBeGreaterThan(40);
+    const at = Object.fromEntries(graph.nodes.map(node => [node.id, node]));
+    expect([at.S.positionY, at.T.positionY]).toEqual([0, 0]);
+    expect(at.Pm12.positionY * at.Dm12.positionY).toBeLessThan(0);
+    expect(at.Dm12.positionY).toBe(at.L3.positionY);
+    // A path's nodes are spaced evenly between the ends
+    expect(at.Pm12.positionX).toBe(0);
+    expect(at.Dm12.positionX).toBeCloseTo(-at.L3.positionX);
+    graph.links.forEach(link => {
+      expect(link.curvature).toBe(0);
+      expect(behindCard(graph, link)).toBe(false);
+    });
+  });
+
+  it('puts the best path on the centre line when there is no direct link', () => {
+    const block = { dataset: 'BANC888', level: 'class', paths: [classPath(['S', 'A', 'T']), classPath(['S', 'B', 'T']), classPath(['S', 'C', 'T'])] };
+    const graph = buildGraph(block, { nodeWidth: 120, nodeHeight: 80 });
+    const lane = Object.fromEntries(graph.nodes.map(node => [node.id, node.lane]));
+    expect(lane.A).toBe(0);
+    expect([lane.B, lane.C].sort()).toEqual([-1, 1]);
+  });
+
+  it('bows a link around a card in its way, checking the curve itself', () => {
+    // S -> A -> B -> T share the centre line; S -> B would pass behind A
+    const block = { dataset: 'manc', level: 'class', paths: [classPath(['S', 'A', 'B', 'T']), classPath(['S', 'B', 'T'])] };
+    const graph = buildGraph(block, { nodeWidth: 120, nodeHeight: 80 });
+    expect(linkOf(graph, 'S', 'A').curvature).toBe(0);
+    const skip = linkOf(graph, 'S', 'B');
+    expect(skip.curvature).not.toBe(0);
+    graph.links.forEach(link => expect(behindCard(graph, link)).toBe(false));
+  });
+
+  it('places link labels clear of the cards and of each other', () => {
+    const graph = buildGraph(flywire, { nodeWidth: 120, nodeHeight: 80 });
+    graph.links.forEach((link, i) => {
+      expect(Number.isFinite(link.labelPos.x) && Number.isFinite(link.labelPos.y)).toBe(true);
+      graph.nodes.forEach(node => {
+        expect(Math.abs(link.labelPos.x - node.positionX) < 60 && Math.abs(link.labelPos.y - node.positionY) < 40).toBe(false);
+      });
+      graph.links.slice(i + 1).forEach(other => {
+        const apart = Math.abs(link.labelPos.x - other.labelPos.x) >= link.labelBox.halfWidth + other.labelBox.halfWidth
+          || Math.abs(link.labelPos.y - other.labelPos.y) >= link.labelBox.halfHeight + other.labelBox.halfHeight;
+        expect(apart).toBe(true);
+      });
+    });
+    // The extent covers every card
+    graph.nodes.forEach(node => {
+      expect(graph.extent.minX).toBeLessThanOrEqual(node.positionX - 60);
+      expect(graph.extent.maxY).toBeGreaterThanOrEqual(node.positionY + 40);
+    });
+  });
+
+  it('draws top to bottom for a tall panel, with level labels', () => {
+    const block = { dataset: 'male_cns_v1_0', level: 'class', paths: [classPath(['S', 'T']), classPath(['S', 'Pm12', 'T']), classPath(['S', 'Dm12', 'L3', 'T'])] };
+    const graph = buildGraph(block, { nodeWidth: 120, nodeHeight: 80, vertical: true });
+    const at = Object.fromEntries(graph.nodes.map(node => [node.id, node]));
+    expect([at.S.positionX, at.T.positionX]).toEqual([0, 0]);
+    expect(at.S.positionY).toBeLessThan(at.Dm12.positionY);
+    expect(at.Dm12.positionY).toBeLessThan(at.L3.positionY);
+    expect(at.L3.positionY).toBeLessThan(at.T.positionY);
+    expect(at.Pm12.positionX * at.Dm12.positionX).toBeLessThan(0);
+    graph.links.forEach(link => expect(link.labelPos.angle).toBe(0));
+    expect(graph.extent.maxY - graph.extent.minY).toBeGreaterThan(graph.extent.maxX - graph.extent.minX);
+  });
+
+  it('follows a bowed link for its arrowhead and label', () => {
+    const link = { weight: 100, curvature: 0.3, source: { x: 0, y: 0 }, target: { x: 500, y: 0 } };
+    const { arrowLength, arrowRelPos, labelFrom, labelTo, labelAt } = linkPlacement(link, 120, 80, 50);
+    const curve = linkCurve(0, 0, 500, 0, 0.3);
+    expect(curve.length).toBeGreaterThan(500);
+    // The tip is where the curve meets the target card, not where the straight line would
+    const tip = (50 + arrowLength + (curve.length - 100 - arrowLength) * arrowRelPos) / curve.length;
+    const p = curve.at(tip);
+    expect(Math.abs(p.x - 500) <= 62 && Math.abs(p.y) <= 42).toBe(true);
+    expect(labelFrom).toBeGreaterThan(0);
+    expect(labelTo).toBeLessThan(1);
+    expect(labelAt).toBeCloseTo((labelFrom + labelTo) / 2);
   });
 
   test('search labels split into the name and what follows in brackets', () => {

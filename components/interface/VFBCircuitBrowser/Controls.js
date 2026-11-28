@@ -279,13 +279,33 @@ const loadKnownTerms = () => {
   return knownTermsRequest;
 };
 
+/**
+ * The label a search field holds as its chosen value: the label of a term
+ * chosen in it, or "" once the field is cleared. While the user is typing
+ * (the field's id is just the text typed) the last choice is kept, as the
+ * typed text must never become the value: when it matched a result's label
+ * exactly, choosing that result looked like no change, so nothing was chosen
+ * and the field was cleared when it lost focus. Changing the value also
+ * resets what is shown in the field, so it is not cleared while typing.
+ */
+function chosenLabel (field, previous) {
+  if ( !field || !field.id ) {
+    return "";
+  }
+  // The id is not always a string (a query can arrive with a term as the id)
+  if ( typeof field.id === "string" && typeof field.label === "string" && field.id.match(pattern) && field.id !== field.label ) {
+    return field.label;
+  }
+  return previous;
+}
+
 class AutocompleteResults extends Component {
   constructor (props) {
     super(props);
     this.state = { filteredResults: {}, listHeight : OPTION_HEIGHT * 4 };
     this.listOpened = this.listOpened.bind(this);
     this.handleResults = this.handleResults.bind(this);
-    this.fieldLabel = this.props.field.label;
+    this.fieldLabel = chosenLabel(this.props.field, "");
   }
   
   /**
@@ -329,7 +349,7 @@ class AutocompleteResults extends Component {
   }
   
   shouldComponentUpdate (nextProps, nextState) {
-    this.fieldLabel = nextProps.getLatestNeuronFields()[this.props.index].label;
+    this.fieldLabel = chosenLabel(nextProps.getLatestNeuronFields()[this.props.index], this.fieldLabel);
     return true;
   }
   
@@ -367,6 +387,8 @@ class AutocompleteResults extends Component {
         ListboxProps={{ style: { maxHeight: this.state.listHeight + "px", fontSize: "15px", padding : "4px 0" } }}
         onChange={this.props.resultSelectedChanged}
         options={options}
+        // The search has already picked the results: show them all, not only those whose label contains the text typed
+        filterOptions={shown => shown}
         getOptionDisabled={option => !usable(option)}
         renderOption={option => {
           const result = results[option];
@@ -430,6 +452,8 @@ class Controls extends Component {
     this.circuitQuerySelected = this.props.circuitQuerySelected;
     this.autoCompleteInput = React.createRef();
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
+    // The term last chosen from the list in each field
+    this.chosenTerms = [];
     this.createRefs = this.createRefs.bind(this);
     this.createRefs();
   }
@@ -499,6 +523,8 @@ class Controls extends Component {
   reverseNeurons () {
     let neuronFields = this.neuronFields;
     [neuronFields[0], neuronFields[neuronFields.length - 1]] = [neuronFields[neuronFields.length - 1], neuronFields[0]]
+    const chosen = this.chosenTerms;
+    [chosen[0], chosen[neuronFields.length - 1]] = [chosen[neuronFields.length - 1], chosen[0]];
     // User has added the maximum number of neurons allowed in query search
     this.neuronFields = neuronFields;
     this.autocompleteRef[(neuronFields.length - 1).toString()] = React.createRef();
@@ -550,6 +576,7 @@ class Controls extends Component {
     const matchNeuron = this.neuronFields[event.target.id];
     if ( matchNeuron.id == "" || !matchNeuron.id.match(pattern) || ( matchNeuron.id == matchNeuron.label )) {
       this.neuronFields[event.target.id] = { id : "", label : "" };
+      this.chosenTerms[event.target.id] = null;
       this.props.clearNeurons(this.neuronFields);
     }
   }
@@ -603,7 +630,11 @@ class Controls extends Component {
     }
     let neurons = this.neuronFields;
 
-    if ( neurons[parseInt(event.target.id)] ) {
+    const chosen = this.chosenTerms[parseInt(event.target.id)];
+    if ( chosen && chosen.label === event.target.value ) {
+      // Typed back to the term already chosen here: keep it chosen, as choosing it again from the list changes nothing
+      neurons[parseInt(event.target.id)] = { ...chosen };
+    } else if ( neurons[parseInt(event.target.id)] ) {
       neurons[parseInt(event.target.id)] = { id : event.target.value, label : event.target.value };
     } else {
       neurons.push({ id : event.target.value, label : event.target.value });
@@ -637,6 +668,9 @@ class Controls extends Component {
     let result = this.autocompleteRef[index.toString()]?.current?.getFilteredResults()[value];
     let shortForm = result && result.short_form;
     neurons[index] = { id : shortForm, label : value };
+    if ( shortForm ) {
+      this.chosenTerms[index] = { id : shortForm, label : value };
+    }
 
     // Keep track of query selected, and send an event to redux store that circuit has been updated
     this.circuitQuerySelected = neurons;
@@ -661,6 +695,7 @@ class Controls extends Component {
 
   setNeurons () {
     this.neuronFields = [{ id : "", label : "" } , { id : "", label : "" }];
+    this.chosenTerms = [];
     while (this?.props?.circuitQuerySelected.length > 0) {
       this?.props?.circuitQuerySelected.pop();
     }
@@ -802,7 +837,7 @@ class Controls extends Component {
             </ul>
             : null
           }
-          <Accordion key={this.state.key} className={classes.root} defaultExpanded={expanded} >
+          <Accordion key={this.state.key} id="circuitBrowserQuery" className={classes.root} defaultExpanded={expanded} onChange={() => this.props.overlaysChanged && this.props.overlaysChanged()} >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon fontSize="large" />}
               onClick={() => self.setState({ expanded : !expanded })}
